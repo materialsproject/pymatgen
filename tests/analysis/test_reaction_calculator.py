@@ -23,8 +23,8 @@ class TestReaction(unittest.TestCase):
 
         d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
-        repr, factor = rxn.normalized_repr_and_factor()
-        assert repr == "4 Fe + 3 O2 -> 2 Fe2O3"
+        repr_str, factor = rxn.normalized_repr_and_factor()
+        assert repr_str == "4 Fe + 3 O2 -> 2 Fe2O3"
         assert factor == approx(2)
 
         reactants = [Composition("FePO4"), Composition("Mn")]

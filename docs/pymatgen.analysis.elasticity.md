@@ -62,37 +62,7 @@ subclassing numpy ndarrays.
 
 #### cahill_thermalcond(\*args, \*\*kwargs)
 
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
-
 #### clarke_thermalcond(\*args, \*\*kwargs)
-
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
 
 #### _property_ compliance_tensor()
 Returns the Voigt-notation compliance tensor,
@@ -101,21 +71,6 @@ Voigt-notation elastic tensor.
 
 
 #### debye_temperature(\*args, \*\*kwargs)
-
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
 
 #### directional_elastic_mod(n)
 Calculates directional elastic modulus for a specific vector.
@@ -141,14 +96,16 @@ relative to a second, orthogonal direction.
 
 #### _classmethod_ from_independent_strains(strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10)
 Constructs the elastic tensor least-squares fit of independent strains
-:param strains: list of strain objects to fit
-:type strains: list of Strains
-:param stresses: list of stress objects to use in fit
-
-> corresponding to the list of strains
 
 
 * **Parameters**
+
+
+    * **strains** (*list** of **Strains*) – list of strain objects to fit
+
+
+    * **stresses** (*list** of **Stresses*) – list of stress objects to use in fit
+    corresponding to the list of strains
 
 
     * **eq_stress** (*Stress*) – equilibrium stress to use in fitting
@@ -235,92 +192,17 @@ Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus.
 
 #### long_v(\*args, \*\*kwargs)
 
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
-
 #### _property_ property_dict()
 Returns a dictionary of properties derived from the elastic tensor.
 
 
 #### snyder_ac(\*args, \*\*kwargs)
 
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
-
 #### snyder_opt(\*args, \*\*kwargs)
-
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
 
 #### snyder_total(\*args, \*\*kwargs)
 
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
-
 #### trans_v(\*args, \*\*kwargs)
-
-* **Parameters**
-
-
-    * **(****)** (*\*\*kwargs*) –
-
-
-    * **(****)** –
-
-
-    * **(****)** –
-
-
-Returns:
-
 
 #### _property_ universal_anisotropy()
 Returns the universal anisotropy value.
@@ -871,7 +753,7 @@ by index transposition, i. e. C_1121 = C_1211 etc.
 
 
 
-### raise_error_if_unphysical(f)
+### raise_if_unphysical(func)
 Wrapper for functions or properties that should raise an error
 if tensor is unphysical.
 

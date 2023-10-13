@@ -90,8 +90,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         See http://stokes.byu.edu/iso/magneticspacegroupshelp.php for more
         information on magnetic symmetry.
 
-        :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups
+        Args:
+            label: BNS number supplied as list of 2 ints or BNS label as
+                str or index as int (1-1651) to iterate over all space groups
+            setting_transformation: Transformation to apply to convert
+                from BNS to OG setting, default is 'a,b,c;0,0,0' which
+                means no transformation, i.e. BNS setting is the same as
+                OG setting.
         """
         self._data = {}
 
@@ -282,8 +287,8 @@ class MagneticSpaceGroup(SymmetryGroup):
     def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
         """Initialize from Opechowski and Guccione (OG) label or number.
 
-        :param id: OG number supplied as list of 3 ints or
-            or OG label as str
+        Args:
+            label: OG number supplied as list of 3 ints or OG label as str
         """
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
@@ -332,7 +337,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         """Retrieve magnetic symmetry operations of the space group.
 
         Returns:
-            List of :class:`pymatgen.core.operations.MagSymmOp`.
+            List of pymatgen.core.operations.MagSymmOp.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
@@ -361,7 +366,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         Args:
             p: Point as a 3x1 array.
-            magmom: A magnetic moment, compatible with :class:`pymatgen.electronic_structure.core.Magmom`
+            magmom: A magnetic moment, compatible with pymatgen.electronic_structure.core.Magmom
             tol: Tolerance for determining if sites are the same. 1e-5 should
                 be sufficient for most purposes. Set to 0 for exact matching
                 (and also needed for symbolic orbits).

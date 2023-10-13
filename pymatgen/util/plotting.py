@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,28 +11,36 @@ from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+    from mpl_toolkits.mplot3d.axes3d import Axes3D
+    from numpy.typing import ArrayLike
+
 
 def pretty_plot(
     width: float = 8,
     height: float | None = None,
-    ax: plt.Axes = None,
+    ax: Axes = None,
     dpi: float | None = None,
     color_cycle: tuple[str, str] = ("qualitative", "Set1_9"),
-) -> plt.Axes:
+) -> Axes:
     """Provides a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
         width (float): Width of plot in inches. Defaults to 8in.
         height (float): Height of plot in inches. Defaults to width * golden
             ratio.
-        ax (plt.Axes): If ax is supplied, changes will be made to an
+        ax (Axes): If ax is supplied, changes will be made to an
             existing plot. Otherwise, a new plot will be created.
-        dpi (int): Sets dot per inch for figure. Defaults to 300.
+        dpi (float): Sets dot per inch for figure. Defaults to 300.
         color_cycle (tuple): Set the color cycle for new plots to one of the
             color sets in palettable. Defaults to a qualitative Set1_9.
 
     Returns:
-        plt.Axes: matplotlib axes object with properly sized fonts.
+        Axes: matplotlib axes object with properly sized fonts.
     """
     tick_size = int(width * 2.5)
     golden_ratio = (math.sqrt(5) - 1) / 2
@@ -67,7 +75,16 @@ def pretty_plot(
 
 
 def pretty_plot_two_axis(
-    x, y1, y2, xlabel=None, y1label=None, y2label=None, width=8, height=None, dpi=300, **plot_kwargs
+    x,
+    y1,
+    y2,
+    xlabel=None,
+    y1label=None,
+    y2label=None,
+    width: float = 8,
+    height: float | None = None,
+    dpi=300,
+    **plot_kwargs,
 ):
     """Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
     examples. Makes it easier to create plots with different axes.
@@ -91,7 +108,6 @@ def pretty_plot_two_axis(
     Returns:
         matplotlib.pyplot
     """
-    # pylint: disable=E1101
     import palettable.colorbrewer.diverging
 
     colors = palettable.colorbrewer.diverging.RdYlBu_4.mpl_colors
@@ -147,7 +163,7 @@ def pretty_plot_two_axis(
     return plt
 
 
-def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
+def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
     """Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -184,7 +200,7 @@ def periodic_table_heatmap(
     elemental_data=None,
     cbar_label="",
     cbar_label_size=14,
-    show_plot=False,
+    show_plot: bool = False,
     cmap="YlOrRd",
     cmap_range=None,
     blank_color="grey",
@@ -192,7 +208,7 @@ def periodic_table_heatmap(
     value_format=None,
     value_fontsize=10,
     symbol_fontsize=14,
-    max_row=9,
+    max_row: int = 9,
     readable_fontcolor=False,
     pymatviz: bool = True,
     **kwargs,
@@ -376,7 +392,7 @@ def periodic_table_heatmap(
     return plt
 
 
-def format_formula(formula):
+def format_formula(formula: str) -> str:
     """Converts str of chemical formula into
     latex format for labelling purposes.
 
@@ -403,7 +419,7 @@ def format_formula(formula):
     return f"${formatted_formula}$"
 
 
-def van_arkel_triangle(list_of_materials, annotate=True):
+def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     """A static method that generates a binary van Arkel-Ketelaar triangle to
         quantify the ionic, metallic and covalent character of a compound
         by plotting the electronegativity difference (y) vs average (x).
@@ -534,7 +550,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     return plt
 
 
-def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
+def get_ax_fig(ax: Axes = None, **kwargs) -> tuple[Axes, Figure]:
     """Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
@@ -544,22 +560,18 @@ def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
-        ax: :class:`Axes` object
-        figure: matplotlib figure
-        plt: matplotlib pyplot module.
+        tuple[Axes, Figure]: matplotlib Axes object and Figure objects
     """
-    import matplotlib.pyplot as plt
-
     if ax is None:
         fig = plt.figure(**kwargs)
         ax = fig.gca()
     else:
         fig = plt.gcf()
 
-    return ax, fig, plt
+    return ax, fig
 
 
-def get_ax3d_fig_plt(ax: plt.Axes = None, **kwargs):
+def get_ax3d_fig(ax: Axes = None, **kwargs) -> tuple[Axes3D, Figure]:
     """Helper function used in plot functions supporting an optional Axes3D
     argument. If ax is None, we build the `matplotlib` figure and create the
     Axes3D else we return the current active figure.
@@ -569,24 +581,27 @@ def get_ax3d_fig_plt(ax: plt.Axes = None, **kwargs):
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
-        ax: :class:`Axes` object
-        figure: matplotlib figure
-        plt: matplotlib pyplot module.
+        tuple[Axes3D, Figure]: matplotlib Axes3D and corresponding figure objects
     """
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import axes3d
-
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = axes3d.Axes3D(fig)
+        ax = fig.add_subplot(projection="3d")
     else:
         fig = plt.gcf()
 
-    return ax, fig, plt
+    return ax, fig
 
 
 def get_axarray_fig_plt(
-    ax_array, nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw
+    ax_array,
+    nrows=1,
+    ncols=1,
+    sharex: bool = False,
+    sharey: bool = False,
+    squeeze: bool = True,
+    subplot_kw=None,
+    gridspec_kw=None,
+    **fig_kw,
 ):
     """Helper function used in plot functions that accept an optional array of Axes
     as argument. If ax_array is None, we build the `matplotlib` figure and
@@ -594,7 +609,7 @@ def get_axarray_fig_plt(
     current active figure.
 
     Returns:
-        ax: Array of :class:`Axes` objects
+        ax: Array of Axes objects
         figure: matplotlib figure
         plt: matplotlib pyplot module.
     """

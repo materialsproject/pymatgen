@@ -775,7 +775,7 @@ class BztTransportProperties:
             cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
             arrays of dim (len(temp_r),len(doping),3,3) as values.
             Carriers_conc_doping: carriers concentration for each doping level and T.
-            mu_doping_eV: the chemical potential corrispondent to each doping level.
+            mu_doping_eV: the chemical potential correspondent to each doping level.
         """
         if temp_r is None:
             temp_r = self.temp_r
@@ -798,29 +798,26 @@ class BztTransportProperties:
                 doping_carriers = [-dop for dop in doping_carriers]
 
             mu_doping[dop_type] = np.zeros((len(temp_r), len(doping)))
-            for t, temp in enumerate(temp_r):
-                for i, dop_car in enumerate(doping_carriers):
-                    mu_doping[dop_type][t, i] = BL.solve_for_mu(
-                        self.epsilon, self.dos, self.nelect + dop_car, temp, self.dosweight, True, False
+            for idx_t, temp in enumerate(temp_r):
+                for idx_d, dop_car in enumerate(doping_carriers):
+                    mu_doping[dop_type][idx_t, idx_d] = BL.solve_for_mu(
+                        self.epsilon, self.dos, self.nelect + dop_car, temp, self.dosweight, True, False  # noqa: FBT003
                     )
-                    # mu_doping[dop_type][t, i] = self.find_mu_doping(
-                    #     self.epsilon, self.dos, self.nelect + dop_car, temp,
-                    #     self.dosweight)
 
                 N, L0, L1, L2, Lm11 = BL.fermiintegrals(
                     self.epsilon,
                     self.dos,
                     self.vvdos,
-                    mur=mu_doping[dop_type][t],
+                    mur=mu_doping[dop_type][idx_t],
                     Tr=np.array([temp]),
                     dosweight=self.dosweight,
                 )
 
-                cond[t], sbk[t], kappa[t], hall[t] = BL.calc_Onsager_coefficients(
-                    L0, L1, L2, mu_doping[dop_type][t], np.array([temp]), self.volume, Lm11
+                cond[idx_t], sbk[idx_t], kappa[idx_t], hall[idx_t] = BL.calc_Onsager_coefficients(
+                    L0, L1, L2, mu_doping[dop_type][idx_t], np.array([temp]), self.volume, Lm11
                 )
 
-                dc[t] = self.nelect + N
+                dc[idx_t] = self.nelect + N
 
             self.Conductivity_doping[dop_type] = cond * self.CRTA  # S / m
             self.Seebeck_doping[dop_type] = sbk * 1e6  # microVolt / K
@@ -831,10 +828,12 @@ class BztTransportProperties:
             self.Power_Factor_doping[dop_type] = (sbk @ sbk) @ cond * self.CRTA * 1e3
 
             cond_eff_mass = np.zeros((len(temp_r), len(doping), 3, 3))
-            for t in range(len(temp_r)):
-                for i, dop in enumerate(doping):
+            for idx_t in range(len(temp_r)):
+                for idx_d, dop in enumerate(doping):
                     try:
-                        cond_eff_mass[t, i] = np.linalg.inv(cond[t, i]) * dop * units.qe_SI**2 / units.me_SI * 1e6
+                        cond_eff_mass[idx_t, idx_d] = (
+                            np.linalg.inv(cond[idx_t, idx_d]) * dop * units.qe_SI**2 / units.me_SI * 1e6
+                        )
                     except np.linalg.LinAlgError:
                         pass
 
@@ -900,7 +899,7 @@ class BztTransportProperties:
 
     def load(self, fname="bztTranspProps.json.gz"):
         """Load the transport properties from fname file."""
-        d = loadfn(fname)
+        lst = loadfn(fname)
         (
             self.temp_r,
             self.CRTA,
@@ -917,8 +916,8 @@ class BztTransportProperties:
             self.Hall_carrier_conc_trace_mu,
             self.Power_Factor_mu,
             self.Effective_mass_mu,
-        ) = d[:15]
-        if len(d) > 15:
+        ) = lst[:15]
+        if len(lst) > 15:
             (
                 self.Conductivity_doping,
                 self.Seebeck_doping,
@@ -929,7 +928,7 @@ class BztTransportProperties:
                 self.doping,
                 self.mu_doping,
                 self.mu_doping_eV,
-            ) = d[15:]
+            ) = lst[15:]
             self.contains_doping_props = True
 
         return True

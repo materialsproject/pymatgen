@@ -12,12 +12,10 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestUnk(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
-        self.data_std = np.random.rand(10, 5, 5, 5).astype(np.complex128)
+        self.data_std = np.random.rand(10, 5, 5, 5)
         self.unk_std = Unk(1, self.data_std)
-        self.data_ncl = np.random.rand(10, 2, 5, 5, 5).astype(np.complex128)
+        self.data_ncl = np.random.rand(10, 2, 5, 5, 5)
         self.unk_ncl = Unk(1, self.data_ncl)
 
     def test_init(self):
@@ -32,7 +30,7 @@ class TestUnk(PymatgenTest):
         assert not self.unk_std.is_noncollinear
 
         # too small data
-        data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
+        data_bad_shape = np.random.rand(2, 2, 2)
         with pytest.raises(
             ValueError,
             match=r"invalid data shape, must be \(nbnd, ngx, ngy, ngz\) or \(nbnd, 2, ngx, ngy, ngz\) "
@@ -41,7 +39,7 @@ class TestUnk(PymatgenTest):
             Unk(1, data_bad_shape)
 
         # too big data
-        data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
+        data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2)
         with pytest.raises(
             ValueError,
             match=r"invalid data shape, must be \(nbnd, ngx, ngy, ngz\) or \(nbnd, 2, ngx, ngy, ngz\) for noncollinear",
@@ -59,7 +57,7 @@ class TestUnk(PymatgenTest):
         assert self.unk_ncl.is_noncollinear
 
         # too big data
-        data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
+        data_bad_ncl = np.random.rand(2, 3, 2, 2, 2)
         with pytest.raises(
             ValueError,
             match=r"invalid noncollinear data, shape should be \(nbnd, 2, ngx, ngy, ngz\), given \(2, 3, 2, 2, 2\)",

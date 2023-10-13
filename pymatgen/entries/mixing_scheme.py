@@ -319,7 +319,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # run_type_1 entries that already exist in run_type_2 and correct other run_type_1
         # energies to have the same e_above_hull on the run_type_2 hull as they had on the run_type_1 hull
         if all(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].notna()):
-            if run_type in self.valid_rtypes_2:  # pylint: disable=R1705
+            if run_type in self.valid_rtypes_2:
                 # For run_type_2 entries, there is no correction
                 return adjustments
 
@@ -362,7 +362,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # stable entries. Here, we can correct run_type_2 energies at certain compositions
         # to preserve their e_above_hull on the run_type_1 hull
         if any(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].notna()):
-            if run_type in self.valid_rtypes_1:  # pylint: disable=R1705
+            if run_type in self.valid_rtypes_1:
                 df_slice = mixing_state_data[mixing_state_data["entry_id_1"] == entry.entry_id]
 
                 if df_slice["entry_id_2"].notna().item():
@@ -441,7 +441,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"because there are no {self.run_type_2} ground states at this composition."
             )
 
-        # this statement is here to make pylint happy by guaranteeing a return or raise
+        # this statement is here to guarantee a return or raise
         raise CompatibilityError(
             "WARNING! If you see this Exception it means you have encountered"
             f"an edge case in {type(self).__name__}. Inspect your input carefully and post a bug report."

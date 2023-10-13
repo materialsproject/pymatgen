@@ -84,7 +84,7 @@ class NEBAnalysis(MSONable):
     def from_outcars(cls, outcars, structures, **kwargs):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g., :class:`from_dir` instead if you
+        the static constructors, e.g., from_dir instead if you
         prefer to have these automatically generated from a directory of NEB
         calculations.
 
@@ -234,10 +234,10 @@ class NEBAnalysis(MSONable):
         """
         neb_dirs = []
 
-        for d in os.listdir(root_dir):
-            pth = os.path.join(root_dir, d)
-            if os.path.isdir(pth) and d.isdigit():
-                i = int(d)
+        for digit in os.listdir(root_dir):
+            pth = os.path.join(root_dir, digit)
+            if os.path.isdir(pth) and digit.isdigit():
+                i = int(digit)
                 neb_dirs.append((i, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
         outcars = []

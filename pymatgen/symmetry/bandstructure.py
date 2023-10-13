@@ -352,8 +352,7 @@ class HighSymmKpath(KPathBase):
                         "end_index": next_branch["end_index"],
                         "name": f"{branch['name'].split('-')[0]}-{next_branch['name'].split('-')[1]}",
                     }
-                    processed.append(branch["name"])
-                    processed.append(next_branch["name"])
+                    processed.extend((branch["name"], next_branch["name"]))
 
                     new_branches.append(combined)
 

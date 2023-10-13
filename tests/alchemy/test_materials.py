@@ -30,9 +30,7 @@ class TestTransformedStructure(PymatgenTest):
         self.trans.append_transformation(trafo)
         assert self.trans.final_structure.composition.reduced_formula == "NaMnPO4"
         assert len(self.trans.structures) == 3
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
             [3.8401979337, 0, 0],
             [1.9200989668, 3.3257101909, 0],

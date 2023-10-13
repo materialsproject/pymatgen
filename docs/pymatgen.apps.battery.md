@@ -222,7 +222,7 @@ Objects that represent each voltage step
 
 * **Type**
 
-    tuple[pymatgen.apps.battery.battery_abc.AbstractVoltagePair, …]
+    tuple[AbstractVoltagePair, …]
 
 
 
@@ -236,7 +236,7 @@ Representation of the working_ion that contains the energy
 
 * **Type**
 
-    [pymatgen.entries.computed_entries.ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
+    [ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
 
 
 
@@ -605,7 +605,7 @@ Working ion as an entry.
 
 * **Type**
 
-    [pymatgen.entries.computed_entries.ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
+    [ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
 
 
 
@@ -1250,7 +1250,7 @@ A plotter to make voltage profile plots for batteries.
     * **xaxis** – The quantity to use as the xaxis. Can be either
 
 
-    * **capacity_grav** (*-*) – the graviometric capcity
+    * **capacity_grav** (*-*) – the gravimetric capacity
 
 
     * **capacity_vol** (*-*) – the volumetric capacity

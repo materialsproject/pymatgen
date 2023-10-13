@@ -407,7 +407,6 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     if ldict is None:
         ldict = JmolNN().el_radius
 
-    # pylint: disable=E1136
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
     fc_copy = np.repeat(fc[:, :, np.newaxis], 27, axis=2)
@@ -525,9 +524,9 @@ def get_dimensionality_gorai(
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
 
-    Returns: (int) the dimensionality of the structure - 1 (molecules/chains),
-        2 (layered), or 3 (3D)
-
+    Returns:
+        int: the dimensionality of the structure - 1 (molecules/chains),
+            2 (layered), or 3 (3D)
     """
     if standardize:
         structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()

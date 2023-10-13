@@ -417,30 +417,17 @@ Initializes the Chargemol Analysis.
 
 
     * **path** (*str*) – Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.
-
-
-    * **not.** (*Note that it doesn't matter if the files gzip'd or*) – Default: None (current working directory).
+    The files can be gzipped or not. Default: None (current working directory).
 
 
     * **atomic_densities_path** (*str**|**None*) – Path to the atomic densities directory
-
-
-    * **None** (*required by Chargemol. If*) –
-
-
-    * **is** (*Pymatgen assumes that this*) –
-
-
-    * **variable.** (*defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment*) –
-
-
-    * **True.** (*Only used if run_chargemol is*) – Default: None.
+    required by Chargemol. If None, Pymatgen assumes that this is
+    defined in a “DDEC6_ATOMIC_DENSITIES_DIR” environment variable.
+    Only used if run_chargemol is True. Default: None.
 
 
     * **run_chargemol** (*bool*) – Whether to run the Chargemol analysis. If False,
-
-
-    * **path.** (*the existing Chargemol output files will be read from*) – Default: True.
+    the existing Chargemol output files will be read from path. Default: True.
 
 
 
@@ -913,23 +900,35 @@ that of structure, and then sorts self.nodes by index.
     **n** (*int*) – Site index.
 
 
-Returns: A CriticalPoint instance
+
+* **Returns**
+
+    CriticalPoint
 
 
-#### get_volume_and_charge_for_site(n)
+
+#### get_volume_and_charge_for_site(idx)
 
 * **Parameters**
 
-    **n** – Site index n.
+    **idx** – Site index.
 
 
-Returns: A dict containing “volume” and “charge” keys,
-or None if YT integration not performed
+
+* **Returns**
+
+    with “volume” and “charge” keys, or None if YT integration not performed
+
+
+
+* **Return type**
+
+    dict
+
 
 
 #### structure_graph(include_critical_points=('bond', 'ring', 'cage'))
-A StructureGraph object describing bonding information
-in the crystal.
+A StructureGraph object describing bonding information in the crystal.
 
 
 * **Parameters**
@@ -962,7 +961,11 @@ in the crystal.
     * **disable** (*to*) –
 
 
-Returns: a StructureGraph
+
+* **Returns**
+
+    StructureGraph
+
 
 
 ### _class_ Critic2Caller(input_script)
@@ -1133,11 +1136,20 @@ has information on multiplicity/point group symmetry.
 
 
 #### _property_ ellipticity()
-Most meaningful for bond critical points,
-can be physically interpreted as e.g. degree
-of pi-bonding in organic molecules. Consult
-literature for more information.
-Returns: The ellpiticity of the field at the critical point.
+Most meaningful for bond critical points, can be physically interpreted as e.g.
+degree of pi-bonding in organic molecules. Consult literature for more info.
+
+
+* **Returns**
+
+    The ellipticity of the field at the critical point.
+
+
+
+* **Return type**
+
+    float
+
 
 
 #### _property_ laplacian()
@@ -1231,7 +1243,13 @@ An adaptor for enumlib.
 
 
 ### structures()
-List of all enumerated structures.
+all enumerated structures.
+
+
+* **Type**
+
+    list
+
 
 ## pymatgen.command_line.gulp_caller module
 
@@ -1261,7 +1279,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 ### _class_ GulpCaller(cmd='gulp')
 Bases: `object`
 
-Class to run gulp from commandline.
+Class to run gulp from command line.
 
 Initialize with the executable if not in the standard path.
 

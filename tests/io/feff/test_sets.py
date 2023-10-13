@@ -149,7 +149,7 @@ TITLE sites: 4
         os.remove("feff.inp")
         os.remove("Co2O2.cif")
 
-    def test_small_system_EXAFS(self):
+    def test_small_system_exafs(self):
         exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
         assert not exafs_settings.small_system
         assert "RECIPROCAL" not in exafs_settings.tags
@@ -193,8 +193,8 @@ TITLE sites: 4
         output_tags = Tags.from_file(f"{self.tmp_path}/xanes_3_regen/PARAMETERS")
         origin_mole = Atoms.cluster_from_file(f"{self.tmp_path}/xanes_3/feff.inp")
         output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/xanes_3_regen/feff.inp")
-        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
-        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :])
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 
@@ -231,8 +231,8 @@ TITLE sites: 4
         output_tags = Tags.from_file(f"{self.tmp_path}/feff_dist_regen/PARAMETERS")
         origin_mole = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
         output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/feff_dist_regen/feff.inp")
-        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
-        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :])
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 

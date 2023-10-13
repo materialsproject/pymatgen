@@ -193,8 +193,8 @@ class Cp2kOutput:
     @property
     def is_molecule(self) -> bool:
         """
-        Returns True if the cp2k output was generated for a molecule (i.e.
-        no periodicity in the cell). Returns false otherwise.
+        True if the cp2k output was generated for a molecule (i.e.
+        no periodicity in the cell).
         """
         if self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE":
             return True
@@ -314,8 +314,8 @@ class Cp2kOutput:
                     self.structures.append(
                         Structure(
                             lattice=latt,
-                            coords=[s.coords for s in mol.sites],
-                            species=[s.specie for s in mol.sites],
+                            coords=[s.coords for s in mol],
+                            species=[s.specie for s in mol],
                             coords_are_cartesian=True,
                             site_properties={"ghost": gs} if gs else {},
                             charge=self.charge,

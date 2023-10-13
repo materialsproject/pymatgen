@@ -728,22 +728,22 @@ nav_exclude: true
             * [`AbinitHeader.to_string()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.AbinitHeader.to_string)
 
 
-        * [`ETSF_Reader`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader)
+        * [`EtsfReader`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader)
 
 
-            * [`ETSF_Reader.chemical_symbols()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols)
+            * [`EtsfReader.chemical_symbols()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.chemical_symbols)
 
 
-            * [`ETSF_Reader.read_abinit_hdr()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr)
+            * [`EtsfReader.read_abinit_hdr()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_abinit_hdr)
 
 
-            * [`ETSF_Reader.read_abinit_xcfunc()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc)
+            * [`EtsfReader.read_abinit_xcfunc()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_abinit_xcfunc)
 
 
-            * [`ETSF_Reader.read_structure()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure)
+            * [`EtsfReader.read_structure()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_structure)
 
 
-            * [`ETSF_Reader.typeidx_from_symbol()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol)
+            * [`EtsfReader.type_idx_from_symbol()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.type_idx_from_symbol)
 
 
         * [`NO_DEFAULT`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.NO_DEFAULT)
@@ -3042,6 +3042,9 @@ nav_exclude: true
         * [`Bandoverlaps`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Bandoverlaps)
 
 
+            * [`Bandoverlaps.maxDeviation`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Bandoverlaps.maxDeviation)
+
+
             * [`Bandoverlaps._read()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Bandoverlaps._read)
 
 
@@ -3054,10 +3057,40 @@ nav_exclude: true
         * [`Charge`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge)
 
 
+            * [`Charge.atomlist`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge.atomlist)
+
+
+            * [`Charge.types`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge.types)
+
+
+            * [`Charge.Mulliken`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge.Mulliken)
+
+
+            * [`Charge.Loewdin`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge.Loewdin)
+
+
+            * [`Charge.num_atoms`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge.num_atoms)
+
+
             * [`Charge.get_structure_with_charges()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Charge.get_structure_with_charges)
 
 
         * [`Cohpcar`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar)
+
+
+            * [`Cohpcar.cohp_data`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar.cohp_data)
+
+
+            * [`Cohpcar.efermi`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar.efermi)
+
+
+            * [`Cohpcar.energies`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar.energies)
+
+
+            * [`Cohpcar.is_spin_polarized`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar.is_spin_polarized)
+
+
+            * [`Cohpcar.orb_cohp`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar.orb_cohp)
 
 
             * [`Cohpcar._get_bond_data()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Cohpcar._get_bond_data)
@@ -3081,10 +3114,7 @@ nav_exclude: true
             * [`Doscar.tdensities`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Doscar.tdensities)
 
 
-            * [`Doscar.energies`](pymatgen.io.lobster.md#id0)
-
-
-            * [`Doscar.energies`](pymatgen.io.lobster.md#id1)
+            * [`Doscar.itdensities`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Doscar.itdensities)
 
 
             * [`Doscar.is_spin_polarized`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Doscar.is_spin_polarized)
@@ -3093,28 +3123,55 @@ nav_exclude: true
             * [`Doscar._parse_doscar()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Doscar._parse_doscar)
 
 
-            * [`Doscar.completedos`](pymatgen.io.lobster.md#id2)
+            * [`Doscar.completedos`](pymatgen.io.lobster.md#id0)
 
 
-            * [`Doscar.energies`](pymatgen.io.lobster.md#id3)
+            * [`Doscar.energies`](pymatgen.io.lobster.md#id1)
 
 
-            * [`Doscar.is_spin_polarized`](pymatgen.io.lobster.md#id4)
+            * [`Doscar.is_spin_polarized`](pymatgen.io.lobster.md#id2)
 
 
-            * [`Doscar.itdensities`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Doscar.itdensities)
+            * [`Doscar.itdensities`](pymatgen.io.lobster.md#id3)
 
 
-            * [`Doscar.pdos`](pymatgen.io.lobster.md#id5)
+            * [`Doscar.pdos`](pymatgen.io.lobster.md#id4)
 
 
-            * [`Doscar.tdensities`](pymatgen.io.lobster.md#id6)
+            * [`Doscar.tdensities`](pymatgen.io.lobster.md#id5)
 
 
-            * [`Doscar.tdos`](pymatgen.io.lobster.md#id7)
+            * [`Doscar.tdos`](pymatgen.io.lobster.md#id6)
 
 
         * [`Fatband`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband)
+
+
+            * [`Fatband.efermi`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.efermi)
+
+
+            * [`Fatband.eigenvals`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.eigenvals)
+
+
+            * [`Fatband.is_spin_polarized`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.is_spin_polarized)
+
+
+            * [`Fatband.kpoints_array`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.kpoints_array)
+
+
+            * [`Fatband.label_dict`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.label_dict)
+
+
+            * [`Fatband.lattice`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.lattice)
+
+
+            * [`Fatband.nbands`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.nbands)
+
+
+            * [`Fatband.p_eigenvals`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.p_eigenvals)
+
+
+            * [`Fatband.structure`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.structure)
 
 
             * [`Fatband.get_bandstructure()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Fatband.get_bandstructure)
@@ -3123,10 +3180,25 @@ nav_exclude: true
         * [`Grosspop`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Grosspop)
 
 
+            * [`Grosspop.list_dict_grosspop`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Grosspop.list_dict_grosspop)
+
+
             * [`Grosspop.get_structure_with_total_grosspop()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Grosspop.get_structure_with_total_grosspop)
 
 
         * [`Icohplist`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Icohplist)
+
+
+            * [`Icohplist.are_coops`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Icohplist.are_coops)
+
+
+            * [`Icohplist.is_spin_polarized`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Icohplist.is_spin_polarized)
+
+
+            * [`Icohplist.Icohplist`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Icohplist.Icohplist)
+
+
+            * [`Icohplist.IcohpCollection`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Icohplist.IcohpCollection)
 
 
             * [`Icohplist.icohpcollection`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Icohplist.icohpcollection)
@@ -3136,6 +3208,84 @@ nav_exclude: true
 
 
         * [`Lobsterout`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout)
+
+
+            * [`Lobsterout.basis_functions`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.basis_functions)
+
+
+            * [`Lobsterout.basis_type`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.basis_type)
+
+
+            * [`Lobsterout.charge_spilling`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.charge_spilling)
+
+
+            * [`Lobsterout.dft_program`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.dft_program)
+
+
+            * [`Lobsterout.elements`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.elements)
+
+
+            * [`Lobsterout.has_charge`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_charge)
+
+
+            * [`Lobsterout.has_cohpcar`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_cohpcar)
+
+
+            * [`Lobsterout.has_madelung`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_madelung)
+
+
+            * [`Lobsterout.has_coopcar`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_coopcar)
+
+
+            * [`Lobsterout.has_cobicar`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_cobicar)
+
+
+            * [`Lobsterout.has_doscar`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_doscar)
+
+
+            * [`Lobsterout.has_doscar_lso`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_doscar_lso)
+
+
+            * [`Lobsterout.has_projection`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_projection)
+
+
+            * [`Lobsterout.has_bandoverlaps`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_bandoverlaps)
+
+
+            * [`Lobsterout.has_density_of_energies`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_density_of_energies)
+
+
+            * [`Lobsterout.has_fatbands`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_fatbands)
+
+
+            * [`Lobsterout.has_grosspopulation`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.has_grosspopulation)
+
+
+            * [`Lobsterout.info_lines`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.info_lines)
+
+
+            * [`Lobsterout.info_orthonormalization`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.info_orthonormalization)
+
+
+            * [`Lobsterout.is_restart_from_projection`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.is_restart_from_projection)
+
+
+            * [`Lobsterout.lobster_version`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.lobster_version)
+
+
+            * [`Lobsterout.number_of_spins`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.number_of_spins)
+
+
+            * [`Lobsterout.number_of_threads`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.number_of_threads)
+
+
+            * [`Lobsterout.timing`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.timing)
+
+
+            * [`Lobsterout.total_spilling`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.total_spilling)
+
+
+            * [`Lobsterout.warning_lines`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout.warning_lines)
 
 
             * [`Lobsterout._get_all_info_lines()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Lobsterout._get_all_info_lines)
@@ -3177,13 +3327,61 @@ nav_exclude: true
         * [`MadelungEnergies`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.MadelungEnergies)
 
 
+            * [`MadelungEnergies.madelungenergies_Mulliken`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_Mulliken)
+
+
+            * [`MadelungEnergies.madelungenergies_Loewdin`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_Loewdin)
+
+
+            * [`MadelungEnergies.ewald_splitting`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.MadelungEnergies.ewald_splitting)
+
+
         * [`SitePotential`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential)
+
+
+            * [`SitePotential.atomlist`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.atomlist)
+
+
+            * [`SitePotential.types`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.types)
+
+
+            * [`SitePotential.num_atoms`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.num_atoms)
+
+
+            * [`SitePotential.sitepotentials_Mulliken`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_Mulliken)
+
+
+            * [`SitePotential.sitepotentials_Loewdin`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_Loewdin)
+
+
+            * [`SitePotential.madelung_Mulliken`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.madelung_Mulliken)
+
+
+            * [`SitePotential.madelung_Loewdin`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.madelung_Loewdin)
+
+
+            * [`SitePotential.ewald_splitting`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.ewald_splitting)
 
 
             * [`SitePotential.get_structure_with_site_potentials()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.SitePotential.get_structure_with_site_potentials)
 
 
         * [`Wavefunction`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction)
+
+
+            * [`Wavefunction.grid`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction.grid)
+
+
+            * [`Wavefunction.points`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction.points)
+
+
+            * [`Wavefunction.real`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction.real)
+
+
+            * [`Wavefunction.imaginary`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction.imaginary)
+
+
+            * [`Wavefunction.distance`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction.distance)
 
 
             * [`Wavefunction._parse_file()`](pymatgen.io.lobster.md#pymatgen.io.lobster.outputs.Wavefunction._parse_file)
@@ -3473,13 +3671,13 @@ nav_exclude: true
         * [`lower_and_check_unique()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.lower_and_check_unique)
 
 
-        * [`process_parsed_HESS()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_HESS)
-
-
         * [`process_parsed_coords()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_coords)
 
 
         * [`process_parsed_fock_matrix()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_fock_matrix)
+
+
+        * [`process_parsed_hess()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_hess)
 
 
         * [`read_matrix_pattern()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.read_matrix_pattern)
@@ -3838,16 +4036,19 @@ nav_exclude: true
             * [`PotcarSingle.functional_tags`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags)
 
 
-            * [`PotcarSingle.get_potcar_file_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_potcar_file_hash)
-
-
-            * [`PotcarSingle.get_potcar_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_potcar_hash)
-
-
-            * [`PotcarSingle.get_sha256_file_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_sha256_file_hash)
+            * [`PotcarSingle.hash_sha256_from_file`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.hash_sha256_from_file)
 
 
             * [`PotcarSingle.identify_potcar()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.identify_potcar)
+
+
+            * [`PotcarSingle.is_valid`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.is_valid)
+
+
+            * [`PotcarSingle.md5_computed_file_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.md5_computed_file_hash)
+
+
+            * [`PotcarSingle.md5_header_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.md5_header_hash)
 
 
             * [`PotcarSingle.nelectrons`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.nelectrons)
@@ -3856,7 +4057,13 @@ nav_exclude: true
             * [`PotcarSingle.parse_functions`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions)
 
 
+            * [`PotcarSingle.potcar_summary_stats`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.potcar_summary_stats)
+
+
             * [`PotcarSingle.potential_type`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.potential_type)
+
+
+            * [`PotcarSingle.sha256_computed_file_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.sha256_computed_file_hash)
 
 
             * [`PotcarSingle.symbol`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.symbol)
@@ -3889,6 +4096,9 @@ nav_exclude: true
             * [`VaspInput.write_input()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.VaspInput.write_input)
 
 
+        * [`_gen_potcar_summary_stats()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._gen_potcar_summary_stats)
+
+
         * [`_parse_bool()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_bool)
 
 
@@ -3899,9 +4109,6 @@ nav_exclude: true
 
 
         * [`_parse_list()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_list)
-
-
-        * [`_parse_string()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_string)
 
 
     * [pymatgen.io.vasp.optics module](pymatgen.io.vasp.md#module-pymatgen.io.vasp.optics)
@@ -4078,6 +4285,9 @@ nav_exclude: true
             * [`Oszicar.electronic_steps`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Oszicar.electronic_steps)
 
 
+            * [`Oszicar.ionic_steps`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Oszicar.ionic_steps)
+
+
             * [`Oszicar.all_energies`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Oszicar.all_energies)
 
 
@@ -4124,6 +4334,15 @@ nav_exclude: true
 
 
             * [`Outcar.ngf`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Outcar.ngf)
+
+
+            * [`Outcar.sampling_radii`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Outcar.sampling_radii)
+
+
+            * [`Outcar.electrostatic_potential`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Outcar.electrostatic_potential)
+
+
+            * [`Outcar.final_energy_contribs`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Outcar.final_energy_contribs)
 
 
             * [`Outcar.efermi`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Outcar.efermi)
@@ -4244,6 +4463,18 @@ nav_exclude: true
 
 
             * [`Procar.weights`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Procar.weights)
+
+
+            * [`Procar.phase_factors`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Procar.phase_factors)
+
+
+            * [`Procar.nbands`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Procar.nbands)
+
+
+            * [`Procar.nkpoints`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Procar.nkpoints)
+
+
+            * [`Procar.nions`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Procar.nions)
 
 
             * [`Procar.get_occupation()`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.Procar.get_occupation)
@@ -4672,9 +4903,6 @@ nav_exclude: true
         * [`LobsterSet`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.LobsterSet)
 
 
-            * [`LobsterSet.CONFIG`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.LobsterSet.CONFIG)
-
-
             * [`LobsterSet._abc_impl`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.LobsterSet._abc_impl)
 
 
@@ -4802,9 +5030,6 @@ nav_exclude: true
 
 
         * [`MPMetalRelaxSet`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.MPMetalRelaxSet)
-
-
-            * [`MPMetalRelaxSet.CONFIG`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.MPMetalRelaxSet.CONFIG)
 
 
             * [`MPMetalRelaxSet._abc_impl`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.MPMetalRelaxSet._abc_impl)
@@ -5328,7 +5553,7 @@ Construct an AdfKey object from the string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -5882,8 +6107,7 @@ Structure format.
 
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
-installed. Please consult the
-[openbabel documentation](http://openbabel.org/wiki/Main_Page).
+installed. Please consult the openbabel docs [https://openbabel.org](https://openbabel.org).
 
 
 ### _class_ BabelMolAdaptor(mol: [Molecule](pymatgen.core.md#pymatgen.core.structure.Molecule) | openbabel.OBMol | pybel.Molecule)
@@ -6014,7 +6238,7 @@ Static methods in Python are similar to those found in Java or C++.
 For a more advanced concept, see the classmethod builtin.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6210,7 +6434,7 @@ Reads CifBlock from string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6268,7 +6492,7 @@ Reads CifFile from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6366,7 +6590,7 @@ Creates a CifParser from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6374,7 +6598,12 @@ Use from_str instead
 #### get_bibtex_string()
 Get BibTeX reference from CIF file.
 :param data:
-:returns: BibTeX string.
+
+
+* **Returns**
+
+    BibTeX string.
+
 
 
 #### get_lattice(data, length_strings=('a', 'b', 'c'), angle_strings=('alpha', 'beta', 'gamma'), lattice_type=None)
@@ -6543,26 +6772,56 @@ vasp as well as cube files produced by other codes.
 
 
 #### structure()
-Structure associated with the Volumetric Data object
+Structure associated with the Volumetric Data object.
 
-..attribute:: is_spin_polarized
 
-> True if run is spin polarized
+* **Type**
 
-..attribute:: dim
+    [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)
 
-> Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
 
-..attribute:: data
 
-> Actual data as a dict of {string: np.array}. The string are “total”
-> and “diff”, in accordance to the output format of Vasp LOCPOT and
-> CHGCAR files where the total spin density is written first, followed
-> by the difference spin density.
+#### is_spin_polarized()
+True if run is spin polarized.
+
+
+* **Type**
+
+    bool
+
+
+
+#### dim()
+Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
+
+
+* **Type**
+
+    tuple
+
+
+
+#### data()
+Actual data as a dict of {string: np.array}. The string are “total”
+and “diff”, in accordance to the output format of Vasp LOCPOT and
+CHGCAR files where the total spin density is written first, followed
+by the difference spin density.
+
+
+* **Type**
+
+    dict
+
 
 
 #### ngridpts()
 Total number of grid points in volumetric data.
+
+
+* **Type**
+
+    int
+
 
 Typically, this constructor is not used directly and the static
 from_file constructor is used. This constructor is designed to allow
@@ -6766,7 +7025,7 @@ VolumetricData.structure ->
 
 > f[“Z”]: Sequence of atomic numbers
 > f[“fcoords”]: Fractional coords
-> f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix
+> f[“lattice”]: Lattice in the pymatgen.core.Lattice matrix
 
 > > format
 
@@ -6887,7 +7146,7 @@ Create an InputFile object from a string.
 
 
 
-#### _abstract classmethod_ from_string(\*args, \*\*kwds)
+#### _abstract classmethod_ from_string(contents: str)
 from_string is deprecated!
 Use from_str instead
 
@@ -6910,7 +7169,7 @@ Create an InputFile object from a string.
 Return a string representation of an entire input file.
 
 
-#### _abstract_ get_string(\*\*kwds)
+#### _abstract_ get_string()
 get_string is deprecated!
 Use get_str instead
 
@@ -7164,20 +7423,6 @@ Input File for Fiesta called “cell.in” by default (mandatory in Fiesta for n
 MSONable dict
 
 
-#### dump_BSE_data_in_GW_run(BSE_dump=True)
-
-* **Parameters**
-
-    **BSE_dump** – boolean
-
-
-
-* **Returns**
-
-    set the “do_bse” variable to one in cell.in
-
-
-
 #### dump_TDDFT_data_in_GW_run(TDDFT_dump=True)
 
 * **Parameters**
@@ -7189,6 +7434,20 @@ MSONable dict
 * **Returns**
 
     set the do_tddft variable to one in cell.in
+
+
+
+#### dump_bse_data_in_gw_run(BSE_dump=True)
+
+* **Parameters**
+
+    **BSE_dump** – boolean
+
+
+
+* **Returns**
+
+    set the “do_bse” variable to one in cell.in
 
 
 
@@ -7240,7 +7499,7 @@ files generated from this class itself.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -7249,28 +7508,12 @@ Use from_str instead
 Returns infos on initial parameters as in the log file of Fiesta.
 
 
-#### _static_ make_FULL_BSE_Densities_folder(folder)
+#### _static_ make_full_bse_densities_folder(folder)
 Mkdir “FULL_BSE_Densities” folder (needed for bse run) in the desired folder.
 
 
 #### _property_ molecule()
 Returns molecule associated with this FiestaInput.
-
-
-#### set_BSE_options(n_excitations=10, nit_bse=200)
-Set parameters in cell.in for a BSE computation
-:param nv_bse: number of valence bands
-:param nc_bse: number of conduction bands
-:param n_excitations: number of excitations
-:param nit_bse: number of iterations.
-
-
-#### set_GW_options(nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5)
-Set parameters in cell.in for a GW computation
-:param nv__band: number of valence bands to correct with GW
-:param nc_band: number of conduction bands to correct with GW
-:param n_iteration: number of iteration
-:param n_grid and dE_grid:: number of points and spacing in eV for correlation grid.
 
 
 #### set_auxiliary_basis_set(folder, auxiliary_folder, auxiliary_basis_set_type='aug_cc_pvtz')
@@ -7279,6 +7522,22 @@ copy in the desired folder the needed auxiliary basis set “X2.ion” where X i
 :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must
 
 > be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”.
+
+
+#### set_bse_options(n_excitations=10, nit_bse=200)
+Set parameters in cell.in for a BSE computation
+:param nv_bse: number of valence bands
+:param nc_bse: number of conduction bands
+:param n_excitations: number of excitations
+:param nit_bse: number of iterations.
+
+
+#### set_gw_options(nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5)
+Set parameters in cell.in for a GW computation
+:param nv__band: number of valence bands to correct with GW
+:param nc_band: number of conduction bands to correct with GW
+:param n_iteration: number of iteration
+:param n_grid and dE_grid:: number of points and spacing in eV for correlation grid.
 
 
 #### write_file(filename)
@@ -7515,7 +7774,7 @@ Creates GaussianInput from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -7543,7 +7802,7 @@ Return GaussianInput string.
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -7559,42 +7818,83 @@ Bases: `object`
 
 Parser for Gaussian output files.
 
-**NOTE**: Still in early beta.
+Note: Still in early beta.
 
-Attributes:
-.. attribute:: structures
 
-> All structures from the calculation in the standard orientation. If the
-> symmetry is not considered, the standard orientation is not printed out
-> and the input orientation is used instead. Check the standard_orientation
-> attribute.
+#### structures()
+All structures from the calculation in the standard orientation. If the
+symmetry is not considered, the standard orientation is not printed out
+and the input orientation is used instead. Check the standard_orientation
+attribute.
+
+
+* **Type**
+
+    list[[Structure](pymatgen.core.md#pymatgen.core.structure.Structure)]
+
 
 
 #### structures_input_orientation()
-All structures from the calculation in the input orientation or the
-Z-matrix orientation (if an opt=z-matrix was requested).
+All structures from the calculation in the input
+orientation or the Z-matrix orientation (if an opt=z-matrix was requested).
+
+
+* **Type**
+
+    list
+
 
 
 #### opt_structures()
-All optimized structures from the calculation in the standard orientation,
-if the attribute ‘standard_orientation’ is True, otherwise in the input
+All optimized structures from the calculation in the standard
+orientation, if the attribute ‘standard_orientation’ is True, otherwise in the input
 or the Z-matrix orientation.
+
+
+* **Type**
+
+    list
+
 
 
 #### energies()
 All energies from the calculation.
 
 
+* **Type**
+
+    list
+
+
+
 #### eigenvalues()
-List of eigenvalues for the last geometry
+List of eigenvalues for the last geometry.
+
+
+* **Type**
+
+    list
+
 
 
 #### MO_coefficients()
-Matrix of MO coefficients for the last geometry
+Matrix of MO coefficients for the last geometry.
+
+
+* **Type**
+
+    list
+
 
 
 #### cart_forces()
 All Cartesian forces from the calculation.
+
+
+* **Type**
+
+    list
+
 
 
 #### frequencies()
@@ -7613,104 +7913,231 @@ A list for each freq calculation and for each mode of a dict with
 The normal mode is a 1D vector of dx, dy dz of each atom.
 
 
+* **Type**
+
+    list
+
+
+
 #### hessian()
 Matrix of second derivatives of the energy with respect to cartesian
-coordinates in the **input orientation** frame. Need #P in the
-route section in order to be in the output.
+coordinates in the input orientation frame. Need #P in the route section in order to
+be in the output.
+
+
+* **Type**
+
+    ndarray
+
 
 
 #### properly_terminated()
-True if run has properly terminated
+True if run has properly terminated.
+
+
+* **Type**
+
+    bool
+
 
 
 #### is_pcm()
 True if run is a PCM run.
 
 
+* **Type**
+
+    bool
+
+
+
 #### is_spin()
-True if it is an unrestricted run
+True if it is an unrestricted run.
+
+
+* **Type**
+
+    bool
+
 
 
 #### stationary_type()
-If it is a relaxation run, indicates whether it is a minimum (Minimum)
-or a saddle point (“Saddle”).
+If it is a relaxation run, indicates whether it is a minimum
+(Minimum) or a saddle point (“Saddle”).
+
+
+* **Type**
+
+    str
+
 
 
 #### corrections()
 Thermochemical corrections if this run is a Freq run as a dict. Keys
-are “Zero-point”, “Thermal”, “Enthalpy” and “Gibbs Free Energy”
+are “Zero-point”, “Thermal”, “Enthalpy” and “Gibbs Free Energy”.
+
+
+* **Type**
+
+    dict
+
 
 
 #### functional()
 Functional used in the run.
 
 
+* **Type**
+
+    str
+
+
+
 #### basis_set()
-Basis set used in the run
+Basis set used in the run.
+
+
+* **Type**
+
+    str
+
 
 
 #### route()
 Additional route parameters as a dict. For example,
+{‘SP’:””, “SCF”:”Tight”}.
 
-    {‘SP’:””, “SCF”:”Tight”}
+
+* **Type**
+
+    dict
+
 
 
 #### dieze_tag()
-# preceding the route line, e.g. “#P”
+# preceding the route line, e.g. “#P”.
+
+
+* **Type**
+
+    str
+
 
 
 #### link0()
-Link0 parameters as a dict. E.g., {“%mem”: “1000MW”}
+Link0 parameters as a dict. E.g., {“%mem”: “1000MW”}.
+
+
+* **Type**
+
+    dict
+
 
 
 #### charge()
-Charge for structure
+Charge for structure.
+
+
+* **Type**
+
+    int
+
 
 
 #### spin_multiplicity()
-Spin multiplicity for structure
+Spin multiplicity for structure.
+
+
+* **Type**
+
+    int
+
 
 
 #### num_basis_func()
 Number of basis functions in the run.
 
 
+* **Type**
+
+    int
+
+
+
 #### electrons()
-number of alpha and beta electrons as (N alpha, N beta)
+Number of alpha and beta electrons as (N alpha, N beta).
+
+
+* **Type**
+
+    tuple
+
 
 
 #### pcm()
 PCM parameters and output if available.
 
 
+* **Type**
+
+    dict
+
+
+
 #### errors()
-error if not properly terminated (list to be completed in error_defs)
+Error if not properly terminated (list to be completed in error_defs).
+
+
+* **Type**
+
+    list
+
 
 
 #### Mulliken_charges()
-Mulliken atomic charges
+Mulliken atomic charges.
+
+
+* **Type**
+
+    list
+
 
 
 #### eigenvectors()
 Matrix of shape (num_basis_func, num_basis_func). Each column is an
 eigenvectors and contains AO coefficients of an MO.
+eigenvectors[Spin] = mat(num_basis_func, num_basis_func).
 
-eigenvectors[Spin] = mat(num_basis_func, num_basis_func)
+
+* **Type**
+
+    dict
+
 
 
 #### molecular_orbital()
 MO development coefficients on AO in a more convenient array dict
 for each atom and basis set label.
+mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff … }.
 
-mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff … }
+
+* **Type**
+
+    dict
+
 
 
 #### atom_basis_labels()
-Labels of AO for each atoms. These labels are those used in the output
-of molecular orbital coefficients (POP=Full) and in the
-molecular_orbital array dict.
+Labels of AO for each atoms. These labels are those used in the
+output of molecular orbital coefficients (POP=Full) and in the molecular_orbital array
+dict. atom_basis_labels[iatom] = [AO_k, AO_k, …].
 
-atom_basis_labels[iatom] = [AO_k, AO_k, …]
+
+* **Type**
+
+    list
+
 
 
 #### resumes()
@@ -7718,21 +8145,44 @@ List of gaussian data resume given at the end of the output file before
 the quotation. The resumes are given as string.
 
 
+* **Type**
+
+    list
+
+
+
 #### title()
 Title of the gaussian run.
 
 
+* **Type**
+
+    str
+
+
+
 #### standard_orientation()
-If True, the geometries stored in the structures are in the standard
-orientation. Else, the geometries are in the input orientation.
+If True, the geometries stored in the structures are in the
+standard orientation. Else, the geometries are in the input orientation.
+
+
+* **Type**
+
+    bool
+
 
 
 #### bond_orders()
 Dict of bond order values read in the output file such as:
-{(0, 1): 0.8709, (1, 6): 1.234, …}
+{(0, 1): 0.8709, (1, 6): 1.234, …}.
+The keys are the atom indexes and the values are the Wiberg bond indexes that are
+printed using pop=NBOREAD and $nbo bndidx $end.
 
-The keys are the atom indexes and the values are the Wiberg bond indexes
-that are printed using pop=NBOREAD and $nbo bndidx $end.
+
+* **Type**
+
+    dict
+
 
 Methods:
 .. method:: to_input()
@@ -7762,6 +8212,20 @@ Save a matplotlib plot of the potential energy surface to a file
 #### _check_pcm(line)
 
 #### _parse(filename)
+
+#### _parse_hessian(file, structure)
+Parse the hessian matrix in the output file.
+
+
+* **Parameters**
+
+
+    * **file** – file object
+
+
+    * **structure** – structure in the output file
+
+
 
 #### as_dict()
 JSON-serializable dict representation.
@@ -8058,7 +8522,7 @@ Subroutine to extract bond label, site indices, and length from
 a COPL header line. The site indices are zero-based, so they
 can be easily used with a Structure object.
 
-Example header line: Fe-1/Fe-1-tr(-1,-1,-1) :  2.482 Ang.
+Example header line: Fe-1/Fe-1-tr(-1,-1,-1) : 2.482 Ang.
 
 
 * **Parameters**
@@ -8069,8 +8533,7 @@ Example header line: Fe-1/Fe-1-tr(-1,-1,-1) :  2.482 Ang.
 
 * **Returns**
 
-    The bond label, the bond length and a tuple of the site
-    indices.
+    The bond label, the bond length and a tuple of the site indices.
 
 
 
@@ -8165,7 +8628,7 @@ are ignored.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -8175,7 +8638,7 @@ Generates the string representation of the CTRL file. This is
 the minimal CTRL file necessary to execute lmhart.run.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -8300,7 +8763,7 @@ files generated from this class itself.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -8843,7 +9306,11 @@ the structure/structure_path is kept for compatibility.
     * **structure_path** – path to structure in a file (e.g., POSCAR)
 
 
-Returns: GruneisenParameter object
+
+* **Returns**
+
+    GruneisenParameter
+
 
 
 ### get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False)
@@ -9059,7 +9526,7 @@ Convert a pymatgen Structure object to a PhonopyAtoms object.
 
 
 
-### get_pmg_structure(phonopy_structure: None)
+### get_pmg_structure(phonopy_structure: PhonopyAtoms)
 Convert a PhonopyAtoms object to pymatgen Structure object.
 
 
@@ -9107,11 +9574,23 @@ This is designed for STEM image simulation.
 
 
 #### to_str()
-Returns: Prismatic XYZ file. This is similar to XYZ format
-but has specific requirements for extra fields, headers, etc.
+
+* **Returns**
+
+    Prismatic XYZ file. This is similar to XYZ format
+
+        but has specific requirements for extra fields, headers, etc.
 
 
-#### to_string(\*\*kwds)
+
+
+* **Return type**
+
+    str
+
+
+
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -9230,7 +9709,7 @@ Reads an PWInput object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -9362,7 +9841,7 @@ REM entries.
 ### _class_ AirssProvider(res: Res, parse_rems: Literal['gentle', 'strict'] = 'gentle')
 Bases: `ResProvider`
 
-Provides access to the res file as does `ResProvider`. This class additionally provides
+Provides access to the res file as does ResProvider. This class additionally provides
 access to fields in the TITL entry and various other fields found in the REM entries
 that AIRSS puts in the file. Values in the TITL entry that AIRSS could not get end up as 0.
 If the TITL entry is malformed, empty, or missing then attempting to construct this class
@@ -9375,7 +9854,7 @@ not used.
 
 The `parse_rems` attribute controls whether functions that fail to retrieve information
 from the REM entries should return `None`. If this is set to `"strict"`,
-then a `ParseError` may be raised, but the return value will not be `None`.
+then a ParseError may be raised, but the return value will not be `None`.
 If it is set to `"gentle"`, then `None` will be returned instead of raising an
 exception. This setting applies to all methods of this class that are typed to return
 an Optional type. Default is `"gentle"`.
@@ -9786,16 +10265,11 @@ detailed description and default values of CONTROL arguments.
 
     * **\*\*kwargs** – Other ShengBTE parameters. Several parameters are required
     for ShengBTE to run - we have listed these parameters below:
+    - nelements (int): number of different elements in the compound
+    - natoms (int): number of atoms in the unit cell
+    - lattvec (size 3x3 array): real-space lattice vectors, in units
 
-
-        * nelements (int): number of different elements in the compound
-
-
-        * natoms (int): number of atoms in the unit cell
-
-
-        * lattvec (size 3x3 array): real-space lattice vectors, in units
-    of lfactor
+    > of lfactor
 
 
         * lfactor (float): unit of measurement for lattice vectors (nm).
@@ -9965,26 +10439,56 @@ Object representing the data in a UNK file.
 
 
 #### ik()
-int index of kpoint for this file
+Index of kpoint for this file.
+
+
+* **Type**
+
+    int
+
 
 
 #### data()
-numpy.ndarray that contains the wavefunction data for in the UNK file.
-The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
-(nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.
+Numpy array that contains the wavefunction data for in the UNK file.
+The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and (nbnd, 2, ngx, ngy, ngz)
+for noncollinear calculations.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### is_noncollinear()
-bool that specifies if data is from a noncollinear calculation
+Boolean that specifies if data is from a noncollinear calculation.
+
+
+* **Type**
+
+    bool
+
 
 
 #### nbnd()
-int number of bands in data
+Number of bands in data.
+
+
+* **Type**
+
+    int
+
 
 
 #### ng()
-sequence of three integers that correspond to the grid size of the
-given data. The definition is ng = (ngx, ngy, ngz).
+Sequence of three integers that correspond to the grid size of the given data.
+The definition is ng = (ngx, ngy, ngz).
+
+
+* **Type**
+
+    tuple
+
 
 Initialize Unk class.
 
@@ -10079,7 +10583,7 @@ Initialize a Structure object from a string with data in XSF format.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10095,7 +10599,7 @@ See [http://www.xcrysden.org/doc/XSF.html](http://www.xcrysden.org/doc/XSF.html)
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -10194,7 +10698,7 @@ Creates an Xr object from a string representation.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10288,7 +10792,7 @@ Creates XYZ object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10382,7 +10886,7 @@ Reads a string representation to a ZeoCssr object.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 

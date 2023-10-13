@@ -50,8 +50,8 @@ class TestContainsSpecieFilter(PymatgenTest):
     def test_as_from_dict(self):
         species1 = ["Si5+", "Mg2+"]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
-        d = f1.as_dict()
-        assert isinstance(ContainsSpecieFilter.from_dict(d), ContainsSpecieFilter)
+        dct = f1.as_dict()
+        assert isinstance(ContainsSpecieFilter.from_dict(dct), ContainsSpecieFilter)
 
 
 class TestSpecieProximityFilter(PymatgenTest):
@@ -68,8 +68,8 @@ class TestSpecieProximityFilter(PymatgenTest):
 
     def test_as_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})
-        d = sf.as_dict()
-        assert isinstance(SpecieProximityFilter.from_dict(d), SpecieProximityFilter)
+        dct = sf.as_dict()
+        assert isinstance(SpecieProximityFilter.from_dict(dct), SpecieProximityFilter)
 
 
 class TestRemoveDuplicatesFilter(unittest.TestCase):
@@ -87,8 +87,8 @@ class TestRemoveDuplicatesFilter(unittest.TestCase):
 
     def test_as_from_dict(self):
         fil = RemoveDuplicatesFilter()
-        d = fil.as_dict()
-        assert isinstance(RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter)
+        dct = fil.as_dict()
+        assert isinstance(RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter)
 
 
 class TestRemoveExistingFilter(unittest.TestCase):
@@ -97,10 +97,10 @@ class TestRemoveExistingFilter(unittest.TestCase):
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
-        self._exisiting_structures = self._struct_list[:-1]
+        self._existing_structures = self._struct_list[:-1]
 
     def test_filter(self):
-        fil = RemoveExistingFilter(self._exisiting_structures)
+        fil = RemoveExistingFilter(self._existing_structures)
         transmuter = StandardTransmuter.from_structures(self._struct_list)
         transmuter.apply_filter(fil)
         assert len(transmuter.transformed_structures) == 1

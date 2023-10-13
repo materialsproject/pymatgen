@@ -13,7 +13,7 @@ nav_order: 1
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some
@@ -27,7 +27,7 @@ of the main features:
 4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the Materials Project REST API, Crystallography Open Database and other external data sources.
 
-As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
+As of 2022, pymatgen only supports Python 3.9 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.
@@ -428,7 +428,7 @@ scientists. Please refer to the [references page](/references) for citation info
 
 ### Soliciting contributions to an updated pymatgen paper
 
-If you are a long-standing `pymatgen` contributor and would like to be involved in working on an updated `pymatgen` publication, 
+If you are a long-standing `pymatgen` contributor and would like to be involved in working on an updated `pymatgen` publication,
 please contact the maintainers [@shyuep, @mkhorton and @janosh](mailto:ongsp@ucsd.edu,m.k.horton@gmail.com,janosh@lbl.gov?subject=Contributing%20to%20updated%20pymatgen%20paper).
 
 ## License

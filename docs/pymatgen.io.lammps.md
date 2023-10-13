@@ -218,7 +218,7 @@ For data with multiple molecule ID, the format is:
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -435,7 +435,7 @@ data file format.
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -651,7 +651,7 @@ coeffs read and write.
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -958,7 +958,7 @@ Return the argument of the command ‘units’ passed to the generator.
 
 ## pymatgen.io.lammps.inputs module
 
-This module implements methods for reading/manupilating/writing LAMMPS input files.
+This module implements methods for reading/manipulating/writing LAMMPS input files.
 It does not implement methods for automatically creating inputs based on a structure
 and computation type. For this, see the InputSet and InputGenerator in sets.py, or
 [https://github.com/Matgenix/atomate2-lammps](https://github.com/Matgenix/atomate2-lammps).
@@ -1075,8 +1075,8 @@ your_input_file._add_command(
 
 
 #### _add_comment(comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False)
-> Method to add a comment inside a stage (between actual commands)
-> or as a whole stage (which will do nothing when LAMMPS runs).
+Method to add a comment inside a stage (between actual commands)
+or as a whole stage (which will do nothing when LAMMPS runs).
 
 
 * **Parameters**
@@ -1383,6 +1383,12 @@ A stage name can be given; in this case the search will happen only for this sta
 
 
 
+* **Return type**
+
+    bool
+
+
+
 #### _classmethod_ from_file(path: str | Path, ignore_comments: bool = False, keep_stages: bool = False)
 Creates an InputFile object from a file.
 
@@ -1437,7 +1443,7 @@ different stages, set keep_stages to True.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1484,10 +1490,20 @@ Other comments will be put inline within stages, where they have been added.
     If False, stage names are not printed and all commands appear in a single block.
 
 
-Returns: String representation of the LammpsInputFile.
+
+* **Returns**
+
+    String representation of the LammpsInputFile.
 
 
-#### get_string(\*\*kwds)
+
+* **Return type**
+
+    str
+
+
+
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1782,7 +1798,7 @@ Constructor from string parsing.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 

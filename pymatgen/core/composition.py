@@ -280,7 +280,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
-        formula = [f"{s}{formula_double_format(sym_amt[s], False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s],ignore_ones= False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -302,14 +302,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
-        formula = [f"{s}{formula_double_format(sym_amt[s], False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s],ignore_ones= False)}" for s in syms]
         return " ".join(formula)
 
     @property
     def element_composition(self) -> Composition:
-        """Returns the composition replacing any species by the corresponding
-        element.
-        """
+        """Returns the composition replacing any species by the corresponding element."""
         return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
@@ -488,7 +486,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
 
         Returns:
-            True if any elements in Composition match category, otherwise False
+            bool: True if any elements in Composition match category, otherwise False
         """
         allowed_categories = (
             "noble_gas",
@@ -636,10 +634,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[el.symbol] += amt
-        return dic
+            dct[el.symbol] += amt
+        return dict(dct)
 
     def as_dict(self) -> dict[str, float]:
         """Subtly different from get_el_amt_dict in that they keys here are str(Element)
@@ -649,10 +647,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
                 {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[str(el)] += amt
-        return dic
+            dct[str(el)] += amt
+        return dict(dct)
 
     @property
     def to_reduced_dict(self) -> dict[str, float]:
@@ -692,7 +690,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         target_charge: float = 0,
         all_oxi_states: bool = False,
         max_sites: int | None = None,
-    ) -> list[dict[str, float]]:
+    ) -> tuple[dict[str, float]]:
         """Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
@@ -720,10 +718,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 formula is greater than abs(max_sites).
 
         Returns:
-            A list of dicts - each dict reports an element symbol and average
+            list[dict]: each dict reports an element symbol and average
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
+        if len(self.elements) == 1:
+            return ({self.elements[0].symbol: 0.0},)
         return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
     def replace(self, elem_map: dict[str, str | dict[str, float]]) -> Composition:
@@ -954,19 +954,17 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 # collect the combination of oxidation states for each site
                 all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x))})
 
-        # sort the solutions by highest to lowest score
+        # sort the solutions from highest to lowest score
         if all_scores:
             all_sols, all_oxid_combo = zip(
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo),
-                        key=lambda pair: pair[0],
-                        reverse=True,
+                        zip(all_scores, all_sols, all_oxid_combo), key=lambda pair: pair[0], reverse=True
                     )
                 )
             )
-        return all_sols, all_oxid_combo
+        return tuple(all_sols), tuple(all_oxid_combo)
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(
@@ -1173,27 +1171,26 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
     if all(int(i) == i for i in sym_amt.values()):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
-    polyanion = []
+    poly_anions = []
     # if the composition contains a poly anion
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
         poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
         (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
-            polyanion.append(f"({poly_form}){poly_factor}")
+            poly_anions.append(f"({poly_form}){poly_factor}")
 
-    syms = syms[: len(syms) - 2 if polyanion else len(syms)]
+    syms = syms[: len(syms) - 2 if poly_anions else len(syms)]
 
     if iupac_ordering:
         syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
-    reduced_form = []
+    reduced_form: list[str] = []
     for sym in syms:
         norm_amt = sym_amt[sym] * 1.0 / factor
-        reduced_form.append(sym)
-        reduced_form.append(str(formula_double_format(norm_amt)))
+        reduced_form.extend((sym, str(formula_double_format(norm_amt))))
 
-    return "".join([*reduced_form, *polyanion]), factor
+    return "".join([*reduced_form, *poly_anions]), factor
 
 
 class ChemicalPotential(dict, MSONable):

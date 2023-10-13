@@ -322,7 +322,7 @@ class TestQCOutput(PymatgenTest):
 
         assert check_for_structure_changes(frag_1, frag_2) == "bond_change"
 
-    def test_NBO_parsing(self):
+    def test_nbo_parsing(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo.qout").data
         assert len(data["nbo_data"]["natural_populations"]) == 3
         assert len(data["nbo_data"]["hybridization_character"]) == 6
@@ -333,7 +333,7 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == 0.071
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
-    def test_NBO7_parsing(self):
+    def test_nbo7_parsing(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_1.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == 15.73
         assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
@@ -352,7 +352,7 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13] == "Mg"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13] == 3
 
-    def test_NBO5_vs_NBO7_hybridization_character(self):
+    def test_nbo5_vs_nbo7_hybridization_character(self):
         data5 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo5_1.qout").data
         data7 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_1.qout").data
         assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
@@ -367,7 +367,7 @@ class TestQCOutput(PymatgenTest):
         assert data5["nbo_data"]["hybridization_character"][1]["bond index"][7] == "149"
         assert data7["nbo_data"]["hybridization_character"][1]["bond index"][7] == "21"
 
-    def test_NBO7_infinite_e2pert(self):
+    def test_nbo7_infinite_e2pert(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_inf.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
 
@@ -466,14 +466,14 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0004967767
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
 
-    def test_NBO_hyperbonds(self):
+    def test_nbo_hyperbonds(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/hyper.qout").data
         assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"]) == 2
         assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
         assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
         assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
 
-    def test_NBO_3C(self):
+    def test_nbo_3_c(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/3C.qout").data
         hybrid_char = data["nbo_data"]["hybridization_character"]
         assert len(hybrid_char) == 3

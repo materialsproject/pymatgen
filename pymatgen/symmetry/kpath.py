@@ -1252,7 +1252,7 @@ class KPathLatimerMunro(KPathBase):
 
                 # Calculate cosine values for all 26 neighbor points
                 for point_index in range(26):
-                    label_point = self.LabelPoints(point_index)
+                    label_point = self.label_points(point_index)
 
                     # Calculate cosine of angle between key_point and label_point
                     cosine_value = np.dot(key_point, label_point)
@@ -1271,7 +1271,7 @@ class KPathLatimerMunro(KPathBase):
         key_points_labels = ["" for i in range(len(key_points))]
         for idx, orbit in enumerate(key_points_inds_orbits):
             for point_ind in orbit:
-                key_points_labels[point_ind] = self.LabelSymbol(int(orbit_labels[idx]))
+                key_points_labels[point_ind] = self.label_symbol(int(orbit_labels[idx]))
 
         kpoints = {}
         reverse_kpoints = {}
@@ -2030,7 +2030,7 @@ class KPathLatimerMunro(KPathBase):
             "inversion": [],
         }
 
-        for i, op in enumerate(recip_point_group):
+        for idx, op in enumerate(recip_point_group):
             evals, evects = np.linalg.eig(op)
 
             tr = np.trace(op)
@@ -2044,50 +2044,50 @@ class KPathLatimerMunro(KPathBase):
                     for j in range(3):
                         if np.isclose(evals[j], 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["two-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["two-fold"].append({"ind": idx, "axis": ax, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotation
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["three-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["three-fold"].append({"ind": idx, "axis": ax, "op": op})
                 # four-fold rotation
                 elif np.isclose(tr, 1, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["four-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["four-fold"].append({"ind": idx, "axis": ax, "op": op})
                 elif np.isclose(tr, 2, atol=atol):  # six-fold rotation
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["six-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["six-fold"].append({"ind": idx, "axis": ax, "op": op})
 
             # Improper rotations
             if np.isclose(det, -1, atol=atol):
                 if np.isclose(tr, -3, atol=atol):
-                    dct["inversion"].append({"ind": i, "op": PAR})
+                    dct["inversion"].append({"ind": idx, "op": PAR})
                 elif np.isclose(tr, 1, atol=atol):  # two-fold rotation
                     for j in range(3):
                         if np.isclose(evals[j], -1, atol=atol):
                             norm = evects[:, j]
-                    dct["reflections"].append({"ind": i, "normal": norm, "op": op})
+                    dct["reflections"].append({"ind": idx, "normal": norm, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotoinversion
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["rotoinv-three-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-three-fold"].append({"ind": idx, "axis": ax, "op": op})
                 # four-fold rotoinversion
                 elif np.isclose(tr, -1, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["rotoinv-four-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-four-fold"].append({"ind": idx, "axis": ax, "op": op})
                 # six-fold rotoinversion
                 elif np.isclose(tr, -2, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    dct["rotations"]["rotoinv-six-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-six-fold"].append({"ind": idx, "axis": ax, "op": op})
 
         return dct
 
@@ -2227,7 +2227,7 @@ class KPathLatimerMunro(KPathBase):
         return max_cosine_label_inds
 
     @staticmethod
-    def LabelPoints(index):
+    def label_points(index):
         """Axes used in generating labels for Latimer-Munro convention."""
         points = [
             [1, 0, 0],
@@ -2261,35 +2261,7 @@ class KPathLatimerMunro(KPathBase):
         return points[index]
 
     @staticmethod
-    def LabelSymbol(index):
+    def label_symbol(index):
         """Letters used in generating labels for the Latimer-Munro convention."""
-        symbols = [
-            "a",
-            "b",
-            "c",
-            "d",
-            "e",
-            "f",
-            "g",
-            "h",
-            "i",
-            "j",
-            "k",
-            "l",
-            "m",
-            "n",
-            "o",
-            "p",
-            "q",
-            "r",
-            "s",
-            "t",
-            "u",
-            "v",
-            "w",
-            "x",
-            "y",
-            "z",
-            "Γ",
-        ]
+        symbols = "a b c d e f g h i j k l m n o p q r s t u v w x y z Γ".split()
         return symbols[index]

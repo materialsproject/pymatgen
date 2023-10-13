@@ -7,10 +7,11 @@ Atoms object and pymatgen Structure objects.
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
+from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.json import jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -23,6 +24,7 @@ try:
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
+    from ase.spacegroup import Spacegroup
 
     ase_loaded = True
 except ImportError:
@@ -54,10 +56,7 @@ class AseAtomsAdaptor:
             Atoms: ASE Atoms object
         """
         if not ase_loaded:
-            raise ImportError(
-                "AseAtomsAdaptor requires the ASE package.\n"
-                "Use `pip install ase` or `conda install ase -c conda-forge`"
-            )
+            raise PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 
@@ -112,20 +111,6 @@ class AseAtomsAdaptor:
             atoms.charge = structure.charge
             atoms.spin_multiplicity = structure.spin_multiplicity
 
-        # Set the Atoms final magnetic moments and charges if present.
-        # This uses the SinglePointDFTCalculator as the dummy calculator
-        # to store results.
-        charges = structure.site_properties.get("final_charge")
-        magmoms = structure.site_properties.get("final_magmom")
-        if magmoms or charges:
-            if magmoms and charges:
-                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
-            elif magmoms:
-                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
-            else:
-                calc = SinglePointDFTCalculator(atoms, charges=charges)
-            atoms.calc = calc
-
         # Get the oxidation states from the structure
         oxi_states: list[float | None] = [getattr(site.specie, "oxi_state", None) for site in structure]
 
@@ -136,8 +121,11 @@ class AseAtomsAdaptor:
             fix_atoms = []
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if not (np.all(selective_dynamics) or not np.any(selective_dynamics)):
-                    # should be [True, True, True] or [False, False, False]
+                if (
+                    isinstance(selective_dynamics, Iterable)
+                    and True in selective_dynamics
+                    and False in selective_dynamics
+                ):
                     raise ValueError(
                         "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
                         f"Remove the {selective_dynamics=} and try again if you do not need them."
@@ -160,11 +148,27 @@ class AseAtomsAdaptor:
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         # Atoms.info <---> Structure.properties
+        if properties := getattr(structure, "properties"):  # noqa: B009
+            atoms.info = properties
+
+        # Regenerate Spacegroup object from `.todict()` representation
+        if isinstance(atoms.info.get("spacegroup"), dict):
+            atoms.info["spacegroup"] = Spacegroup(
+                atoms.info["spacegroup"]["number"], setting=atoms.info["spacegroup"].get("setting", 1)
+            )
+
         # Atoms.calc <---> Structure.calc
-        if structure.properties:
-            atoms.info = structure.properties
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
+        else:
+            # Set the Atoms final magnetic moments and charges if present.
+            # This uses the SinglePointDFTCalculator as the dummy calculator
+            # to store results.
+            charges = structure.site_properties.get("final_charge")
+            magmoms = structure.site_properties.get("final_magmom")
+            if charges or magmoms:
+                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
+                atoms.calc = calc
 
         return atoms
 
@@ -212,13 +216,16 @@ class AseAtomsAdaptor:
                 else:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
-                warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.")
+                warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.", UserWarning)
             sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
         else:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties
-        properties = jsanitize(getattr(atoms, "info", {}))
+        # But first make sure `spacegroup` is JSON serializable
+        if atoms.info.get("spacegroup") and isinstance(atoms.info["spacegroup"], Spacegroup):
+            atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
+        properties = getattr(atoms, "info", {})
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected

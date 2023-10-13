@@ -8,7 +8,7 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.abinit import ETSF_Reader
+from pymatgen.io.abinit import EtsfReader
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -23,7 +23,7 @@ def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
 
-class ETSF_Reader_TestCase(PymatgenTest):
+class TestEtsfReader(PymatgenTest):
     def setUp(self):
         formulas = ["Si2"]
         self.GSR_paths = dct = {}
@@ -31,7 +31,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
             dct[formula] = ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
-    def test_read_Si2(self):
+    def test_read_si2(self):
         path = self.GSR_paths["Si2"]
 
         ref_dims = {"number_of_spins": 1}
@@ -46,12 +46,12 @@ class ETSF_Reader_TestCase(PymatgenTest):
             "primitive_vectors": np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3, 3)),
         }
 
-        with ETSF_Reader(path) as data:
+        with EtsfReader(path) as data:
             assert data.ngroups == 1
 
             # Test dimensions.
-            for dimname, int_ref in ref_dims.items():
-                value = data.read_dimvalue(dimname)
+            for dim_name, int_ref in ref_dims.items():
+                value = data.read_dimvalue(dim_name)
                 assert_array_equal(value, int_ref)
 
             # Test int variables

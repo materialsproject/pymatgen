@@ -287,7 +287,7 @@ class QuasiharmonicDebyeApprox:
             float: unitless
         """
         if isinstance(self.eos, PolynomialEOS):
-            p = np.poly1d(self.eos.eos_params)  # pylint: disable=E1101
+            p = np.poly1d(self.eos.eos_params)
             # first derivative of energy at 0K wrt volume evaluated at the
             # given volume, in eV/Ang^3
             dEdV = np.polyder(p, 1)(volume)

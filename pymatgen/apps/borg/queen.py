@@ -26,7 +26,7 @@ class BorgQueen:
         """
         Args:
             drone (Drone): An implementation of
-                :class:`pymatgen.apps.borg.hive.AbstractDrone` to use for
+                pymatgen.apps.borg.hive.AbstractDrone to use for
                 assimilation.
             rootpath (str): The root directory to start assimilation. Leave it
                 as None if you want to do assimilation later, or is using the

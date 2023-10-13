@@ -44,8 +44,6 @@ Bases: `object`
 
 An interface to the Crystallography Open Database.
 
-Blank __init__. No args required.
-
 
 #### get_cod_ids(formula)
 Queries the COD for all cod ids associated with a formula. Requires
@@ -128,6 +126,8 @@ Perform a query.
     Response from SQL query.
 
 
+
+#### url(_ = 'www.crystallography.net_ )
 ## pymatgen.ext.matproj module
 
 This module provides classes to interface with the Materials Project REST
@@ -176,6 +176,332 @@ for which API to use.
 
     * **\*\*kwargs** – Pass through to either legacy or new MPRester.
 
+
+
+### _class_ _MPResterBasic(api_key: str | None = None, include_user_agent: bool = True)
+Bases: `object`
+
+This is Pymatgen’s own implement of a MPRester that supports the new MP API. If you are getting your API key from
+the new dashboard of MP, you will need to use this instead of the original MPRester because the new API keys do
+not work with the old MP API (???!).
+
+The reason why this class exists is because it is the belief of the pymatgen maintainers that access to the MP API
+remains a critical part of pymatgen functionality. However, the new mp-api package is written in a way that
+prevents us from importing the mp-api package because of cyclic dependencies. It is also the opinion of Pymatgen
+maintainers that the implementation of mp-api is too heavy duty for most users (few care about document models,
+etc.). Further, this implementation serves as a simple reference for end developers who want to develop their own
+interfaces to the MP API via the REST urls.
+
+If you are a power user, feel free to install the mp-api package. All issues regarding that implementation should
+be directed to the maintainers of that repository and not pymatgen. We will support only issues with regards to
+our implementation only.
+
+
+* **Parameters**
+
+
+    * **api_key** (*str*) – A String API key for accessing the MaterialsProject
+    REST interface. Please obtain your API key at
+    [https://www.materialsproject.org/dashboard](https://www.materialsproject.org/dashboard). If this is None,
+    the code will check if there is a “PMG_MAPI_KEY” setting.
+    If so, it will use that environment variable. This makes
+    easier for heavy users to simply add this environment variable to
+    their setups and MPRester can then be called without any arguments.
+
+
+    * **include_user_agent** (*bool*) – If True, will include a user agent with the
+    HTTP request including information on pymatgen and system version
+    making the API request. This helps MP support pymatgen users, and
+    is similar to what most web browsers send with each page request.
+    Set to False to disable the user agent.
+
+
+
+#### get_doc(material_id: str, fields: list | None = None)
+Get a data corresponding to a material_id.
+
+
+* **Parameters**
+
+
+    * **material_id** (*str*) – Materials Project ID (e.g. mp-1234).
+
+
+    * **fields** (*list*) – Fields to query for. If None (the default), all fields are returned.
+
+
+
+* **Returns**
+
+    Dict
+
+
+
+#### get_entries(criteria, compatible_only=True, inc_structure=None, property_data=None, conventional_unit_cell=False, sort_by_e_above_hull=False)
+Get a list of ComputedEntries or ComputedStructureEntries corresponding
+to a chemical system, formula, or materials_id or full criteria.
+
+
+* **Parameters**
+
+
+    * **criteria** – Chemsys, formula, or mp-id.
+
+
+    * **compatible_only** (*bool*) – Whether to return only “compatible”
+    entries. Compatible entries are entries that have been
+    processed using the MaterialsProject2020Compatibility class,
+    which performs adjustments to allow mixing of GGA and GGA+U
+    calculations for more accurate phase diagrams and reaction
+    energies.
+
+
+    * **inc_structure** (*str*) – If None, entries returned are
+    ComputedEntries. If inc_structure=”initial”,
+    ComputedStructureEntries with initial structures are returned.
+    Otherwise, ComputedStructureEntries with final structures
+    are returned.
+
+
+    * **property_data** (*list*) – Specify additional properties to include in
+    entry.data. If None, no data. Should be a subset of
+    supported_properties.
+
+
+    * **conventional_unit_cell** (*bool*) – Whether to get the standard
+    conventional unit cell
+
+
+    * **sort_by_e_above_hull** (*bool*) – Whether to sort the list of entries by
+    e_above_hull (will query e_above_hull as a property_data if True).
+
+
+
+* **Returns**
+
+    List of ComputedStructureEntry objects.
+
+
+
+#### get_entries_in_chemsys(elements, \*args, \*\*kwargs)
+Helper method to get a list of ComputedEntries in a chemical system. For example, elements = [“Li”, “Fe”, “O”]
+will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
+Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
+
+
+* **Parameters**
+
+
+    * **elements** (*str** or **[**str**]*) – Chemical system string comprising element
+    symbols separated by dashes, e.g., “Li-Fe-O” or List of element
+    symbols, e.g., [“Li”, “Fe”, “O”].
+
+
+    * **\*args** – Pass-through to get_entries.
+
+
+    * **\*\*kwargs** – Pass-through to get_entries.
+
+
+
+* **Returns**
+
+    List of ComputedEntries.
+
+
+
+#### get_entry_by_material_id(material_id: str, \*args, \*\*kwargs)
+Get a ComputedEntry corresponding to a material_id.
+
+
+* **Parameters**
+
+
+    * **material_id** (*str*) – Materials Project material_id (a string,
+    e.g., mp-1234).
+
+
+    * **\*args** – Pass-through to get_entries.
+
+
+    * **\*\*kwargs** – Pass-through to get_entries.
+
+
+
+* **Returns**
+
+    ComputedStructureEntry object.
+
+
+
+#### get_initial_structures_by_material_id(material_id: str, conventional_unit_cell: bool = False)
+Get a Structure corresponding to a material_id.
+
+
+* **Parameters**
+
+
+    * **material_id** (*str*) – Materials Project ID (e.g. mp-1234).
+
+
+    * **final** (*bool*) – Whether to get the final structure, or the initial
+    (pre-relaxation) structures. Defaults to True.
+
+
+    * **conventional_unit_cell** (*bool*) – Whether to get the standard conventional unit cell
+
+
+
+* **Returns**
+
+    Structure object.
+
+
+
+#### get_material_ids(formula)
+Get all materials ids for a formula.
+
+
+* **Parameters**
+
+    **formula** (*str*) – A formula (e.g., Fe2O3).
+
+
+
+* **Returns**
+
+    ([str]) List of all materials ids.
+
+
+
+#### get_materials_ids(formula)
+Get all materials ids for a formula.
+
+
+* **Parameters**
+
+    **formula** (*str*) – A formula (e.g., Fe2O3).
+
+
+
+* **Returns**
+
+    ([str]) List of all materials ids.
+
+
+
+#### get_structure_by_material_id(material_id: str, conventional_unit_cell: bool = False)
+Get a Structure corresponding to a material_id.
+
+
+* **Parameters**
+
+
+    * **material_id** (*str*) – Materials Project ID (e.g. mp-1234).
+
+
+    * **final** (*bool*) – Whether to get the final structure, or the initial
+    (pre-relaxation) structures. Defaults to True.
+
+
+    * **conventional_unit_cell** (*bool*) – Whether to get the standard conventional unit cell
+
+
+
+* **Returns**
+
+    Structure object.
+
+
+
+#### get_structures(chemsys_formula: str, final=True)
+Get a list of Structures corresponding to a chemical system or formula.
+
+
+* **Parameters**
+
+
+    * **chemsys_formula** (*str*) – A chemical system, list of chemical systems
+    (e.g., Li-Fe-O, Si-*), or single formula (e.g., Fe2O3, Si*).
+
+
+    * **final** (*bool*) – Whether to get the final structure, or the list of initial
+    (pre-relaxation) structures. Defaults to True.
+
+
+
+* **Returns**
+
+    List of Structure objects. ([Structure])
+
+
+
+#### get_summary(criteria: dict, fields: list | None = None)
+Get a data corresponding to a criteria.
+
+
+* **Parameters**
+
+
+    * **criteria** (*dict*) – Materials Project ID (e.g. mp-1234), e.g., {“formula”: “Fe2O3,FeO”}
+
+
+    * **fields** (*list*) – Fields to query for. If None (the default), all fields are returned.
+
+
+
+* **Returns**
+
+    List of dict of summary docs.
+
+
+
+#### get_summary_by_material_id(material_id: str, fields: list | None = None)
+Get a data corresponding to a material_id.
+
+
+* **Parameters**
+
+
+    * **material_id** (*str*) – Materials Project ID (e.g. mp-1234).
+
+
+    * **fields** (*list*) – Fields to query for. If None (the default), all fields are returned.
+
+
+
+* **Returns**
+
+    Dict
+
+
+
+#### request(sub_url, payload=None, method='GET', mp_decode=True)
+Helper method to make the requests and perform decoding based on MSONable protocol.
+
+
+#### summary_search(\*\*kwargs)
+This function mirrors the mp-api’s summary.search functionality.
+
+
+* **Parameters**
+
+    **\*\*kwargs** – This function only takes kwargs. All kwargs that do not start with an underscore are treated as
+    search criteria and those with underscores are treated as params. Example usage:
+    MPRester().summary.search(material_ids=”mp-19770,mp-19017”, _fields=”formula_pretty,energy_above_hull”)
+
+
+## pymatgen.ext.matproj_legacy module
+
+This module provides classes to interface with the Materials Project REST
+API v1 to enable the creation of data structures and pymatgen objects using
+Materials Project data.
+
+
+### _exception_ MPRestError()
+Bases: `Exception`
+
+Exception class for legacy MPRestAdaptor. Raised when query is malformed.
 
 
 ### _class_ TaskType(value)
@@ -280,8 +606,7 @@ Materials Project api are described at [https://materialsproject.org/api](https:
 Delete earlier submitted SNLs.
 
 **NOTE**: As of now, this MP REST feature is open only to a select group of
-users. Opening up submissions to all users is being planned for
-the future.
+users. Opening up submissions to all users is being planned for the future.
 
 
 * **Parameters**
@@ -418,7 +743,17 @@ The database version is set as a date in the format YYYY-MM-DD,
 where “-DD” may be optional. An additional numerical suffix
 might be added if multiple releases happen on the same day.
 
-Returns: database version as a string
+
+* **Returns**
+
+    database version
+
+
+
+* **Return type**
+
+    str
+
 
 
 #### get_doc(materials_id)
@@ -1279,8 +1614,7 @@ up to MAX_TRIES_PER_CHUNK times.
 Query for submitted SNLs.
 
 **NOTE**: As of now, this MP REST feature is open only to a select group of
-users. Opening up submissions to all users is being planned for
-the future.
+users. Opening up submissions to all users is being planned for the future.
 
 
 * **Parameters**
@@ -1305,8 +1639,7 @@ the future.
 Submits a list of StructureNL to the Materials Project site.
 
 **NOTE**: As of now, this MP REST feature is open only to a select group of
-users. Opening up submissions to all users is being planned for
-the future.
+users. Opening up submissions to all users is being planned for the future.
 
 
 * **Parameters**
@@ -1338,8 +1671,7 @@ except that a list of structures with the same metadata is used as an
 input.
 
 **NOTE**: As of now, this MP REST feature is open only to a select group of
-users. Opening up submissions to all users is being planned for
-the future.
+users. Opening up submissions to all users is being planned for the future.
 
 
 * **Parameters**
@@ -1392,8 +1724,7 @@ to the Materials Project as SNL files. VASP related meta data like
 initial structure and final energies are automatically incorporated.
 
 **NOTE**: As of now, this MP REST feature is open only to a select group of
-users. Opening up submissions to all users is being planned for
-the future.
+users. Opening up submissions to all users is being planned for the future.
 
 
 * **Parameters**
@@ -1564,7 +1895,7 @@ Used internally to handle the mandatory and additional response fields.
 
 
 
-#### _parse_provider(provider, provider_url)
+#### _parse_provider(provider: str, provider_url: str)
 Used internally to update the list of providers or to
 check a given URL is valid.
 
@@ -1642,7 +1973,17 @@ use a custom filter, call get_structures_with_filter().
     * **dictionary.** (*these will be stored under the '_optimade' key in each StructureNL.data*) –
 
 
-Returns: Dict of (Dict of StructureNLs keyed by that database’s id system) keyed by provider
+
+* **Returns**
+
+    keyed by that database provider’s id system
+
+
+
+* **Return type**
+
+    dict[str, [StructureNL](pymatgen.util.md#pymatgen.util.provenance.StructureNL)]
+
 
 
 #### get_snls_with_filter(optimade_filter: str, additional_response_fields: str | list[str] | set[str] | None = None)
@@ -1658,7 +1999,17 @@ Get structures satisfying a given OPTIMADE filter.
     * **additional_response_fields** – Any additional fields desired from the OPTIMADE API,
 
 
-Returns: Dict of Structures keyed by that database’s id system
+
+* **Returns**
+
+    keyed by that database provider’s id system
+
+
+
+* **Return type**
+
+    dict[str, [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)]
+
 
 
 #### get_structures(elements: list[str] | str | None = None, nelements: int | None = None, nsites: int | None = None, chemical_formula_anonymous: str | None = None, chemical_formula_hill: str | None = None)
@@ -1686,7 +2037,17 @@ use a custom filter, call get_structures_with_filter().
     * **chemical_formula_hill** – Chemical formula following Hill convention
 
 
-Returns: Dict of (Dict Structures keyed by that database’s id system) keyed by provider
+
+* **Returns**
+
+    keyed by that database provider’s id system
+
+
+
+* **Return type**
+
+    dict[str, [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)]
+
 
 
 #### get_structures_with_filter(optimade_filter: str)
@@ -1698,7 +2059,17 @@ Get structures satisfying a given OPTIMADE filter.
     **optimade_filter** – An OPTIMADE-compliant filter
 
 
-Returns: Dict of Structures keyed by that database’s id system
+
+* **Returns**
+
+    keyed by that database provider’s id system
+
+
+
+* **Return type**
+
+    dict[str, [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)]
+
 
 
 #### mandatory_response_fields(_ = ('lattice_vectors', 'cartesian_site_positions', 'species', 'species_at_sites'_ )

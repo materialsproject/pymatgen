@@ -24,8 +24,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestStructureMatcher(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
             entries = json.load(fp, cls=MontyDecoder)
@@ -152,9 +150,9 @@ class TestStructureMatcher(PymatgenTest):
             [True, False, True, False],
             [True, True, False, True],
         ]
-        m, inds, i = sm._get_mask(s1, s2, 1, True)
+        m, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
         assert np.all(m == result)
-        assert i == 2
+        assert idx == 2
         assert inds == [2]
 
         # test supercell with match
@@ -163,9 +161,9 @@ class TestStructureMatcher(PymatgenTest):
             [1, 1, 0, 0, 1, 1, 0, 0],
             [1, 1, 1, 1, 0, 0, 1, 1],
         ]
-        m, inds, i = sm._get_mask(s1, s2, 2, True)
+        m, inds, idx = sm._get_mask(s1, s2, 2, s1_supercell=True)
         assert np.all(m == result)
-        assert i == 2
+        assert idx == 2
         assert_allclose(inds, np.array([4]))
 
         # test supercell without match
@@ -175,9 +173,9 @@ class TestStructureMatcher(PymatgenTest):
             [1, 1, 1, 1, 0, 0],
             [0, 0, 0, 0, 1, 1],
         ]
-        m, inds, i = sm._get_mask(s2, s1, 2, True)
+        m, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=True)
         assert np.all(m == result)
-        assert i == 0
+        assert idx == 0
         assert_allclose(inds, np.array([]))
 
         # test s2_supercell
@@ -191,19 +189,19 @@ class TestStructureMatcher(PymatgenTest):
             [0, 0, 1],
             [0, 0, 1],
         ]
-        m, inds, i = sm._get_mask(s2, s1, 2, False)
+        m, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=False)
         assert np.all(m == result)
-        assert i == 0
+        assert idx == 0
         assert_allclose(inds, np.array([]))
 
         # test for multiple translation indices
         s1 = Structure(latt, ["Cu", "Ag", "Cu", "Ag", "Ag"], [[0] * 3] * 5)
         s2 = Structure(latt, ["Ag", "Cu", "Ag"], [[0] * 3] * 3)
         result = [[1, 0, 1, 0, 0], [0, 1, 0, 1, 1], [1, 0, 1, 0, 0]]
-        m, inds, i = sm._get_mask(s1, s2, 1, True)
+        m, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
 
         assert np.all(m == result)
-        assert i == 1
+        assert idx == 1
         assert_allclose(inds, [0, 2])
 
     def test_get_supercells(self):
@@ -212,14 +210,14 @@ class TestStructureMatcher(PymatgenTest):
         l2 = Lattice.cubic(0.5)
         s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu"], [[0] * 3] * 4)
         s2 = Structure(l2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
-        scs = list(sm._get_supercells(s1, s2, 8, False))
+        scs = list(sm._get_supercells(s1, s2, fu=8, s1_supercell=False))
         for x in scs:
             assert abs(np.linalg.det(x[3])) == approx(8)
             assert len(x[0]) == 4
             assert len(x[1]) == 24
         assert len(scs) == 48
 
-        scs = list(sm._get_supercells(s2, s1, 8, True))
+        scs = list(sm._get_supercells(s2, s1, fu=8, s1_supercell=True))
         for x in scs:
             assert abs(np.linalg.det(x[3])) == approx(8)
             assert len(x[0]) == 24
@@ -239,7 +237,7 @@ class TestStructureMatcher(PymatgenTest):
         assert sm.fit(self.struct_list[0], self.struct_list[1])
 
         # Test rotational/translational invariance
-        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, np.array([0.4, 0.7, 0.9]))
+        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0.4, 0.7, 0.9])
         self.struct_list[1].apply_operation(op)
         assert sm.fit(self.struct_list[0], self.struct_list[1])
 
@@ -405,7 +403,7 @@ class TestStructureMatcher(PymatgenTest):
         s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
 
-        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
+        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
         match = sm._strict_match(s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
@@ -429,7 +427,7 @@ class TestStructureMatcher(PymatgenTest):
         s1 = Structure(latt, ["Si", "Si"], [[0, 0, 0.1], [0, 0, 0.2]])
         s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [0, 0.1, -0.95]])
 
-        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
+        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
 
         match = sm._strict_match(s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False)
         scale_matrix = match[2]

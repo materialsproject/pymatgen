@@ -96,19 +96,19 @@ class ElementBase(Enum):
                 Spectra Database. Missing values are None.
         """
         self.symbol = str(symbol)
-        d = _pt_data[symbol]
+        data = _pt_data[symbol]
 
         # Store key variables for quick access
-        self.Z = d["Atomic no"]
+        self.Z = data["Atomic no"]
 
-        at_r = d.get("Atomic radius", "no data")
+        at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, "ang")
-        self._atomic_mass = Mass(d["Atomic mass"], "amu")
-        self.long_name = d["Name"]
-        self._data = d
+        self._atomic_mass = Mass(data["Atomic mass"], "amu")
+        self.long_name = data["Name"]
+        self._data = data
 
     @property
     def X(self) -> float:
@@ -528,8 +528,8 @@ class ElementBase(Enum):
                 standard group number except for the lanthanoids
                 and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
-        .. note::
-            The 18 group number system is used, i.e., Noble gases are group 18.
+        Note:
+            The 18 group number system is used, i.e. noble gases are group 18.
         """
         for sym in _pt_data:
             el = Element(sym)
@@ -554,8 +554,7 @@ class ElementBase(Enum):
             symbol (str): Element symbol
 
         Returns:
-            True if symbol is a valid element (e.g., "H"). False otherwise
-            (e.g., "Zebra").
+            bool: True if symbol is a valid element (e.g., "H").
         """
         return symbol in Element.__members__
 
@@ -632,12 +631,7 @@ class ElementBase(Enum):
     @property
     def is_transition_metal(self) -> bool:
         """True if element is a transition metal."""
-        ns = list(range(21, 31))
-        ns.extend(list(range(39, 49)))
-        ns.append(57)
-        ns.extend(list(range(72, 81)))
-        ns.append(89)
-        ns.extend(list(range(104, 113)))
+        ns = (*range(21, 31), *range(39, 49), 57, *range(72, 81), 89, *range(104, 113))
         return self.Z in ns
 
     @property

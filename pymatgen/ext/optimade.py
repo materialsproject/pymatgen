@@ -277,7 +277,8 @@ class OptimadeRester:
         Args:
             optimade_filter: An OPTIMADE-compliant filter
 
-        Returns: Dict of Structures keyed by that database's id system
+        Returns:
+            dict[str, Structure]: keyed by that database provider's id system
         """
         all_snls = self.get_snls_with_filter(optimade_filter)
         all_structures = {}
@@ -298,7 +299,8 @@ class OptimadeRester:
             optimade_filter: An OPTIMADE-compliant filter
             additional_response_fields: Any additional fields desired from the OPTIMADE API,
 
-        Returns: Dict of Structures keyed by that database's id system
+        Returns:
+            dict[str, Structure]: keyed by that database provider's id system
         """
         all_snls = {}
 
@@ -457,7 +459,7 @@ class OptimadeRester:
             _logger.warning(f"Failed to extract required information from {url}: {exc}")
             return None
 
-    def _parse_provider(self, provider, provider_url) -> dict[str, Provider]:
+    def _parse_provider(self, provider: str, provider_url: str) -> dict[str, Provider]:
         """Used internally to update the list of providers or to
         check a given URL is valid.
 

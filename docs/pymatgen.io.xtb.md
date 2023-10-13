@@ -56,10 +56,7 @@ and writing external files.
 
 
     * **constraints** – Dictionary of common editable parameters for .constrains file.
-
-        {“atoms”: [List of 1-indexed atoms to fix], “force_constant”:
-        float]
-
+    {“atoms”: [List of 1-indexed atoms to fix], “force_constant”: float]
 
 
 

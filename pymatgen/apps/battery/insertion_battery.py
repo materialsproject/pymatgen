@@ -107,7 +107,7 @@ class InsertionElectrode(AbstractElectrode):
             for i in range(len(_stable_entries) - 1)
         )
         framework = _vpairs[0].framework
-        return cls(  # pylint: disable=E1123
+        return cls(
             voltage_pairs=_vpairs,
             working_ion_entry=_working_ion_entry,
             stable_entries=_stable_entries,
@@ -333,13 +333,11 @@ class InsertionElectrode(AbstractElectrode):
         )
         if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             dct.update(
-                {
-                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
-                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
-                    "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
-                    },
-                }
+                stability_charge=self.fully_charged_entry.data["decomposition_energy"],
+                stability_discharge=self.fully_discharged_entry.data["decomposition_energy"],
+                stability_data={
+                    itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
+                },
             )
 
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
@@ -348,14 +346,14 @@ class InsertionElectrode(AbstractElectrode):
         return dct
 
     def __repr__(self):
-        output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
         dischg_form = self.fully_discharged_entry.composition.reduced_formula
-        output.append(f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}")
-        output.append(f"Avg. volt. = {self.get_average_voltage()} V")
-        output.append(f"Grav. cap. = {self.get_capacity_grav()} mAh/g")
-        output.append(f"Vol. cap. = {self.get_capacity_vol()}")
-        return "\n".join(output)
+        return (
+            f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}\n"
+            f"Avg. volt. = {self.get_average_voltage()} V\n"
+            f"Grav. cap. = {self.get_capacity_grav()} mAh/g\n"
+            f"Vol. cap. = {self.get_capacity_vol()}"
+        )
 
     @classmethod
     def from_dict_legacy(cls, d):
@@ -369,7 +367,7 @@ class InsertionElectrode(AbstractElectrode):
         from monty.json import MontyDecoder
 
         dec = MontyDecoder()
-        return InsertionElectrode(  # pylint: disable=E1120
+        return InsertionElectrode(
             dec.process_decoded(d["entries"]),
             dec.process_decoded(d["working_ion_entry"]),
         )
@@ -477,7 +475,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         _frac_charge = comp_charge.get_atomic_fraction(working_element)
         _frac_discharge = comp_discharge.get_atomic_fraction(working_element)
 
-        vpair = InsertionVoltagePair(  # pylint: disable=E1123
+        vpair = InsertionVoltagePair(
             voltage=_voltage,
             mAh=_mAh,
             mass_charge=_mass_charge,

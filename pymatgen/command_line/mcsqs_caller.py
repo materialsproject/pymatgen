@@ -81,8 +81,7 @@ def run_mcsqs(
         instances = os.cpu_count()
 
     original_directory = os.getcwd()
-    if not directory:
-        directory = tempfile.mkdtemp()
+    directory = directory or tempfile.mkdtemp()
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
@@ -109,13 +108,7 @@ def run_mcsqs(
         process.communicate()
 
     # Generate SQS structures
-    add_ons = [
-        f"-T {temperature}",
-        f"-wr {wr}",
-        f"-wn {wn}",
-        f"-wd {wd}",
-        f"-tol {tol}",
-    ]
+    add_ons = [f"-T {temperature}", f"-wr {wr}", f"-wn {wn}", f"-wd {wd}", f"-tol {tol}"]
 
     mcsqs_find_sqs_processes = []
     if instances and instances > 1:
@@ -123,12 +116,12 @@ def run_mcsqs(
         for i in range(instances):
             instance_cmd = [f"-ip {i + 1}"]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
-            process = Popen(cmd)  # pylint: disable=R1732
+            process = Popen(cmd)
             mcsqs_find_sqs_processes.append(process)
     else:
         # run normal mcsqs command
         cmd = mcsqs_find_sqs_cmd + add_ons
-        process = Popen(cmd)  # pylint: disable=R1732
+        process = Popen(cmd)
         mcsqs_find_sqs_processes.append(process)
 
     try:
@@ -136,7 +129,7 @@ def run_mcsqs(
             process.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            process = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
+            process = Popen(["mcsqs", "-best"])
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -157,7 +150,7 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            process = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
+            process = Popen(["mcsqs", "-best"])
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -181,7 +174,7 @@ def _parse_sqs_path(path) -> Sqs:
     # detected instances will be 0 if mcsqs was run in series, or number of instances
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
-    # Convert best SQS structure to cif file and pymatgen Structure
+    # Convert best SQS structure to CIF file and pymatgen Structure
     with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as p:
         p.communicate()
 
@@ -198,7 +191,7 @@ def _parse_sqs_path(path) -> Sqs:
     objective_function = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
 
     # Get all SQS structures and objective functions
-    allsqs = []
+    all_sqs = []
 
     for i in range(detected_instances):
         sqs_out = f"bestsqs{i + 1}.out"
@@ -213,14 +206,14 @@ def _parse_sqs_path(path) -> Sqs:
         objective_function_str = lines[-1].split("=")[-1].strip()
         obj: float | str
         obj = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
-        allsqs.append({"structure": sqs, "objective_function": obj})
+        all_sqs.append({"structure": sqs, "objective_function": obj})
 
     clusters = _parse_clusters(path / "clusters.out")
 
     return Sqs(
         bestsqs=best_sqs,
         objective_function=objective_function,
-        allsqs=allsqs,
+        allsqs=all_sqs,
         directory=str(path.resolve()),
         clusters=clusters,
     )

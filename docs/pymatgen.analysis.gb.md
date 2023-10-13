@@ -112,6 +112,8 @@ and methods pertaining to gbs.
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
+#### _properties(_: dic_ )
+
 #### as_dict()
 
 * **Returns**
@@ -175,8 +177,6 @@ because of the different __init__ args.
     as if each comparison were reversed.
 
 
-
-#### properties(_: dic_ )
 
 #### _property_ sigma(_: in_ )
 This method returns the sigma value of the GB.

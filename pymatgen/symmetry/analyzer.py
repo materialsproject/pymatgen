@@ -35,8 +35,10 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from pymatgen.core.periodic_table import Element, Species
     from pymatgen.core.sites import Site
+    from pymatgen.symmetry.groups import CrystalSystem
 
 logger = logging.getLogger(__name__)
+LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
 cite_conventional_cell_algo = due.dcite(
     Doi("10.1016/j.commatsci.2010.05.010"),
@@ -58,7 +60,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance=5.0):
+    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5.0) -> None:
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -165,9 +167,7 @@ class SpacegroupAnalyzer:
             return "1"
         return spglib.get_pointgroup(rotations)[0].strip()
 
-    def get_crystal_system(
-        self,
-    ) -> Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]:
+    def get_crystal_system(self) -> CrystalSystem:
         """Get the crystal system for the structure, e.g., (triclinic, orthorhombic,
         cubic, etc.).
 
@@ -197,9 +197,7 @@ class SpacegroupAnalyzer:
             return "hexagonal"
         return "cubic"
 
-    def get_lattice_type(
-        self,
-    ) -> Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "rhombohedral", "hexagonal", "cubic"]:
+    def get_lattice_type(self) -> LatticeType:
         """Get the lattice for the structure, e.g., (triclinic, orthorhombic, cubic,
         etc.).This is the same as the crystal system with the exception of the
         hexagonal/rhombohedral lattice.
@@ -317,15 +315,15 @@ class SpacegroupAnalyzer:
         have been grouped into symmetrically equivalent groups.
 
         Returns:
-            :class:`pymatgen.symmetry.structure.SymmetrizedStructure` object.
+            pymatgen.symmetry.structure.SymmetrizedStructure object.
         """
-        ds = self.get_symmetry_dataset()
-        sg = SpacegroupOperations(
+        sym_dataset = self.get_symmetry_dataset()
+        spg_ops = SpacegroupOperations(
             self.get_space_group_symbol(),
             self.get_space_group_number(),
             self.get_symmetry_operations(),
         )
-        return SymmetrizedStructure(self._structure, sg, ds["equivalent_atoms"], ds["wyckoffs"])
+        return SymmetrizedStructure(self._structure, spg_ops, sym_dataset["equivalent_atoms"], sym_dataset["wyckoffs"])
 
     def get_refined_structure(self, keep_site_properties=False):
         """Get the refined structure based on detected symmetry. The refined structure is
@@ -478,7 +476,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
-        """Gives a structure with a primitive cell according to certain standards the
+        """Gives a structure with a primitive cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
         Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.
@@ -1301,7 +1299,7 @@ class PointGroupAnalyzer:
             symmop (SymmOp): Symmetry operation to test.
 
         Returns:
-            (bool): Whether SymmOp is valid for Molecule.
+            bool: Whether SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
@@ -1314,21 +1312,12 @@ class PointGroupAnalyzer:
     def _get_eq_sets(self):
         """Calculates the dictionary for mapping equivalent atoms onto each other.
 
-        Args:
-            None
-
         Returns:
-            dict: The returned dictionary has two possible keys:
-
-            ``eq_sets``:
-            A dictionary of indices mapping to sets of indices,
-            each key maps to indices of all equivalent atoms.
-            The keys are guaranteed to be not equivalent.
-
-            ``sym_ops``:
-            Twofold nested dictionary.
-            ``operations[i][j]`` gives the symmetry operation
-            that maps atom ``i`` unto ``j``.
+            dict: with two possible keys:
+                eq_sets: A dictionary of indices mapping to sets of indices, each key maps to
+                    indices of all equivalent atoms. The keys are guaranteed to be not equivalent.
+                sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry
+                    operation that maps atom i unto j.
         """
         UNIT = np.eye(3)
         eq_sets, operations = defaultdict(set), defaultdict(dict)
@@ -1373,17 +1362,11 @@ class PointGroupAnalyzer:
             sym_ops (dict): Map of symmetry operations that map atoms onto each other.
 
         Returns:
-            dict: The returned dictionary has two possible keys:
-
-            ``eq_sets``:
-            A dictionary of indices mapping to sets of indices,
-            each key maps to indices of all equivalent atoms.
-            The keys are guaranteed to be not equivalent.
-
-            ``sym_ops``:
-            Twofold nested dictionary.
-            ``operations[i][j]`` gives the symmetry operation
-            that maps atom ``i`` unto ``j``.
+            dict: with two possible keys:
+                eq_sets: A dictionary of indices mapping to sets of indices, each key maps to
+                    indices of all equivalent atoms. The keys are guaranteed to be not equivalent.
+                sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry
+                    operation that maps atom i unto j.
         """
         unit_mat = np.eye(3)
 
@@ -1422,21 +1405,12 @@ class PointGroupAnalyzer:
     def get_equivalent_atoms(self):
         """Returns sets of equivalent atoms with symmetry operations.
 
-        Args:
-            None
-
         Returns:
-            dict: The returned dictionary has two possible keys:
-
-            ``eq_sets``:
-            A dictionary of indices mapping to sets of indices,
-            each key maps to indices of all equivalent atoms.
-            The keys are guaranteed to be not equivalent.
-
-            ``sym_ops``:
-            Twofold nested dictionary.
-            ``operations[i][j]`` gives the symmetry operation
-            that maps atom ``i`` unto ``j``.
+            dict: with two possible keys:
+                eq_sets: A dictionary of indices mapping to sets of indices, each key maps to
+                    indices of all equivalent atoms. The keys are guaranteed to be not equivalent.
+                sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry
+                    operation that maps atom i unto j.
         """
         eq = self._get_eq_sets()
         return self._combine_eq_sets(eq["eq_sets"], eq["sym_ops"])
@@ -1452,24 +1426,13 @@ class PointGroupAnalyzer:
         of the previous symmetry operations, which gives the
         symmetrized molecule
 
-        Args:
-            None
-
         Returns:
-            dict: The returned dictionary has three possible keys:
-
-            ``sym_mol``:
-            A symmetrized molecule instance.
-
-            ``eq_sets``:
-            A dictionary of indices mapping to sets of indices,
-            each key maps to indices of all equivalent atoms.
-            The keys are guaranteed to be not equivalent.
-
-            ``sym_ops``:
-            Twofold nested dictionary.
-            ``operations[i][j]`` gives the symmetry operation
-            that maps atom ``i`` unto ``j``.
+            dict: with three possible keys:
+                sym_mol: A symmetrized molecule instance.
+                eq_sets: A dictionary of indices mapping to sets of indices, each key maps to indices
+                    of all equivalent atoms. The keys are guaranteed to be not equivalent.
+                sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry operation
+                    that maps atom i unto j.
         """
         eq = self.get_equivalent_atoms()
         eq_sets, ops = eq["eq_sets"], eq["sym_ops"]
@@ -1503,27 +1466,19 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
         max_n (int): Maximum number of iterations.
         tolerance (float): Tolerance for detecting symmetry.
             Gets passed as Argument into
-            :class:`~pymatgen.analyzer.symmetry.PointGroupAnalyzer`.
+            ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
         epsilon (float): If the elementwise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
-            the iteration stops before ``max_n`` is reached.
+            the iteration stops before max_n is reached.
 
 
     Returns:
-        dict: The returned dictionary has three possible keys:
-
-        ``sym_mol``:
-        A symmetrized molecule instance.
-
-        ``eq_sets``:
-        A dictionary of indices mapping to sets of indices,
-        each key maps to indices of all equivalent atoms.
-        The keys are guaranteed to be not equivalent.
-
-        ``sym_ops``:
-        Twofold nested dictionary.
-        ``operations[i][j]`` gives the symmetry operation
-        that maps atom ``i`` unto ``j``.
+        dict: with three possible keys:
+            sym_mol: A symmetrized molecule instance.
+            eq_sets: A dictionary of indices mapping to sets of indices, each key maps to indices
+                of all equivalent atoms. The keys are guaranteed to be not equivalent.
+            sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry operation
+                that maps atom i unto j.
     """
     new = mol
     n = 0
@@ -1647,16 +1602,15 @@ class SpacegroupOperations(list):
                 are symmetrically similar.
 
         Returns:
-            (bool): Whether the two sets of sites are symmetrically
-            equivalent.
+            bool: Whether the two sets of sites are symmetrically equivalent.
         """
 
         def in_sites(site):
-            return any(test_site.is_periodic_image(site, symm_prec, False) for test_site in sites1)
+            return any(test_site.is_periodic_image(site, symm_prec, check_lattice=False) for test_site in sites1)
 
         for op in self:
-            newsites2 = [PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice) for site in sites2]
-            for site in newsites2:
+            new_sites2 = [PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice) for site in sites2]
+            for site in new_sites2:
                 if not in_sites(site):
                     break
             else:

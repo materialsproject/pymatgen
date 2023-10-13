@@ -93,7 +93,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-        # pylint: disable=E1101
+
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -184,10 +184,10 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
-            with ZipFile(os.path.join(output_dir, filename), "w") as zip:
+            with ZipFile(os.path.join(output_dir, filename), "w") as zip_file:
                 for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
                     try:
-                        zip.write(os.path.join(output_dir, file), arcname=file)
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
                         pass
                     try:
@@ -435,10 +435,7 @@ class DictSet(VaspInputSet):
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
-                try:
-                    del settings[k]
-                except KeyError:
-                    settings[k] = v
+                settings.pop(k, None)
             elif k == "KSPACING" and self.user_kpoints_settings != {}:
                 pass  # Ignore KSPACING if user_kpoints_settings are given
             else:
@@ -593,8 +590,7 @@ class DictSet(VaspInputSet):
         """Gets the default number of electrons for a given structure."""
         n_electrons_by_element = {p.element: p.nelectrons for p in self.potcar}
         n_elect = sum(
-            num_atoms * n_electrons_by_element[str(el)]
-            for el, num_atoms in self.structure.composition.element_composition.items()
+            num_atoms * n_electrons_by_element[el.symbol] for el, num_atoms in self.structure.composition.items()
         )
 
         if self.use_structure_charge:
@@ -900,7 +896,7 @@ class MPRelaxSet(DictSet):
     description="Strongly Constrained and Appropriately Normed Semilocal Density Functional",
 )
 @due.dcite(
-    Doi("doi:10.1103/PhysRevB.93.155109"),
+    Doi("10.1103/PhysRevB.93.155109"),
     description="Efficient generation of generalized Monkhorst-Pack grids through the use of informatics",
 )
 class MPScanRelaxSet(DictSet):
@@ -981,10 +977,10 @@ class MPScanRelaxSet(DictSet):
         if self.bandgap < 1e-4:
             updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
-            rmin = 25.22 - 2.87 * bandgap  # Eq. 25
+            rmin = max(1.5, 25.22 - 2.87 * bandgap)  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            updates.update(KSPACING=kspacing if 0.22 < kspacing < 0.44 else 0.44, SIGMA=0.05, ISMEAR=-5)
+            updates.update(KSPACING=np.clip(kspacing, 0.22, 0.44), SIGMA=0.05, ISMEAR=-5)
 
         # Don't overwrite things the user has supplied
         for key in self.user_incar_settings:
@@ -995,10 +991,7 @@ class MPScanRelaxSet(DictSet):
             # delete any vdw parameters that may have been added to the INCAR
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             for k in vdw_par[self.vdw]:
-                try:
-                    del self._config_dict["INCAR"][k]
-                except KeyError:
-                    pass
+                self._config_dict["INCAR"].pop(k, None)
 
         self._config_dict["INCAR"].update(updates)
 
@@ -1091,17 +1084,7 @@ class MPStaticSet(DictSet):
         incar = Incar(self.prev_incar or parent_incar)
 
         incar.update(
-            {
-                "IBRION": -1,
-                "ISMEAR": -5,
-                "LAECHG": True,
-                "LCHARG": True,
-                "LORBIT": 11,
-                "LVHAR": True,
-                "LWAVE": False,
-                "NSW": 0,
-                "ALGO": "Normal",
-            }
+            IBRION=-1, ISMEAR=-5, LAECHG=True, LCHARG=True, LORBIT=11, LVHAR=True, LWAVE=False, NSW=0, ALGO="Normal"
         )
 
         if self.lepsilon:
@@ -1124,13 +1107,13 @@ class MPStaticSet(DictSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
+        for key in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
-            if parent_incar.get(k) is not None:
-                incar[k] = parent_incar[k]
+            if parent_incar.get(key) is not None:
+                incar[key] = parent_incar[key]
             else:
-                incar.pop(k, None)
+                incar.pop(key, None)
 
         # use new LDAUU when possible b/c the Poscar might have changed
         # representation
@@ -1983,17 +1966,15 @@ class MPNMRSet(MPStaticSet):
 
         if self.mode.lower() == "cs":
             incar.update(
-                {
-                    "LCHIMAG": True,
-                    "EDIFF": -1.0e-10,
-                    "ISYM": 0,
-                    "LCHARG": False,
-                    "LNMR_SYM_RED": True,
-                    "NELMIN": 10,
-                    "NLSPLINE": True,
-                    "PREC": "ACCURATE",
-                    "SIGMA": 0.01,
-                }
+                LCHIMAG=True,
+                EDIFF=-1.0e-10,
+                ISYM=0,
+                LCHARG=False,
+                LNMR_SYM_RED=True,
+                NELMIN=10,
+                NLSPLINE=True,
+                PREC="ACCURATE",
+                SIGMA=0.01,
             )
         elif self.mode.lower() == "efg":
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
@@ -2001,17 +1982,15 @@ class MPNMRSet(MPStaticSet):
             quad_efg = [float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p))) for p in self.poscar.site_symbols]
 
             incar.update(
-                {
-                    "ALGO": "FAST",
-                    "EDIFF": -1.0e-10,
-                    "ISYM": 0,
-                    "LCHARG": False,
-                    "LEFG": True,
-                    "QUAD_EFG": quad_efg,
-                    "NELMIN": 10,
-                    "PREC": "ACCURATE",
-                    "SIGMA": 0.01,
-                }
+                ALGO="FAST",
+                EDIFF=-1.0e-10,
+                ISYM=0,
+                LCHARG=False,
+                LEFG=True,
+                QUAD_EFG=quad_efg,
+                NELMIN=10,
+                PREC="ACCURATE",
+                SIGMA=0.01,
             )
         incar.update(self.user_incar_settings)
 
@@ -2245,7 +2224,7 @@ class MVLSlabSet(DictSet):
         :param auto_dipole:
         :param set_mix:
         :param sort_structure:
-        :param kwargs: Other kwargs supported by :class:`DictSet`.
+        :param kwargs: Other kwargs supported by DictSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, sort_structure=sort_structure, **kwargs)
 
@@ -2322,6 +2301,7 @@ class MVLSlabSet(DictSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
+
         Returns:
             MSONable dict
         """
@@ -2352,7 +2332,7 @@ class MVLGBSet(DictSet):
                 by default. Note that it does *not* override user_incar_settings,
                 which can be set by the user to be anything desired.
             **kwargs:
-                Other kwargs supported by :class:`MPRelaxSet`.
+                Other kwargs supported by MPRelaxSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.k_product = k_product
@@ -2436,7 +2416,7 @@ class MVLRelax52Set(DictSet):
         Args:
             structure (Structure): input structure.
             user_potcar_functional (str): choose from "PBE_52" and "PBE_54".
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         kwargs.setdefault("user_potcar_functional", "PBE_52")
 
@@ -2456,7 +2436,7 @@ class MITNEBSet(DictSet):
         Args:
             structures: List of Structure objects.
             unset_encut (bool): Whether to unset ENCUT.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         if len(structures) < 3:
             raise ValueError("You need at least 3 structures for an NEB.")
@@ -2545,7 +2525,7 @@ class MITNEBSet(DictSet):
         if write_path_cif:
             sites = set()
             lat = self.structures[0].lattice
-            for site in chain(*(s.sites for s in self.structures)):
+            for site in chain(*(struct for struct in self.structures)):
                 sites.add(PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / "path.cif"))
@@ -2577,7 +2557,7 @@ class MITMDSet(DictSet):
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         # MD default settings
         defaults = {
@@ -2650,7 +2630,7 @@ class MPMDSet(DictSet):
         start_temp: float = 0.0,
         end_temp: float = 300.0,
         nsteps: int = 1000,
-        time_step: float = 2,
+        time_step: float | None = None,
         spin_polarized=False,
         **kwargs,
     ):
@@ -2660,11 +2640,13 @@ class MPMDSet(DictSet):
             start_temp (int): Starting temperature.
             end_temp (int): Final temperature.
             nsteps (int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
-                parameter. Defaults to 2fs.
+            time_step (float): The time step for the simulation. The POTIM
+                parameter. Defaults to None, which will set it automatically
+                to 2.0 fs for non-hydrogen containing structures and 0.5 fs
+                for hydrogen containing structures.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         # MD default settings
         defaults = {
@@ -2689,7 +2671,6 @@ class MPMDSet(DictSet):
             "NBLOCK": 1,
             "KBLOCK": 100,
             "SMASS": 0,
-            "POTIM": time_step,
             "PREC": "Normal",
             "ISPIN": 2 if spin_polarized else 1,
             "LDAU": False,
@@ -2701,6 +2682,7 @@ class MPMDSet(DictSet):
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
+        self.time_step = time_step
         self.spin_polarized = spin_polarized
         self.kwargs = kwargs
 
@@ -2714,9 +2696,15 @@ class MPMDSet(DictSet):
     @property
     def incar(self) -> Incar:
         incar = super().incar
-        if Element("H") in self.structure.species:
-            incar["POTIM"] = 0.5
-            incar["NSW"] = incar["NSW"] * 4
+        if self.time_step is None:
+            if Element("H") in self.structure.species:
+                incar["POTIM"] = 0.5
+                incar["NSW"] = incar["NSW"] * 4
+            else:
+                incar["POTIM"] = 2.0
+        else:
+            incar["POTIM"] = self.time_step
+
         return incar
 
     @property
@@ -2754,7 +2742,7 @@ class MVLNPTMDSet(MITMDSet):
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         super().__init__(structure, start_temp, end_temp, nsteps, time_step, spin_polarized, **kwargs)
 
@@ -2815,7 +2803,7 @@ class MVLScanRelaxSet(DictSet):
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
                 van der Waals density functional by combing the SCAN functional
                 with the rVV10 non-local correlation functional.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         # choose PBE_52 unless the user specifies something else
         kwargs.setdefault("user_potcar_functional", "PBE_52")
@@ -2869,7 +2857,7 @@ class LobsterSet(DictSet):
                 in pymatgen.io.lobster.lobster_basis
             user_potcar_settings (dict): dict including potcar settings for all elements in structure,
                 e.g. {"Fe": "Fe_pv", "O": "O"}; if not supplied, a standard basis is used.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
 
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
@@ -3340,6 +3328,7 @@ class MPAbsorptionSet(MPRelaxSet):
     def from_prev_calc(cls, prev_calc_dir, mode, **kwargs):
         """
         Generate a set of VASP input files for absorption calculation
+
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.

@@ -25,14 +25,14 @@ class TestVoltageProfilePlotter(unittest.TestCase):
             entries = json.load(fid, cls=MontyDecoder)
             self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 
-    def testName(self):
+    def test_name(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         assert plotter.get_plot_data(self.ie_LTO) is not None
         assert plotter.get_plot_data(self.ce_FF) is not None
 
-    def testPlotly(self):
+    def test_plotly(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")

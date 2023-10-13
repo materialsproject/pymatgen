@@ -1,5 +1,5 @@
 #
-# pylint: disable=no-member
+
 """Wrapper for netCDF readers."""
 
 from __future__ import annotations
@@ -53,8 +53,8 @@ def as_ncreader(file):
 
 
 def as_etsfreader(file):
-    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
-    return _asreader(file, ETSF_Reader)
+    """Return an EtsfReader. Accepts filename or EtsfReader."""
+    return _asreader(file, EtsfReader)
 
 
 class NetcdfReaderError(Exception):
@@ -91,7 +91,7 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)
+        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -233,7 +233,7 @@ class NetcdfReader:
         return od
 
 
-class ETSF_Reader(NetcdfReader):
+class EtsfReader(NetcdfReader):
     """
     This object reads data from a file written according to the ETSF-IO specifications.
 
@@ -251,7 +251,7 @@ class ETSF_Reader(NetcdfReader):
 
         return symbols
 
-    def typeidx_from_symbol(self, symbol):
+    def type_idx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
@@ -260,7 +260,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
+        """Read ixc from an Abinit file. Return XcFunc object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -268,7 +268,7 @@ class ETSF_Reader(NetcdfReader):
         """
         Read the variables associated to the Abinit header.
 
-        Return :class:`AbinitHeader`
+        Return AbinitHeader
         """
         dct = {}
         for hvar in _HDR_VARIABLES.values():

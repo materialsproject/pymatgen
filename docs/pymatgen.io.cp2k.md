@@ -134,7 +134,7 @@ Get a hash of this object.
 Get string representation.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -356,7 +356,7 @@ Exchange correlation functional used for creating this potential
 Get summary info from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -490,7 +490,7 @@ Helper method to read lines of file.
 Initialize from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -552,7 +552,7 @@ Load from a file.
 Initialize from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -561,7 +561,7 @@ Use from_str instead
 Get string representation.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -595,7 +595,7 @@ Parameters for davidson diagonalization.
 
         very large systems.
 
-    ”FULL_SINGLE”: Based on H-eS diagonalisation, not as good as FULL_ALL, but
+    ”FULL_SINGLE”: Based on H-eS diagonalization, not as good as FULL_ALL, but
 
         somewhat cheaper to apply.
 
@@ -690,7 +690,7 @@ Bases: `Section`
 
 Controls diagonalization settings (if using traditional diagonalization).
 
-Initialize the diagronalization section.
+Initialize the diagonalization section.
 
 
 ### _class_ E_Density_Cube(keywords: dict | None = None, subsections: dict | None = None, \*\*kwargs)
@@ -860,7 +860,7 @@ Contraction coefficients for each set. Dict[exp->l->shell]
 Read from standard cp2k GTO formatted string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -873,7 +873,7 @@ Convert basis to keyword object.
 Get standard cp2k GTO formatted string.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1024,7 +1024,7 @@ Extract GTH-formatted string from a section and convert it to model.
 Initialize model from a GTH formatted string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1041,7 +1041,7 @@ Convert model to a GTH-formatted section object for input files.
 Convert model to a GTH-formatted string.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1122,7 +1122,7 @@ the file reader).
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1131,7 +1131,7 @@ Use from_str instead
 String representation of Keyword.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1168,7 +1168,7 @@ Extend the keyword list.
 String representation of Keyword.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1209,7 +1209,7 @@ Initialize a KIND section.
     potential file
 
 
-    * **ghost** – Turn this into ghost atom (disaple the potential)
+    * **ghost** – Turn this into ghost atom (disable the potential)
 
 
     * **aux_basis** – Auxiliary basis to use with ADMM
@@ -1422,7 +1422,7 @@ Initialize the OT section.
 
     * **algorithm** – What algorithm to use for OT. ‘Strict’: Taylor or diagonalization
     based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
-    Approximative Congruence transformation (OT/IR).
+    Approximate Congruence transformation (OT/IR).
 
 
     * **rotation** – Introduce additional variables to allow subspace rotations (i.e fractional
@@ -1564,7 +1564,7 @@ Exchange correlation functional used for creating this potential
 Get a cp2k formatted string representation.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1761,8 +1761,7 @@ whether or not required dependencies have been satisfied, which CP2K does not en
 
 #### get(d, default=None)
 Similar to get for dictionaries. This will attempt to retrieve the
-section or keyword matching d. Will not raise an error if d does not
-exist.
+section or keyword matching d. Will not raise an error if d does not exist.
 
 
 * **Parameters**
@@ -1807,7 +1806,7 @@ Get function, only for subsections.
 Get string representation of Section.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1876,7 +1875,7 @@ of new Section child-classes.
 
 
 
-#### verbosity(verbosity)
+#### verbosity(verbosity: bool)
 Change the section verbosity recursively by turning on/off the printing of descriptions.
 Turning off descriptions may reduce the appealing documentation of input files, but also
 helps de-clutter them.
@@ -1915,7 +1914,7 @@ Otherwise, return a get on the last section.
 Return string representation of section list.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -2200,8 +2199,8 @@ Was a band gap found? i.e. is it a metal.
 
 
 #### _property_ is_molecule(_: boo_ )
-Returns True if the cp2k output was generated for a molecule (i.e.
-no periodicity in the cell). Returns false otherwise.
+True if the cp2k output was generated for a molecule (i.e.
+no periodicity in the cell).
 
 
 #### _property_ multiplicity(_: in_ )

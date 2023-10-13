@@ -1378,7 +1378,7 @@ class BoltztrapAnalyzer:
         if doping_levels:
             cmplx_fact = {}
             for dt in ("n", "p"):
-                sbk_mass = self.get_seebeck_eff_mass(output, temp, True, Lambda)[dt]
+                sbk_mass = self.get_seebeck_eff_mass(output, temp, doping_levels=True, Lambda=Lambda)[dt]
                 cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
 
                 if output == "average":
@@ -1391,7 +1391,7 @@ class BoltztrapAnalyzer:
                             cmplx_fact[dt][-1].append((sm[j] / abs(cond_mass[i][j][j])) ** 1.5)
 
         else:
-            sbk_mass = self.get_seebeck_eff_mass(output, temp, False, Lambda)
+            sbk_mass = self.get_seebeck_eff_mass(output, temp, doping_levels=False, Lambda=Lambda)
             cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
 
             if output == "average":
@@ -1682,7 +1682,8 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
-        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
+        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files.
+
         Args:
             path_dir: (str) dir containing DOS files
             efermi: (float) Fermi energy
@@ -1793,7 +1794,8 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_cond_and_hall(path_dir, doping_levels=None):
-        """Parses the conductivity and Hall tensors
+        """Parses the conductivity and Hall tensors.
+
         Args:
             path_dir: Path containing .condtens / .halltens files
             doping_levels: ([float]) - doping lvls, parse outtrans to get this.
@@ -2167,7 +2169,7 @@ def read_cube_file(filename):
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
         nlines_data = len(energy_data)
         last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
-        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)  # pylint: disable=E1121
+        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
 
@@ -2260,8 +2262,8 @@ def seebeck_spb(eta, Lambda=0.5):
 def eta_from_seebeck(seeb, Lambda):
     """It takes a value of seebeck and adjusts the analytic seebeck until it's equal.
 
-    Returns: eta where the two seebeck coefficients are equal
-    (reduced chemical potential).
+    Returns:
+        float: eta where the two seebeck coefficients are equal (reduced chemical potential).
     """
     from scipy.optimize import fsolve
 

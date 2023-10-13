@@ -55,7 +55,7 @@ existing magmoms.
 
 
 * “normalize” will normalize magmoms to unity, but will respect sign
-(used for comparing orderings), magmoms < theshhold will be set to zero
+(used for comparing orderings), magmoms < threshold will be set to zero
 
 
 * **Parameters**
@@ -177,7 +177,11 @@ Returns a Structure with only magnetic atoms present.
     removing non-magnetic atoms (Default value = True)
 
 
-Returns: Structure
+
+* **Returns**
+
+    Structure
+
 
 
 #### get_structure_with_spin()
@@ -198,7 +202,11 @@ Returns a dict of magnetic species and the magnitude of
 their associated magmoms. Will return a list if there are
 multiple magmoms per species.
 
-Returns: dict of magnetic species and magmoms
+
+* **Returns**
+
+    dict of magnetic species and magmoms
+
 
 
 #### matches_ordering(other: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
@@ -210,7 +218,17 @@ Compares the magnetic orderings of one structure with another.
     **other** – Structure to compare
 
 
-Returns: True or False
+
+* **Returns**
+
+    True if magnetic orderings match, False otherwise
+
+
+
+* **Return type**
+
+    bool
+
 
 
 #### _property_ number_of_magnetic_sites(_: in_ )
@@ -228,16 +246,34 @@ Number of magnetic sites present in structure.
     * **angle_tolerance** – same as in SpacegroupAnalyzer (Default value = 5).
 
 
-Returns: Number of symmetrically-distinct magnetic sites present
-in structure.
+
+* **Returns**
+
+    Number of symmetrically-distinct magnetic sites present in structure.
+
+
+
+* **Return type**
+
+    int
+
 
 
 #### _property_ ordering(_: Orderin_ )
 Applies heuristics to return a magnetic ordering for a collinear
 magnetic structure. Result is not guaranteed for correctness.
 
-Returns: Ordering Enum (‘FiM’ is used as the abbreviation for
-ferrimagnetic)
+
+* **Returns**
+
+    Enum (‘FiM’ is used as the abbreviation for ferrimagnetic)
+
+
+
+* **Return type**
+
+    Ordering
+
 
 
 #### _property_ types_of_magnetic_specie(_: tuple[[Element](pymatgen.core.md#pymatgen.core.periodic_table.Element) | [Species](pymatgen.core.md#pymatgen.core.periodic_table.Species) | [DummySpecies](pymatgen.core.md#pymatgen.core.periodic_table.DummySpecies), ..._ )
@@ -248,7 +284,17 @@ Specie->Species rename. Used to maintain backwards compatibility.
 Equivalent to Structure.types_of_specie but only returns
 magnetic species.
 
-Returns: types of Species as a list
+
+* **Returns**
+
+    types of Species
+
+
+
+* **Return type**
+
+    tuple
+
 
 
 ### _class_ MagneticDeformation(type, deformation)
@@ -331,7 +377,8 @@ magnetic, otherwise magnetic elements will be guessed
 #### _generate_ordered_structures(sanitized_input_structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), transformations: dict[str, [MagOrderingTransformation](pymatgen.transformations.md#pymatgen.transformations.advanced_transformations.MagOrderingTransformation)])
 Apply our input structure to our list of transformations and output a list
 of ordered structures that have been pruned for duplicates and for those
-with low symmetry (optional).
+with low symmetry (optional). Sets self.ordered_structures
+and self.ordered_structures_origins instance variables.
 
 
 * **Parameters**
@@ -352,10 +399,11 @@ with low symmetry (optional).
     * **keeping** (*for record*) –
 
 
-Returns: None (sets self.ordered_structures
-and self.ordered_structures_origins instance variables)
 
-Returns: List of Structures
+* **Returns**
+
+    list[Structures]
+
 
 
 #### _generate_transformations(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
@@ -375,23 +423,34 @@ relatively robust over a wide range of magnetic structures.
     **structure** – A sanitized input structure (_sanitize_input_structure)
 
 
-Returns: A dict of a transformation class instance (values) and name of
-enumeration strategy (keys)
 
-Returns: dict of Transformations keyed by strategy
+* **Returns**
+
+    A dict of a transformation class instance (values) and name of enumeration strategy (keys)
 
 
-#### _static_ _sanitize_input_structure(input_structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
+
+* **Return type**
+
+    dict
+
+
+
+#### _static_ _sanitize_input_structure(struct: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
 Sanitize our input structure by removing magnetic information
 and making primitive.
 
 
 * **Parameters**
 
-    **input_structure** – Structure
+    **struct** – Structure
 
 
-Returns: Structure
+
+* **Returns**
+
+    Structure
+
 
 
 #### available_strategies(_ = ('ferromagnetic', 'antiferromagnetic', 'ferrimagnetic_by_motif', 'ferrimagnetic_by_species', 'antiferromagnetic_by_motif', 'nonmagnetic'_ )
@@ -447,7 +506,11 @@ doi: 10.1021/acs.chemmater.6b04729
     * **structure_B** – Structure
 
 
-Returns: Magnetic deformation
+
+* **Returns**
+
+    MagneticDeformation
+
 
 ## pymatgen.analysis.magnetism.heisenberg module
 
@@ -525,19 +588,15 @@ nearest neighbor interactions, computing +-
 ```
 
  to construct
-a Heisenberg Hamiltonian for each graph.
+a Heisenberg Hamiltonian for each graph. Sets self.ex_mat instance variable.
 
+TODO Deal with large variance in
 
-* **Returns**
+```
+|S|
+```
 
-    (sets self.ex_mat instance variable)
-
-
-
-* **Return type**
-
-    None
-
+ across configs
 
 
 #### _static_ _get_graphs(cutoff, ordered_structures)
@@ -598,19 +657,8 @@ Convenience method for looking up exchange parameter between two sites.
 
 
 #### _get_nn_dict()
-Get dict of unique nearest neighbor interactions.
-
-
-* **Returns**
-
-    (sets self.nn_interactions and self.dists instance variables)
-
-
-
-* **Return type**
-
-    None
-
+Sets self.nn_interactions and self.dists instance variables describing unique
+nearest neighbor interactions.
 
 
 #### _static_ _get_unique_sites(structure)
@@ -1025,7 +1073,17 @@ Get number of d electrons of a species.
     **species** – Species object
 
 
-Returns: Number of d electrons.
+
+* **Returns**
+
+    Number of d electrons.
+
+
+
+* **Return type**
+
+    int
+
 
 
 #### get_analysis(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), calculate_valences: bool = True, guesstimate_spin: bool = False, op_threshold: float = 0.1)
@@ -1114,7 +1172,17 @@ Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
     * **motif** – “oct” or “tet”
 
 
-Returns: “none”, “weak” or “strong
+
+* **Returns**
+
+    “none”, “weak” or “strong”
+
+
+
+* **Return type**
+
+    str
+
 
 
 #### _static_ get_magnitude_of_effect_from_spin_config(motif: str, spin_config: dict[str, float])
@@ -1131,11 +1199,20 @@ occupied
     * **motif** – “oct” or “tet”
 
 
-    * **spin_config** – dict of ‘e’ (e_g) and ‘t’ (t2_g)
-    with number of electrons in each state
+    * **spin_config** – dict of ‘e’ (e_g) and ‘t’ (t2_g) with number of electrons in each state
 
 
-Returns:  “none”, “weak” or “strong”
+
+* **Returns**
+
+    “none”, “weak” or “strong”
+
+
+
+* **Return type**
+
+    str
+
 
 
 #### is_jahn_teller_active(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), calculate_valences: bool = True, guesstimate_spin: bool = False, op_threshold: float = 0.1)

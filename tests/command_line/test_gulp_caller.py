@@ -48,7 +48,7 @@ class TestGulpCaller(unittest.TestCase):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -92,15 +92,13 @@ class TestGulpCaller(unittest.TestCase):
 
         _ = BuckinghamPotential(bush_lewis_flag="bush")
         gio = GulpIO()
-        input = gio.buckingham_input(struct, ["relax conp"])
+        buckingham_input = gio.buckingham_input(struct, ["relax conp"])
         caller = GulpCaller()
-        caller.run(input)
+        caller.run(buckingham_input)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestGulpIO(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
         self.structure = p.structure
@@ -153,7 +151,7 @@ class TestGulpIO(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         gin = self.gio.buckingham_potential(mgo_uc)
         assert "specie" in gin
         assert "buck" in gin
@@ -180,7 +178,7 @@ class TestGulpIO(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         gin = self.gio.buckingham_input(mgo_uc, keywords=("optimise", "conp"))
         assert "optimise" in gin
         assert "cell" in gin
@@ -205,7 +203,7 @@ class TestGulpIO(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         gin = self.gio.tersoff_potential(mgo_uc)
         assert "specie" in gin
         assert "Mg core" in gin
@@ -258,7 +256,7 @@ class TestGulpIO(unittest.TestCase):
         assert struct.lattice.alpha == 90
 
     @unittest.skip("Test later")
-    def test_tersoff_inpt(self):
+    def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 
 
@@ -277,10 +275,10 @@ class TestGlobalFunctions(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
-        el = [site.species_string for site in self.mgo_uc.sites]
+        el = [site.species_string for site in self.mgo_uc]
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
@@ -311,8 +309,6 @@ class TestGlobalFunctions(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestBuckinghamPotentialLewis(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.bpl = BuckinghamPotential("lewis")
 
@@ -323,7 +319,7 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
         assert "O_core" in self.bpl.species_dict
         assert "O_shel" in self.bpl.species_dict
 
-    def test_non_exisitng_element(self):
+    def test_non_existing_element(self):
         assert "Li_1+" not in self.bpl.pot_dict
         assert "Li_1+" not in self.bpl.species_dict
 
@@ -341,8 +337,6 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestBuckinghamPotentialBush(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.bpb = BuckinghamPotential("bush")
 
@@ -352,7 +346,7 @@ class TestBuckinghamPotentialBush(unittest.TestCase):
         assert "O" in self.bpb.pot_dict
         assert "O" in self.bpb.species_dict
 
-    def test_non_exisitng_element(self):
+    def test_non_existing_element(self):
         assert "Mn" not in self.bpb.pot_dict
         assert "Mn" not in self.bpb.species_dict
 

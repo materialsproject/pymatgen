@@ -338,10 +338,10 @@ class BVAnalyzer:
                 for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
-            fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
+            fractions = np.array(fractions, float)  # type: ignore[assignment]
             new_valences = [val for vals in valences for val in vals]
-            valence_min = np.array([min(i) for i in new_valences], np.float_)
-            valence_max = np.array([max(i) for i in new_valences], np.float_)
+            valence_min = np.array([min(i) for i in new_valences], float)
+            valence_max = np.array([max(i) for i in new_valences], float)
 
             self._n = 0
             self._best_score = 0

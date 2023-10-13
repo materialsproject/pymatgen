@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import re
 from collections import defaultdict
 
@@ -204,19 +203,14 @@ def process_parsed_fock_matrix(fock_matrix):
     return fock_matrix_reshaped
 
 
-def process_parsed_HESS(hess_data):
+def process_parsed_hess(hess_data):
     """
     Takes the information contained in a HESS file and converts it into
     the format of the machine-readable 132.0 file which can be printed
     out to be read into subsequent optimizations.
     """
     dim = int(hess_data[1].split()[1])
-    hess = []
-    tmp_part = []
-    for _ii in range(dim):
-        tmp_part.append(0.0)
-    for _ii in range(dim):
-        hess.append(copy.deepcopy(tmp_part))
+    hess = [[0 for _ in range(dim)] for _ in range(dim)]
 
     row = 0
     column = 0

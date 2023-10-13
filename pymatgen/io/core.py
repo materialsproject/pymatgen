@@ -29,11 +29,15 @@ import abc
 import os
 from collections.abc import Iterator, MutableMapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -63,7 +67,7 @@ class InputFile(MSONable):
     def get_string(self) -> str:
         """Return a string representation of an entire input file."""
 
-    def write_file(self, filename: str | Path) -> None:
+    def write_file(self, filename: str | PathLike) -> None:
         """
         Write the input file.
 

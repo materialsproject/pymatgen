@@ -63,28 +63,28 @@ class Cohp(MSONable):
     def __repr__(self):
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
-            cohpstring = "COOP"
+            cohp_str = "COOP"
         elif self.are_cobis:
-            cohpstring = "COBI"
+            cohp_str = "COBI"
         else:
-            cohpstring = "COHP"
-        header = ["Energy", cohpstring + "Up"]
+            cohp_str = "COHP"
+        header = ["Energy", cohp_str + "Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
-            header.append(cohpstring + "Down")
+            header.append(cohp_str + "Down")
             data.append(self.cohp[Spin.down])
         if self.icohp:
-            header.append("I" + cohpstring + "Up")
+            header.append("I" + cohp_str + "Up")
             data.append(self.icohp[Spin.up])
             if Spin.down in self.cohp:
-                header.append("I" + cohpstring + "Down")
+                header.append("I" + cohp_str + "Down")
                 data.append(self.icohp[Spin.down])
-        formatheader = "#" + " ".join("{:15s}" for __ in header)
-        formatdata = " ".join("{:.5f}" for __ in header)
-        stringarray = [formatheader.format(*header)]
-        for i, __ in enumerate(self.energies):
-            stringarray.append(formatdata.format(*(d[i] for d in data)))
-        return "\n".join(stringarray)
+        format_header = "#" + " ".join("{:15s}" for __ in header)
+        format_data = " ".join("{:.5f}" for __ in header)
+        str_arr = [format_header.format(*header)]
+        for idx in range(len(self.energies)):
+            str_arr.append(format_data.format(*(d[idx] for d in data)))
+        return "\n".join(str_arr)
 
     def as_dict(self):
         """JSON-serializable dict representation of COHP."""
@@ -707,7 +707,7 @@ class CompleteCohp(Cohp):
             # may not be present when the cohpgenerator keyword is used
             # in LOBSTER versions 2.2.0 and earlier.
             # TODO: Test this more extensively
-            # pylint: disable=E1133,E1136
+
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
                     cohp_data[label]["COHP"] = {
@@ -730,7 +730,7 @@ class CompleteCohp(Cohp):
             # Calculate the average COHP for the LMTO file to be
             # consistent with LOBSTER output.
             avg_data = {"COHP": {}, "ICOHP": {}}
-            for i in avg_data:  # pylint: disable=C0206
+            for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])
                     avg = np.average(rows, axis=0)
@@ -1036,6 +1036,7 @@ class IcohpCollection(MSONable):
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
             orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)"
+
         Returns:
             float describing ICOHP/ICOOP value
         """
@@ -1080,19 +1081,20 @@ class IcohpCollection(MSONable):
         return sum_icohp / divisor
 
     def get_icohp_dict_by_bondlengths(self, minbondlength=0.0, maxbondlength=8.0):
-        """Get a dict of IcohpValues corresponding to certain bond lengths
+        """Get a dict of IcohpValues corresponding to certain bond lengths.
+
         Args:
             minbondlength: defines the minimum of the bond lengths of the bonds
             maxbondlength: defines the maximum of the bond lengths of the bonds.
 
         Returns:
-             dict of IcohpValues, the keys correspond to the values from the initial list_labels.
+            dict of IcohpValues, the keys correspond to the values from the initial list_labels.
         """
-        newicohp_dict = {}
+        new_icohp_dict = {}
         for value in self._icohplist.values():
             if value._length >= minbondlength and value._length <= maxbondlength:
-                newicohp_dict[value._label] = value
-        return newicohp_dict
+                new_icohp_dict[value._label] = value
+        return new_icohp_dict
 
     def get_icohp_dict_of_site(
         self,
@@ -1118,7 +1120,7 @@ class IcohpCollection(MSONable):
         Returns:
             dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
-        newicohp_dict = {}
+        new_icohp_dict = {}
         for key, value in self._icohplist.items():
             atomnumber1 = int(re.split(r"(\d+)", value._atom1)[1]) - 1
             atomnumber2 = int(re.split(r"(\d+)", value._atom2)[1]) - 1
@@ -1135,19 +1137,20 @@ class IcohpCollection(MSONable):
                         if value.summed_icohp >= minsummedicohp:
                             if maxsummedicohp is not None:
                                 if value.summed_icohp <= maxsummedicohp:
-                                    newicohp_dict[key] = value
+                                    new_icohp_dict[key] = value
                             else:
-                                newicohp_dict[key] = value
+                                new_icohp_dict[key] = value
                     elif maxsummedicohp is not None:
                         if value.summed_icohp <= maxsummedicohp:
-                            newicohp_dict[key] = value
+                            new_icohp_dict[key] = value
                     else:
-                        newicohp_dict[key] = value
+                        new_icohp_dict[key] = value
 
-        return newicohp_dict
+        return new_icohp_dict
 
     def extremum_icohpvalue(self, summed_spin_channels=True, spin=Spin.up):
-        """Get ICOHP/ICOOP of strongest bond
+        """Get ICOHP/ICOOP of strongest bond.
+
         Args:
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed.
 

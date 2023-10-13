@@ -25,7 +25,7 @@ from tabulate import tabulate
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -138,7 +138,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def to_str(self, verbose=0) -> str:
         """String representation."""
-        # pylint: disable=E1101
+
         lines: list[str] = []
         app = lines.append
         app(f"<{type(self).__name__}: {self.basename}>")
@@ -191,7 +191,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def element(self) -> Element:
-        """Pymatgen :class:`Element`."""
+        """Pymatgen Element."""
         try:
             return Element.from_Z(self.Z)
         except (KeyError, IndexError):
@@ -230,7 +230,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and return MD5 hash value."""
-        # pylint: disable=E1101
+
         import hashlib
 
         with open(self.path) as fh:
@@ -287,7 +287,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             tmpdir: If None, a new temporary directory is created and files are copied here
                 else tmpdir is used.
         """
-        # pylint: disable=E1101
+
         import shutil
         import tempfile
 
@@ -311,13 +311,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
-        # pylint: disable=E1101
+
         return hasattr(self, "dojo_report") and self.dojo_report
 
     @property
     def djrepo_path(self):
         """The path of the djrepo file. None if file does not exist."""
-        # pylint: disable=E1101
+
         root, ext = os.path.splitext(self.filepath)
         return root + ".djrepo"
         # if os.path.exists(path): return path
@@ -325,14 +325,14 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns a :class:`Hint` object with the suggested value of ecut [Ha] and
+        Returns a Hint object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 
         Args:
             accuracy: ["low", "normal", "high"]
         """
-        # pylint: disable=E1101
+
         if not self.has_dojo_report:
             return Hint(ecut=0.0, pawecutdg=0.0)
 
@@ -357,7 +357,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def open_pspsfile(self, ecut=20, pawecutdg=None):
         """
         Calls Abinit to compute the internal tables for the application of the
-        pseudopotential part. Returns :class:`PspsFile` object providing methods
+        pseudopotential part. Returns PspsFile object providing methods
         to plot and analyze the data or None if file is not found or it's not readable.
 
         Args:
@@ -468,7 +468,7 @@ class AbinitPseudo(Pseudo):
         """
         Args:
             path: Filename.
-            header: :class:`AbinitHeader` instance.
+            header: AbinitHeader instance.
         """
         self.path = path
         self.header = header
@@ -490,28 +490,24 @@ class AbinitPseudo(Pseudo):
 
     @property
     def Z(self):
-        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
-        # pylint: disable=E1101
         return self._zion
 
     @property
     def l_max(self):
-        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
-        # pylint: disable=E1101
         return self._lloc
 
     @property
     def supports_soc(self):
         # Treat ONCVPSP pseudos
-        # pylint: disable=E1101
+
         if self._pspcod == 8:
             switch = self.header["extension_switch"]
             if switch in (0, 1):
@@ -535,28 +531,24 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
 
     @property
     def Z(self):
-        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
         """Number of valence electrons."""
-        # pylint: disable=E1101
+
         return self._zion
 
     @property
     def l_max(self):
-        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
-        # pylint: disable=E1101
         return self._lloc
 
     @property
     def nlcc_radius(self):
-        # pylint: disable=E1101
         return self._rchrg
 
 
@@ -565,7 +557,6 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     @property
     def paw_radius(self):
-        # pylint: disable=E1101
         return self._r_cut
 
     # def orbitals(self):
@@ -1010,7 +1001,7 @@ class PawAbinitHeader(AbinitHeader):
 
 
 class PseudoParseError(ParseError):
-    """Base Error class for the exceptions raised by :class:`PseudoParser`."""
+    """Base Error class for the exceptions raised by PseudoParser."""
 
 
 class PseudoParser:
@@ -1200,7 +1191,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Args:
             filepath (str): Path to the XML file.
         """
-        # pylint: disable=E1101
+
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1347,7 +1338,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_radfunc(self, func_name):
         """Parse the first occurrence of func_name in the XML file."""
-        # pylint: disable=E1101
+
         node = self.root.find(func_name)
         grid = node.attrib["grid"]
         values = np.array([float(s) for s in node.text.split()])
@@ -1356,7 +1347,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_all_radfuncs(self, func_name):
         """Parse all the nodes with tag func_name in the XML file."""
-        # pylint: disable=E1101
+
         for node in self.root.findall(func_name):
             grid = node.attrib["grid"]
             values = np.array([float(s) for s in node.text.split()])
@@ -1421,14 +1412,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Plot the PAW densities.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
 
-        ax.grid(True)
+        ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
         # ax.set_ylabel('density')
 
@@ -1447,15 +1438,16 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Plot the AE and the pseudo partial waves.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
             fontsize: fontsize for legends and titles
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
-        # pylint: disable=E1101
-        ax, fig, plt = get_ax_fig_plt(ax)
 
-        ax.grid(True)
+        ax, fig = get_ax_fig(ax)
+
+        ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
         ax.set_ylabel(r"$r\phi,\, r\tilde\phi\, [Bohr]^{-\frac{1}{2}}$")
 
@@ -1478,13 +1470,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Plot the PAW projectors.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
-        # pylint: disable=E1101
-        ax, fig, plt = get_ax_fig_plt(ax)
-        ax.grid(True)
+
+        ax, fig = get_ax_fig(ax)
+        ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
         ax.set_ylabel(r"$r\tilde p\, [Bohr]^{-\frac{1}{2}}$")
 
@@ -1521,7 +1514,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    fig = plt.figure()
 
     #    ax = fig.add_subplot(1,1,1)
-    #    ax.grid(True)
+    #    ax.grid(visible=True)
     #    ax.set_xlabel('r [Bohr]')
     #    ax.set_ylabel('density')
     #    ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
@@ -1559,7 +1552,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     @classmethod
     def as_table(cls, items):
-        """Return an instance of :class:`PseudoTable` from the iterable items."""
+        """Return an instance of PseudoTable from the iterable items."""
         if isinstance(items, cls):
             return items
         return cls(items)
@@ -1575,7 +1568,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                     we try to open all files in top
             exclude_dirs: Wildcard used to exclude directories.
 
-        return: :class:`PseudoTable` sorted by atomic number Z.
+        return: PseudoTable sorted by atomic number Z.
         """
         pseudos = []
 
@@ -1772,12 +1765,12 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     def select_symbols(self, symbols, ret_list=False):
         """
-        Return a :class:`PseudoTable` with the pseudopotentials with the given list of chemical symbols.
+        Return a PseudoTable with the pseudopotentials with the given list of chemical symbols.
 
         Args:
             symbols: str or list of symbols
                 Prepend the symbol string with "-", to exclude pseudos.
-            ret_list: if True a list of pseudos is returned instead of a :class:`PseudoTable`
+            ret_list: if True a list of pseudos is returned instead of a PseudoTable
         """
         symbols = list_strings(symbols)
         exclude = symbols[0].startswith("-")
@@ -1804,10 +1797,10 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     def get_pseudos_for_structure(self, structure: Structure):
         """
-        Return the list of :class:`Pseudo` objects to be used for this :class:`Structure`.
+        Return the list of Pseudo objects to be used for this Structure.
 
         Args:
-            structure: pymatgen :class:`Structure`.
+            structure: pymatgen Structure.
 
         Raises:
             `ValueError` if one of the chemical symbols is not found or
@@ -1860,7 +1853,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
 
     def sort_by_z(self):
-        """Return a new :class:`PseudoTable` with pseudos sorted by Z."""
+        """Return a new PseudoTable with pseudos sorted by Z."""
         return self.__class__(sorted(self, key=lambda p: p.Z))
 
     def select(self, condition) -> PseudoTable:
@@ -1868,7 +1861,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
         Args:
             condition:
-                Function that accepts a :class:`Pseudo` object and returns True or False.
+                Function that accepts a Pseudo object and returns True or False.
 
         Returns:
             PseudoTable: New PseudoTable instance with pseudos for which condition is True.

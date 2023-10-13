@@ -27,9 +27,6 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         ax: Axes object in which the network should be drawn.
         sg: Not used currently (drawing of supergraphs).
         periodicity_vectors: List of periodicity vectors that should be drawn.
-
-    Returns: None
-
     """
     for n in env_graph:
         c = Circle(pos[n], radius=0.02, alpha=0.5)
@@ -59,12 +56,12 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         dist = np.sqrt(np.power(n2.center[0] - n1.center[0], 2) + np.power(n2.center[1] - n1.center[1], 2))
         n1c_to_n2c = n2center - n1center
         vv = np.cross(
-            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], np.float_),
-            np.array([0, 0, 1], np.float_),
+            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], float),
+            np.array([0, 0, 1], float),
         )
         vv /= np.linalg.norm(vv)
-        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], np.float_)
-        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], np.float_)
+        mid_arc = midpoint + rad * dist * np.array([vv[0], vv[1]], float)
+        xy_text_offset = 0.1 * dist * np.array([vv[0], vv[1]], float)
 
         if periodicity_vectors is not None and len(periodicity_vectors) == 1:
             if np.all(np.array(delta) == np.array(periodicity_vectors[0])) or np.all(
@@ -112,11 +109,11 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
             )
         ax.annotate(
             delta,
-            midarc,
+            mid_arc,
             ha="center",
             va="center",
             xycoords="data",
-            xytext=xytext_offset,
+            xytext=xy_text_offset,
             textcoords="offset points",
         )
         seen[(u, v)] = rad
@@ -124,18 +121,18 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
 
 
 def make_supergraph(graph, multiplicity, periodicity_vectors):
-    """Make supergraph from a graph of environments.
+    """Make super graph from a graph of environments.
 
     Args:
         graph: Graph of environments.
-        multiplicity: Multiplicity of the supergraph.
-        periodicity_vectors: Periodicity vectors needed to make the supergraph.
+        multiplicity: Multiplicity of the super graph.
+        periodicity_vectors: Periodicity vectors needed to make the super graph.
 
-    Returns: Super graph of the environments.
-
+    Returns:
+        nx.MultiGraph: Super graph of the environments.
     """
-    supergraph = nx.MultiGraph()
-    print("peridoicity vectors :")
+    super_graph = nx.MultiGraph()
+    print("periodicity vectors :")
     print(periodicity_vectors)
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
@@ -173,25 +170,25 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-                supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+                super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
             for n1, n2, key, data in connecting_edges:
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = np.mod(((imult + 1) * len(nodes)) + indices_nodes[n2], len(nodes) * mult)
                 new_data["delta"] = (0, 0, 0)
-                supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+                super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         imult = mult - 1
         for n1, n2, key, data in other_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-            supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+            super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         for n1, n2, key, data in connecting_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = indices_nodes[n2]
-            supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
-        return supergraph
+            super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+        return super_graph
 
     raise NotImplementedError("make_supergraph not yet implemented for 2- and 3-periodic graphs")
 
@@ -237,11 +234,9 @@ class ConnectedComponent(MSONable):
                 env_node1 = edge[0]
                 env_node2 = edge[1]
                 key = None if len(edge) == 2 else edge[2]
-                if (not self._connected_subgraph.has_node(env_node1)) or (
-                    not self._connected_subgraph.has_node(env_node2)
-                ):
+                if not self._connected_subgraph.has_node(env_node1) or not self._connected_subgraph.has_node(env_node2):
                     raise ChemenvError(
-                        self.__class__,
+                        type(self).__name__,
                         "__init__",
                         "Trying to add edge with some unexistent node ...",
                     )

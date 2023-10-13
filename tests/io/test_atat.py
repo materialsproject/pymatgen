@@ -86,29 +86,29 @@ class TestAtat(PymatgenTest):
         assert Mcsqs(struct).to_str() == ref_string
 
     def test_mcsqs_cif_nacl(self):
-        # cif file from str2cif (utility distributed with atat)
-        struc_from_cif = Structure.from_file(f"{test_dir}/bestsqs_nacl.cif")
+        # CIF file from str2cif (utility distributed with atat)
+        struct_from_cif = Structure.from_file(f"{test_dir}/bestsqs_nacl.cif")
 
         # output file directly from mcsqs
-        struc_from_out = Structure.from_file(f"{test_dir}/bestsqs_nacl.out")
+        struct_from_out = Structure.from_file(f"{test_dir}/bestsqs_nacl.out")
 
-        assert struc_from_cif.matches(struc_from_out)
+        assert struct_from_cif.matches(struct_from_out)
         assert_allclose(
-            struc_from_out.lattice.parameters,
-            struc_from_cif.lattice.parameters,
+            struct_from_out.lattice.parameters,
+            struct_from_cif.lattice.parameters,
             atol=1e-4,
         )
 
     def test_mcsqs_cif_pzt(self):
-        # cif file from str2cif (utility distributed with atat)
-        struc_from_cif = Structure.from_file(f"{test_dir}/bestsqs_pzt.cif")
+        # CIF file from str2cif (utility distributed with atat)
+        struct_from_cif = Structure.from_file(f"{test_dir}/bestsqs_pzt.cif")
 
         # output file directly from mcsqs
-        struc_from_out = Structure.from_file(f"{test_dir}/bestsqs_pzt.out")
+        struct_from_out = Structure.from_file(f"{test_dir}/bestsqs_pzt.out")
 
-        assert struc_from_cif.matches(struc_from_out)
+        assert struct_from_cif.matches(struct_from_out)
         assert_allclose(
-            struc_from_out.lattice.parameters,
-            struc_from_cif.lattice.parameters,
+            struct_from_out.lattice.parameters,
+            struct_from_cif.lattice.parameters,
             atol=1e-4,
         )

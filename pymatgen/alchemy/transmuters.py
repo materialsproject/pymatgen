@@ -40,11 +40,11 @@ class StandardTransmuter:
         self,
         transformed_structures,
         transformations=None,
-        extend_collection=0,
-        ncores=None,
+        extend_collection: int = 0,
+        ncores: int | None = None,
     ):
         """Initializes a transmuter from an initial list of
-        :class:`pymatgen.alchemy.materials.TransformedStructure`.
+        pymatgen.alchemy.materials.TransformedStructure.
 
         Args:
             transformed_structures ([TransformedStructure]): Input transformed

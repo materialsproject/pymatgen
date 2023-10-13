@@ -70,7 +70,7 @@ class BondDissociationEnergies(MSONable):
                 raise RuntimeError(key + " must be present in molecule entry! Exiting...")
             for entry in self.filtered_entries:
                 if key not in entry:
-                    raise RuntimeError(key + " must be present in all fragment entries! Exiting...")
+                    raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
         final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
@@ -111,10 +111,10 @@ class BondDissociationEnergies(MSONable):
                 self.fragment_and_process(bond_pair)
 
     def fragment_and_process(self, bonds):
-        """
-        Fragment and process bonds.
+        """Fragment and process bonds.
 
-        :param bonds: Bonds to process.
+        Args:
+            bonds (list): bonds to process.
         """
         # Try to split the principle:
         try:

@@ -229,7 +229,7 @@ class GaussianInput:
                         bl = parameters[0]
                         angle = parameters[1]
                         axis = [0, 1, 0]
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle)
                         coord = op.operate(coords2)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
@@ -244,14 +244,14 @@ class GaussianInput:
                         v1 = coords3 - coords2
                         v2 = coords1 - coords2
                         axis = np.cross(v1, v2)
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle)
                         coord = op.operate(coords2)
                         v1 = coord - coords1
                         v2 = coords1 - coords2
                         v3 = np.cross(v1, v2)
                         adj = get_angle(v3, axis)
                         axis = coords1 - coords2
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, dih - adj, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, dih - adj)
                         coord = op.operate(coord)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
@@ -422,10 +422,9 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output.append(f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}")
-        output.append("")
-        output.append(self.title)
-        output.append("")
+        output.extend(
+            (f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}", "", self.title, "")
+        )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
@@ -441,8 +440,7 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.append(para_dict_to_string(self.input_parameters, "\n"))
-        output.append("\n")
+        output.extend((para_dict_to_string(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):
@@ -496,9 +494,7 @@ class GaussianOutput:
     """
     Parser for Gaussian output files.
 
-    .. note::
-
-        Still in early beta.
+    Note: Still in early beta.
 
     Attributes:
         structures (list[Structure]): All structures from the calculation in the standard orientation. If the

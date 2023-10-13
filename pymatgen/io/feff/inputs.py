@@ -298,7 +298,7 @@ class Header(MSONable):
         Returns:
             Structure object.
         """
-        lines = tuple(clean_lines(header_str.split("\n"), False))
+        lines = tuple(clean_lines(header_str.split("\n"), remove_empty_lines=False))
         comment1 = lines[0]
         feff_pmg = comment1.find("pymatgen")
         if feff_pmg == -1:
@@ -334,7 +334,7 @@ class Header(MSONable):
                 tokens = lines[i + 9].split()
                 coords.append([float(s) for s in tokens[3:]])
 
-            struct = Structure(lattice, atomic_symbols, coords, False, False, False)
+            struct = Structure(lattice, atomic_symbols, coords)
 
             return Header(struct, source, comment2)
 
@@ -639,8 +639,7 @@ class Tags(dict):
                     beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
                     beam_energy_list = beam_energy.split()
                     if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
-                        lines.append([beam_energy])
-                        lines.append([self._stringify_val(self[k]["BEAM_DIRECTION"])])
+                        lines.extend(([beam_energy], [self._stringify_val(self[k]["BEAM_DIRECTION"])]))
                     else:
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)
@@ -925,7 +924,7 @@ class Potential(MSONable):
 
                 The lines are arranged as follows:
 
-          ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
+            ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
 
         Returns:
             String representation of Atomic Coordinate Shells.
@@ -991,8 +990,7 @@ class Paths(MSONable):
         # max possible, to avoid name collision count down from max value.
         path_index = 9999
         for i, legs in enumerate(self.paths):
-            lines.append(f"{path_index} {len(legs)} {self.degeneracies[i]}")
-            lines.append("x y z ipot label")
+            lines.extend((f"{path_index} {len(legs)} {self.degeneracies[i]}", "x y z ipot label"))
             for leg in legs:
                 coords = self.atoms.cluster[leg].coords.tolist()
 

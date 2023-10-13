@@ -476,7 +476,7 @@ $end"""
         }
         assert opt_actual == opt_test
 
-    def test__str__(self):
+    def test_str(self):
         species = ["C", "O"]
         coords = [
             [-9.5782000000, 0.6241500000, 0.0000000000],
@@ -1172,7 +1172,7 @@ $end"""
 
         assert QCInput.read_almo(str_almo) == result
 
-    def test_write_file_from_OptSet(self):
+    def test_write_file_from_opt_set(self):
         from pymatgen.io.qchem.sets import OptSet
 
         odd_dict = loadfn(f"{module_dir}/odd.json")
@@ -1189,7 +1189,7 @@ $end"""
 
         os.remove(f"{module_dir}/test.qin")
 
-    def test_write_file_from_OptSet_with_vdw(self):
+    def test_write_file_from_opt_set_with_vdw(self):
         from pymatgen.io.qchem.sets import OptSet
 
         odd_dict = loadfn(f"{module_dir}/odd.json")

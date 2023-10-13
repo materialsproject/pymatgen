@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 
-from mpl_toolkits.mplot3d import Axes3D
 from numpy.testing import assert_array_equal
 from pytest import approx
 
@@ -72,6 +71,8 @@ class TestWulffShape(PymatgenTest):
         self.surface_properties = surface_properties
 
     def test_get_plot(self):
+        from mpl_toolkits.mplot3d import Axes3D
+
         # Basic test to check figure contains a single Axes3D object
         for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
             plt = wulff.get_plot()

@@ -7,7 +7,12 @@ import re
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AbstractChemenvStrategy,
+    SimpleAbundanceChemenvStrategy,
+    SimplestChemenvStrategy,
+    TargetedPenaltiedAbundanceChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     UNCLEAR_ENVIRONMENT_SYMBOL,
     AllCoordinationGeometries,
@@ -38,12 +43,11 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = {}
-strategies_class_lookup["SimplestChemenvStrategy"] = SimplestChemenvStrategy
-
-
-# strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-# strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+strategies_class_lookup: dict[str, AbstractChemenvStrategy] = {
+    "SimplestChemenvStrategy": SimplestChemenvStrategy,  # type: ignore
+    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,  # type: ignore
+    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,  # type: ignore
+}
 
 
 def draw_cg(
@@ -164,7 +168,7 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     species = ["O"] * (cg.coordination_number + 1)
     species[0] = "Cu"
-    coords = [np.zeros(3, np.float_) + cg.central_site]
+    coords = [np.zeros(3, float) + cg.central_site]
 
     for pp in cg.points:
         coords.append(np.array(pp) + cg.central_site)
@@ -234,7 +238,7 @@ def compute_environments(chemenv_configuration):
             input_source = test
         if source_type == "cif":
             if not found:
-                input_source = input("Enter path to cif file : ")
+                input_source = input("Enter path to CIF file : ")
             parser = CifParser(input_source)
             structure = parser.get_structures()[0]
         elif source_type == "mp":
@@ -334,13 +338,13 @@ def compute_environments(chemenv_configuration):
                             for i0 in range(int(nns[0])):
                                 for i1 in range(int(nns[1])):
                                     for i2 in range(int(nns[2])):
-                                        deltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float_))
+                                        deltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], float))
                             break
 
                         except (ValueError, IndexError):
                             print("Not a valid multiplicity")
                 else:
-                    deltas = [np.zeros(3, np.float_)]
+                    deltas = [np.zeros(3, float)]
                 if first_time:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False

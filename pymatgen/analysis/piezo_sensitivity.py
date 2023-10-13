@@ -211,7 +211,7 @@ class InternalStrainTensor:
                     uniq_point_ops.append(op)
 
         IST_operations = []
-        for atom in range(len(self.ist)):  # pylint: disable=C0200
+        for atom in range(len(self.ist)):
             IST_operations.append([])
             for j in range(atom):
                 for op in uniq_point_ops:
@@ -304,7 +304,7 @@ class ForceConstantMatrix:
 
         passed = []
         relations = []
-        for atom1 in range(len(self.fcm)):  # pylint: disable=C0200
+        for atom1 in range(len(self.fcm)):
             for atom2 in range(atom1, len(self.fcm)):
                 unique = 1
                 eig1, _vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
