@@ -1749,30 +1749,24 @@ class LobsterMatrices:
         if "hamilton" in self._filename:
             if e_fermi is None:
                 raise ValueError("Please provide the fermi energy in eV ")
-            (self.onsite_energies, self.average_onsite_energies, self.hamilton_matrices) = self._parse_matrix(
+            self.onsite_energies, self.average_onsite_energies, self.hamilton_matrices = self._parse_matrix(
                 file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=e_fermi
             )
 
         elif "coefficient" in self._filename:
-            (
-                self.onsite_coefficients,
-                self.average_onsite_coefficient,
-                self.coefficient_matrices,
-            ) = self._parse_matrix(file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=0)
+            self.onsite_coefficients, self.average_onsite_coefficient, self.coefficient_matrices = self._parse_matrix(
+                file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=0
+            )
 
         elif "transfer" in self._filename:
-            (
-                self.onsite_transfer,
-                self.average_onsite_transfer,
-                self.transfer_matrices,
-            ) = self._parse_matrix(file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=0)
+            self.onsite_transfer, self.average_onsite_transfer, self.transfer_matrices = self._parse_matrix(
+                file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=0
+            )
 
         elif "overlap" in self._filename:
-            (
-                self.onsite_overlaps,
-                self.average_onsite_overlaps,
-                self.overlap_matrices,
-            ) = self._parse_matrix(file_data=file_data, pattern=pattern_overlap, e_fermi=0)
+            self.onsite_overlaps, self.average_onsite_overlaps, self.overlap_matrices = self._parse_matrix(
+                file_data=file_data, pattern=pattern_overlap, e_fermi=0
+            )
 
     @staticmethod
     def _parse_matrix(file_data, pattern, e_fermi):
@@ -1832,7 +1826,7 @@ class LobsterMatrices:
             line.split()[:1][0] for line in matrix_real if line.split()[:1][0] != "basisfunction"
         ]
 
-        # get average row wise
+        # get average row-wise
         average_matrix_diagonal_values = np.array(matrix_diagonal_values, dtype=float).mean(axis=0)
 
         # get a dict with basis functions as keys and average values as values
