@@ -594,7 +594,7 @@ class PourbaixDiagram(MSONable):
                 treatment of entry combos
 
         Returns:
-            ([MultiEntry]) list of stable MultiEntry candidates
+            list[MultiEntry]: stable MultiEntry candidates
         """
         # Get composition
         tot_comp = Composition(self._elt_comp)

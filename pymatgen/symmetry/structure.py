@@ -83,7 +83,7 @@ class SymmetrizedStructure(Structure):
             ValueError: if site is not in the structure.
 
         Returns:
-            ([PeriodicSite]): List of all symmetrically equivalent sites.
+            list[PeriodicSite]: all symmetrically equivalent sites.
         """
         for sites in self.equivalent_sites:
             if site in sites:

@@ -155,7 +155,7 @@ class PointGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            ([array]) Orbit for point.
+            list[array]: Orbit for point.
         """
         orbit: list[np.ndarray] = []
         for o in self.symmetry_ops:
@@ -335,7 +335,7 @@ class SpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            ([array]) Orbit for point.
+            list[array]: Orbit for point.
         """
         orbit: list[np.ndarray] = []
         for o in self.symmetry_ops:
@@ -345,7 +345,7 @@ class SpaceGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
-    def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list, list]:
+    def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list[np.ndarray], list[SymmOp]]:
         """Returns the orbit and its generators for a point.
 
         Args:
@@ -355,7 +355,7 @@ class SpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            ([array], [array]) Orbit and generators for point.
+            tuple[list[np.ndarray], list[SymmOp]]: Orbit and generators for point.
         """
         from pymatgen.core.operations import SymmOp
 

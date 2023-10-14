@@ -241,7 +241,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             AttributeError: If structure is disordered.
 
         Returns:
-            ([Species]) List of species at each site of the structure.
+            list[Species]: species at each site of the structure.
         """
         if not self.is_ordered:
             raise AttributeError("species property only supports ordered structures!")

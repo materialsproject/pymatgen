@@ -508,7 +508,7 @@ class BandStructure:
             tol (float): tolerance below which coordinates are considered equal
 
         Returns:
-            ([1x3 array] or None): if structure is not available returns None
+            list[1x3 array] | None: if structure is not available returns None
         """
         if not self.structure:
             return None

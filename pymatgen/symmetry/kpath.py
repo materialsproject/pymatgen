@@ -1734,23 +1734,23 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def _get_reciprocal_point_group(ops, R, A):
-        Ainv = np.linalg.inv(A)
+        A_inv = np.linalg.inv(A)
         # convert to reciprocal primitive basis
-        recip_point_group = [np.around(np.dot(A, np.dot(R, Ainv)), decimals=2)]
+        recip_point_group = [np.around(np.dot(A, np.dot(R, A_inv)), decimals=2)]
         for op in ops:
-            op = np.around(np.dot(A, np.dot(op, Ainv)), decimals=2)
+            recip = np.around(np.dot(A, np.dot(op, A_inv)), decimals=2)
             new = True
             new_coset = True
             for thing in recip_point_group:
-                if (thing == op).all():
+                if (thing == recip).all():
                     new = False
-                if (thing == np.dot(R, op)).all():
+                if (thing == np.dot(R, recip)).all():
                     new_coset = False
 
             if new:
-                recip_point_group.append(op)
+                recip_point_group.append(recip)
             if new_coset:
-                recip_point_group.append(np.dot(R, op))
+                recip_point_group.append(np.dot(R, recip))
 
         return recip_point_group
 

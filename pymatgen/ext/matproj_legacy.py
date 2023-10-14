@@ -346,7 +346,7 @@ class _MPResterLegacy:
                 or formula (e.g., Fe2O3).
 
         Returns:
-            ([str]) List of all materials ids.
+            list[str]: all materials ids.
         """
         return self._make_request(f"/materials/{chemsys_formula}/mids", mp_decode=False)
 

@@ -89,7 +89,7 @@ class TestMPResterOld(PymatgenTest):
             if prop not in ["hubbards", "unit_cell_formula", "elements", "icsd_ids", "task_ids"]:
                 val = self.rester.get_data(mp_id, prop=prop)[0][prop]
                 if prop in ["energy", "energy_per_atom"]:
-                    prop = "final_" + prop
+                    prop = f"final_{prop}"
                 assert expected_vals[prop] == approx(val), f"Failed with property {prop}"
             elif prop in ["elements", "icsd_ids", "task_ids"]:
                 upstream_vals = set(self.rester.get_data(mp_id, prop=prop)[0][prop])

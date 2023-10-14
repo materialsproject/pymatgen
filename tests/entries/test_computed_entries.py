@@ -493,6 +493,6 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
 
     def test_normalize(self):
         for entry in self.entries_with_temps.values():
-            entry = copy.deepcopy(entry)
-            normed_entry = entry.normalize(mode="atom")
-            assert entry.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)
+            copied = copy.deepcopy(entry)
+            normed_entry = copied.normalize(mode="atom")
+            assert copied.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)

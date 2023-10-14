@@ -955,11 +955,11 @@ def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
         tensors as values
     """
     sga = SpacegroupAnalyzer(structure, **kwargs)
-    symmops = sga.get_symmetry_operations(cartesian=True)
+    symm_ops = sga.get_symmetry_operations(cartesian=True)
     unique_mapping = TensorMapping([tensors[0]], [[]], tol=tol)
     for tensor in tensors[1:]:
         is_unique = True
-        for unique_tensor, symmop in itertools.product(unique_mapping, symmops):
+        for unique_tensor, symmop in itertools.product(unique_mapping, symm_ops):
             if np.allclose(unique_tensor.transform(symmop), tensor, atol=tol):
                 unique_mapping[unique_tensor].append(symmop)
                 is_unique = False
