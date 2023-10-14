@@ -17,7 +17,8 @@ from monty.json import MSONable, jsanitize
 from scipy.interpolate import CubicSpline
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.io.vasp import Outcar, Poscar
+from pymatgen.core import Structure
+from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
 
 
@@ -267,10 +268,10 @@ class NEBAnalysis(MSONable):
                         break
                 else:
                     raise ValueError(f"OUTCAR cannot be found for terminal point {d}")
-                structures.append(Poscar.from_file(poscar[0]).structure)
+                structures.append(Structure.from_file(poscar[0]))
             else:
                 outcars.append(Outcar(outcar[0]))
-                structures.append(Poscar.from_file(contcar[0]).structure)
+                structures.append(Structure.from_file(contcar[0]))
         return NEBAnalysis.from_outcars(outcars, structures, **kwargs)
 
     def as_dict(self):

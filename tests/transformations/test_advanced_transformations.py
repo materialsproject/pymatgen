@@ -17,7 +17,6 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.cif import CifParser
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -172,8 +171,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
@@ -203,8 +201,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -230,8 +227,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -317,8 +313,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
         f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
@@ -348,8 +343,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         a = SpacegroupAnalyzer(struct, 0.1)
         struct = a.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)

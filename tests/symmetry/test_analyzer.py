@@ -10,7 +10,6 @@ from pytest import approx
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -20,12 +19,11 @@ test_dir_mol = f"{TEST_FILES_DIR}/molecules"
 
 class TestSpacegroupAnalyzer(PymatgenTest):
     def setUp(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
-        self.structure = p.structure
+        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure("Li10GeP2S12")
         self.disordered_sg = SpacegroupAnalyzer(self.disordered_structure, 0.001)
-        struct = p.structure.copy()
+        struct = self.structure.copy()
         site = struct[0]
         del struct[0]
         struct.append(site.species, site.frac_coords)
@@ -382,8 +380,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
 class TestSpacegroup(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
-        self.structure = p.structure
+        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):

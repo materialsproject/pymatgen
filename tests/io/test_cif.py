@@ -13,7 +13,6 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -421,8 +420,8 @@ class TestCifIO(PymatgenTest):
 
     def test_cif_writer(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.structure, symprec=0.01)
+        struct = Structure.from_file(filepath)
+        writer = CifWriter(struct, symprec=0.01)
         answer = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
@@ -466,13 +465,13 @@ loop_
 
     def test_symmetrized(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
-        writer = CifWriter(poscar.structure, symprec=0.1)
+        struct = Structure.from_file(filepath)
+        writer = CifWriter(struct, symprec=0.1)
 
         cif = CifParser.from_str(str(writer))
         m = StructureMatcher()
 
-        assert m.fit(cif.get_structures()[0], poscar.structure)
+        assert m.fit(cif.get_structures()[0], struct)
 
         # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
         #     assert l1.strip() == l2.strip()
@@ -716,11 +715,10 @@ loop_
         parser = CifParser.from_str(cif_structure)
         s_test = parser.get_structures(primitive=False)[0]
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        s_ref = poscar.structure
+        struct = Structure.from_file(filepath)
 
         sm = StructureMatcher(stol=0.05, ltol=0.01, angle_tol=0.1)
-        assert sm.fit(s_ref, s_test)
+        assert sm.fit(struct, s_test)
 
     def test_empty(self):
         # single line

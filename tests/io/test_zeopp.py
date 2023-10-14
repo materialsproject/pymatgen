@@ -7,7 +7,6 @@ from pytest import approx
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,
@@ -34,8 +33,7 @@ __date__ = "Aug 2, 2013"
 class TestZeoCssr(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.zeocssr = ZeoCssr(p.structure)
+        self.zeo_cssr = ZeoCssr(Structure.from_file(filepath))
 
     def test_str(self):
         expected_string = """4.7595 10.4118 6.0672
@@ -66,21 +64,20 @@ class TestZeoCssr(unittest.TestCase):
 22 O 0.7146 0.8343 0.9539 0 0 0 0 0 0 0 0 0.0000
 23 O 0.2587 0.9034 0.7500 0 0 0 0 0 0 0 0 0.0000
 24 O 0.2929 0.9566 0.2500 0 0 0 0 0 0 0 0 0.0000"""
-        assert str(self.zeocssr) == expected_string
+        assert str(self.zeo_cssr) == expected_string
 
     def test_from_file(self):
         filename = f"{TEST_FILES_DIR}/EDI.cssr"
-        zeocssr = ZeoCssr.from_file(filename)
-        assert isinstance(zeocssr.structure, Structure)
+        zeo_cssr = ZeoCssr.from_file(filename)
+        assert isinstance(zeo_cssr.structure, Structure)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
 class TestZeoCssrOxi(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        structure = BVAnalyzer().get_oxi_state_decorated_structure(p.structure)
-        self.zeocssr = ZeoCssr(structure)
+        structure = BVAnalyzer().get_oxi_state_decorated_structure(Structure.from_file(filepath))
+        self.zeo_cssr = ZeoCssr(structure)
 
     def test_str(self):
         expected_string = """4.7595 10.4118 6.0672
@@ -111,7 +108,7 @@ class TestZeoCssrOxi(unittest.TestCase):
 22 O2- 0.7146 0.8343 0.9539 0 0 0 0 0 0 0 0 0.0000
 23 O2- 0.2587 0.9034 0.7500 0 0 0 0 0 0 0 0 0.0000
 24 O2- 0.2929 0.9566 0.2500 0 0 0 0 0 0 0 0 0.0000"""
-        assert str(self.zeocssr) == expected_string
+        assert str(self.zeo_cssr) == expected_string
 
     def test_from_file(self):
         filename = f"{TEST_FILES_DIR}/EDI_oxistate_decorated.cssr"
@@ -154,8 +151,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 class TestGetVoronoiNodes(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.structure = p.structure
+        self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
@@ -201,8 +197,7 @@ class TestGetFreeSphereParams(unittest.TestCase):
 class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        self.structure = poscar.structure
+        self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
@@ -222,8 +217,7 @@ class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
 class TestGetVoronoiNodesMultiOxi(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.structure = p.structure
+        self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
         self.structure = bv.get_oxi_state_decorated_structure(self.structure)
         valences = bv.get_valences(self.structure)
