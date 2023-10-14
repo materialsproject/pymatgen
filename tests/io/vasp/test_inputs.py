@@ -90,7 +90,7 @@ direct
 
     def test_from_file(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR.symbols_natoms_multilines"
-        poscar = Poscar.from_file(filepath, check_for_POTCAR=False, read_velocities=False)
+        poscar = Poscar.from_file(filepath, check_for_potcar=False, read_velocities=False)
         ordered_expected_elements = [
             "Fe",
             "Cr",
@@ -264,7 +264,7 @@ direct
 
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_POTCAR=False)
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_potcar=False)
         assert np.sum(np.array(poscar.velocities)) == approx(0.0065417961324)
         assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
         assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
@@ -272,7 +272,7 @@ direct
     def test_write_md_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         # And writing a new POSCAR from the new structure
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_POTCAR=False)
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_potcar=False)
 
         path = Path("POSCAR.testing.md")
         poscar.write_file(path)
@@ -286,7 +286,7 @@ direct
 
     def test_setattr(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_potcar=False)
         with pytest.raises(ValueError, match="velocities array must be same length as the structure"):
             poscar.velocities = [[0, 0, 0]]
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -1187,7 +1187,7 @@ class TestVaspInput(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_potcar=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
         filepath = f"{TEST_FILES_DIR}/POTCAR"
