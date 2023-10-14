@@ -15,7 +15,7 @@ from .outputs import (
     Doscar,
     Fatband,
     Grosspop,
-    HamiltonMatrices,
+    LobsterMatrices,
     Icohplist,
     Lobsterout,
     MadelungEnergies,
