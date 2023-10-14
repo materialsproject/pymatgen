@@ -1741,7 +1741,7 @@ class LobsterMatrices:
         with zopen(self._filename, "rt") as f:
             file_data = f.readlines()
         if len(file_data) == 0:
-            raise OSError(f"Please check provided input file, it seems to be empty")
+            raise OSError("Please check provided input file, it seems to be empty")
 
         pattern_coeff_hamil_trans = r"(\d+)\s+kpoint\s+(\d+)"  # regex pattern to extract spin and k-point number
         pattern_overlap = r"kpoint\s+(\d+)"  # regex pattern to extract k-point number

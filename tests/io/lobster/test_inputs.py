@@ -21,8 +21,8 @@ from pymatgen.io.lobster import (
     Grosspop,
     Icohplist,
     Lobsterin,
-    Lobsterout,
     LobsterMatrices,
+    Lobsterout,
     MadelungEnergies,
     NciCobiList,
     SitePotential,
@@ -2496,8 +2496,8 @@ class TestLobsterMatrices(PymatgenTest):
         assert len(self.overlap_matrices.overlap_matrices) == 1
         # transfer matrices
         ref_onsite_transfer = [
-            [ 0.00357821, -0.13257223,  0.07208898, -0.00196828],
-            [-1.03655584e+00,  4.35405500e-02, -4.86770000e-04,  2.69085640e-01],
+            [0.00357821, -0.13257223, 0.07208898, -0.00196828],
+            [-1.03655584e00, 4.35405500e-02, -4.86770000e-04, 2.69085640e-01],
         ]
         assert_allclose(self.transfer_matrices.onsite_transfer, ref_onsite_transfer)
 
