@@ -16,6 +16,7 @@ from .outputs import (
     Fatband,
     Grosspop,
     Icohplist,
+    LobsterMatrices,
     Lobsterout,
     MadelungEnergies,
     NciCobiList,

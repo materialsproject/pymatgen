@@ -21,6 +21,7 @@ from pymatgen.io.lobster import (
     Grosspop,
     Icohplist,
     Lobsterin,
+    LobsterMatrices,
     Lobsterout,
     MadelungEnergies,
     NciCobiList,
@@ -39,7 +40,7 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCohpcar(PymatgenTest):
@@ -209,150 +210,29 @@ class TestCohpcar(PymatgenTest):
             assert (orb_set[0][1], orb_set[1][1]) in orbitals
 
         # test d and f orbitals
-        comparelist = [
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            7,
-            7,
-            7,
-            7,
-        ]
-        comparelist2 = [
-            "f0",
-            "f0",
-            "f0",
-            "f0",
-            "f1",
-            "f1",
-            "f1",
-            "f1",
-            "f2",
-            "f2",
-            "f2",
-            "f2",
-            "f3",
-            "f3",
-            "f3",
-            "f3",
-            "f_1",
-            "f_1",
-            "f_1",
-            "f_1",
-            "f_2",
-            "f_2",
-            "f_2",
-            "f_2",
-            "f_3",
-            "f_3",
-            "f_3",
-            "f_3",
-            "dx2",
-            "dx2",
-            "dx2",
-            "dx2",
-            "dxy",
-            "dxy",
-            "dxy",
-            "dxy",
-            "dxz",
-            "dxz",
-            "dxz",
-            "dxz",
-            "dyz",
-            "dyz",
-            "dyz",
-            "dyz",
-            "dz2",
-            "dz2",
-            "dz2",
-            "dz2",
-            "px",
-            "px",
-            "px",
-            "px",
-            "py",
-            "py",
-            "py",
-            "py",
-            "pz",
-            "pz",
-            "pz",
-            "pz",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
+        ref_list1 = [*[5] * 28, *[6] * 36, *[7] * 4]
+        ref_list2 = [
+            *["f0"] * 4,
+            *["f1"] * 4,
+            *["f2"] * 4,
+            *["f3"] * 4,
+            *["f_1"] * 4,
+            *["f_2"] * 4,
+            *["f_3"] * 4,
+            *["dx2"] * 4,
+            *["dxy"] * 4,
+            *["dxz"] * 4,
+            *["dyz"] * 4,
+            *["dz2"] * 4,
+            *["px"] * 4,
+            *["py"] * 4,
+            *["pz"] * 4,
+            *["s"] * 8,
         ]
         for iorb, orbs in enumerate(sorted(self.cohp_Na2UO4.orb_res_cohp["49"])):
             orb_set = self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["orbitals"]
-            assert orb_set[0][0] == comparelist[iorb]
-            assert str(orb_set[0][1]) == comparelist2[iorb]
+            assert orb_set[0][0] == ref_list1[iorb]
+            assert str(orb_set[0][1]) == ref_list2[iorb]
 
         # The sum of the orbital-resolved COHPs should be approximately
         # the total COHP. Due to small deviations in the LOBSTER calculation,
@@ -884,7 +764,7 @@ class TestCharge(PymatgenTest):
         # gzipped file
         self.charge = Charge(filename=f"{TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO2.gz")
 
-    def testattributes(self):
+    def test_attributes(self):
         charge_Loewdin = [-1.25, 1.25]
         charge_Mulliken = [-1.30, 1.30]
         atomlist = ["O1", "Mn2"]
@@ -962,20 +842,9 @@ class TestLobsterout(PymatgenTest):
             filename=f"{TEST_FILES_DIR}/cohp/lobsterout.skip_cobi_madelung"
         )
 
-    def testattributes(self):
+    def test_attributes(self):
         assert self.lobsterout_normal.basis_functions == [
-            [
-                "3s",
-                "4s",
-                "3p_y",
-                "3p_z",
-                "3p_x",
-                "3d_xy",
-                "3d_yz",
-                "3d_z^2",
-                "3d_xz",
-                "3d_x^2-y^2",
-            ]
+            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
         ]
         assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_normal.charge_spilling == [0.0268]
@@ -1017,18 +886,7 @@ class TestLobsterout(PymatgenTest):
         ]
 
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_functions == [
-            [
-                "3s",
-                "4s",
-                "3p_y",
-                "3p_z",
-                "3p_x",
-                "3d_xy",
-                "3d_yz",
-                "3d_z^2",
-                "3d_xz",
-                "3d_x^2-y^2",
-            ]
+            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
         ]
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
@@ -2183,7 +2041,7 @@ class TestGrosspop(unittest.TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(f"{TEST_FILES_DIR}/cohp/GROSSPOP.lobster")
 
-    def testattributes(self):
+    def test_attributes(self):
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"] == approx(0.52)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"] == approx(0.38)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"] == approx(0.37)
@@ -2457,3 +2315,55 @@ class TestMadelungEnergies(PymatgenTest):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
         assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
+
+
+class TestLobsterMatrices(PymatgenTest):
+    def setUp(self) -> None:
+        self.hamilton_matrices = LobsterMatrices(
+            filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
+        )
+        self.transfer_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/C_transferMatrices.lobster.gz")
+        self.overlap_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Si_overlapMatrices.lobster.gz")
+        self.coeff_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Si_coefficientMatricesLSO1.lobster.gz")
+
+    def test_attributes(self):
+        # hamilton matrices
+        assert self.hamilton_matrices.average_onsite_energies == pytest.approx(
+            {"Na1_3s": 0.58855353, "Na1_2p_y": -25.72719646, "Na1_2p_z": -25.72719646, "Na1_2p_x": -25.72719646}
+        )
+        ref_onsite_energies = [
+            [-0.22519646, -25.76989646, -25.76989646, -25.76989646],
+            [1.40230354, -25.68449646, -25.68449646, -25.68449646],
+        ]
+        assert_allclose(self.hamilton_matrices.onsite_energies, ref_onsite_energies)
+
+        # overlap matrices
+        assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
+            {"Si1_3s": 1.00000009, "Si1_3p_y": 0.99999995, "Si1_3p_z": 0.99999995, "Si1_3p_x": 0.99999995}
+        )
+        ref_onsite_ovelaps = [[1.00000009, 0.99999995, 0.99999995, 0.99999995]]
+        assert_allclose(self.overlap_matrices.onsite_overlaps, ref_onsite_ovelaps)
+
+        assert len(self.overlap_matrices.overlap_matrices) == 1
+        # transfer matrices
+        ref_onsite_transfer = [
+            [0.00357821, -0.13257223, 0.07208898, -0.00196828],
+            [-1.03655584e00, 4.35405500e-02, -4.86770000e-04, 2.69085640e-01],
+        ]
+        assert_allclose(self.transfer_matrices.onsite_transfer, ref_onsite_transfer)
+
+        # coefficient matrices
+        assert list(self.coeff_matrices.coefficient_matrices["1"]) == [Spin.up, Spin.down]
+        assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
+            {"Si1_3s": -0.12317191, "Si1_3p_y": 0.39037373, "Si1_3p_z": -0.486769934, "Si1_3p_x": 0.1673625}
+        )
+
+    def test_raises(self):
+        with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):
+            self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
+
+        with pytest.raises(
+            OSError,
+            match=r"Please check provided input file, it seems to be empty",
+        ):
+            self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")
