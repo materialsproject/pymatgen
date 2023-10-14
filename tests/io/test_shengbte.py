@@ -15,7 +15,7 @@ except ImportError:
 
 test_dir = f"{TEST_FILES_DIR}/shengbte"
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestShengBTE(PymatgenTest):

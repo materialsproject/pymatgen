@@ -40,7 +40,7 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCohpcar(PymatgenTest):
@@ -210,150 +210,29 @@ class TestCohpcar(PymatgenTest):
             assert (orb_set[0][1], orb_set[1][1]) in orbitals
 
         # test d and f orbitals
-        comparelist = [
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            7,
-            7,
-            7,
-            7,
-        ]
-        comparelist2 = [
-            "f0",
-            "f0",
-            "f0",
-            "f0",
-            "f1",
-            "f1",
-            "f1",
-            "f1",
-            "f2",
-            "f2",
-            "f2",
-            "f2",
-            "f3",
-            "f3",
-            "f3",
-            "f3",
-            "f_1",
-            "f_1",
-            "f_1",
-            "f_1",
-            "f_2",
-            "f_2",
-            "f_2",
-            "f_2",
-            "f_3",
-            "f_3",
-            "f_3",
-            "f_3",
-            "dx2",
-            "dx2",
-            "dx2",
-            "dx2",
-            "dxy",
-            "dxy",
-            "dxy",
-            "dxy",
-            "dxz",
-            "dxz",
-            "dxz",
-            "dxz",
-            "dyz",
-            "dyz",
-            "dyz",
-            "dyz",
-            "dz2",
-            "dz2",
-            "dz2",
-            "dz2",
-            "px",
-            "px",
-            "px",
-            "px",
-            "py",
-            "py",
-            "py",
-            "py",
-            "pz",
-            "pz",
-            "pz",
-            "pz",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
+        ref_list1 = [*[5] * 28, *[6] * 36, *[7] * 4]
+        ref_list2 = [
+            *["f0"] * 4,
+            *["f1"] * 4,
+            *["f2"] * 4,
+            *["f3"] * 4,
+            *["f_1"] * 4,
+            *["f_2"] * 4,
+            *["f_3"] * 4,
+            *["dx2"] * 4,
+            *["dxy"] * 4,
+            *["dxz"] * 4,
+            *["dyz"] * 4,
+            *["dz2"] * 4,
+            *["px"] * 4,
+            *["py"] * 4,
+            *["pz"] * 4,
+            *["s"] * 8,
         ]
         for iorb, orbs in enumerate(sorted(self.cohp_Na2UO4.orb_res_cohp["49"])):
             orb_set = self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["orbitals"]
-            assert orb_set[0][0] == comparelist[iorb]
-            assert str(orb_set[0][1]) == comparelist2[iorb]
+            assert orb_set[0][0] == ref_list1[iorb]
+            assert str(orb_set[0][1]) == ref_list2[iorb]
 
         # The sum of the orbital-resolved COHPs should be approximately
         # the total COHP. Due to small deviations in the LOBSTER calculation,
@@ -885,7 +764,7 @@ class TestCharge(PymatgenTest):
         # gzipped file
         self.charge = Charge(filename=f"{TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO2.gz")
 
-    def testattributes(self):
+    def test_attributes(self):
         charge_Loewdin = [-1.25, 1.25]
         charge_Mulliken = [-1.30, 1.30]
         atomlist = ["O1", "Mn2"]
@@ -963,20 +842,9 @@ class TestLobsterout(PymatgenTest):
             filename=f"{TEST_FILES_DIR}/cohp/lobsterout.skip_cobi_madelung"
         )
 
-    def testattributes(self):
+    def test_attributes(self):
         assert self.lobsterout_normal.basis_functions == [
-            [
-                "3s",
-                "4s",
-                "3p_y",
-                "3p_z",
-                "3p_x",
-                "3d_xy",
-                "3d_yz",
-                "3d_z^2",
-                "3d_xz",
-                "3d_x^2-y^2",
-            ]
+            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
         ]
         assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_normal.charge_spilling == [0.0268]
@@ -1018,18 +886,7 @@ class TestLobsterout(PymatgenTest):
         ]
 
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_functions == [
-            [
-                "3s",
-                "4s",
-                "3p_y",
-                "3p_z",
-                "3p_x",
-                "3d_xy",
-                "3d_yz",
-                "3d_z^2",
-                "3d_xz",
-                "3d_x^2-y^2",
-            ]
+            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
         ]
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
@@ -2184,7 +2041,7 @@ class TestGrosspop(unittest.TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(f"{TEST_FILES_DIR}/cohp/GROSSPOP.lobster")
 
-    def testattributes(self):
+    def test_attributes(self):
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"] == approx(0.52)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"] == approx(0.38)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"] == approx(0.37)
