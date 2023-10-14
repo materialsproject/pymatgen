@@ -22,6 +22,7 @@ from pymatgen.io.lobster import (
     Icohplist,
     Lobsterin,
     Lobsterout,
+    LobsterMatrices,
     MadelungEnergies,
     NciCobiList,
     SitePotential,
@@ -2457,3 +2458,64 @@ class TestMadelungEnergies(PymatgenTest):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
         assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
+
+
+class TestLobsterMatrices(PymatgenTest):
+    def setUp(self) -> None:
+        self.hamilton_matrices = LobsterMatrices(
+            filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
+        )
+        self.transfer_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/C_transferMatrices.lobster.gz")
+        self.overlap_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Si_overlapMatrices.lobster.gz")
+        self.coeff_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Si_coefficientMatricesLSO1.lobster.gz")
+
+    def test_attributes(self):
+        # hamilton matrices
+        assert self.hamilton_matrices.average_onsite_energies == {
+            "Na1_3s": 0.5885535399999997,
+            "Na1_2p_y": -25.727196460000002,
+            "Na1_2p_z": -25.727196460000002,
+            "Na1_2p_x": -25.727196460000002,
+        }
+        ref_onsite_energies = [
+            [-0.22519646, -25.76989646, -25.76989646, -25.76989646],
+            [1.40230354, -25.68449646, -25.68449646, -25.68449646],
+        ]
+        assert_allclose(self.hamilton_matrices.onsite_energies, ref_onsite_energies)
+
+        # overlap matrices
+        assert self.overlap_matrices.average_onsite_overlaps == {
+            "Si1_3s": 1.00000009,
+            "Si1_3p_y": 0.99999995,
+            "Si1_3p_z": 0.99999995,
+            "Si1_3p_x": 0.99999995,
+        }
+        ref_onsite_ovelaps = [[1.00000009, 0.99999995, 0.99999995, 0.99999995]]
+        assert_allclose(self.overlap_matrices.onsite_overlaps, ref_onsite_ovelaps)
+
+        assert len(self.overlap_matrices.overlap_matrices) == 1
+        # transfer matrices
+        ref_onsite_transfer = [
+            [ 0.00357821, -0.13257223,  0.07208898, -0.00196828],
+            [-1.03655584e+00,  4.35405500e-02, -4.86770000e-04,  2.69085640e-01],
+        ]
+        assert_allclose(self.transfer_matrices.onsite_transfer, ref_onsite_transfer)
+
+        # coefficient matrices
+        assert list(self.coeff_matrices.coefficient_matrices["1"].keys()) == [Spin.up, Spin.down]
+        assert self.coeff_matrices.average_onsite_coefficient == {
+            "Si1_3s": -0.12317191999999999,
+            "Si1_3p_y": 0.39037373000000003,
+            "Si1_3p_z": -0.48676993499999993,
+            "Si1_3p_x": 0.16736250000000003,
+        }
+
+    def test_raises(self):
+        with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):
+            self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
+
+        with pytest.raises(
+            OSError,
+            match=r"Please check provided input file, it seems to be empty",
+        ):
+            self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")
