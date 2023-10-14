@@ -2328,12 +2328,9 @@ class TestLobsterMatrices(PymatgenTest):
 
     def test_attributes(self):
         # hamilton matrices
-        assert self.hamilton_matrices.average_onsite_energies == {
-            "Na1_3s": 0.5885535399999997,
-            "Na1_2p_y": -25.727196460000002,
-            "Na1_2p_z": -25.727196460000002,
-            "Na1_2p_x": -25.727196460000002,
-        }
+        assert self.hamilton_matrices.average_onsite_energies == pytest.approx(
+            {"Na1_3s": 0.58855353, "Na1_2p_y": -25.72719646, "Na1_2p_z": -25.72719646, "Na1_2p_x": -25.72719646}
+        )
         ref_onsite_energies = [
             [-0.22519646, -25.76989646, -25.76989646, -25.76989646],
             [1.40230354, -25.68449646, -25.68449646, -25.68449646],
@@ -2341,12 +2338,9 @@ class TestLobsterMatrices(PymatgenTest):
         assert_allclose(self.hamilton_matrices.onsite_energies, ref_onsite_energies)
 
         # overlap matrices
-        assert self.overlap_matrices.average_onsite_overlaps == {
-            "Si1_3s": 1.00000009,
-            "Si1_3p_y": 0.99999995,
-            "Si1_3p_z": 0.99999995,
-            "Si1_3p_x": 0.99999995,
-        }
+        assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
+            {"Si1_3s": 1.00000009, "Si1_3p_y": 0.99999995, "Si1_3p_z": 0.99999995, "Si1_3p_x": 0.99999995}
+        )
         ref_onsite_ovelaps = [[1.00000009, 0.99999995, 0.99999995, 0.99999995]]
         assert_allclose(self.overlap_matrices.onsite_overlaps, ref_onsite_ovelaps)
 
@@ -2359,13 +2353,10 @@ class TestLobsterMatrices(PymatgenTest):
         assert_allclose(self.transfer_matrices.onsite_transfer, ref_onsite_transfer)
 
         # coefficient matrices
-        assert list(self.coeff_matrices.coefficient_matrices["1"].keys()) == [Spin.up, Spin.down]
-        assert self.coeff_matrices.average_onsite_coefficient == {
-            "Si1_3s": -0.12317191999999999,
-            "Si1_3p_y": 0.39037373000000003,
-            "Si1_3p_z": -0.48676993499999993,
-            "Si1_3p_x": 0.16736250000000003,
-        }
+        assert list(self.coeff_matrices.coefficient_matrices["1"]) == [Spin.up, Spin.down]
+        assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
+            {"Si1_3s": -0.12317191, "Si1_3p_y": 0.39037373, "Si1_3p_z": -0.486769934, "Si1_3p_x": 0.1673625}
+        )
 
     def test_raises(self):
         with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):
