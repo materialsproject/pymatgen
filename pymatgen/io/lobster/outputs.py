@@ -1809,7 +1809,7 @@ class LobsterMatrices:
             matrix_array_imag = np.array([line.split()[1:] for line in matrix_imag[1:]], dtype=float)
 
             # combine real and imaginary parts to create a complex matrix
-            comp_matrix = matrix_array_real + 1j + matrix_array_imag
+            comp_matrix = matrix_array_real + 1j * matrix_array_imag
 
             matches = re.search(pattern, file_data[start_inx_real - 2])
             if matches and len(matches.groups()) == 2:
