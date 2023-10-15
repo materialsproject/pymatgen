@@ -2337,26 +2337,93 @@ class TestLobsterMatrices(PymatgenTest):
         ]
         assert_allclose(self.hamilton_matrices.onsite_energies, ref_onsite_energies)
 
+        ref_imag_mat_spin_up = np.zeros((4, 4))
+
+        assert_allclose(self.hamilton_matrices.hamilton_matrices["1"][Spin.up].imag, ref_imag_mat_spin_up)
+
+        ref_real_mat_spin_up = [
+            [-3.0217, 0.0, 0.0, 0.0],
+            [0.0, -28.5664, 0.0, 0.0],
+            [0.0, 0.0, -28.5664, 0.0],
+            [0.0, 0.0, 0.0, -28.5664],
+        ]
+        assert_allclose(self.hamilton_matrices.hamilton_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
+
         # overlap matrices
         assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
             {"Si1_3s": 1.00000009, "Si1_3p_y": 0.99999995, "Si1_3p_z": 0.99999995, "Si1_3p_x": 0.99999995}
         )
         ref_onsite_ovelaps = [[1.00000009, 0.99999995, 0.99999995, 0.99999995]]
+
         assert_allclose(self.overlap_matrices.onsite_overlaps, ref_onsite_ovelaps)
+
+        ref_imag_mat = np.zeros((4, 4))
+
+        assert_allclose(self.overlap_matrices.overlap_matrices["1"].imag, ref_imag_mat)
+
+        ref_real_mat = [
+            [1.00000009, 0.0, 0.0, 0.0],
+            [0.0, 0.99999995, 0.0, 0.0],
+            [0.0, 0.0, 0.99999995, 0.0],
+            [0.0, 0.0, 0.0, 0.99999995],
+        ]
+
+        assert_allclose(self.overlap_matrices.overlap_matrices["1"].real, ref_real_mat)
 
         assert len(self.overlap_matrices.overlap_matrices) == 1
         # transfer matrices
         ref_onsite_transfer = [
-            [0.00357821, -0.13257223, 0.07208898, -0.00196828],
-            [-1.03655584e00, 4.35405500e-02, -4.86770000e-04, 2.69085640e-01],
+            [-0.70523233, -0.07099237, -0.65987499, -0.07090411],
+            [-0.03735031, -0.66865552, 0.69253776, 0.80648063],
         ]
         assert_allclose(self.transfer_matrices.onsite_transfer, ref_onsite_transfer)
+
+        ref_imag_mat_spin_down = [
+            [-0.99920553, 0.0, 0.0, 0.0],
+            [0.0, 0.71219607, -0.06090336, -0.08690835],
+            [0.0, -0.04539545, -0.69302453, 0.08323944],
+            [0.0, -0.12220894, -0.09749622, -0.53739499],
+        ]
+
+        assert_allclose(self.transfer_matrices.transfer_matrices["1"][Spin.down].imag, ref_imag_mat_spin_down)
+
+        ref_real_mat_spin_down = [
+            [-0.03735031, 0.0, 0.0, 0.0],
+            [0.0, -0.66865552, 0.06086057, 0.13042529],
+            [-0.0, 0.04262018, 0.69253776, -0.12491928],
+            [0.0, 0.11473763, 0.09742773, 0.80648063],
+        ]
+
+        assert_allclose(self.transfer_matrices.transfer_matrices["1"][Spin.down].real, ref_real_mat_spin_down)
 
         # coefficient matrices
         assert list(self.coeff_matrices.coefficient_matrices["1"]) == [Spin.up, Spin.down]
         assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
-            {"Si1_3s": -0.12317191, "Si1_3p_y": 0.39037373, "Si1_3p_z": -0.486769934, "Si1_3p_x": 0.1673625}
+            {
+                "Si1_3s": 0.6232626450000001,
+                "Si1_3p_y": -0.029367565000000012,
+                "Si1_3p_z": -0.50003867,
+                "Si1_3p_x": 0.13529422,
+            }
         )
+
+        ref_imag_mat_spin_up = [
+            [-0.59697342, 0.0, 0.0, 0.0],
+            [0.0, 0.50603774, 0.50538255, -0.26664607],
+            [0.0, -0.45269894, 0.56996771, 0.23223275],
+            [0.0, 0.47836456, 0.00476861, 0.50184424],
+        ]
+
+        assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].imag, ref_imag_mat_spin_up)
+
+        ref_real_mat_spin_up = [
+            [0.80226096, 0.0, 0.0, 0.0],
+            [0.0, -0.33931137, -0.42979933, -0.34286226],
+            [0.0, 0.30354633, -0.48472536, 0.29861248],
+            [0.0, -0.32075579, -0.00405544, 0.64528776],
+        ]
+
+        assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
 
     def test_raises(self):
         with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):
