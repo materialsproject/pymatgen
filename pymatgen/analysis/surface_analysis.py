@@ -38,7 +38,6 @@ import copy
 import itertools
 import random
 import warnings
-from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,16 +45,14 @@ from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
+from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
-
-if TYPE_CHECKING:
-    from pymatgen.core import Structure
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -1578,11 +1575,10 @@ class WorkFunctionAnalyzer:
         Returns:
             WorkFunctionAnalyzer: A WorkFunctionAnalyzer instance.
         """
-        poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
         outcar = Outcar(outcar_filename)
         return cls(
-            poscar.structure,
+            Structure.from_file(poscar_filename),
             locpot.get_average_along_axis(2),
             outcar.efermi,
             shift=shift,

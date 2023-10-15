@@ -24,7 +24,6 @@ from pymatgen.command_line.gulp_caller import (
     get_energy_tersoff,
 )
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import TEST_FILES_DIR
 
 gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
@@ -100,8 +99,7 @@ class TestGulpCaller(unittest.TestCase):
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestGulpIO(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
-        self.structure = p.structure
+        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18")
         self.gio = GulpIO()
 
     def test_keyword_line_with_correct_keywords(self):
@@ -282,8 +280,7 @@ class TestGlobalFunctions(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
-        structure = p.structure
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18")
         energy = get_energy_tersoff(structure)
         assert isinstance(energy, float)
 

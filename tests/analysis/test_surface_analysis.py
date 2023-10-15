@@ -400,8 +400,8 @@ def load_O_adsorption():
         "Rh": {(1, 0, 0): {}},
     }
 
-    with open(f"{TEST_DIR}/cs_entries_slabs.json") as entries:
-        entries = json.loads(entries.read())
+    with open(f"{TEST_DIR}/cs_entries_slabs.json") as file:
+        entries = json.loads(file.read())
     for key in entries:
         entry = ComputedStructureEntry.from_dict(entries[key])
         for el in metals_O_entry_dict:

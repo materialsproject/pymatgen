@@ -2146,7 +2146,7 @@ class MVLGWSet(DictSet):
             The input set with the settings (structure, k-points, incar, etc)
             updated using the previous VASP run.
         """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+        vasprun, _outcar = get_vasprun_outcar(prev_calc_dir)
         self.prev_incar = vasprun.incar
         self.structure = vasprun.final_structure
 
@@ -2154,8 +2154,7 @@ class MVLGWSet(DictSet):
             warnings.warn(
                 "Use of standardize=True with from_prev_run is not "
                 "recommended as there is no guarantee the copied "
-                "files will be appropriate for the standardized "
-                "structure."
+                "files will be appropriate for the standardized structure."
             )
 
         self.nbands = int(vasprun.parameters["NBANDS"])
@@ -2166,15 +2165,15 @@ class MVLGWSet(DictSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
-                if w:
+                wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                if wavecar_files:
                     if fname == "WFULL":
-                        for f in w:
+                        for f in wavecar_files:
                             fname = Path(f).name
                             fname = fname.split(".")[0]
                             files_to_transfer[fname] = f
                     else:
-                        files_to_transfer[fname] = str(w[-1])
+                        files_to_transfer[fname] = str(wavecar_files[-1])
 
         self.files_to_transfer.update(files_to_transfer)
 

@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -17,8 +16,8 @@ __date__ = "June 23, 2016"
 
 class TestXr(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
-        self.xr = Xr(p.structure)
+        struct = Structure.from_file(TEST_FILES_DIR / "POSCAR")
+        self.xr = Xr(struct)
 
     def test_str(self):
         expected_string = """pymatgen   10.4118 6.0672 4.7595

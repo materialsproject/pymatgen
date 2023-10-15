@@ -209,7 +209,7 @@ class Slab(Structure):
                 the desired behavior).
 
         Returns:
-            ([Slab]) List of tasker 2 corrected slabs.
+            list[Slab]: tasker 2 corrected slabs.
         """
         sites = list(self.sites)
         slabs = []
@@ -1073,8 +1073,8 @@ class SlabGenerator:
                 lead to many possible slabs as oppose to just omitting them.
 
         Returns:
-            ([Slab]) List of all possible terminations of a particular surface.
-            Slabs are sorted by the # of bonds broken.
+            list[Slab]: all possible terminations of a particular surface.
+                Slabs are sorted by the # of bonds broken.
         """
         c_ranges = [] if bonds is None else self._get_c_ranges(bonds)
 

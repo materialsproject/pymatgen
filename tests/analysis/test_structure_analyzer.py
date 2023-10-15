@@ -19,7 +19,6 @@ from pymatgen.analysis.structure_analyzer import (
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -42,16 +41,14 @@ class TestVoronoiAnalyzer(PymatgenTest):
 
 class TestRelaxationAnalyzer(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O", check_for_POTCAR=False)
-        s1 = p.structure
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.Li2O", check_for_POTCAR=False)
-        s2 = p.structure
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/CONTCAR.Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
     def test_vol_and_para_changes(self):
-        for v in self.analyzer.get_percentage_lattice_parameter_changes().values():
-            assert approx(v) == -0.0092040921155279731
-            latt_change = v
+        for val in self.analyzer.get_percentage_lattice_parameter_changes().values():
+            assert approx(val) == -0.0092040921155279731
+            latt_change = val
         vol_change = self.analyzer.get_percentage_volume_change()
         assert approx(vol_change) == -0.0273589101391
         # This is a simple cubic cell, so the latt and vol change are simply

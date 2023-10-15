@@ -40,7 +40,7 @@ class ElementTestCase(PymatgenTest):
         for non_metal in ["Ge", "Si", "O", "He"]:
             assert not Element(non_metal).is_metal
 
-    def test_nan_X(self):
+    def test_nan_x(self):
         assert math.isnan(Element.He.X)
         els = sorted([Element.He, Element.H, Element.F])
         assert els == [Element.H, Element.F, Element.He]

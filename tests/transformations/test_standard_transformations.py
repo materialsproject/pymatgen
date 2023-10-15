@@ -14,7 +14,6 @@ from pytest import approx
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -199,9 +198,8 @@ class TestOxidationStateDecorationTransformation(unittest.TestCase):
 
 class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         trafo = AutoOxiStateDecorationTransformation()
-        struct = trafo.apply_transformation(p.structure)
+        struct = trafo.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
         expected_oxi = {"Li": 1, "P": 5, "O": -2, "Fe": 2}
         for site in struct:
             assert site.specie.oxi_state == expected_oxi[site.specie.symbol]
@@ -263,16 +261,14 @@ class TestPartialRemoveSpecieTransformation(unittest.TestCase):
         assert fast_opt_s == slow_opt_s
 
     def test_apply_transformations_complete_ranking(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        struct = t1.apply_transformation(p.structure)
+        struct = t1.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         assert len(trafo.apply_transformation(struct, 10)) == 6
 
     def test_apply_transformations_best_first(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        struct = t1.apply_transformation(p.structure)
+        struct = t1.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         assert len(trafo.apply_transformation(struct)) == 26
 

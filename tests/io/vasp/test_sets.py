@@ -132,8 +132,7 @@ class TestDictSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        cls.structure = poscar.structure
+        cls.structure = Structure.from_file(filepath)
 
     def test_as_dict(self):
         # https://github.com/materialsproject/pymatgen/pull/3031
@@ -156,8 +155,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         cls.monkeypatch = MonkeyPatch()
 
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        cls.structure = poscar.structure
+        cls.structure = Structure.from_file(filepath)
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         cls.lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
 
@@ -1052,8 +1050,7 @@ class TestMITMDSet(PymatgenTest):
     def setUp(self):
         self.set = MITMDSet
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(filepath)
         self.mit_md_param = self.set(self.struct, 300, 1200, 10000)
 
     def test_params(self):
@@ -1079,8 +1076,7 @@ class TestMITMDSet(PymatgenTest):
 class TestMVLNPTMDSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
 
     def test_incar(self):
@@ -1107,19 +1103,17 @@ class TestMVLNPTMDSet(PymatgenTest):
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_as_from_dict(self):
-        d = self.mvl_npt_set.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, MVLNPTMDSet)
-        assert v._config_dict["INCAR"]["NSW"] == 1000
+        dct = self.mvl_npt_set.as_dict()
+        input_set = dec.process_decoded(dct)
+        assert isinstance(input_set, MVLNPTMDSet)
+        assert input_set._config_dict["INCAR"]["NSW"] == 1000
 
 
 class TestMPMDSet(PymatgenTest):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        poscar_with_h = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp", check_for_POTCAR=False)
-        self.struct = poscar.structure
-        self.struct_with_H = poscar_with_h.structure
+        self.struct = Structure.from_file(filepath)
+        self.struct_with_H = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp")
         self.mp_md_set_noTS = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
         self.mp_md_set_noTS_with_H = MPMDSet(self.struct_with_H, start_temp=0, end_temp=300, nsteps=1000)
         self.mp_md_set_TS1 = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000, time_step=1.0)
@@ -1455,8 +1449,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
     def setUp(self):
         self.set = MVLScanRelaxSet
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mvl_scan_set = self.set(self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500})
 
     def test_incar(self):
@@ -1507,8 +1500,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
 class TestMPScanRelaxSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mp_scan_set = MPScanRelaxSet(
             self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
         )
@@ -1555,7 +1547,7 @@ class TestMPScanRelaxSet(PymatgenTest):
     def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
-        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
+        struct = Structure.from_file(file_path)
         for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757), (0.5, 0.2832948), (0, 0.22)):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
             assert incar["KSPACING"] == approx(expected, abs=1e-5)
@@ -1748,8 +1740,7 @@ class TestMVLRelax52Set(PymatgenTest):
     def setUp(self):
         self.set = MVLRelax52Set
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mvl_rlx_set = self.set(self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500})
 
     def test_incar(self):
@@ -1782,8 +1773,7 @@ class TestLobsterSet(PymatgenTest):
     def setUp(self):
         self.set = LobsterSet
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         # test for different parameters!
         self.lobsterset1 = self.set(self.struct, isym=-1, ismear=-5)
         self.lobsterset2 = self.set(self.struct, isym=0, ismear=0)
@@ -1863,8 +1853,7 @@ class TestLobsterSet(PymatgenTest):
 class TestMPAbsorptionSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/absorption/static/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.structure = poscar.structure
+        self.structure = Structure.from_file(file_path)
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"

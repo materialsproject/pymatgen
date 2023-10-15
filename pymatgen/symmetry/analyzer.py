@@ -266,26 +266,26 @@ class SpacegroupAnalyzer:
 
     def get_symmetry_operations(self, cartesian=False):
         """Return symmetry operations as a list of SymmOp objects. By default returns
-        fractional coord symmops. But Cartesian can be returned too.
+        fractional coord sym_ops. But Cartesian can be returned too.
 
         Returns:
-            ([SymmOp]): List of symmetry operations.
+            list[SymmOp]: symmetry operations.
         """
         rotation, translation = self._get_symmetry()
-        symmops = []
+        sym_ops = []
         mat = self._structure.lattice.matrix.T
-        invmat = np.linalg.inv(mat)
+        inv_mat = np.linalg.inv(mat)
         for rot, trans in zip(rotation, translation):
             if cartesian:
-                rot = np.dot(mat, np.dot(rot, invmat))
+                rot = np.dot(mat, np.dot(rot, inv_mat))
                 trans = np.dot(trans, self._structure.lattice.matrix)
             op = SymmOp.from_rotation_and_translation(rot, trans)
-            symmops.append(op)
-        return symmops
+            sym_ops.append(op)
+        return sym_ops
 
     def get_point_group_operations(self, cartesian=False):
         """Return symmetry operations as a list of SymmOp objects. By default returns
-        fractional coord symmops. But Cartesian can be returned too.
+        fractional coord symm ops. But Cartesian can be returned too.
 
         Args:
             cartesian (bool): Whether to return SymmOps as Cartesian or
@@ -295,7 +295,7 @@ class SpacegroupAnalyzer:
             list[SymmOp]: Point group symmetry operations.
         """
         rotation, translation = self._get_symmetry()
-        symmops = []
+        symm_ops = []
         seen = set()
         mat = self._structure.lattice.matrix.T
         inv_mat = self._structure.lattice.inv_matrix.T
@@ -307,8 +307,8 @@ class SpacegroupAnalyzer:
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, inv_mat))
             op = SymmOp.from_rotation_and_translation(rot, np.array([0, 0, 0]))
-            symmops.append(op)
-        return symmops
+            symm_ops.append(op)
+        return symm_ops
 
     def get_symmetrized_structure(self):
         """Get a symmetrized structure. A symmetrized structure is one where the sites
@@ -1277,7 +1277,7 @@ class PointGroupAnalyzer:
         symmops.
 
         Returns:
-            ([SymmOp]): List of symmetry operations.
+            list[SymmOp]: symmetry operations.
         """
         return generate_full_symmops(self.symmops, self.tol)
 

@@ -903,7 +903,7 @@
     "tests/core/test_periodic_table.py::ElementTestCase::test_init": 0.00143912504427135,
     "tests/core/test_periodic_table.py::ElementTestCase::test_is": 0.0012667080154642463,
     "tests/core/test_periodic_table.py::ElementTestCase::test_is_metal": 0.0012503340258263052,
-    "tests/core/test_periodic_table.py::ElementTestCase::test_nan_X": 0.001281375007238239,
+    "tests/core/test_periodic_table.py::ElementTestCase::test_nan_x": 0.001281375007238239,
     "tests/core/test_periodic_table.py::ElementTestCase::test_oxidation_states": 0.0012213330483064055,
     "tests/core/test_periodic_table.py::ElementTestCase::test_pickle": 0.010329875047318637,
     "tests/core/test_periodic_table.py::ElementTestCase::test_print_periodic_table": 0.009697831992525607,

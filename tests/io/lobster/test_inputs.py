@@ -2424,7 +2424,8 @@ class TestLobsterMatrices(PymatgenTest):
         ]
 
         assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
-
+        
+        
     def test_raises(self):
         with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
