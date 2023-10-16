@@ -209,18 +209,18 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @staticmethod
-    def from_file(filename, check_for_POTCAR=True, read_velocities=True) -> Poscar:
+    def from_file(filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
         """
         Reads a Poscar from a file.
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
 
-        1. If check_for_POTCAR is True, the code will try to check if a POTCAR
+        1. If check_for_potcar is True, the code will try to check if a POTCAR
         is in the same directory as the POSCAR and use elements from that by
         default. (This is the VASP default sequence of priority).
         2. If the input file is VASP5-like and contains element symbols in the
-        6th line, the code will use that if check_for_POTCAR is False or there
+        6th line, the code will use that if check_for_potcar is False or there
         is no POTCAR found.
         3. Failing (2), the code will check if a symbol is provided at the end
         of each coordinate.
@@ -233,7 +233,7 @@ class Poscar(MSONable):
 
         Args:
             filename (str): File name containing Poscar data.
-            check_for_POTCAR (bool): Whether to check if a POTCAR is present
+            check_for_potcar (bool): Whether to check if a POTCAR is present
                 in the same directory as the POSCAR. Defaults to True.
             read_velocities (bool): Whether to read or not velocities if they
                 are present in the POSCAR. Default is True.
@@ -241,9 +241,13 @@ class Poscar(MSONable):
         Returns:
             Poscar object.
         """
+        if "check_for_POTCAR" in kwargs:
+            warnings.warn("check_for_POTCAR is deprecated. Use check_for_potcar instead.", DeprecationWarning)
+            check_for_potcar = kwargs.pop("check_for_POTCAR")
+
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
-        if check_for_POTCAR and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
+        if check_for_potcar and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
             potcars = glob(f"{dirname}/*POTCAR*")
             if potcars:
                 try:
