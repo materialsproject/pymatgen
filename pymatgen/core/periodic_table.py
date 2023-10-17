@@ -1313,7 +1313,7 @@ class DummySpecies(Species):
         m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
-            if m.group(2) == "" and m.group(3) == "":
+            if m.group(2) == m.group(3) == "":
                 oxi = 0.0
             else:
                 oxi = 1.0 if m.group(2) == "" else float(m.group(2))

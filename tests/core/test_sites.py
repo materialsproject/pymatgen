@@ -67,8 +67,8 @@ class TestSite(PymatgenTest):
         assert ord_site.distance(self.disordered_site) == 0
 
     def test_pickle(self):
-        o = pickle.dumps(self.propertied_site)
-        assert pickle.loads(o) == self.propertied_site
+        dump = pickle.dumps(self.propertied_site)
+        assert pickle.loads(dump) == self.propertied_site
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
