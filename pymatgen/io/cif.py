@@ -1168,7 +1168,6 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:

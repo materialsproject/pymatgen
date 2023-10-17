@@ -220,7 +220,7 @@ class SpacegroupAnalyzer:
         """Returns the symmetry dataset as a dict.
 
         Returns:
-            (dict): With the following properties:
+            dict: With the following properties:
                 number: International space group number
                 international: International symbol
                 hall: Hall symbol

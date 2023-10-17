@@ -57,7 +57,7 @@ class GruneisenParameter(MSONable):
             multiplicities: list of multiplicities
             structure: The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.
             lattice: The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of
-                     reciprocal lattice vectors WITH a 2*pi coefficient.
+                reciprocal lattice vectors WITH a 2*pi coefficient.
         """
         self.qpoints = qpoints
         self.gruneisen = gruneisen

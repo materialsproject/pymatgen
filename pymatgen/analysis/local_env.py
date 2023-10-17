@@ -1454,7 +1454,7 @@ class OpenBabelNN(NearNeighbors):
             n: index of site for which to determine near neighbors.
 
         Returns:
-            (dict): representing a neighboring site and the type of
+            dict: representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
         from pymatgen.io.babel import BabelMolAdaptor

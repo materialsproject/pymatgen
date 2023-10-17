@@ -654,7 +654,7 @@ class WulffShape:
     def area_fraction_dict(self):
         """
         Returns:
-            (dict): {hkl: area_hkl/total area on wulff}.
+            dict: {hkl: area_hkl/total area on wulff}.
         """
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
