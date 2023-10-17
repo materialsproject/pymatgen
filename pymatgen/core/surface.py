@@ -635,7 +635,7 @@ class Slab(Structure):
             coords_are_cartesian (bool): Is the point in Cartesian coordinates
 
         Returns:
-            (Slab): The modified slab
+            Slab: The modified slab
         """
         # For now just use the species of the
         # surface atom as the element to add
@@ -1440,7 +1440,7 @@ class ReconstructionGenerator:
             (4) Add any specified sites to both surfaces.
 
         Returns:
-            (Slab): The reconstructed slab.
+            Slab: The reconstructed slab.
         """
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []

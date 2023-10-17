@@ -1626,7 +1626,7 @@ class Lattice(MSONable):
             verbose (bool, optional): Whether to print warnings.
 
         Returns:
-            (tuple): The Miller index.
+            tuple: The Miller index.
         """
         if coords_are_cartesian:
             coords = [self.get_fractional_coords(c) for c in coords]  # type: ignore

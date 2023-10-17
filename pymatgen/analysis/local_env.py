@@ -1011,7 +1011,8 @@ class VoronoiNN(NearNeighbors):
             nns ([dicts]): Nearest neighbor information for a structure
 
         Returns:
-            (list of tuples (Site, array, float)): See nn_info
+            list[tuple[PeriodicSite, np.ndarray, float]]: tuples of the form
+                (site, image, weight). See nn_info.
         """
         # Get the target information
         targets = structure.elements if self.targets is None else self.targets
