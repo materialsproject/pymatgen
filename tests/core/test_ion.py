@@ -56,6 +56,11 @@ class TestIon(unittest.TestCase):
             ("Cl-", "Cl[-1]"),
             ("H+", "H[+1]"),
             ("F-", "F[-1]"),
+            ("F2", "F2(aq)"),
+            ("H2", "H2(aq)"),
+            ("O3", "O3(aq)"),
+            ("O2", "O2(aq)"),
+            ("N2", "N2(aq)"),
             ("H4O4", "H2O2(aq)"),
             ("OH-", "OH[-1]"),
             ("CH3COO-", "CH3COO[-1]"),
@@ -65,15 +70,20 @@ class TestIon(unittest.TestCase):
             ("C2H6O", "C2H5OH(aq)"),
             ("C3H8O", "C3H7OH(aq)"),
             ("C4H10O", "C4H9OH(aq)"),
-            ("Fe(OH)4+", "FeO2.2H2O[+1]"),
-            ("Zr(OH)4", "ZrO2.2H2O(aq)"),
+            ("Fe(OH)4+", "Fe(OH)4[+1]"),
+            ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
 
         for tup in special_formulas:
             assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
 
-        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=False) == ("Fe(OH)4", 1)
-        assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=False) == ("Zr(OH)4", 1)
+        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
+        assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
+        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == ("O", 1)
+        assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)
+        assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
+        assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)
+        assert Ion.from_formula("N8").get_reduced_formula_and_factor(hydrates=False) == ("N2", 4)
 
     def test_formula(self):
         correct_formulas = [

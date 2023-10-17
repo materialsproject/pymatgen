@@ -625,7 +625,7 @@ class GulpIO:
 
 
 class GulpCaller:
-    """Class to run gulp from commandline."""
+    """Class to run gulp from command line."""
 
     def __init__(self, cmd="gulp"):
         """Initialize with the executable if not in the standard path.
@@ -841,7 +841,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split("_")[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            pot_dict[elmnt] = metal + " " + " ".join(row.split()[1:]) + "\n"
+                            pot_dict[elmnt] = f"{metal} {' '.join(row.split()[1:])}\n"
                     continue
 
                 if spring_flg:

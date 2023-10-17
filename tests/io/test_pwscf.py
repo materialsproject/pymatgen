@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
@@ -368,9 +369,9 @@ CELL_PARAMETERS angstrom
         # generate list of coords
         pw_sites = np.array([list(site.coords) for site in pwin.structure])
 
-        np.testing.assert_allclose(sites, pw_sites)
+        assert_allclose(sites, pw_sites)
 
-        np.testing.assert_allclose(lattice, pwin.structure.lattice.matrix)
+        assert_allclose(lattice, pwin.structure.lattice.matrix)
         assert pwin.sections["system"]["smearing"] == "cold"
 
 

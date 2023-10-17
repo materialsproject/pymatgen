@@ -5,7 +5,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import TYPE_CHECKING, Mapping, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
@@ -19,6 +19,8 @@ from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.sites import PeriodicSite
@@ -29,17 +31,10 @@ class DOS(Spectrum):
     """Replacement basic DOS object. All other DOS objects are extended versions
     of this object. Work in progress.
 
-    .. attribute: energies
-
-        The sequence of energies
-
-    .. attribute: densities
-
-        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
-
-    .. attribute: efermi
-
-        Fermi level
+    Attributes:
+        energies (Sequence[float]): The sequence of energies.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): Fermi level.
     """
 
     XLABEL = "Energy"
@@ -151,37 +146,30 @@ class DOS(Spectrum):
         Returns:
             gap in eV
         """
-        (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
+        cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(stringarray)
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+        return "\n".join(str_arr)
 
 
 class Dos(MSONable):
     """Basic DOS object. All other DOS objects are extended versions of this
     object.
 
-    .. attribute: energies
-
-        The sequence of energies
-
-    .. attribute: densities
-
-        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
-
-    .. attribute: efermi
-
-        Fermi level
+    Attributes:
+        energies (Sequence[float]): The sequence of energies.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): Fermi level.
     """
 
     def __init__(
@@ -608,13 +596,9 @@ class CompleteDos(Dos):
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
-    .. attribute:: structure
-
-        Structure associated with the CompleteDos.
-
-    .. attribute:: pdos
-
-        Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
+    Attributes:
+        structure (Structure): Structure associated with the CompleteDos.
+        pdos (dict): Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}.
     """
 
     def __init__(
@@ -723,7 +707,7 @@ class CompleteDos(Dos):
         """Get orbital projected Dos.
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
         """
         spd_dos = {}
         for atom_dos in self.pdos.values():
@@ -739,7 +723,7 @@ class CompleteDos(Dos):
         """Get element projected Dos.
 
         Returns:
-            dict of {Element: Dos}
+            dict[Element, Dos]
         """
         el_dos = {}
         for site, atom_dos in self.pdos.items():
@@ -758,7 +742,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}
@@ -776,15 +760,13 @@ class CompleteDos(Dos):
     @property
     def spin_polarization(self) -> float | None:
         """Calculates spin polarization at Fermi level. If the
-        calculation is not spin-polarized, None will be
-        returned.
+        calculation is not spin-polarized, None will be returned.
 
-        See Sanvito et al., doi: 10.1126/sciadv.1602241 for
-        an example usage.
+        See Sanvito et al., doi: 10.1126/sciadv.1602241 for an example usage.
 
-        :return (float): spin polarization in range [0, 1],
-        will also return NaN if spin polarization ill-defined
-        (e.g. for insulator)
+        Returns:
+            float: spin polarization in range [0, 1], will also return NaN if spin
+                polarization ill-defined (e.g. for insulator).
         """
         n_F = self.get_interpolated_value(self.efermi)
 
@@ -818,7 +800,7 @@ class CompleteDos(Dos):
             spin: Spin channel to use. By default, the spin channels will be combined.
 
         Returns:
-            band filling in eV, often denoted f_d for the d-band
+            float: band filling in eV, often denoted f_d for the d-band
         """
         # Get the projected DOS
         if elements and sites:
@@ -874,7 +856,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            band center in eV, often denoted epsilon_d for the d-band center
+            float: band center in eV, often denoted epsilon_d for the d-band center
         """
         return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
 
@@ -901,7 +883,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected band width in eV
+            float: Orbital-projected band width in eV
         """
         return np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
@@ -930,11 +912,10 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected skewness in eV
+            float: orbital-projected skewness (dimensionless)
         """
-        return self.get_n_moment(
-            3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
-        ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+        return self.get_n_moment(3, **kwds) / self.get_n_moment(2, **kwds) ** (3 / 2)
 
     def get_band_kurtosis(
         self,
@@ -961,12 +942,10 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected kurtosis in eV
+            float: orbital-projected kurtosis (dimensionless)
         """
-        return (
-            self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
-            / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
-        )
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+        return self.get_n_moment(4, **kwds) / self.get_n_moment(2, **kwds) ** 2
 
     def get_n_moment(
         self,
@@ -1003,14 +982,14 @@ class CompleteDos(Dos):
 
         densities: Mapping[Spin, ArrayLike] = {}
         if elements:
-            for i, el in enumerate(elements):
+            for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            for i, site in enumerate(sites):
+            for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1126,7 +1105,6 @@ class CompleteDos(Dos):
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
         Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
-
         Args:
             type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
@@ -1237,7 +1215,7 @@ class CompleteDos(Dos):
             ValueError: If both tanimoto and normalize are set to True.
 
         Returns:
-        Similarity index (float): The value of dot product
+            float: Similarity index given by the dot product
         """
         fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
@@ -1283,7 +1261,7 @@ class CompleteDos(Dos):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of CompleteDos."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "efermi": self.efermi,
@@ -1299,10 +1277,10 @@ class CompleteDos(Dos):
                     dd[str(orb)] = {
                         "densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}  # type: ignore
                     }
-                d["pdos"].append(dd)
-            d["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
-            d["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
-        return d
+                dct["pdos"].append(dd)
+            dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
+            dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
+        return dct
 
     def __str__(self):
         return f"Complete DOS for {self.structure}"
@@ -1392,7 +1370,6 @@ class LobsterCompleteDos(CompleteDos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """Get element and spd projected Dos.
-
 
         Args:
             el: Element in Structure.composition associated with LobsterCompleteDos
@@ -1485,9 +1462,10 @@ def _get_orb_type_lobster(orb) -> OrbitalType | None:
 def _get_orb_lobster(orb):
     """
     Args:
-        orb: string representation of orbital
+        orb: string representation of orbital.
+
     Returns:
-         Orbital.
+        Orbital.
     """
     orb_labs = [
         "s",

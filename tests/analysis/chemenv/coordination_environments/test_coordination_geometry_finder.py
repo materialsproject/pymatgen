@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -18,11 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(
-    TEST_FILES_DIR,
-    "chemenv",
-    "json_test_files",
-)
+json_dir = f"{TEST_FILES_DIR}/chemenv/json"
 
 
 class TestCoordinationGeometryFinder(PymatgenTest):
@@ -125,13 +119,13 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
     # def _strategy_test(self, strategy):
     #     files = []
-    #     for _dirpath, _dirnames, filenames in os.walk(json_files_dir):
+    #     for _dirpath, _dirnames, filenames in os.walk(json_dir):
     #         files.extend(filenames)
     #         break
 
     #     for _ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_files_dir}/{json_file}") as f:
+    #             with open(f"{json_dir}/{json_file}") as f:
     #                 dd = json.load(f)
 
     #             atom_indices = dd["atom_indices"]
@@ -210,8 +204,8 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         mp_symbol = "SH:13"
         mp_symbols = ["SH:13", "HP:12"]
         cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
-        my_points = cg.points
-        my_points[-1] = [0.9 * cc for cc in my_points[-1]]
+        cg_points = cg.points
+        cg_points[-1] = [0.9 * cc for cc in cg_points[-1]]
         self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
         self.lgf.setup_test_perfect_environment(
             mp_symbol,
@@ -220,7 +214,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             random_translation="NONE",
             random_rotation="NONE",
             random_scale="NONE",
-            points=my_points,
+            points=cg_points,
         )
         se_nohints = self.lgf.compute_structure_environments(
             only_indices=[0],

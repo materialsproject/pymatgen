@@ -42,7 +42,7 @@ class AbstractEnvironmentNode(MSONable):
 
     def __hash__(self) -> int:
         """Simple hash function based on the hash function of the central site."""
-        return self.central_site.__hash__()
+        return hash(self.central_site)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, AbstractEnvironmentNode):
@@ -121,7 +121,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
         """Compare with another environment node.
 
         Returns:
-            True if it is equal to the other node, False otherwise.
+            bool: True if it is equal to the other node.
         """
         return super().everything_equal(other) and self.coordination_environment == other.coordination_environment
 

@@ -19,7 +19,12 @@ class TestLibxcFunc(PymatgenTest):
         assert xc.kind in LibxcFunc.all_kinds()
 
         # Test if object can be serialized with Pickle.
-        self.serialize_with_pickle(xc, test_eq=True)
+        self.serialize_with_pickle(xc)
 
         # Test if object supports MSONable
         self.assert_msonable(xc, test_is_subclass=False)
+
+    def test_repr(self):
+        """Test LibxcFunc.__repr__"""
+        xc = LibxcFunc.LDA_C_HL
+        assert repr(xc) == "LibxcFunc(name='LDA_C_HL', kind='CORRELATION', family='LDA')"

@@ -265,10 +265,6 @@ class TestElasticTensorExpansion(PymatgenTest):
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
         self.exp_cu_4 = ElasticTensorExpansion([cu_c2, cu_c3, cu_c4])
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         c_ijkl = Tensor.from_voigt(self.c2)
@@ -455,9 +451,11 @@ class TestDiffFit(PymatgenTest):
 
     def test_generate_pseudo(self):
         strain_states = np.eye(6).tolist()
-        m2, abs = generate_pseudo(strain_states, order=2)
-        m3, abs = generate_pseudo(strain_states, order=3)
-        m4, abs = generate_pseudo(strain_states, order=4)
+        for order in (2, 3, 4):
+            pseudo_inverses, absent_symbols = generate_pseudo(strain_states, order=order)
+            assert len(pseudo_inverses) == order - 1
+            assert pseudo_inverses[0].shape == (21, 36)
+            assert len(absent_symbols) == len(pseudo_inverses)
 
     def test_fit(self):
         diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])

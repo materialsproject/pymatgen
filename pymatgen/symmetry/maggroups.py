@@ -7,7 +7,7 @@ import sqlite3
 import textwrap
 from array import array
 from fractions import Fraction
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -19,6 +19,8 @@ from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.core.lattice import Lattice
 
 __author__ = "Matthew Horton, Shyue Ping Ong"
@@ -88,8 +90,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         See http://stokes.byu.edu/iso/magneticspacegroupshelp.php for more
         information on magnetic symmetry.
 
-        :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups
+        Args:
+            label: BNS number supplied as list of 2 ints or BNS label as
+                str or index as int (1-1651) to iterate over all space groups
+            setting_transformation: Transformation to apply to convert
+                from BNS to OG setting, default is 'a,b,c;0,0,0' which
+                means no transformation, i.e. BNS setting is the same as
+                OG setting.
         """
         self._data = {}
 
@@ -280,9 +287,8 @@ class MagneticSpaceGroup(SymmetryGroup):
     def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
         """Initialize from Opechowski and Guccione (OG) label or number.
 
-        :param id: OG number supplied as list of 3 ints or
-            or OG label as str
-        :return:
+        Args:
+            label: OG number supplied as list of 3 ints or OG label as str
         """
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
@@ -329,7 +335,9 @@ class MagneticSpaceGroup(SymmetryGroup):
     @property
     def symmetry_ops(self):
         """Retrieve magnetic symmetry operations of the space group.
-        :return: List of :class:`pymatgen.core.operations.MagSymmOp`.
+
+        Returns:
+            List of pymatgen.core.operations.MagSymmOp.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
@@ -358,7 +366,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         Args:
             p: Point as a 3x1 array.
-            magmom: A magnetic moment, compatible with :class:`pymatgen.electronic_structure.core.Magmom`
+            magmom: A magnetic moment, compatible with pymatgen.electronic_structure.core.Magmom
             tol: Tolerance for determining if sites are the same. 1e-5 should
                 be sufficient for most purposes. Set to 0 for exact matching
                 (and also needed for symbolic orbits).
@@ -419,7 +427,9 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     def data_str(self, include_og=True):
         """Get description of all data, including information for OG setting.
-        :return: str.
+
+        Returns:
+            str.
         """
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
@@ -440,9 +450,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         desc["bns_number"] = ".".join(map(str, self._data["bns_number"]))
         desc["bns_label"] = self._data["bns_label"]
         desc["og_id"] = (
-            "\t\tOG: " + ".".join(map(str, self._data["og_number"])) + " " + self._data["og_label"]
-            if include_og
-            else ""
+            f"\t\tOG: {'.'.join(map(str, self._data['og_number']))} {self._data['og_label']}" if include_og else ""
         )
         desc["bns_operators"] = " ".join(op_data["str"] for op_data in self._data["bns_operators"])
 
@@ -532,7 +540,9 @@ class MagneticSpaceGroup(SymmetryGroup):
         """String representation of the space group, specifying the setting
         of the space group, its magnetic symmetry operators and Wyckoff
         positions.
-        :return: str.
+
+        Returns:
+            str.
         """
         return self.data_str(include_og=False)
 

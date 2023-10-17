@@ -9,7 +9,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, List, Literal, Sequence, cast, no_type_check
+from typing import TYPE_CHECKING, Literal, cast, no_type_check
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
-from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig, pretty_plot
 
 try:
     from mayavi import mlab
@@ -30,6 +30,8 @@ except ImportError:
     mlab = None
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -145,7 +147,6 @@ class DosPlotter:
 
         import palettable
 
-        # pylint: disable=E1101
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
@@ -231,7 +232,7 @@ class DosPlotter:
         # Remove duplicate labels with a dictionary
         handles, labels = ax.get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
-        ax.legend(label_dict.values(), label_dict.keys())
+        ax.legend(label_dict.values(), label_dict)
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
         plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
@@ -324,7 +325,7 @@ class BSPlotter:
             # bands
             self._nb_bands.extend([b.nb_bands for b in bs])
 
-    def _maketicks(self, ax: plt.Axes) -> plt.Axes:
+    def _make_ticks(self, ax: plt.Axes) -> plt.Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -687,7 +688,7 @@ class BSPlotter:
         else:
             ax.set_ylim(ylim)
 
-        self._maketicks(ax)
+        self._make_ticks(ax)
 
         # Main X and Y Labels
         ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
@@ -706,8 +707,8 @@ class BSPlotter:
         # auto tight_layout when resizing or pressing t
         def fix_layout(event):
             if (event.name == "key_press_event" and event.key == "t") or event.name == "resize_event":
-                ax.gcf().tight_layout()
-                ax.gcf().canvas.draw()
+                plt.tight_layout()
+                plt.gcf().canvas.draw()
 
         ax.figure.canvas.mpl_connect("key_press_event", fix_layout)
         ax.figure.canvas.mpl_connect("resize_event", fix_layout)
@@ -871,23 +872,24 @@ class BSPlotter:
         return ax
 
     def plot_brillouin(self):
-        """Plot the Brillouin zone."""
-        # get labels and lines
+        """Plot the Brillouin zone.
+
+        Returns:
+            plt.Figure: A matplotlib figure object with the Brillouin zone.
+        """
+        # make labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
             if k.label:
                 labels[k.label] = k.frac_coords
 
         lines = []
-        for b in self._bs[0].branches:
-            lines.append(
-                [
-                    self._bs[0].kpoints[b["start_index"]].frac_coords,
-                    self._bs[0].kpoints[b["end_index"]].frac_coords,
-                ]
-            )
+        for branch in self._bs[0].branches:
+            kpts = self._bs[0].kpoints
+            start_idx, end_idx = branch["start_index"], branch["end_index"]
+            lines.append([kpts[start_idx].frac_coords, kpts[end_idx].frac_coords])
 
-        plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
+        return plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -982,7 +984,7 @@ class BSPlotterProjected(BSPlotter):
         for el in dictio:
             for o in dictio[el]:
                 ax = plt.subplot(fig_rows + fig_cols + count)
-                self._maketicks(ax)
+                self._make_ticks(ax)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
                         ax.plot(
@@ -1054,7 +1056,7 @@ class BSPlotterProjected(BSPlotter):
         count = 1
         for el in self._bs.structure.elements:
             plt.subplot(220 + count)
-            self._maketicks(ax)
+            self._make_ticks(ax)
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
                     ax.plot(
@@ -1154,7 +1156,7 @@ class BSPlotterProjected(BSPlotter):
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
             spins = [Spin.up, Spin.down]
-        self._maketicks(ax)
+        self._make_ticks(ax)
         for s in spins:
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
@@ -1238,7 +1240,7 @@ class BSPlotterProjected(BSPlotter):
                     )
                 indices.append(index - 1)
         else:
-            indices = range(0, num_branches)
+            indices = range(num_branches)
 
         proj = self._bs.projections
         proj_br = []
@@ -1612,7 +1614,7 @@ class BSPlotterProjected(BSPlotter):
                     else:
                         raise ValueError("The invalid 'num_column' is assigned. It should be an integer.")
 
-                    ax, shift = self._maketicks_selected(ax, branches)
+                    ax, shift = self._make_ticks_selected(ax, branches)
                     br = -1
                     for b in branches:
                         br += 1
@@ -1838,7 +1840,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(0, len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
@@ -1885,7 +1887,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for i in range(0, len(_sites)):  # pylint: disable=C0200
+                        for i in range(len(_sites)):
                             if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
@@ -2009,7 +2011,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(0, len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2058,7 +2060,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(0, len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2077,7 +2079,7 @@ class BSPlotterProjected(BSPlotter):
 
         return dictio_d, dictpa_d
 
-    def _maketicks_selected(self, ax: plt.Axes, branches: list[int]) -> tuple[plt.Axes, list[float]]:
+    def _make_ticks_selected(self, ax: plt.Axes, branches: list[int]) -> tuple[plt.Axes, list[float]]:
         """Utility private method to add ticks to a band structure with selected branches."""
         if not ax.figure:
             fig = plt.figure()  # Create a figure object
@@ -2108,22 +2110,17 @@ class BSPlotterProjected(BSPlotter):
             else:
                 n_label.append([label[branch].split("$")[-1], label[branch + 1].split("$")[0]])
 
-        f_distance = []
-        rf_distance = []
-        f_label = []
-        f_label.append(n_label[0][0])
-        f_label.append(n_label[0][1])
-        f_distance.append(0.0)
-        f_distance.append(n_distance[0])
-        rf_distance.append(0.0)
-        rf_distance.append(n_distance[0])
+        f_distance: list[float] = []
+        rf_distance: list[float] = []
+        f_label: list[str] = []
+        f_label.extend((n_label[0][0], n_label[0][1]))
+        f_distance.extend((0.0, n_distance[0]))
+        rf_distance.extend((0.0, n_distance[0]))
         length = n_distance[0]
         for i in range(1, len(n_distance)):
             if n_label[i][0] == n_label[i - 1][1]:
-                f_distance.append(length)
-                f_distance.append(length + n_distance[i])
-                f_label.append(n_label[i][0])
-                f_label.append(n_label[i][1])
+                f_distance.extend((length, length + n_distance[i]))
+                f_label.extend((n_label[i][0], n_label[i][1]))
             else:
                 f_distance.append(length + n_distance[i])
                 f_label[-1] = n_label[i - 1][1] + "$\\mid$" + n_label[i][0]
@@ -2131,10 +2128,9 @@ class BSPlotterProjected(BSPlotter):
             rf_distance.append(length + n_distance[i])
             length += n_distance[i]
 
-        n_ticks = {"distance": f_distance, "label": f_label}
         uniq_d = []
         uniq_l = []
-        temp_ticks = list(zip(n_ticks["distance"], n_ticks["label"]))
+        temp_ticks = list(zip(f_distance, f_label))
         for i, t in enumerate(temp_ticks):
             if i == 0:
                 uniq_d.append(t[0])
@@ -2151,18 +2147,18 @@ class BSPlotterProjected(BSPlotter):
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(n_ticks["label"])):
-            if n_ticks["label"][i] is not None:
+        for i in range(len(f_label)):
+            if f_label[i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if n_ticks["label"][i] == n_ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
+                    if f_label[i] == f_label[i - 1]:
+                        logger.debug(f"already print label... skipping label {f_label[i]}")
                     else:
-                        logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                        ax.axvline(n_ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                        ax.axvline(f_distance[i], color="k")
                 else:
-                    logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                    ax.axvline(n_ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                    ax.axvline(f_distance[i], color="k")
 
         shift = []
         br = -1
@@ -2346,7 +2342,7 @@ class BSDOSPlotter:
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances_list[-1][-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
-        bs_ax.set_axisbelow(True)
+        bs_ax.set_axisbelow(b=True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
         if dos:
             dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
@@ -2359,7 +2355,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(List[float], band)
+                    band = cast(list[float], band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
@@ -2507,7 +2503,8 @@ class BSDOSPlotter:
     def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
         """An RGB colored line for plotting.
         creation of segments based on:
-        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb
+        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb.
+
         Args:
             ax: matplotlib axis
             k: x-axis data (k-points)
@@ -2520,14 +2517,14 @@ class BSDOSPlotter:
         """
         from matplotlib.collections import LineCollection
 
-        pts = np.array([k, e]).T.reshape(-1, 1, 2)  # pylint: disable=E1121
+        pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         nseg = len(k) - 1
         r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
         g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
         b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
-        a = np.ones(nseg, np.float_) * alpha
+        a = np.ones(nseg, float) * alpha
         lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
@@ -2599,9 +2596,9 @@ class BSDOSPlotter:
         x = []
         y = []
         color = []
-        for c in range(0, mesh):
-            for ye in range(0, mesh):
-                for m in range(0, mesh):
+        for c in range(mesh):
+            for ye in range(mesh):
+                for m in range(mesh):
                     if not (c == mesh - 1 and ye == mesh - 1 and m == mesh - 1) and not (c == 0 and ye == 0 and m == 0):
                         c1 = c / (c + ye + m)
                         ye1 = ye / (c + ye + m)
@@ -2634,8 +2631,7 @@ class BSDOSPlotter:
             0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
         )
 
-        inset_ax.get_xaxis().set_visible(False)
-        inset_ax.get_yaxis().set_visible(False)
+        inset_ax.axis("off")
 
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label, loc):
@@ -2650,9 +2646,9 @@ class BSDOSPlotter:
         x = []
         y = []
         color = []
-        for r in range(0, mesh):
-            for g in range(0, mesh):
-                for b in range(0, mesh):
+        for r in range(mesh):
+            for g in range(mesh):
+                for b in range(mesh):
                     if not (r == 0 and b == 0 and g == 0):
                         r1 = r / (r + g + b)
                         g1 = g / (r + g + b)
@@ -2667,12 +2663,12 @@ class BSDOSPlotter:
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)  # pylint: disable=E1101
-        inset_ax.set_xlim([-0.35, 1.00])  # pylint: disable=E1101
-        inset_ax.set_ylim([-0.35, 1.00])  # pylint: disable=E1101
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.70,
             -0.2,
             g_label,
@@ -2681,7 +2677,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="left",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.325,
             0.70,
             r_label,
@@ -2690,7 +2686,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="center",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             -0.05,
             -0.2,
             b_label,
@@ -2700,8 +2696,7 @@ class BSDOSPlotter:
             horizontalalignment="right",
         )
 
-        inset_ax.get_xaxis().set_visible(False)  # pylint: disable=E1101
-        inset_ax.get_yaxis().set_visible(False)  # pylint: disable=E1101
+        inset_ax.axis("off")
 
     @staticmethod
     def _rb_line(ax, r_label, b_label, loc):
@@ -2716,13 +2711,13 @@ class BSDOSPlotter:
         x = []
         y = []
         color = []
-        for i in range(0, 1000):
+        for i in range(1000):
             x.append(i / 1800.0 + 0.55)
             y.append(0)
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
-        # pylint: disable=E1101
+
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(
@@ -2746,8 +2741,7 @@ class BSDOSPlotter:
             verticalalignment="center",
         )
 
-        inset_ax.get_xaxis().set_visible(False)
-        inset_ax.get_yaxis().set_visible(False)
+        inset_ax.axis("off")
 
 
 class BoltztrapPlotter:
@@ -2809,7 +2803,7 @@ class BoltztrapPlotter:
                 using the average of the three diagonal components of the
                 seebeck tensor. 'tensor' returns the seebeck effective mass
                 respect to the three diagonal components of the seebeck tensor.
-            temps:  list of temperatures of calculated seebeck.
+            temps: list of temperatures of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means
                 constant relaxation time).
 
@@ -2866,12 +2860,12 @@ class BoltztrapPlotter:
 
         Args:
             output: 'average' returns the complexity factor calculated using the average
-                    of the three diagonal components of the seebeck and conductivity tensors.
-                    'tensor' returns the complexity factor respect to the three
-                    diagonal components of seebeck and conductivity tensors.
-            temps:  list of temperatures of calculated seebeck and conductivity.
+                of the three diagonal components of the seebeck and conductivity tensors.
+                'tensor' returns the complexity factor respect to the three
+                diagonal components of seebeck and conductivity tensors.
+            temps: list of temperatures of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
-                    relaxation time).
+                relaxation time).
 
         Returns:
             a matplotlib object
@@ -2924,7 +2918,6 @@ class BoltztrapPlotter:
             output (str): "eig" or "average"
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
 
-
         Returns:
             a matplotlib object
         """
@@ -2963,7 +2956,6 @@ class BoltztrapPlotter:
                units of relaxation time
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
 
-
         Returns:
             a matplotlib object
         """
@@ -3001,7 +2993,6 @@ class BoltztrapPlotter:
             relaxation_time (float): A relaxation time in s. Defaults to 1e-14 and the plot is in
                units of relaxation time
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
-
 
         Returns:
             a matplotlib object
@@ -3943,9 +3934,9 @@ def plot_fermi_surface(
 
     if mlab_figure is None and not multiple_figure:
         fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
-        for iface in range(len(bz)):  # pylint: disable=C0200
+        for iface in range(len(bz)):
             for line in itertools.combinations(bz[iface], 2):
-                for jface in range(len(bz)):  # pylint: disable=C0200
+                for jface in range(len(bz)):
                     if (
                         iface < jface
                         and any(np.all(line[0] == x) for x in bz[jface])
@@ -3979,7 +3970,7 @@ def plot_fermi_surface(
         if multiple_figure:
             fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
 
-            for iface in range(len(bz)):  # pylint: disable=C0200
+            for iface in range(len(bz)):
                 for line in itertools.combinations(bz[iface], 2):
                     for jface in range(len(bz)):
                         if (
@@ -4042,23 +4033,20 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
 
     Args:
         lattice: Lattice object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to black
             and linewidth to 1.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
-    if "color" not in kwargs:
-        kwargs["color"] = "k"
-    if "linewidth" not in kwargs:
-        kwargs["linewidth"] = 1
+    kwargs.setdefault("color", "k")
+    kwargs.setdefault("linewidth", 1)
 
     bz = lattice.get_wigner_seitz_cell()
-    ax, fig, plt = get_ax3d_fig_plt(ax)
-    for iface in range(len(bz)):  # pylint: disable=C0200
+    for iface in range(len(bz)):
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
                 if (
@@ -4076,14 +4064,14 @@ def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
 
     Args:
         lattice: Lattice object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to green
             and linewidth to 3.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "g"
@@ -4110,14 +4098,14 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
         coords_are_cartesian: Set to True if you are providing
             coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
             and linewidth to 3.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "r"
@@ -4146,14 +4134,14 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
         coords_are_cartesian: Set to True if you are providing.
             coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
             and size to 25.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "b"
@@ -4221,13 +4209,13 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
             Requires lattice if False.
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'scatter'. Color defaults to blue
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "b"
@@ -4254,7 +4242,7 @@ def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
 
     Args:
         kpath (HighSymmKpath): a HighSymmKPath object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
@@ -4278,7 +4266,7 @@ def plot_brillouin_zone(
     labels=None,
     kpoints=None,
     fold=False,
-    coords_are_cartesian=False,
+    coords_are_cartesian: bool = False,
     ax: plt.Axes = None,
     **kwargs,
 ):
@@ -4294,7 +4282,7 @@ def plot_brillouin_zone(
             Defaults to False. Requires lattice if True.
         coords_are_cartesian: Set to True if you are providing
             coordinates in Cartesian coordinates. Defaults to False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: provided by add_fig_kwargs decorator
 
     Returns:
@@ -4354,7 +4342,7 @@ def plot_ellipsoid(
         center: the center of the ellipsoid in reciprocal coords (Default)
         lattice: Lattice object of the Brillouin zone
         rescale: factor for size scaling of the ellipsoid
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
             Cartesian coordinates. Defaults to False.
         arrows: whether to plot arrows for the principal axes of the ellipsoid. Defaults to False.
@@ -4400,7 +4388,7 @@ def plot_ellipsoid(
             [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) * rescale + center
 
     # add the ellipsoid to the current axes
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
     ax.plot_wireframe(x, y, z, **kwargs)
 
     if arrows:

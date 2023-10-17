@@ -63,8 +63,8 @@ class LatticeTestCase(PymatgenTest):
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
-        for ii in range(0, 3):
-            for jj in range(0, 3):
+        for ii in range(3):
+            for jj in range(3):
                 assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
         assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
@@ -159,8 +159,8 @@ class LatticeTestCase(PymatgenTest):
         """If alpha == 90 and beta == 90, two matrices are identical."""
 
         def _identical(a, b, c, alpha, beta, gamma):
-            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix
-            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, True).matrix
+            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, vesta=False).matrix
+            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, vesta=True).matrix
             # self.assertArrayAlmostEqual(mat1, mat2)
             return ((mat1 - mat2) ** 2).sum() < 1e-6
 
@@ -279,12 +279,12 @@ class LatticeTestCase(PymatgenTest):
         assert latt.find_mapping(l2, ltol=0.1) == l2.find_mapping(latt, ltol=0.1)
         assert l2.find_mapping(latt, ltol=0.1) is None
         l2 = Lattice.orthorhombic(1.0999, 1, 1)
-        map = l2.find_mapping(latt, ltol=0.1)
-        assert isinstance(map, tuple)
-        assert len(map) == 3
+        mapping = l2.find_mapping(latt, ltol=0.1)
+        assert isinstance(mapping, tuple)
+        assert len(mapping) == 3
         assert latt.find_mapping(l2, ltol=0.1) is not None
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.tetragonal.as_dict()
         expected_keys = {"matrix", "@class", "pbc", "@module"}
         assert {*dct} == expected_keys
@@ -459,9 +459,9 @@ class LatticeTestCase(PymatgenTest):
         l1 = Lattice([a, b, c])
         l2 = Lattice([a + b, b + c, c])
 
-        ccoords = np.array([[1, 1, 2], [2, 2, 1.5]])
-        l1_fcoords = l1.get_fractional_coords(ccoords)
-        l2_fcoords = l2.get_fractional_coords(ccoords)
+        cart_coords = np.array([[1, 1, 2], [2, 2, 1.5]])
+        l1_fcoords = l1.get_fractional_coords(cart_coords)
+        l2_fcoords = l2.get_fractional_coords(cart_coords)
 
         assert_allclose(l1.matrix, l2.lll_matrix)
         assert_allclose(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
@@ -571,9 +571,3 @@ class LatticeTestCase(PymatgenTest):
     def test_is_3d_periodic(self):
         assert self.cubic.is_3d_periodic
         assert not self.cubic_partial_pbc.is_3d_periodic
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

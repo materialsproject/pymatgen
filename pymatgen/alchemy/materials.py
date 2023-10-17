@@ -11,6 +11,7 @@ import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
+import numpy as np
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -127,10 +128,10 @@ class TransformedStructure(MSONable):
                 h_dict["input_structure"] = input_structure
                 h_dict["output_parameters"] = x
                 self.final_structure = struct
-                d = self.as_dict()
-                d["history"].append(h_dict)
-                d["final_structure"] = struct.as_dict()
-                alts.append(TransformedStructure.from_dict(d))
+                dct = self.as_dict()
+                dct["history"].append(h_dict)
+                dct["final_structure"] = struct.as_dict()
+                alts.append(TransformedStructure.from_dict(dct))
 
             x = ranked_list[0]
             struct = x.pop("structure")
@@ -211,19 +212,18 @@ class TransformedStructure(MSONable):
 
     def __str__(self) -> str:
         output = ["Current structure", "------------", str(self.final_structure), "\nHistory", "------------"]
-        for h in self.history:
-            h.pop("input_structure", None)
-            output.append(str(h))
-        output.append("\nOther parameters")
-        output.append("------------")
-        output.append(str(self.other_parameters))
+        for hist in self.history:
+            hist.pop("input_structure", None)
+            output.append(str(hist))
+        output.extend(("\nOther parameters", "------------", str(self.other_parameters)))
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> None:
-        """Set a parameter.
+        """Sets a parameter.
 
-        :param key: The string key
-        :param value: The value.
+        Args:
+            key (str): The string key.
+            value (Any): The value.
         """
         self.other_parameters[key] = value
 
@@ -244,8 +244,14 @@ class TransformedStructure(MSONable):
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
         return [*h_structs, self.final_structure]
 
-    @staticmethod
-    def from_cif_string(
+    @classmethod
+    @np.deprecate(message="Use from_cif_str instead")
+    def from_cif_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_cif_str(*args, **kwargs)
+
+    @classmethod
+    def from_cif_str(
+        cls,
         cif_string: str,
         transformations: list[AbstractTransformation] | None = None,
         primitive: bool = True,
@@ -287,11 +293,16 @@ class TransformedStructure(MSONable):
             "original_file": raw_string,
             "cif_data": cif_dict[cif_keys[0]],
         }
-        return TransformedStructure(struct, transformations, history=[source_info])
+        return cls(struct, transformations, history=[source_info])
 
-    @staticmethod
-    def from_poscar_string(
-        poscar_string: str, transformations: list[AbstractTransformation] | None = None
+    @classmethod
+    @np.deprecate(message="Use from_poscar_str instead")
+    def from_poscar_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_poscar_str(*args, **kwargs)
+
+    @classmethod
+    def from_poscar_str(
+        cls, poscar_string: str, transformations: list[AbstractTransformation] | None = None
     ) -> TransformedStructure:
         """Generates TransformedStructure from a poscar string.
 
@@ -300,57 +311,59 @@ class TransformedStructure(MSONable):
             transformations (list[Transformation]): Sequence of transformations
                 to be applied to the input structure.
         """
-        p = Poscar.from_str(poscar_string)
-        if not p.true_names:
+        poscar = Poscar.from_str(poscar_string)
+        if not poscar.true_names:
             raise ValueError(
                 "Transformation can be created only from POSCAR strings with proper VASP5 element symbols."
             )
         raw_string = re.sub(r"'", '"', poscar_string)
-        struct = p.structure
+        struct = poscar.structure
         source_info = {
             "source": "POSCAR",
             "datetime": str(datetime.datetime.now()),
             "original_file": raw_string,
         }
-        return TransformedStructure(struct, transformations, history=[source_info])
+        return cls(struct, transformations, history=[source_info])
 
     def as_dict(self) -> dict[str, Any]:
         """Dict representation of the TransformedStructure."""
-        d = self.final_structure.as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["history"] = jsanitize(self.history)
-        d["last_modified"] = str(datetime.datetime.utcnow())
-        d["other_parameters"] = jsanitize(self.other_parameters)
-        return d
+        dct = self.final_structure.as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["history"] = jsanitize(self.history)
+        dct["last_modified"] = str(datetime.datetime.utcnow())
+        dct["other_parameters"] = jsanitize(self.other_parameters)
+        return dct
 
     @classmethod
-    def from_dict(cls, d) -> TransformedStructure:
+    def from_dict(cls, dct) -> TransformedStructure:
         """Creates a TransformedStructure from a dict."""
-        struct = Structure.from_dict(d)
-        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
+        struct = Structure.from_dict(dct)
+        return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
         """Generate SNL from TransformedStructure.
 
         :param authors: List of authors
         :param **kwargs: All kwargs supported by StructureNL.
-        :return: StructureNL
+
+        Returns:
+            StructureNL
         """
         if self.other_parameters:
             warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
-        hist = []
-        for h in self.history:
-            snl_metadata = h.pop("_snl", {})
-            hist.append(
+        history = []
+        for hist in self.history:
+            snl_metadata = hist.pop("_snl", {})
+            history.append(
                 {
                     "name": snl_metadata.pop("name", "pymatgen"),
                     "url": snl_metadata.pop("url", "http://pypi.python.org/pypi/pymatgen"),
-                    "description": h,
+                    "description": hist,
                 }
             )
 
-        return StructureNL(self.final_structure, authors, history=hist, **kwargs)
+        return StructureNL(self.final_structure, authors, history=history, **kwargs)
 
     @classmethod
     def from_snl(cls, snl: StructureNL) -> TransformedStructure:
@@ -362,9 +375,9 @@ class TransformedStructure(MSONable):
         Returns:
             TransformedStructure
         """
-        hist = []
-        for h in snl.history:
-            d = h.description
-            d["_snl"] = {"url": h.url, "name": h.name}
-            hist.append(d)
-        return cls(snl.structure, history=hist)
+        history: list[dict] = []
+        for hist in snl.history:
+            dct = hist.description
+            dct["_snl"] = {"url": hist.url, "name": hist.name}
+            history.append(dct)
+        return cls(snl.structure, history=history)

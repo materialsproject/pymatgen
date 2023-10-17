@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from itertools import product
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -15,6 +15,8 @@ from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
     from pymatgen.core import Structure
 
 
@@ -197,10 +199,10 @@ class CoherentInterfaceBuilder:
             film_sl_slab = film_slab.copy()
             film_sl_slab.make_supercell(super_film_transform)
             assert_allclose(
-                film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2]
+                film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2], atol=1e-08
             ), "2D transformation affected C-axis for Film transformation"
             assert_allclose(
-                film_sl_slab.lattice.matrix[:2], match.film_sl_vectors
+                film_sl_slab.lattice.matrix[:2], match.film_sl_vectors, atol=1e-08
             ), "Transformation didn't make proper supercell for film"
 
             # Build substrate superlattice
@@ -210,10 +212,10 @@ class CoherentInterfaceBuilder:
             sub_sl_slab = sub_slab.copy()
             sub_sl_slab.make_supercell(super_sub_transform)
             assert_allclose(
-                sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2]
+                sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2], atol=1e-08
             ), "2D transformation affected C-axis for Film transformation"
             assert_allclose(
-                sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors
+                sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors, atol=1e-08
             ), "Transformation didn't make proper supercell for substrate"
 
             # Add extra info
@@ -229,14 +231,12 @@ class CoherentInterfaceBuilder:
             interface_properties["film_thickness"] = film_thickness
             interface_properties["substrate_thickness"] = substrate_thickness
 
-            yield (
-                Interface.from_slabs(
-                    substrate_slab=sub_sl_slab,
-                    film_slab=film_sl_slab,
-                    gap=gap,
-                    vacuum_over_film=vacuum_over_film,
-                    interface_properties=interface_properties,
-                )
+            yield Interface.from_slabs(
+                substrate_slab=sub_sl_slab,
+                film_slab=film_sl_slab,
+                gap=gap,
+                vacuum_over_film=vacuum_over_film,
+                interface_properties=interface_properties,
             )
 
 

@@ -17,7 +17,8 @@ from monty.json import MSONable, jsanitize
 from scipy.interpolate import CubicSpline
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.io.vasp import Outcar, Poscar
+from pymatgen.core import Structure
+from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
 
 
@@ -84,7 +85,7 @@ class NEBAnalysis(MSONable):
     def from_outcars(cls, outcars, structures, **kwargs):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g., :class:`from_dir` instead if you
+        the static constructors, e.g., from_dir instead if you
         prefer to have these automatically generated from a directory of NEB
         calculations.
 
@@ -234,10 +235,10 @@ class NEBAnalysis(MSONable):
         """
         neb_dirs = []
 
-        for d in os.listdir(root_dir):
-            pth = os.path.join(root_dir, d)
-            if os.path.isdir(pth) and d.isdigit():
-                i = int(d)
+        for digit in os.listdir(root_dir):
+            pth = os.path.join(root_dir, digit)
+            if os.path.isdir(pth) and digit.isdigit():
+                i = int(digit)
                 neb_dirs.append((i, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
         outcars = []
@@ -267,10 +268,10 @@ class NEBAnalysis(MSONable):
                         break
                 else:
                     raise ValueError(f"OUTCAR cannot be found for terminal point {d}")
-                structures.append(Poscar.from_file(poscar[0]).structure)
+                structures.append(Structure.from_file(poscar[0]))
             else:
                 outcars.append(Outcar(outcar[0]))
-                structures.append(Poscar.from_file(contcar[0]).structure)
+                structures.append(Structure.from_file(contcar[0]))
         return NEBAnalysis.from_outcars(outcars, structures, **kwargs)
 
     def as_dict(self):

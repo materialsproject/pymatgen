@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-import os
 
 import networkx as nx
 import numpy as np
@@ -75,12 +74,12 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.graph.nodes(data=True)["c"] == {}
 
         # Make a deep copy of the graph to actually check that the objects are different instances
-        mygraph = copy.deepcopy(cc.graph)
-        assert isinstance(mygraph, nx.MultiGraph)  # Check that it is indeed the same type of graph
+        graph = copy.deepcopy(cc.graph)
+        assert isinstance(graph, nx.MultiGraph)  # Check that it is indeed the same type of graph
 
-        cc2 = ConnectedComponent(graph=mygraph)
-        assert set(mygraph.nodes()) == set(cc2.graph.nodes())
-        assert set(mygraph.edges()) == set(cc2.graph.edges())
+        cc2 = ConnectedComponent(graph=graph)
+        assert set(graph.nodes()) == set(cc2.graph.nodes())
+        assert set(graph.edges()) == set(cc2.graph.edges())
         assert len(cc2.graph) == 6
 
     def test_serialization(self):
@@ -154,32 +153,32 @@ class TestConnectedComponent(PymatgenTest):
             match=r"Cannot pass an edge key which is a str representation of an int\x2E",
         ):
             key = ConnectedComponent._edgekey_to_edgedictkey("5")
-        key = ConnectedComponent._edgekey_to_edgedictkey("mykey")
-        assert key == "mykey"
+        key = ConnectedComponent._edgekey_to_edgedictkey("some-key")
+        assert key == "some-key"
         with pytest.raises(ValueError, match=r"Edge key should be either a str or an int\x2E"):
             key = ConnectedComponent._edgekey_to_edgedictkey(0.2)
 
     def test_periodicity(self):
-        en1 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")
-        en2 = EnvironmentNode(central_site="Ag", i_central_site=5, ce_symbol="T:4")
-        en3 = EnvironmentNode(central_site="Ag", i_central_site=8, ce_symbol="O:6")
-        en4 = EnvironmentNode(central_site="Fe", i_central_site=23, ce_symbol="C:8")
+        env_node1 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")
+        env_node2 = EnvironmentNode(central_site="Ag", i_central_site=5, ce_symbol="T:4")
+        env_node3 = EnvironmentNode(central_site="Ag", i_central_site=8, ce_symbol="O:6")
+        env_node4 = EnvironmentNode(central_site="Fe", i_central_site=23, ce_symbol="C:8")
 
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3])
+        graph.add_nodes_from([env_node1, env_node2, env_node3])
         graph.add_edge(
-            en1,
-            en2,
-            start=en1.isite,
-            end=en2.isite,
+            env_node1,
+            env_node2,
+            start=env_node1.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en3,
-            start=en1.isite,
-            end=en2.isite,
+            env_node1,
+            env_node3,
+            start=env_node1.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(10, (0, 0, 1), (0, 0, 1)), (11, (0, 0, 1), (0, 0, 1))],
         )
@@ -192,28 +191,28 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.periodicity == "0D"
 
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3])
+        graph.add_nodes_from([env_node1, env_node2, env_node3])
         graph.add_edge(
-            en1,
-            en2,
-            start=en1.isite,
-            end=en2.isite,
+            env_node1,
+            env_node2,
+            start=env_node1.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en3,
-            start=en1.isite,
-            end=en3.isite,
+            env_node1,
+            env_node3,
+            start=env_node1.isite,
+            end=env_node3.isite,
             delta=(0, 0, 0),
             ligands=[(10, (0, 0, 1), (0, 0, 1)), (11, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en2,
-            en3,
-            start=en2.isite,
-            end=en3.isite,
+            env_node2,
+            env_node3,
+            start=env_node2.isite,
+            end=env_node3.isite,
             delta=(0, 0, 1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -226,28 +225,28 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.periodicity == "1D"
 
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3])
+        graph.add_nodes_from([env_node1, env_node2, env_node3])
         graph.add_edge(
-            en1,
-            en2,
-            start=en1.isite,
-            end=en2.isite,
+            env_node1,
+            env_node2,
+            start=env_node1.isite,
+            end=env_node2.isite,
             delta=(0, 0, 1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en3,
-            start=en1.isite,
-            end=en3.isite,
+            env_node1,
+            env_node3,
+            start=env_node1.isite,
+            end=env_node3.isite,
             delta=(0, 0, 0),
             ligands=[(10, (0, 0, 1), (0, 0, 1)), (11, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en2,
-            en3,
-            start=en2.isite,
-            end=en3.isite,
+            env_node2,
+            env_node3,
+            start=env_node2.isite,
+            end=env_node3.isite,
             delta=(0, 0, -1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -256,20 +255,20 @@ class TestConnectedComponent(PymatgenTest):
 
         # Test errors when computing periodicity
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3])
+        graph.add_nodes_from([env_node1, env_node2, env_node3])
         graph.add_edge(
-            en1,
-            en1,
-            start=en1.isite,
-            end=en1.isite,
+            env_node1,
+            env_node1,
+            start=env_node1.isite,
+            end=env_node1.isite,
             delta=(0, 0, 1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en1,
-            start=en1.isite,
-            end=en1.isite,
+            env_node1,
+            env_node1,
+            start=env_node1.isite,
+            end=env_node1.isite,
             delta=(0, 0, 1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -281,20 +280,20 @@ class TestConnectedComponent(PymatgenTest):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3])
+        graph.add_nodes_from([env_node1, env_node2, env_node3])
         graph.add_edge(
-            en1,
-            en1,
-            start=en1.isite,
-            end=en1.isite,
+            env_node1,
+            env_node1,
+            start=env_node1.isite,
+            end=env_node1.isite,
             delta=(3, 2, -1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en1,
-            start=en1.isite,
-            end=en1.isite,
+            env_node1,
+            env_node1,
+            start=env_node1.isite,
+            end=env_node1.isite,
             delta=(-3, -2, 1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -306,12 +305,12 @@ class TestConnectedComponent(PymatgenTest):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3])
+        graph.add_nodes_from([env_node1, env_node2, env_node3])
         graph.add_edge(
-            en1,
-            en1,
-            start=en1.isite,
-            end=en1.isite,
+            env_node1,
+            env_node1,
+            start=env_node1.isite,
+            end=env_node1.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -324,52 +323,52 @@ class TestConnectedComponent(PymatgenTest):
 
         # Test a 2d periodicity
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3, en4])
+        graph.add_nodes_from([env_node1, env_node2, env_node3, env_node4])
         graph.add_edge(
-            en1,
-            en2,
-            start=en1.isite,
-            end=en2.isite,
+            env_node1,
+            env_node2,
+            start=env_node1.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en3,
-            start=en1.isite,
-            end=en3.isite,
+            env_node1,
+            env_node3,
+            start=env_node1.isite,
+            end=env_node3.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en4,
-            en2,
-            start=en4.isite,
-            end=en2.isite,
+            env_node4,
+            env_node2,
+            start=env_node4.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en4,
-            start=en4.isite,
-            end=en3.isite,
+            env_node3,
+            env_node4,
+            start=env_node4.isite,
+            end=env_node3.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en4,
-            start=en4.isite,
-            end=en3.isite,
+            env_node3,
+            env_node4,
+            start=env_node4.isite,
+            end=env_node3.isite,
             delta=(0, -1, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en2,
-            start=en2.isite,
-            end=en3.isite,
+            env_node3,
+            env_node2,
+            start=env_node2.isite,
+            end=env_node3.isite,
             delta=(-1, -1, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -386,60 +385,60 @@ class TestConnectedComponent(PymatgenTest):
 
         # Test a 3d periodicity
         graph = nx.MultiGraph()
-        graph.add_nodes_from([en1, en2, en3, en4])
+        graph.add_nodes_from([env_node1, env_node2, env_node3, env_node4])
         graph.add_edge(
-            en1,
-            en2,
-            start=en1.isite,
-            end=en2.isite,
+            env_node1,
+            env_node2,
+            start=env_node1.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en1,
-            en3,
-            start=en1.isite,
-            end=en3.isite,
+            env_node1,
+            env_node3,
+            start=env_node1.isite,
+            end=env_node3.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en4,
-            en2,
-            start=en4.isite,
-            end=en2.isite,
+            env_node4,
+            env_node2,
+            start=env_node4.isite,
+            end=env_node2.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en4,
-            start=en4.isite,
-            end=en3.isite,
+            env_node3,
+            env_node4,
+            start=env_node4.isite,
+            end=env_node3.isite,
             delta=(0, 0, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en4,
-            start=en4.isite,
-            end=en3.isite,
+            env_node3,
+            env_node4,
+            start=env_node4.isite,
+            end=env_node3.isite,
             delta=(0, -1, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en2,
-            start=en2.isite,
-            end=en3.isite,
+            env_node3,
+            env_node2,
+            start=env_node2.isite,
+            end=env_node3.isite,
             delta=(-1, -1, 0),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
         graph.add_edge(
-            en3,
-            en3,
-            start=en3.isite,
-            end=en3.isite,
+            env_node3,
+            env_node3,
+            start=env_node3.isite,
+            end=env_node3.isite,
             delta=(-1, -1, -1),
             ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))],
         )
@@ -469,7 +468,7 @@ class TestConnectedComponent(PymatgenTest):
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
-        for isite in range(0, 4):
+        for isite in range(4):
             assert lse.structure[isite].specie.symbol == "Li"
             assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
         for isite in range(4, 8):
@@ -775,7 +774,7 @@ Node #11 P (T:4), connected to :
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
-        for isite in range(0, 4):
+        for isite in range(4):
             assert lse.structure[isite].specie.symbol == "Li"
             assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
         for isite in range(4, 5):
@@ -847,12 +846,7 @@ Node #3 Li (O:6), connected to :
         assert ccs_periodicities == {"0D", "2D"}
 
     def test_coordination_sequences(self):
-        BaTiO3_se_fpath = os.path.join(
-            TEST_FILES_DIR,
-            "chemenv",
-            "structure_environments_files",
-            "se_mp-5020.json",
-        )
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)

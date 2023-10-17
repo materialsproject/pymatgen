@@ -18,14 +18,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 @unittest.skipIf(not which("bader"), "bader executable not present")
 class TestBaderAnalysis(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         warnings.catch_warnings()
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         # test with reference file

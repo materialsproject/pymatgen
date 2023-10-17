@@ -266,7 +266,6 @@ class Critic2Caller:
         :param suffix: specific suffix to look for (e.g. '.relax1' for
             'CHGCAR.relax1.gz')
         :param zpsp: manually specify ZPSP if POTCAR not present
-        :return:
         """
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
@@ -395,11 +394,11 @@ class CriticalPoint(MSONable):
 
     @property
     def ellipticity(self):
-        """Most meaningful for bond critical points,
-        can be physically interpreted as e.g. degree
-        of pi-bonding in organic molecules. Consult
-        literature for more information.
-        Returns: The ellpiticity of the field at the critical point.
+        """Most meaningful for bond critical points, can be physically interpreted as e.g.
+        degree of pi-bonding in organic molecules. Consult literature for more info.
+
+        Returns:
+            float: The ellipticity of the field at the critical point.
         """
         eig, _ = np.linalg.eig(self.field_hessian)
         eig.sort()
@@ -469,8 +468,7 @@ class Critic2Analysis(MSONable):
         self._remap_indices()
 
     def structure_graph(self, include_critical_points=("bond", "ring", "cage")):
-        """A StructureGraph object describing bonding information
-        in the crystal.
+        """A StructureGraph object describing bonding information in the crystal.
 
         Args:
             include_critical_points: add DummySpecies for
@@ -478,7 +476,8 @@ class Critic2Analysis(MSONable):
             "nucleus", "bond", "ring", "cage", set to None
             to disable
 
-        Returns: a StructureGraph
+        Returns:
+            StructureGraph
         """
         structure = self.structure.copy()
 
@@ -590,22 +589,22 @@ class Critic2Analysis(MSONable):
         Args:
             n (int): Site index.
 
-        Returns: A CriticalPoint instance
+        Returns:
+            CriticalPoint
         """
         return self.critical_points[self.nodes[n]["unique_idx"]]
 
-    def get_volume_and_charge_for_site(self, n):
+    def get_volume_and_charge_for_site(self, idx):
         """
         Args:
-            n: Site index n.
+            idx: Site index.
 
-        Returns: A dict containing "volume" and "charge" keys,
-        or None if YT integration not performed
+        Returns:
+            dict: with "volume" and "charge" keys, or None if YT integration not performed
         """
-        # pylint: disable=E1101
         if not self._node_values:
             return None
-        return self._node_values[n]
+        return self._node_values[idx]
 
     def _parse_cpreport(self, cpreport):
         def get_type(signature: int, is_nucleus: bool):
@@ -854,7 +853,6 @@ class Critic2Analysis(MSONable):
         :param unique_idx: index of unique CriticalPoint,
             used to look up more information of point (field etc.)
         :param frac_coord: fractional coordinates of point
-        :return:
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
@@ -876,9 +874,8 @@ class Critic2Analysis(MSONable):
         :param from_lvec: vector of lattice image the from node is in
             as tuple of ints
         :param to_idx: to index of node
-        :param to_lvec:  vector of lattice image the to node is in as
+        :param to_lvec: vector of lattice image the to node is in as
             tuple of ints
-        :return:
         """
         self.edges[idx] = {
             "from_idx": from_idx,

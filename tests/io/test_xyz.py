@@ -1,18 +1,20 @@
 from __future__ import annotations
 
+import unittest
+
 import numpy as np
 import pandas as pd
 import pytest
 from pytest import approx
 
+from pymatgen.core import Structure
 from pymatgen.core.structure import Molecule
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestXYZ:
-    def setup(self):
+class TestXYZ(unittest.TestCase):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],
@@ -134,8 +136,7 @@ C32-C2-1
 
     def test_init_from_structure(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        struct = poscar.structure
+        struct = Structure.from_file(filepath)
         xyz = XYZ(struct)
         expected = """24
 Fe4 P4 O16

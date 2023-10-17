@@ -46,20 +46,6 @@ def get_dir_indir_gap(run=""):
     return dir_gap, indir_gap
 
 
-def matrix_eigvals(matrix):
-    """
-    Calculate the eigenvalues of a matrix.
-
-    Args:
-        matrix (np.array): The matrix to diagonalise.
-
-    Returns:
-        (np.array): Array of the matrix eigenvalues.
-    """
-    eigvals, eigvecs = np.linalg.eig(matrix)
-    return eigvals
-
-
 def to_matrix(xx, yy, zz, xy, yz, xz):
     """
     Convert a list of matrix components to a symmetric 3x3 matrix.
@@ -86,14 +72,13 @@ def parse_dielectric_data(data):
 
     Args:
         data (list): length N list of dielectric data. Each entry should be
-                     a list of ``[xx, yy, zz, xy, xz, yz ]`` dielectric
-                     tensor elements.
+            a list of ``[xx, yy, zz, xy , xz, yz ]`` dielectric tensor elements.
 
     Returns:
-        (np.array):  a Nx3 numpy array. Each row contains the eigenvalues
-                     for the corresponding row in `data`.
+        np.array: a Nx3 numpy array. Each row contains the eigenvalues
+            for the corresponding row in `data`.
     """
-    return np.array([matrix_eigvals(to_matrix(*e)) for e in data])
+    return np.array([np.linalg.eig(to_matrix(*e))[0] for e in data])
 
 
 def absorption_coefficient(dielectric):
@@ -103,10 +88,10 @@ def absorption_coefficient(dielectric):
 
     Args:
         dielectric (list): A list containing the dielectric response function
-                           in the pymatgen vasprun format.
-                           | element 0: list of energies
-                           | element 1: real dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
-                           | element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
+            in the pymatgen vasprun format.
+            - element 0: list of energies
+            - element 1: real dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
+            - element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
 
     Returns:
         (np.array): absorption coefficient using eV as frequency units (cm^-1).
@@ -231,7 +216,7 @@ def slme(
     )
 
     material_interpolated_absorbance = np.zeros(len(solar_spectra_wavelength_meters))
-    for i in range(0, len(solar_spectra_wavelength_meters)):
+    for i in range(len(solar_spectra_wavelength_meters)):
         # Cutting off absorption data below the gap. This is done to deal
         # with VASPs broadening of the calculated absorption data
 

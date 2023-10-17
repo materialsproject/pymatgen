@@ -44,7 +44,7 @@ from pymatgen.util.string import htmlify
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as file:
+with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
     plotly_layouts = json.load(file)
 
 
@@ -281,14 +281,14 @@ class ChemicalPotentialDiagram(MSONable):
                     pts_2d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
 
             entry = self.entry_dict[formula]
-            ann_formula = formula
+            anno_formula = formula
             if hasattr(entry, "original_entry"):
-                ann_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.composition.reduced_formula
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
             ann_loc = center + 0.25 * normal  # offset annotation location by arb. amount
-            annotation = self._get_annotation(ann_loc, ann_formula)
+            annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
 
             draw_domains[formula] = pts_2d
@@ -296,7 +296,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout = plotly_layouts["default_layout_2d"].copy()
         layout.update(self._get_axis_layout_dict(elements))
         if label_stable:
-            layout.update({"annotations": annotations})
+            layout["annotations"] = annotations
 
         data = self._get_2d_domain_lines(draw_domains)
 
@@ -353,11 +353,11 @@ class ChemicalPotentialDiagram(MSONable):
 
             simplexes, ann_loc = self._get_3d_domain_simplexes_and_ann_loc(pts_3d)
 
-            ann_formula = formula
+            anno_formula = formula
             if hasattr(entry, "original_entry"):
-                ann_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.composition.reduced_formula
 
-            annotation = self._get_annotation(ann_loc, ann_formula)
+            annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
 
             domain_simplexes[formula] = simplexes
@@ -367,7 +367,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout["scene"]["annotations"] = None
 
         if label_stable:
-            layout["scene"].update({"annotations": annotations})
+            layout["scene"]["annotations"] = annotations
         layout["scene_camera"] = {
             "eye": {"x": 5, "y": 5, "z": 5},  # zoomed out
             "projection": {"type": "orthographic"},
@@ -565,7 +565,7 @@ class ChemicalPotentialDiagram(MSONable):
         annotation = plotly_layouts["default_annotation_layout"].copy()
         annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
         if len(ann_loc) == 3:
-            annotation.update({"z": ann_loc[2]})
+            annotation["z"] = ann_loc[2]
         return annotation
 
     @staticmethod
@@ -680,7 +680,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     cy = 0
     a = 0
 
-    for idx in range(0, len(vertices) - 1):
+    for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]
         yi = vertices[idx, 1]
         xi_p = vertices[idx + 1, 0]

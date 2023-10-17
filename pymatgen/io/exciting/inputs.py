@@ -29,24 +29,16 @@ class ExcitingInput(MSONable):
     Object for representing the data stored in the structure part of the
     exciting input.
 
-    .. attribute:: structure
-
-        Associated Structure.
-
-    .. attribute:: title
-
-        Optional title string.
-
-    .. attribute:: lockxyz
-
-        Lockxyz attribute for each site if available. A Nx3 array of
-        booleans.
+    Attributes:
+        structure (Structure): Associated Structure.
+        title (str): Optional title string.
+        lockxyz (numpy.ndarray): Lockxyz attribute for each site if available. A Nx3 array of booleans.
     """
 
     def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
-            structure (Structure):  Structure object.
+            structure (Structure): Structure object.
             title (str): Optional title for exciting input. Defaults to unit
                 cell formula of structure. Defaults to None.
             lockxyz (Nx3 array): bool values for selective dynamics,
@@ -151,7 +143,9 @@ class ExcitingInput(MSONable):
     def from_file(filename):
         """
         :param filename: Filename
-        :return: ExcitingInput
+
+        Returns:
+            ExcitingInput
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
@@ -163,15 +157,15 @@ class ExcitingInput(MSONable):
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
-            from self.structure ("unchanged"), the conventional cell
-            ("conventional"), or the primitive unit cell ("primitive").
+                from self.structure ("unchanged"), the conventional cell
+                ("conventional"), or the primitive unit cell ("primitive").
 
             cartesian (bool): Whether the atomic positions are provided in
-            Cartesian or unit-cell coordinates. Default is False.
+                Cartesian or unit-cell coordinates. Default is False.
 
             bandstr (bool): Whether the bandstructure path along the
-            HighSymmKpath is included in the input file. Only supported if the
-            celltype is set to "primitive". Default is False.
+                HighSymmKpath is included in the input file. Only supported if the
+                celltype is set to "primitive". Default is False.
 
             symprec (float): Tolerance for the symmetry finding. Default is 0.4.
 
@@ -213,8 +207,8 @@ class ExcitingInput(MSONable):
         # write lattice
         basis = new_struct.lattice.matrix
         for idx in range(3):
-            basevect = ET.SubElement(crystal, "basevect")
-            basevect.text = f"{basis[idx][0]:16.8f} {basis[idx][1]:16.8f} {basis[idx][2]:16.8f}"
+            base_vec = ET.SubElement(crystal, "basevect")
+            base_vec.text = f"{basis[idx][0]:16.8f} {basis[idx][1]:16.8f} {basis[idx][2]:16.8f}"
         # write atomic positions for each species
         index = 0
         for elem in sorted(new_struct.types_of_species, key=lambda el: el.X):
@@ -243,9 +237,9 @@ class ExcitingInput(MSONable):
         if bandstr and celltype == "primitive":
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop = ET.SubElement(root, "properties")
-            bandstrct = ET.SubElement(prop, "bandstructure")
+            band_struct = ET.SubElement(prop, "bandstructure")
             for idx in range(len(kpath.kpath["path"])):
-                plot = ET.SubElement(bandstrct, "plot1d")
+                plot = ET.SubElement(band_struct, "plot1d")
                 path = ET.SubElement(plot, "path", steps="100")
                 for j in range(len(kpath.kpath["path"][idx])):
                     symbol = kpath.kpath["path"][idx][j]
@@ -343,7 +337,6 @@ class ExcitingInput(MSONable):
 
         :param elem:
         :param level:
-        :return:
         """
         i = "\n" + level * "  "
         if len(elem):

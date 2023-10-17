@@ -28,7 +28,7 @@ Si_structure = Structure(
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
 
-nonsense_Structure = Structure(
+nonsense_struct = Structure(
     lattice=[[-1.0, -10.0, -100.0], [0.1, 0.01, 0.001], [7.0, 11.0, 21.0]],
     species=["H"],
     coords=[[-1, -1, -1]],
@@ -48,12 +48,12 @@ basis = """
       0.066918004004  0.037148121400
       0.021708243634 -0.001125195500
 """
-all_H = """
+all_hydrogen = """
 H ALLELECTRON ALL
     1    0    0
      0.20000000    0
 """
-pot_H = """
+pot_hydrogen = """
 H GTH-PBE-q1 GTH-PBE
     1
      0.20000000    2    -4.17890044     0.72446331
@@ -125,22 +125,22 @@ class TestBasisAndPotential(PymatgenTest):
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly
-        all = GthPotential.from_str(all_H)
-        assert all.potential == "All Electron"
-        pot = GthPotential.from_str(pot_H)
+        h_all_elec = GthPotential.from_str(all_hydrogen)
+        assert h_all_elec.potential == "All Electron"
+        pot = GthPotential.from_str(pot_hydrogen)
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
         assert pot.nexp_ppl == approx(2)
         assert_allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
-        pf = PotentialFile.from_str(pot_H)
+        pf = PotentialFile.from_str(pot_hydrogen)
         assert pf.objects[0] == pot
 
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
         assert kw.values[0] == "GTH-PBE-q1"  # noqa: PD011
-        kw = all.get_keyword()
+        kw = h_all_elec.get_keyword()
         assert kw.values[0] == "ALL"  # noqa: PD011
 
 
@@ -181,13 +181,13 @@ class TestInput(PymatgenTest):
         assert "[Ha]" in kwd.get_str()
 
     def test_coords(self):
-        for strucs in [nonsense_Structure, Si_structure, molecule]:
+        for strucs in [nonsense_struct, Si_structure, molecule]:
             coords = Coord(strucs)
             for c in coords.keywords.values():
                 assert isinstance(c, (Keyword, KeywordList))
 
     def test_kind(self):
-        for s in [nonsense_Structure, Si_structure, molecule]:
+        for s in [nonsense_struct, Si_structure, molecule]:
             for spec in s.species:
                 assert spec == Kind(spec).specie
 
@@ -223,7 +223,7 @@ class TestInput(PymatgenTest):
         # should be case insensitive and ignore
         # excessive white space or tabs
         ci = Cp2kInput.from_str(scramble)
-        assert ci["FORCE_EVAL"]["DFT"]["UKS"] == Keyword("UKS", True)
+        assert ci["FORCE_EVAL"]["DFT"]["UKS"] == Keyword("UKS", True)  # noqa: FBT003
         assert [k.name.upper() for k in ci["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"]] == [
             "BASIS_SET_FILE_NAME",
             "BASIS_SET_FILE_NAME",

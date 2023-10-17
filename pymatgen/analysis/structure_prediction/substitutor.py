@@ -80,12 +80,12 @@ class Substitutor(MSONable):
         higher than the threshold.
 
         Notes:
-        If the default probability model is used, input structures must
-        be oxidation state decorated. See AutoOxiStateDecorationTransformation
+            If the default probability model is used, input structures must
+            be oxidation state decorated. See AutoOxiStateDecorationTransformation
 
-        This method does not change the number of species in a structure. i.e
-        if the number of target species is 3, only input structures containing
-        3 species will be considered.
+            This method does not change the number of species in a structure. i.e
+            if the number of target species is 3, only input structures containing
+            3 species will be considered.
 
         Args:
             target_species:
@@ -123,7 +123,7 @@ class Substitutor(MSONable):
                     and len(set(els) & set(self.get_allowed_species())) == len(els)
                     and self._sp.cond_prob_list(permutation, els) > self._threshold
                 ):
-                    clean_subst = {els[i]: permutation[i] for i in range(0, len(els)) if els[i] != permutation[i]}
+                    clean_subst = {els[i]: permutation[i] for i in range(len(els)) if els[i] != permutation[i]}
 
                     if len(clean_subst) == 0:
                         continue

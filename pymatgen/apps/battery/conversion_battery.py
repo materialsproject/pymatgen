@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from scipy.constants import N_A
 
@@ -15,6 +15,8 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -90,7 +92,7 @@ class ConversionElectrode(AbstractElectrode):
             for i in range(len(profile) - 1)
         ]
 
-        return ConversionElectrode(  # pylint: disable=E1123
+        return ConversionElectrode(
             voltage_pairs=v_pairs,
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
@@ -135,7 +137,7 @@ class ConversionElectrode(AbstractElectrode):
         # _initial_comp_formula = comp.reduced_formula, framework_formula = framework.reduced_formula
         if adjacent_only:
             return [
-                ConversionElectrode(  # pylint: disable=E1123
+                ConversionElectrode(
                     voltage_pairs=self.voltage_pairs[i : i + 1],
                     working_ion_entry=self.working_ion_entry,
                     initial_comp_formula=self.initial_comp_formula,
@@ -147,7 +149,7 @@ class ConversionElectrode(AbstractElectrode):
         for i in range(len(self.voltage_pairs)):
             for j in range(i, len(self.voltage_pairs)):
                 sub_electrodes.append(
-                    ConversionElectrode(  # pylint: disable=E1123
+                    ConversionElectrode(
                         voltage_pairs=self.voltage_pairs[i : j + 1],
                         working_ion_entry=self.working_ion_entry,
                         initial_comp_formula=self.initial_comp_formula,
@@ -205,12 +207,15 @@ class ConversionElectrode(AbstractElectrode):
         return 7
 
     def __repr__(self):
+        cls_name, formula, n_steps = type(self).__name__, self.initial_comp.reduced_formula, self.num_steps
+        avg_voltage, min_voltage, max_voltage = self.get_average_voltage(), self.min_voltage, self.max_voltage
         output = [
-            f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
-            f"Avg voltage {self.get_average_voltage()} V, min voltage {self.min_voltage} V, "
-            f"max voltage {self.max_voltage} V",
-            f"Capacity (grav.) {self.get_capacity_grav()} mAh/g, capacity (vol.) {self.get_capacity_vol()} Ah/l",
-            f"Specific energy {self.get_specific_energy()} Wh/kg, energy density {self.get_energy_density()} Wh/l",
+            f"{cls_name} with {formula=} and {n_steps=}, {avg_voltage=:.3f} V, "
+            f"{min_voltage=:.3f} V, {max_voltage=:.3f} V",
+            f"Capacity (grav.) {self.get_capacity_grav():.3f} mAh/g, capacity (vol.) "
+            f"{self.get_capacity_vol():.3f} Ah/l",
+            f"Specific energy {self.get_specific_energy():.3f} Wh/kg, energy density "
+            f"{self.get_energy_density():.3f} Wh/l",
         ]
         return "\n".join(output)
 
@@ -227,24 +232,23 @@ class ConversionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-        d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
-        d["reactions"] = []
-        d["reactant_compositions"] = []
+        dct = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
+        dct["reactions"] = []
+        dct["reactant_compositions"] = []
         comps = []
-        frac = []
+        frac: list[float] = []
         for pair in self.voltage_pairs:
             rxn = pair.rxn
-            frac.append(pair.frac_charge)
-            frac.append(pair.frac_discharge)
-            d["reactions"].append(str(rxn))
+            frac.extend((pair.frac_charge, pair.frac_discharge))
+            dct["reactions"].append(str(rxn))
             for i, v in enumerate(rxn.coeffs):
                 if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != dct["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
-                    d["reactant_compositions"].append(comp_dict)
-        return d
+                    dct["reactant_compositions"].append(comp_dict)
+        return dct
 
 
 @dataclass
@@ -350,7 +354,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 
-        return ConversionVoltagePair(  # pylint: disable=E1123
+        return ConversionVoltagePair(
             rxn=rxn,
             voltage=voltage,
             mAh=mAh,

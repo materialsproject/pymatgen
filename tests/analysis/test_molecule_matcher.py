@@ -55,7 +55,7 @@ def perturb(mol, scale, seed):
     rng = np.random.default_rng(seed=seed)
 
     dV = rng.normal(scale=scale, size=(len(mol), 3))
-    for site, dv in zip(mol.sites, dV):
+    for site, dv in zip(mol, dV):
         site.coords += dv
 
 
@@ -84,7 +84,7 @@ def generate_Si_cluster():
     mol = Molecule.from_sites(struct)
     XYZ(mol).write_file(f"{test_dir}/Si_cluster.xyz")
 
-    # Rorate the whole molecule
+    # Rotate the whole molecule
     mol_rotated = mol.copy()
     rotate(mol_rotated, seed=42)
     XYZ(mol_rotated).write_file(f"{test_dir}/Si_cluster_rotated.xyz")
@@ -127,7 +127,7 @@ def generate_Si2O_cluster():
     mol = Molecule.from_sites(struct)
     XYZ(mol).write_file(f"{test_dir}/Si2O_cluster.xyz")
 
-    # Rorate the whole molecule
+    # Rotate the whole molecule
     mol_rotated = mol.copy()
     rotate(mol_rotated, seed=42)
     XYZ(mol_rotated).write_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
@@ -194,8 +194,8 @@ class TestMoleculeMatcher(unittest.TestCase):
         ]
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-        rotcoords = [op.operate(c) for c in coords]
-        mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
+        rot_coords = [op.operate(c) for c in coords]
+        mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
         mm = MoleculeMatcher(mapper=mapper)
         assert mm.fit(mol1, mol2)
 
@@ -293,10 +293,10 @@ class TestKabschMatcher(unittest.TestCase):
         ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-        rotcoords = [op.operate(c) for c in coords]
+        rot_coords = [op.operate(c) for c in coords]
 
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
-        mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
+        mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
 
         mm = KabschMatcher(mol1)
         _, rmsd = mm.fit(mol2)
@@ -368,10 +368,10 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-        rotcoords = [op.operate(c) for c in coords]
+        rot_coords = [op.operate(c) for c in coords]
 
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
-        mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
+        mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
 
         mm = HungarianOrderMatcher(mol1)
         _, rmsd = mm.fit(mol2)
@@ -392,14 +392,14 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(1.4171601659148593e-05, abs=1e-6)
+        assert rmsd == approx(1.4171601659148593e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/c1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/c2.xyz")
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(9.479012116064961e-05, abs=1e-6)
+        assert rmsd == approx(9.479012116064961e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
@@ -413,7 +413,7 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        assert rmsd == approx(9.28245597473488e-05, abs=1e-6)
+        assert rmsd == approx(9.28245597473488e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/ethene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/ethene2.xyz")
@@ -473,10 +473,10 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-        rotcoords = [op.operate(c) for c in coords]
+        rot_coords = [op.operate(c) for c in coords]
 
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
-        mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
+        mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
 
         mm = GeneticOrderMatcher(mol1, threshold=0.3)
         _, rmsd = mm.fit(mol2)[0]
@@ -497,14 +497,14 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(7.061017534055039e-05, abs=1e-6)
+        assert rmsd == approx(7.061017534055039e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/c1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/c2.xyz")
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(9.459575146593829e-05, abs=1e-6)
+        assert rmsd == approx(9.459575146593829e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
@@ -518,7 +518,7 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        assert rmsd == approx(9.28245597473488e-05, abs=1e-6)
+        assert rmsd == approx(9.28245597473488e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/ethene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/ethene2.xyz")
@@ -816,8 +816,7 @@ class TestGeneticOrderMatcherSi2O(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    pass
     # Run the following code to generate test cases:
     # generate_Si_cluster()
     # generate_Si2O_cluster()
-
-    unittest.main()

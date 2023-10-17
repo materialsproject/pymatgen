@@ -7,18 +7,9 @@ import math
 import os
 import subprocess
 import time
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
-
-try:
-    import vtk
-    from vtk import vtkInteractorStyleTrackballCamera
-except ImportError:
-    # VTK not present. The Camera is to set object to avoid errors in unittest.
-    vtk = None
-    vtkInteractorStyleTrackballCamera = object
-
 from monty.dev import requires
 from monty.serialization import loadfn
 
@@ -26,6 +17,17 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import in_coord_list
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+try:
+    import vtk
+    from vtk import vtkInteractorStyleTrackballCamera as TrackballCamera
+except ImportError:
+    # VTK not present. The Camera is to set object to avoid errors in unittest.
+    vtk = None
+    TrackballCamera = object
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
@@ -472,9 +474,9 @@ class StructureVis:
         grid.SetPoints(points)
 
         dsm = vtk.vtkDataSetMapper()
-        polysites = [center]
-        polysites.extend(neighbors)
-        self.mapper_map[dsm] = polysites
+        poly_sites = [center]
+        poly_sites.extend(neighbors)
+        self.mapper_map[dsm] = poly_sites
         if vtk.VTK_MAJOR_VERSION <= 5:
             dsm.SetInputConnection(grid.GetProducerPort())
         else:
@@ -486,12 +488,12 @@ class StructureVis:
         if color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
+            max_occu = 0.0
             for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+                if occu > max_occu:
+                    max_specie = specie
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -531,7 +533,7 @@ class StructureVis:
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
 
-        # polydata object
+        # vtkPolyData object
         trianglePolyData = vtk.vtkPolyData()
         trianglePolyData.SetPoints(points)
         trianglePolyData.SetPolys(triangles)
@@ -550,12 +552,12 @@ class StructureVis:
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
+            max_occu = 0.0
             for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+                if occu > max_occu:
+                    max_specie = specie
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -598,7 +600,7 @@ class StructureVis:
                 ac.GetProperty().SetColor(color)
                 self.ren.AddActor(ac)
             elif len(face) > 3:
-                center = np.zeros(3, np.float_)
+                center = np.zeros(3, float)
                 for site in face:
                     center += site
                 center /= np.float_(len(face))
@@ -770,7 +772,7 @@ class StructureVis:
         self.iren.SetPicker(picker)
 
 
-class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
+class StructureInteractorStyle(TrackballCamera):
     """A custom interactor style for visualizing structures."""
 
     def __init__(self, parent):
@@ -796,7 +798,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
         self.OnLeftButtonUp()
 
-    def keyPressEvent(self, obj, event):
+    def keyPressEvent(self, obj, _event):
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
@@ -830,7 +832,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             parent.show_help = not parent.show_help
             parent.redraw()
         elif sym == "r":
-            parent.redraw(True)
+            parent.redraw(True)  # noqa: FBT003
         elif sym == "s":
             parent.write_image("image.png")
         elif sym == "Up":

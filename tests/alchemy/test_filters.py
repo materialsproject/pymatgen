@@ -47,11 +47,11 @@ class TestContainsSpecieFilter(PymatgenTest):
         f8 = ContainsSpecieFilter(species4, strict_compare=False, AND=True)
         assert not f8.test(struct), "Incorrect filter"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         species1 = ["Si5+", "Mg2+"]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
-        d = f1.as_dict()
-        assert isinstance(ContainsSpecieFilter.from_dict(d), ContainsSpecieFilter)
+        dct = f1.as_dict()
+        assert isinstance(ContainsSpecieFilter.from_dict(dct), ContainsSpecieFilter)
 
 
 class TestSpecieProximityFilter(PymatgenTest):
@@ -66,10 +66,10 @@ class TestSpecieProximityFilter(PymatgenTest):
         sf = SpecieProximityFilter({"P": 5})
         assert not sf.test(struct)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})
-        d = sf.as_dict()
-        assert isinstance(SpecieProximityFilter.from_dict(d), SpecieProximityFilter)
+        dct = sf.as_dict()
+        assert isinstance(SpecieProximityFilter.from_dict(dct), SpecieProximityFilter)
 
 
 class TestRemoveDuplicatesFilter(unittest.TestCase):
@@ -85,10 +85,10 @@ class TestRemoveDuplicatesFilter(unittest.TestCase):
         transmuter.apply_filter(dup_filter)
         assert len(transmuter.transformed_structures) == 11
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         fil = RemoveDuplicatesFilter()
-        d = fil.as_dict()
-        assert isinstance(RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter)
+        dct = fil.as_dict()
+        assert isinstance(RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter)
 
 
 class TestRemoveExistingFilter(unittest.TestCase):
@@ -97,10 +97,10 @@ class TestRemoveExistingFilter(unittest.TestCase):
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
-        self._exisiting_structures = self._struct_list[:-1]
+        self._existing_structures = self._struct_list[:-1]
 
     def test_filter(self):
-        fil = RemoveExistingFilter(self._exisiting_structures)
+        fil = RemoveExistingFilter(self._existing_structures)
         transmuter = StandardTransmuter.from_structures(self._struct_list)
         transmuter.apply_filter(fil)
         assert len(transmuter.transformed_structures) == 1

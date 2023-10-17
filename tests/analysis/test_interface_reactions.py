@@ -169,42 +169,42 @@ class TestInterfaceReaction(unittest.TestCase):
         ) as warns:
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
         assert len(warns) == 1
-        test1 = np.isclose(energy, -30, atol=1e-03)
+        test1 = np.isclose(energy, -30, atol=1e-3)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
         # Test normal functionality
         comp = Composition("MnO2")
-        test2 = np.isclose(InterfacialReactivity._get_entry_energy(self.pd, comp), -30, atol=1e-03)
+        test2 = np.isclose(InterfacialReactivity._get_entry_energy(self.pd, comp), -30, atol=1e-3)
         assert test2, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
 
     def test_get_grand_potential(self):
         comp = Composition("LiMnO2")
         # Test non-normalized case
-        test1 = np.isclose(self.irs[1]._get_grand_potential(comp), -27, atol=1e-03)
+        test1 = np.isclose(self.irs[1]._get_grand_potential(comp), -27, atol=1e-3)
         assert test1, "_get_grand_potential: Non-normalized case gets error!"
 
         # Test normalized case
-        test2 = np.isclose(self.irs[2]._get_grand_potential(comp), -9, atol=1e-03)
+        test2 = np.isclose(self.irs[2]._get_grand_potential(comp), -9, atol=1e-3)
         assert test2, "_get_grand_potential: Normalized case gets error!"
 
         comp2 = Composition("Li2O2")
         # Test use_hull_energy option.
-        test3 = np.isclose(self.irs[8]._get_grand_potential(comp2), -4, atol=1e-03)
+        test3 = np.isclose(self.irs[8]._get_grand_potential(comp2), -4, atol=1e-3)
         assert test3, "_get_grand_potential: get hull energy gets error!"
 
-        test4 = np.isclose(self.irs[9]._get_grand_potential(comp2), -2, atol=1e-03)
+        test4 = np.isclose(self.irs[9]._get_grand_potential(comp2), -2, atol=1e-3)
         assert test4, f"_get_grand_potential: gets error for {comp2.reduced_formula}!"
 
     def test_get_energy(self):
-        test1 = np.isclose(self.irs[0]._get_energy(0.5), -15, atol=1e-03)
+        test1 = np.isclose(self.irs[0]._get_energy(0.5), -15, atol=1e-3)
         assert test1, "_get_energy: phase diagram gets error!"
 
-        test2 = np.isclose(self.irs[3]._get_energy(0.6666666), -7.333333, atol=1e-03)
+        test2 = np.isclose(self.irs[3]._get_energy(0.6666666), -7.333333, atol=1e-3)
         assert test2, "_get_energy: grand canonical phase diagram gets error!"
 
-        test3 = np.isclose(self.irs[6]._get_energy(0.3333333), -3.333333, atol=1e-03)
+        test3 = np.isclose(self.irs[6]._get_energy(0.3333333), -3.333333, atol=1e-3)
         assert test3, "_get_energy: convex hull energy gets error. "
 
-        test4 = np.isclose(self.irs[7]._get_energy(0.3333333), -4, atol=1e-03)
+        test4 = np.isclose(self.irs[7]._get_energy(0.3333333), -4, atol=1e-3)
         assert test4, "_get_energy: gets error. "
 
     def test_get_reaction(self):
@@ -435,8 +435,7 @@ class TestInterfaceReaction(unittest.TestCase):
         def energy_lst(lst):
             return lst[0][1], lst[1][1]
 
-        result_info = [i.get_no_mixing_energy() for i in self.irs if i.grand]
-        print(result_info)
+        result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
         for i, j in zip(result_info, answer):
             err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
             assert name_lst(i) == name_lst(j), err_msg

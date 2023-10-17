@@ -12,10 +12,13 @@ from __future__ import annotations
 import os
 import re
 from multiprocessing import Pool
-from typing import Callable, Sequence
+from typing import TYPE_CHECKING, Callable
 
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -29,20 +32,19 @@ class StandardTransmuter:
     """An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
 
-    .. attribute: transformed_structures
-
-        List of all transformed structures.
+    Attributes:
+        transformed_structures (list[Structure]): List of all transformed structures.
     """
 
     def __init__(
         self,
         transformed_structures,
         transformations=None,
-        extend_collection=0,
-        ncores=None,
+        extend_collection: int = 0,
+        ncores: int | None = None,
     ):
         """Initializes a transmuter from an initial list of
-        :class:`pymatgen.alchemy.materials.TransformedStructure`.
+        pymatgen.alchemy.materials.TransformedStructure.
 
         Args:
             transformed_structures ([TransformedStructure]): Input transformed
@@ -114,9 +116,9 @@ class StandardTransmuter:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
                 z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
-                new_tstructs = p.map(_apply_transformation, z, 1)
+                nrafo_ew_tstructs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
-                for ts in new_tstructs:
+                for ts in nrafo_ew_tstructs:
                     self.transformed_structures.extend(ts)
         else:
             new_structures = []
@@ -185,24 +187,24 @@ class StandardTransmuter:
             output.append(str(x.final_structure))
         return "\n".join(output)
 
-    def append_transformed_structures(self, tstructs_or_transmuter):
+    def append_transformed_structures(self, trafo_structs_or_transmuter):
         """Method is overloaded to accept either a list of transformed structures
         or transmuter, it which case it appends the second transmuter"s
         structures.
 
         Args:
-            tstructs_or_transmuter: A list of transformed structures or a
+            trafo_structs_or_transmuter: A list of transformed structures or a
                 transmuter.
         """
-        if isinstance(tstructs_or_transmuter, self.__class__):
-            self.transformed_structures.extend(tstructs_or_transmuter.transformed_structures)
+        if isinstance(trafo_structs_or_transmuter, self.__class__):
+            self.transformed_structures.extend(trafo_structs_or_transmuter.transformed_structures)
         else:
-            for ts in tstructs_or_transmuter:
+            for ts in trafo_structs_or_transmuter:
                 assert isinstance(ts, TransformedStructure)
-            self.transformed_structures.extend(tstructs_or_transmuter)
+            self.transformed_structures.extend(trafo_structs_or_transmuter)
 
-    @staticmethod
-    def from_structures(structures, transformations=None, extend_collection=0):
+    @classmethod
+    def from_structures(cls, structures, transformations=None, extend_collection=0):
         """Alternative constructor from structures rather than
         TransformedStructures.
 
@@ -218,8 +220,8 @@ class StandardTransmuter:
         Returns:
             StandardTransmuter
         """
-        tstruct = [TransformedStructure(s, []) for s in structures]
-        return StandardTransmuter(tstruct, transformations, extend_collection)
+        trafo_struct = [TransformedStructure(s, []) for s in structures]
+        return cls(trafo_struct, transformations, extend_collection)
 
 
 class CifTransmuter(StandardTransmuter):
@@ -232,7 +234,7 @@ class CifTransmuter(StandardTransmuter):
         containing multiple structures.
 
         Args:
-            cif_string: A string containing a cif or a series of cifs
+            cif_string: A string containing a cif or a series of CIFs
             transformations: New transformations to be applied to all
                 structures
             primitive: Whether to generate the primitive cell from the cif.
@@ -252,12 +254,12 @@ class CifTransmuter(StandardTransmuter):
             if read_data:
                 structure_data[-1].append(line)
         for data in structure_data:
-            tstruct = TransformedStructure.from_cif_string("\n".join(data), [], primitive)
-            transformed_structures.append(tstruct)
+            trafo_struct = TransformedStructure.from_cif_string("\n".join(data), [], primitive)
+            transformed_structures.append(trafo_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 
-    @staticmethod
-    def from_filenames(filenames, transformations=None, primitive=True, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, filenames, transformations=None, primitive=True, extend_collection=False):
         """Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
 
@@ -268,12 +270,12 @@ class CifTransmuter(StandardTransmuter):
             primitive: Same meaning as in __init__.
             extend_collection: Same meaning as in __init__.
         """
-        allcifs = []
+        cif_files = []
         for fname in filenames:
-            with open(fname) as f:
-                allcifs.append(f.read())
-        return CifTransmuter(
-            "\n".join(allcifs),
+            with open(fname) as file:
+                cif_files.append(file.read())
+        return cls(
+            "\n".join(cif_files),
             transformations,
             primitive=primitive,
             extend_collection=extend_collection,
@@ -292,8 +294,8 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations.
         """
-        tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        super().__init__([tstruct], transformations, extend_collection=extend_collection)
+        trafo_struct = TransformedStructure.from_poscar_string(poscar_string, [])
+        super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
     @staticmethod
     def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
@@ -307,11 +309,11 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection:
                 Same meaning as in __init__.
         """
-        tstructs = []
+        trafo_structs = []
         for filename in poscar_filenames:
             with open(filename) as f:
-                tstructs.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return StandardTransmuter(tstructs, transformations, extend_collection=extend_collection)
+                trafo_structs.append(TransformedStructure.from_poscar_string(f.read(), []))
+        return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(
@@ -346,9 +348,9 @@ def batch_write_vasp_input(
         formula = re.sub(r"\s+", "", struct.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(struct)
-            dirname = os.path.join(output_dir, subdir, f"{formula}_{idx}")
+            dirname = f"{output_dir}/{subdir}/{formula}_{idx}"
         else:
-            dirname = os.path.join(output_dir, f"{formula}_{idx}")
+            dirname = f"{output_dir}/{formula}_{idx}"
         struct.write_vasp_input(vasp_input_set, dirname, create_directory=create_directory, **kwargs)
         if include_cif:
             from pymatgen.io.cif import CifWriter

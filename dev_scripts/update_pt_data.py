@@ -78,16 +78,16 @@ def parse_ionic_radii():
     header = radii_data[0].split(",")
     for idx in range(1, len(radii_data)):
         line = radii_data[idx]
-        toks = line.strip().split(",")
+        tokens = line.strip().split(",")
         suffix = ""
-        name = toks[1]
+        name = tokens[1]
         if len(name.split(" ")) > 1:
             suffix = "_" + name.split(" ")[1]
-        el = toks[2]
+        el = tokens[2]
 
         ionic_radii = {}
-        for j in range(3, len(toks)):
-            m = re.match(r"^\s*([0-9\.]+)", toks[j])
+        for j in range(3, len(tokens)):
+            m = re.match(r"^\s*([0-9\.]+)", tokens[j])
             if m:
                 ionic_radii[int(header[j])] = float(m.group(1))
 
@@ -109,22 +109,22 @@ def parse_radii():
     radii_data = radii_data.split("\r")
 
     for line in radii_data:
-        toks = line.strip().split(",")
-        el = toks[1]
+        tokens = line.strip().split(",")
+        el = tokens[1]
         try:
-            atomic_radii = float(toks[3]) / 100
+            atomic_radii = float(tokens[3]) / 100
         except Exception:
-            atomic_radii = toks[3]
+            atomic_radii = tokens[3]
 
         try:
-            atomic_radii_calc = float(toks[4]) / 100
+            atomic_radii_calc = float(tokens[4]) / 100
         except Exception:
-            atomic_radii_calc = toks[4]
+            atomic_radii_calc = tokens[4]
 
         try:
-            vdw_radii = float(toks[5]) / 100
+            vdw_radii = float(tokens[5]) / 100
         except Exception:
-            vdw_radii = toks[5]
+            vdw_radii = tokens[5]
 
         if el in data:
             data[el]["Atomic radius"] = atomic_radii

@@ -949,7 +949,7 @@ class DftSet(Cp2kInput):
         # Unlikely for users to override
         load_balance = Section(
             "LOAD_BALANCE",
-            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
+            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},  # noqa: FBT003
             subsections={},
         )
 
@@ -1209,7 +1209,6 @@ class DftSet(Cp2kInput):
     def activate_very_strict_minimization(self) -> None:
         """
         Method to modify the set to use very strict SCF minimization scheme
-        :return:
         """
         ot = OrbitalTransformation(
             minimizer="CG",

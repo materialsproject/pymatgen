@@ -11,7 +11,7 @@ import itertools
 import json
 import logging
 import re
-from typing import TYPE_CHECKING, Iterable, Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -22,6 +22,8 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
@@ -167,7 +169,7 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
         optionally sort by energy above hull.
 
     Args:
-        entries (List): Sequence of Entry-like objects.
+        entries (list): Sequence of Entry-like objects.
         sort_by_e_per_atom (bool): Whether to sort the grouped entries by
             energy per atom (lowest energy first). Default True.
 
@@ -203,7 +205,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return item in self.entries
 
     def __iter__(self):
-        return self.entries.__iter__()
+        return iter(self.entries)
 
     def __len__(self):
         return len(self.entries)

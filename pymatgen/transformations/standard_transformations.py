@@ -62,14 +62,11 @@ class RotationTransformation(AbstractTransformation):
         struct.apply_operation(self._symmop)
         return struct
 
-    def __str__(self):
+    def __repr__(self):
         return (
             f"Rotation Transformation about axis {self.axis} with angle = "
             f"{self.angle:.4f} {'radians' if self.angle_in_radians else 'degrees'}"
         )
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def inverse(self):
@@ -292,11 +289,8 @@ class SupercellTransformation(AbstractTransformation):
         """
         return structure * self.scaling_matrix
 
-    def __str__(self):
-        return f"Supercell Transformation with scaling matrix {self.scaling_matrix}"
-
     def __repr__(self):
-        return str(self)
+        return f"Supercell Transformation with scaling matrix {self.scaling_matrix}"
 
     @property
     def inverse(self):
@@ -345,14 +339,11 @@ class SubstitutionTransformation(AbstractTransformation):
             value = {get_el_sp(x): y for x, y in v.items()} if isinstance(v, dict) else get_el_sp(v)
             species_map[get_el_sp(k)] = value
         struct = structure.copy()
-        struct.replace_species(species_map)
+        struct.replace_species(species_map)  # type: ignore[arg-type]
         return struct
 
-    def __str__(self):
-        return "Substitution Transformation :" + ", ".join([f"{k}->{v}" for k, v in self._species_map.items()])
-
     def __repr__(self):
-        return str(self)
+        return "Substitution Transformation :" + ", ".join([f"{k}->{v}" for k, v in self._species_map.items()])
 
     @property
     def inverse(self):
@@ -390,11 +381,8 @@ class RemoveSpeciesTransformation(AbstractTransformation):
             struct.remove_species([get_el_sp(sp)])
         return struct
 
-    def __str__(self):
-        return "Remove Species Transformation :" + ", ".join(self.species_to_remove)
-
     def __repr__(self):
-        return str(self)
+        return "Remove Species Transformation :" + ", ".join(self.species_to_remove)
 
     @property
     def inverse(self):
@@ -416,7 +404,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     Given that the solution to selecting the right removals is NP-hard, there
     are several algorithms provided with varying degrees of accuracy and speed.
     Please see
-    :class:`pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation`.
+    pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.
     """
 
     ALGO_FAST = 0
@@ -468,14 +456,11 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """Returns: True."""
         return True
 
-    def __str__(self):
+    def __repr__(self):
         species = self.specie_to_remove
         fraction_to_remove = self.fraction_to_remove
         algo = self.algo
         return f"PartialRemoveSpecieTransformation({species=}, {fraction_to_remove=}, {algo=})"
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def inverse(self):
@@ -753,11 +738,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             return self._all_structures[:num_to_return]
         return self._all_structures[0]["structure"]
 
-    def __str__(self):
-        return "Order disordered structure transformation"
-
     def __repr__(self):
-        return str(self)
+        return "Order disordered structure transformation"
 
     @property
     def inverse(self):
@@ -803,11 +785,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
         return structure.get_primitive_structure(tolerance=self.tolerance)
 
-    def __str__(self):
-        return "Primitive cell transformation"
-
     def __repr__(self):
-        return str(self)
+        return "Primitive cell transformation"
 
     @property
     def inverse(self):
@@ -847,11 +826,8 @@ class ConventionalCellTransformation(AbstractTransformation):
         sga = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
         return sga.get_conventional_standard_structure(international_monoclinic=self.international_monoclinic)
 
-    def __str__(self):
-        return "Conventional cell transformation"
-
     def __repr__(self):
-        return str(self)
+        return "Conventional cell transformation"
 
     @property
     def inverse(self):
@@ -899,11 +875,8 @@ class PerturbStructureTransformation(AbstractTransformation):
         struct.perturb(self.distance, min_distance=self.min_distance)
         return struct
 
-    def __str__(self):
-        return f"PerturbStructureTransformation : Min_distance = {self.min_distance}"
-
     def __repr__(self):
-        return str(self)
+        return f"PerturbStructureTransformation : Min_distance = {self.min_distance}"
 
     @property
     def inverse(self):
@@ -938,11 +911,8 @@ class DeformStructureTransformation(AbstractTransformation):
         """
         return self._deform.apply_to_structure(structure)
 
-    def __str__(self):
-        return f"DeformStructureTransformation : Deformation = {self.deformation}"
-
     def __repr__(self):
-        return str(self)
+        return f"DeformStructureTransformation : Deformation = {self.deformation}"
 
     @property
     def inverse(self):
@@ -1007,11 +977,8 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
 
         return Structure(structure.lattice, species, structure.frac_coords)
 
-    def __str__(self):
-        return "DiscretizeOccupanciesTransformation"
-
     def __repr__(self):
-        return str(self)
+        return "DiscretizeOccupanciesTransformation"
 
     @property
     def inverse(self):
@@ -1050,11 +1017,8 @@ class ChargedCellTransformation(AbstractTransformation):
         struct.set_charge(self.charge)
         return struct
 
-    def __str__(self):
-        return f"Structure with charge {self.charge}"
-
     def __repr__(self):
-        return str(self)
+        return f"Structure with charge {self.charge}"
 
     @property
     def inverse(self):
@@ -1126,11 +1090,8 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         return Structure(new_lattice, species, frac_coords)
 
-    def __str__(self):
-        return "ScaleToRelaxedTransformation"
-
     def __repr__(self):
-        return str(self)
+        return "ScaleToRelaxedTransformation"
 
     @property
     def inverse(self):

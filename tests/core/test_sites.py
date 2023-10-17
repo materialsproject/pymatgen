@@ -36,7 +36,7 @@ class TestSite(PymatgenTest):
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.disordered_site.as_dict()
         site = Site.from_dict(dct)
         assert site == self.disordered_site
@@ -251,7 +251,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
             distance and periodic lattice translations of the other site
             for which the distance applies.
 
-    .. note::
+    Note:
         Assumes the primitive cell vectors are sufficiently not skewed such
         that the condition \\|a\\|cos(ab_angle) < \\|b\\| for all possible cell
         vector pairs. ** this method does not check this condition **
@@ -262,9 +262,3 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     mapped_vec = site1.lattice.get_cartesian_coords(jimage + site2.frac_coords - site1.frac_coords)
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

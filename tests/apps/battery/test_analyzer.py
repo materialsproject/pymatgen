@@ -39,7 +39,7 @@ class TestBatteryAnalyzer(PymatgenTest):
         with pytest.raises(ValueError, match="BatteryAnalyzer requires oxidation states assigned to structure"):
             BatteryAnalyzer(struct, "Li")
 
-    def test_capacitygrav_calculations(self):
+    def test_capacity_grav_calculations(self):
         li_fe_p_o4_cap = 169.89053  # same as fe_po4 cap
         na_fe_p_o4_cap = 154.20331
         la2_co_o4_f_cap = 175.6564
@@ -63,7 +63,7 @@ class TestBatteryAnalyzer(PymatgenTest):
         assert self.li3v2p3o12.get_max_capgrav(insert=False) == approx(li3_v2_p3_o12_cap_remove, abs=1e-3)
         assert self.li3v2p3o12.get_max_capgrav(remove=False) == approx(li3_v2_p3_o12_cap_insert, abs=1e-3)
 
-    def test_capacityvol_calculations(self):
+    def test_capacity_vol_calculations(self):
         li_fe_p_o4_cap = 594.17518
         na_fe_p_o4_cap = 542.86104
 
@@ -82,7 +82,9 @@ class TestBatteryAnalyzer(PymatgenTest):
         assert self.fe_p_o4.get_max_capvol(insert=False) == 0
 
         # give the lifepo4 volume, should get lifepo4 capacity
-        assert self.fe_p_o4.get_max_capvol(volume=self.li_fe_p_o4.struc_oxid.volume) == approx(li_fe_p_o4_cap, abs=1e-3)
+        assert self.fe_p_o4.get_max_capvol(volume=self.li_fe_p_o4.struct_oxid.volume) == approx(
+            li_fe_p_o4_cap, abs=1e-3
+        )
 
     def test_ion_removal(self):
         assert self.lifemnpo4.get_removals_int_oxid() == {1, 2, 3, 4}

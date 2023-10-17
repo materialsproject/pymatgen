@@ -22,12 +22,12 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_files_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments_files"
+struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -118,7 +118,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -166,15 +166,17 @@ class TestStructureEnvironments(PymatgenTest):
         assert_allclose(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
         assert_allclose(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
-        equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
-        assert equiv_site_index_and_transform[0] == 0
-        assert_allclose(equiv_site_index_and_transform[1], [0, 0, 0])
-        assert_allclose(equiv_site_index_and_transform[2], [0, 0, -1])
+        site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
+        assert site_idx == 0
+        assert_allclose(d_equiv_site, [0, 0, 0])
+        assert_allclose(d_this_site, [0, 0, -1])
+        assert_allclose(sym.affine_matrix, np.eye(4))
 
-        equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
-        assert equiv_site_index_and_transform[0] == 3
-        assert_allclose(equiv_site_index_and_transform[1], [0, 0, 0])
-        assert_allclose(equiv_site_index_and_transform[2], [0, 0, 0], atol=1e-9)
+        site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
+        assert site_idx == 3
+        assert_allclose(d_equiv_site, [0, 0, 0])
+        assert_allclose(d_this_site, [0, 0, 0], atol=1e-9)
+        # assert_allclose(sym.affine_matrix, np.eye(4))
 
         assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3}}
         assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3}}

@@ -12,7 +12,7 @@ height="70">
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 </h4>
@@ -64,7 +64,7 @@ If you'd like to use the latest unreleased changes on the main branch, you can i
 pip install -U git+https://github.com/materialsproject/pymatgen
 ```
 
-The minimum Python version is 3.8. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
+The minimum Python version is 3.9. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
 
 ## Change Log
 
@@ -86,6 +86,11 @@ If you use `pymatgen` in your research, please consider citing the following wor
 > [doi:10.1016/j.commatsci.2012.10.028](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 In addition, some of `pymatgen`'s functionality is based on scientific advances/principles developed by the computational materials scientists in our team. Please refer to the [`pymatgen` docs] on how to cite them.
+
+### Soliciting contributions to an updated pymatgen paper
+
+If you are a long-standing `pymatgen` contributor and would like to be involved in working on an updated `pymatgen` publication,
+please contact the maintainers [@shyuep, @mkhorton and @janosh](mailto:ongsp@ucsd.edu,m.k.horton@gmail.com,janosh@lbl.gov?subject=Contributing%20to%20updated%20pymatgen%20paper).
 
 ## License
 

@@ -412,7 +412,7 @@ class BoltztrapRunner(MSONable):
             )
             i = 1000
             for oi, o in enumerate(Orbital):
-                for site_nb in range(0, len(self._bs.structure)):
+                for site_nb in range(len(self._bs.structure)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
                         f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
                         i += 1
@@ -490,7 +490,7 @@ class BoltztrapRunner(MSONable):
                 fout.write("BANDS                     # run mode (only BOLTZ is supported)\n")
                 fout.write(f"P {len(self.kpt_line)}\n")
                 for kp in self.kpt_line:
-                    fout.writelines([str(k) + " " for k in kp])
+                    fout.writelines([f"{k} " for k in kp])
                     fout.write("\n")
 
     def write_input(self, output_dir):
@@ -862,7 +862,7 @@ class BoltztrapAnalyzer:
             _idx_list: list[tuple[int, ArrayLike]] = []
             for idx, kp in enumerate(kpt_line):
                 w: list[bool] = []
-                prec = 1e-05
+                prec = 1e-5
                 while len(w) == 0:
                     w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]  # type: ignore
                     prec *= 10
@@ -1254,6 +1254,7 @@ class BoltztrapAnalyzer:
             doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+
         Returns:
             If doping_levels=True,a dictionary {'p':{temp:[]},'n':{temp:[]}}
             with an array of effective mass tensor, eigenvalues of average
@@ -1377,7 +1378,7 @@ class BoltztrapAnalyzer:
         if doping_levels:
             cmplx_fact = {}
             for dt in ("n", "p"):
-                sbk_mass = self.get_seebeck_eff_mass(output, temp, True, Lambda)[dt]
+                sbk_mass = self.get_seebeck_eff_mass(output, temp, doping_levels=True, Lambda=Lambda)[dt]
                 cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
 
                 if output == "average":
@@ -1390,7 +1391,7 @@ class BoltztrapAnalyzer:
                             cmplx_fact[dt][-1].append((sm[j] / abs(cond_mass[i][j][j])) ** 1.5)
 
         else:
-            sbk_mass = self.get_seebeck_eff_mass(output, temp, False, Lambda)
+            sbk_mass = self.get_seebeck_eff_mass(output, temp, doping_levels=False, Lambda=Lambda)
             cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
 
             if output == "average":
@@ -1615,7 +1616,9 @@ class BoltztrapAnalyzer:
 
     def get_mu_bounds(self, temp=300):
         """:param temp: Temperature.
-        :return: The chemical potential bounds at that temperature.
+
+        Returns:
+            The chemical potential bounds at that temperature.
         """
         return min(self.mu_doping["p"][temp]), max(self.mu_doping["n"][temp])
 
@@ -1679,7 +1682,8 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
-        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
+        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files.
+
         Args:
             path_dir: (str) dir containing DOS files
             efermi: (float) Fermi energy
@@ -1790,7 +1794,8 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_cond_and_hall(path_dir, doping_levels=None):
-        """Parses the conductivity and Hall tensors
+        """Parses the conductivity and Hall tensors.
+
         Args:
             path_dir: Path containing .condtens / .halltens files
             doping_levels: ([float]) - doping lvls, parse outtrans to get this.
@@ -1940,41 +1945,9 @@ class BoltztrapAnalyzer:
         if run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
-            (
-                mu_steps,
-                cond,
-                seebeck,
-                kappa,
-                hall,
-                pn_doping_levels,
-                mu_doping,
-                seebeck_doping,
-                cond_doping,
-                kappa_doping,
-                hall_doping,
-                carrier_conc,
-            ) = BoltztrapAnalyzer.parse_cond_and_hall(path_dir, doping_levels)
+            *cond_and_hall, carrier_conc = BoltztrapAnalyzer.parse_cond_and_hall(path_dir, doping_levels)
 
-            return BoltztrapAnalyzer(
-                gap,
-                mu_steps,
-                cond,
-                seebeck,
-                kappa,
-                hall,
-                pn_doping_levels,
-                mu_doping,
-                seebeck_doping,
-                cond_doping,
-                kappa_doping,
-                hall_doping,
-                intrans,
-                dos,
-                pdos,
-                carrier_conc,
-                vol,
-                warning,
-            )
+            return BoltztrapAnalyzer(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
 
         if run_type == "DOS":
             trim = intrans["dos_type"] == "HISTO"
@@ -1988,8 +1961,6 @@ class BoltztrapAnalyzer:
             return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
-            """ """
-
             if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
                 fs_data = read_cube_file(f"{path_dir}/boltztrap_BZ.cube")
             elif os.path.exists(f"{path_dir}/fort.30"):
@@ -1998,7 +1969,7 @@ class BoltztrapAnalyzer:
                 raise BoltztrapError("No data file found for fermi surface")
             return BoltztrapAnalyzer(fermi_surface_data=fs_data)
 
-        raise ValueError(f"Run type: {run_type} not recognized!")
+        raise ValueError(f"{run_type=} not recognized!")
 
     def as_dict(self):
         """MSONable dict."""
@@ -2027,7 +1998,9 @@ class BoltztrapAnalyzer:
     @staticmethod
     def from_dict(data):
         """:param data: Dict representation.
-        :return: BoltztrapAnalyzer
+
+        Returns:
+            BoltztrapAnalyzer
         """
 
         def _make_float_array(a):
@@ -2163,7 +2136,9 @@ class BoltztrapAnalyzer:
 
 def read_cube_file(filename):
     """:param filename: Cube filename
-    :return: Energy data.
+
+    Returns:
+        Energy data.
     """
     with open(filename) as f:
         natoms = 0
@@ -2194,7 +2169,7 @@ def read_cube_file(filename):
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
         nlines_data = len(energy_data)
         last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
-        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)  # pylint: disable=E1121
+        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
 
@@ -2285,9 +2260,10 @@ def seebeck_spb(eta, Lambda=0.5):
 
 
 def eta_from_seebeck(seeb, Lambda):
-    """It takes a value of seebeck and adjusts the analytic seebeck until it's equal
-    Returns: eta where the two seebeck coefficients are equal
-    (reduced chemical potential).
+    """It takes a value of seebeck and adjusts the analytic seebeck until it's equal.
+
+    Returns:
+        float: eta where the two seebeck coefficients are equal (reduced chemical potential).
     """
     from scipy.optimize import fsolve
 

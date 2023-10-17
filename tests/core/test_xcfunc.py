@@ -12,7 +12,6 @@ class TestLibxcFunc(PymatgenTest):
 
         # LDA-Teter
         ixc_1 = XcFunc.from_abinit_ixc(1)
-        print(ixc_1)
         assert ixc_1.type == "LDA"
         assert ixc_1.name == "LDA_XC_TETER93"
         assert ixc_1 == ixc_1
@@ -40,12 +39,11 @@ class TestLibxcFunc(PymatgenTest):
         assert XcFunc.asxc("PBE") == ixc_11
 
         d = {ixc_11: ixc_11.name}
-        print(d)
         assert "PBE" in d
         assert ixc_11 in d
 
         # Test if object can be serialized with Pickle.
-        self.serialize_with_pickle(ixc_11, test_eq=True)
+        self.serialize_with_pickle(ixc_11)
 
         # Test if object supports MSONable
         # TODO

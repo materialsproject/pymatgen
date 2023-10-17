@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import warnings
 
 from numpy.testing import assert_allclose
 
@@ -24,13 +23,7 @@ test_dir = f"{TEST_FILES_DIR}/neb_analysis"
 
 
 class TestNEBAnalysis(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
-    def runTest(self):
+    def test_run(self):
         neb_analysis1 = NEBAnalysis.from_dir(f"{test_dir}/neb1/neb")
         neb_analysis1_from_dict = NEBAnalysis.from_dict(neb_analysis1.as_dict())
         json_data = json.dumps(neb_analysis1.as_dict())

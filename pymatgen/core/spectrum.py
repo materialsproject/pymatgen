@@ -21,7 +21,9 @@ def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
     """:param x: x values
     :param x_0: Center
     :param sigma: FWHM
-    :return: Value of lorentzian at x.
+
+    Returns:
+        Value of lorentzian at x.
     """
     return 1 / np.pi * 0.5 * sigma / ((x - x_0) ** 2 + (0.5 * sigma) ** 2)
 
@@ -116,11 +118,11 @@ class Spectrum(MSONable):
             self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
-    def get_interpolated_value(self, x: float) -> list[float]:
+    def get_interpolated_value(self, x: float) -> float | list[float]:
         """Returns an interpolated y value for a particular x value.
 
         Args:
-             x: x value to return the y value for
+            x: x value to return the y value for
 
         Returns:
             Value of y at x
@@ -170,6 +172,7 @@ class Spectrum(MSONable):
 
         Args:
             other: scalar, The scale amount
+
         Returns:
             Spectrum object with y values scaled
         """
@@ -178,7 +181,8 @@ class Spectrum(MSONable):
     __rmul__ = __mul__
 
     def __truediv__(self, other):
-        """True division of y
+        """True division of y.
+
         Args:
             other: The divisor.
 
@@ -188,7 +192,8 @@ class Spectrum(MSONable):
         return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
-        """True division of y
+        """True division of y.
+
         Args:
             other: The divisor.
 

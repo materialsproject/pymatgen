@@ -13,7 +13,7 @@ try:
     from openbabel import openbabel
 except ImportError:
     openbabel = None
-    print("OpenBabel not found, parsed molecules structures will not be  checked")
+    print("OpenBabel not installed, parsed molecules structures will not be checked")
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"

@@ -1,31 +1,25 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import numpy as np
 import pytest
 from pytest import approx
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
-from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestEwaldSummation(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath, check_for_POTCAR=False)
-        self.original_s = p.structure
-        self.s = self.original_s.copy()
-        self.s.add_oxidation_state_by_element({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-
-    def tearDown(self):
-        warnings.simplefilter("default")
+        self.original_struct = Structure.from_file(filepath)
+        self.struct = self.original_struct.copy()
+        self.struct.add_oxidation_state_by_element({"Li": 1, "Fe": 2, "P": 5, "O": -2})
 
     def test_init(self):
-        ham = EwaldSummation(self.s, compute_forces=True)
+        ham = EwaldSummation(self.struct, compute_forces=True)
         assert ham.real_space_energy == approx(-502.23549897772602, abs=1e-4)
         assert ham.reciprocal_space_energy == approx(6.1541071599534654, abs=1e-4)
         assert ham.point_energy == approx(-620.22598358035918, abs=1e-4)
@@ -41,10 +35,10 @@ class TestEwaldSummation(unittest.TestCase):
             ValueError,
             match="Ewald summation can only be performed on structures that are either oxidation state decorated",
         ):
-            EwaldSummation(self.original_s)
+            EwaldSummation(self.original_struct)
         # try sites with charge.
         charges = []
-        for site in self.original_s:
+        for site in self.original_struct:
             if site.specie.symbol == "Li":
                 charges.append(1)
             elif site.specie.symbol == "Fe":
@@ -54,12 +48,12 @@ class TestEwaldSummation(unittest.TestCase):
             else:
                 charges.append(-2)
 
-        self.original_s.add_site_property("charge", charges)
-        ham2 = EwaldSummation(self.original_s)
+        self.original_struct.add_site_property("charge", charges)
+        ham2 = EwaldSummation(self.original_struct)
         assert ham2.real_space_energy == approx(-502.23549897772602, abs=1e-4)
 
     def test_from_dict(self):
-        ham = EwaldSummation(self.s, compute_forces=True)
+        ham = EwaldSummation(self.struct, compute_forces=True)
         ham2 = EwaldSummation.from_dict(ham.as_dict())
         assert ham._real is None
         assert not ham._initialized
@@ -76,7 +70,7 @@ class TestEwaldSummation(unittest.TestCase):
         assert np.array_equal(ham.total_energy_matrix, ham2.total_energy_matrix)
 
     def test_as_dict(self):
-        ham = EwaldSummation(self.s, compute_forces=True)
+        ham = EwaldSummation(self.struct, compute_forces=True)
         d = ham.as_dict()
         assert d["compute_forces"]
         assert d["eta"] == ham._eta
@@ -87,12 +81,6 @@ class TestEwaldSummation(unittest.TestCase):
 
 
 class TestEwaldMinimizer(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         matrix = np.array(
             [
@@ -120,9 +108,8 @@ class TestEwaldMinimizer(unittest.TestCase):
     def test_site(self):
         """Test that uses an uncharged structure."""
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath, check_for_POTCAR=False)
-        original_s = p.structure
-        s = original_s.copy()
+        struct = Structure.from_file(filepath)
+        s = struct.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 3, "P": 5, "O": -2})
 
         # Comparison to LAMMPS result

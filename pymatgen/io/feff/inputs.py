@@ -298,12 +298,12 @@ class Header(MSONable):
         Returns:
             Structure object.
         """
-        lines = tuple(clean_lines(header_str.split("\n"), False))
+        lines = tuple(clean_lines(header_str.split("\n"), remove_empty_lines=False))
         comment1 = lines[0]
-        feffpmg = comment1.find("pymatgen")
-        if feffpmg == -1:
-            feffpmg = False
-        if feffpmg:
+        feff_pmg = comment1.find("pymatgen")
+        if feff_pmg == -1:
+            feff_pmg = False
+        if feff_pmg:
             comment2 = " ".join(lines[1].split()[2:])
 
             source = " ".join(lines[2].split()[2:])
@@ -322,19 +322,19 @@ class Header(MSONable):
 
             lattice = Lattice.from_parameters(*lengths, *angles)
 
-            natoms = int(lines[8].split(":")[-1].split()[0])
+            n_atoms = int(lines[8].split(":")[-1].split()[0])
 
             atomic_symbols = []
-            for i in range(9, 9 + natoms):
+            for i in range(9, 9 + n_atoms):
                 atomic_symbols.append(lines[i].split()[2])
 
             # read the atomic coordinates
             coords = []
-            for i in range(natoms):
-                toks = lines[i + 9].split()
-                coords.append([float(s) for s in toks[3:]])
+            for i in range(n_atoms):
+                tokens = lines[i + 9].split()
+                coords.append([float(s) for s in tokens[3:]])
 
-            struct = Structure(lattice, atomic_symbols, coords, False, False, False)
+            struct = Structure(lattice, atomic_symbols, coords)
 
             return Header(struct, source, comment2)
 
@@ -407,8 +407,7 @@ class Atoms(MSONable):
         self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
         self.radius = radius
         self._cluster = self._set_cluster()
-        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, self._cluster)[0]
-        self.pot_dict = get_atom_map(self._cluster, atom_sym)
+        self.pot_dict = get_atom_map(self._cluster, self.absorbing_atom)
 
     def _set_cluster(self):
         """
@@ -511,7 +510,7 @@ class Atoms(MSONable):
                 0,
             ]
         ]
-        for i, site in enumerate(self._cluster[1:]):
+        for idx, site in enumerate(self._cluster[1:]):
             site_symbol = site.specie.symbol
             ipot = self.pot_dict[site_symbol]
             lines.append(
@@ -521,8 +520,8 @@ class Atoms(MSONable):
                     f"{site.z:f}",
                     ipot,
                     site_symbol,
-                    f"{self._cluster.get_distance(0, i + 1):f}",
-                    i + 1,
+                    f"{self._cluster.get_distance(0, idx + 1):f}",
+                    idx + 1,
                 ]
             )
 
@@ -534,10 +533,7 @@ class Atoms(MSONable):
         lines_sorted = self.get_lines()
         # TODO: remove the formatting and update the unit tests
         lines_formatted = str(
-            tabulate(
-                lines_sorted,
-                headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"],
-            )
+            tabulate(lines_sorted, headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"])
         )
         atom_list = lines_formatted.replace("--", "**")
         return f"ATOMS\n{atom_list}\nEND\n"
@@ -547,7 +543,7 @@ class Atoms(MSONable):
         Write Atoms list to file.
 
         Args:
-           filename: path for file to be written
+            filename: path for file to be written
         """
         with zopen(filename, "wt") as f:
             f.write(f"{self}\n")
@@ -643,8 +639,7 @@ class Tags(dict):
                     beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
                     beam_energy_list = beam_energy.split()
                     if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
-                        lines.append([beam_energy])
-                        lines.append([self._stringify_val(self[k]["BEAM_DIRECTION"])])
+                        lines.extend(([beam_energy], [self._stringify_val(self[k]["BEAM_DIRECTION"])]))
                     else:
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)
@@ -760,9 +755,9 @@ class Tags(dict):
 
             if key in list_type_keys:
                 output = []
-                toks = re.split(r"\s+", val)
+                tokens = re.split(r"\s+", val)
 
-                for tok in toks:
+                for tok in tokens:
                     m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
                     if m:
                         output.extend([smart_int_or_float(m.group(2))] * int(m.group(1)))
@@ -929,7 +924,7 @@ class Potential(MSONable):
 
                 The lines are arranged as follows:
 
-          ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
+            ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
 
         Returns:
             String representation of Atomic Coordinate Shells.
@@ -995,8 +990,7 @@ class Paths(MSONable):
         # max possible, to avoid name collision count down from max value.
         path_index = 9999
         for i, legs in enumerate(self.paths):
-            lines.append(f"{path_index} {len(legs)} {self.degeneracies[i]}")
-            lines.append("x y z ipot label")
+            lines.extend((f"{path_index} {len(legs)} {self.degeneracies[i]}", "x y z ipot label"))
             for leg in legs:
                 coords = self.atoms.cluster[leg].coords.tolist()
 

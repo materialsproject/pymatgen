@@ -286,7 +286,7 @@ class QCOutput(MSONable):
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
-                        self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
+                        self.data["warnings"]["SMD_two_solvents"] = f"{temp_solvent[0][0]} and {val[0]}"
                     elif (
                         "unrecognized_solvent" not in self.data["errors"]
                         and "unrecognized_solvent" not in self.data["warnings"]
@@ -634,12 +634,12 @@ class QCOutput(MSONable):
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
-            with open(filename + "." + str(i), "w") as temp:
+            with open(f"{filename}.{i}", "w") as temp:
                 temp.write(sub_text)
-            tempOutput = QCOutput(filename + "." + str(i))
+            tempOutput = QCOutput(f"{filename}.{i}")
             to_return.append(tempOutput)
             if not keep_sub_files:
-                os.remove(filename + "." + str(i))
+                os.remove(f"{filename}.{i}")
         return to_return
 
     def _read_eigenvalues(self):
@@ -968,7 +968,7 @@ class QCOutput(MSONable):
                     total[ii] = float(val[0])
                 self.data["dipoles"]["total"] = total
                 dipole = np.zeros(shape=(len(temp_dipole_total), 3))
-                for ii, _entry in enumerate(temp_dipole):
+                for ii in range(len(temp_dipole)):
                     for jj, _val in enumerate(temp_dipole[ii]):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
@@ -1040,7 +1040,7 @@ class QCOutput(MSONable):
                         RESP_total[ii] = float(val[0])
                     self.data["dipoles"]["RESP_total"] = RESP_total
                     RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total), 3))
-                    for ii, _entry in enumerate(temp_RESP_dipole):
+                    for ii in range(len(temp_RESP_dipole)):
                         for jj, _val in enumerate(temp_RESP_dipole[ii]):
                             RESP_dipole[ii][jj] = temp_RESP_dipole[ii][jj]
                     self.data["dipoles"]["RESP_dipole"] = RESP_dipole
@@ -1176,7 +1176,7 @@ class QCOutput(MSONable):
             )
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
-        else:  # pylint: disable=line-too-long
+        else:
             header_pattern = (
                 r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
                 r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
@@ -1264,7 +1264,7 @@ class QCOutput(MSONable):
             if read_pattern(self.text, {"key": pattern}, terminate_on_match=True).get("key") != [[]]:
                 found_end = True
             else:
-                pattern = pattern + r"\s+" + str(index)
+                pattern = f"{pattern}\\s+{index}"
                 index += 1
         return index - 2
 
@@ -2396,7 +2396,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     orbitals = ["s", "p", "d", "f"]
 
     no_failures = True
-    lp_and_bd_and_tc_dfs = []
+    lp_and_bd_and_tc_dfs: list[pd.DataFrame] = []
 
     while no_failures:
         # NBO Analysis
@@ -2607,9 +2607,9 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     tc_data.append(TCentry)
 
             # Store values in a dataframe
-            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=lp_data))
-            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=bd_data))
-            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=tc_data))
+            lp_and_bd_and_tc_dfs.extend(
+                (pd.DataFrame(data=lp_data), pd.DataFrame(data=bd_data), pd.DataFrame(data=tc_data))
+            )
 
     return lp_and_bd_and_tc_dfs
 

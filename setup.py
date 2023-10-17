@@ -24,24 +24,18 @@ long_description = (
 
 setup(
     name="pymatgen",
-    packages=find_namespace_packages(
-        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
-        exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
-    ),
-    version="2023.08.10",
-    python_requires=">=3.8",
+    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
+    version="2023.10.11",
+    python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
         "monty>=3.0.2",
-        "mp-api>=0.27.3",
         "networkx>=2.2",
-        "numpy>=1.20.1",
+        "numpy>=1.25.0",
         "palettable>=3.1.1",
         "pandas",
         "plotly>=4.5.0",
         "pybtex",
-        # TODO remove after https://github.com/materialsproject/emmet/issues/768 is fixed
-        "pydantic<2.0.0",
         "requests",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
@@ -91,9 +85,7 @@ setup(
             # "hiphive>=0.6",
             # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
-        "numba": [
-            "numba",
-        ],
+        "numba": ["numba"],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
@@ -108,9 +100,10 @@ setup(
         "pymatgen.analysis.diffraction": ["*.json"],
         "pymatgen.analysis.magnetism": ["default_magmoms.yaml"],
         "pymatgen.analysis.solar": ["am1.5G.dat"],
-        "pymatgen.entries": ["py.typed", "*.json.gz", "*.yaml", "data/*.json"],
-        "pymatgen.core": ["py.typed", "*.json"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
+        "pymatgen.core": ["*.json"],
+        "pymatgen": ["py.typed"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
@@ -161,7 +154,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

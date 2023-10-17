@@ -4,8 +4,7 @@ import gzip
 import json
 import os
 import unittest
-import warnings
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -48,14 +47,6 @@ except ImportError:
 
 
 class TestVasprun(PymatgenTest):
-    _multiprocess_shared_ = True
-
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_vasprun_ml(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")
         assert len(vasp_run.md_data) == 100
@@ -97,7 +88,7 @@ class TestVasprun(PymatgenTest):
             Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dielectric_bad")
 
     def test_bad_vasprun(self):
-        with pytest.raises(ET.ParseError):
+        with pytest.raises(ElementTree.ParseError):
             Vasprun(f"{TEST_FILES_DIR}/bad_vasprun.xml")
 
         with pytest.warns(
@@ -439,7 +430,7 @@ class TestVasprun(PymatgenTest):
             ],
         )
 
-    def test_Xe(self):
+    def test_xe(self):
         vr = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.xe", parse_potcar_file=False)
         assert vr.atomic_symbols == ["Xe"]
 
@@ -714,8 +705,6 @@ class TestVasprun(PymatgenTest):
 
 
 class TestOutcar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         for f in ["OUTCAR", "OUTCAR.gz"]:
             filepath = TEST_FILES_DIR / f
@@ -1400,8 +1389,6 @@ class TestOutcar(PymatgenTest):
 
 
 class TestBSVasprun(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_get_band_structure(self):
         filepath = f"{TEST_FILES_DIR}/vasprun_Si_bands.xml"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
@@ -1472,8 +1459,8 @@ class TestChgcar(PymatgenTest):
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
         ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
-        myans = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        assert_allclose(myans[:, 1], ans)
+        actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
+        assert_allclose(actual[:, 1], ans)
 
     def test_write(self):
         self.chgcar_spin.write_file("CHGCAR_pmg")
@@ -1565,6 +1552,22 @@ class TestChgcar(PymatgenTest):
         )
 
 
+class TestAeccars(PymatgenTest):
+    # https://github.com/materialsproject/pymatgen/pull/3343
+    def test_read_write_file(self):
+        aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR0.gz")
+        aeccar0_outpath = f"{self.tmp_path}/AECCAR0_test"
+        aeccar0_test.write_file(aeccar0_outpath)
+        aeccar0_read = Chgcar.from_file(aeccar0_outpath)
+        assert_allclose(aeccar0_test.data["total"], aeccar0_read.data["total"])
+
+        aeccar2 = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR2.gz")
+        aeccar2_outpath = f"{self.tmp_path}/AECCAR2_test"
+        aeccar2.write_file(aeccar2_outpath)
+        aeccar2_read = Chgcar.from_file(aeccar2_outpath)
+        assert_allclose(aeccar2.data["total"], aeccar2_read.data["total"])
+
+
 class TestElfcar(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{TEST_FILES_DIR}/ELFCAR.gz")
@@ -1586,8 +1589,6 @@ class TestElfcar(PymatgenTest):
 
 
 class TestProcar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
         p = Procar(filepath)
@@ -1599,14 +1600,6 @@ class TestProcar(PymatgenTest):
         assert p.nbands == 10
         assert p.nkpoints == 10
         assert p.nions == 3
-        lat = Lattice.cubic(3.0)
-        struct = Structure(
-            lat,
-            ["Li", "Na", "K"],
-            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
-        )
-        d = p.get_projection_on_elements(struct)
-        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
         filepath = f"{TEST_FILES_DIR}/PROCAR"
         p = Procar(filepath)
         assert p.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
@@ -1627,6 +1620,21 @@ class TestProcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/PROCAR.new_format_5.4.4"
         p = Procar(filepath)
         assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
+
+    def test_get_projection_on_elements(self):
+        filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
+        p = Procar(filepath)
+        struct = Structure(
+            Lattice.cubic(3.0),
+            ["Li", "Na", "K"],
+            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
+        )
+        d = p.get_projection_on_elements(struct)
+        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
+        # https://github.com/materialsproject/pymatgen/pull/3261
+        struct.replace_species({"K": "Na"})
+        d2 = p.get_projection_on_elements(struct)
+        assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
 class TestXdatcar(PymatgenTest):
@@ -1672,8 +1680,6 @@ class TestDynmat(PymatgenTest):
 
 
 class TestWavecar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
@@ -1779,11 +1785,11 @@ class TestWavecar(PymatgenTest):
         finally:
             Wavecar._generate_G_points = temp_ggp
 
-    def test__generate_nbmax(self):
+    def test_generate_nbmax(self):
         self.w._generate_nbmax()
         assert self.w._nbmax.tolist() == [5, 5, 5]
 
-    def test__generate_G_points(self):
+    def test_generate_g_points(self):
         for k in range(self.w.nk):
             kp = self.w.kpoints[k]
             assert len(self.w._generate_G_points(kp)) <= 257
@@ -1946,8 +1952,6 @@ class TestWavecar(PymatgenTest):
 
 
 class TestEigenval(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         eig = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL.gz")
         assert eig.ispin == 1
@@ -1988,8 +1992,6 @@ class TestEigenval(PymatgenTest):
 
 
 class TestWaveder(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         wder = Waveder.from_binary(f"{TEST_FILES_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
@@ -2028,8 +2030,6 @@ class TestWaveder(PymatgenTest):
 
 
 class TestWSWQ(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.wswq = WSWQ.from_file(f"{TEST_FILES_DIR}/WSWQ.gz")
 

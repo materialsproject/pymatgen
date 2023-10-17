@@ -1,5 +1,5 @@
 #
-# pylint: disable=no-member
+
 """Wrapper for netCDF readers."""
 
 from __future__ import annotations
@@ -18,6 +18,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
 
+try:
+    import netCDF4
+except ImportError:
+    netCDF4 = None
+    warnings.warn("Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.")
+
+
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -27,30 +34,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "Feb 21, 2013M"
-
-__all__ = [
-    "as_ncreader",
-    "as_etsfreader",
-    "NetcdfReader",
-    "ETSF_Reader",
-    "NO_DEFAULT",
-    "structure_from_ncdata",
-]
-
-try:
-    import netCDF4
-except ImportError as exc:
-    netCDF4 = None
-    warnings.warn(
-        f"""\
-`import netCDF4` failed with the following error:
-
-{exc}
-
-Please install netcdf4 with `conda install netcdf4`
-If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
-and use `pip install netcdf4`"""
-    )
 
 
 def _asreader(file, cls):
@@ -70,8 +53,8 @@ def as_ncreader(file):
 
 
 def as_etsfreader(file):
-    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
-    return _asreader(file, ETSF_Reader)
+    """Return an EtsfReader. Accepts filename or EtsfReader."""
+    return _asreader(file, EtsfReader)
 
 
 class NetcdfReaderError(Exception):
@@ -108,7 +91,7 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)
+        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -250,7 +233,7 @@ class NetcdfReader:
         return od
 
 
-class ETSF_Reader(NetcdfReader):
+class EtsfReader(NetcdfReader):
     """
     This object reads data from a file written according to the ETSF-IO specifications.
 
@@ -268,7 +251,7 @@ class ETSF_Reader(NetcdfReader):
 
         return symbols
 
-    def typeidx_from_symbol(self, symbol):
+    def type_idx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
@@ -277,7 +260,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
+        """Read ixc from an Abinit file. Return XcFunc object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -285,7 +268,7 @@ class ETSF_Reader(NetcdfReader):
         """
         Read the variables associated to the Abinit header.
 
-        Return :class:`AbinitHeader`
+        Return AbinitHeader
         """
         dct = {}
         for hvar in _HDR_VARIABLES.values():
@@ -385,7 +368,7 @@ _HDR_VARIABLES = (
     _H("ntypat", "input variable", etsf_name="number_of_atom_species"),
     _H("occopt", "input variable"),
     _H("pertcase", "the index of the perturbation, 0 if GS calculation"),
-    _H("usepaw", "input variable (0=norm-conserving psps, 1=paw)"),
+    _H("usepaw", "input variable (0=norm-conserving PSPs, 1=paw)"),
     _H("usewvl", "input variable (0=plane-waves, 1=wavelets)"),
     _H("kptopt", "input variable (defines symmetries used for k-point sampling)"),
     _H("pawcpxocc", "input variable"),
@@ -396,7 +379,7 @@ _HDR_VARIABLES = (
     _H("nshiftk", "number of shifts after inkpts."),
     _H("icoulomb", "input variable."),
     _H("ecut", "input variable", etsf_name="kinetic_energy_cutoff"),
-    _H("ecutdg", "input variable (ecut for NC psps, pawecutdg for paw)"),
+    _H("ecutdg", "input variable (ecut for NC PSPs, pawecutdg for paw)"),
     _H("ecutsm", "input variable"),
     _H("ecut_eff", "ecut*dilatmx**2 (dilatmx is an input variable)"),
     _H("etot", "EVOLVING variable"),
@@ -415,17 +398,17 @@ _HDR_VARIABLES = (
     _H("kptrlatt_orig", "kptrlatt_orig(3,3) Original kptrlatt"),
     _H("kptrlatt", "kptrlatt(3,3) kptrlatt after inkpts."),
     _H("istwfk", "input variable istwfk(nkpt)"),
-    _H("lmn_size", "lmn_size(npsp) from psps"),
+    _H("lmn_size", "lmn_size(npsp) from PSPs"),
     _H("nband", "input variable nband(nkpt*nsppol)", etsf_name="number_of_states"),
     _H(
         "npwarr",
         "npwarr(nkpt) array holding npw for each k point",
         etsf_name="number_of_coefficients",
     ),
-    _H("pspcod", "pscod(npsp) from psps"),
-    _H("pspdat", "psdat(npsp) from psps"),
-    _H("pspso", "pspso(npsp) from psps"),
-    _H("pspxc", "pspxc(npsp) from psps"),
+    _H("pspcod", "pscod(npsp) from PSPs"),
+    _H("pspdat", "psdat(npsp) from PSPs"),
+    _H("pspso", "pspso(npsp) from PSPs"),
+    _H("pspxc", "pspxc(npsp) from PSPs"),
     _H("so_psp", "input variable so_psp(npsp)"),
     _H("symafm", "input variable symafm(nsym)"),
     # _H(symrel="input variable symrel(3,3,nsym)",  etsf_name="reduced_symmetry_matrices"),
@@ -446,14 +429,14 @@ _HDR_VARIABLES = (
     _H("shiftk", "shiftk(3,nshiftk), shiftks after inkpts"),
     _H("amu", "amu(ntypat) ! EVOLVING variable"),
     # _H("xred", "EVOLVING variable xred(3,natom)", etsf_name="reduced_atom_positions"),
-    _H("zionpsp", "zionpsp(npsp) from psps"),
+    _H("zionpsp", "zionpsp(npsp) from PSPs"),
     _H(
         "znuclpsp",
-        "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp",
+        "znuclpsp(npsp) from PSPs. Note the difference between (znucl|znucltypat) and znuclpsp",
     ),
     _H("znucltypat", "znucltypat(ntypat) from alchemy", etsf_name="atomic_numbers"),
     _H("codvsn", "version of the code"),
-    _H("title", "title(npsp) from psps"),
+    _H("title", "title(npsp) from PSPs"),
     _H(
         "md5_pseudos",
         "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)",

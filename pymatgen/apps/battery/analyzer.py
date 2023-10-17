@@ -25,22 +25,22 @@ ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 class BatteryAnalyzer:
     """A suite of methods for starting with an oxidized structure and determining its potential as a battery."""
 
-    def __init__(self, struc_oxid, working_ion="Li", oxi_override=None):
+    def __init__(self, struct_oxid, working_ion="Li", oxi_override=None):
         """Pass in a structure for analysis.
 
         Arguments:
-            struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
+            struct_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
                 structures should be OK
             working_ion: a String symbol or Element for the working ion.
             oxi_override: a dict of String element symbol, Integer oxidation state pairs.
                 by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.
         """
-        for site in struc_oxid:
+        for site in struct_oxid:
             if not hasattr(site.specie, "oxi_state"):
                 raise ValueError("BatteryAnalyzer requires oxidation states assigned to structure!")
-        self.struc_oxid = struc_oxid
+        self.struct_oxid = struct_oxid
         self.oxi_override = oxi_override or {}
-        self.comp = self.struc_oxid.composition  # shortcut for later
+        self.comp = self.struct_oxid.composition  # shortcut for later
 
         if not isinstance(working_ion, Element):
             self.working_ion = Element(working_ion)
@@ -152,7 +152,7 @@ class BatteryAnalyzer:
         Returns:
             max vol capacity in mAh/cc
         """
-        vol = volume or self.struc_oxid.volume
+        vol = volume or self.struct_oxid.volume
         return self._get_max_cap_ah(remove, insert) * 1000 * 1e24 / (vol * const.N_A)
 
     def get_removals_int_oxid(self):

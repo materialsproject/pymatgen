@@ -15,8 +15,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTensor(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.vec = Tensor([1.0, 0.0, 0.0])
         self.rand_rank2 = Tensor(np.random.randn(3, 3))
@@ -133,7 +131,7 @@ class TestTensor(PymatgenTest):
     def test_transform(self):
         # Rank 3
         tensor = Tensor(np.arange(0, 27).reshape(3, 3, 3))
-        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, [0, 0, 1])
+        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
         new_tensor = tensor.transform(symm_op)
 
         assert_allclose(
@@ -407,15 +405,15 @@ class TestTensorCollection(PymatgenTest):
     def test_list_based_functions(self):
         # zeroed
         tc = TensorCollection([1e-4 * Tensor(np.eye(3))] * 4)
-        for t in tc.zeroed():
-            assert t == approx(0)
-        for t in tc.zeroed(1e-5):
-            assert t == approx(1e-4 * np.eye(3))
+        for tensor in tc.zeroed():
+            assert tensor == approx(0)
+        for tensor in tc.zeroed(1e-5):
+            assert tensor == approx(1e-4 * np.eye(3))
         self.list_based_function_check("zeroed", tc)
         self.list_based_function_check("zeroed", tc, tol=1e-5)
 
         # transform
-        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, [0, 0, 1])
+        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
         self.list_based_function_check("transform", self.seq_tc, symm_op=symm_op)
 
         # symmetrized
@@ -455,8 +453,8 @@ class TestTensorCollection(PymatgenTest):
         # from_voigt
         tc_input = list(np.random.random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
-        for t_input, t in zip(tc_input, tc):
-            assert_allclose(Tensor.from_voigt(t_input), t)
+        for t_input, tensor in zip(tc_input, tc):
+            assert_allclose(Tensor.from_voigt(t_input), tensor)
 
     def test_serialization(self):
         # Test base serialize-deserialize

@@ -695,9 +695,3 @@ class TestEnvironmentNodesGraphUtils(PymatgenTest):
         assert c1 == c2
         c2 = MultiGraphCycle([e2, e3, e1], [1, 2, 0])
         assert c1 == c2
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

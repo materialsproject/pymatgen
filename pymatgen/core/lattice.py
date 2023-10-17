@@ -8,7 +8,7 @@ import math
 import warnings
 from fractions import Fraction
 from functools import reduce
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -18,9 +18,10 @@ from numpy.linalg import inv
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
-from pymatgen.util.num import abs_cap
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.trajectory import Vector3D
@@ -70,7 +71,8 @@ class Lattice(MSONable):
     def lengths(self) -> Vector3D:
         """Lattice lengths.
 
-        :return: The lengths (a, b, c) of the lattice.
+        Returns:
+            The lengths (a, b, c) of the lattice.
         """
         return tuple(np.sqrt(np.sum(self._matrix**2, axis=1)).tolist())  # type: ignore
 
@@ -78,7 +80,8 @@ class Lattice(MSONable):
     def angles(self) -> Vector3D:
         """Lattice angles.
 
-        :return: The angles (alpha, beta, gamma) of the lattice.
+        Returns:
+            The angles (alpha, beta, gamma) of the lattice.
         """
         mat = self._matrix
         lengths = self.lengths
@@ -86,7 +89,7 @@ class Lattice(MSONable):
         for dim in range(3):
             j = (dim + 1) % 3
             k = (dim + 2) % 3
-            angles[dim] = abs_cap(np.dot(mat[j], mat[k]) / (lengths[j] * lengths[k]))
+            angles[dim] = np.clip(np.dot(mat[j], mat[k]) / (lengths[j] * lengths[k]), -1, 1)
         angles = np.arccos(angles) * 180.0 / pi
         return tuple(angles.tolist())  # type: ignore
 
@@ -104,10 +107,10 @@ class Lattice(MSONable):
            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         2. "p" for lattice parameters ".1fp" prints something like
            "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
-        3. Default will simply print a 3x3 matrix form. E.g.,
-           10.000 0.000 0.000
-           0.000 10.000 0.000
-           0.000 0.000 10.000
+        3. Default will simply print a 3x3 matrix form. E.g.
+           10 0 0
+           0 10 0
+           0 0 10
         """
         matrix = self._matrix.tolist()
         if fmt_spec.endswith("l"):
@@ -345,8 +348,7 @@ class Lattice(MSONable):
 
         else:
             val = (cos_alpha * cos_beta - cos_gamma) / (sin_alpha * sin_beta)
-            # Sometimes rounding errors result in values slightly > 1.
-            val = abs_cap(val)
+            val = np.clip(val, -1, 1)  # rounding errors may cause values slightly > 1
             gamma_star = np.arccos(val)
 
             vector_a = [a * sin_beta, 0.0, a * cos_beta]
@@ -372,7 +374,6 @@ class Lattice(MSONable):
             Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
-            # pylint: disable=C0415
             from pymatgen.io.abinit.abiobjects import lattice_from_abivars
 
             kwargs.update(d)
@@ -447,9 +448,7 @@ class Lattice(MSONable):
 
     @property
     def reciprocal_lattice_crystallographic(self) -> Lattice:
-        """Returns the *crystallographic* reciprocal lattice, i.e., no factor of
-        2 * pi.
-        """
+        """Returns the *crystallographic* reciprocal lattice, i.e. no factor of 2 * pi."""
         return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
 
     @property
@@ -461,9 +460,7 @@ class Lattice(MSONable):
 
     @property
     def lll_mapping(self) -> np.ndarray:
-        """:return: The mapping between the LLL reduced lattice and the original
-        lattice.
-        """
+        """The mapping between the LLL reduced lattice and the original lattice."""
         if 0.75 not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[0.75] = self._calculate_lll()
         return self._lll_matrix_mappings[0.75][1]
@@ -480,82 +477,60 @@ class Lattice(MSONable):
         d = -(a + b + c)
         tol = 1e-10
 
-        selling_vector = np.array(
-            [
-                np.dot(b, c),
-                np.dot(a, c),
-                np.dot(a, b),
-                np.dot(a, d),
-                np.dot(b, d),
-                np.dot(c, d),
-            ]
-        )
+        selling_vector = np.array([np.dot(b, c), np.dot(a, c), np.dot(a, b), np.dot(a, d), np.dot(b, d), np.dot(c, d)])
         selling_vector = np.array([s if abs(s) > tol else 0 for s in selling_vector])
 
-        reduction_matrices = np.array(
+        reduction_matrices = [
             [
-                np.array(
-                    [
-                        [-1, 0, 0, 0, 0, 0],
-                        [1, 1, 0, 0, 0, 0],
-                        [1, 0, 0, 0, 1, 0],
-                        [-1, 0, 0, 1, 0, 0],
-                        [1, 0, 1, 0, 0, 0],
-                        [1, 0, 0, 0, 0, 1],
-                    ]
-                ),
-                np.array(
-                    [
-                        [1, 1, 0, 0, 0, 0],
-                        [0, -1, 0, 0, 0, 0],
-                        [0, 1, 0, 1, 0, 0],
-                        [0, 1, 1, 0, 0, 0],
-                        [0, -1, 0, 0, 1, 0],
-                        [0, 1, 0, 0, 0, 1],
-                    ]
-                ),
-                np.array(
-                    [
-                        [1, 0, 1, 0, 0, 0],
-                        [0, 0, 1, 1, 0, 0],
-                        [0, 0, -1, 0, 0, 0],
-                        [0, 1, 1, 0, 0, 0],
-                        [0, 0, 1, 0, 1, 0],
-                        [0, 0, -1, 0, 0, 1],
-                    ]
-                ),
-                np.array(
-                    [
-                        [1, 0, 0, -1, 0, 0],
-                        [0, 0, 1, 1, 0, 0],
-                        [0, 1, 0, 1, 0, 0],
-                        [0, 0, 0, -1, 0, 0],
-                        [0, 0, 0, 1, 1, 0],
-                        [0, 0, 0, 1, 0, 1],
-                    ]
-                ),
-                np.array(
-                    [
-                        [0, 0, 1, 0, 1, 0],
-                        [0, 1, 0, 0, -1, 0],
-                        [1, 0, 0, 0, 1, 0],
-                        [0, 0, 0, 1, 1, 0],
-                        [0, 0, 0, 0, -1, 0],
-                        [0, 0, 0, 0, 1, 1],
-                    ]
-                ),
-                np.array(
-                    [
-                        [0, 1, 0, 0, 0, 1],
-                        [1, 0, 0, 0, 0, 1],
-                        [0, 0, 1, 0, 0, -1],
-                        [0, 0, 0, 1, 0, 1],
-                        [0, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, -1],
-                    ]
-                ),
-            ]
-        )
+                [-1, 0, 0, 0, 0, 0],
+                [1, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 1, 0],
+                [-1, 0, 0, 1, 0, 0],
+                [1, 0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1],
+            ],
+            [
+                [1, 1, 0, 0, 0, 0],
+                [0, -1, 0, 0, 0, 0],
+                [0, 1, 0, 1, 0, 0],
+                [0, 1, 1, 0, 0, 0],
+                [0, -1, 0, 0, 1, 0],
+                [0, 1, 0, 0, 0, 1],
+            ],
+            [
+                [1, 0, 1, 0, 0, 0],
+                [0, 0, 1, 1, 0, 0],
+                [0, 0, -1, 0, 0, 0],
+                [0, 1, 1, 0, 0, 0],
+                [0, 0, 1, 0, 1, 0],
+                [0, 0, -1, 0, 0, 1],
+            ],
+            [
+                [1, 0, 0, -1, 0, 0],
+                [0, 0, 1, 1, 0, 0],
+                [0, 1, 0, 1, 0, 0],
+                [0, 0, 0, -1, 0, 0],
+                [0, 0, 0, 1, 1, 0],
+                [0, 0, 0, 1, 0, 1],
+            ],
+            [
+                [0, 0, 1, 0, 1, 0],
+                [0, 1, 0, 0, -1, 0],
+                [1, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 1, 0],
+                [0, 0, 0, 0, -1, 0],
+                [0, 0, 0, 0, 1, 1],
+            ],
+            [
+                [0, 1, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 1],
+                [0, 0, 1, 0, 0, -1],
+                [0, 0, 0, 1, 0, 1],
+                [0, 0, 0, 0, 1, 1],
+                [0, 0, 0, 0, 0, -1],
+            ],
+        ]
+
         while np.greater(np.max(selling_vector), 0):
             max_index = selling_vector.argmax()
             selling_vector = np.dot(reduction_matrices[max_index], selling_vector)
@@ -565,309 +540,249 @@ class Lattice(MSONable):
     def selling_dist(self, other):
         """Returns the minimum Selling distance between two lattices."""
         vcp_matrices = [
-            np.array(
-                [
-                    [-1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, -1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, -1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, -1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, -1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, -1],
-                ]
-            ),
+            [
+                [-1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, -1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, -1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, -1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, -1, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, -1],
+            ],
         ]
 
         reflection_matrices = [
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 1, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 1, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 1, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 1, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 1, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 1, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [1, 0, 0, 0, 0, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                ]
-            ),
-            np.array(
-                [
-                    [0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0],
-                    [1, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0],
-                ]
-            ),
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+            ],
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+            ],
+            [
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+            ],
+            [
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+            ],
+            [
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+            ],
+            [
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+            ],
+            [
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+            ],
+            [
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 1, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 1, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+            ],
+            [
+                [0, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1],
+            ],
+            [
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 1],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0],
+            ],
         ]
 
         selling1 = self.selling_vector
@@ -946,8 +861,7 @@ class Lattice(MSONable):
         """Finds all mappings between current lattice and another lattice.
 
         Args:
-            other_lattice (Lattice): Another lattice that is equivalent to
-                this one.
+            other_lattice (Lattice): Another lattice that is equivalent to this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
             skip_rotation_matrix (bool): Whether to skip calculation of the
@@ -977,7 +891,7 @@ class Lattice(MSONable):
         )
         cart = self.get_cartesian_coords(frac)  # type: ignore
         # this can't be broadcast because they're different lengths
-        inds = [np.logical_and(dist / len < 1 + ltol, dist / len > 1 / (1 + ltol)) for len in lengths]  # type: ignore
+        inds = [np.logical_and(dist / ln < 1 + ltol, dist / ln > 1 / (1 + ltol)) for ln in lengths]  # type: ignore
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)  # type: ignore
         l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -992,14 +906,14 @@ class Lattice(MSONable):
         beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
         gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
-        for i, all_j in enumerate(gamma_b):
-            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[i][None, :]))
+        for idx, all_j in enumerate(gamma_b):
+            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[idx][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=int)  # type: ignore
+                scale_m = np.array((f_a[idx], f_b[j], f_c[k]), dtype=int)  # type: ignore
                 if abs(np.linalg.det(scale_m)) < 1e-8:  # type: ignore
                     continue
 
-                aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+                aligned_m = np.array((c_a[idx], c_b[j], c_c[k]))
 
                 rotation_m = None if skip_rotation_matrix else np.linalg.solve(aligned_m, other_lattice.matrix)
 
@@ -1047,7 +961,9 @@ class Lattice(MSONable):
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
         """:param delta: Delta parameter.
-        :return: LLL reduced Lattice.
+
+        Returns:
+            LLL reduced Lattice.
         """
         if delta not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[delta] = self._calculate_lll()
@@ -1056,7 +972,7 @@ class Lattice(MSONable):
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
         """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
-        possible, with "good" defined by orthongonality of the lattice vectors.
+        possible, with "good" defined by orthogonality of the lattice vectors.
 
         This basis is used for all the periodic boundary condition calculations.
 
@@ -1069,7 +985,7 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        # pylint: disable=E1136,E1137,E1126
+
         a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
@@ -1104,8 +1020,7 @@ class Lattice(MSONable):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
-                # If the Lovasz condition fails,
-                # swap the k-th and (k-1)-th basis vector
+                # If the Lovasz condition fails, swap the k-th and (k-1)-th basis vector
                 v = a[:, k - 1].copy()
                 a[:, k - 1] = a[:, k - 2].copy()
                 a[:, k - 2] = v
@@ -1126,7 +1041,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2) : k])
                     q = np.diag(m[(k - 2) : k])  # type: ignore
-                    # pylint: disable=E1101
+
                     result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
                     u[k:3, (k - 2) : k] = result
 
@@ -1159,7 +1074,7 @@ class Lattice(MSONable):
                 result in stable behavior for most cases.
 
         Returns:
-            Niggli-reduced lattice.
+            Lattice: Niggli-reduced lattice.
         """
         # lll reduction is more stable for skewed cells
         matrix = self.lll_matrix
@@ -1172,14 +1087,7 @@ class Lattice(MSONable):
         for _ in range(100):
             # The steps are labelled as Ax as per the labelling scheme in the
             # paper.
-            (A, B, C, E, N, Y) = (
-                G[0, 0],
-                G[1, 1],
-                G[2, 2],
-                2 * G[1, 2],
-                2 * G[0, 2],
-                2 * G[0, 1],
-            )
+            A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
 
             if B + e < A or (abs(A - B) < e and abs(E) > abs(N) + e):
                 # A1
@@ -1313,7 +1221,7 @@ class Lattice(MSONable):
         list_k_points = []
         for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
-        # pylint: disable=C0415
+
         from scipy.spatial import Voronoi
 
         tess = Voronoi(list_k_points)
@@ -1363,7 +1271,7 @@ class Lattice(MSONable):
             cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))
             cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))
 
-        return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
+        return np.array(list(itertools.starmap(dot, zip(cart_a, cart_b))))
 
     def norm(self, coords: ArrayLike, frac_coords: bool = True) -> np.ndarray:
         """Compute the norm of vector(s).
@@ -1394,7 +1302,7 @@ class Lattice(MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1418,7 +1326,6 @@ class Lattice(MSONable):
                 fcoords, dists, inds, image
         """
         try:
-            # pylint: disable=C0415
             from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
@@ -1469,7 +1376,7 @@ class Lattice(MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1526,7 +1433,7 @@ class Lattice(MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1583,7 +1490,7 @@ class Lattice(MSONable):
         # Determine distance from `center`
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
-        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]  # pylint: disable=E1126
+        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]
         coords -= center[None, None, None, None, :]
         coords **= 2
         d_2 = np.sum(coords, axis=4)
@@ -1638,7 +1545,9 @@ class Lattice(MSONable):
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
         """:param hex_angle_tol: Angle tolerance
         :param hex_length_tol: Length tolerance
-        :return: Whether lattice corresponds to hexagonal lattice.
+
+        Returns:
+            Whether lattice corresponds to hexagonal lattice.
         """
         lengths = self.lengths
         angles = self.angles
@@ -1734,7 +1643,8 @@ class Lattice(MSONable):
 
     def get_recp_symmetry_operation(self, symprec: float = 0.01) -> list:
         """Find the symmetric operations of the reciprocal lattice,
-        to be used for hkl transformations
+        to be used for hkl transformations.
+
         Args:
             symprec: default is 0.001.
         """
@@ -1745,7 +1655,7 @@ class Lattice(MSONable):
         recp_lattice = recp_lattice.scale(1)
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
-        # pylint: disable=C0415
+
         from pymatgen.core.structure import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -1943,8 +1853,8 @@ def _compute_cube_index(coords: np.ndarray, global_min: float, radius: float) ->
         global_min: (float) lower boundary of coordinates
         radius: (float) cutoff radius.
 
-    Returns: (nx3 array) int indices
-
+    Returns:
+        np.ndarray: nx3 array int indices
     """
     return np.array(np.floor((coords - global_min) / radius), dtype=int)
 
@@ -1957,8 +1867,8 @@ def _one_to_three(label1d: np.ndarray, ny: int, nz: int) -> np.ndarray:
         ny: (int) number of cells in y direction
         nz: (int) number of cells in z direction
 
-    Returns: (nx3) int array of index
-
+    Returns:
+        np.ndarray: nx3 array int indices
     """
     last = np.mod(label1d, nz)
     second = np.mod((label1d - last) / nz, ny)

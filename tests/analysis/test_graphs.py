@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import os
 import unittest
-import warnings
 from glob import glob
 from shutil import which
 
@@ -31,6 +30,7 @@ try:
     from openbabel import openbabel
 except ImportError:
     openbabel = None
+
 try:
     import pygraphviz
 except ImportError:
@@ -102,11 +102,6 @@ class TestStructureGraph(PymatgenTest):
 
         # BCC example.
         self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
@@ -395,7 +390,7 @@ from    to  to_image
         }
         assert pdfs == expected_pdfs
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.mos2_sg.as_dict()
         sg = StructureGraph.from_dict(d)
         d2 = sg.as_dict()
@@ -574,14 +569,6 @@ class TestMoleculeGraph(unittest.TestCase):
             [6, 9],
             [6, 10],
         )
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-        del self.ethylene
-        del self.butadiene
-        del self.cyclohexene
 
     def test_construction(self):
         pytest.importorskip("openbabel")

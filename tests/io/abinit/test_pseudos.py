@@ -55,7 +55,7 @@ class PseudoTestCase(PymatgenTest):
                 assert pseudo.nlcc_radius >= 0.0
 
                 # Test pickle
-                self.serialize_with_pickle(pseudo, test_eq=False)
+                self.serialize_with_pickle(pseudo)
 
                 # Test MSONable
                 self.assert_msonable(pseudo)
@@ -84,7 +84,7 @@ class PseudoTestCase(PymatgenTest):
         assert pseudo.l_local == 2
         assert not pseudo.supports_soc
 
-        # Test PseudoTable.
+        # Test PseudoTable
         table = PseudoTable(self.nc_pseudos["Si"])
         assert repr(table)
         assert str(table)
@@ -117,16 +117,16 @@ class PseudoTestCase(PymatgenTest):
         assert oxygen.paw_radius == approx(1.4146523028)
 
         # Test pickle
-        new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
+        new_objs = self.serialize_with_pickle(oxygen)
         # Test MSONable
         self.assert_msonable(oxygen)
 
-        for o in new_objs:
-            assert o.ispaw
-            assert o.symbol == "O"
-            assert (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6
+        for obj in new_objs:
+            assert obj.ispaw
+            assert obj.symbol == "O"
+            assert (obj.Z, obj.core, obj.valence) == (8, 2, 6), obj.Z_val == 6
 
-            assert o.paw_radius == approx(1.4146523028)
+            assert obj.paw_radius == approx(1.4146523028)
 
     def test_oncvpsp_pseudo_sr(self):
         """Test the ONCVPSP Ge pseudo (scalar relativistic version)."""
@@ -147,7 +147,7 @@ class PseudoTestCase(PymatgenTest):
         assert not ger.supports_soc
 
         # Data persistence
-        self.serialize_with_pickle(ger, test_eq=False)
+        self.serialize_with_pickle(ger)
         self.assert_msonable(ger)
 
     def test_oncvpsp_pseudo_fr(self):
@@ -157,7 +157,7 @@ class PseudoTestCase(PymatgenTest):
         str(pb)
 
         # Data persistence
-        self.serialize_with_pickle(pb, test_eq=False)
+        self.serialize_with_pickle(pb)
         self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"

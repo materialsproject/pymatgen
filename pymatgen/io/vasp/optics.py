@@ -310,7 +310,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
         np.array: Array of size `nx` with delta function on the desired outputgrid.
 
     """
-    xgrid = np.arange(0, nx * dx, dx)
+    xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
     x_scaled = (xgrid + (dx / 2)) / sigma
     sfun = step_func(x_scaled, ismear)
@@ -334,7 +334,7 @@ def get_step(x0, sigma, nx, dx, ismear):
     Return:
         np.array: Array of size `nx` with step function on the desired outputgrid.
     """
-    xgrid = np.arange(0, nx * dx, dx)
+    xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
     x_scaled = (xgrid + (dx / 2)) / sigma
     return step_func(x_scaled, ismear)
@@ -373,7 +373,7 @@ def epsilon_imag(
 
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
-    egrid = np.arange(0, nedos * deltae, deltae)
+    egrid = np.linspace(0, nedos * deltae, nedos, endpoint=False)
     eigs_shifted = eigs - efermi
     # np.subtract.outer results in a matrix of shape (nband, nband)
     rspin = 3 - cder.shape[3]

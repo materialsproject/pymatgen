@@ -106,7 +106,7 @@ class LobsterNeighbors(NearNeighbors):
             additional condition
             add_additional_data_sg: (bool) will add the information from filename_add_bondinglist_sg1,
             filename_blist_sg1: (str) Path to additional ICOOP, ICOBI data for structure graphs
-            filename_blist_sg2: (str) Path to dditional ICOOP, ICOBI data for structure graphs
+            filename_blist_sg2: (str) Path to additional ICOOP, ICOBI data for structure graphs
             id_blist_sg1: (str) Identity of data in filename_blist_sg1,
                 e.g., "icoop" or "icobi"
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
@@ -216,7 +216,9 @@ class LobsterNeighbors(NearNeighbors):
     def anion_types(self):
         """
         Return the types of anions present in crystal structure as a set
-        Returns: set of Element describing anions in the crystal structure.
+
+        Returns:
+            set[Element]: describing anions in the crystal structure.
         """
         if self.valences is None:
             raise ValueError("No cations and anions defined")
@@ -244,6 +246,7 @@ class LobsterNeighbors(NearNeighbors):
                 or not (False, default: each coordinated site has equal
                 weight).
                 True is not implemented for LobsterNeighbors
+
         Returns:
             cn (integer or float): coordination number.
         """
@@ -261,7 +264,9 @@ class LobsterNeighbors(NearNeighbors):
         Args:
             only_cation_environments: only data for cations will be returned
             only_indices: will only evaluate the list of isites in this list
-        Returns: LobsterLightStructureEnvironments Object
+
+        Returns:
+            LobsterLightStructureEnvironments
         """
         lgf = LocalGeometryFinder()
         lgf.setup_structure(structure=self.structure)
@@ -367,7 +372,8 @@ class LobsterNeighbors(NearNeighbors):
             isites: list of site ids. If isite==None, all isites will be used to add the icohps of the neighbors
             onlycation_isites: if True and if isite==None, it will only analyse the sites of the cations
 
-        Returns: ICOHPNeighborsInfo
+        Returns:
+            ICOHPNeighborsInfo
         """
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
@@ -464,7 +470,7 @@ class LobsterNeighbors(NearNeighbors):
     ):
         """
         Return info about the cohps (coops or cobis) as a summed cohp object and a label
-         from all sites mentioned in isites with neighbors.
+        from all sites mentioned in isites with neighbors.
 
         Args:
             path_to_COHPCAR: str, path to COHPCAR or COOPCAR or COBICAR
@@ -474,8 +480,9 @@ class LobsterNeighbors(NearNeighbors):
             per_bond: will normalize per bond
             summed_spin_channels: will sum all spin channels
 
-        Returns: label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis) of the sites
-        as given by isites and the other parameters
+        Returns:
+            str: label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis)
+                of the sites as given by isites and the other parameters
         """
         # TODO: add options for orbital-resolved cohps
         summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
@@ -560,18 +567,15 @@ class LobsterNeighbors(NearNeighbors):
     def _get_plot_label(self, atoms, per_bond):
         # count the types of bonds and append a label:
         all_labels = []
-        for atomsnames in atoms:
-            new = [
-                self._split_string(atomsnames[0])[0],
-                self._split_string(atomsnames[1])[0],
-            ]
+        for atoms_names in atoms:
+            new = [self._split_string(atoms_names[0])[0], self._split_string(atoms_names[1])[0]]
             new.sort()
             string_here = new[0] + "-" + new[1]
             all_labels.append(string_here)
         count = collections.Counter(all_labels)
         plotlabels = []
         for key, item in count.items():
-            plotlabels.append(str(item) + " x " + str(key))
+            plotlabels.append(f"{item} x {key}")
         plotlabel = ", ".join(plotlabels)
         if per_bond:
             plotlabel = plotlabel + " (per bond)"
@@ -585,7 +589,8 @@ class LobsterNeighbors(NearNeighbors):
             isites: list of site ids, if isite==None, all isites will be used
             onlycation_isites: will only use cations, if isite==None
 
-        Returns: ICOHPNeighborsInfo
+        Returns
+            ICOHPNeighborsInfo
         """
         lowerlimit = self.lowerlimit
         upperlimit = self.upperlimit
@@ -690,7 +695,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to: restricts the types of bonds that will be considered
             additional_condition: Additional condition for the evaluation
             perc_strength_ICOHP: will be used to determine how strong the ICOHPs (percentage*strongest ICOHP) will be
-            that are still considered for the evalulation
+            that are still considered for the evaluation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
             extremum.
 
@@ -1073,14 +1078,15 @@ class LobsterNeighbors(NearNeighbors):
         )
 
     @staticmethod
-    def _get_atomnumber(atomstring):
+    def _get_atomnumber(atomstring) -> int:
         """
         Return the number of the atom within the initial POSCAR (e.g., Return 0 for "Na1").
 
         Args:
             atomstring: string such as "Na1"
 
-        Returns: integer indicating the position in the POSCAR
+        Returns:
+            int: indicating the position in the POSCAR
         """
         return int(LobsterNeighbors._split_string(atomstring)[1]) - 1
 
@@ -1118,7 +1124,8 @@ class LobsterNeighbors(NearNeighbors):
         Args:
             list_icohps: can be a list of icohps or icobis or icobis
 
-        Returns: min value of input list of icohps / max value of input list of icobis or icobis
+        Returns:
+            float: min value of input list of icohps / max value of input list of icobis or icobis
         """
 
         which_extr = min if not self.are_coops and not self.are_cobis else max
@@ -1142,7 +1149,9 @@ class LobsterNeighbors(NearNeighbors):
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
 
-        Returns: [-inf, min(strongest_icohp*0.15,-noise_cutoff)] / [max(strongest_icohp*0.15, noise_cutoff),inf]
+        Returns:
+            tuple[float, float]: [-inf, min(strongest_icohp*0.15,-noise_cutoff)] / [max(strongest_icohp*0.15,
+                noise_cutoff), inf]
         """
 
         if not adapt_extremum_to_add_cond or additional_condition == 0:
@@ -1260,7 +1269,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
             list_neighisite: list of neighboring isites (number of a site)
             valences: list of valences
 
-        Returns: LobsterLightStructureEnvironments
+        Returns:
+            LobsterLightStructureEnvironments
         """
         strategy = None
         valences_origin = "user-defined"
@@ -1271,7 +1281,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         all_nbs_sites_indices = []
         neighbors_sets = []
         counter = 0
-        for isite, _site in enumerate(structure):
+        for isite in range(len(structure)):
             # all_nbs_sites_here=[]
             all_nbs_sites_indices_here = []
             # Coordination environment
@@ -1348,7 +1358,9 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
     def as_dict(self):
         """
         Bson-serializable dict representation of the LightStructureEnvironments object.
-        :return: Bson-serializable dict representation of the LightStructureEnvironments object.
+
+        Returns:
+            Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
             "@module": type(self).__module__,

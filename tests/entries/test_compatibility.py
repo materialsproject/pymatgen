@@ -4,7 +4,6 @@ import copy
 import json
 import os
 import unittest
-import warnings
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
@@ -37,7 +36,6 @@ class TestCorrectionSpecificity(unittest.TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -178,7 +176,6 @@ def test_overlapping_adjustments():
 
 class TestMaterialsProjectCompatibility(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -258,9 +255,6 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         self.gga_compat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_process_entry(self):
         # Correct parameters
         assert self.compat.process_entry(self.entry1) is not None
@@ -325,7 +319,7 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
 
         assert self.compat.process_entry(self.entry_sulfide).correction == approx(-0.66346)
 
-    def test_U_values(self):
+    def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(
             "Fe2O3",
@@ -489,7 +483,6 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
 
 class TestMaterialsProjectCompatibility2020(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -550,9 +543,6 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         self.gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_process_entry(self):
         # Correct parameters
@@ -675,7 +665,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
         assert self.compat.process_entry(self.entry_sulfide).correction == approx(-0.503)
 
-    def test_oxdiation_by_electronegativity(self):
+    def test_oxidation_by_electronegativity(self):
         # make sure anion corrections are only applied when the element has
         # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
         # as determined by electronegativity (i.e., the data.oxidation_states key is absent)
@@ -736,7 +726,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         # SiO2; only corrections should be oxide
         assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
-    def test_oxdiation(self):
+    def test_oxidation(self):
         # make sure anion corrections are only applied when the element has
         # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
         # as determined by the data.oxidation_states key
@@ -803,7 +793,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         # SiO2; only corrections should be oxide
         assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
-    def test_U_values(self):
+    def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(
             "Fe2O3",
@@ -1025,11 +1015,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
 
 class TestMITCompatibility(unittest.TestCase):
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
@@ -1087,7 +1073,7 @@ class TestMITCompatibility(unittest.TestCase):
         assert self.compat.process_entry(self.entry_F).correction == approx(-1.723)
         assert self.compat.process_entry(self.entry_S).correction == approx(-1.113)
 
-    def test_U_value(self):
+    def test_u_value(self):
         # MIT should have a U value for Fe containing sulfides
         assert self.compat.process_entry(self.entry_S) is not None
 
@@ -1126,7 +1112,7 @@ class TestMITCompatibility(unittest.TestCase):
 
         assert self.gga_compat.process_entry(entry) is not None
 
-    def test_wrong_U_value(self):
+    def test_wrong_u_value(self):
         # Wrong U value
         params = {
             "is_hubbard": True,
@@ -1335,15 +1321,16 @@ class TestOxideTypeCorrection(unittest.TestCase):
         el_li = Element("Li")
         el_o = Element("O")
         latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
-        elts = [el_li, el_li, el_o, el_o, el_o, el_o]
-        coords = []
-        coords.append([0.500000, 0.500000, 0.500000])
-        coords.append([0.0, 0.0, 0.0])
-        coords.append([0.632568, 0.085090, 0.500000])
-        coords.append([0.367432, 0.914910, 0.500000])
-        coords.append([0.132568, 0.414910, 0.000000])
-        coords.append([0.867432, 0.585090, 0.000000])
-        struct = Structure(latt, elts, coords)
+        elems = [el_li, el_li, el_o, el_o, el_o, el_o]
+        coords = [
+            [0.5, 0.5, 0.5],
+            [0.0, 0.0, 0.0],
+            [0.632568, 0.08509, 0.5],
+            [0.367432, 0.91491, 0.5],
+            [0.132568, 0.41491, 0.0],
+            [0.867432, 0.58509, 0.0],
+        ]
+        struct = Structure(latt, elems, coords)
         lio2_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1365,7 +1352,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
+        elems = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
         coords = [
             [0.666656, 0.666705, 0.750001],
             [0.333342, 0.333378, 0.250001],
@@ -1376,7 +1363,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
             [0.666666, 0.666686, 0.350813],
             [0.666665, 0.666684, 0.149189],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         li2o2_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1397,7 +1384,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
     def test_process_entry_ozonide(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_o, el_o, el_o]
+        elems = [el_li, el_o, el_o, el_o]
         latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
         coords = [
             [0.513004, 0.513004, 1.000000],
@@ -1405,7 +1392,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
             [0.649993, 0.874790, 0.775203],
             [0.099587, 0.874790, 0.224797],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         lio3_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1426,10 +1413,10 @@ class TestOxideTypeCorrection(unittest.TestCase):
     def test_process_entry_oxide(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_o]
+        elems = [el_li, el_li, el_o]
         latt = Lattice.from_parameters(3.278, 3.278, 3.278, 60, 60, 60)
         coords = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75], [0.0, 0.0, 0.0]]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         li2o_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1616,10 +1603,10 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
     def test_oxide_energy_corr(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_o]
+        elems = [el_li, el_li, el_o]
         latt = Lattice.from_parameters(3.278, 3.278, 3.278, 60, 60, 60)
         coords = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75], [0.0, 0.0, 0.0]]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         li2o_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1641,7 +1628,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
+        elems = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
         coords = [
             [0.666656, 0.666705, 0.750001],
             [0.333342, 0.333378, 0.250001],
@@ -1652,7 +1639,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
             [0.666666, 0.666686, 0.350813],
             [0.666665, 0.666684, 0.149189],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         cse_params = {
             "is_hubbard": False,
             "hubbards": None,
@@ -1670,7 +1657,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
     def test_ozonide(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_o, el_o, el_o]
+        elems = [el_li, el_o, el_o, el_o]
         latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
         coords = [
             [0.513004, 0.513004, 1.000000],
@@ -1678,7 +1665,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
             [0.649993, 0.874790, 0.775203],
             [0.099587, 0.874790, 0.224797],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         lio3_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1881,7 +1868,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         el_o = Element("O")
         el_h = Element("H")
         latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
-        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        elems = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [
             [0.000000, 0.500000, 0.413969],
             [0.500000, 0.000000, 0.586031],
@@ -1890,7 +1877,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
             [0.000000, 0.500000, 0.192672],
             [0.500000, 0.000000, 0.807328],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         lioh_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1916,7 +1903,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         el_o = Element("O")
         el_h = Element("H")
         latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
-        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        elems = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [
             [0.000000, 0.500000, 0.413969],
             [0.500000, 0.000000, 0.586031],
@@ -1925,7 +1912,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
             [0.000000, 0.500000, 0.192672],
             [0.500000, 0.000000, 0.807328],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
 
         lioh_entry = ComputedStructureEntry(
             struct,
@@ -1963,7 +1950,6 @@ class TestMITAqueousCompatibility(unittest.TestCase):
 
 class TestCorrectionErrors2020Compatibility(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.compat = MaterialsProject2020Compatibility()
 
         params = {
@@ -2018,9 +2004,6 @@ class TestCorrectionErrors2020Compatibility(unittest.TestCase):
             correction=0.0,
             parameters={"is_hubbard": False, "run_type": "GGA", "potcar_spec": potcar_spec},
         )
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_errors(self):
         for entry, expected in (

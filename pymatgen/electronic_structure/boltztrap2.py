@@ -754,8 +754,6 @@ class BztTransportProperties:
             self.Power_Factor_mu = (self.Seebeck_mu @ self.Seebeck_mu) @ self.Conductivity_mu
             self.Power_Factor_mu *= 1e-9  # milliWatt / m / K**2
 
-            # self.props_as_dict()
-
             self.contain_props_doping = False
 
             if isinstance(doping, np.ndarray):
@@ -777,7 +775,7 @@ class BztTransportProperties:
             cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
             arrays of dim (len(temp_r),len(doping),3,3) as values.
             Carriers_conc_doping: carriers concentration for each doping level and T.
-            mu_doping_eV: the chemical potential corrispondent to each doping level.
+            mu_doping_eV: the chemical potential correspondent to each doping level.
         """
         if temp_r is None:
             temp_r = self.temp_r
@@ -800,41 +798,26 @@ class BztTransportProperties:
                 doping_carriers = [-dop for dop in doping_carriers]
 
             mu_doping[dop_type] = np.zeros((len(temp_r), len(doping)))
-            for t, temp in enumerate(temp_r):
-                for i, dop_car in enumerate(doping_carriers):
-                    mu_doping[dop_type][t, i] = BL.solve_for_mu(
-                        self.epsilon,
-                        self.dos,
-                        self.nelect + dop_car,
-                        temp,
-                        self.dosweight,
-                        True,
-                        False,
+            for idx_t, temp in enumerate(temp_r):
+                for idx_d, dop_car in enumerate(doping_carriers):
+                    mu_doping[dop_type][idx_t, idx_d] = BL.solve_for_mu(
+                        self.epsilon, self.dos, self.nelect + dop_car, temp, self.dosweight, True, False  # noqa: FBT003
                     )
-                    # mu_doping[dop_type][t, i] = self.find_mu_doping(
-                    #     self.epsilon, self.dos, self.nelect + dop_car, temp,
-                    #     self.dosweight)
 
                 N, L0, L1, L2, Lm11 = BL.fermiintegrals(
                     self.epsilon,
                     self.dos,
                     self.vvdos,
-                    mur=mu_doping[dop_type][t],
+                    mur=mu_doping[dop_type][idx_t],
                     Tr=np.array([temp]),
                     dosweight=self.dosweight,
                 )
 
-                cond[t], sbk[t], kappa[t], hall[t] = BL.calc_Onsager_coefficients(
-                    L0,
-                    L1,
-                    L2,
-                    mu_doping[dop_type][t],
-                    np.array([temp]),
-                    self.volume,
-                    Lm11,
+                cond[idx_t], sbk[idx_t], kappa[idx_t], hall[idx_t] = BL.calc_Onsager_coefficients(
+                    L0, L1, L2, mu_doping[dop_type][idx_t], np.array([temp]), self.volume, Lm11
                 )
 
-                dc[t] = self.nelect + N
+                dc[idx_t] = self.nelect + N
 
             self.Conductivity_doping[dop_type] = cond * self.CRTA  # S / m
             self.Seebeck_doping[dop_type] = sbk * 1e6  # microVolt / K
@@ -845,10 +828,12 @@ class BztTransportProperties:
             self.Power_Factor_doping[dop_type] = (sbk @ sbk) @ cond * self.CRTA * 1e3
 
             cond_eff_mass = np.zeros((len(temp_r), len(doping), 3, 3))
-            for t in range(len(temp_r)):
-                for i, dop in enumerate(doping):
+            for idx_t in range(len(temp_r)):
+                for idx_d, dop in enumerate(doping):
                     try:
-                        cond_eff_mass[t, i] = np.linalg.inv(cond[t, i]) * dop * units.qe_SI**2 / units.me_SI * 1e6
+                        cond_eff_mass[idx_t, idx_d] = (
+                            np.linalg.inv(cond[idx_t, idx_d]) * dop * units.qe_SI**2 / units.me_SI * 1e6
+                        )
                     except np.linalg.LinAlgError:
                         pass
 
@@ -868,7 +853,6 @@ class BztTransportProperties:
     #     :param N0:
     #     :param T:
     #     :param dosweight:
-    #     :return:
     #     """
     #     delta = np.empty_like(epsilon)
     #     for i, e in enumerate(epsilon):
@@ -899,24 +883,23 @@ class BztTransportProperties:
         ]
 
         if self.contain_props_doping:
-            lst_props.extend(
-                [
-                    self.Conductivity_doping,
-                    self.Seebeck_doping,
-                    self.Kappa_doping,
-                    self.Power_Factor_doping,
-                    self.Effective_mass_doping,
-                    self.Carriers_conc_doping,
-                    self.doping,
-                    self.mu_doping,
-                    self.mu_doping_eV,
-                ]
-            )
+            props = [
+                self.Conductivity_doping,
+                self.Seebeck_doping,
+                self.Kappa_doping,
+                self.Power_Factor_doping,
+                self.Effective_mass_doping,
+                self.Carriers_conc_doping,
+                self.doping,
+                self.mu_doping,
+                self.mu_doping_eV,
+            ]
+            lst_props.extend(props)
         dumpfn(lst_props, fname)
 
     def load(self, fname="bztTranspProps.json.gz"):
         """Load the transport properties from fname file."""
-        d = loadfn(fname)
+        lst = loadfn(fname)
         (
             self.temp_r,
             self.CRTA,
@@ -933,8 +916,8 @@ class BztTransportProperties:
             self.Hall_carrier_conc_trace_mu,
             self.Power_Factor_mu,
             self.Effective_mass_mu,
-        ) = d[:15]
-        if len(d) > 15:
+        ) = lst[:15]
+        if len(lst) > 15:
             (
                 self.Conductivity_doping,
                 self.Seebeck_doping,
@@ -945,46 +928,10 @@ class BztTransportProperties:
                 self.doping,
                 self.mu_doping,
                 self.mu_doping_eV,
-            ) = d[15:]
+            ) = lst[15:]
             self.contains_doping_props = True
 
         return True
-
-
-#   def props_as_dict(self):
-#       """
-#       :return: Get the properties as a dict.
-#       """
-#       props = ("Conductivity", "Seebeck", "Kappa")  # ,"Hall"
-#       props_unit = (r"$\mathrm{kS\,m^{-1}}$", r"$\mu$V/K", r"")
-#
-#       p_dict = {
-#           'Temps': self.temp_r,
-#           'mu': self.mu_r / units.eV - self.efermi
-#       }
-#       for prop, unit in zip(props, props_unit):
-#           p_array = eval("self." + prop)
-#           if prop is not None:
-#               p_dict[prop] = {'units': unit}
-#           else:
-#               continue
-#           for it, temp in enumerate(self.temp_r):
-#               p_dict[prop][str(temp)] = {}
-#               p_dict[prop][str(temp)]['tensor'] = p_array[it]
-#               p_dict[prop][str(temp)]['eigs'] = np.linalg.eigh(
-#                   p_array[it])[0]
-#               p_dict[prop][str(temp)]['avg_eigs'] = p_dict[prop][str(
-#                   temp)]['eigs'].mean(axis=1)
-#
-#       self.props_dict = p_dict
-#
-#   def save_old(self, fname="Transport_Properties.json"):
-#       """
-#       Writes the properties to a json file.
-#
-#       :param fname: Filename
-#       """
-#       dumpfn(self.props_dict, fname)
 
 
 class BztPlotter:
@@ -1036,9 +983,9 @@ class BztPlotter:
             ax: figure.axes where to plot. If None, a new figure is produced.
 
         Example:
-        bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
-        more example are provided in the notebook
-        "How to use Boltztra2 interface.ipynb".
+            bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
+            more example are provided in the notebook
+            "How to use Boltztra2 interface.ipynb".
         """
         props = (
             "Conductivity",
@@ -1175,7 +1122,7 @@ class BztPlotter:
             plt.xlabel(r"Temperature (K)", fontsize=30)
             leg_title = f"{dop_type}-type"
 
-        plt.ylabel(props_lbl[idx_prop] + " " + props_unit[idx_prop], fontsize=30)
+        plt.ylabel(f"{props_lbl[idx_prop]} {props_unit[idx_prop]}", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)

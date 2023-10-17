@@ -6,9 +6,10 @@ from __future__ import annotations
 
 import itertools
 import warnings
+from collections.abc import Iterator, Sequence
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Sequence, Tuple, Union
+from typing import Any, Union
 
 import numpy as np
 from monty.io import zopen
@@ -21,9 +22,9 @@ __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
 
-Vector3D = Tuple[float, float, float]
-Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[List[Dict[Any, Sequence[Any]]], Dict[Any, Sequence[Any]]]
+Vector3D = tuple[float, float, float]
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
+SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
@@ -430,8 +431,7 @@ class Trajectory(MSONable):
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')
 
-                lines.append(" ".join(site_symbols))
-                lines.append(" ".join(map(str, n_atoms)))
+                lines.extend((" ".join(site_symbols), " ".join(map(str, n_atoms))))
 
             lines.append(f"Direct configuration=     {si + 1}")
 

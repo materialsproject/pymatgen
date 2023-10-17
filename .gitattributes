@@ -2,5 +2,4 @@
 tests/files/**/* linguist-vendored
 cmd_line/* linguist-vendored
 docs/**/* linguist-generated
-docs_rst/**/* linguist-documentation
 dev_scripts/**/* linguist-vendored

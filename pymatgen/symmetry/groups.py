@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
+CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
@@ -72,7 +73,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
             supergroup (SymmetryGroup): Supergroup to test.
 
         Returns:
-            True if this group is a subgroup of the supplied group.
+            bool: True if this group is a subgroup of the supplied group.
         """
         warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
@@ -84,7 +85,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
             subgroup (SymmetryGroup): Subgroup to test.
 
         Returns:
-            True if this group is a supergroup of the supplied group.
+            bool: True if this group is a supergroup of the supplied group.
         """
         warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
@@ -102,18 +103,10 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
 class PointGroup(SymmetryGroup):
     """Class representing a Point Group, with generators and symmetry operations.
 
-    .. attribute:: symbol
-
-        Full International or Hermann-Mauguin Symbol.
-
-    .. attribute:: generators
-
-        List of generator matrices. Note that 3x3 matrices are used for Point
-        Groups.
-
-    .. attribute:: symmetry_ops
-
-        Full set of symmetry operations as matrices.
+    Attributes:
+        symbol (str): Full International or Hermann-Mauguin Symbol.
+        generators (list): List of generator matrices. Note that 3x3 matrices are used for Point Groups.
+        symmetry_ops (list): Full set of symmetry operations as matrices.
     """
 
     def __init__(self, int_symbol: str) -> None:
@@ -162,7 +155,7 @@ class PointGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            ([array]) Orbit for point.
+            list[array]: Orbit for point.
         """
         orbit: list[np.ndarray] = []
         for o in self.symmetry_ops:
@@ -176,22 +169,11 @@ class PointGroup(SymmetryGroup):
 class SpaceGroup(SymmetryGroup):
     """Class representing a SpaceGroup.
 
-    .. attribute:: symbol
-
-        Full International or Hermann-Mauguin Symbol.
-
-    .. attribute:: int_number
-
-        International number
-
-    .. attribute:: generators
-
-        List of generator matrices. Note that 4x4 matrices are used for Space
-        Groups.
-
-    .. attribute:: order
-
-        Order of Space Group
+    Attributes:
+        symbol (str): Full International or Hermann-Mauguin Symbol.
+        int_number (int): International number.
+        generators (list): List of generator matrices. Note that 4x4 matrices are used for Space Groups.
+        order (int): Order of Space Group.
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
@@ -329,8 +311,7 @@ class SpaceGroup(SymmetryGroup):
 
         for spg in SpaceGroup.SYMM_OPS:
             if int_number == spg["number"]:
-                symbols.append(spg["hermann_mauguin"])
-                symbols.append(spg["universal_h_m"])
+                symbols.extend((spg["hermann_mauguin"], spg["universal_h_m"]))
         return set(symbols)
 
     @property
@@ -354,7 +335,7 @@ class SpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            ([array]) Orbit for point.
+            list[array]: Orbit for point.
         """
         orbit: list[np.ndarray] = []
         for o in self.symmetry_ops:
@@ -364,7 +345,7 @@ class SpaceGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
-    def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list, list]:
+    def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list[np.ndarray], list[SymmOp]]:
         """Returns the orbit and its generators for a point.
 
         Args:
@@ -374,7 +355,7 @@ class SpaceGroup(SymmetryGroup):
                 (and also needed for symbolic orbits).
 
         Returns:
-            ([array], [array]) Orbit and generators for point.
+            tuple[list[np.ndarray], list[SymmOp]]: Orbit and generators for point.
         """
         from pymatgen.core.operations import SymmOp
 
@@ -433,9 +414,7 @@ class SpaceGroup(SymmetryGroup):
         return True
 
     @property
-    def crystal_system(
-        self,
-    ) -> Literal["cubic", "hexagonal", "trigonal", "tetragonal", "orthorhombic", "monoclinic", "triclinic"]:
+    def crystal_system(self) -> CrystalSystem:
         """
         Returns:
             str: Crystal system of the space group, e.g., cubic, hexagonal, etc.
@@ -494,7 +473,7 @@ class SpaceGroup(SymmetryGroup):
             subgroup (Spacegroup): Subgroup to test.
 
         Returns:
-            True if this space group is a supergroup of the supplied group.
+            bool: True if this space group is a supergroup of the supplied group.
         """
         return subgroup.is_subgroup(self)
 

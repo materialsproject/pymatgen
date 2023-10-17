@@ -37,7 +37,6 @@ TITLE sites: 4
     def test_get_header(self):
         comment = "From cif file"
         header = str(self.mp_xanes.header(source="CoO19128.cif", comment=comment))
-        print(header)
 
         ref = self.header_string.splitlines()
         last4 = [" ".join(line.split()[2:]) for line in ref[-4:]]
@@ -150,7 +149,7 @@ TITLE sites: 4
         os.remove("feff.inp")
         os.remove("Co2O2.cif")
 
-    def test_small_system_EXAFS(self):
+    def test_small_system_exafs(self):
         exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
         assert not exafs_settings.small_system
         assert "RECIPROCAL" not in exafs_settings.tags
@@ -184,7 +183,7 @@ TITLE sites: 4
         assert "CIF" not in elnes.tags
         assert "TARGET" not in elnes.tags
 
-    def test_postfeffset(self):
+    def test_post_feffset(self):
         self.mp_xanes.write_input(f"{self.tmp_path}/xanes_3")
         feff_dict_input = FEFFDictSet.from_directory(f"{self.tmp_path}/xanes_3")
         assert feff_dict_input.tags == Tags.from_file(f"{self.tmp_path}/xanes_3/feff.inp")
@@ -194,8 +193,8 @@ TITLE sites: 4
         output_tags = Tags.from_file(f"{self.tmp_path}/xanes_3_regen/PARAMETERS")
         origin_mole = Atoms.cluster_from_file(f"{self.tmp_path}/xanes_3/feff.inp")
         output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/xanes_3_regen/feff.inp")
-        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
-        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :])
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 
@@ -223,7 +222,7 @@ TITLE sites: 4
         struct_reci = Structure.from_file(f"{self.tmp_path}/Dup_reci/Co2O2.cif")
         assert struct_orig == struct_reci
 
-    def test_post_distdiff(self):
+    def test_post_dist_diff(self):
         feff_dict_input = FEFFDictSet.from_directory(f"{TEST_FILES_DIR}/feff_dist_test")
         assert feff_dict_input.tags == Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
         assert str(feff_dict_input.header()) == str(Header.from_file(f"{TEST_FILES_DIR}/feff_dist_test/HEADER"))
@@ -232,8 +231,8 @@ TITLE sites: 4
         output_tags = Tags.from_file(f"{self.tmp_path}/feff_dist_regen/PARAMETERS")
         origin_mole = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
         output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/feff_dist_regen/feff.inp")
-        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
-        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :])
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 
@@ -259,3 +258,10 @@ TITLE sites: 4
             },
         )
         assert str(dict_set) is not None
+
+    def test_cluster_index(self):
+        # https://github.com/materialsproject/pymatgen/pull/3256
+        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        structure = CifParser(cif_file).get_structures()[0]
+        for idx in range(len(structure.species)):
+            assert Atoms(structure, idx, 3).cluster

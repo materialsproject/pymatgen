@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Generator
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import reverse_readline
@@ -13,6 +13,9 @@ from monty.json import MSONable
 from monty.serialization import zopen
 
 from pymatgen.core.structure import Molecule
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
@@ -146,7 +149,7 @@ class AdfKey(MSONable):
 
     def is_block_key(self) -> bool:
         """Return True if this key is a block key."""
-        return bool(self.name.upper() in self.block_keys)
+        return self.name.upper() in self.block_keys
 
     @property
     def key(self):
@@ -320,7 +323,7 @@ class AdfKey(MSONable):
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "name": self.name,
@@ -330,8 +333,8 @@ class AdfKey(MSONable):
             subkeys = []
             for subkey in self.subkeys:
                 subkeys.append(subkey.as_dict())
-            d.update({"subkeys": subkeys})
-        return d
+            dct["subkeys"] = subkeys
+        return dct
 
     @classmethod
     def from_dict(cls, d):

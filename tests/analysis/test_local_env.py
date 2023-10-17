@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from math import pi
 from shutil import which
 from typing import get_args
@@ -60,7 +59,7 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
 
     def test_valences_ionic_structure(self):
@@ -72,10 +71,6 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
         radii_dict = self._mgo_valrad_evaluator.radii
         for rad in list(radii_dict.values()):
             assert rad in {0.86, 1.26}
-
-    def tearDown(self):
-        del self._mgo_uc
-        del self._mgo_valrad_evaluator
 
 
 class TestVoronoiNN(PymatgenTest):
@@ -203,7 +198,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_Cs2O(self):
         """A problematic structure in the Materials Project."""
-        strc = Structure(
+        struct = Structure(
             [
                 [4.358219, 0.192833, 6.406960],
                 [2.114414, 3.815824, 6.406960],
@@ -215,7 +210,7 @@ class TestVoronoiNN(PymatgenTest):
         )
 
         # Compute the voronoi tessellation
-        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        result = VoronoiNN().get_all_voronoi_polyhedra(struct)
         assert len(result) == 3
 
     def test_filtered(self):
@@ -284,10 +279,6 @@ class TestJmolNN(PymatgenTest):
         # Verify get_nn function works
         assert len(self.jmol_update.get_nn(struct, 0)) == 2
 
-    def tearDown(self):
-        del self.jmol
-        del self.jmol_update
-
 
 class TestIsayevNN(PymatgenTest):
     def test_get_nn(self):
@@ -331,10 +322,6 @@ class TestOpenBabelNN(PymatgenTest):
 
         assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, abs=1e-2)
 
-    def tearDown(self):
-        del self.benzene
-        del self.acetylene
-
 
 class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
@@ -373,10 +360,6 @@ class TestCovalentBondNN(PymatgenTest):
 
         acetylene = strategy.get_bonded_structure(self.acetylene)
         assert len(acetylene.graph.nodes) == 4
-
-    def tearDown(self):
-        del self.benzene
-        del self.acetylene
 
 
 class TestMiniDistNN(PymatgenTest):
@@ -621,9 +604,6 @@ class TestNearNeighbor(PymatgenTest):
             "take_max_species",
             "error",
         )
-
-    def tearDown(self):
-        del self.diamond
 
 
 class TestLocalStructOrderParams(PymatgenTest):
@@ -1189,29 +1169,6 @@ class TestLocalStructOrderParams(PymatgenTest):
         with pytest.raises(ValueError, match="Neighbor site index beyond maximum!"):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
-    def tearDown(self):
-        del self.single_bond
-        del self.linear
-        del self.bent45
-        del self.cubic
-        del self.fcc
-        del self.bcc
-        del self.hcp
-        del self.diamond
-        del self.regular_triangle
-        del self.square
-        del self.square_pyramid
-        del self.trigonal_off_plane
-        del self.trigonal_pyramid
-        del self.trigonal_planar
-        del self.square_planar
-        del self.pentagonal_pyramid
-        del self.hexagonal_pyramid
-        del self.pentagonal_bipyramid
-        del self.T_shape
-        del self.cuboctahedron
-        del self.see_saw_rect
-
 
 class TestCrystalNN(PymatgenTest):
     def setUp(self):
@@ -1219,8 +1176,6 @@ class TestCrystalNN(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure("He_BCC")
         self.he_bcc.add_oxidation_state_by_guess()
-        self.prev_warnings = warnings.filters
-        warnings.simplefilter("ignore")
 
         self.disordered_struct = Structure(
             Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1228,9 +1183,6 @@ class TestCrystalNN(PymatgenTest):
         self.disordered_struct_with_majority = Structure(
             Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
         )
-
-    def tearDown(self):
-        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         cnn = CrystalNN()
@@ -1279,7 +1231,7 @@ class TestCrystalNN(PymatgenTest):
         # fmt: on
         s = self.lifepo4.copy()
         s.remove_oxidation_states()
-        for idx, _ in enumerate(s):
+        for idx in range(len(s)):
             cn_array.append(cnn.get_cn(s, idx, use_weights=True))
 
         assert_allclose(expected_array, cn_array, 2)
@@ -1371,11 +1323,6 @@ class TestCutOffDictNN(PymatgenTest):
             [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True,
         )
-        self.prev_warnings = warnings.filters
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.filters = self.prev_warnings
 
     def test_cn(self):
         nn = CutOffDictNN({("C", "C"): 2})
@@ -1402,11 +1349,6 @@ class TestCritic2NN(PymatgenTest):
             [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True,
         )
-        self.prev_warnings = warnings.filters
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.filters = self.prev_warnings
 
     def test_cn(self):
         Critic2NN()
@@ -1466,16 +1408,16 @@ class TestMetalEdgeExtender(PymatgenTest):
 
         # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
         uncharged_K_cluster = Molecule.from_file(f"{test_dir}/water_cluster_K.xyz")
-        K_sites = [s.coords for s in uncharged_K_cluster.sites]
-        K_species = [s.species for s in uncharged_K_cluster.sites]
+        K_sites = [s.coords for s in uncharged_K_cluster]
+        K_species = [s.species for s in uncharged_K_cluster]
         charged_K_cluster = Molecule(K_species, K_sites, charge=1)
         self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
         assert len(self.water_cluster_K.graph.edges) == 0
 
         # Mg + 6 H2O at 1.94 Ang from Mg
         uncharged_Mg_cluster = Molecule.from_file(f"{test_dir}/water_cluster_Mg.xyz")
-        Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
-        Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
+        Mg_sites = [s.coords for s in uncharged_Mg_cluster]
+        Mg_species = [s.species for s in uncharged_Mg_cluster]
         charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
         self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
 

@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import os
 import unittest
-import warnings
 from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -38,10 +38,6 @@ class TestDosPlotter(PymatgenTest):
         with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_add_dos_dict(self):
         dct = self.plotter.get_dos_dict()
@@ -59,8 +55,6 @@ class TestDosPlotter(PymatgenTest):
     # it can actually execute.
     def test_get_plot(self):
         # Disabling latex is needed for this test to work.
-        from matplotlib import rc
-
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         ax = self.plotter.get_plot()
@@ -115,10 +109,6 @@ class TestBSPlotter(unittest.TestCase):
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])
         assert len(self.plotter_multi._bs) == 2, "wrong number of band objects"
         assert self.plotter_multi._nb_bands == [96, 96], "wrong number of bands"
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_add_bs(self):
         self.plotter_multi.add_bs(self.sbs_sc)
@@ -205,10 +195,6 @@ class TestBSPlotterProjected(unittest.TestCase):
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -223,12 +209,6 @@ class TestBSPlotterProjected(unittest.TestCase):
 
 
 class TestBSDOSPlotter(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
@@ -286,10 +266,6 @@ class TestPlotBZ(unittest.TestCase):
         ]
         self.center = [0.41, 0.0, 0.41]
         self.points = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_bz_plot(self):
         _, ax = plot_ellipsoid(self.hessian, self.center, lattice=self.rec_latt)
@@ -318,10 +294,6 @@ class TestBoltztrapPlotter(unittest.TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_plot_carriers(self):
         ax = self.plotter.plot_carriers()
@@ -460,17 +432,13 @@ class TestBoltztrapPlotter(unittest.TestCase):
 class TestCohpPlotter(PymatgenTest):
     def setUp(self):
         path = f"{TEST_FILES_DIR}/cohp/complete_cohp_lobster.json"
-        with open(os.path.join(path)) as f:
-            self.cohp = CompleteCohp.from_dict(json.load(f))
+        with open(path) as file:
+            self.cohp = CompleteCohp.from_dict(json.load(file))
         path = f"{TEST_FILES_DIR}/cohp/complete_coop_lobster.json"
-        with open(os.path.join(path)) as f:
-            self.coop = CompleteCohp.from_dict(json.load(f))
+        with open(path) as file:
+            self.coop = CompleteCohp.from_dict(json.load(file))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
         self.coop_plot = CohpPlotter(are_coops=True)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_attributes(self):
         assert not self.cohp_plot.are_coops

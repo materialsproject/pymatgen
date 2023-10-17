@@ -90,15 +90,12 @@ class EnergyAdjustment(MSONable):
         """Return an explanation of how the energy adjustment is calculated."""
 
     def __repr__(self):
-        name, value, uncertainty = self.name, float(self.value), self.uncertainty
+        name, value, uncertainty, description = self.name, float(self.value), self.uncertainty, self.description
         # self.cls might not be a dict if monty decoding is enabled in the new MPRester
         # which hydrates all dicts with @class and @module keys into classes in which case
         # we expect a Compatibility subclass
         generated_by = self.cls.get("@class", "unknown") if isinstance(self.cls, dict) else type(self.cls).__name__
-        return (
-            f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, "
-            f"description={self.description}, {generated_by=})"
-        )
+        return f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, {description=}, {generated_by=})"
 
 
 class ConstantEnergyAdjustment(EnergyAdjustment):
@@ -473,7 +470,9 @@ class ComputedEntry(Entry):
     @classmethod
     def from_dict(cls, d) -> ComputedEntry:
         """:param d: Dict representation.
-        :return: ComputedEntry
+
+        Returns:
+            ComputedEntry
         """
         dec = MontyDecoder()
         # the first block here is for legacy ComputedEntry that were
@@ -599,14 +598,16 @@ class ComputedStructureEntry(ComputedEntry):
 
     def as_dict(self) -> dict:
         """MSONable dict."""
-        d = super().as_dict()
-        d["structure"] = self.structure.as_dict()
-        return d
+        dct = super().as_dict()
+        dct["structure"] = self.structure.as_dict()
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> ComputedStructureEntry:
         """:param d: Dict representation.
-        :return: ComputedStructureEntry
+
+        Returns:
+            ComputedStructureEntry
         """
         dec = MontyDecoder()
         # the first block here is for legacy ComputedEntry that were
@@ -651,10 +652,10 @@ class ComputedStructureEntry(ComputedEntry):
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)
-        d = super().normalize(mode).as_dict()
-        d["structure"] = self.structure.as_dict()
-        entry = self.from_dict(d)
-        entry._composition /= factor  # pylint: disable=E1101
+        dct = super().normalize(mode).as_dict()
+        dct["structure"] = self.structure.as_dict()
+        entry = self.from_dict(dct)
+        entry._composition /= factor
         return entry
 
     def copy(self) -> ComputedStructureEntry:
@@ -926,17 +927,19 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     def as_dict(self) -> dict:
         """MSONable dict."""
-        d = super().as_dict()
-        d["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom
-        d["temp"] = self.temp
-        d["gibbs_model"] = self.gibbs_model
-        d["interpolated"] = self.interpolated
-        return d
+        dct = super().as_dict()
+        dct["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom
+        dct["temp"] = self.temp
+        dct["gibbs_model"] = self.gibbs_model
+        dct["interpolated"] = self.interpolated
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> GibbsComputedStructureEntry:
         """:param d: Dict representation.
-        :return: GibbsComputedStructureEntry
+
+        Returns:
+            GibbsComputedStructureEntry
         """
         dec = MontyDecoder()
         return cls(

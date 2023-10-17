@@ -132,7 +132,7 @@ class NwTask(MSONable):
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn(f"Basis set {b} not in in NWCHEM_BASIS_LIBRARY")
+                    warnings.warn(f"Basis set {b} not in NWCHEM_BASIS_LIBRARY")
 
         self.basis_set_option = basis_set_option
 
@@ -265,7 +265,7 @@ $theory_spec
         title = title if title is not None else f"{formula} {theory} {operation}"
 
         charge = charge if charge is not None else mol.charge
-        n_electrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
+        n_electrons = -charge + mol.charge + mol.nelectrons
         if spin_multiplicity is not None:
             if (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(f"{charge=} and {spin_multiplicity=} is not possible for this molecule")
@@ -364,21 +364,20 @@ class NwInput(MSONable):
         return self._mol
 
     def __str__(self):
-        o = []
+        out = []
         if self.memory_options:
-            o.append("memory " + self.memory_options)
+            out.append("memory " + self.memory_options)
         for d in self.directives:
-            o.append(f"{d[0]} {d[1]}")
-        o.append("geometry " + " ".join(self.geometry_options))
+            out.append(f"{d[0]} {d[1]}")
+        out.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
-            o.append(" symmetry " + " ".join(self.symmetry_options))
+            out.append(" symmetry " + " ".join(self.symmetry_options))
         for site in self._mol:
-            o.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
-        o.append("end\n")
+            out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
+        out.append("end\n")
         for t in self.tasks:
-            o.append(str(t))
-            o.append("")
-        return "\n".join(o)
+            out.extend((str(t), ""))
+        return "\n".join(out)
 
     def write_file(self, filename):
         """
@@ -446,64 +445,64 @@ class NwInput(MSONable):
             if line == "":
                 continue
 
-            toks = line.split()
-            if toks[0].lower() == "geometry":
-                geom_options = toks[1:]
+            tokens = line.split()
+            if tokens[0].lower() == "geometry":
+                geom_options = tokens[1:]
                 line = lines.pop(0).strip()
-                toks = line.split()
-                if toks[0].lower() == "symmetry":
-                    symmetry_options = toks[1:]
+                tokens = line.split()
+                if tokens[0].lower() == "symmetry":
+                    symmetry_options = tokens[1:]
                     line = lines.pop(0).strip()
                 # Parse geometry
                 species = []
                 coords = []
                 while line.lower() != "end":
-                    toks = line.split()
-                    species.append(toks[0])
-                    coords.append([float(i) for i in toks[1:]])
+                    tokens = line.split()
+                    species.append(tokens[0])
+                    coords.append([float(i) for i in tokens[1:]])
                     line = lines.pop(0).strip()
                 mol = Molecule(species, coords)
-            elif toks[0].lower() == "charge":
-                charge = int(toks[1])
-            elif toks[0].lower() == "title":
+            elif tokens[0].lower() == "charge":
+                charge = int(tokens[1])
+            elif tokens[0].lower() == "title":
                 title = line[5:].strip().strip('"')
-            elif toks[0].lower() == "basis":
+            elif tokens[0].lower() == "basis":
                 # Parse basis sets
                 line = lines.pop(0).strip()
                 basis_set = {}
                 while line.lower() != "end":
-                    toks = line.split()
-                    basis_set[toks[0]] = toks[-1].strip('"')
+                    tokens = line.split()
+                    basis_set[tokens[0]] = tokens[-1].strip('"')
                     line = lines.pop(0).strip()
-            elif toks[0].lower() in NwTask.theories:
+            elif tokens[0].lower() in NwTask.theories:
                 # read the basis_set_option
-                if len(toks) > 1:
-                    basis_set_option = toks[1]
+                if len(tokens) > 1:
+                    basis_set_option = tokens[1]
                 # Parse theory directives.
-                theory = toks[0].lower()
+                theory = tokens[0].lower()
                 line = lines.pop(0).strip()
                 theory_directives[theory] = {}
                 while line.lower() != "end":
-                    toks = line.split()
-                    theory_directives[theory][toks[0]] = toks[-1]
-                    if toks[0] == "mult":
-                        spin_multiplicity = float(toks[1])
+                    tokens = line.split()
+                    theory_directives[theory][tokens[0]] = tokens[-1]
+                    if tokens[0] == "mult":
+                        spin_multiplicity = float(tokens[1])
                     line = lines.pop(0).strip()
-            elif toks[0].lower() == "task":
+            elif tokens[0].lower() == "task":
                 tasks.append(
                     NwTask(
                         charge=charge,
                         spin_multiplicity=spin_multiplicity,
                         title=title,
-                        theory=toks[1],
-                        operation=toks[2],
+                        theory=tokens[1],
+                        operation=tokens[2],
                         basis_set=basis_set,
                         basis_set_option=basis_set_option,
-                        theory_directives=theory_directives.get(toks[1]),
+                        theory_directives=theory_directives.get(tokens[1]),
                     )
                 )
-            elif toks[0].lower() == "memory":
-                memory_options = " ".join(toks[1:])
+            elif tokens[0].lower() == "memory":
+                memory_options = " ".join(tokens[1:])
             else:
                 directives.append(line.strip().split())
 
@@ -609,8 +608,8 @@ class NwOutput:
                 state = "triplet"
 
             elif inside and "Root" in line and "eV" in line:
-                toks = line.split()
-                roots[state].append({"energy": float(toks[-2])})
+                tokens = line.split()
+                roots[state].append({"energy": float(tokens[-2])})
 
             elif inside and "Dipole Oscillator Strength" in line:
                 osc = float(line.split()[-1])
@@ -669,13 +668,13 @@ class NwOutput:
     def _parse_preamble(preamble):
         info = {}
         for line in preamble.split("\n"):
-            toks = line.split("=")
-            if len(toks) > 1:
-                info[toks[0].strip()] = toks[-1].strip()
+            tokens = line.split("=")
+            if len(tokens) > 1:
+                info[tokens[0].strip()] = tokens[-1].strip()
         return info
 
     def __iter__(self):
-        return self.data.__iter__()
+        return iter(self.data)
 
     def __getitem__(self, ind):
         return self.data[ind]
@@ -739,7 +738,6 @@ class NwOutput:
         time = 0
 
         for line in output.split("\n"):
-            # pylint: disable=E1136
             for e, v in error_defs.items():
                 if line.find(e) != -1:
                     errors.append(v)
@@ -802,11 +800,11 @@ class NwOutput:
                 if line.strip() == "":
                     parse_bset = False
                 else:
-                    toks = line.split()
-                    if toks[0] != "Tag" and not re.match(r"-+", toks[0]):
-                        basis_set[toks[0]] = dict(zip(bset_header[1:], toks[1:]))
-                    elif toks[0] == "Tag":
-                        bset_header = toks
+                    tokens = line.split()
+                    if tokens[0] != "Tag" and not re.match(r"-+", tokens[0]):
+                        basis_set[tokens[0]] = dict(zip(bset_header[1:], tokens[1:]))
+                    elif tokens[0] == "Tag":
+                        bset_header = tokens
                         bset_header.pop(4)
                         bset_header = [h.lower() for h in bset_header]
 
@@ -816,15 +814,15 @@ class NwOutput:
                 if len(hessian) > 0 and line.find("----------") != -1:
                     parse_hess = False
                     continue
-                toks = line.strip().split()
-                if len(toks) > 1:
+                tokens = line.strip().split()
+                if len(tokens) > 1:
                     try:
-                        row = int(toks[0])
+                        row = int(tokens[0])
                     except Exception:
                         continue
-                    if isfloatstring(toks[1]):
+                    if isfloatstring(tokens[1]):
                         continue
-                    vals = [float(fort2py(x)) for x in toks[1:]]
+                    vals = [float(fort2py(x)) for x in tokens[1:]]
                     if len(hessian) < row:
                         hessian.append(vals)
                     else:
@@ -834,15 +832,15 @@ class NwOutput:
                 if line.strip() == "":
                     continue
                 nat3 = len(hessian)
-                toks = line.strip().split()
-                if len(toks) > 1:
+                tokens = line.strip().split()
+                if len(tokens) > 1:
                     try:
-                        row = int(toks[0])
+                        row = int(tokens[0])
                     except Exception:
                         continue
-                    if isfloatstring(toks[1]):
+                    if isfloatstring(tokens[1]):
                         continue
-                    vals = [float(fort2py(x)) for x in toks[1:]]
+                    vals = [float(fort2py(x)) for x in tokens[1:]]
                     if len(projected_hessian) < row:
                         projected_hessian.append(vals)
                     else:
@@ -861,7 +859,7 @@ class NwOutput:
                 if m:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
-                    energies[-1].update({"cosmo scf": cosmo_scf_energy})
+                    energies[-1]["cosmo scf"] = cosmo_scf_energy
                     energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = energy_sol_patt.search(line)
@@ -884,12 +882,12 @@ class NwOutput:
                     parse_projected_freq = True
                     if frequencies is None:
                         frequencies = []
-                    toks = line.strip().split()[1:]
-                    frequencies.extend([(float(freq), []) for freq in toks])
+                    tokens = line.strip().split()[1:]
+                    frequencies.extend([(float(freq), []) for freq in tokens])
 
                 elif line.find("Frequency") != -1:
-                    toks = line.strip().split()
-                    if len(toks) > 1 and toks[0] == "Frequency":
+                    tokens = line.strip().split()
+                    if len(tokens) > 1 and tokens[0] == "Frequency":
                         parse_freq = True
                         if normal_frequencies is None:
                             normal_frequencies = []
