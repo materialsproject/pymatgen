@@ -227,6 +227,12 @@ class TestPeriodicSite(PymatgenTest):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
         assert repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
 
+    def test_str(self):
+        assert str(self.site) == "[2.5 3.5 4.5] Fe"
+        assert str(self.site2) == "[0. 0. 0.] Si:0.500"
+        assert str(self.propertied_site) == "[2.5 3.5 4.5] Fe2+"
+        assert str(self.labeled_site) == "[2.5 3.5 4.5] Fe"
+
 
 def get_distance_and_image_old(site1, site2, jimage=None):
     """
