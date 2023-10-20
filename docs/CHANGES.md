@@ -182,17 +182,6 @@ nav_order: 4
 - xyz.**iter**() -> iter(xyz) by @janosh in <https://github.com/materialsproject/pymatgen/pull/3228>
 - Deprecate overlooked `from/as_..._string` methods by @janosh in <https://github.com/materialsproject/pymatgen/pull/3295>
 
-## New Contributors
-
-- @mbercx made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3260>
-- @jonathanjdenney made their first contribution in <https://github.com/materialsproject/pymatgen/pull/2836>
-- @kaifengZheng made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3256>
-- @Na-Kawa made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3261>
-- @SophiaRuan made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3254>
-- @LucasGVerga made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3286>
-
-**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.8.10...v2023.9.2>
-
 ## v2023.8.10
 
 - fix `estimate_nbands` function by @matthewkuner in <https://github.com/materialsproject/pymatgen/pull/3149>
