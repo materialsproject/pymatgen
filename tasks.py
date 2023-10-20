@@ -14,7 +14,6 @@ import os
 import re
 import subprocess
 import webbrowser
-from glob import glob
 
 import requests
 from invoke import task
