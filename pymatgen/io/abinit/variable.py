@@ -176,7 +176,7 @@ class InputVariable:
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in flattened_list):
                 fmt_spec = f">{n_dec + 5}.{n_dec}f"
             else:
-                fmt_spec = f">{n_dec + 8}.{n_dec}e"  # noqa: F841
+                fmt_spec = f">{n_dec + 8}.{n_dec}e"
 
         line = "\n"
         for lst in values:
