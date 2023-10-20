@@ -64,6 +64,7 @@ def make_doc(ctx):
         #     with open(fn, "w") as f:
         #         f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
+        ctx.run("rm -r html", warn=True)
         # ctx.run("cp ../README.md index.md")
         ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf doctrees", warn=True)
