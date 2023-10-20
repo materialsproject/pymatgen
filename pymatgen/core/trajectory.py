@@ -17,6 +17,9 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
+from pymatgen.io.ase import AseAtomsAdaptor
+
+from ase.io.trajectory import Trajectory as ASE_Trajectory
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -525,7 +528,7 @@ class Trajectory(MSONable):
 
     @classmethod
     def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
-        """Create trajectory from XDATCAR or vasprun.xml file.
+        """Create trajectory from XDATCAR or vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:
             filename: Path to the file to read from.
@@ -542,15 +545,29 @@ class Trajectory(MSONable):
             structures = Xdatcar(filename).structures
         elif fnmatch(fname, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
+        elif fnmatch(fname, "*.traj"):
+            ase_traj = ASE_Trajectory(fname)
+            pbc = ase_traj[0].pbc
+            if any(pbc):
+                structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
+            else:
+                molecules = [AseAtomsAdaptor.get_molecule(atoms) for atoms in ase_traj]
+
         else:
             supported = ("XDATCAR", "vasprun.xml")
             raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
 
-        return cls.from_structures(
-            structures,
-            constant_lattice=constant_lattice,
-            **kwargs,
-        )
+        if 'structures' in locals():
+            return cls.from_structures(
+                structures,
+                constant_lattice=constant_lattice,
+                **kwargs,
+            )
+        elif 'molecules' in locals():
+            return cls.from_molecules(
+                molecules,
+                **kwargs,
+            )
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
