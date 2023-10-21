@@ -12,14 +12,13 @@ from pathlib import Path
 from typing import Any, Union
 
 import numpy as np
+from ase.io.trajectory import Trajectory as ASE_Trajectory
 from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
-from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 from pymatgen.io.ase import AseAtomsAdaptor
-
-from ase.io.trajectory import Trajectory as ASE_Trajectory
+from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -557,7 +556,7 @@ class Trajectory(MSONable):
             supported = ("XDATCAR", "vasprun.xml")
             raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
 
-        if 'structures' in locals():
+        if "structures" in locals():
             return cls.from_structures(
                 structures,
                 constant_lattice=constant_lattice,
@@ -568,6 +567,7 @@ class Trajectory(MSONable):
                 molecules,
                 **kwargs,
             )
+        return None
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
