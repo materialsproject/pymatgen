@@ -163,20 +163,20 @@ class InputVariable:
                 type_all = str
 
         # Determine the format
-        width = max(len(str(s)) for s in flattened_list)
-        if type_all is int:
-            fmt_spec = f">{width}d"
-        elif type_all is str:
-            fmt_spec = f">{width}"
+        max(len(str(s)) for s in flattened_list)
+        if type_all == int:
+            pass
+        elif type_all == str:
+            pass
         else:
             # Number of decimal
             max_dec = max(len(str(f - int(f))) - 2 for f in flattened_list)
             n_dec = min(max(max_dec, float_decimal), 10)
 
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in flattened_list):
-                fmt_spec = f">{n_dec + 5}.{n_dec}f"
+                f">{n_dec + 5}.{n_dec}f"
             else:
-                fmt_spec = f">{n_dec + 8}.{n_dec}e"
+                f">{n_dec + 8}.{n_dec}e"
 
         line = "\n"
         for lst in values:
