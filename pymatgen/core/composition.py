@@ -632,7 +632,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
+                {"Fe": 4.0, "O": 6.0}.
         """
         dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
@@ -645,7 +645,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+                {"Fe": 4.0, "O": 6.0} or {"Fe3+": 4.0, "O2-": 6.0}
         """
         dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():

@@ -47,6 +47,7 @@ import subprocess
 import warnings
 from glob import glob
 from shutil import which
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -54,6 +55,9 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
@@ -74,24 +78,23 @@ class ChargemolAnalysis:
 
     def __init__(
         self,
-        path=None,
-        atomic_densities_path=None,
-        run_chargemol=True,
-    ):
+        path: str | Path | None = None,
+        atomic_densities_path: str | Path | None = None,
+        run_chargemol: bool = True,
+    ) -> None:
         """Initializes the Chargemol Analysis.
 
         Args:
             path (str): Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.
                 The files can be gzipped or not. Default: None (current working directory).
-            atomic_densities_path (str|None): Path to the atomic densities directory
+            atomic_densities_path (str | None): Path to the atomic densities directory
                 required by Chargemol. If None, Pymatgen assumes that this is
                 defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Only used if run_chargemol is True. Default: None.
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
                 the existing Chargemol output files will be read from path. Default: True.
         """
-        if not path:
-            path = os.getcwd()
+        path = path or os.getcwd()
         if run_chargemol and not CHARGEMOL_EXE:
             raise OSError(
                 "ChargemolAnalysis requires the Chargemol executable to be in PATH."
@@ -362,17 +365,17 @@ class ChargemolAnalysis:
             )
 
         # atomic_densities dir
-        atomic_densities_path = self._atomic_densities_path or os.getenv("DDEC6_ATOMIC_DENSITIES_DIR", None)
+        atomic_densities_path = self._atomic_densities_path or os.getenv("DDEC6_ATOMIC_DENSITIES_DIR")
         if atomic_densities_path is None:
             raise OSError(
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
                 " be specified"
             )
         if not os.path.exists(atomic_densities_path):
-            raise OSError(f"Cannot find the path to the atomic densities at {atomic_densities_path}")
+            raise FileNotFoundError(f"{atomic_densities_path=} does not exist")
 
         # This is to fix a Chargemol filepath nuance
-        if os.name == "nt":
+        if os.name == "nt":  # Windows
             if atomic_densities_path[-1] != "\\":
                 atomic_densities_path += "\\"
         elif atomic_densities_path[-1] != "/":
@@ -400,21 +403,21 @@ class ChargemolAnalysis:
         Args:
             filepath (str): The path to the DDEC6_even_tempered_net_atomic_charges.xyz file
         """
-        i = 0
+        idx = 0
         start = False
         dipoles = []
         with open(filepath) as r:
             for line in r:
                 if "The following XYZ" in line:
                     start = True
-                    i += 1
+                    idx += 1
                     continue
                 if start and line.strip() == "":
                     break
-                if i >= 2:
+                if idx >= 2:
                     dipoles.append([float(d) for d in line.strip().split()[7:10]])
                 if start:
-                    i += 1
+                    idx += 1
 
         return dipoles
 
@@ -441,15 +444,14 @@ class ChargemolAnalysis:
                     end_el = Element(split[14])
                     bo = float(split[20])
                     spin_bo = float(split[-1])
-                    bond_order_info[start_idx]["bonded_to"].append(
-                        {
-                            "index": end_idx,
-                            "element": end_el,
-                            "bond_order": bo,
-                            "direction": direction,
-                            "spin_polarization": spin_bo,
-                        }
-                    )
+                    bonded_to = {
+                        "index": end_idx,
+                        "element": end_el,
+                        "bond_order": bo,
+                        "direction": direction,
+                        "spin_polarization": spin_bo,
+                    }
+                    bond_order_info[start_idx]["bonded_to"].append(bonded_to)
                 elif "The sum of bond orders for this atom" in line:
                     bond_order_info[start_idx]["bond_order_sum"] = float(split[-1])
 
@@ -478,24 +480,22 @@ class ChargemolAnalysis:
     def summary(self):
         """Returns a dictionary summary of the Chargemol analysis
         {
-        "ddec": {
-        "partial_charges": List[float],
-        "spin_moments": List[float],
-        "dipoles": List[float],
-        "rsquared_moments": List[float],
-        "rcubed_moments": List[float],
-        "rfourth_moments": List[float],
-        "bond_order_dict": Dict
-        },
-        "cm5": {
-        "partial_charges": List[float],
-        }
+            "ddec": {
+                "partial_charges": list[float],
+                "spin_moments": list[float],
+                "dipoles": list[float],
+                "rsquared_moments": list[float],
+                "rcubed_moments": list[float],
+                "rfourth_moments": list[float],
+                "bond_order_dict": dict
+            },
+            "cm5": {
+                "partial_charges": list[float],
+            }
         }.
         """
         summary = {}
-        ddec_summary = {
-            "partial_charges": self.ddec_charges,
-        }
+        ddec_summary = {"partial_charges": self.ddec_charges}
         if self.bond_order_sums:
             ddec_summary["bond_order_sums"] = self.bond_order_sums
         if self.ddec_spin_moments:

@@ -1878,7 +1878,7 @@ class MinimumVIRENN(NearNeighbors):
 
 
 def _get_vire(structure: Structure | IStructure):
-    """Get the ValenceIonicRadiusEvaluator object for an structure taking
+    """Get the ValenceIonicRadiusEvaluator object for a structure taking
     advantage of caching.
 
     Args:

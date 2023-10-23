@@ -369,7 +369,7 @@ class SpacegroupAnalyzer:
 
         Returns:
             A primitive cell in the input cell is searched and returned
-            as an Structure object. If no primitive cell is found, None is
+            as a Structure object. If no primitive cell is found, None is
             returned.
         """
         lattice, scaled_positions, numbers = spglib.find_primitive(self._cell, symprec=self._symprec)
