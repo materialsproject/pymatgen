@@ -64,6 +64,7 @@ def make_doc(ctx):
         #         f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
+        ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
         # ctx.run("cp ../README.md index.md")
         ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf doctrees", warn=True)
