@@ -152,8 +152,6 @@ class Cohp(MSONable):
         spin: Spin
         limit: -COHP smaller -limit will be considered.
         """
-        warnings.warn("This method has not been tested on many examples. Check the parameter limit, pls!")
-
         populations = self.cohp
         number_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
 
