@@ -1139,7 +1139,7 @@ class CifParser:
 
     def get_structures(
         self,
-        primitive: bool = True,
+        primitive: bool = False,
         symmetrized: bool = False,
         check_occu: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "warn",
@@ -1147,8 +1147,8 @@ class CifParser:
         """Return list of structures in CIF file.
 
         Args:
-            primitive (bool): Set to False to return conventional unit cells.
-                Defaults to True. With magnetic CIF files, will return primitive
+            primitive (bool): Set to True to return primitive unit cells.
+                Defaults to False. With magnetic CIF files, True will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
             symmetrized (bool): If True, return a SymmetrizedStructure which will
                 include the equivalent indices and symmetry operations used to
@@ -1331,18 +1331,18 @@ class CifWriter:
                 # primitive to conventional structures, the standard for CIF.
                 struct = sf.get_refined_structure()
 
-        latt = struct.lattice
+        lattice = struct.lattice
         comp = struct.composition
         no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ["a", "b", "c"]:
-            block["_cell_length_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_length_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
         for cell_attr in ["alpha", "beta", "gamma"]:
-            block["_cell_angle_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_angle_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
-        block["_cell_volume"] = format_str.format(latt.volume)
+        block["_cell_volume"] = format_str.format(lattice.volume)
 
         reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
@@ -1408,7 +1408,7 @@ class CifWriter:
 
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
-                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
+                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, lattice)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")
                         atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
                         atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
