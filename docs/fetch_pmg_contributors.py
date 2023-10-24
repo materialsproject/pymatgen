@@ -12,7 +12,7 @@ import pandas as pd
 import requests
 from tqdm import tqdm
 
-from docs.secrets import GH_TOKEN
+from docs.tokens import GH_TOKEN
 
 __author__ = "Janosh Riebesell"
 __date__ = "2023-08-11"

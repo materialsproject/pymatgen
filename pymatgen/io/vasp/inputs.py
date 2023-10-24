@@ -626,8 +626,8 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
-with open(f"{module_dir}/incar_parameters.json") as incar_params:
-    incar_params = json.loads(incar_params.read())
+with open(f"{module_dir}/incar_parameters.json") as json_file:
+    incar_params = json.loads(json_file.read())
 
 
 class BadIncarWarning(UserWarning):

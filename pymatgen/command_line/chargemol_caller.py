@@ -105,25 +105,27 @@ class ChargemolAnalysis:
             atomic_densities_path = os.getcwd()
         self._atomic_densities_path = atomic_densities_path
 
-        self._chgcarpath = self._get_filepath(path, "CHGCAR")
-        self._potcarpath = self._get_filepath(path, "POTCAR")
-        self._aeccar0path = self._get_filepath(path, "AECCAR0")
-        self._aeccar2path = self._get_filepath(path, "AECCAR2")
-        if run_chargemol and not (self._chgcarpath and self._potcarpath and self._aeccar0path and self._aeccar2path):
+        self._chgcar_path = self._get_filepath(path, "CHGCAR")
+        self._potcar_path = self._get_filepath(path, "POTCAR")
+        self._aeccar0_path = self._get_filepath(path, "AECCAR0")
+        self._aeccar2_path = self._get_filepath(path, "AECCAR2")
+        if run_chargemol and not (
+            self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
+        ):
             raise FileNotFoundError("CHGCAR, AECCAR0, AECCAR2, and POTCAR are all needed for Chargemol.")
-        if self._chgcarpath:
-            self.chgcar = Chgcar.from_file(self._chgcarpath)
+        if self._chgcar_path:
+            self.chgcar = Chgcar.from_file(self._chgcar_path)
             self.structure = self.chgcar.structure
             self.natoms = self.chgcar.poscar.natoms
         else:
             self.chgcar = self.structure = self.natoms = None
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
-        if self._potcarpath:
-            self.potcar = Potcar.from_file(self._potcarpath)
+        if self._potcar_path:
+            self.potcar = Potcar.from_file(self._potcar_path)
         else:
             warnings.warn("No POTCAR found. Some properties may be unavailable.", UserWarning)
-        self.aeccar0 = Chgcar.from_file(self._aeccar0path) if self._aeccar0path else None
-        self.aeccar2 = Chgcar.from_file(self._aeccar2path) if self._aeccar2path else None
+        self.aeccar0 = Chgcar.from_file(self._aeccar0_path) if self._aeccar0_path else None
+        self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
 
         if run_chargemol:
             self._execute_chargemol()
@@ -141,7 +143,7 @@ class ChargemolAnalysis:
             suffix (str): Optional suffix at the end of the filename.
 
         Returns:
-            (str): Absolute path to the file.
+            str: Absolute path to the file.
         """
         name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
         paths = glob(os.path.join(path, name_pattern))
@@ -169,10 +171,10 @@ class ChargemolAnalysis:
         """
         with ScratchDir("."):
             try:
-                os.symlink(self._chgcarpath, "./CHGCAR")
-                os.symlink(self._potcarpath, "./POTCAR")
-                os.symlink(self._aeccar0path, "./AECCAR0")
-                os.symlink(self._aeccar2path, "./AECCAR2")
+                os.symlink(self._chgcar_path, "./CHGCAR")
+                os.symlink(self._potcar_path, "./POTCAR")
+                os.symlink(self._aeccar0_path, "./AECCAR0")
+                os.symlink(self._aeccar2_path, "./AECCAR2")
             except OSError as exc:
                 print(f"Error creating symbolic link: {exc}")
 

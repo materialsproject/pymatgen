@@ -268,8 +268,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (gap, cbm, vbm):
-                Tuple of floats in eV corresponding to the gap, cbm and vbm.
+            (gap, cbm, vbm): Tuple of floats in eV corresponding to the gap, cbm and vbm.
         """
         tdos = self.get_densities(spin)
         if not abs_tol:

@@ -123,7 +123,7 @@ class SpacegroupAnalyzer:
         """Get the spacegroup symbol (e.g., Pnma) for structure.
 
         Returns:
-            (str): Spacegroup symbol for structure.
+            str: Spacegroup symbol for structure.
         """
         return self._space_group_data["international"]
 
@@ -131,7 +131,7 @@ class SpacegroupAnalyzer:
         """Get the international spacegroup number (e.g., 62) for structure.
 
         Returns:
-            (int): International spacegroup number for structure.
+            int: International spacegroup number for structure.
         """
         return int(self._space_group_data["number"])
 
@@ -151,7 +151,7 @@ class SpacegroupAnalyzer:
         """Returns Hall symbol for structure.
 
         Returns:
-            (str): Hall symbol
+            str: Hall symbol
         """
         return self._space_group_data["hall"]
 
@@ -159,7 +159,7 @@ class SpacegroupAnalyzer:
         """Get the point group associated with the structure.
 
         Returns:
-            (Pointgroup): Point group for structure.
+            Pointgroup: Point group for structure.
         """
         rotations = self._space_group_data["rotations"]
         # passing a 0-length rotations list to spglib can segfault
@@ -175,7 +175,7 @@ class SpacegroupAnalyzer:
             ValueError: on invalid space group numbers < 1 or > 230.
 
         Returns:
-            (str): Crystal system for structure
+            str: Crystal system for structure
         """
         n = self._space_group_data["number"]
 
@@ -206,7 +206,7 @@ class SpacegroupAnalyzer:
             ValueError: on invalid space group numbers < 1 or > 230.
 
         Returns:
-            (str): Lattice type for structure
+            str: Lattice type for structure
         """
         n = self._space_group_data["number"]
         system = self.get_crystal_system()
@@ -220,7 +220,7 @@ class SpacegroupAnalyzer:
         """Returns the symmetry dataset as a dict.
 
         Returns:
-            (dict): With the following properties:
+            dict: With the following properties:
                 number: International space group number
                 international: International symbol
                 hall: Hall symbol

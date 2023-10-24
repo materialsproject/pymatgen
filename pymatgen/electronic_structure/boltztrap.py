@@ -899,11 +899,10 @@ class BoltztrapAnalyzer:
         - "avg_corr": average of correlation coefficient over the 8 bands
         - "avg_dist": average of energy distance over the 8 bands
         - "nb_list": list of indexes of the 8 compared bands
-        - "acc_thr": list of two float corresponding to the two warning
-                     thresholds in input
+        - "acc_thr": list of two float corresponding to the two warning thresholds in input
         - "acc_err": list of two bools:
-                     True if the avg_corr > warn_thr[0], and
-                     True if the avg_dist > warn_thr[1]
+            True if the avg_corr > warn_thr[0], and
+            True if the avg_dist > warn_thr[1]
         See also compare_sym_bands function doc.
         """
         if not sbs_ref.is_metal() and not sbs_bz.is_metal():

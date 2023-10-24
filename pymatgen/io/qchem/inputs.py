@@ -113,7 +113,7 @@ class QCInput(InputFile):
                     Ex:
 
                     1. For a single-state calculation with two constraints:
-                     cdft=[[
+                    cdft=[[
                         {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "types": [None]},
                         {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19],
                             "types": ["s"]}
