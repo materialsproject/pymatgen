@@ -343,7 +343,6 @@ class CompletePhononDos(PhononDos):
         return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
-    @classmethod
     def from_dict(cls, dct: dict) -> CompletePhononDos:
         """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(dct)
