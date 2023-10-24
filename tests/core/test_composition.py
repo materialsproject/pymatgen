@@ -439,9 +439,9 @@ class TestComposition(PymatgenTest):
         assert c1 != c2
 
     def test_hash_robustness(self):
-        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
-        c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*1.01}")
-        c3 = Composition(f"O{0.2}Fe{0.8+Composition.amount_tolerance*0.99}")
+        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance * 0.99}")
+        c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance * 1.01}")
+        c3 = Composition(f"O{0.2}Fe{0.8 + Composition.amount_tolerance * 0.99}")
 
         assert c1 == c3, "__eq__ not robust"
         assert (c1 == c3) == (hash(c1) == hash(c3)), "Hash doesn't match eq when true"

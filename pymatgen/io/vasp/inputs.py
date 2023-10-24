@@ -492,7 +492,7 @@ class Poscar(MSONable):
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
 
-        format_str = f"{{:{significant_figures+5}.{significant_figures}f}}"
+        format_str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
         for v in latt.matrix:
             lines.append(" ".join(format_str.format(c) for c in v))
@@ -723,7 +723,7 @@ class Incar(dict, MSONable):
                 else:
                     # float() to ensure backwards compatibility between
                     # float magmoms and Magmom objects
-                    for m, g in itertools.groupby(self[k], lambda x: float(x)):
+                    for m, g in itertools.groupby(self[k], key=float):
                         value.append(f"{len(tuple(g))}*{m}")
 
                 lines.append([k, " ".join(value)])

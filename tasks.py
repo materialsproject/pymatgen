@@ -221,8 +221,6 @@ def release(ctx, version=None, nodoc=False):
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
-    ctx.run("black setup.py")
-    ctx.run("black pymatgen/core/__init__.py")
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
@@ -250,5 +248,5 @@ def open_doc(ctx):
 
 @task
 def lint(ctx):
-    for cmd in ["ruff", "mypy", "black"]:
+    for cmd in ["ruff", "mypy", "ruff format"]:
         ctx.run(f"{cmd} pymatgen")

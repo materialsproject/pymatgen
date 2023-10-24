@@ -597,9 +597,7 @@ class StructureGraph(MSONable):
         self.structure.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
 
-        mapping = {}
-        for correct, current in enumerate(sorted(self.graph.nodes)):
-            mapping[current] = correct
+        mapping = {val: idx for idx, val in enumerate(sorted(self.graph.nodes))}
 
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
@@ -1922,9 +1920,7 @@ class MoleculeGraph(MSONable):
         self.molecule.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
 
-        mapping = {}
-        for correct, current in enumerate(sorted(self.graph.nodes)):
-            mapping[current] = correct
+        mapping = {val: idx for idx, val in enumerate(sorted(self.graph.nodes))}
 
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
@@ -1961,9 +1957,7 @@ class MoleculeGraph(MSONable):
             new_to_old_index += list(nodes)
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
-            mapping = {}
-            for idx, node in enumerate(nodes):
-                mapping[node] = idx
+            mapping = {val: idx for idx, val in enumerate(nodes)}
 
             # just give charge to whatever subgraph has node with index 0
             # TODO: actually figure out how to distribute charge

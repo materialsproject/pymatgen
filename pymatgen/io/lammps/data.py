@@ -390,7 +390,7 @@ class LammpsData(MSONable):
         all_stats = list(counts.values()) + list(types.values())
         right_indent = len(str(max(all_stats)))
         count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
-        type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
+        type_lines = [f"{v:>{right_indent}}  {k + ' types'}" for k, v in types.items()]
         stats = "\n".join([*count_lines, "", *type_lines])
 
         def map_coords(q) -> str:

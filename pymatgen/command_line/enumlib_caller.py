@@ -201,7 +201,7 @@ class EnumlibAdaptor:
         target_sg_num = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sg_num = get_sg_info(curr_sites)
-        ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
+        ordered_sites = sorted(ordered_sites, key=len)
         logger.debug(f"Disordered sites has sg # {sg_num}")
         self.ordered_sites = []
 

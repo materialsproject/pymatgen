@@ -193,16 +193,13 @@ class Unit(collections.abc.Mapping):
             new_units[k] += v
         return Unit(new_units)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         new_units = collections.defaultdict(int)
         for k, v in self.items():
             new_units[k] += v
         for k, v in other.items():
             new_units[k] -= v
         return Unit(new_units)
-
-    def __truediv__(self, other):
-        return self.__div__(other)
 
     def __pow__(self, i):
         return Unit({k: v * i for k, v in self.items()})
@@ -570,15 +567,6 @@ class ArrayWithUnit(np.ndarray):
                 unit=self._unit,
             )
         return self.__class__(np.array(self) * np.array(other), unit=self.unit * other.unit)
-
-    def __div__(self, other):
-        if not hasattr(other, "unit_type"):
-            return self.__class__(
-                np.array(self) / np.array(other),
-                unit_type=self._unit_type,
-                unit=self._unit,
-            )
-        return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
