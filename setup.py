@@ -54,7 +54,6 @@ setup(
         "relaxation": ["matgl", "chgnet"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
-            "black",
             "mypy",
             "pre-commit",
             "pytest-cov",
