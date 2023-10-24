@@ -8,6 +8,7 @@ import re
 import textwrap
 import warnings
 from collections import deque
+from datetime import datetime
 from functools import partial
 from inspect import getfullargspec as getargspec
 from io import StringIO
@@ -1168,6 +1169,14 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
+        if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
+            raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
+        warnings.warn(
+            "The default value of primitive was changed from True to False in "
+            "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
+            "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
+            UserWarning,
+        )
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
