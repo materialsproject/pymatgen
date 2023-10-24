@@ -938,9 +938,7 @@ class Species(MSONable, Stringify):
             return NotImplemented
 
         return (
-            self.symbol == other.symbol
-            and self.oxi_state == other.oxi_state
-            and (self.spin == other.spin)  # type: ignore
+            self.symbol == other.symbol and self.oxi_state == other.oxi_state and (self.spin == other.spin)  # type: ignore
         )
 
     def __hash__(self) -> int:

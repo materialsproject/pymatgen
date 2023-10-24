@@ -355,8 +355,8 @@ class Vasprun(MSONable):
                 elif tag == "dielectricfunction":
                     if (
                         "comment" not in elem.attrib
-                        or elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including "
-                        "local field effects in RPA (Hartree))"
+                        or elem.attrib["comment"]
+                        == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
                     ):
                         if "density" not in self.dielectric_data:
                             self.dielectric_data["density"] = self._parse_diel(elem)
