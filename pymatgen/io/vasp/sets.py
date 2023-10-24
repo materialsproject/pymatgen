@@ -909,8 +909,11 @@ class MPRelaxSet(DictSet):
         for key in self.user_incar_settings:
             incar_updates.pop(key, None)
 
-        for key in self.user_kpoints_settings:
-            kpoints_updates.pop(key, None)
+        if isinstance(self.user_kpoints_settings, dict):
+            for key in self.user_kpoints_settings:
+                kpoints_updates.pop(key, None)
+        elif isinstance(self.user_kpoints_settings, Kpoints):
+            kpoints_updates = {}
 
         self._config_dict["INCAR"].update(incar_updates)
         self._config_dict["KPOINTS"].update(kpoints_updates)
