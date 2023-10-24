@@ -2158,13 +2158,10 @@ class Outcar:
         cs_valence_and_core = self.read_table_pattern(
             h2, row_pattern, footer_pattern, postprocess=float, last_one_only=True
         )
-        all_cs = {}
-        for name, cs_table in [
-            ["valence_only", cs_valence_only],
-            ["valence_and_core", cs_valence_and_core],
-        ]:
-            all_cs[name] = cs_table
-        self.data["chemical_shielding"] = all_cs
+        self.data["chemical_shielding"] = {
+            "valence_only": cs_valence_only,
+            "valence_and_core": cs_valence_and_core,
+        }
 
     def read_cs_g0_contribution(self):
         """

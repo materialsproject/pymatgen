@@ -343,13 +343,12 @@ class CompletePhononDos(PhononDos):
         return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
+    @classmethod
     def from_dict(cls, dct: dict) -> CompletePhononDos:
         """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        pdoss = {}
-        for at, pdos in zip(struct, dct["pdos"]):
-            pdoss[at] = pdos
+        pdoss = dict(zip(struct, dct["pdos"]))
 
         return cls(struct, tdos, pdoss)
 
