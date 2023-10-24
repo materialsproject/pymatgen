@@ -537,8 +537,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         # https://github.com/materialsproject/pymatgen/issues/3040
 
         # structure containing neither f- nor d-electrons
-        structure_f = self.get_structure("Si")
-        assert "LMAXMIX" not in MPRelaxSet(structure_f).incar
+        structure_no_f_no_d = self.get_structure("Si")
+        assert MPRelaxSet(structure_no_f_no_d).incar["LMAXMIX"] == 6
 
         # structure containing d-electrons but no f-electrons
         structure_d = self.get_structure("LiFePO4")
