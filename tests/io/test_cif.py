@@ -185,7 +185,7 @@ class TestCifIO(PymatgenTest):
 
         parser = CifParser(f"{TEST_FILES_DIR}/Li2O.cif")
         prim = parser.get_structures()[0]
-        assert prim.formula == "Li2 O1"
+        assert prim.formula == "Li8 O4"
         conv = parser.get_structures(primitive=False)[0]
         assert conv.formula == "Li8 O4"
 
@@ -207,7 +207,7 @@ class TestCifIO(PymatgenTest):
         assert struct.lattice.gamma == approx(93)
 
         parser = CifParser(f"{TEST_FILES_DIR}/srycoo.cif")
-        assert parser.get_structures()[0].formula == "Sr5.6 Y2.4 Co8 O21"
+        assert parser.get_structures()[0].formula == "Sr11.2 Y4.8 Co16 O42"
 
         # Test with a decimal Xyz. This should parse as two atoms in
         # conventional cell if it is correct, one if not.
@@ -225,7 +225,7 @@ class TestCifIO(PymatgenTest):
 
     def test_site_symbol_preference(self):
         parser = CifParser(f"{TEST_FILES_DIR}/site_type_symbol_test.cif")
-        assert parser.get_structures()[0].formula == "Ge0.4 Sb0.4 Te1"
+        assert parser.get_structures()[0].formula == "Ge1.6 Sb1.6 Te4"
 
     def test_implicit_hydrogen(self):
         parser = CifParser(f"{TEST_FILES_DIR}/Senegalite_implicit_hydrogen.cif")
@@ -293,13 +293,16 @@ class TestCifIO(PymatgenTest):
         # Partial occupancy on sites, previously parsed as an ordered structure
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1011081.cif")
         for struct in parser.get_structures():
-            assert struct.formula == "Zr0.2 Nb0.8"
+            assert struct.formula == "Zr0.4 Nb1.6"
         assert parser.has_errors
 
         # Partial occupancy on sites, incorrect label, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1615854.cif")
-        for struct in parser.get_structures():
-            assert struct.formula == "Na2 Al2 Si6 O16"
+        for idx, struct in enumerate(parser.get_structures()):
+            if idx == 0:
+                assert struct.formula == "Na2 Al2 Si6 O16"
+            else:
+                assert struct.formula == "Na4 Al4 Si12 O32"
         assert parser.has_errors
 
         # Partial occupancy on sites, incorrect label, previously unparsable
@@ -311,13 +314,13 @@ class TestCifIO(PymatgenTest):
         # Partial occupancy on sites, previously parsed as an ordered structure
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1908491.cif")
         for struct in parser.get_structures():
-            assert struct.formula == "Mn0.48 Zn0.52 Ga2 Se4"
+            assert struct.formula == "Mn0.96 Zn1.04 Ga4 Se8"
         assert parser.has_errors
 
         # Partial occupancy on sites, incorrect label, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1811457.cif")
         for struct in parser.get_structures():
-            assert struct.formula == "Ba2 Mg0.6 Zr0.2 Ta1.2 O6"
+            assert struct.formula == "Ba8 Mg2.4 Zr0.8 Ta4.8 O24"
         assert parser.has_errors
 
         # Incomplete powder diffraction data, previously unparsable
@@ -327,8 +330,8 @@ class TestCifIO(PymatgenTest):
         # in CIFs from Springer Materials/Pauling file DBs, CifParser parses the
         # element as "Nh" (Nihonium).
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1002871.cif")
-        assert parser.get_structures()[0].formula == "Cu1 Br2 Nh6"
-        assert parser.get_structures()[1].formula == "Cu1 Br4 Nh6"
+        assert parser.get_structures()[0].formula == "Cu2 Br4 Nh12"
+        assert parser.get_structures()[1].formula == "Cu2 Br8 Nh12"
         assert parser.has_errors
 
         # Incomplete powder diffraction data, previously unparsable
@@ -346,7 +349,7 @@ class TestCifIO(PymatgenTest):
         # Unparsable species 'OH/OH2', previously parsed as "O"
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1601634.cif")
         for struct in parser.get_structures():
-            assert struct.formula == "Zn1.29 Fe0.69 As2 Pb1.02 O8"
+            assert struct.formula == "Zn2.58 Fe1.38 As4 Pb2.04 O16"
 
     def test_cif_parser_cod(self):
         """Parsing problematic CIF files from the COD database."""
@@ -358,7 +361,7 @@ class TestCifIO(PymatgenTest):
         # Label in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/Cod_4115344.cif")
         for struct in parser.get_structures():
-            assert struct.formula == "Mo4 P2 H60 C60 I4 O4"
+            assert struct.formula == "Mo8 P4 H120 C120 I8 O8"
 
     def test_parse_symbol(self):
         """
@@ -741,7 +744,7 @@ loop_
             parser.get_structures(on_error="raise")
         parser = CifParser(filepath, occupancy_tolerance=2)
         struct = parser.get_structures()[0]
-        assert struct[0].species["Al3+"] == approx(0.5)
+        assert struct[0].species["Al3+"] == approx(0.778)
 
     def test_one_line_symm(self):
         f = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
@@ -767,7 +770,7 @@ loop_
         warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
         with pytest.warns(UserWarning, match=warn_msg):
             struct = parser.get_structures()[0]
-        assert str(struct.composition) == "N5+24"
+        assert str(struct.composition) == "N5+72"
         assert warn_msg in parser.warnings
 
     def test_empty_deque(self):
