@@ -439,8 +439,32 @@ class TestMITMPRelaxSet(PymatgenTest):
         mpr = MPRelaxSet(struct)
         assert mpr.incar["EDIFF"] == 1e-4
 
+        # ensure ISMEAR and SIGMA are set correctly according to bandgap. Also check
+        # that user_incar_settings are not overwritten.
+        mpr = MPRelaxSet(struct, bandgap=None)
+        assert mpr.incar["ISMEAR"] == 0
+        assert mpr.incar["SIGMA"] == 0.05
+        mpr = MPRelaxSet(struct, bandgap=0)
+        assert mpr.incar["ISMEAR"] == 1
+        assert mpr.incar["SIGMA"] == 0.2
+        mpr = MPRelaxSet(struct, bandgap=1)
+        assert mpr.incar["ISMEAR"] == 0
+        assert mpr.incar["SIGMA"] == 0.05
+        mpr = MPRelaxSet(struct, bandgap=1, user_incar_settings={"ISMEAR": -5, "SIGMA": 0.5})
+        assert mpr.incar["ISMEAR"] == -5
+        assert mpr.incar["SIGMA"] == 0.5
+
     def test_get_kpoints(self):
-        kpoints = MPRelaxSet(self.structure).kpoints
+        # check number of kpoints is correct for bandgap in [None, 0, 1]
+        kpoints = MPRelaxSet(self.structure, bandgap=None).kpoints
+        assert kpoints.kpts == [[3, 6, 7]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        kpoints = MPRelaxSet(self.structure, bandgap=0).kpoints
+        assert kpoints.kpts == [[3, 6, 7]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        kpoints = MPRelaxSet(self.structure, bandgap=1).kpoints
         assert kpoints.kpts == [[2, 4, 5]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
@@ -456,7 +480,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert kpoints.kpts == [[25]]
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
-        recip_param_set = MPRelaxSet(self.structure, force_gamma=True)
+        recip_param_set = MPRelaxSet(self.structure, bandgap=1, force_gamma=True)
         recip_param_set.kpoints_settings = {"reciprocal_density": 40}
         kpoints = recip_param_set.kpoints
         assert kpoints.kpts == [[2, 4, 5]]

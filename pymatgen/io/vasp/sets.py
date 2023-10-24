@@ -872,20 +872,53 @@ class MPRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure: Structure | None = None, **kwargs):
+    def __init__(
+        self, structure: Structure | None = None, bandgap: float | None = None, bandgap_tol: float = 1e-4, **kwargs
+    ):
         """
         Args:
             structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
                 a Structure but one must be set separately before the inputs are generated.
+            bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+                compute the appropriate k-point density and determine the
+                smearing settings. Defaults to None --> assumes strictest parameters.
+            bandgap_tol (float): Tolerance for determining if a system is metallic.
+                If the bandgap is less than this value, the system is considered
+                metallic.
             **kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
+        self.bandgap = bandgap
         self.kwargs = kwargs
+        self.bandgap_tol = bandgap_tol
+
+        incar_updates: dict[str, float] = {}
+        kpoints_updates: dict[str, float] = {}
+        # select the KPOINTS and smearing parameters based on the bandgap
+        if self.bandgap is None:
+            incar_updates.update(SIGMA=0.05, ISMEAR=0)
+            kpoints_updates.update(reciprocal_density=200)
+        elif self.bandgap < 1e-4:
+            incar_updates.update(SIGMA=0.2, ISMEAR=1)
+            kpoints_updates.update(reciprocal_density=200)
+        else:
+            incar_updates.update(SIGMA=0.05, ISMEAR=0)
+            kpoints_updates.update(reciprocal_density=64)
+
+        # Don't overwrite things the user has supplied
+        for key in self.user_incar_settings:
+            incar_updates.pop(key, None)
+
+        for key in self.user_kpoints_settings:
+            kpoints_updates.pop(key, None)
+
+        self._config_dict["INCAR"].update(incar_updates)
+        self._config_dict["KPOINTS"].update(kpoints_updates)
 
 
 @due.dcite(
     Doi("10.1021/acs.jpclett.0c02405"),
-    description="AccurAccurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
+    description="Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
 )
 @due.dcite(
     Doi("10.1103/PhysRevLett.115.036402"),
@@ -1010,6 +1043,11 @@ class MPMetalRelaxSet(DictSet):
         self._config_dict["INCAR"].update({"ISMEAR": 1, "SIGMA": 0.2})
         self._config_dict["KPOINTS"]["reciprocal_density"] = 200
         self.kwargs = kwargs
+        warnings.warn(
+            "MPMetalRelaxSet has been combined with MPRelaxSet via the "
+            "introduction of the `bandgap` and `bandgap_tol` keywords. MPMetalRelaxSet "
+            "will be deprecated in a future release."
+        )
 
 
 class MPHSERelaxSet(DictSet):

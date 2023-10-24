@@ -8,7 +8,7 @@ INCAR:
   ENCUT: 520
   IBRION: 2
   ISIF: 3
-  ISMEAR: -5
+  ISMEAR: 0 # included as a reasonable default
   ISPIN: 2
   LASPH: true
   LDAU: true
@@ -78,9 +78,9 @@ INCAR:
   NELM: 100
   NSW: 99
   PREC: Accurate
-  SIGMA: 0.05
+  SIGMA: 0.05 # included as a reasonable default
 KPOINTS:
-  reciprocal_density: 64
+  reciprocal_density: 64 # included as a reasonable default
 POTCAR_FUNCTIONAL: PBE
 POTCAR:
   Ac: Ac
