@@ -182,7 +182,7 @@ class Cohp(MSONable):
     def from_dict(cls, dct):
         """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
-        are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
+        are_cobis = dct.get("are_cobis", False)
         return Cohp(
             dct["efermi"],
             dct["energies"],
@@ -622,7 +622,7 @@ class CompleteCohp(Cohp):
                 icohp = None
             avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp)
 
-        are_cobis = False if "are_cobis" not in d else d["are_cobis"]
+        are_cobis = d.get("are_cobis", False)
 
         return CompleteCohp(
             structure,
