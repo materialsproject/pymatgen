@@ -50,6 +50,7 @@ class SymmetrizedStructure(Structure):
             structure.frac_coords,
             site_properties=structure.site_properties,
             properties=structure.properties,
+            labels=structure.labels,
         )
 
         equivalent_indices: list[list[int]] = [[] for _ in range(len(uniq))]
