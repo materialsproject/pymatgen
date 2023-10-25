@@ -567,6 +567,7 @@ class Trajectory(MSONable):
                 molecules,
                 **kwargs,
             )
+        return
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
