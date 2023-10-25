@@ -562,7 +562,7 @@ class Trajectory(MSONable):
                 constant_lattice=constant_lattice,
                 **kwargs,
             )
-        if 'molecules' in locals():
+        if "molecules" in locals():
             return cls.from_molecules(
                 molecules,
                 **kwargs,
