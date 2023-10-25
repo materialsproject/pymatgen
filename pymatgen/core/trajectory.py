@@ -539,6 +539,7 @@ class Trajectory(MSONable):
             A trajectory from the file.
         """
         fname = Path(filename).expanduser().resolve().name
+        is_mol = False
 
         if fnmatch(fname, "*XDATCAR*"):
             structures = Xdatcar(filename).structures
@@ -551,23 +552,23 @@ class Trajectory(MSONable):
                 structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
             else:
                 molecules = [AseAtomsAdaptor.get_molecule(atoms) for atoms in ase_traj]
+                is_mol = True
 
         else:
-            supported = ("XDATCAR", "vasprun.xml")
+            supported = ("XDATCAR", "vasprun.xml", "*.traj")
             raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
 
-        if "structures" in locals():
+        if not is_mol:
             return cls.from_structures(
                 structures,
                 constant_lattice=constant_lattice,
                 **kwargs,
             )
-        if "molecules" in locals():
+        else:
             return cls.from_molecules(
                 molecules,
                 **kwargs,
             )
-        return None
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
