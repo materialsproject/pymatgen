@@ -15,6 +15,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTrajectory(PymatgenTest):
+
     def setUp(self):
         xdatcar = Xdatcar(f"{TEST_FILES_DIR}/Traj_XDATCAR")
         self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_XDATCAR")
@@ -471,3 +472,7 @@ class TestTrajectory(PymatgenTest):
         written_traj = Trajectory.from_file("traj_test_XDATCAR")
         self._check_traj_equality(self.traj, written_traj)
         os.remove("traj_test_XDATCAR")
+
+    def test_read_file(self):
+        traj2 = Trajectory.from_file("chgnet_test_relax.traj")
+        assert isinstance(traj2, Trajectory)
