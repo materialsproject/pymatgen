@@ -15,7 +15,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTrajectory(PymatgenTest):
-
     def setUp(self):
         xdatcar = Xdatcar(f"{TEST_FILES_DIR}/Traj_XDATCAR")
         self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_XDATCAR")
