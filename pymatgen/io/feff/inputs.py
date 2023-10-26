@@ -482,11 +482,11 @@ class Atoms(MSONable):
                 is the one at the origin.
         """
         atoms_string = Atoms.atoms_string_from_file(filename)
-        lines = [line.split() for line in atoms_string.splitlines()[3:]]
+        lines = [line.split() for line in atoms_string.splitlines()[1:]]
         coords = []
         symbols = []
         for line in lines:
-            if line:
+            if line and line[0].__contains__("*"):
                 coords.append([float(val) for val in line[:3]])
                 symbols.append(line[4])
         return Molecule(symbols, coords)
