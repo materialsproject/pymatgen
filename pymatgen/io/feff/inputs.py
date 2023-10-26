@@ -486,7 +486,7 @@ class Atoms(MSONable):
         coords = []
         symbols = []
         for line in lines:
-            if line and not line[0].startswith("*"):
+            if line and not line.startswith("*"):
                 coords.append([float(val) for val in line[:3]])
                 symbols.append(line[4])
         return Molecule(symbols, coords)
