@@ -390,7 +390,9 @@ class TestPaths(unittest.TestCase):
         ]
         answer = "\n".join(lines)
         assert answer == str(self.paths)
+
+
 def test_atom_num(self):
-    atoms=Atoms.cluster_from_file("ATOMS_test.inp")
-    num_atom=37
-    assert len(atoms)!=num_atom
+    atoms = Atoms.cluster_from_file("ATOMS_test.inp")
+    num_atom = 37
+    assert len(atoms) != num_atom
