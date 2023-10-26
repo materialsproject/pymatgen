@@ -138,7 +138,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __getitem__(self, key: SpeciesLike) -> float:
         try:
             sp = get_el_sp(key)
-            return self._data.get(sp, 0)
+            if isinstance(sp, Species):
+                return self._data.get(sp, 0)
+            # sp is Element or str
+            return sum(
+                val for key, val in self._data.items() if getattr(key, "symbol", key) == getattr(sp, "symbol", sp)
+            )
         except ValueError as exc:
             raise KeyError(f"Invalid {key=}") from exc
 
@@ -153,7 +158,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(key)
             if isinstance(sp, Species):
                 return sp in self._data
-            # Element or str
+            # key is Element or str
             return any(sp.symbol == s.symbol for s in self._data)
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
