@@ -272,7 +272,14 @@ class AimsOutHeaderChunk(AimsOutChunk):
             site_properties["magmoms"] = self.initial_magnetic_moments
 
         if lattice:
-            return Structure(lattice, species, coords, np.sum(self.initial_charges), site_properties=site_properties)
+            return Structure(
+                lattice,
+                species,
+                coords,
+                np.sum(self.initial_charges),
+                coords_are_cartesian=True,
+                site_properties=site_properties,
+            )
 
         return Molecule(species, coords, np.sum(self.initial_charges), site_properties=site_properties)
 
@@ -325,19 +332,25 @@ class AimsOutHeaderChunk(AimsOutChunk):
         """Get the list of k-points used in the calculation."""
         n_kpts = self.parse_scalar("n_kpts")
         if n_kpts is None:
-            return {
-                "k_points": None,
-                "k_point_weights": None,
-            }
+            self._cache.update(
+                {
+                    "k_points": None,
+                    "k_point_weights": None,
+                }
+            )
+            return
         n_kpts = int(n_kpts)
 
         line_start = self.reverse_search_for(["| K-points in task"])
         line_end = self.reverse_search_for(["| k-point:"])
         if (line_start == LINE_NOT_FOUND) or (line_end == LINE_NOT_FOUND) or (line_end - line_start != n_kpts):
-            return {
-                "k_points": None,
-                "k_point_weights": None,
-            }
+            self._cache.update(
+                {
+                    "k_points": None,
+                    "k_point_weights": None,
+                }
+            )
+            return
 
         k_points = np.zeros((n_kpts, 3))
         k_point_weights = np.zeros(n_kpts)
@@ -351,7 +364,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
                 "k_point_weights": k_point_weights,
             }
         )
-        return None
+        return
 
     @property
     def n_atoms(self) -> int:
@@ -486,10 +499,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         For the given section of the aims output file generate the
         calculated structure.
         """
-        lattice = self.lattice
-        velocities = self.velocities
-        species = self.species
-        coords = self.coords
+        species, coords, velocities, lattice = self._parse_lattice_atom_pos()
 
         site_properties = dict()
         if len(velocities) > 0:
@@ -512,10 +522,16 @@ class AimsOutCalcChunk(AimsOutChunk):
             site_properties = None
 
         if lattice is not None:
-            return Structure(lattice, species, coords, site_properties=site_properties, properties=properties)
+            return Structure(
+                lattice,
+                species,
+                coords,
+                site_properties=site_properties,
+                properties=properties,
+                coords_are_cartesian=True,
+            )
         return Molecule(species, coords, site_properties=site_properties, properties=properties)
 
-    @property
     def _parse_lattice_atom_pos(self) -> tuple[list[str], list[Vector3D], list[Vector3D], Lattice | None]:
         """Get the lattice of the structure
 
@@ -531,9 +547,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             The lattice of the system
         """
         lattice_vectors = []
-        velocities = []
-        species = []
-        coords = []
+        velocities: list[Vector3D] = []
+        species: list[str] = []
+        coords: list[Vector3D] = []
 
         start_keys = [
             "Atomic structure (and velocities) as used in the preceding time step",
@@ -542,7 +558,12 @@ class AimsOutCalcChunk(AimsOutChunk):
         ]
         line_start = self.reverse_search_for(start_keys)
         if line_start == LINE_NOT_FOUND:
-            return self.initial_structure
+            species = [sp.symbol for sp in self.initial_structure.species]
+            coords = self.initial_structure.cart_coords.tolist()
+            velocities = list(self.initial_structure.site_properties.get("velocity", []))
+            lattice = self.initial_lattice
+
+            return (species, coords, velocities, lattice)
 
         line_start += 1
 
@@ -560,30 +581,51 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "velocity   " in line:
                 velocities.append([float(inp) for inp in line.split()[1:]])
 
-        return species, coords, velocities, Lattice(lattice_vectors)
+        lattice = Lattice(lattice_vectors) if len(lattice_vectors) == 3 else None
+        return species, coords, velocities, lattice
 
     @property
     def species(self):
         if "species" not in self._cache:
-            self._cache.update(self._parse_lattice_atom_pos())
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["species"]
 
     @property
     def coords(self):
         if "coords" not in self._cache:
-            self._cache.update(self._parse_lattice_atom_pos())
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["coords"]
 
     @property
     def velocities(self):
         if "velocities" not in self._cache:
-            self._cache.update(self._parse_lattice_atom_pos())
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["velocities"]
 
     @property
     def lattice(self):
         if "lattice" not in self._cache:
-            self._cache.update(self._parse_lattice_atom_pos())
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["lattice"]
 
     @property
@@ -782,12 +824,12 @@ class AimsOutCalcChunk(AimsOutChunk):
 
     # Properties from the aims.out header
     @property
-    def initial_structure(self):
+    def initial_structure(self) -> Structure | Molecule:
         """Return the initial structure of the calculation."""
         return self._header["initial_structure"]
 
     @property
-    def initial_lattice(self):
+    def initial_lattice(self) -> Lattice | None:
         """Return the initial lattice vectors for the structure."""
         return self._header["initial_lattice"]
 
@@ -877,7 +919,7 @@ class AimsOutCalcChunk(AimsOutChunk):
     @property
     def hirshfeld_dipole(self):
         """Return the Hirshfeld systematic dipole moment for the chunk."""
-        if self.lattice is not None:
+        if self.lattice is None:
             return self._parse_hirshfeld()["dipole"]
 
         return None
@@ -903,30 +945,39 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._parse_homo_lumo()["direct_gap"]
 
 
-def get_header_chunk(fd):
+def get_lines(content: str) -> list[str]:
+    """Get a list of lines from a str or file of content"""
+    if isinstance(content, str):
+        return [line.strip() for line in content.split("\n")]
+    return [line.strip() for line in content.readlines()]
+
+
+def get_header_chunk(content: str) -> AimsOutHeaderChunk:
     """Return the header information from the aims.out file."""
+    lines = get_lines(content)
     header = []
-    line = ""
 
+    stopped = False
     # Stop the header once the first SCF cycle begins
-    while (
-        "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)" not in line
-        and "Begin self-consistency iteration #" not in line
-    ):
-        try:
-            line = next(fd).strip()  # Raises StopIteration on empty file
-        except StopIteration:
-            raise ParseError("No SCF steps present, calculation failed at setup.") from None
-
+    for line in lines:
         header.append(line)
+        if (
+            "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)" not in line
+            and "Begin self-consistency iteration #" not in line
+        ):
+            stopped = True
+            break
+
+    if not stopped:
+        raise ParseError("No SCF steps present, calculation failed at setup.")
+
     return AimsOutHeaderChunk(header)
 
 
-def get_aims_out_chunks(fd, header_chunk):
+def get_aims_out_chunks(content, header_chunk):
     """Yield unprocessed chunks (header, lines) for each AimsOutChunk image."""
-    try:
-        line = next(fd).strip()  # Raises StopIteration on empty file
-    except StopIteration:
+    lines = filter(lambda x: x not in header_chunk.lines, get_lines(content))
+    if len(lines) == 0:
         return
 
     # If the calculation is relaxation the updated structural information
@@ -939,15 +990,16 @@ def get_aims_out_chunks(fd, header_chunk):
     # If SCF is not converged then do not treat the next chunk_end_line as a
     # new chunk until after the SCF is re-initialized
     ignore_chunk_end_line = False
+    line_iter = lines.__iter__()
     while True:
         try:
-            line = next(fd).strip()  # Raises StopIteration on empty file
+            line = next(line_iter).strip()  # Raises StopIteration on empty file
         except StopIteration:
             break
 
-        lines = []
+        chunk_lines = []
         while chunk_end_line not in line or ignore_chunk_end_line:
-            lines.append(line)
+            chunk_lines.append(line)
             # If SCF cycle not converged or numerical stresses are requested,
             # don't end chunk on next Re-initialization
             patterns = [
@@ -964,10 +1016,10 @@ def get_aims_out_chunks(fd, header_chunk):
                 ignore_chunk_end_line = False
 
             try:
-                line = next(fd).strip()
+                line = next(line_iter).strip()
             except StopIteration:
                 break
-        yield AimsOutCalcChunk(lines, header_chunk)
+        yield AimsOutCalcChunk(chunk_lines, header_chunk)
 
 
 def check_convergence(chunks: list[AimsOutCalcChunk], non_convergence_ok: bool = False) -> bool:
@@ -990,6 +1042,11 @@ def check_convergence(chunks: list[AimsOutCalcChunk], non_convergence_ok: bool =
     return True
 
 
+def read_aims_header_info_from_content(content: str) -> tuple[dict[str, str], dict[str, Any]]:
+    header_chunk = get_header_chunk(content)
+    return header_chunk.metadata_summary, header_chunk.header_summary
+
+
 def read_aims_header_info(
     filename: str | Path,
 ) -> tuple[dict[str, str], dict[str, Any]]:
@@ -1004,23 +1061,34 @@ def read_aims_header_info(
     -------
     The calculation metadata and the system summary
     """
-    header_chunk = None
+    content = None
     for path in [Path(filename), Path(f"{filename}.gz")]:
         if not path.exists():
             continue
         if path.suffix == ".gz":
             with gzip.open(filename, "rt") as fd:
-                header_chunk = get_header_chunk(fd)
+                content = fd.read()
         else:
             with open(filename) as fd:
-                header_chunk = get_header_chunk(fd)
+                content = fd.read()
 
-    if header_chunk is None:
+    if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")
 
-    system_summary = header_chunk.header_summary
-    metadata = header_chunk.metadata_summary
-    return metadata, system_summary
+    return read_aims_header_info_from_content(content)
+
+
+def read_aims_output_from_content(
+    content: str, index: int | slice = -1, non_convergence_ok: bool = False
+) -> SiteCollection | Sequence[SiteCollection]:
+    """Read and aims output file from the content of a file"""
+    header_chunk = get_header_chunk(content)
+    chunks = list(get_aims_out_chunks(content, header_chunk))
+
+    check_convergence(chunks, non_convergence_ok)
+    # Relaxations have an additional footer chunk due to how it is split
+    images = [chunk.atoms for chunk in chunks[:-1]] if header_chunk.is_relaxation else [chunk.atoms for chunk in chunks]
+    return images[index]
 
 
 def read_aims_output(
@@ -1043,29 +1111,20 @@ def read_aims_output(
 
     Returns
     -------
-    The selected Structure objects
+    The selected atoms
     """
-    chunks = None
+    content = None
     for path in [Path(filename), Path(f"{filename}.gz")]:
         if not path.exists():
             continue
         if path.suffix == ".gz":
             with gzip.open(path, "rt") as fd:
-                header_chunk = get_header_chunk(fd)
-                chunks = list(get_aims_out_chunks(fd, header_chunk))
+                content = fd.read()
         else:
             with open(path) as fd:
-                header_chunk = get_header_chunk(fd)
-                chunks = list(get_aims_out_chunks(fd, header_chunk))
+                content = fd.read()
 
-    if chunks is None:
+    if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")
 
-    check_convergence(chunks, non_convergence_ok)
-
-    # Relaxations have an additional footer chunk due to how it is split
-    if header_chunk.is_relaxation:
-        images = [chunk.structure for chunk in chunks[:-1]]
-    else:
-        images = [chunk.structure for chunk in chunks]
-    return images[index]
+    return read_aims_output_from_content(content, index, non_convergence_ok)
