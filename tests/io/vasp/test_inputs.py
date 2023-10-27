@@ -268,6 +268,13 @@ direct
         assert np.sum(np.array(poscar.velocities)) == approx(0.0065417961324)
         assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
         assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
+        assert poscar.lattice_velocities is None
+
+        # Parsing from an MD type run with velocities, predictor corrector data and lattice velocities
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
+        assert np.sum(np.array(poscar.velocities)) == approx(-0.06193299494)
+        assert poscar.predictor_corrector[0][0][0] == 0.63981833
+        assert poscar.lattice_velocities.sum() == approx(16.49411358474)
 
     def test_write_md_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
@@ -277,12 +284,26 @@ direct
         path = Path("POSCAR.testing.md")
         poscar.write_file(path)
         p3 = Poscar.from_file(path)
+        path.unlink()
 
         assert_allclose(poscar.structure.lattice.abc, p3.structure.lattice.abc, 5)
         assert_allclose(poscar.velocities, p3.velocities, 5)
         assert_allclose(poscar.predictor_corrector, p3.predictor_corrector, 5)
         assert poscar.predictor_corrector_preamble == p3.predictor_corrector_preamble
+
+        # Same as above with lattice velocities as well
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
+
+        path = Path("POSCAR.testing.md")
+        poscar.write_file(path)
+        p3 = Poscar.from_file(path)
         path.unlink()
+
+        assert_allclose(poscar.structure.lattice.abc, p3.structure.lattice.abc, 5)
+        assert_allclose(poscar.velocities, p3.velocities, 5)
+        assert_allclose(poscar.predictor_corrector, p3.predictor_corrector, 5)
+        assert poscar.predictor_corrector_preamble == p3.predictor_corrector_preamble
+        assert_allclose(poscar.lattice_velocities, p3.lattice_velocities, 5)
 
     def test_setattr(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
