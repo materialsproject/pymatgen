@@ -4,7 +4,7 @@ import copy
 import os
 import pickle
 import unittest
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -31,6 +31,9 @@ from pymatgen.io.vasp.inputs import (
     _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestPoscar(PymatgenTest):
@@ -265,14 +268,14 @@ direct
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_potcar=False)
-        assert np.sum(np.array(poscar.velocities)) == approx(0.0065417961324)
+        assert np.sum(poscar.velocities) == approx(0.0065417961324)
         assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
         assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
         assert poscar.lattice_velocities is None
 
         # Parsing from an MD type run with velocities, predictor corrector data and lattice velocities
         poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
-        assert np.sum(np.array(poscar.velocities)) == approx(-0.06193299494)
+        assert np.sum(poscar.velocities) == approx(-0.06193299494)
         assert poscar.predictor_corrector[0][0][0] == 0.63981833
         assert poscar.lattice_velocities.sum() == approx(16.49411358474)
 
@@ -281,23 +284,20 @@ direct
         # And writing a new POSCAR from the new structure
         poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_potcar=False)
 
-        path = Path("POSCAR.testing.md")
+        path = f"{self.tmp_path}/POSCAR.testing.md"
         poscar.write_file(path)
         p3 = Poscar.from_file(path)
-        path.unlink()
 
         assert_allclose(poscar.structure.lattice.abc, p3.structure.lattice.abc, 5)
         assert_allclose(poscar.velocities, p3.velocities, 5)
         assert_allclose(poscar.predictor_corrector, p3.predictor_corrector, 5)
         assert poscar.predictor_corrector_preamble == p3.predictor_corrector_preamble
 
-        # Same as above with lattice velocities as well
+        # Same as above except also has lattice velocities
         poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
 
-        path = Path("POSCAR.testing.md")
         poscar.write_file(path)
         p3 = Poscar.from_file(path)
-        path.unlink()
 
         assert_allclose(poscar.structure.lattice.abc, p3.structure.lattice.abc, 5)
         assert_allclose(poscar.velocities, p3.velocities, 5)
@@ -416,7 +416,7 @@ direct
         ]
 
 
-class TestIncar(unittest.TestCase):
+class TestIncar(PymatgenTest):
     def setUp(self):
         file_name = f"{TEST_FILES_DIR}/INCAR"
         self.incar = Incar.from_file(file_name)
@@ -585,11 +585,10 @@ class TestIncar(unittest.TestCase):
         assert incar3["MAGMOM"] == [Magmom([1, 2, 3])]
 
     def test_write(self):
-        tempfname = Path("INCAR.testing")
-        self.incar.write_file(tempfname)
-        i = Incar.from_file(tempfname)
-        assert i == self.incar
-        tempfname.unlink()
+        tmp_file = f"{self.tmp_path}/INCAR.testing"
+        self.incar.write_file(tmp_file)
+        incar = Incar.from_file(tmp_file)
+        assert incar == self.incar
 
     def test_get_str(self):
         s = self.incar.get_str(pretty=True, sort_keys=True)

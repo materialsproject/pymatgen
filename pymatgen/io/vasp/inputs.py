@@ -141,10 +141,8 @@ class Poscar(MSONable):
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
 
-            if lattice_velocities is not None:
-                lattice_velocities = np.array(lattice_velocities)
-                if lattice_velocities.any():
-                    self.structure.properties["lattice_velocities"] = lattice_velocities
+            if lattice_velocities is not None and np.any(lattice_velocities):
+                self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
         else:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
@@ -196,9 +194,9 @@ class Poscar(MSONable):
         self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
     @lattice_velocities.setter  # type: ignore
-    def lattice_velocities(self, lattice_velocities):
+    def lattice_velocities(self, lattice_velocities: ArrayLike) -> None:
         """Setter for Poscar.lattice_velocities."""
-        self.structure.properties["lattice_velocities"] = lattice_velocities
+        self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
     @property
     def site_symbols(self) -> list[str]:
