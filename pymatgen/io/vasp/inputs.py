@@ -89,6 +89,7 @@ class Poscar(MSONable):
         velocities: ArrayLike | None = None,
         predictor_corrector: ArrayLike | None = None,
         predictor_corrector_preamble: str | None = None,
+        lattice_velocities: ArrayLike | None = None,
         sort_structure: bool = False,
     ):
         """
@@ -108,6 +109,8 @@ class Poscar(MSONable):
                 Typically parsed in MD runs. Defaults to None.
             predictor_corrector_preamble (str | None, optional): Preamble to the predictor
                 corrector. Defaults to None.
+            lattice_velocities (ArrayLike | None, optional): Lattice velocities and current
+                lattice for the POSCAR. Available in MD runs with variable cell. Defaults to None.
             sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
@@ -137,6 +140,9 @@ class Poscar(MSONable):
             self.comment = structure.formula if comment is None else comment
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
+
+            if lattice_velocities is not None and np.any(lattice_velocities):
+                self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
         else:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
@@ -162,6 +168,11 @@ class Poscar(MSONable):
         """Predictor corrector preamble in Poscar."""
         return self.structure.properties.get("predictor_corrector_preamble")
 
+    @property
+    def lattice_velocities(self):
+        """Lattice velocities in Poscar (including the current lattice vectors)."""
+        return self.structure.properties.get("lattice_velocities")
+
     @velocities.setter  # type: ignore
     def velocities(self, velocities):
         """Setter for Poscar.velocities."""
@@ -181,6 +192,11 @@ class Poscar(MSONable):
     def predictor_corrector_preamble(self, predictor_corrector_preamble):
         """Setter for Poscar.predictor_corrector."""
         self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
+
+    @lattice_velocities.setter  # type: ignore
+    def lattice_velocities(self, lattice_velocities: ArrayLike) -> None:
+        """Setter for Poscar.lattice_velocities."""
+        self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
     @property
     def site_symbols(self) -> list[str]:
@@ -422,6 +438,15 @@ class Poscar(MSONable):
         )
 
         if read_velocities:
+            # Parse the lattice velocities and current lattice, if present.
+            # The header line should contain "Lattice velocities and vectors"
+            # There is no space between the coordinates and this section, so
+            # it appears in the lines of the first chunk
+            lattice_velocities = []
+            if len(lines) > ipos + n_sites + 1 and lines[ipos + n_sites + 1].lower().startswith("l"):
+                for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]:
+                    lattice_velocities.append([float(tok) for tok in line.split()])
+
             # Parse velocities if any
             velocities = []
             if len(chunks) > 1:
@@ -450,7 +475,7 @@ class Poscar(MSONable):
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
-            velocities = predictor_corrector = predictor_corrector_preamble = None
+            velocities = predictor_corrector = predictor_corrector_preamble = lattice_velocities = None
 
         return Poscar(
             struct,
@@ -460,6 +485,7 @@ class Poscar(MSONable):
             velocities=velocities,
             predictor_corrector=predictor_corrector,
             predictor_corrector_preamble=predictor_corrector_preamble,
+            lattice_velocities=lattice_velocities,
         )
 
     @np.deprecate(message="Use get_str instead")
@@ -513,6 +539,15 @@ class Poscar(MSONable):
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += " " + site.species_string
             lines.append(line)
+
+        if self.lattice_velocities is not None:
+            try:
+                lines.append("Lattice velocities and vectors")
+                lines.append("  1")
+                for v in self.lattice_velocities:
+                    lines.append(" ".join(format_str.format(i) for i in v))
+            except Exception:
+                warnings.warn("Lattice velocities are missing or corrupted.")
 
         if self.velocities:
             try:
