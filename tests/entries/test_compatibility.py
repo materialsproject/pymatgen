@@ -1000,18 +1000,48 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
     def test_process_entry_with_oxidation_state(self):
         from pymatgen.core.periodic_table import Species
 
-        entry = ComputedEntry(
-            {Species("Fe2+"): 2, Species("O2-"): 3},
-            -1,
-            parameters={"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"},
-        )
+        params = {"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"}
+        entry = ComputedEntry({Species("Fe2+"): 2, Species("O2-"): 3}, -1, parameters=params)
 
         # Test that MaterialsProject2020Compatibility can process entries with oxidation states
         # https://github.com/materialsproject/pymatgen/issues/3154
         compat = MaterialsProject2020Compatibility(check_potcar=False)
-        [processed_entry] = compat.process_entries(entry, clean=True, inplace=False)
+        processed_entry = compat.process_entry(entry, clean=True, inplace=False)
 
         assert len(processed_entry.energy_adjustments) == 2
+        assert processed_entry.energy_adjustments[0].name == "MP2020 anion correction (oxide)"
+        assert processed_entry.energy_adjustments[1].name == "MP2020 GGA/GGA+U mixing correction (Fe)"
+        assert processed_entry.correction == approx(-6.572999)
+        assert processed_entry.energy == approx(-1 + -6.572999)
+
+        # for https://github.com/materialsproject/pymatgen/issues/3425
+        frac_coords = [
+            [0.5, 0.5, 0.3797505],
+            [0.0, 0.0, 0.6202495],
+            [0.5, 0.5, 0.8632525],
+            [0.0, 0.0, 0.1367475],
+            [0.5, 0.0, 0.3608245],
+            [0.0, 0.5, 0.0985135],
+            [0.5, 0.0, 0.9014865],
+            [0.0, 0.5, 0.6391755],
+        ]
+        lattice = [
+            [2.86877900, 0.00000000e00, 1.75662051e-16],
+            [-2.83779749e-16, 4.63447500e00, 2.83779749e-16],
+            [0.00000000e00, 0.00000000e00, 5.83250700e00],
+        ]
+        species = ["Li+", "Li+", "Mn3+", "Mn3+", "O2-", "O2-", "O2-", "O2-"]
+        li_mn_o = Structure(lattice, species, frac_coords)
+
+        params = {"hubbards": {"Mn": 3.9, "O": 0, "Li": 0}, "run_type": "GGA+U"}
+        cse = ComputedStructureEntry(li_mn_o, -58.97, parameters=params)
+        processed_entry = compat.process_entry(cse, clean=True, inplace=False)
+
+        assert len(processed_entry.energy_adjustments) == 2
+        assert processed_entry.energy_adjustments[0].name == "MP2020 anion correction (oxide)"
+        assert processed_entry.energy_adjustments[1].name == "MP2020 GGA/GGA+U mixing correction (Mn)"
+        assert processed_entry.correction == approx(-6.084)
+        assert processed_entry.energy == approx(-58.97 + -6.084)
 
 
 class TestMITCompatibility(unittest.TestCase):
