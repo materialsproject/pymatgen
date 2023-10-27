@@ -345,8 +345,8 @@ class BabelMolAdaptor:
         return cls.from_str(*args, **kwargs)
 
     @needs_openbabel
-    @staticmethod
-    def from_str(string_data, file_format="xyz"):
+    @classmethod
+    def from_str(cls, string_data, file_format="xyz"):
         """
         Uses OpenBabel to read a molecule from a string in all supported
         formats.
@@ -359,4 +359,4 @@ class BabelMolAdaptor:
             BabelMolAdaptor object
         """
         mols = pybel.readstring(str(file_format), str(string_data))
-        return BabelMolAdaptor(mols.OBMol)
+        return cls(mols.OBMol)

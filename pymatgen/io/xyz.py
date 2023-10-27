@@ -76,8 +76,8 @@ class XYZ:
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(contents) -> XYZ:
+    @classmethod
+    def from_str(cls, contents) -> XYZ:
         """
         Creates XYZ object from a string.
 
@@ -99,7 +99,7 @@ class XYZ:
         for xyz_match in pat.finditer(contents):
             xyz_text = xyz_match.group(0)
             mols.append(XYZ._from_frame_string(xyz_text))
-        return XYZ(mols)
+        return cls(mols)
 
     @staticmethod
     def from_file(filename) -> XYZ:

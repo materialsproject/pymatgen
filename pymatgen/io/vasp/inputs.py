@@ -264,8 +264,8 @@ class Poscar(MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(data, default_names=None, read_velocities=True):
+    @classmethod
+    def from_str(cls, data, default_names=None, read_velocities=True):
         """
         Reads a Poscar from a string.
 
@@ -452,7 +452,7 @@ class Poscar(MSONable):
         else:
             velocities = predictor_corrector = predictor_corrector_preamble = None
 
-        return Poscar(
+        return cls(
             struct,
             comment,
             selective_dynamics,
@@ -766,8 +766,8 @@ class Incar(dict, MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string: str) -> Incar:
+    @classmethod
+    def from_str(cls, string: str) -> Incar:
         """Reads an Incar object from a string.
 
         Args:
@@ -786,7 +786,7 @@ class Incar(dict, MSONable):
                     val = m.group(2).strip()
                     val = Incar.proc_val(key, val)
                     params[key] = val
-        return Incar(params)
+        return cls(params)
 
     @staticmethod
     def proc_val(key: str, val: Any):
@@ -969,8 +969,8 @@ class KpointsSupportedModes(Enum):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(mode: str) -> KpointsSupportedModes:
+    @classmethod
+    def from_str(cls, mode: str) -> KpointsSupportedModes:
         """
         :param s: String
 
@@ -1332,8 +1332,8 @@ class Kpoints(MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string):
         """
         Reads a Kpoints object from a KPOINTS string.
 
@@ -1351,7 +1351,7 @@ class Kpoints(MSONable):
 
         # Fully automatic KPOINTS
         if style == "a":
-            return Kpoints.automatic(int(lines[3].split()[0].strip()))
+            return cls.automatic(int(lines[3].split()[0].strip()))
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
@@ -1364,15 +1364,11 @@ class Kpoints(MSONable):
                     kpts_shift = [float(i) for i in lines[4].split()]
                 except ValueError:
                     pass
-            return (
-                Kpoints.gamma_automatic(kpts, kpts_shift)
-                if style == "g"
-                else Kpoints.monkhorst_automatic(kpts, kpts_shift)
-            )
+            return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
+            style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
             kpts_shift = [float(i) for i in lines[6].split()]
             return Kpoints(
@@ -1386,7 +1382,7 @@ class Kpoints(MSONable):
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
-            style = Kpoints.supported_modes.Line_mode
+            style = cls.supported_modes.Line_mode
             kpts = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
@@ -1406,7 +1402,7 @@ class Kpoints(MSONable):
             )
 
         # Assume explicit KPOINTS if all else fails.
-        style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
+        style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
         labels = []
@@ -1435,10 +1431,10 @@ class Kpoints(MSONable):
         except IndexError:
             pass
 
-        return Kpoints(
+        return cls(
             comment=comment,
             num_kpts=num_kpts,
-            style=Kpoints.supported_modes[str(style)],
+            style=cls.supported_modes[str(style)],
             kpts=kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
@@ -1807,8 +1803,8 @@ class PotcarSingle:
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as file:
                 return PotcarSingle(file.read(), symbol=symbol or None)
 
-    @staticmethod
-    def from_symbol_and_functional(symbol: str, functional: str | None = None):
+    @classmethod
+    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
         """
         Makes a PotcarSingle from a symbol and functional.
 
@@ -1821,7 +1817,7 @@ class PotcarSingle:
         """
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         assert isinstance(functional, str)  # mypy type narrowing
-        funcdir = PotcarSingle.functional_dir[functional]
+        funcdir = cls.functional_dir[functional]
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
             raise ValueError(
@@ -1835,7 +1831,7 @@ class PotcarSingle:
             path = os.path.expanduser(path)
             path = zpath(path)
             if os.path.isfile(path):
-                return PotcarSingle.from_file(path)
+                return cls.from_file(path)
         raise OSError(
             f"You do not have the right POTCAR with {functional=} and {symbol=} "
             f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"

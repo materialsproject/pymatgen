@@ -239,8 +239,8 @@ class PWInput:
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string):
         """
         Reads an PWInput object from a string.
 
@@ -343,7 +343,7 @@ class PWInput:
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
         )
-        return PWInput(
+        return cls(
             structure=structure,
             control=sections["control"],
             pseudo=pseudo,
