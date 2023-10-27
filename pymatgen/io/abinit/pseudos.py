@@ -104,14 +104,14 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         """
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
-    @classmethod
-    def from_file(cls, filename) -> Pseudo:
+    @staticmethod
+    def from_file(filename) -> Pseudo:
         """
         Build an instance of a concrete Pseudo subclass from filename.
         Note: the parser knows the concrete class that should be instantiated
         Client code should rely on the abstract interface provided by Pseudo.
         """
-        return cls().parse(filename)
+        return PseudoParser().parse(filename)
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("md5", "Z", "Z_val", "l_max")

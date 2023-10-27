@@ -82,7 +82,7 @@ class Cssr:
         return cls(Structure(latt, sp, coords))
 
     @classmethod
-    def from_file(filename):
+    def from_file(cls, filename):
         """
         Reads a CSSR file to a Cssr object.
 
@@ -93,4 +93,4 @@ class Cssr:
             Cssr object.
         """
         with zopen(filename, "rt") as f:
-            return Cssr.from_str(f.read())
+            return cls.from_str(f.read())

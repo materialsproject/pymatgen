@@ -70,7 +70,7 @@ B         0.445855   -2.382027   -2.415013
 
 
 def readfile(file_object):
-    """
+    """`
     Return the content of the file as a string.
 
     Parameters
