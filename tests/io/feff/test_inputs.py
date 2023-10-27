@@ -136,7 +136,7 @@ class TestFeffAtoms(unittest.TestCase):
         assert mol_1.formula == mol_2.formula
         assert len(mol_1) == len(mol_2)
         os.remove("ATOMS_test")
-        
+
     def test_atom_num(self):
         atoms = Atoms.cluster_from_file("ATOMS_test.inp")
         num_atom = 37
@@ -395,6 +395,3 @@ class TestPaths(unittest.TestCase):
         ]
         answer = "\n".join(lines)
         assert answer == str(self.paths)
-
-
-
