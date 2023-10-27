@@ -347,8 +347,8 @@ class QCInput(InputFile):
         with zopen(filename, "wt") as f:
             f.write(QCInput.multi_job_string(job_list))
 
-    @staticmethod
-    def from_file(filename: str | Path) -> QCInput:
+    @classmethod
+    def from_file(cls, filename: str | Path) -> QCInput:
         """
         Create QcInput from file.
 
@@ -359,7 +359,7 @@ class QCInput(InputFile):
             QcInput
         """
         with zopen(filename, "rt") as f:
-            return QCInput.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:

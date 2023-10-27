@@ -3463,8 +3463,8 @@ class Chgcar(VolumetricData):
         super().__init__(struct, data, data_aug=data_aug)
         self._distance_matrix = {}
 
-    @staticmethod
-    def from_file(filename: str):
+    @classmethod
+    def from_file(cls, filename: str):
         """Read a CHGCAR file.
 
         Args:
@@ -3474,7 +3474,7 @@ class Chgcar(VolumetricData):
             Chgcar
         """
         poscar, data, data_aug = VolumetricData.parse_file(filename)
-        return Chgcar(poscar, data, data_aug=data_aug)
+        return cls(poscar, data, data_aug=data_aug)
 
     @property
     def net_magnetization(self):

@@ -489,9 +489,9 @@ class ThermalDisplacementMatrices(MSONable):
 
         return self.structure.copy(site_properties=site_properties)
 
-    @staticmethod
+    @classmethod
     def from_structure_with_site_properties_Ucif(
-        structure: Structure, temperature: float | None = None
+        cls, structure: Structure, temperature: float | None = None
     ) -> ThermalDisplacementMatrices:
         """Will create this object with the help of a structure with site properties.
 
@@ -506,18 +506,9 @@ class ThermalDisplacementMatrices(MSONable):
         Ucif_matrix = []
         # U11, U22, U33, U23, U13, U12
         for site in structure:
-            Ucif_matrix.append(
-                [
-                    site.properties["U11_cif"],
-                    site.properties["U22_cif"],
-                    site.properties["U33_cif"],
-                    site.properties["U23_cif"],
-                    site.properties["U13_cif"],
-                    site.properties["U12_cif"],
-                ]
-            )
+            Ucif_matrix.append([site.properties[f"U{idx}_cif"] for idx in (11, 22, 33, 23, 13, 12)])
 
-        return ThermalDisplacementMatrices.from_Ucif(Ucif_matrix, structure, temperature=temperature)
+        return cls.from_Ucif(Ucif_matrix, structure, temperature=temperature)
 
     @staticmethod
     def from_cif_P1(filename: str) -> list[ThermalDisplacementMatrices]:

@@ -96,8 +96,8 @@ class ZeoCssr(Cssr):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string):
         """
         Reads a string representation to a ZeoCssr object.
 
@@ -117,10 +117,10 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        latt = Lattice.from_parameters(*lengths, *angles)
+        lattice = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
-        chrg = []
+        charge = []
         for line in lines[4:]:
             m = re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
@@ -131,11 +131,11 @@ class ZeoCssr(Cssr):
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
                 coords.append([float(m.group(i)) for i in [3, 4, 2]])
-                chrg.append(m.group(5))
-        return ZeoCssr(Structure(latt, sp, coords, site_properties={"charge": chrg}))
+                charge.append(m.group(5))
+        return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads a CSSR file to a ZeoCssr object.
 
@@ -146,7 +146,7 @@ class ZeoCssr(Cssr):
             ZeoCssr object.
         """
         with zopen(filename, "r") as f:
-            return ZeoCssr.from_str(f.read())
+            return cls.from_str(f.read())
 
 
 class ZeoVoronoiXYZ(XYZ):
@@ -163,8 +163,8 @@ class ZeoVoronoiXYZ(XYZ):
         """
         super().__init__(mol)
 
-    @staticmethod
-    def from_str(contents):
+    @classmethod
+    def from_str(cls, contents):
         """
         Creates Zeo++ Voronoi XYZ object from a string.
         from_string method of XYZ class is being redefined.
@@ -188,10 +188,10 @@ class ZeoVoronoiXYZ(XYZ):
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
                 coords.append([float(j) for j in [m.group(i) for i in [3, 4, 2]]])
                 prop.append(float(m.group(5)))
-        return ZeoVoronoiXYZ(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
+        return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Creates XYZ object from a file.
 
@@ -202,7 +202,7 @@ class ZeoVoronoiXYZ(XYZ):
             XYZ object
         """
         with zopen(filename) as f:
-            return ZeoVoronoiXYZ.from_str(f.read())
+            return cls.from_str(f.read())
 
     def __str__(self) -> str:
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
