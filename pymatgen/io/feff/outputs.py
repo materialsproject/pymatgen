@@ -42,8 +42,8 @@ class LDos(MSONable):
         self.complete_dos = complete_dos
         self.charge_transfer = charge_transfer
 
-    @staticmethod
-    def from_file(feff_inp_file="feff.inp", ldos_file="ldos"):
+    @classmethod
+    def from_file(cls, feff_inp_file="feff.inp", ldos_file="ldos"):
         """
         Creates LDos object from raw Feff ldos files by
         by assuming they are numbered consecutively, i.e. ldos01.dat
@@ -144,7 +144,7 @@ class LDos(MSONable):
         dos = Dos(efermi, dos_energies, t_dos)
         complete_dos = CompleteDos(structure, dos, pdoss)
         charge_transfer = LDos.charge_transfer_from_file(feff_inp_file, ldos_file)
-        return LDos(complete_dos, charge_transfer)
+        return cls(complete_dos, charge_transfer)
 
     @staticmethod
     def charge_transfer_from_file(feff_inp_file, ldos_file):
@@ -287,8 +287,8 @@ class Xmu(MSONable):
         self.absorbing_atom = absorbing_atom
         self.data = np.array(data)
 
-    @staticmethod
-    def from_file(xmu_dat_file="xmu.dat", feff_inp_file="feff.inp"):
+    @classmethod
+    def from_file(cls, xmu_dat_file="xmu.dat", feff_inp_file="feff.inp"):
         """
         Get Xmu from file.
 
@@ -307,7 +307,7 @@ class Xmu(MSONable):
         # site index (Note: in feff it starts from 1)
         # else case is species symbol
         absorbing_atom = parameters["TARGET"] if "RECIPROCAL" in parameters else pots.splitlines()[3].split()[2]
-        return Xmu(header, parameters, absorbing_atom, data)
+        return cls(header, parameters, absorbing_atom, data)
 
     @property
     def energies(self):
@@ -412,8 +412,8 @@ class Eels(MSONable):
         """Returns: Fine structure of EELS."""
         return self.data[:, 3]
 
-    @staticmethod
-    def from_file(eels_dat_file="eels.dat"):
+    @classmethod
+    def from_file(cls, eels_dat_file="eels.dat"):
         """
         Parse eels spectrum.
 
@@ -424,7 +424,7 @@ class Eels(MSONable):
             Eels
         """
         data = np.loadtxt(eels_dat_file)
-        return Eels(data)
+        return cls(data)
 
     def as_dict(self):
         """Returns dict representations of Xmu object."""

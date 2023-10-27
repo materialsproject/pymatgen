@@ -228,11 +228,11 @@ class Header(MSONable):
         """Formula of structure."""
         return self.struct.composition.formula
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """Returns Header object from file."""
-        hs = Header.header_string_from_file(filename)
-        return Header.from_str(hs)
+        hs = cls.header_string_from_file(filename)
+        return cls.from_str(hs)
 
     @staticmethod
     def header_string_from_file(filename="feff.inp"):
@@ -675,8 +675,8 @@ class Tags(dict):
         with zopen(filename, "wt") as f:
             f.write(f"{self}\n")
 
-    @staticmethod
-    def from_file(filename="feff.inp"):
+    @classmethod
+    def from_file(cls, filename="feff.inp"):
         """
         Creates a Feff_tag dictionary from a PARAMETER or feff.inp file.
 
@@ -725,7 +725,7 @@ class Tags(dict):
                 eels_dict[k] = str(v)
             params[str(eels_params[0].split()[0])] = eels_dict
 
-        return Tags(params)
+        return cls(params)
 
     @staticmethod
     def proc_val(key, val):

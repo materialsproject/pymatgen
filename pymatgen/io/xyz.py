@@ -101,8 +101,8 @@ class XYZ:
             mols.append(XYZ._from_frame_string(xyz_text))
         return cls(mols)
 
-    @staticmethod
-    def from_file(filename) -> XYZ:
+    @classmethod
+    def from_file(cls, filename) -> XYZ:
         """
         Creates XYZ object from a file.
 
@@ -113,7 +113,7 @@ class XYZ:
             XYZ object
         """
         with zopen(filename, "rt") as f:
-            return XYZ.from_str(f.read())
+            return cls.from_str(f.read())
 
     def as_dataframe(self):
         """

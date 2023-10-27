@@ -134,8 +134,8 @@ class ZeoCssr(Cssr):
                 charge.append(m.group(5))
         return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads a CSSR file to a ZeoCssr object.
 
@@ -146,7 +146,7 @@ class ZeoCssr(Cssr):
             ZeoCssr object.
         """
         with zopen(filename, "r") as f:
-            return ZeoCssr.from_str(f.read())
+            return cls.from_str(f.read())
 
 
 class ZeoVoronoiXYZ(XYZ):
@@ -190,8 +190,8 @@ class ZeoVoronoiXYZ(XYZ):
                 prop.append(float(m.group(5)))
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Creates XYZ object from a file.
 
@@ -202,7 +202,7 @@ class ZeoVoronoiXYZ(XYZ):
             XYZ object
         """
         with zopen(filename) as f:
-            return ZeoVoronoiXYZ.from_str(f.read())
+            return cls.from_str(f.read())
 
     def __str__(self) -> str:
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]

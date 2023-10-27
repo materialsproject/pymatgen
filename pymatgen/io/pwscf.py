@@ -220,8 +220,8 @@ class PWInput:
         with open(filename, "w") as f:
             f.write(str(self))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads an PWInput object from a file.
 
@@ -232,7 +232,7 @@ class PWInput:
             PWInput object
         """
         with zopen(filename, "rt") as f:
-            return PWInput.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     @np.deprecate(message="Use from_str instead")

@@ -139,8 +139,8 @@ class ExcitingInput(MSONable):
 
         return cls(structure_in, title_in, lockxyz)
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         :param filename: Filename
 
@@ -149,7 +149,7 @@ class ExcitingInput(MSONable):
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
-        return ExcitingInput.from_str(data)
+        return cls.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """

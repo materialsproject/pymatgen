@@ -208,8 +208,8 @@ class Poscar(MSONable):
             value = value.tolist()
         super().__setattr__(name, value)
 
-    @staticmethod
-    def from_file(filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
+    @classmethod
+    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
         """
         Reads a Poscar from a file.
 
@@ -257,7 +257,7 @@ class Poscar(MSONable):
                 except Exception:
                     names = None
         with zopen(filename, "rt") as f:
-            return Poscar.from_str(f.read(), names, read_velocities=read_velocities)
+            return cls.from_str(f.read(), names, read_velocities=read_velocities)
 
     @classmethod
     @deprecated(message="Use from_str instead")
@@ -748,8 +748,8 @@ class Incar(dict, MSONable):
         with zopen(filename, "wt") as f:
             f.write(str(self))
 
-    @staticmethod
-    def from_file(filename: PathLike) -> Incar:
+    @classmethod
+    def from_file(cls, filename: PathLike) -> Incar:
         """Reads an Incar object from a file.
 
         Args:
@@ -759,7 +759,7 @@ class Incar(dict, MSONable):
             Incar object
         """
         with zopen(filename, "rt") as f:
-            return Incar.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
@@ -1313,8 +1313,8 @@ class Kpoints(MSONable):
             num_kpts=int(divisions),
         )
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads a Kpoints object from a KPOINTS file.
 
@@ -1325,7 +1325,7 @@ class Kpoints(MSONable):
             Kpoints object
         """
         with zopen(filename, "rt") as f:
-            return Kpoints.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
@@ -1780,8 +1780,8 @@ class PotcarSingle:
         with zopen(filename, "wt") as file:
             file.write(str(self))
 
-    @staticmethod
-    def from_file(filename: str) -> PotcarSingle:
+    @classmethod
+    def from_file(cls, filename: str) -> PotcarSingle:
         """
         Reads PotcarSingle from file.
 
@@ -1795,13 +1795,13 @@ class PotcarSingle:
 
         try:
             with zopen(filename, "rt") as file:
-                return PotcarSingle(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as file:
-                return PotcarSingle(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)
 
     @classmethod
     def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
@@ -2391,8 +2391,8 @@ class Potcar(list, MSONable):
         """
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
-    @staticmethod
-    def from_file(filename: str):
+    @classmethod
+    def from_file(cls, filename: str):
         """
         Reads Potcar from file.
 
@@ -2403,7 +2403,7 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, "rt") as f:
             fdata = f.read()
-        potcar = Potcar()
+        potcar = cls()
 
         functionals = []
         for psingle_str in fdata.split("End of Dataset"):

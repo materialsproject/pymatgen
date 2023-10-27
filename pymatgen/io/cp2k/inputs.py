@@ -730,12 +730,12 @@ class Cp2kInput(Section):
             .subsections,
         )
 
-    @staticmethod
-    def from_file(file: str):
+    @classmethod
+    def from_file(cls, file: str):
         """Initialize from a file."""
         with zopen(file, "rt") as f:
             txt = preprocessor(f.read(), os.path.dirname(f.name))
-            return Cp2kInput.from_str(txt)
+            return cls.from_str(txt)
 
     @classmethod
     @np.deprecate(message="Use from_str instead")

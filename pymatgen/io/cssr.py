@@ -81,7 +81,7 @@ class Cssr:
                 coords.append([float(m.group(i)) for i in range(2, 5)])
         return cls(Structure(latt, sp, coords))
 
-    @staticmethod
+    @classmethod
     def from_file(filename):
         """
         Reads a CSSR file to a Cssr object.

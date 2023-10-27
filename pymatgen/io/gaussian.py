@@ -355,8 +355,8 @@ class GaussianInput:
             dieze_tag=dieze_tag,
         )
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Creates GaussianInput from a file.
 
@@ -367,7 +367,7 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, "r") as f:
-            return GaussianInput.from_str(f.read())
+            return cls.from_str(f.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""

@@ -297,8 +297,8 @@ class PoscarTransmuter(StandardTransmuter):
         trafo_struct = TransformedStructure.from_poscar_string(poscar_string, [])
         super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
-    @staticmethod
-    def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, poscar_filenames, transformations=None, extend_collection=False):
         """Convenient constructor to generates a POSCAR transmuter from a list of
         POSCAR filenames.
 
@@ -313,7 +313,7 @@ class PoscarTransmuter(StandardTransmuter):
         for filename in poscar_filenames:
             with open(filename) as f:
                 trafo_structs.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
+        return cls(trafo_structs, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(
