@@ -852,6 +852,7 @@ class Incar(dict, MSONable):
             "ISIF",
             "IBRION",
             "ISPIN",
+            "ISTART",
             "ICHARG",
             "NELM",
             "ISMEAR",
