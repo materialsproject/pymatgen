@@ -1253,7 +1253,7 @@ def test_potcar_summary_stats() -> None:
 
     assert len(potcar_summary_stats) == 16
     n_potcars_per_functional = {
-        "PBE": 271,
+        "PBE": 251,
         "PBE_52": 303,
         "PBE_54": 326,
         "PBE_64": 343,

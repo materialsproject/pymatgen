@@ -1946,6 +1946,66 @@ class PotcarSingle:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
+        This method checks the summary statistics of either the POTCAR metadadata 
+        (PotcarSingle._summary_stats[key]["header"] for key in ("keywords", "stats") )
+        or the entire POTCAR file (PotcarSingle._summary_stats) against a database
+        of hashes for POTCARs distributed with VASP 5.4.4.
+
+        Args:
+            mode ('data' | 'file'): 'data' mode checks the POTCAR header keywords and stats only
+                while 'file' mode checks the entire summary stats.
+
+        Returns:
+            symbol (list): List of symbols associated with the PotcarSingle
+            potcar_functionals (list): List of potcar functionals associated with
+                the PotcarSingle
+        """
+
+        if mode == "data":
+            check_modes = ["header"]
+        elif mode == "file":
+            check_modes = ["header","data"]
+        else:
+            raise ValueError(f"Bad {mode=}. Choose 'data' or 'file'.")
+        
+        data_match_tol = 1e-6
+        identity = {"potcar_functionals": [], "potcar_symbols": []}
+        for func in self.functional_dir:
+            for ref_psp in self.potcar_summary_stats[func].get(
+                self.TITEL.replace(" ", ""), []
+            ):
+                if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
+                    continue
+      
+                key_match = all(
+                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
+                    for key in check_modes
+                )
+
+                data_diff = [
+                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
+                    for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                    for key in check_modes
+                ]
+
+                data_match = all(np.array(data_diff) < data_match_tol)
+
+                if key_match and data_match:
+                    identity["potcar_functionals"].append(func)
+                    identity["potcar_symbols"].append(ref_psp["symbol"])
+
+        for key in identity:
+            if len(identity[key]) == 0:
+                # the two keys are set simultaneously, either key being zero indicates no match
+                return [], []
+            identity[key] = list(set(identity[key]))
+
+        return identity["potcar_functionals"], identity["potcar_symbols"]
+
+    def identify_potcar_hash_based(self, mode: Literal["data", "file"] = "data"):
+        """
+        Identify the symbol and compatible functionals associated with this PotcarSingle.
+
         This method checks the md5 hash of either the POTCAR metadadata (PotcarSingle.md5_header_hash)
         or the entire POTCAR file (PotcarSingle.md5_computed_file_hash) against a database
         of hashes for POTCARs distributed with VASP 5.4.4.
@@ -2360,6 +2420,7 @@ def _gen_potcar_summary_stats(
                 {
                     "LEXCH": psp.LEXCH,
                     "VRHFIN": psp.VRHFIN.replace(" ", ""),
+                    "symbol": psp.symbol,
                     **psp._summary_stats,
                 }
             )
