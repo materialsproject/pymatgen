@@ -280,8 +280,8 @@ class GaussianInput:
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(contents):
+    @classmethod
+    def from_str(cls, contents):
         """
         Creates GaussianInput from a string.
 
@@ -328,7 +328,7 @@ class GaussianInput:
         spaces = 0
         input_paras = {}
         ind += 1
-        if GaussianInput._xyz_patt.match(lines[route_index + ind]):
+        if cls._xyz_patt.match(lines[route_index + ind]):
             spaces += 1
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
@@ -339,10 +339,10 @@ class GaussianInput:
                     input_paras[d[0]] = d[1]
             else:
                 coord_lines.append(lines[i].strip())
-        mol = GaussianInput._parse_coords(coord_lines)
+        mol = cls._parse_coords(coord_lines)
         mol.set_charge_and_spin(charge, spin_mult)
 
-        return GaussianInput(
+        return cls(
             mol,
             charge=charge,
             spin_multiplicity=spin_mult,
@@ -355,8 +355,8 @@ class GaussianInput:
             dieze_tag=dieze_tag,
         )
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Creates GaussianInput from a file.
 
@@ -367,7 +367,7 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, "r") as f:
-            return GaussianInput.from_str(f.read())
+            return cls.from_str(f.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
