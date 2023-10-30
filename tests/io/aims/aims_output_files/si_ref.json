@@ -1,0 +1,767 @@
+{
+  "@module": "pymatgen.io.aims.output",
+  "@class": "AimsOutput",
+  "results": [
+    {
+      "@module": "pymatgen.core.structure",
+      "@class": "Structure",
+      "charge": 0,
+      "lattice": {
+        "matrix": [
+          [
+            0.0,
+            2.755,
+            2.755
+          ],
+          [
+            2.755,
+            0.0,
+            2.755
+          ],
+          [
+            2.755,
+            2.755,
+            0.0
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ],
+        "a": 3.896158364337877,
+        "b": 3.896158364337877,
+        "c": 3.896158364337877,
+        "alpha": 60.00000000000001,
+        "beta": 60.00000000000001,
+        "gamma": 60.00000000000001,
+        "volume": 41.821037749999995
+      },
+      "properties": {
+        "energy": -15800.1843792097,
+        "free_energy": -15800.1843792097,
+        "stress": {
+          "@module": "numpy",
+          "@class": "array",
+          "dtype": "float64",
+          "data": [
+            -55.4234358099127,
+            -55.423499896973894,
+            -55.423499896973894,
+            0.0,
+            0.0,
+            -0.0
+          ]
+        },
+        "fermi_energy": -4.8867571,
+        "vbm": -5.3090984,
+        "cbm": -4.59331867,
+        "gap": 0.71577973,
+        "direct_gap": 2.43039973
+      },
+      "sites": [
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "xyz": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                -4.86952935970507e-09,
+                -3.19270797951684e-09,
+                -2.76241042439398e-09
+              ]
+            }
+          },
+          "label": "Si"
+        },
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.25,
+            0.25,
+            0.25
+          ],
+          "xyz": [
+            1.3775,
+            1.3775,
+            1.3775
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                4.86952935970508e-09,
+                3.19270797951684e-09,
+                2.76241042439398e-09
+              ]
+            }
+          },
+          "label": "Si"
+        }
+      ],
+      "@version": null
+    },
+    {
+      "@module": "pymatgen.core.structure",
+      "@class": "Structure",
+      "charge": 0,
+      "lattice": {
+        "matrix": [
+          [
+            2e-08,
+            2.7724162,
+            2.7724162
+          ],
+          [
+            2.77241617,
+            -1e-08,
+            2.77241618
+          ],
+          [
+            2.77241617,
+            2.77241618,
+            -1e-08
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ],
+        "a": 3.920788590582879,
+        "b": 3.9207885552275403,
+        "c": 3.9207885552275403,
+        "alpha": 60.00000035795203,
+        "beta": 59.99999982102398,
+        "gamma": 59.99999982102398,
+        "volume": 42.61919785339546
+      },
+      "properties": {
+        "energy": -15800.206094291,
+        "free_energy": -15800.206094291,
+        "stress": {
+          "@module": "numpy",
+          "@class": "array",
+          "dtype": "float64",
+          "data": [
+            -37.4627805603679,
+            -37.4628286256638,
+            -37.4628286256638,
+            0.0,
+            -0.0,
+            -0.0
+          ]
+        },
+        "fermi_energy": -4.92520044,
+        "vbm": -5.28814064,
+        "cbm": -4.53504686,
+        "gap": 0.75309378,
+        "direct_gap": 2.42412061
+      },
+      "sites": [
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "xyz": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                4.02258645112855e-08,
+                -7.89345665168126e-09,
+                -9.46066143948756e-09
+              ]
+            }
+          },
+          "label": "Si"
+        },
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.24999999909825948,
+            0.25,
+            0.24999999999999992
+          ],
+          "xyz": [
+            1.3862080899999998,
+            1.3862080899999998,
+            1.38620809
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                -4.02258645112855e-08,
+                7.89345665168126e-09,
+                9.46066143948756e-09
+              ]
+            }
+          },
+          "label": "Si"
+        }
+      ],
+      "@version": null
+    },
+    {
+      "@module": "pymatgen.core.structure",
+      "@class": "Structure",
+      "charge": 0,
+      "lattice": {
+        "matrix": [
+          [
+            7e-08,
+            2.81020375,
+            2.81020375
+          ],
+          [
+            2.81020365,
+            -3e-08,
+            2.81020369
+          ],
+          [
+            2.81020365,
+            2.81020369,
+            -4e-08
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ],
+        "a": 3.974228256281731,
+        "b": 3.974228143144646,
+        "c": 3.974228143144646,
+        "alpha": 60.000001294842356,
+        "beta": 59.99999941143533,
+        "gamma": 59.99999929372239,
+        "volume": 44.385733155075606
+      },
+      "properties": {
+        "energy": -15800.2255887876,
+        "free_energy": -15800.2255887876,
+        "stress": {
+          "@module": "numpy",
+          "@class": "array",
+          "dtype": "float64",
+          "data": [
+            -3.9731895114510998,
+            -3.9731895114510998,
+            -3.9731895114510998,
+            0.0,
+            -0.0,
+            -0.0
+          ]
+        },
+        "fermi_energy": -5.00860218,
+        "vbm": -5.24626422,
+        "cbm": -4.41783015,
+        "gap": 0.82843407,
+        "direct_gap": 2.27813973
+      },
+      "sites": [
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            -1.7792304458953265e-09,
+            1.7792305092085464e-09,
+            1.7792305028772258e-09
+          ],
+          "xyz": [
+            1e-08,
+            8.271806125530277e-25,
+            -3.1093454245518094e-24
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                -2.22260903726852e-07,
+                3.23486013650826e-08,
+                3.98293064328442e-08
+              ]
+            }
+          },
+          "label": "Si"
+        },
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.25000000177923043,
+            0.24999999822076938,
+            0.2499999973311543
+          ],
+          "xyz": [
+            1.4051018299999998,
+            1.4051018499999999,
+            1.4051018499999997
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                2.22260903726852e-07,
+                -3.23486013650826e-08,
+                -3.98293064328442e-08
+              ]
+            }
+          },
+          "label": "Si"
+        }
+      ],
+      "@version": null
+    },
+    {
+      "@module": "pymatgen.core.structure",
+      "@class": "Structure",
+      "charge": 0,
+      "lattice": {
+        "matrix": [
+          [
+            7e-08,
+            2.81482492,
+            2.81482492
+          ],
+          [
+            2.81482482,
+            -4e-08,
+            2.81482486
+          ],
+          [
+            2.81482482,
+            2.81482486,
+            -4e-08
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ],
+        "a": 3.9807635775697627,
+        "b": 3.9807634644326773,
+        "c": 3.9807634644326777,
+        "alpha": 60.00000141023626,
+        "beta": 59.9999994124016,
+        "gamma": 59.99999941240159,
+        "volume": 44.60506057163639
+      },
+      "properties": {
+        "energy": -15800.2255668194,
+        "free_energy": -15800.2255668194,
+        "stress": {
+          "@module": "numpy",
+          "@class": "array",
+          "dtype": "float64",
+          "data": [
+            -0.3034682565473,
+            -0.3034682565473,
+            -0.3034682565473,
+            1.60217653e-05,
+            -0.0,
+            -0.0
+          ]
+        },
+        "fermi_energy": -5.0187557,
+        "vbm": -5.24146614,
+        "cbm": -4.40429223,
+        "gap": 0.83717391,
+        "direct_gap": 2.22521105
+      },
+      "sites": [
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            1.7763094346098194e-09,
+            -1.7763094977153252e-09,
+            -1.776309497715325e-09
+          ],
+          "xyz": [
+            -1e-08,
+            8.271806125530277e-25,
+            -3.171493365779318e-25
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                3.41280940656103e-07,
+                -3.65477601296885e-08,
+                -5.65529618943033e-08
+              ]
+            }
+          },
+          "label": "Si"
+        },
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.24999999955592267,
+            0.25000000222038693,
+            0.2500000022203868
+          ],
+          "xyz": [
+            1.4074124400000003,
+            1.4074124399999999,
+            1.40741244
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                -3.41280940656103e-07,
+                3.65477601296885e-08,
+                5.65529618943033e-08
+              ]
+            }
+          },
+          "label": "Si"
+        }
+      ],
+      "@version": null
+    },
+    {
+      "@module": "pymatgen.core.structure",
+      "@class": "Structure",
+      "charge": 0,
+      "lattice": {
+        "matrix": [
+          [
+            7e-08,
+            2.81520842,
+            2.81520842
+          ],
+          [
+            2.81520832,
+            -4e-08,
+            2.81520837
+          ],
+          [
+            2.81520832,
+            2.81520837,
+            -4e-08
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ],
+        "a": 3.981305928470933,
+        "b": 3.9813058224049156,
+        "c": 3.9813058224049156,
+        "alpha": 60.00000152754783,
+        "beta": 59.99999935372981,
+        "gamma": 59.99999935372981,
+        "volume": 44.623294587182535
+      },
+      "properties": {
+        "energy": -15800.2255427229,
+        "free_energy": -15800.2255427229,
+        "stress": {
+          "@module": "numpy",
+          "@class": "array",
+          "dtype": "float64",
+          "data": [
+            -0.0019065900707,
+            -0.0019065900707,
+            -0.0019065900707,
+            -0.0,
+            -0.0,
+            0.0
+          ]
+        },
+        "fermi_energy": -5.01959746,
+        "vbm": -5.24107103,
+        "cbm": -4.40317611,
+        "gap": 0.83789492,
+        "direct_gap": 2.2208318
+      },
+      "sites": [
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            -3.5521349285556898e-09,
+            3.552135042114654e-09,
+            3.5521350421146537e-09
+          ],
+          "xyz": [
+            2.0000000000000004e-08,
+            -1.6543612251060553e-24,
+            -5.681176805504126e-25
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                -5.77774893695394e-07,
+                6.65273903016273e-08,
+                1.10901338442392e-07
+              ]
+            }
+          },
+          "label": "Si"
+        },
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.25000000399615174,
+            0.24999999689188188,
+            0.2499999968918819
+          ],
+          "xyz": [
+            1.4076041600000004,
+            1.4076041900000003,
+            1.4076041899999998
+          ],
+          "properties": {
+            "force": {
+              "@module": "numpy",
+              "@class": "array",
+              "dtype": "float64",
+              "data": [
+                5.77774893695393e-07,
+                -6.65273903016273e-08,
+                -1.10901338442392e-07
+              ]
+            }
+          },
+          "label": "Si"
+        }
+      ],
+      "@version": null
+    }
+  ],
+  "metadata": {
+    "commit_hash": "232d594a3",
+    "aims_uuid": "7F959EC8-A7E1-43AC-A4DA-9302788CF7F6",
+    "version_number": "220309",
+    "fortran_compiler": "mpiifort (Intel) version 2021.6.0.20220226",
+    "c_compiler": "icc (Intel) version 2021.6.0.20220226",
+    "fortran_compiler_flags": "-O3 -ip -fp-model precise",
+    "c_compiler_flags": "-m64 -O3 -ip -fp-model precise -std=gnu99",
+    "build_type": [
+      "MPI",
+      "ScaLAPACK",
+      "LibXC",
+      "i-PI",
+      "RLSY"
+    ],
+    "linked_against": [
+      "/home/tpurcell/intel/oneapi/mkl/2022.1.0/lib/intel64/libmkl_scalapack_lp64.so",
+      "/home/tpurcell/intel/oneapi/mkl/2022.1.0/lib/intel64/libmkl_blacs_intelmpi_lp64.so",
+      "/home/tpurcell/intel/oneapi/mkl/2022.1.0/lib/intel64/libmkl_intel_lp64.so",
+      "/home/tpurcell/intel/oneapi/mkl/2022.1.0/lib/intel64/libmkl_sequential.so",
+      "/home/tpurcell/intel/oneapi/mkl/2022.1.0/lib/intel64/libmkl_core.so"
+    ]
+  },
+  "structure_summary": {
+    "initial_structure": {
+      "@module": "pymatgen.core.structure",
+      "@class": "Structure",
+      "charge": 0.0,
+      "lattice": {
+        "matrix": [
+          [
+            0.0,
+            2.755,
+            2.755
+          ],
+          [
+            2.755,
+            0.0,
+            2.755
+          ],
+          [
+            2.755,
+            2.755,
+            0.0
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ],
+        "a": 3.896158364337877,
+        "b": 3.896158364337877,
+        "c": 3.896158364337877,
+        "alpha": 60.00000000000001,
+        "beta": 60.00000000000001,
+        "gamma": 60.00000000000001,
+        "volume": 41.821037749999995
+      },
+      "properties": {},
+      "sites": [
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "xyz": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "properties": {
+            "charge": 0.0
+          },
+          "label": "Si"
+        },
+        {
+          "species": [
+            {
+              "element": "Si",
+              "occu": 1
+            }
+          ],
+          "abc": [
+            0.25,
+            0.25,
+            0.25
+          ],
+          "xyz": [
+            1.3775,
+            1.3775,
+            1.3775
+          ],
+          "properties": {
+            "charge": 0.0
+          },
+          "label": "Si"
+        }
+      ],
+      "@version": null
+    },
+    "initial_lattice": {
+      "@module": "pymatgen.core.lattice",
+      "@class": "Lattice",
+      "matrix": [
+        [
+          0.0,
+          2.755,
+          2.755
+        ],
+        [
+          2.755,
+          0.0,
+          2.755
+        ],
+        [
+          2.755,
+          2.755,
+          0.0
+        ]
+      ],
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "@version": null
+    },
+    "is_relaxation": true,
+    "is_md": false,
+    "n_atoms": 2,
+    "n_bands": 20,
+    "n_electrons": 28,
+    "n_spins": 1,
+    "electronic_temperature": 0.1,
+    "n_k_points": 8,
+    "k_points": null,
+    "k_point_weights": null
+  }
+}
