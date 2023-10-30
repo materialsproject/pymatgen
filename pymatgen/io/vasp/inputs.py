@@ -89,6 +89,7 @@ class Poscar(MSONable):
         velocities: ArrayLike | None = None,
         predictor_corrector: ArrayLike | None = None,
         predictor_corrector_preamble: str | None = None,
+        lattice_velocities: ArrayLike | None = None,
         sort_structure: bool = False,
     ):
         """
@@ -108,6 +109,8 @@ class Poscar(MSONable):
                 Typically parsed in MD runs. Defaults to None.
             predictor_corrector_preamble (str | None, optional): Preamble to the predictor
                 corrector. Defaults to None.
+            lattice_velocities (ArrayLike | None, optional): Lattice velocities and current
+                lattice for the POSCAR. Available in MD runs with variable cell. Defaults to None.
             sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
@@ -137,6 +140,9 @@ class Poscar(MSONable):
             self.comment = structure.formula if comment is None else comment
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
+
+            if lattice_velocities is not None and np.any(lattice_velocities):
+                self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
         else:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
@@ -162,6 +168,11 @@ class Poscar(MSONable):
         """Predictor corrector preamble in Poscar."""
         return self.structure.properties.get("predictor_corrector_preamble")
 
+    @property
+    def lattice_velocities(self):
+        """Lattice velocities in Poscar (including the current lattice vectors)."""
+        return self.structure.properties.get("lattice_velocities")
+
     @velocities.setter  # type: ignore
     def velocities(self, velocities):
         """Setter for Poscar.velocities."""
@@ -181,6 +192,11 @@ class Poscar(MSONable):
     def predictor_corrector_preamble(self, predictor_corrector_preamble):
         """Setter for Poscar.predictor_corrector."""
         self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
+
+    @lattice_velocities.setter  # type: ignore
+    def lattice_velocities(self, lattice_velocities: ArrayLike) -> None:
+        """Setter for Poscar.lattice_velocities."""
+        self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
     @property
     def site_symbols(self) -> list[str]:
@@ -208,8 +224,8 @@ class Poscar(MSONable):
             value = value.tolist()
         super().__setattr__(name, value)
 
-    @staticmethod
-    def from_file(filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
+    @classmethod
+    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
         """
         Reads a Poscar from a file.
 
@@ -257,15 +273,15 @@ class Poscar(MSONable):
                 except Exception:
                     names = None
         with zopen(filename, "rt") as f:
-            return Poscar.from_str(f.read(), names, read_velocities=read_velocities)
+            return cls.from_str(f.read(), names, read_velocities=read_velocities)
 
     @classmethod
     @deprecated(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(data, default_names=None, read_velocities=True):
+    @classmethod
+    def from_str(cls, data, default_names=None, read_velocities=True):
         """
         Reads a Poscar from a string.
 
@@ -422,6 +438,15 @@ class Poscar(MSONable):
         )
 
         if read_velocities:
+            # Parse the lattice velocities and current lattice, if present.
+            # The header line should contain "Lattice velocities and vectors"
+            # There is no space between the coordinates and this section, so
+            # it appears in the lines of the first chunk
+            lattice_velocities = []
+            if len(lines) > ipos + n_sites + 1 and lines[ipos + n_sites + 1].lower().startswith("l"):
+                for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]:
+                    lattice_velocities.append([float(tok) for tok in line.split()])
+
             # Parse velocities if any
             velocities = []
             if len(chunks) > 1:
@@ -450,9 +475,9 @@ class Poscar(MSONable):
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
-            velocities = predictor_corrector = predictor_corrector_preamble = None
+            velocities = predictor_corrector = predictor_corrector_preamble = lattice_velocities = None
 
-        return Poscar(
+        return cls(
             struct,
             comment,
             selective_dynamics,
@@ -460,6 +485,7 @@ class Poscar(MSONable):
             velocities=velocities,
             predictor_corrector=predictor_corrector,
             predictor_corrector_preamble=predictor_corrector_preamble,
+            lattice_velocities=lattice_velocities,
         )
 
     @np.deprecate(message="Use get_str instead")
@@ -513,6 +539,15 @@ class Poscar(MSONable):
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += " " + site.species_string
             lines.append(line)
+
+        if self.lattice_velocities is not None:
+            try:
+                lines.append("Lattice velocities and vectors")
+                lines.append("  1")
+                for v in self.lattice_velocities:
+                    lines.append(" ".join(format_str.format(i) for i in v))
+            except Exception:
+                warnings.warn("Lattice velocities are missing or corrupted.")
 
         if self.velocities:
             try:
@@ -748,8 +783,8 @@ class Incar(dict, MSONable):
         with zopen(filename, "wt") as f:
             f.write(str(self))
 
-    @staticmethod
-    def from_file(filename: PathLike) -> Incar:
+    @classmethod
+    def from_file(cls, filename: PathLike) -> Incar:
         """Reads an Incar object from a file.
 
         Args:
@@ -759,15 +794,15 @@ class Incar(dict, MSONable):
             Incar object
         """
         with zopen(filename, "rt") as f:
-            return Incar.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string: str) -> Incar:
+    @classmethod
+    def from_str(cls, string: str) -> Incar:
         """Reads an Incar object from a string.
 
         Args:
@@ -786,7 +821,7 @@ class Incar(dict, MSONable):
                     val = m.group(2).strip()
                     val = Incar.proc_val(key, val)
                     params[key] = val
-        return Incar(params)
+        return cls(params)
 
     @staticmethod
     def proc_val(key: str, val: Any):
@@ -817,6 +852,7 @@ class Incar(dict, MSONable):
             "ISIF",
             "IBRION",
             "ISPIN",
+            "ISTART",
             "ICHARG",
             "NELM",
             "ISMEAR",
@@ -969,8 +1005,8 @@ class KpointsSupportedModes(Enum):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(mode: str) -> KpointsSupportedModes:
+    @classmethod
+    def from_str(cls, mode: str) -> KpointsSupportedModes:
         """
         :param s: String
 
@@ -1313,8 +1349,8 @@ class Kpoints(MSONable):
             num_kpts=int(divisions),
         )
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads a Kpoints object from a KPOINTS file.
 
@@ -1325,15 +1361,15 @@ class Kpoints(MSONable):
             Kpoints object
         """
         with zopen(filename, "rt") as f:
-            return Kpoints.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string):
         """
         Reads a Kpoints object from a KPOINTS string.
 
@@ -1351,7 +1387,7 @@ class Kpoints(MSONable):
 
         # Fully automatic KPOINTS
         if style == "a":
-            return Kpoints.automatic(int(lines[3].split()[0].strip()))
+            return cls.automatic(int(lines[3].split()[0].strip()))
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
@@ -1364,15 +1400,11 @@ class Kpoints(MSONable):
                     kpts_shift = [float(i) for i in lines[4].split()]
                 except ValueError:
                     pass
-            return (
-                Kpoints.gamma_automatic(kpts, kpts_shift)
-                if style == "g"
-                else Kpoints.monkhorst_automatic(kpts, kpts_shift)
-            )
+            return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
+            style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
             kpts_shift = [float(i) for i in lines[6].split()]
             return Kpoints(
@@ -1386,7 +1418,7 @@ class Kpoints(MSONable):
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
-            style = Kpoints.supported_modes.Line_mode
+            style = cls.supported_modes.Line_mode
             kpts = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
@@ -1406,7 +1438,7 @@ class Kpoints(MSONable):
             )
 
         # Assume explicit KPOINTS if all else fails.
-        style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
+        style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
         labels = []
@@ -1435,10 +1467,10 @@ class Kpoints(MSONable):
         except IndexError:
             pass
 
-        return Kpoints(
+        return cls(
             comment=comment,
             num_kpts=num_kpts,
-            style=Kpoints.supported_modes[str(style)],
+            style=cls.supported_modes[str(style)],
             kpts=kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
@@ -1784,8 +1816,8 @@ class PotcarSingle:
         with zopen(filename, "wt") as file:
             file.write(str(self))
 
-    @staticmethod
-    def from_file(filename: str) -> PotcarSingle:
+    @classmethod
+    def from_file(cls, filename: str) -> PotcarSingle:
         """
         Reads PotcarSingle from file.
 
@@ -1799,16 +1831,16 @@ class PotcarSingle:
 
         try:
             with zopen(filename, "rt") as file:
-                return PotcarSingle(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as file:
-                return PotcarSingle(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)
 
-    @staticmethod
-    def from_symbol_and_functional(symbol: str, functional: str | None = None):
+    @classmethod
+    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
         """
         Makes a PotcarSingle from a symbol and functional.
 
@@ -1821,7 +1853,7 @@ class PotcarSingle:
         """
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         assert isinstance(functional, str)  # mypy type narrowing
-        funcdir = PotcarSingle.functional_dir[functional]
+        funcdir = cls.functional_dir[functional]
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
             raise ValueError(
@@ -1835,7 +1867,7 @@ class PotcarSingle:
             path = os.path.expanduser(path)
             path = zpath(path)
             if os.path.isfile(path):
-                return PotcarSingle.from_file(path)
+                return cls.from_file(path)
         raise OSError(
             f"You do not have the right POTCAR with {functional=} and {symbol=} "
             f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"
@@ -2395,8 +2427,8 @@ class Potcar(list, MSONable):
         """
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
-    @staticmethod
-    def from_file(filename: str):
+    @classmethod
+    def from_file(cls, filename: str):
         """
         Reads Potcar from file.
 
@@ -2407,7 +2439,7 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, "rt") as f:
             fdata = f.read()
-        potcar = Potcar()
+        potcar = cls()
 
         functionals = []
         for psingle_str in fdata.split("End of Dataset"):

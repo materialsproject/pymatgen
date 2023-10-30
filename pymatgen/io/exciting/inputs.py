@@ -70,11 +70,11 @@ class ExcitingInput(MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(data):
+    @classmethod
+    def from_str(cls, data):
         """Reads the exciting input from a string."""
         root = ET.fromstring(data)
-        speciesnode = root.find("structure").iter("species")
+        species_node = root.find("structure").iter("species")
         elements = []
         positions = []
         vectors = []
@@ -82,7 +82,7 @@ class ExcitingInput(MSONable):
         # get title
         title_in = str(root.find("title").text)
         # Read elements and coordinates
-        for nodes in speciesnode:
+        for nodes in species_node:
             symbol = nodes.get("speciesfile").split(".")[0]
             if len(symbol.split("_")) == 2:
                 symbol = symbol.split("_")[0]
@@ -137,10 +137,10 @@ class ExcitingInput(MSONable):
         lattice_in = Lattice(vectors)
         structure_in = Structure(lattice_in, elements, positions, coords_are_cartesian=cartesian)
 
-        return ExcitingInput(structure_in, title_in, lockxyz)
+        return cls(structure_in, title_in, lockxyz)
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         :param filename: Filename
 
@@ -149,7 +149,7 @@ class ExcitingInput(MSONable):
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
-        return ExcitingInput.from_str(data)
+        return cls.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
