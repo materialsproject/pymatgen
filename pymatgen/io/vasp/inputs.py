@@ -76,6 +76,8 @@ class Poscar(MSONable):
             i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
         predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
             POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
+        lattice_velocities: Lattice velocities and current lattice (typically read
+            in from a MD CONTCAR). A 6x3 array of floats.
         temperature: Temperature of velocity Maxwell-Boltzmann initialization.
             Initialized to -1 (MB hasn't been performed).
     """
@@ -545,7 +547,8 @@ class Poscar(MSONable):
                 lines.append("Lattice velocities and vectors")
                 lines.append("  1")
                 for v in self.lattice_velocities:
-                    lines.append(" ".join(format_str.format(i) for i in v))
+                    # vasp is strict about the format when reading this quantity
+                    lines.append(" ".join(f" {i: .7E}" for i in v))
             except Exception:
                 warnings.warn("Lattice velocities are missing or corrupted.")
 
