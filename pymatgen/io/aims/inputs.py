@@ -123,7 +123,6 @@ class AimsGeometryIn(MSONable):
         charges = structure.site_properties.get("charge", np.zeros(len(structure.species)))
         magmoms = structure.site_properties.get("magmom", np.zeros(len(structure.species)))
         for species, coord, charge, magmom in zip(structure.species, structure.cart_coords, charges, magmoms):
-            print(coord)
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {species}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
@@ -259,7 +258,11 @@ class AimsCube(MSONable):
     type: str = field(default_factory=str)
     origin: Sequence[float] | tuple[float, float, float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
     edges: Sequence[Sequence[float]] = field(
-        default_factory=lambda: [[0.1, 0.0, 0.0], [0.0, 0.1, 0.0], [0.0, 0.0, 0.1]]
+        default_factory=lambda: [
+            [0.1, 0.0, 0.0],
+            [0.0, 0.1, 0.0],
+            [0.0, 0.0, 0.1],
+        ]
     )
     points: Sequence[int] | tuple[int, int, int] = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"
@@ -307,7 +310,7 @@ class AimsCube(MSONable):
     @property
     def control_block(self):
         cb = f"output cube {self.type}\n"
-        cb += f"    cube origin {self.origin}\n"
+        cb += f"    cube origin {self.origin[0]: .12e} {self.origin[1]: .12e} {self.origin[2]: .12e}\n"
         for ii in range(3):
             cb += f"    cube edge {self.points[ii]} "
             cb += f"{self.edges[ii][0]: .12e} "
@@ -376,7 +379,7 @@ class AimsControlIn(MSONable):
 
     _parameters: dict[str, Any] = field(default_factory=dict)
 
-    def __postinit__(self):
+    def __post_init__(self):
         if "output" not in self._parameters:
             self._parameters["output"] = []
 
@@ -395,6 +398,16 @@ class AimsControlIn(MSONable):
         else:
             self._parameters[key] = value
 
+    def __delitem__(self, key: str) -> Any:
+        """Delete a parameter from the input object
+
+        Parameters
+        ----------
+        key: str
+            The key in the parameter to remove
+        """
+        return self._parameters.pop(key, None)
+
     @property
     def parameters(self):
         return self._parameters
@@ -403,6 +416,8 @@ class AimsControlIn(MSONable):
     def parameters(self, parameters: dict[str, Any]):
         """reload a control.in inputs from a parameters dictionary"""
         self._parameters = parameters
+        if "output" not in self._parameters:
+            self._parameters["output"] = []
 
     def get_aims_control_parameter_str(self, key, value, format):
         return f"{key :35s}" + (format % value) + "\n"
@@ -435,14 +450,19 @@ class AimsControlIn(MSONable):
 
         lim = "#" + "=" * 79
 
+        if isinstance(structure, Structure) and (
+            "k_grid" not in self._parameters and "k_grid_density" not in self._parameters
+        ):
+            raise ValueError("k-grid must be defined for periodic systems")
+
         parameters = deepcopy(self._parameters)
 
-        with open(f"{directory}/geometry.in", "w") as fd:
+        with open(f"{directory}/control.in", "w") as fd:
             fd.write("#" + "=" * 72 + "\n")
             fd.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             fd.write("# File generated from pymatgen\n")
             fd.write(f"# {time.asctime()}\n")
-            fd.write(self.content)
+            fd.write("#" + "=" * 72 + "\n")
 
             if parameters["xc"] == "LDA":
                 parameters["xc"] = "pw-lda"
@@ -501,7 +521,7 @@ class AimsControlIn(MSONable):
         for sp in species:
             filename = f"{species_dir}/{sp.Z:02d}_{sp.symbol}_default"
             with open(filename) as sf:
-                sb += "\n".join(sf.readlines())
+                sb += "".join(sf.readlines())
         return sb
 
     def as_dict(self) -> dict[str, Any]:
