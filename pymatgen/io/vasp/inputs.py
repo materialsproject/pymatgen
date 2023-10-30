@@ -1946,7 +1946,7 @@ class PotcarSingle:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
-        This method checks the summary statistics of either the POTCAR metadadata 
+        This method checks the summary statistics of either the POTCAR metadadata
         (PotcarSingle._summary_stats[key]["header"] for key in ("keywords", "stats") )
         or the entire POTCAR file (PotcarSingle._summary_stats) against a database
         of hashes for POTCARs distributed with VASP 5.4.4.
@@ -1964,19 +1964,17 @@ class PotcarSingle:
         if mode == "data":
             check_modes = ["header"]
         elif mode == "file":
-            check_modes = ["header","data"]
+            check_modes = ["header", "data"]
         else:
             raise ValueError(f"Bad {mode=}. Choose 'data' or 'file'.")
-        
+
         data_match_tol = 1e-6
-        identity = {"potcar_functionals": [], "potcar_symbols": []}
+        identity: dict[str, list] = {"potcar_functionals": [], "potcar_symbols": []}
         for func in self.functional_dir:
-            for ref_psp in self.potcar_summary_stats[func].get(
-                self.TITEL.replace(" ", ""), []
-            ):
+            for ref_psp in self.potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
-      
+
                 key_match = all(
                     set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
                     for key in check_modes

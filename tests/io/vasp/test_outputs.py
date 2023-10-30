@@ -8,9 +8,9 @@ import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
-from monty.serialization import loadfn
 import numpy as np
 import pytest
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
