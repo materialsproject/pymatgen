@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
     from emmet.core.math import Vector3D
 
-    from pymatgen.core.structure import SiteCollection
 
 # TARP: Originally an object, but type hinting needs this to be an int
 LINE_NOT_FOUND = -1000
@@ -945,25 +944,24 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._parse_homo_lumo()["direct_gap"]
 
 
-def get_lines(content: str) -> list[str]:
+def get_lines(content) -> list[str]:
     """Get a list of lines from a str or file of content"""
     if isinstance(content, str):
         return [line.strip() for line in content.split("\n")]
     return [line.strip() for line in content.readlines()]
 
 
-def get_header_chunk(content: str) -> AimsOutHeaderChunk:
+def get_header_chunk(content) -> AimsOutHeaderChunk:
     """Return the header information from the aims.out file."""
     lines = get_lines(content)
     header = []
-
     stopped = False
     # Stop the header once the first SCF cycle begins
     for line in lines:
         header.append(line)
         if (
-            "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)" not in line
-            and "Begin self-consistency iteration #" not in line
+            "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)" in line
+            or "Begin self-consistency iteration #" in line
         ):
             stopped = True
             break
@@ -976,7 +974,7 @@ def get_header_chunk(content: str) -> AimsOutHeaderChunk:
 
 def get_aims_out_chunks(content, header_chunk):
     """Yield unprocessed chunks (header, lines) for each AimsOutChunk image."""
-    lines = filter(lambda x: x not in header_chunk.lines, get_lines(content))
+    lines = list(filter(lambda x: x not in header_chunk.lines, get_lines(content)))
     if len(lines) == 0:
         return
 
@@ -1080,14 +1078,16 @@ def read_aims_header_info(
 
 def read_aims_output_from_content(
     content: str, index: int | slice = -1, non_convergence_ok: bool = False
-) -> SiteCollection | Sequence[SiteCollection]:
+) -> Structure | Molecule | Sequence[Structure | Molecule]:
     """Read and aims output file from the content of a file"""
     header_chunk = get_header_chunk(content)
     chunks = list(get_aims_out_chunks(content, header_chunk))
 
     check_convergence(chunks, non_convergence_ok)
     # Relaxations have an additional footer chunk due to how it is split
-    images = [chunk.atoms for chunk in chunks[:-1]] if header_chunk.is_relaxation else [chunk.atoms for chunk in chunks]
+    images = (
+        [chunk.structure for chunk in chunks[:-1]] if header_chunk.is_relaxation else [chunk.atoms for chunk in chunks]
+    )
     return images[index]
 
 
@@ -1095,7 +1095,7 @@ def read_aims_output(
     filename: str | Path,
     index: int | slice = -1,
     non_convergence_ok: bool = False,
-) -> SiteCollection | Sequence[SiteCollection]:
+) -> Structure | Molecule | Sequence[Structure | Molecule]:
     """Import FHI-aims output files with all data available.
 
     Includes all structures for relaxations and MD runs with FHI-aims

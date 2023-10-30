@@ -4,8 +4,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from atomate2.aims.io.parsers import read_aims_header_info, read_aims_output
 from monty.json import MontyDecoder, MSONable
+
+from pymatgen.io.aims.parsers import (
+    read_aims_header_info,
+    read_aims_header_info_from_content,
+    read_aims_output,
+    read_aims_output_from_content,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -21,7 +27,7 @@ class AimsOutput(MSONable):
 
     def __init__(
         self,
-        results: Sequence[Molecule | Structure],
+        results: Molecule | Structure | Sequence[Molecule | Structure],
         metadata: dict[str, Any],
         structure_summary: dict[str, Any],
     ):
@@ -67,6 +73,20 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
+    def from_str(cls, content: str):
+        """Construct an AimsOutput from an output file.
+
+        Parameters
+        ----------
+        outfile: str
+            The content of the aims.out file
+        """
+        metadata, structure_summary = read_aims_header_info_from_content(content)
+        results = read_aims_output_from_content(content, index=slice(0, None))
+
+        return cls(results, metadata, structure_summary)
+
+    @classmethod
     def from_dict(cls, d: dict[str, Any]):
         """Construct an AimsOutput from a dictionary.
 
@@ -76,6 +96,9 @@ class AimsOutput(MSONable):
             The dictionary used to create AimsOutput
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+        for struct in decoded["results"]:
+            struct.properties = {k: MontyDecoder().process_decoded(v) for k, v in struct.properties.items()}
+
         return cls(decoded["results"], decoded["metadata"], decoded["structure_summary"])
 
     def get_results_for_image(self, image_ind: int) -> Structure | Molecule:
