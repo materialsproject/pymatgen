@@ -1,0 +1,72 @@
+{
+    "@module": "pymatgen.io.aims.inputs",
+    "@class": "AimsGeometryIn",
+    "content": "atom 0.0000000000000000 0.0000000000000000 0.1192620000000000 O\natom 0.0000000000000000 0.7632390000000000 -0.4770470000000000 H\natom 0.0000000000000000 -0.7632390000000000 -0.4770470000000000 H",
+    "structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Molecule",
+        "charge": 0.0,
+        "spin_multiplicity": 1,
+        "sites": [
+            {
+                "name": "O",
+                "species": [
+                    {
+                        "element": "O",
+                        "occu": 1
+                    }
+                ],
+                "xyz": [
+                    0.0,
+                    0.0,
+                    0.119262
+                ],
+                "properties": {
+                    "magmom": 0.0,
+                    "charge": 0.0
+                },
+                "label": "O"
+            },
+            {
+                "name": "H",
+                "species": [
+                    {
+                        "element": "H",
+                        "occu": 1
+                    }
+                ],
+                "xyz": [
+                    0.0,
+                    0.763239,
+                    -0.477047
+                ],
+                "properties": {
+                    "magmom": 0.0,
+                    "charge": 0.0
+                },
+                "label": "H"
+            },
+            {
+                "name": "H",
+                "species": [
+                    {
+                        "element": "H",
+                        "occu": 1
+                    }
+                ],
+                "xyz": [
+                    0.0,
+                    -0.763239,
+                    -0.477047
+                ],
+                "properties": {
+                    "magmom": 0.0,
+                    "charge": 0.0
+                },
+                "label": "H"
+            }
+        ],
+        "properties": {},
+        "@version": null
+    }
+}

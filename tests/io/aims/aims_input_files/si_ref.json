@@ -1,0 +1,91 @@
+{
+    "@module": "pymatgen.io.aims.inputs",
+    "@class": "AimsGeometryIn",
+    "content": "lattice_vector 0.0000000000000000 2.715 2.716\nlattice_vector 2.717 0.0000000000000000 2.718\nlattice_vector 2.719 2.720 0.0000000000000000\natom_frac 0.0000000000000000 0.0000000000000000 -0.0000000000000000 Si\natom_frac 0.2500000000000000 0.2400000000000000 0.2600000000000000 Si",
+    "structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": 0.0,
+        "lattice": {
+            "matrix": [
+                [
+                    0.0,
+                    2.715,
+                    2.716
+                ],
+                [
+                    2.717,
+                    0.0,
+                    2.718
+                ],
+                [
+                    2.719,
+                    2.72,
+                    0.0
+                ]
+            ],
+            "pbc": [
+                true,
+                true,
+                true
+            ],
+            "a": 3.840296993723272,
+            "b": 3.843125420800107,
+            "c": 3.8459538478770128,
+            "alpha": 60.01216763270818,
+            "beta": 60.000011198585014,
+            "gamma": 59.987821915280264,
+            "volume": 40.13639887
+        },
+        "properties": {},
+        "sites": [
+            {
+                "species": [
+                    {
+                        "element": "Si",
+                        "occu": 1
+                    }
+                ],
+                "abc": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "xyz": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "properties": {
+                    "magmom": 0.0,
+                    "charge": 0.0
+                },
+                "label": "Si"
+            },
+            {
+                "species": [
+                    {
+                        "element": "Si",
+                        "occu": 1
+                    }
+                ],
+                "abc": [
+                    0.25,
+                    0.24,
+                    0.26
+                ],
+                "xyz": [
+                    1.3590200000000001,
+                    1.38595,
+                    1.33132
+                ],
+                "properties": {
+                    "magmom": 0.0,
+                    "charge": 0.0
+                },
+                "label": "Si"
+            }
+        ],
+        "@version": null
+    }
+}

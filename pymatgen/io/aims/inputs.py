@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 
-from pymatgen.core import Lattice, Structure
+from pymatgen.core import Lattice, Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -25,7 +25,7 @@ class AimsGeometryIn(MSONable):
     """Class representing an aims geometry.in file"""
 
     _content: str
-    _structure: Structure
+    _structure: Structure | Molecule
 
     @classmethod
     def from_str(cls, contents: str):
@@ -36,7 +36,9 @@ class AimsGeometryIn(MSONable):
         contents: str
             The content of the string
         """
-        content_lines = [line.strip() for line in contents.split("\n") if line.strip()[0] != "#"]
+        content_lines = [
+            line.strip() for line in contents.split("\n") if len(line.strip()) > 0 and line.strip()[0] != "#"
+        ]
 
         species = []
         coords = []
@@ -54,9 +56,9 @@ class AimsGeometryIn(MSONable):
             if inp[0] == "lattice_vector":
                 lattice_vectors.append([float(ii) for ii in line.split()[1:4]])
             if inp[0] == "initial_moment":
-                charges_dct[len(coords) - 1] = float(inp[1])
-            if inp[0] == "initial_charge":
                 moments_dct[len(coords) - 1] = float(inp[1])
+            if inp[0] == "initial_charge":
+                charges_dct[len(coords) - 1] = float(inp[1])
 
         charge = np.zeros(len(coords))
         for key, val in charges_dct.items():
@@ -70,7 +72,7 @@ class AimsGeometryIn(MSONable):
             lattice = Lattice(lattice_vectors)
             for cc in range(len(coords)):
                 if is_frac[cc]:
-                    coords[cc] = lattice.get_cartesian_coords(np.array(coords[cc]).reshape(3, 1))
+                    coords[cc] = lattice.get_cartesian_coords(np.array(coords[cc]).reshape(1, 3)).flatten()
         elif len(lattice_vectors) == 0:
             lattice = None
             if any(is_frac):
@@ -78,16 +80,30 @@ class AimsGeometryIn(MSONable):
         else:
             raise ValueError("Incorrect number of lattice vectors passed.")
 
-        structure = Structure(
-            lattice,
-            species,
-            coords,
-            np.sum(charge),
-            coords_are_cartesian=True,
-            site_properties={"magmom": magmom, "charge": charge},
-        )
+        if lattice is None:
+            structure = Molecule(
+                species,
+                coords,
+                np.sum(charge),
+                site_properties={"magmom": magmom, "charge": charge},
+            )
+        else:
+            structure = Structure(
+                lattice,
+                species,
+                coords,
+                np.sum(charge),
+                coords_are_cartesian=True,
+                site_properties={"magmom": magmom, "charge": charge},
+            )
 
         return cls(_content="\n".join(content_lines), _structure=structure)
+
+    @classmethod
+    def from_file(cls, filepath: str | Path):
+        with open(filepath) as infile:
+            content = infile.read()
+        return cls.from_str(content)
 
     @classmethod
     def from_structure(cls, structure: Structure):
@@ -100,23 +116,24 @@ class AimsGeometryIn(MSONable):
         """
         content_lines = []
 
-        if structure.lattice is not None:
-            for lv in structure.lattive.matrix:
+        if isinstance(structure, Structure):
+            for lv in structure.lattice.matrix:
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
         charges = structure.site_properties.get("charge", np.zeros(len(structure.species)))
         magmoms = structure.site_properties.get("magmom", np.zeros(len(structure.species)))
         for species, coord, charge, magmom in zip(structure.species, structure.cart_coords, charges, magmoms):
+            print(coord)
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {species}")
             if charge != 0:
-                content_lines.append(f"     initial_charge {charge}")
+                content_lines.append(f"     initial_charge {charge:.12e}")
             if magmom != 0:
-                content_lines.append(f"     initial_moment {magmom}")
+                content_lines.append(f"     initial_moment {magmom:.12e}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
 
     @property
-    def structure(self) -> Structure:
+    def structure(self) -> Structure | Molecule:
         """Accses structure for the file"""
         return self._structure
 
@@ -146,7 +163,9 @@ class AimsGeometryIn(MSONable):
             fd.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             fd.write("# File generated from pymatgen\n")
             fd.write(f"# {time.asctime()}\n")
+            fd.write("#" + "=" * 72 + "\n")
             fd.write(self.content)
+            fd.write("\n")
 
     def as_dict(self) -> dict[str, Any]:
         """Get a dictionary representation of the geometry.in file.
@@ -174,8 +193,8 @@ class AimsGeometryIn(MSONable):
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 
         return cls(
-            content=decoded["content"],
-            structure=decoded["structure"],
+            _content=decoded["content"],
+            _structure=decoded["structure"],
         )
 
 
@@ -237,11 +256,12 @@ class AimsCube(MSONable):
         The type of electron localization function to use (see FHI-aims manual)
     """
 
-    name: str = "AimsCube"
     type: str = field(default_factory=str)
-    origin: Sequence[float] | tuple[float, float, float] = [0.0, 0.0, 0.0]
-    edges: Sequence[Sequence[float]] = [[0.1, 0.0, 0.0], [0.0, 0.1, 0.0], [0.0, 0.0, 0.1]]
-    points: Sequence[int] | tuple[int, int, int] = [0, 0, 0]
+    origin: Sequence[float] | tuple[float, float, float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
+    edges: Sequence[Sequence[float]] = field(
+        default_factory=lambda: [[0.1, 0.0, 0.0], [0.0, 0.1, 0.0], [0.0, 0.0, 0.1]]
+    )
+    points: Sequence[int] | tuple[int, int, int] = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"
     spinstate: int | None = None
     kpoint: int | None = None
@@ -304,6 +324,50 @@ class AimsCube(MSONable):
             cb += f"    cube elf_type {self.elf_type}\n"
 
         return cb
+
+    def as_dict(self) -> dict[str, Any]:
+        """Get a dictionary representation of the geometry.in file.
+
+        Returns
+        -------
+        The dictionary representation of the input file
+        """
+        dct: dict[str, Any] = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["type"] = self.type
+        dct["origin"] = self.origin
+        dct["edges"] = self.edges
+        dct["points"] = self.points
+        dct["format"] = self.format
+        dct["spinstate"] = self.spinstate
+        dct["kpoint"] = self.kpoint
+        dct["filename"] = self.filename
+        dct["elf_type"] = self.elf_type
+        return dct
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]):
+        """Initialize from dictionary.
+
+        self.__dict__
+        ----------
+        d: dict[str, Any]
+            The MontyEncoded dictionary
+        """
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+
+        return cls(
+            type=decoded["type"],
+            origin=decoded["origin"],
+            edges=decoded["edges"],
+            points=decoded["points"],
+            format=decoded["format"],
+            spinstate=decoded["spinstate"],
+            kpoint=decoded["kpoint"],
+            filename=decoded["filename"],
+            elf_type=decoded["elf_type"],
+        )
 
 
 @dataclass
@@ -439,3 +503,31 @@ class AimsControlIn(MSONable):
             with open(filename) as sf:
                 sb += "\n".join(sf.readlines())
         return sb
+
+    def as_dict(self) -> dict[str, Any]:
+        """Get a dictionary representation of the geometry.in file.
+
+        Returns
+        -------
+        The dictionary representation of the input file
+        """
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["parameters"] = self.parameters
+        return dct
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]):
+        """Initialize from dictionary.
+
+        self.__dict__
+        ----------
+        d: dict[str, Any]
+            The MontyEncoded dictionary
+        """
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+
+        return cls(
+            _parameters=decoded["parameters"],
+        )
