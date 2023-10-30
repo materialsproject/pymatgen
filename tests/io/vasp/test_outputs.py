@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
+from monty.serialization import loadfn
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -592,34 +593,21 @@ class TestVasprun(PymatgenTest):
         potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": None, "summary_stats": {}},
         ]
-
         vasp_run.update_potcar_spec(potcar_path)
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-        ]
+        assert vasp_run.potcar_spec == loadfn(f"{TEST_FILES_DIR}/test_io_vasp_update_potcar_1.json")
 
         vasprun2 = Vasprun(filepath, parse_potcar_file=False)
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             vasprun2.update_potcar_spec(potcar_path2)
         vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
 
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-        ]
+        assert vasp_run.potcar_spec == loadfn(f"{TEST_FILES_DIR}/test_io_vasp_update_potcar_2.json")
 
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
@@ -642,11 +630,11 @@ class TestVasprun(PymatgenTest):
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
         assert len(warns) == 2
         assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": None, "summary_stats": {}},
         ]
 
     def test_parsing_chemical_shift_calculations(self):
