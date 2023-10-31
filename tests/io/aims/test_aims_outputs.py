@@ -38,8 +38,6 @@ def test_aims_output_si():
     for ii in range(si.n_images):
         comp_images(si.get_results_for_image(ii), si_ref.get_results_for_image(ii))
 
-    assert json.dumps(si.as_dict(), cls=MontyEncoder) == json.dumps(si_ref.as_dict(), cls=MontyEncoder)
-
 
 def test_aims_output_h2o():
     h2o = AimsOutput.from_outfile(f"{outfile_dir}/h2o.out.gz")
@@ -52,8 +50,6 @@ def test_aims_output_h2o():
     assert h2o_ref.n_images == h2o.n_images
     for ii in range(h2o.n_images):
         comp_images(h2o.get_results_for_image(ii), h2o_ref.get_results_for_image(ii))
-
-    assert json.dumps(h2o.as_dict(), cls=MontyEncoder) == json.dumps(h2o_ref.as_dict(), cls=MontyEncoder)
 
 
 def test_aims_output_si_str():
@@ -70,8 +66,6 @@ def test_aims_output_si_str():
     for ii in range(si.n_images):
         comp_images(si.get_results_for_image(ii), si_ref.get_results_for_image(ii))
 
-    assert json.dumps(si.as_dict(), cls=MontyEncoder) == json.dumps(si_ref.as_dict(), cls=MontyEncoder)
-
 
 def test_aims_output_h2o_str():
     with gzip.open(f"{outfile_dir}/h2o.out.gz", "rt") as h2o_out:
@@ -87,4 +81,32 @@ def test_aims_output_h2o_str():
     for ii in range(h2o.n_images):
         comp_images(h2o.get_results_for_image(ii), h2o_ref.get_results_for_image(ii))
 
-    assert json.dumps(h2o.as_dict(), cls=MontyEncoder) == json.dumps(h2o_ref.as_dict(), cls=MontyEncoder)
+
+def test_aims_output_si_dict():
+    si = AimsOutput.from_outfile(f"{outfile_dir}/si.out.gz")
+    si = json.loads(json.dumps(si.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
+
+    with gzip.open(f"{outfile_dir}/si_ref.json.gz") as ref_file:
+        si_ref = json.load(ref_file, cls=MontyDecoder)
+
+    assert si_ref.metadata == si.metadata
+    assert si_ref.structure_summary == si.structure_summary
+
+    assert si_ref.n_images == si.n_images
+    for ii in range(si.n_images):
+        comp_images(si.get_results_for_image(ii), si_ref.get_results_for_image(ii))
+
+
+def test_aims_output_h2o_dict():
+    h2o = AimsOutput.from_outfile(f"{outfile_dir}/h2o.out.gz")
+    h2o = json.loads(json.dumps(h2o.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
+
+    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", "rt") as ref_file:
+        h2o_ref = json.load(ref_file, cls=MontyDecoder)
+
+    assert h2o_ref.metadata == h2o.metadata
+    assert h2o_ref.structure_summary == h2o.structure_summary
+
+    assert h2o_ref.n_images == h2o.n_images
+    for ii in range(h2o.n_images):
+        comp_images(h2o.get_results_for_image(ii), h2o_ref.get_results_for_image(ii))
