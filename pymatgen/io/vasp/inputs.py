@@ -2565,15 +2565,15 @@ class VaspInput(dict, MSONable):
             make_dir_if_not_present (bool): Create the directory if not
                 present. Defaults to True.
         """
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        if make_dir_if_not_present:
+            os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
                 with zopen(os.path.join(output_dir, k), "wt") as f:
                     f.write(str(v))
 
-    @staticmethod
-    def from_directory(input_dir, optional_files=None):
+    @classmethod
+    def from_directory(cls, input_dir, optional_files=None):
         """
         Read in a set of VASP input from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
@@ -2593,8 +2593,8 @@ class VaspInput(dict, MSONable):
             ("POTCAR", Potcar),
         ]:
             try:
-                fullzpath = zpath(os.path.join(input_dir, fname))
-                sub_d[fname.lower()] = ftype.from_file(fullzpath)
+                full_zpath = zpath(os.path.join(input_dir, fname))
+                sub_d[fname.lower()] = ftype.from_file(full_zpath)
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_d[fname.lower()] = None
 
@@ -2602,7 +2602,7 @@ class VaspInput(dict, MSONable):
         if optional_files is not None:
             for fname, ftype in optional_files.items():
                 sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
-        return VaspInput(**sub_d)
+        return cls(**sub_d)
 
     def run_vasp(
         self,
