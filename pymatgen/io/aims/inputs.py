@@ -5,6 +5,7 @@ Works for geometry.in and control.in
 
 from __future__ import annotations
 
+import gzip
 import time
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -101,8 +102,12 @@ class AimsGeometryIn(MSONable):
 
     @classmethod
     def from_file(cls, filepath: str | Path):
-        with open(filepath) as infile:
-            content = infile.read()
+        if str(filepath).endswith(".gz"):
+            with gzip.open(filepath, "rt") as infile:
+                content = infile.read()
+        else:
+            with open(filepath) as infile:
+                content = infile.read()
         return cls.from_str(content)
 
     @classmethod
@@ -520,8 +525,15 @@ class AimsControlIn(MSONable):
         species = np.unique(structure.species)
         for sp in species:
             filename = f"{species_dir}/{sp.Z:02d}_{sp.symbol}_default"
-            with open(filename) as sf:
-                sb += "".join(sf.readlines())
+            if Path(filename).exists():
+                with open(filename) as sf:
+                    sb += "".join(sf.readlines())
+            elif Path(f"{filename}.gz").exists():
+                with gzip.open(f"{filename}.gz", "rt") as sf:
+                    sb += "".join(sf.readlines())
+            else:
+                raise ValueError("Species file for {sp.symbol} not found.")
+
         return sb
 
     def as_dict(self) -> dict[str, Any]:

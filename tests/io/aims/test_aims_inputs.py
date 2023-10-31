@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 import os
 from pathlib import Path
@@ -23,15 +24,18 @@ def compare_files(ref_file, test_file):
     with open(test_file) as tf:
         test_lines = tf.readlines()[5:]
 
-    with open(ref_file) as rf:
+    with gzip.open(f"{ref_file}.gz", "rt") as rf:
         ref_lines = rf.readlines()[5:]
 
     for test_line, ref_line in zip(test_lines, ref_lines):
+        if "species_dir" in ref_line:
+            continue
+
         assert test_line.strip() == ref_line.strip()
 
 
 def test_read_write_si_in(tmpdir):
-    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si")
+    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz")
 
     in_lattice = np.array([[0.0, 2.715, 2.716], [2.717, 0.0, 2.718], [2.719, 2.720, 0.0]])
     in_coords = np.array([[0.0, 0.0, 0.0], [0.25, 0.24, 0.26]])
@@ -56,14 +60,14 @@ def test_read_write_si_in(tmpdir):
 
     os.chdir(workdir)
 
-    with open(f"{infile_dir}/si_ref.json") as si_ref_json:
+    with gzip.open(f"{infile_dir}/si_ref.json.gz", "rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
 
     assert si.structure == si_from_dct.structure
 
 
 def test_read_h2o_in(tmpdir):
-    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o")
+    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz")
 
     in_coords = np.array(
         [
@@ -93,7 +97,7 @@ def test_read_h2o_in(tmpdir):
 
     os.chdir(workdir)
 
-    with open(f"{infile_dir}/h2o_ref.json") as h2o_ref_json:
+    with gzip.open(f"{infile_dir}/h2o_ref.json.gz", "rt") as h2o_ref_json:
         h2o_from_dct = json.load(h2o_ref_json, cls=MontyDecoder)
 
     assert h2o.structure == h2o_from_dct.structure
@@ -202,10 +206,10 @@ def test_aims_control_in(tmpdir):
     assert "xc" not in aims_control.parameters
     aims_control.parameters = parameters
 
-    # os.chdir(tmpdir)
-    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o").structure
+    os.chdir(tmpdir)
+    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz").structure
 
-    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si").structure
+    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz").structure
     aims_control.write_file(h2o, overwrite=True)
 
     compare_files(infile_dir / "control.in.h2o", "control.in")
