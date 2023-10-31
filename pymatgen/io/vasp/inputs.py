@@ -73,11 +73,11 @@ class Poscar(MSONable):
         velocities: Velocities for each site (typically read in from a CONTCAR).
             A Nx3 array of floats.
         predictor_corrector: Predictor corrector coordinates and derivatives for each site;
-            i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+            i.e. a list of three 1x3 arrays for each site (typically read in from an MD CONTCAR).
         predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
             POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
         lattice_velocities: Lattice velocities and current lattice (typically read
-            in from a MD CONTCAR). A 6x3 array of floats.
+            in from an MD CONTCAR). A 6x3 array of floats.
         temperature: Temperature of velocity Maxwell-Boltzmann initialization.
             Initialized to -1 (MB hasn't been performed).
     """
@@ -522,8 +522,8 @@ class Poscar(MSONable):
 
         format_str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
-        for v in latt.matrix:
-            lines.append(" ".join(format_str.format(c) for c in v))
+        for vec in latt.matrix:
+            lines.append(" ".join(format_str.format(c) for c in vec))
 
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
@@ -546,17 +546,17 @@ class Poscar(MSONable):
             try:
                 lines.append("Lattice velocities and vectors")
                 lines.append("  1")
-                for v in self.lattice_velocities:
-                    # vasp is strict about the format when reading this quantity
-                    lines.append(" ".join(f" {i: .7E}" for i in v))
+                for velo in self.lattice_velocities:
+                    # VASP is strict about the format when reading this quantity
+                    lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
                 warnings.warn("Lattice velocities are missing or corrupted.")
 
         if self.velocities:
             try:
                 lines.append("")
-                for v in self.velocities:
-                    lines.append(" ".join(format_str.format(i) for i in v))
+                for velo in self.velocities:
+                    lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
                 warnings.warn("Velocities are missing or corrupted.")
 

@@ -299,10 +299,10 @@ direct
 
         poscar.write_file(path)
 
-        # check that the output produced for the lattice velocities matches
-        # the required format and spaces.
-        with open(path) as f:
-            lines = f.readlines()
+        # check output produced for lattice velocities has required format and spaces
+        # added in https://github.com/materialsproject/pymatgen/pull/3433
+        with open(path) as file:
+            lines = file.readlines()
         pattern = (r"  [-| ]?\d\.\d{7}E[+-]\d{2}" * 3)[1:]
         for line in lines[18:24]:
             assert re.match(pattern, line.rstrip())
