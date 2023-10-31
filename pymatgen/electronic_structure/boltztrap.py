@@ -545,18 +545,19 @@ class BoltztrapRunner(MSONable):
         if convergence and not write_input:
             raise ValueError("Convergence mode requires write_input to be true")
 
-        if self.run_type in ("BANDS", "DOS", "FERMI"):
+        run_type = self.run_type
+        if run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
             if self.lpfac > max_lpfac:
                 max_lpfac = self.lpfac
 
-        if self.run_type == "BANDS" and self.bs.is_spin_polarized:
+        if run_type == "BANDS" and self.bs.is_spin_polarized:
             print(
-                f"Reminder: for run_type {self.run_type}, spin component are not separated! "
+                f"Reminder: for {run_type=}, spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
 
-        if self.run_type in ("FERMI", "DOS") and self.spin is None:
+        if run_type in ("FERMI", "DOS") and self.spin is None:
             if self.bs.is_spin_polarized:
                 raise BoltztrapError("Spin parameter must be specified for spin polarized band structures!")
             self.spin = 1
@@ -568,9 +569,8 @@ class BoltztrapRunner(MSONable):
         else:
             path_dir = os.path.abspath(os.path.join(path_dir, dir_bz_name))
 
-        if not os.path.exists(path_dir):
-            os.mkdir(path_dir)
-        elif clear_dir:
+        os.mkdir(path_dir, exist_ok=True)
+        if clear_dir:
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 

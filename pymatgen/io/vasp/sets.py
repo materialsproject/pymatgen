@@ -162,8 +162,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 same name as the InputSet (e.g., MPStaticSet.zip)
         """
         if potcar_spec:
-            if make_dir_if_not_present and not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+            if make_dir_if_not_present:
+                os.makedirs(output_dir, exist_ok=True)
 
             with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
                 file.write("\n".join(self.potcar_symbols))
