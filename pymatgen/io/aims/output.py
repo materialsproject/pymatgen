@@ -30,17 +30,16 @@ class AimsOutput(MSONable):
         results: Molecule | Structure | Sequence[Molecule | Structure],
         metadata: dict[str, Any],
         structure_summary: dict[str, Any],
-    ):
+    ) -> None:
         """AimsOutput object constructor.
 
-        Parameters
-        ----------
-        results: Sequence[.MSONableAtoms]
-            A list of all images in an output file
-        metadata: Dict[str, Any]
-            The metadata of the executable used to perform the calculation
-        structure_summary: Dict[str, Any]
-            The summary of the starting atomic structure
+        Args:
+            results (Molecule or Structure or Sequence[Molecule or Structure]):  A list
+                of all images in an output file
+            metadata (Dict[str, Any]): The metadata of the executable used to perform
+                the calculation
+            structure_summary (Dict[str, Any]): The summary of the starting
+                atomic structure
         """
         self._results = results
         self._metadata = metadata
@@ -59,13 +58,15 @@ class AimsOutput(MSONable):
         return d
 
     @classmethod
-    def from_outfile(cls, outfile: str | Path):
+    def from_outfile(cls, outfile: str | Path) -> AimsOutput:
         """Construct an AimsOutput from an output file.
 
-        Parameters
-        ----------
-        outfile: str or Path
-            The aims.out file to parse
+        Args:
+            outfile: str | Path: The aims.out file to parse
+
+        Returns:
+            The AimsOutput object for the output file
+
         """
         metadata, structure_summary = read_aims_header_info(outfile)
         results = read_aims_output(outfile, index=slice(0, None))
@@ -73,13 +74,15 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_str(cls, content: str):
+    def from_str(cls, content: str) -> AimsOutput:
         """Construct an AimsOutput from an output file.
 
-        Parameters
-        ----------
-        outfile: str
-            The content of the aims.out file
+        Args:
+            content (str): The content of the aims.out file
+
+        Returns:
+            The AimsOutput for the output file content
+
         """
         metadata, structure_summary = read_aims_header_info_from_content(content)
         results = read_aims_output_from_content(content, index=slice(0, None))
@@ -87,31 +90,35 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]):
+    def from_dict(cls, d: dict[str, Any]) -> AimsOutput:
         """Construct an AimsOutput from a dictionary.
 
-        Parameters
-        ----------
-        d: Dict[str, Any]
-            The dictionary used to create AimsOutput
+        Args:
+            d (dict[str, Any]): The dictionary used to create AimsOutput
+
+        Returns:
+            The AimsOutput for d
+
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
         for struct in decoded["results"]:
             struct.properties = {k: MontyDecoder().process_decoded(v) for k, v in struct.properties.items()}
 
-        return cls(decoded["results"], decoded["metadata"], decoded["structure_summary"])
+        return cls(
+            decoded["results"],
+            decoded["metadata"],
+            decoded["structure_summary"],
+        )
 
     def get_results_for_image(self, image_ind: int) -> Structure | Molecule:
         """Get the results dictionary for a particular image or slice of images.
 
-        Parameters
-        ----------
-        image_ind: int
-            The index of the image to get the results for
+        Args:
+            image_ind (int): The index of the image to get the results for
 
-        Returns
-        -------
-        The results for that image
+        Returns:
+            The results of the image with index images_ind
+
         """
         return self._results[image_ind]
 
