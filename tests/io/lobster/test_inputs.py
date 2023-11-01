@@ -1652,7 +1652,6 @@ class TestLobsterin(unittest.TestCase):
         )
 
     def test_dict_functionality(self):
-        # test get
         assert self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0
         assert self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0
         assert self.Lobsterinfromfile.get("COhPstartenergy") == -15.0
