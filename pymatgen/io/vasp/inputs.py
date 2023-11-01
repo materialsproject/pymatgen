@@ -1946,7 +1946,9 @@ class PotcarSingle:
             hash_is_valid = md5_file_hash in VASP_POTCAR_HASHES
         return has_sha256, hash_is_valid
 
-    def identify_potcar(self, mode: Literal["data", "file"] = "data"):
+    def identify_potcar(
+        self, mode: Literal["data", "file"] = "data", data_tol: float = 1e-6
+    ) -> tuple[list[str], list[str]]:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
@@ -1958,13 +1960,14 @@ class PotcarSingle:
         Args:
             mode ('data' | 'file'): 'data' mode checks the POTCAR header keywords and stats only
                 while 'file' mode checks the entire summary stats.
+            data_tol (float): Tolerance for comparing the summary statistics of the POTCAR
+                with the reference statistics.
 
         Returns:
             symbol (list): List of symbols associated with the PotcarSingle
             potcar_functionals (list): List of potcar functionals associated with
                 the PotcarSingle
         """
-
         if mode == "data":
             check_modes = ["header"]
         elif mode == "file":
@@ -1972,7 +1975,6 @@ class PotcarSingle:
         else:
             raise ValueError(f"Bad {mode=}. Choose 'data' or 'file'.")
 
-        data_match_tol = 1e-6
         identity: dict[str, list] = {"potcar_functionals": [], "potcar_symbols": []}
         for func in self.functional_dir:
             for ref_psp in self.potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
@@ -1980,17 +1982,17 @@ class PotcarSingle:
                     continue
 
                 key_match = all(
-                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
+                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore[index]
                     for key in check_modes
                 )
 
                 data_diff = [
-                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
+                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore[index]
                     for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                     for key in check_modes
                 ]
 
-                data_match = all(np.array(data_diff) < data_match_tol)
+                data_match = all(np.array(data_diff) < data_tol)
 
                 if key_match and data_match:
                     identity["potcar_functionals"].append(func)
