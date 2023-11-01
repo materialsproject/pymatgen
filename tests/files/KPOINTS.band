@@ -1,5 +1,5 @@
-ORC (orthorombic) G-X-S-Y-G-Z-U-R-T-Z Y-T U-X S-R
-16   ! 16 grids 
+ORC (orthorhombic) G-X-S-Y-G-Z-U-R-T-Z Y-T U-X S-R
+16   ! 16 grids
 Line-mode
 reciprocal
    0.000   0.000   0.000   ! \Gamma

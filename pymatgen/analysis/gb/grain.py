@@ -333,22 +333,23 @@ class GrainBoundaryGenerator:
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
 
-    def __init__(self, initial_structure, symprec: float = 0.1, angle_tolerance=1):
+    def __init__(self, initial_structure: Structure, symprec: float = 0.1, angle_tolerance: float = 1) -> None:
         """
-        initial_structure (Structure): Initial input structure. It can
-               be conventional or primitive cell (primitive cell works for bcc and fcc).
-               For fcc and bcc, using conventional cell can lead to a non-primitive
-               grain boundary structure.
-               This code supplies Cubic, Tetragonal, Orthorhombic, Rhombohedral, and
-               Hexagonal systems.
-        symprec (float): Tolerance for symmetry finding. Defaults to 0.1 (the value used
+        Args:
+            initial_structure (Structure): Initial input structure. It can
+                be conventional or primitive cell (primitive cell works for bcc and fcc).
+                For fcc and bcc, using conventional cell can lead to a non-primitive
+                grain boundary structure.
+                This code supplies Cubic, Tetragonal, Orthorhombic, Rhombohedral, and
+                Hexagonal systems.
+            symprec (float): Tolerance for symmetry finding. Defaults to 0.1 (the value used
                 in Materials Project), which is for structures with slight deviations
                 from their proper atomic positions (e.g., structures relaxed with
                 electronic structure codes).
                 A smaller value of 0.01 is often used for properly refined
                 structures with atoms in the proper symmetry coordinates.
                 User should make sure the symmetry is what you want.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
         """
         analyzer = SpacegroupAnalyzer(initial_structure, symprec, angle_tolerance)
         self.lat_type = analyzer.get_lattice_type()[0]
@@ -378,7 +379,7 @@ class GrainBoundaryGenerator:
             # need to use primitive cell for rhombohedra
             initial_structure = analyzer.get_primitive_standard_structure()
         elif self.lat_type == "o":
-            # need to use the conventional cell for orthorombic
+            # need to use the conventional cell for orthorhombic
             initial_structure = analyzer.get_conventional_standard_structure()
         self.initial_structure = initial_structure
 
