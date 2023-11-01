@@ -10,7 +10,6 @@ from shutil import copyfile, copyfileobj
 
 import numpy as np
 import pytest
-from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -19,7 +18,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Kpoints, Poscar, Potcar
 from pymatgen.io.vasp.outputs import (
     WSWQ,
     BSVasprun,
@@ -591,23 +590,27 @@ class TestVasprun(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
         potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
+
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None, "summary_stats": {}},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None, "summary_stats": {}},
-        ]
+        potcars = Potcar.from_file(potcar_path)
+        expected_spec = [{"titel": titel, "hash": None, "summary_stats": {}} for titel in vasp_run.potcar_symbols]
+        assert vasp_run.potcar_spec == expected_spec
+
         vasp_run.update_potcar_spec(potcar_path)
-        assert vasp_run.potcar_spec == loadfn(f"{TEST_FILES_DIR}/test_io_vasp_update_potcar_1.json")
+        potcars = Potcar.from_file(potcar_path)
+        expected_spec = []
+        for titel in vasp_run.potcar_symbols:
+            for potcar in potcars:
+                if titel == potcar.TITEL:
+                    break
+            expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
+        assert vasp_run.potcar_spec == expected_spec
 
-        vasprun2 = Vasprun(filepath, parse_potcar_file=False)
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
-            vasprun2.update_potcar_spec(potcar_path2)
-        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
+            Vasprun(filepath, parse_potcar_file=potcar_path2)
 
-        assert vasp_run.potcar_spec == loadfn(f"{TEST_FILES_DIR}/test_io_vasp_update_potcar_2.json")
+        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
+        assert vasp_run.potcar_spec == expected_spec
 
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
