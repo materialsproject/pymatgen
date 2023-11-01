@@ -1651,7 +1651,7 @@ class TestLobsterin(unittest.TestCase):
             == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
         )
 
-    def test_dict_functionlity(self):
+    def test_dict_functionality(self):
         # test get
         assert (self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0)
         assert (self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0)
