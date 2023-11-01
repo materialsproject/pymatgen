@@ -88,8 +88,8 @@ class Unk:
         self.nbnd = self.data.shape[0]
         self.ng = self.data.shape[-3:]
 
-    @staticmethod
-    def from_file(filename: str) -> object:
+    @classmethod
+    def from_file(cls, filename: str) -> object:
         """
         Reads the UNK data from file.
 
@@ -122,8 +122,8 @@ class Unk:
             temp_data = np.empty((nbnd, 2, *ng), dtype=np.complex128)
             temp_data[:, 0, :, :, :] = data[::2, :, :, :]
             temp_data[:, 1, :, :, :] = data[1::2, :, :, :]
-            return Unk(ik, temp_data)
-        return Unk(ik, data)
+            return cls(ik, temp_data)
+        return cls(ik, data)
 
     def write_file(self, filename: str) -> None:
         """

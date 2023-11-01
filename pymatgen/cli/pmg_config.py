@@ -143,8 +143,7 @@ def setup_potcars(potcar_dirs: list[str]):
             if len(filenames) > 0:
                 try:
                     base_dir = os.path.join(target_dir, basename)
-                    if not os.path.exists(base_dir):
-                        os.makedirs(base_dir)
+                    os.makedirs(base_dir, exist_ok=True)
                     fname = filenames[0]
                     dest = os.path.join(base_dir, os.path.basename(fname))
                     shutil.copy(fname, dest)

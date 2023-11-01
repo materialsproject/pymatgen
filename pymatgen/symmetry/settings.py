@@ -172,9 +172,8 @@ class JonesFaithfulTransformation:
         """Takes a list of coordinates and transforms them."""
         new_coords = []
         for x in coords:
-            x = np.array(x)
             Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (x - self.p))
+            x_ = np.matmul(Q, (np.array(x) - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 

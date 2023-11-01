@@ -338,21 +338,10 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
 
     def test_symmetrized_structure(self):
         trafo = OrderDisorderedStructureTransformation(symmetrized_structures=True)
-        c = []
-        sp = []
-        c.append([0.5, 0.5, 0.5])
-        sp.append("Si4+")
-        c.append([0.45, 0.45, 0.45])
-        sp.append({"Si4+": 0.5})
-        c.append([0.56, 0.56, 0.56])
-        sp.append({"Si4+": 0.5})
-        c.append([0.25, 0.75, 0.75])
-        sp.append({"Si4+": 0.5})
-        c.append([0.75, 0.25, 0.25])
-        sp.append({"Si4+": 0.5})
         latt = Lattice.cubic(5)
-        struct = Structure(latt, sp, c)
-        test_site = PeriodicSite("Si4+", c[2], latt)
+        coords = [[0.5, 0.5, 0.5], [0.45, 0.45, 0.45], [0.56, 0.56, 0.56], [0.25, 0.75, 0.75], [0.75, 0.25, 0.25]]
+        struct = Structure(latt, [{"Si4+": 1}, *[{"Si4+": 0.5}] * 4], coords)
+        test_site = PeriodicSite("Si4+", coords[2], latt)
         struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
         output = trafo.apply_transformation(struct)
         assert test_site in output

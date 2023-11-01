@@ -95,10 +95,10 @@ class PotcarScrambler:
         with zopen(filename, "wt") as f:
             f.write(self.scrambled_potcars_str)
 
-    @staticmethod
-    def from_file(input_filename: str, output_filename: str | None = None):
+    @classmethod
+    def from_file(cls, input_filename: str, output_filename: str | None = None):
         psp = Potcar.from_file(input_filename)
-        psp_scrambled = PotcarScrambler(psp)
+        psp_scrambled = cls(psp)
         if output_filename:
             psp_scrambled.to_file(output_filename)
         return psp_scrambled

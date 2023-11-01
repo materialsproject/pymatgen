@@ -357,8 +357,6 @@ def ms_complete():
             entry_id="r2scan-7",
         ),
     ]
-    # the fmt command tells the black autoformatter not to mess with this block of code
-    # it's easier to edit when all the commas are lined up.
     # fmt: off
     row_list = [
         ["Br",    64,  4,  True, "gga-3", "r2scan-3", "GGA", "R2SCAN",  0.,  0.,   0., -1.],

@@ -511,7 +511,7 @@ class SpaceGroup(SymmetryGroup):
     def to_pretty_string(self) -> str:
         """
         Returns:
-            (str): A pretty string representation of the space group.
+            str: A pretty string representation of the space group.
         """
         return self.symbol
 

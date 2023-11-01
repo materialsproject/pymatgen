@@ -1382,11 +1382,7 @@ class QCOutput(MSONable):
                     self.text,
                     {"key": r"Maximum number of iterations reached during minimization algorithm"},
                     terminate_on_match=True,
-                ).get(
-                    "key"
-                ) == [
-                    []
-                ]:
+                ).get("key") == [[]]:
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
@@ -2045,9 +2041,7 @@ class QCOutput(MSONable):
             "key"
         ) == [[]] or read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get(
             "key"
-        ) == [
-            []
-        ]:
+        ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,

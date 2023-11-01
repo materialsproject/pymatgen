@@ -305,8 +305,8 @@ class BabelMolAdaptor:
         mol = pybel.Molecule(self._ob_mol)
         return mol.write(file_format, filename, overwrite=True)
 
-    @staticmethod
-    def from_file(filename, file_format="xyz", return_all_molecules=False):
+    @classmethod
+    def from_file(cls, filename, file_format="xyz", return_all_molecules=False):
         """
         Uses OpenBabel to read a molecule from a file in all supported formats.
 
@@ -322,9 +322,9 @@ class BabelMolAdaptor:
         """
         mols = pybel.readfile(str(file_format), str(filename))
         if return_all_molecules:
-            return [BabelMolAdaptor(mol.OBMol) for mol in mols]
+            return [cls(mol.OBMol) for mol in mols]
 
-        return BabelMolAdaptor(next(mols).OBMol)
+        return cls(next(mols).OBMol)
 
     @staticmethod
     def from_molecule_graph(mol):
@@ -345,8 +345,8 @@ class BabelMolAdaptor:
         return cls.from_str(*args, **kwargs)
 
     @needs_openbabel
-    @staticmethod
-    def from_str(string_data, file_format="xyz"):
+    @classmethod
+    def from_str(cls, string_data, file_format="xyz"):
         """
         Uses OpenBabel to read a molecule from a string in all supported
         formats.
@@ -359,4 +359,4 @@ class BabelMolAdaptor:
             BabelMolAdaptor object
         """
         mols = pybel.readstring(str(file_format), str(string_data))
-        return BabelMolAdaptor(mols.OBMol)
+        return cls(mols.OBMol)
