@@ -270,7 +270,6 @@ class Lobsterin(UserDict, MSONable):
             for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
-                        print(self.get(key))
                         f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False

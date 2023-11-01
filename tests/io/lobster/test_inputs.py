@@ -1652,19 +1652,19 @@ class TestLobsterin(unittest.TestCase):
         )
 
     def test_dict_functionlity(self):
-        # test get
-
-        # test set
-
-        # test update etc.
-        pass
+        test=self.Lobsterinfromfile3.get("cohpenergy")
+        print(test)
+        test=self.Lobsterinfromfile3.get("cohpeNergy")
+        print(test)
 
     def test_read_write_lobsterin(self):
         outfile_path = tempfile.mkstemp()[1]
-        lobsterin1 = Lobsterin.from_file(f"{TEST_FILES_DIR}/lobsterin.1.gz")
+        lobsterin1 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.1")
         lobsterin1.write_lobsterin(outfile_path)
         lobsterin2 = Lobsterin.from_file(outfile_path)
         assert lobsterin1.diff(lobsterin2)["Different"] == {}
+
+        #TODO: will integer vs float break cohpsteps?
 
     def test_get_basis(self):
         # get basis functions
