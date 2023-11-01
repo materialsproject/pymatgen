@@ -1,6 +1,6 @@
 """Classes for reading/manipulating/writing FHI-aims input files.
 
-Works for geometry.in and control.in
+Works for aims cube objects, geometry.in and control.in
 """
 
 from __future__ import annotations
@@ -23,19 +23,28 @@ if TYPE_CHECKING:
 
 @dataclass
 class AimsGeometryIn(MSONable):
-    """Class representing an aims geometry.in file"""
+    """Representation of an aims geometry.in file
+
+    Attributes:
+        _content (str): The content of the input file
+        _structure (Structure or Molecule): The structure or molecule
+            representation of the file
+
+    """
 
     _content: str
     _structure: Structure | Molecule
 
     @classmethod
-    def from_str(cls, contents: str):
-        """The contents of the input file
+    def from_str(cls, contents: str) -> AimsGeometryIn:
+        """Create an input from the content of an input file
 
-        self.__dict__
-        ----------
-        contents: str
-            The content of the string
+        Args:
+            contents (str): The content of the file
+
+        Returns:
+            The AimsGeometryIn file for the string contents
+
         """
         content_lines = [
             line.strip() for line in contents.split("\n") if len(line.strip()) > 0 and line.strip()[0] != "#"
@@ -101,7 +110,16 @@ class AimsGeometryIn(MSONable):
         return cls(_content="\n".join(content_lines), _structure=structure)
 
     @classmethod
-    def from_file(cls, filepath: str | Path):
+    def from_file(cls, filepath: str | Path) -> AimsGeometryIn:
+        """Create an AimsGeometryIn from an input file
+
+        Args:
+            filepath (str): The path to the input file (either plain text of gzipped)
+
+        Returns:
+            The input object represented in the file
+
+        """
         if str(filepath).endswith(".gz"):
             with gzip.open(filepath, "rt") as infile:
                 content = infile.read()
@@ -111,13 +129,15 @@ class AimsGeometryIn(MSONable):
         return cls.from_str(content)
 
     @classmethod
-    def from_structure(cls, structure: Structure):
-        """The contents of the input file
+    def from_structure(cls, structure: Structure | Molecule) -> AimsGeometryIn:
+        """Construct an input file from an input structure
 
-        self.__dict__
-        ----------
-        structure: Structure
-            The structure for the file
+        Args:
+            structure (Structure or Molecule): The structure for the file
+
+        Returns:
+            The input object for the structure
+
         """
         content_lines = []
 
@@ -143,18 +163,16 @@ class AimsGeometryIn(MSONable):
 
     @property
     def content(self) -> str:
-        """Accses structure for the file"""
+        """Accses the contents of the file"""
         return self._content
 
-    def write_file(self, directory: str | Path | None = None, overwrite: bool = False):
+    def write_file(self, directory: str | Path | None = None, overwrite: bool = False) -> None:
         """Writes the geometry.in file
 
-        self.__dict__
-        ----------
-        directory: str or Path
-            The directory to write the geometry.in file
-        overwrite: bool
-            If True allow to overwrite existing files
+        Args:
+            directory (str | Path | None): The directory to write the geometry.in file
+            overwrite (bool): If True allow to overwrite existing files
+
         """
         if directory is None:
             directory = Path.cwd()
@@ -172,12 +190,7 @@ class AimsGeometryIn(MSONable):
             fd.write("\n")
 
     def as_dict(self) -> dict[str, Any]:
-        """Get a dictionary representation of the geometry.in file.
-
-        Returns
-        -------
-        The dictionary representation of the input file
-        """
+        """Get a dictionary representation of the geometry.in file."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -186,13 +199,15 @@ class AimsGeometryIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]):
+    def from_dict(cls, d: dict[str, Any]) -> AimsGeometryIn:
         """Initialize from dictionary.
 
-        self.__dict__
-        ----------
-        d: dict[str, Any]
-            The MontyEncoded dictionary
+        Args:
+            d (dict[str, Any]): The MontyEncoded dictionary of the AimsGeometryIn object
+
+        Returns:
+            The input object represented by the dict
+
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 
@@ -235,29 +250,22 @@ ALLOWED_AIMS_CUBE_FORMATS = [
 class AimsCube(MSONable):
     """Class representing the FHI-aims cubes
 
-    Parameters
-    ----------
-    type: str
-        The value to be outputted as a cube file
-    origin: Sequence[float] | tuple[float, float, float]
-        The origin of the cube
-    edges: Sequence[Sequence[float]]
-        Specifies the edges of a cube: dx, dy, dz
-        dx (float): The length of the step in the x direction
-        dy (float): The length of the step in the y direction
-        dx (float): The length of the step in the x direction
-    points: Sequence[int] | tuple[int, int, int]
-        The number of points along each edge
-    spinstate: int
-        The spin-channel to use either 1 or 2
-    kpoint: int
-        The k-point to use (the index of the list printed from `output k_point_list`)
-    filename: str
-        The filename to use
-    format: str
-        The format to output the cube file in: cube, gOpenMol, or xsf
-    elf_type: int
-        The type of electron localization function to use (see FHI-aims manual)
+    Attributes:
+        type (str): The value to be outputted as a cube file
+        origin (Sequence[float] or tuple[float, float, float]): The origin of the cube
+        edges (Sequence[Sequence[float]]): Specifies the edges of a cube: dx, dy, dz
+            dx (float): The length of the step in the x direction
+            dy (float): The length of the step in the y direction
+            dx (float): The length of the step in the x direction
+        points (Sequence[int] or tuple[int, int, int]): The number of points
+            along each edge
+        spinstate (int): The spin-channel to use either 1 or 2
+        kpoint (int): The k-point to use (the index of the list printed from
+            `output k_point_list`)
+        filename (str): The filename to use
+        format (str): The format to output the cube file in: cube, gOpenMol, or xsf
+        elf_type (int): The type of electron localization function to use (
+            see FHI-aims manual)
     """
 
     type: str = field(default_factory=str)
@@ -276,8 +284,12 @@ class AimsCube(MSONable):
     filename: str | None = None
     elf_type: int | None = None
 
-    def __post_init__(self):
-        """Check the inputted variables to make sure they are correct"""
+    def __post_init__(self) -> None:
+        """Check the inputted variables to make sure they are correct
+
+        Raises:
+            ValueError: If any of the inputs is invalid
+        """
         split_type = self.type.split()
         if split_type[0] in ALLOWED_AIMS_CUBE_TYPES:
             if len(split_type) > 1:
@@ -313,7 +325,8 @@ class AimsCube(MSONable):
             raise ValueError("elf_type only used when the cube type is elf")
 
     @property
-    def control_block(self):
+    def control_block(self) -> str:
+        """Get the block of text for the control.in file of the Cube"""
         cb = f"output cube {self.type}\n"
         cb += f"    cube origin {self.origin[0]: .12e} {self.origin[1]: .12e} {self.origin[2]: .12e}\n"
         for ii in range(3):
@@ -334,12 +347,7 @@ class AimsCube(MSONable):
         return cb
 
     def as_dict(self) -> dict[str, Any]:
-        """Get a dictionary representation of the geometry.in file.
-
-        Returns
-        -------
-        The dictionary representation of the input file
-        """
+        """Get a dictionary representation of the geometry.in file."""
         dct: dict[str, Any] = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -355,13 +363,15 @@ class AimsCube(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]):
+    def from_dict(cls, d: dict[str, Any]) -> AimsCube:
         """Initialize from dictionary.
 
-        self.__dict__
-        ----------
-        d: dict[str, Any]
-            The MontyEncoded dictionary
+        Args:
+            d(dict[str, Any]): The MontyEncoded dictionary
+
+        Returns:
+            The AimsCube for d
+
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 
@@ -380,22 +390,43 @@ class AimsCube(MSONable):
 
 @dataclass
 class AimsControlIn(MSONable):
-    """Class representing and FHI-aims control.in file"""
+    """Class representing and FHI-aims control.in file
+
+    Attributes:
+        _parameters (dict[str, Any]): The parameters dictionary conataining all input
+            flags (key) and values for the control.in file
+    """
 
     _parameters: dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize the output list of _parameters"""
         if "output" not in self._parameters:
             self._parameters["output"] = []
 
     def __getitem__(self, key: str) -> Any:
-        """Get an attribute of the class"""
+        """Get an input parameter
+
+        Args:
+            key (str): The parameter to get
+
+        Returns:
+            The setting for that parameter
+
+        Raises:
+            KeyError: If the key is not in self._parameters
+        """
         if key not in self._parameters:
-            raise AttributeError(f"{key} not set in AimsControlIn")
+            raise KeyError(f"{key} not set in AimsControlIn")
         return self._parameters[key]
 
-    def __setitem__(self, key: str, value: Any):
-        """set an attribute of the class"""
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set an attribute of the class
+
+        Args:
+            key (str): The parameter to get
+            value (Any): The value for that parameter
+        """
         if key == "output":
             if isinstance(value, str):
                 value = [value]
@@ -406,46 +437,66 @@ class AimsControlIn(MSONable):
     def __delitem__(self, key: str) -> Any:
         """Delete a parameter from the input object
 
-        Parameters
-        ----------
-        key: str
-            The key in the parameter to remove
+        Args:
+        key (str): The key in the parameter to remove
+
+        Returns:
+            Either the value of the deleted parameter or None if key is
+            not in self._parameters
         """
         return self._parameters.pop(key, None)
 
     @property
-    def parameters(self):
+    def parameters(self) -> dict[str, Any]:
+        """The dictionary of input parameters for control.in"""
         return self._parameters
 
     @parameters.setter
-    def parameters(self, parameters: dict[str, Any]):
-        """reload a control.in inputs from a parameters dictionary"""
+    def parameters(self, parameters: dict[str, Any]) -> None:
+        """Reset a control.in inputs from a parameters dictionary
+
+        Args:
+            parameters (dict[str, Any]): The new set of parameters to use
+
+        """
         self._parameters = parameters
         if "output" not in self._parameters:
             self._parameters["output"] = []
 
-    def get_aims_control_parameter_str(self, key, value, format):
+    def get_aims_control_parameter_str(self, key: str, value: Any, format: str) -> str:
+        """Get the string needed to add a parameter to the control.in file
+
+        Args:
+            key(str): The name of the input flag
+            value(Any): The value to be set for the flag
+            format(str): The format string to apply to the value
+
+        Returns:
+            The line to add to the control.in file
+
+        """
         return f"{key :35s}" + (format % value) + "\n"
 
     def write_file(
         self,
-        structure: Structure,
+        structure: Structure | Molecule,
         directory: str | Path | None = None,
         verbose_header: bool = False,
         overwrite: bool = False,
-    ):
-        """Writes the geometry.in file
+    ) -> None:
+        """Writes the control.in file
 
-        Parameters
-        ----------
-        structure: Structure
-            The structure to write the input file for
-        directory: str or Path
-            The directory to write the geometry.in file
-        verbose_header: bool
-            If True print the input option dictionary
-        overwrite: bool
-            If True allow to overwrite existing files
+        Args:
+            structure (Structure or Molecule): The structure to write the input
+                file for
+            directory (str or Path): The directory to write the control.in file.
+                If None use cwd
+            verbose_header (bool): If True print the input option dictionary
+            overwrite (bool): If True allow to overwrite existing files
+
+        Raises:
+            ValueError: If a file must be overwritten and overwrite is False
+            ValueError: If k-grid is not provided for the periodic structures
         """
         if directory is None:
             directory = Path.cwd()
@@ -519,8 +570,19 @@ class AimsControlIn(MSONable):
             fd.write(lim + "\n\n")
             fd.write(self.get_species_block(structure, self._parameters["species_dir"]))
 
-    def get_species_block(self, structure, species_dir):
-        """Get the basis set information for a structure"""
+    def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
+        """Get the basis set information for a structure
+
+        Args:
+            structure (Molecule or Structure): The structure to get the basis set information for
+            species_dir (str or Pat:): The directory to find the species files in
+
+        Returns:
+            The block to add to the control.in file for the species
+
+        Raises:
+            ValueError: If a file for the species is not found
+        """
         sb = ""
         species = np.unique(structure.species)
         for sp in species:
@@ -537,26 +599,23 @@ class AimsControlIn(MSONable):
         return sb
 
     def as_dict(self) -> dict[str, Any]:
-        """Get a dictionary representation of the geometry.in file.
-
-        Returns
-        -------
-        The dictionary representation of the input file
-        """
-        dct = {}
+        """Get a dictionary representation of the geometry.in file."""
+        dct: dict[str, Any] = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["parameters"] = self.parameters
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]):
+    def from_dict(cls, d: dict[str, Any]) -> AimsControlIn:
         """Initialize from dictionary.
 
-        self.__dict__
-        ----------
-        d: dict[str, Any]
-            The MontyEncoded dictionary
+        Args:
+            d(dict[str, Any]): The MontyEncoded dictionary
+
+        Returns:
+            The AimsControlIn for d
+
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 
