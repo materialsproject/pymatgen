@@ -73,9 +73,11 @@ class Poscar(MSONable):
         velocities: Velocities for each site (typically read in from a CONTCAR).
             A Nx3 array of floats.
         predictor_corrector: Predictor corrector coordinates and derivatives for each site;
-            i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+            i.e. a list of three 1x3 arrays for each site (typically read in from an MD CONTCAR).
         predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
             POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
+        lattice_velocities: Lattice velocities and current lattice (typically read
+            in from an MD CONTCAR). A 6x3 array of floats.
         temperature: Temperature of velocity Maxwell-Boltzmann initialization.
             Initialized to -1 (MB hasn't been performed).
     """
@@ -520,8 +522,8 @@ class Poscar(MSONable):
 
         format_str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
-        for v in latt.matrix:
-            lines.append(" ".join(format_str.format(c) for c in v))
+        for vec in latt.matrix:
+            lines.append(" ".join(format_str.format(c) for c in vec))
 
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
@@ -544,16 +546,17 @@ class Poscar(MSONable):
             try:
                 lines.append("Lattice velocities and vectors")
                 lines.append("  1")
-                for v in self.lattice_velocities:
-                    lines.append(" ".join(format_str.format(i) for i in v))
+                for velo in self.lattice_velocities:
+                    # VASP is strict about the format when reading this quantity
+                    lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
                 warnings.warn("Lattice velocities are missing or corrupted.")
 
         if self.velocities:
             try:
                 lines.append("")
-                for v in self.velocities:
-                    lines.append(" ".join(format_str.format(i) for i in v))
+                for velo in self.velocities:
+                    lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
                 warnings.warn("Velocities are missing or corrupted.")
 
@@ -2629,15 +2632,15 @@ class VaspInput(dict, MSONable):
             make_dir_if_not_present (bool): Create the directory if not
                 present. Defaults to True.
         """
-        if make_dir_if_not_present and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        if make_dir_if_not_present:
+            os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
                 with zopen(os.path.join(output_dir, k), "wt") as f:
                     f.write(str(v))
 
-    @staticmethod
-    def from_directory(input_dir, optional_files=None):
+    @classmethod
+    def from_directory(cls, input_dir, optional_files=None):
         """
         Read in a set of VASP input from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
@@ -2657,8 +2660,8 @@ class VaspInput(dict, MSONable):
             ("POTCAR", Potcar),
         ]:
             try:
-                fullzpath = zpath(os.path.join(input_dir, fname))
-                sub_d[fname.lower()] = ftype.from_file(fullzpath)
+                full_zpath = zpath(os.path.join(input_dir, fname))
+                sub_d[fname.lower()] = ftype.from_file(full_zpath)
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_d[fname.lower()] = None
 
@@ -2666,7 +2669,7 @@ class VaspInput(dict, MSONable):
         if optional_files is not None:
             for fname, ftype in optional_files.items():
                 sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
-        return VaspInput(**sub_d)
+        return cls(**sub_d)
 
     def run_vasp(
         self,

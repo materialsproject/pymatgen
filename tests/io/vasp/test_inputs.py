@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import os
 import pickle
+import re
 import unittest
 from typing import TYPE_CHECKING
 
@@ -297,6 +298,15 @@ direct
         poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
 
         poscar.write_file(path)
+
+        # check output produced for lattice velocities has required format and spaces
+        # added in https://github.com/materialsproject/pymatgen/pull/3433
+        with open(path) as file:
+            lines = file.readlines()
+        pattern = (r"  [-| ]?\d\.\d{7}E[+-]\d{2}" * 3)[1:]
+        for line in lines[18:24]:
+            assert re.match(pattern, line.rstrip())
+
         p3 = Poscar.from_file(path)
 
         assert_allclose(poscar.structure.lattice.abc, p3.structure.lattice.abc, 5)

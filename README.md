@@ -87,10 +87,10 @@ If you use `pymatgen` in your research, please consider citing the following wor
 
 In addition, some of `pymatgen`'s functionality is based on scientific advances/principles developed by the computational materials scientists in our team. Please refer to the [`pymatgen` docs] on how to cite them.
 
-### Soliciting contributions to an updated pymatgen paper
+### Soliciting contributions to 2nd `pymatgen` paper
 
 If you are a long-standing `pymatgen` contributor and would like to be involved in working on an updated `pymatgen` publication,
-please contact the maintainers [@shyuep, @mkhorton and @janosh](mailto:ongsp@ucsd.edu,m.k.horton@gmail.com,janosh@lbl.gov?subject=Contributing%20to%20updated%20pymatgen%20paper).
+please fill out this [co-author registration form](https://docs.google.com/forms/d/e/1FAIpQLSecIhD2YjdPGldrRTM8Go3VxVg_vjKjZAOXtIKDG7qckHLYaQ/viewform) or contact [@shyuep, @mkhorton and @janosh](mailto:ongsp@ucsd.edu,m.k.horton@gmail.com,janosh@lbl.gov?subject=Contributing%20to%20updated%20pymatgen%20paper) with questions.
 
 ## License
 

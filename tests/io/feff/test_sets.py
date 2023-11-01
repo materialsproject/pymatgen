@@ -208,11 +208,11 @@ TITLE sites: 4
         assert "RECIPROCAL" in feff_reci_input.tags
 
         feff_reci_input.write_input(f"{self.tmp_path}/Dup_reci")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/HEADER")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/feff.inp")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/PARAMETERS")
-        assert not os.path.exists(f"{self.tmp_path}/Dup_reci/ATOMS")
-        assert not os.path.exists(f"{self.tmp_path}/Dup_reci/POTENTIALS")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/HEADER")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/feff.inp")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/PARAMETERS")
+        assert not os.path.isfile(f"{self.tmp_path}/Dup_reci/ATOMS")
+        assert not os.path.isfile(f"{self.tmp_path}/Dup_reci/POTENTIALS")
 
         tags_original = Tags.from_file(f"{self.tmp_path}/xanes_reci/feff.inp")
         tags_output = Tags.from_file(f"{self.tmp_path}/Dup_reci/feff.inp")

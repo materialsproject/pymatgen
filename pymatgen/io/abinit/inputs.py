@@ -614,8 +614,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
     def write(self, filepath="run.abi"):
         """Write the input file to file to filepath."""
         dirname = os.path.dirname(os.path.abspath(filepath))
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
         with open(filepath, "w") as fh:
