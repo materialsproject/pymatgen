@@ -1259,11 +1259,11 @@ class TestVaspInput(PymatgenTest):
 def test_potcar_summary_stats() -> None:
     from pymatgen.io.vasp.inputs import module_dir
 
-    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.gz")
+    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.bz2")
 
     assert len(potcar_summary_stats) == 16
     n_potcars_per_functional = {
-        "PBE": 271,
+        "PBE": 251,
         "PBE_52": 303,
         "PBE_54": 326,
         "PBE_64": 343,
@@ -1288,9 +1288,9 @@ def test_potcar_summary_stats() -> None:
 
 
 def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
-    """Regenerate the potcar_summary_stats.json.gz file used to validate POTCARs with scrambled POTCARs."""
+    """Regenerate the potcar_summary_stats.json.bz2 file used to validate POTCARs with scrambled POTCARs."""
     psp_path = f"{TEST_FILES_DIR}/fake_potcar_library/"
-    summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.gz"
+    summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.bz2"
     _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
 
     # only checking for two directories to save space, fake POTCAR library is big
