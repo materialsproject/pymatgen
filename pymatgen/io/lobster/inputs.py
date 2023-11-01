@@ -162,6 +162,9 @@ class Lobsterin(UserDict, MSONable):
 
         return super().__getitem__(new_key)
 
+    def __delitem__(self, key):
+        del self.data[key.lower()]
+
     def diff(self, other):
         """
         Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.

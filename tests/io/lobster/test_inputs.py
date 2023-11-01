@@ -1652,10 +1652,23 @@ class TestLobsterin(unittest.TestCase):
         )
 
     def test_dict_functionlity(self):
-        test=self.Lobsterinfromfile3.get("cohpenergy")
-        print(test)
-        test=self.Lobsterinfromfile3.get("cohpeNergy")
-        print(test)
+        # test get
+        assert (self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0)
+        assert (self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0)
+        assert (self.Lobsterinfromfile.get("COhPstartenergy") == -15.0)
+        lobsterincopy = self.Lobsterinfromfile.copy()
+        lobsterincopy.update({"cohpstarteNergy": -10.00})
+        assert (lobsterincopy["cohpstartenergy"] == -10.0)
+        lobsterincopy.pop("cohpstarteNergy")
+        assert not ("cohpstartenergy" in lobsterincopy)
+        lobsterincopy.pop("cohpendenergY")
+        lobsterincopy["cohpsteps"]=100
+        assert (lobsterincopy["cohpsteps"] == 100)
+        before = len(lobsterincopy.items())
+        lobsterincopy.popitem()
+        after = len(lobsterincopy.items())
+        assert (before != after)
+
 
     def test_read_write_lobsterin(self):
         outfile_path = tempfile.mkstemp()[1]
