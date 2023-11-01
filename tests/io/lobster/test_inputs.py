@@ -1651,6 +1651,21 @@ class TestLobsterin(unittest.TestCase):
             == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
         )
 
+    def test_dict_functionlity(self):
+        # test get
+
+        # test set
+
+        # test update etc.
+        pass
+
+    def test_read_write_lobsterin(self):
+        outfile_path = tempfile.mkstemp()[1]
+        lobsterin1 = Lobsterin.from_file(f"{TEST_FILES_DIR}/lobsterin.1.gz")
+        lobsterin1.write_lobsterin(outfile_path)
+        lobsterin2 = Lobsterin.from_file(outfile_path)
+        assert lobsterin1.diff(lobsterin2)["Different"] == {}
+
     def test_get_basis(self):
         # get basis functions
         lobsterin1 = Lobsterin({})

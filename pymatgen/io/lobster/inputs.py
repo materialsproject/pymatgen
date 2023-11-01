@@ -10,6 +10,7 @@ DOI: 10.1002/cplu.202200123.
 
 from __future__ import annotations
 
+from collections import UserDict
 import itertools
 import os
 import warnings
@@ -49,7 +50,7 @@ due.cite(
 )
 
 
-class Lobsterin(dict, MSONable):
+class Lobsterin(UserDict, MSONable):
     """
     This class can handle and generate lobsterin files
     Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
@@ -159,7 +160,7 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = item
 
-        return dict.__getitem__(self, new_key)
+        return super().__getitem__(new_key)
 
     def diff(self, other):
         """
@@ -269,6 +270,7 @@ class Lobsterin(dict, MSONable):
             for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
+                        print(self.get(key))
                         f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
