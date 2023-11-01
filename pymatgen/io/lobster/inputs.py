@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import itertools
 import os
-import warnings
 import re
+import warnings
 from collections import UserDict
 from typing import TYPE_CHECKING, Any
 
@@ -583,7 +583,7 @@ class Lobsterin(UserDict, MSONable):
 
         for datum in data:
             # will remove all comments to avoid complications
-            raw_datum = re.findall(r'(?i)\b[a-z]+(?:\d+)?\b|\b\d+[a-z]+\b|[-]?\d*\.?\d+', datum)
+            raw_datum = re.findall(r"(?i)\b[a-z]+(?:\d+)?\b|\b\d+[a-z]+\b|[-]?\d*\.?\d+", datum)
             while "" in raw_datum:
                 raw_datum.remove("")
             if len(raw_datum) > 1:
