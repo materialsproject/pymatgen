@@ -783,7 +783,7 @@ Direct
 
         # make sure CIfParser.get_structures() and Structure.from_file() are consistent
         # i.e. uses same merge_tol for site merging, same primitive=False, etc.
-        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").get_structures()[0]
+        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
 
     def test_to_file_alias(self):
         out_path = f"{self.tmp_path}/POSCAR"
