@@ -1141,12 +1141,13 @@ class CifParser:
     @np.deprecate(
         message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
         "The only difference is that primitive defaults to False in the new parse_structures method."
-        "So parse_structures(primitive=True) is equivalent to get_structures().",
+        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
     )
     def get_structures(self, *args, **kwargs) -> list[Structure]:
         """
         Deprecated. Use parse_structures instead. Only difference between the two methods is the
         default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
         """
         if len(args) > 0:  # extract primitive if passed as arg
             kwargs["primitive"] = args[0]
