@@ -138,10 +138,10 @@ class TestFeffAtoms(unittest.TestCase):
         os.remove("ATOMS_test")
 
     def test_atom_num(self):
-        filepath = f"{TEST_FILES_DIR}/ATOMS_test.inp.gz"
+        filepath = f"{TEST_FILES_DIR}/Pt37_atoms.inp.gz"
         atoms = Atoms.cluster_from_file(filepath)
-        num_atom = 37
-        assert len(atoms) == num_atom
+        assert len(atoms) == 37
+        assert atoms.formula == "Pt37"
 
 
 class TestFeffTags(unittest.TestCase):
