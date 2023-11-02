@@ -54,7 +54,7 @@ class CifBlock:
     attribute.
     """
 
-    maxlen = 70  # not quite 80 so we can deal with semicolons and things
+    max_len = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
         """
@@ -95,7 +95,7 @@ class CifBlock:
             if key not in written:
                 # k didn't belong to a loop
                 v = self._format_field(self.data[key])
-                if len(key) + len(v) + 3 < self.maxlen:
+                if len(key) + len(v) + 3 < self.max_len:
                     out.append(f"{key}   {v}")
                 else:
                     out.extend([key, v])
@@ -111,7 +111,7 @@ class CifBlock:
                 if val[0] == ";":
                     out += line + "\n" + val
                     line = "\n"
-                elif len(line) + len(val) + 2 < self.maxlen:
+                elif len(line) + len(val) + 2 < self.max_len:
                     line += "  " + val
                 else:
                     out += line
@@ -121,8 +121,8 @@ class CifBlock:
 
     def _format_field(self, v):
         v = str(v).strip()
-        if len(v) > self.maxlen:
-            return ";\n" + textwrap.fill(v, self.maxlen) + "\n;"
+        if len(v) > self.max_len:
+            return ";\n" + textwrap.fill(v, self.max_len) + "\n;"
         # add quotes if necessary
         if v == "":
             return '""'
@@ -1138,7 +1138,20 @@ class CifParser:
             return struct
         return None
 
-    def get_structures(
+    @np.deprecate(
+        message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
+        "The only difference is that primitive defaults to False in the new parse_structures method."
+        "So parse_structures(primitive=True) is equivalent to get_structures().",
+    )
+    def get_structures(self, *args, **kwargs) -> list[Structure]:
+        """
+        Deprecated. Use parse_structures instead. Only difference between the two methods is the
+        default primitive=False in parse_structures.
+        """
+        kwargs.setdefault("primitive", True)
+        return self.parse_structures(*args, **kwargs)
+
+    def parse_structures(
         self,
         primitive: bool = False,
         symmetrized: bool = False,
