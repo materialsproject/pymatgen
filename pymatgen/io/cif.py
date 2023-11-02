@@ -1148,6 +1148,9 @@ class CifParser:
         Deprecated. Use parse_structures instead. Only difference between the two methods is the
         default primitive=False in parse_structures.
         """
+        if len(args) > 0:  # extract primitive if passed as arg
+            kwargs["primitive"] = args[0]
+            args = args[1:]
         kwargs.setdefault("primitive", True)
         return self.parse_structures(*args, **kwargs)
 
