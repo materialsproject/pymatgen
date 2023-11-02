@@ -485,10 +485,10 @@ class Atoms(MSONable):
         lines = [line.split() for line in atoms_string.splitlines()[1:]]
         coords = []
         symbols = []
-        for line in lines:
-            if line and not line.startswith("*"):
-                coords.append([float(val) for val in line[:3]])
-                symbols.append(line[4])
+        for tokens in lines:
+            if tokens and not tokens[0].startswith("*"):
+                coords.append([float(val) for val in tokens[:3]])
+                symbols.append(tokens[4])
         return Molecule(symbols, coords)
 
     def get_lines(self) -> list[list[str | int]]:
