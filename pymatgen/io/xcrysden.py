@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+import numpy as np
+
 from pymatgen.core.periodic_table import Element
 
 if TYPE_CHECKING:
@@ -96,9 +98,15 @@ class XSF:
         # 30      1.3550000    -1.3550000    -1.3550000
 
         lattice, coords, species = [], [], []
+        forces = []
+        energy = None
+
         lines = input_string.splitlines()
 
         for i, line in enumerate(lines):
+            if "total energy" in line:
+                energy = float(line.strip().split()[-2])
+
             if "PRIMVEC" in line:
                 for j in range(i + 1, i + 4):
                     lattice.append([float(c) for c in lines[j].split()])
@@ -111,6 +119,9 @@ class XSF:
                     Z = Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0])
                     species.append(Z)
                     coords.append([float(j) for j in tokens[1:4]])
+
+                    if len(tokens) == 7:  # force exists
+                        forces.append([float(j) for j in tokens[4:7]])
                 break
         else:
             raise ValueError("Invalid XSF data")
@@ -121,4 +132,9 @@ class XSF:
             cls_ = Structure
 
         s = cls_(lattice, species, coords, coords_are_cartesian=True)
-        return XSF(s)
+
+        result = XSF(s)
+        result.forces = np.array(forces)
+        result.energy = energy
+
+        return result
