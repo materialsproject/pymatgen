@@ -18,7 +18,7 @@ from enum import Enum
 import numpy as np
 from monty.collections import AttrDict
 from monty.json import MSONable
-from monty.string import is_string, list_strings
+from monty.string import list_strings
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import abiobjects as aobj
@@ -99,9 +99,7 @@ del T
 
 
 # Default values used if user does not specify them
-_DEFAULTS = {
-    "kppa": 1000,
-}
+_DEFAULTS = {"kppa": 1000}
 
 
 def as_structure(obj):
@@ -115,7 +113,7 @@ def as_structure(obj):
     if isinstance(obj, Structure):
         return obj
 
-    if is_string(obj):
+    if isinstance(obj, str):
         return Structure.from_file(obj)
 
     if isinstance(obj, Mapping):
@@ -151,7 +149,7 @@ class ShiftMode(Enum):
         """
         if isinstance(obj, cls):
             return obj
-        if is_string(obj):
+        if isinstance(obj, str):
             return cls(obj[0].upper())
         raise TypeError(f"The object provided is not handled: type {type(obj).__name__}")
 
