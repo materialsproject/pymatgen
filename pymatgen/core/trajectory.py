@@ -535,7 +535,7 @@ class Trajectory(MSONable):
             **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
-            A trajectory from the file, or None when an exception occurs.
+            A trajectory from the file.
         """
         fname = Path(filename).expanduser().resolve().name
         is_mol = False
