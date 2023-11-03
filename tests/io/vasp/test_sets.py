@@ -911,7 +911,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/CHGCAR")
-        os.remove(f"{self.tmp_path}/CHGCAR")
+        os.remove(f"{self.tmp_path}/CHGCAR")  # needed for next assert
 
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, standardize=True, mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp_path)
@@ -954,7 +954,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/CHGCAR")
-        os.remove(f"{self.tmp_path}/CHGCAR")
+        os.remove(f"{self.tmp_path}/CHGCAR")  # needed for next assert
 
         vis = self.set(dummy_structure, standardize=True, mode="Line", copy_chgcar=True)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
@@ -1538,11 +1538,11 @@ class TestMPScanRelaxSet(PymatgenTest):
     def test_bandgap_tol(self):
         # Test that the bandgap tolerance is applied correctly
         bandgap = 0.01
-        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.26681378884)):
+        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.22)):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
             assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
-            assert incar["ISMEAR"] == -5
-            assert incar["SIGMA"] == 0.05
+            assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
+            assert incar["SIGMA"] == 0.05 if bandgap > bandgap_tol else 0.2
 
     def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators

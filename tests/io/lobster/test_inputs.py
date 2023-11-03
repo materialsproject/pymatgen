@@ -2302,15 +2302,13 @@ class TestWavefunction(PymatgenTest):
             filename=f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
-        wave1.write_file(filename="wavecar_test.vasp", part="real")
+        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="real")
         assert os.path.isfile("wavecar_test.vasp")
 
-        wave1.write_file(filename="wavecar_test.vasp", part="imaginary")
+        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="imaginary")
         assert os.path.isfile("wavecar_test.vasp")
-        os.remove("wavecar_test.vasp")
-        wave1.write_file(filename="density.vasp", part="density")
+        wave1.write_file(filename=f"{self.tmp_path}/density.vasp", part="density")
         assert os.path.isfile("density.vasp")
-        os.remove("density.vasp")
 
 
 class TestSitePotentials(PymatgenTest):

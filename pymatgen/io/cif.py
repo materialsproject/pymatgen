@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.string import remove_non_ascii
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -137,7 +136,7 @@ class CifBlock:
         # remove empty lines
         string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
-        string = remove_non_ascii(string)
+        string = string.encode("ascii", "ignore").decode("ascii")
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
