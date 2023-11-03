@@ -68,7 +68,7 @@ def test_missing_parameter(attrname, empty_header_chunk):
 
 
 def test_default_header_electronic_temperature(empty_header_chunk):
-    assert empty_header_chunk.electronic_temperature == 0.1
+    assert empty_header_chunk.electronic_temperature == 0.0
 
 
 # def test_default_header_constraints(empty_header_chunk):

@@ -743,11 +743,19 @@ class AimsOutCalcChunk(AimsOutChunk):
 
     def _parse_hirshfeld(
         self,
-    ) -> tuple[Sequence[float] | None, Sequence[float] | None, Sequence[Vector3D] | None, Vector3D | None]:
+    ) -> None:
         """Parse the Hirshfled charges volumes, and dipole moments."""
         line_start = self.reverse_search_for(["Performing Hirshfeld analysis of fragment charges and moments."])
         if line_start == LINE_NOT_FOUND:
-            return (None, None, None, None)
+            self._cache.update(
+                {
+                    "hirshfeld_charges": None,
+                    "hirshfeld_volumes": None,
+                    "hirshfeld_atomic_dipoles": None,
+                    "hirshfeld_dipole": None,
+                }
+            )
+            return
 
         line_inds = self.search_for_all("Hirshfeld charge", line_start, -1)
         hirshfeld_charges = np.array([float(self.lines[ind].split(":")[1]) for ind in line_inds])
@@ -767,7 +775,15 @@ class AimsOutCalcChunk(AimsOutChunk):
             )
         else:
             hirshfeld_dipole = None
-        return (hirshfeld_charges, hirshfeld_volumes, hirshfeld_atomic_dipoles, hirshfeld_dipole)
+
+        self._cache.update(
+            {
+                "hirshfeld_charges": hirshfeld_charges,
+                "hirshfeld_volumes": hirshfeld_volumes,
+                "hirshfeld_atomic_dipoles": hirshfeld_atomic_dipoles,
+                "hirshfeld_dipole": hirshfeld_dipole,
+            }
+        )
 
     @property
     def structure(self) -> Structure | Molecule:
@@ -885,25 +901,31 @@ class AimsOutCalcChunk(AimsOutChunk):
     @property
     def hirshfeld_charges(self) -> Sequence[float] | None:
         """The Hirshfeld charges of the system"""
-        return self._parse_hirshfeld()[0]
+        if "hirshfeld_charges" not in self._cache:
+            self._parse_hirshfeld()
+        return self._cache["hirshfeld_charges"]
 
     @property
     def hirshfeld_atomic_dipoles(self) -> Sequence[Vector3D] | None:
         """The Hirshfeld atomic dipoles of the system"""
-        return self._parse_hirshfeld()[1]
+        if "hirshfeld_atomic_dipoles" not in self._cache:
+            self._parse_hirshfeld()
+        return self._cache["hirshfeld_atomic_dipoles"]
 
     @property
     def hirshfeld_volumes(self) -> Sequence[float] | None:
         """The Hirshfeld atomic dipoles of the system"""
-        return self._parse_hirshfeld()[2]
+        if "hirshfeld_volumes" not in self._cache:
+            self._parse_hirshfeld()
+        return self._cache["hirshfeld_volumes"]
 
     @property
     def hirshfeld_dipole(self) -> None | Vector3D:
         """The Hirshfeld dipole of the system"""
-        if self.lattice is None:
-            return self._parse_hirshfeld()[3]
+        if "hirshfeld_dipole" not in self._cache:
+            self._parse_hirshfeld()
 
-        return None
+        return self._cache["hirshfeld_dipole"]
 
     @property
     def vbm(self) -> float:
