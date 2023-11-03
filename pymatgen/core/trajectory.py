@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any, Union
 
 import numpy as np
-from ase.io.trajectory import Trajectory as ASE_Trajectory
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -527,7 +526,7 @@ class Trajectory(MSONable):
 
     @classmethod
     def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
-        """Create trajectory from XDATCAR or vasprun.xml file, or ASE trajectory (.traj) file.
+        """Create trajectory from XDATCAR, vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:
             filename: Path to the file to read from.
@@ -546,29 +545,35 @@ class Trajectory(MSONable):
         elif fnmatch(fname, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
         elif fnmatch(fname, "*.traj"):
-            ase_traj = ASE_Trajectory(fname)
-            pbc = ase_traj[0].pbc
-            if any(pbc):
-                structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
-            else:
-                molecules = [AseAtomsAdaptor.get_molecule(atoms) for atoms in ase_traj]
-                is_mol = True
+
+            try:
+                from ase.io.trajectory import Trajectory as ASE_Trajectory
+                ase_traj = ASE_Trajectory(fname)
+                pbc = ase_traj[0].pbc
+                if any(pbc):
+                    structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
+                else:
+                    molecules = [AseAtomsAdaptor.get_molecule(atoms) for atoms in ase_traj]
+                    is_mol = True
+
+            except ImportError as exc:
+                print(repr(exc))
 
         else:
             supported = ("XDATCAR", "vasprun.xml", "*.traj")
             raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
 
-        if not is_mol:
-            return cls.from_structures(
-                structures,
-                constant_lattice=constant_lattice,
-                **kwargs,
-            )
-        else:
+        if is_mol:
             return cls.from_molecules(
                 molecules,
                 **kwargs,
             )
+        return cls.from_structures(
+            structures,
+            constant_lattice=constant_lattice,
+            **kwargs,
+        )
+            
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
