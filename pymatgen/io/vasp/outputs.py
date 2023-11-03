@@ -1302,7 +1302,7 @@ class Vasprun(MSONable):
 
     def _parse_calculation(self, elem):
         try:
-            istep = {i.attrib["name"]: float(i.text) for i in elem.find("energy").findall("i")}
+            istep = {i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")}
         except AttributeError:  # not all calculations have an energy
             istep = {}
         esteps = []
