@@ -28,10 +28,10 @@ __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"
 
 
-MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
-MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
+MAX_HNODE_SIZE = 64_000  # maximum size (bytes) of SNL HistoryNode
+MAX_DATA_SIZE = 256_000  # maximum size (bytes) of SNL data field
 MAX_HNODES = 100  # maximum number of HistoryNodes in SNL file
-MAX_BIBTEX_CHARS = 20000  # maximum number of characters for BibTeX reference
+MAX_BIBTEX_CHARS = 20_000  # maximum number of characters for BibTeX reference
 
 
 def is_valid_bibtex(reference: str) -> bool:

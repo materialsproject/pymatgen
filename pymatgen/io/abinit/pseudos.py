@@ -19,7 +19,6 @@ from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
-from monty.string import list_strings
 from tabulate import tabulate
 
 from pymatgen.core.periodic_table import Element
@@ -1611,8 +1610,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         if not isinstance(pseudos, collections.abc.Iterable):
             pseudos = [pseudos]
 
-        if len(pseudos) > 0 and isinstance(pseudos[0], str):
-            pseudos = list_strings(pseudos)
+        if isinstance(pseudos, str):
+            pseudos = [pseudos]
 
         self._pseudos_with_z = defaultdict(list)
 
@@ -1772,7 +1771,9 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                 Prepend the symbol string with "-", to exclude pseudos.
             ret_list: if True a list of pseudos is returned instead of a PseudoTable
         """
-        symbols = list_strings(symbols)
+        if isinstance(symbols, str):
+            symbols = [symbols]
+
         exclude = symbols[0].startswith("-")
 
         if exclude:

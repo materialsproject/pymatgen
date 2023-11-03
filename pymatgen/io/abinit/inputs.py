@@ -18,7 +18,6 @@ from enum import Enum
 import numpy as np
 from monty.collections import AttrDict
 from monty.json import MSONable
-from monty.string import list_strings
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import abiobjects as aobj
@@ -1095,8 +1094,10 @@ class BasicMultiDataset:
 
         else:
             # String(s)
+            if isinstance(pseudos, str):
+                pseudos = [pseudos]
             pseudo_dir = os.path.abspath(pseudo_dir)
-            pseudo_paths = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
+            pseudo_paths = [os.path.join(pseudo_dir, p) for p in pseudos]
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
