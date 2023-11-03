@@ -10,7 +10,6 @@ from collections import namedtuple
 from io import StringIO
 
 from monty.json import MontyDecoder, MontyEncoder
-from monty.string import remove_non_ascii
 
 try:
     from pybtex import errors
@@ -46,7 +45,7 @@ def is_valid_bibtex(reference: str) -> bool:
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = StringIO(remove_non_ascii(reference))
+    sio = StringIO(reference.encode("ascii", "ignore").decode("ascii"))
     parser = bibtex.Parser()
     errors.set_strict_mode(enable=False)
     bib_data = parser.parse_stream(sio)

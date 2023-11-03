@@ -12,7 +12,6 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.string import list_strings
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -107,7 +106,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         Return: list of successfully read files.
         """
-        filenames = list_strings(filenames)
+        if isinstance(filenames, str):
+            filenames = [filenames]
 
         read_ok = []
         for fname in filenames:

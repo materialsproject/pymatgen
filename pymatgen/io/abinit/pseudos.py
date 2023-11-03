@@ -1611,7 +1611,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         if not isinstance(pseudos, collections.abc.Iterable):
             pseudos = [pseudos]
 
-        if len(pseudos) and isinstance(pseudos[0], str):
+        if len(pseudos) > 0 and isinstance(pseudos[0], str):
             pseudos = list_strings(pseudos)
 
         self._pseudos_with_z = defaultdict(list)

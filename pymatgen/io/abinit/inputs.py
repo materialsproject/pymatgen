@@ -674,8 +674,10 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
             keys: string or list of strings with variable names.
             strict: If True, KeyError is raised if at least one variable is not present.
         """
+        if isinstance(keys, str):
+            keys = [keys]
         removed = {}
-        for key in list_strings(keys):
+        for key in keys:
             if strict and key not in self:
                 raise KeyError(f"{key=} not in self:\n {list(self)}")
             if key in self:
@@ -708,7 +710,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
     def __init__(
         self,
         structure,
-        pseudos,
+        pseudos: str | list[str] | list[Pseudo] | PseudoTable,
         pseudo_dir=None,
         comment=None,
         abi_args=None,
@@ -743,11 +745,14 @@ class BasicAbinitInput(AbstractInput, MSONable):
         self._vars = dict(args)
         self.set_structure(structure)
 
+        if isinstance(pseudos, str):
+            pseudos = [pseudos]
+
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.exists(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
-            pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
+            pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
 
         try:
             self._pseudos = PseudoTable.as_table(pseudos).get_pseudos_for_structure(self.structure)
