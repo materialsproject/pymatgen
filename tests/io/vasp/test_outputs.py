@@ -1345,19 +1345,16 @@ class TestChgcar(PymatgenTest):
         chgcar = self.chgcar_spin - self.chgcar_spin
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
-        ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
+        expected = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        assert_allclose(actual[:, 1], ans)
+        assert_allclose(actual[:, 1], expected)
 
     def test_write(self):
-        self.chgcar_spin.write_file("CHGCAR_pmg")
-        with open("CHGCAR_pmg") as f:
-            for i, line in enumerate(f):
-                if i == 22130:
+        self.chgcar_spin.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg")
+        with open(out_path) as file:
+            for idx, line in enumerate(file):
+                if idx in (22130, 44255):
                     assert line == "augmentation occupancies   1  15\n"
-                if i == 44255:
-                    assert line == "augmentation occupancies   1  15\n"
-        os.remove("CHGCAR_pmg")
 
     def test_soc_chgcar(self):
         assert set(self.chgcar_NiO_SOC.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
@@ -1367,11 +1364,7 @@ class TestChgcar(PymatgenTest):
         # check our construction of chg.data['diff'] makes sense
         # this has been checked visually too and seems reasonable
         assert abs(self.chgcar_NiO_SOC.data["diff"][0][0][0]) == np.linalg.norm(
-            [
-                self.chgcar_NiO_SOC.data["diff_x"][0][0][0],
-                self.chgcar_NiO_SOC.data["diff_y"][0][0][0],
-                self.chgcar_NiO_SOC.data["diff_z"][0][0][0],
-            ]
+            [self.chgcar_NiO_SOC.data[f"diff_{key}"][0][0][0] for key in "xyz"]
         )
 
         # and that the net magnetization is about zero
@@ -1379,18 +1372,17 @@ class TestChgcar(PymatgenTest):
         # vasp output, but might be due to chgcar limitations?
         assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, abs=1e-0)
 
-        self.chgcar_NiO_SOC.write_file("CHGCAR_pmg_soc")
-        chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
+        self.chgcar_NiO_SOC.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg_soc")
+        chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
-        os.remove("CHGCAR_pmg_soc")
 
     @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
-        chgcar.to_hdf5("chgcar_test.hdf5")
+        chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
         import h5py
 
-        with h5py.File("chgcar_test.hdf5", "r") as f:
+        with h5py.File(out_path, "r") as f:
             assert_allclose(f["vdata"]["total"], chgcar.data["total"])
             assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
             assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
@@ -1401,9 +1393,8 @@ class TestChgcar(PymatgenTest):
             for sp in f["species"]:
                 assert sp in [b"Ni", b"O"]
 
-        chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
+        chgcar2 = Chgcar.from_hdf5(out_path)
         assert_allclose(chgcar2.data["total"], chgcar.data["total"])
-        os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
         for v in self.chgcar_spin.spin_data.values():

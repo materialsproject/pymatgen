@@ -1,18 +1,15 @@
 from __future__ import annotations
 
-import os
-import unittest
-
 import pytest
 from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc(PymatgenTest):
     def test_group_entries_by_structure(self):
         entries = loadfn(f"{TEST_FILES_DIR}/TiO2_entries.json")
         groups = group_entries_by_structure(entries)
@@ -42,7 +39,7 @@ class TestFunc(unittest.TestCase):
             assert g == sorted(g, key=lambda e: e.energy_per_atom)
 
 
-class TestEntrySet(unittest.TestCase):
+class TestEntrySet(PymatgenTest):
     def setUp(self):
         entries = loadfn(f"{TEST_FILES_DIR}/Li-Fe-P-O_entries.json")
         self.entry_set = EntrySet(entries)
@@ -64,7 +61,6 @@ class TestEntrySet(unittest.TestCase):
         assert len(self.entry_set) < length
 
     def test_as_dict(self):
-        dumpfn(self.entry_set, "temp_entry_set.json")
-        entry_set = loadfn("temp_entry_set.json")
+        dumpfn(self.entry_set, f"{self.tmp_path}/temp_entry_set.json")
+        entry_set = loadfn(f"{self.tmp_path}/temp_entry_set.json")
         assert len(entry_set) == len(self.entry_set)
-        os.remove("temp_entry_set.json")

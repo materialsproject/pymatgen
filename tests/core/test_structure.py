@@ -2085,9 +2085,8 @@ class TestMolecule(PymatgenTest):
             assert m == self.mol
             assert isinstance(m, Molecule)
 
-        self.mol.to(filename="CH4_testing.xyz")
-        assert os.path.isfile("CH4_testing.xyz")
-        os.remove("CH4_testing.xyz")
+        self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/CH4_testing.xyz")
 
     def test_extract_cluster(self):
         species = self.mol.species * 2

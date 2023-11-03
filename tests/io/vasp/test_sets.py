@@ -911,7 +911,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/CHGCAR")
-        os.remove(f"{self.tmp_path}/CHGCAR")
+        os.remove(f"{self.tmp_path}/CHGCAR")  # needed for next assert
 
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, standardize=True, mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp_path)
@@ -954,7 +954,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/CHGCAR")
-        os.remove(f"{self.tmp_path}/CHGCAR")
+        os.remove(f"{self.tmp_path}/CHGCAR")  # needed for next assert
 
         vis = self.set(dummy_structure, standardize=True, mode="Line", copy_chgcar=True)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)

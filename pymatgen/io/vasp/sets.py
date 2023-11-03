@@ -974,7 +974,7 @@ class MPScanRelaxSet(DictSet):
 
         updates: dict[str, float] = {}
         # select the KSPACING and smearing parameters based on the bandgap
-        if self.bandgap < 1e-4:
+        if self.bandgap < bandgap_tol:
             updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
             rmin = max(1.5, 25.22 - 2.87 * bandgap)  # Eq. 25
