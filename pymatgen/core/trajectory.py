@@ -535,7 +535,7 @@ class Trajectory(MSONable):
             **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
-            A trajectory from the file.
+            A trajectory from the file, or None when an exception occurs.
         """
         fname = Path(filename).expanduser().resolve().name
         is_mol = False
@@ -557,7 +557,7 @@ class Trajectory(MSONable):
                     is_mol = True
 
             except ImportError as exc:
-                print(repr(exc))
+                raise exc
 
         else:
             supported = ("XDATCAR", "vasprun.xml", "*.traj")
