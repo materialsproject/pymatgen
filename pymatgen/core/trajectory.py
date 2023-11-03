@@ -545,9 +545,9 @@ class Trajectory(MSONable):
         elif fnmatch(fname, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
         elif fnmatch(fname, "*.traj"):
-
             try:
                 from ase.io.trajectory import Trajectory as ASE_Trajectory
+
                 ase_traj = ASE_Trajectory(fname)
                 pbc = ase_traj[0].pbc
                 if any(pbc):
@@ -573,7 +573,6 @@ class Trajectory(MSONable):
             constant_lattice=constant_lattice,
             **kwargs,
         )
-            
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
