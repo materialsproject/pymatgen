@@ -202,7 +202,7 @@ class ChargemolAnalysis:
                     ncores = multiprocessing.cpu_count()
                 CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
         else:
-            pass
+            CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE
             
         with ScratchDir("."):
             with zopen(self._chgcarpath, "rt") as f_in:
