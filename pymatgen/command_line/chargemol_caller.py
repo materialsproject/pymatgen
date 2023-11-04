@@ -77,6 +77,10 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
+    CHARGEMOLEXE = (
+    which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
+)
+    
     def __init__(
         self,
         path=None,
@@ -170,8 +174,8 @@ class ChargemolAnalysis:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
-            warnings.warn(warning_msg)
+            # warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
+            # warnings.warn(warning_msg)
             fpath = paths[0]
         return fpath
 
@@ -191,12 +195,12 @@ class ChargemolAnalysis:
         
         if mpi:
             if ncores:
-                CHARGEMOLEXE = f"mpirun -n {ncores} {CHARGEMOLEXE}"
+                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
             else:
                 ncores = os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS')
                 if ncores:
                     ncores = multiprocessing.cpu_count()
-                CHARGEMOLEXE = f"mpirun -n {ncores} {CHARGEMOLEXE}"
+                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
         else:
             pass
             
