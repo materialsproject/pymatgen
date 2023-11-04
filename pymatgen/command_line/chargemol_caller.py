@@ -80,7 +80,9 @@ class ChargemolAnalysis:
         self,
         path=None,
         atomic_densities_path=None,
-        run_chargemol=True,
+        run_chargemol: bool =True,
+        mpi: bool = False,
+        ncores:int = None,
     ):
         """
         Initializes the Chargemol Analysis.
@@ -97,6 +99,9 @@ class ChargemolAnalysis:
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
             the existing Chargemol output files will be read from path.
                 Default: True.
+            mpi (bool): Whether to run the Chargemol in a parallel way.
+            ncores: Use how many cores to run the Chargemol! Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE') or os.environ.get('SLURM_CPUS_ON_NODE')",
+            or "multiprocessing.cpu_count()". Take your own risk! This default value might not suit you! You'd better set your own number!!! 
         """
         if not path:
             path = os.getcwd()
@@ -137,7 +142,7 @@ class ChargemolAnalysis:
         self.aeccar2 = Chgcar.from_file(self._aeccar2path) if self._aeccar2path else None
 
         if run_chargemol:
-            self._execute_chargemol()
+            self._execute_chargemol(mpi=mpi,ncores=ncores)
         else:
             self._from_data_dir(chargemol_output_path=path)
 
@@ -169,7 +174,7 @@ class ChargemolAnalysis:
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, **jobcontrol_kwargs):
+    def _execute_chargemol(self, mpi=False, ncores=None, **jobcontrol_kwargs):
         """
         Internal function to run Chargemol.
 
@@ -178,9 +183,22 @@ class ChargemolAnalysis:
             required by Chargemol. If None, Pymatgen assumes that this is
             defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Default: None.
+            mpi(bool): Whether run the Chargemol in a parallel way. Default is False.
+            ncores (int): The number of cores you want to use. Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS') or multiprocessing.cpu_count().       
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-
+        
+        if mpi:
+            if ncores:
+                CHARGEMOLEXE = f"mpirun -n {ncores} {CHARGEMOLEXE}"
+            else:
+                ncores = os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS')
+                if ncores:
+                    ncores = multiprocessing.cpu_count()
+                CHARGEMOLEXE = f"mpirun -n {ncores} {CHARGEMOLEXE}"
+        else:
+            pass
+            
         with ScratchDir("."):
             with zopen(self._chgcarpath, "rt") as f_in:
                 with open("CHGCAR", "wt") as f_out:
