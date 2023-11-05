@@ -56,6 +56,7 @@ import subprocess
 import multiprocessing
 import warnings
 from shutil import which
+from pathlib import Path
 
 import numpy as np
 from monty.io import zopen
@@ -87,7 +88,8 @@ class ChargemolAnalysis:
         atomic_densities_path=None,
         run_chargemol: bool =True,
         mpi: bool = False,
-        ncores:int = None,
+        ncores: int = None,
+        save: bool = False,
     ):
         """
         Initializes the Chargemol Analysis.
@@ -107,6 +109,7 @@ class ChargemolAnalysis:
             mpi (bool): Whether to run the Chargemol in a parallel way.
             ncores: Use how many cores to run the Chargemol! Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE') or os.environ.get('SLURM_CPUS_ON_NODE')",
             or "multiprocessing.cpu_count()". Take your own risk! This default value might not suit you! You'd better set your own number!!! 
+            save: save (bool): Whether to save the Chargemol output files. Default is False.
         """
         if not path:
             path = os.getcwd()
@@ -123,7 +126,8 @@ class ChargemolAnalysis:
         if atomic_densities_path == "":
             atomic_densities_path = os.getcwd()
         self._atomic_densities_path = atomic_densities_path
-
+        self.save = save
+        
         self._chgcarpath = self._get_filepath(path, "CHGCAR")
         self._potcarpath = self._get_filepath(path, "POTCAR")
         self._aeccar0path = self._get_filepath(path, "AECCAR0")
@@ -204,22 +208,14 @@ class ChargemolAnalysis:
         else:
             CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE
             
-        with ScratchDir("."):
-            with zopen(self._chgcarpath, "rt") as f_in:
-                with open("CHGCAR", "wt") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._potcarpath, "rt") as f_in:
-                with open("POTCAR", "wt") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar0path, "rt") as f_in:
-                with open("AECCAR0", "wt") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar2path, "rt") as f_in:
-                with open("AECCAR2", "wt") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-
+        if self.save:
+            save_path = Path(Path.cwd(),"charge")
+            save_path.mkdir(parents=True, exist_ok=True)
+            source = [Path(self._chgcarpath),Path(self._potcarpath),Path(self._aeccar0path),Path(self._aeccar2path)]
+            links = [Path(save_path,"CHGCAR"),Path(save_path,"POTCAR"),Path(save_path,"AECCAR0"),Path(save_path,"AECCAR2")]
+            [links[i].symlink_to(source[i]) for i in range(len(links))]
             # write job_script file:
-            self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
+            self._write_jobscript_for_chargemol(write_path=str(save_path)+"/job_control.txt",**jobcontrol_kwargs)
 
             # Run Chargemol
             with subprocess.Popen(
@@ -227,14 +223,38 @@ class ChargemolAnalysis:
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 close_fds=True,
+                cwd=save_path,
             ) as rs:
                 rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
                     f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
                 )
+            self._from_data_dir(chargemol_output_path=save_path)
 
-            self._from_data_dir()
+        else:
+            with ScratchDir("."):
+                cwd = Path.cwd()
+                source = [Path(self._chgcarpath),Path(self._potcarpath),Path(self._aeccar0path),Path(self._aeccar2path)]
+                links = [Path(cwd,"CHGCAR"),Path(cwd,"POTCAR"),Path(cwd,"AECCAR0"),Path(cwd,"AECCAR2")]
+                [links[i].symlink_to(source[i]) for i in range(len(links))]
+                # write job_script file:
+                self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
+    
+                # Run Chargemol
+                with subprocess.Popen(
+                    CHARGEMOLEXE,
+                    stdout=subprocess.PIPE,
+                    stdin=subprocess.PIPE,
+                    close_fds=True,
+                ) as rs:
+                    rs.communicate()
+                if rs.returncode != 0:
+                    raise RuntimeError(
+                        f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
+                    )
+    
+                self._from_data_dir()
 
     def _from_data_dir(self, chargemol_output_path=None):
         """
@@ -388,6 +408,7 @@ class ChargemolAnalysis:
         periodicity=[True, True, True],
         method="ddec6",
         compute_bond_orders=True,
+        write_path: str = "job_control.txt",
     ):
         """
         Writes job_script.txt for Chargemol execution
@@ -451,7 +472,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", "wt") as fh:
+        with open(write_path, "wt") as fh:
             fh.write(lines)
 
     @staticmethod
