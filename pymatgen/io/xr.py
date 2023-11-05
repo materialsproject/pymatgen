@@ -73,8 +73,8 @@ class Xr:
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string, use_cores=True, thresh=1.0e-4):
+    @classmethod
+    def from_str(cls, string, use_cores=True, thresh=1.0e-4):
         """
         Creates an Xr object from a string representation.
 
@@ -138,10 +138,10 @@ class Xr:
                 else:
                     sp.append(tmp_sp)
                 coords.append([float(m.group(i)) for i in range(2, 5)])
-        return Xr(Structure(lat, sp, coords, coords_are_cartesian=True))
+        return cls(Structure(lat, sp, coords, coords_are_cartesian=True))
 
-    @staticmethod
-    def from_file(filename, use_cores=True, thresh=1.0e-4):
+    @classmethod
+    def from_file(cls, filename, use_cores=True, thresh=1.0e-4):
         """
         Reads an xr-formatted file to create an Xr object.
 
@@ -159,4 +159,4 @@ class Xr:
                     file.
         """
         with zopen(filename, "rt") as f:
-            return Xr.from_str(f.read(), use_cores=use_cores, thresh=thresh)
+            return cls.from_str(f.read(), use_cores=use_cores, thresh=thresh)

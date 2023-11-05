@@ -253,7 +253,7 @@ class TestSimplex(unittest.TestCase):
             coord = np.random.random_sample(size=3) / 3
             assert self.simplex.in_simplex(coord)
 
-    def test_2dtriangle(self):
+    def test_2d_triangle(self):
         simplex = coord.Simplex([[0, 1], [1, 1], [1, 0]])
         assert_allclose(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
         assert_allclose(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])

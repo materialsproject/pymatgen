@@ -198,7 +198,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
 
 
 class SupercellTransformation(AbstractTransformation):
-    """The SupercellTransformation replicates an unitcell to a supercell."""
+    """The SupercellTransformation replicates a unit cell to a supercell."""
 
     def __init__(self, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
         """
@@ -211,8 +211,8 @@ class SupercellTransformation(AbstractTransformation):
         """
         self.scaling_matrix = scaling_matrix
 
-    @staticmethod
-    def from_scaling_factors(scale_a=1, scale_b=1, scale_c=1):
+    @classmethod
+    def from_scaling_factors(cls, scale_a=1, scale_b=1, scale_c=1):
         """Convenience method to get a SupercellTransformation from a simple
         series of three numbers for scaling each lattice vector. Equivalent to
         calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
@@ -226,7 +226,7 @@ class SupercellTransformation(AbstractTransformation):
         Returns:
             SupercellTransformation.
         """
-        return SupercellTransformation([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
+        return cls([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
 
     @staticmethod
     def from_boundary_distance(

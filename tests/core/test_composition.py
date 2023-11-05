@@ -105,6 +105,15 @@ class TestComposition(PymatgenTest):
         assert Element("Fe") not in comp
         assert Species("Fe2+") not in comp
 
+    def test_getitem(self):
+        comp = Composition({"Li+": 1, "Mn3+": 2, "O2-": 4, "Li": 1})
+        assert comp["Li"] == 2
+        assert comp["Li+"] == 1
+        assert comp["Mn3+"] == 2
+        assert comp["Mn"] == 2
+        assert comp["O2-"] == 4
+        assert comp["O"] == 4
+
     def test_hill_formula(self):
         c = Composition("CaCO3")
         assert c.hill_formula == "C Ca O3"
@@ -269,8 +278,8 @@ class TestComposition(PymatgenTest):
         assert Composition("H6CN").get_integer_formula_and_factor(iupac_ordering=True)[0] == "CNH6"
 
         # test rounding
-        c = Composition({"Na": 2 - Composition.amount_tolerance / 2, "Cl": 2})
-        assert c.reduced_formula == "NaCl"
+        comp = Composition({"Na": 2 - Composition.amount_tolerance / 2, "Cl": 2})
+        assert comp.reduced_formula == "NaCl"
 
     def test_integer_formula(self):
         correct_reduced_formulas = [
@@ -299,8 +308,8 @@ class TestComposition(PymatgenTest):
     def test_num_atoms(self):
         correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
 
-        all_natoms = [c.num_atoms for c in self.comps]
-        assert all_natoms == correct_num_atoms
+        all_n_atoms = [c.num_atoms for c in self.comps]
+        assert all_n_atoms == correct_num_atoms
 
     def test_weight(self):
         correct_weights = [
@@ -360,7 +369,7 @@ class TestComposition(PymatgenTest):
             for el in c1.elements:
                 assert c1[el] == approx(c2[el], abs=1e-3)
 
-    def test_tofrom_weight_dict(self):
+    def test_to_from_weight_dict(self):
         for comp in self.comps:
             c2 = Composition().from_weight_dict(comp.to_weight_dict)
             comp.almost_equals(c2)
@@ -439,9 +448,9 @@ class TestComposition(PymatgenTest):
         assert c1 != c2
 
     def test_hash_robustness(self):
-        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
-        c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*1.01}")
-        c3 = Composition(f"O{0.2}Fe{0.8+Composition.amount_tolerance*0.99}")
+        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance * 0.99}")
+        c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance * 1.01}")
+        c3 = Composition(f"O{0.2}Fe{0.8 + Composition.amount_tolerance * 0.99}")
 
         assert c1 == c3, "__eq__ not robust"
         assert (c1 == c3) == (hash(c1) == hash(c3)), "Hash doesn't match eq when true"
@@ -520,8 +529,8 @@ class TestComposition(PymatgenTest):
         # test species
         c1 = Composition({"Mg": 1, "Mg2+": -1}, allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.element_composition == Composition()
-        assert c1.average_electroneg == 1.31
+        assert c1.element_composition == Composition("Mg-1", allow_negative=True)
+        assert c1.average_electroneg == 0.655
 
     def test_special_formulas(self):
         special_formulas = {

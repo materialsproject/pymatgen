@@ -979,11 +979,10 @@ class BSPlotterProjected(BSPlotter):
         if self._bs.is_metal():
             e_min = -10
             e_max = 10
-        count = 1
 
         for el in dictio:
-            for o in dictio[el]:
-                ax = plt.subplot(fig_rows + fig_cols + count)
+            for idx, key in enumerate(dictio[el], 1):
+                ax = plt.subplot(fig_rows + fig_cols + idx)
                 self._make_ticks(ax)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
@@ -1005,14 +1004,14 @@ class BSPlotterProjected(BSPlotter):
                                     data["distances"][b][j],
                                     data["energy"][str(Spin.down)][b][i][j],
                                     "ro",
-                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][o] * 15.0,
+                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][key] * 15.0,
                                 )
                         for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             ax.plot(
                                 data["distances"][b][j],
                                 data["energy"][str(Spin.up)][b][i][j],
                                 "bo",
-                                markersize=proj[b][str(Spin.up)][i][j][str(el)][o] * 15.0,
+                                markersize=proj[b][str(Spin.up)][i][j][str(el)][key] * 15.0,
                             )
                 if ylim is None:
                     if self._bs.is_metal():
@@ -1031,19 +1030,18 @@ class BSPlotterProjected(BSPlotter):
                         ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
                     ax.set_ylim(ylim)
-                ax.set_title(f"{el} {o}")
-                count += 1
-        return ax
+                ax.set_title(f"{el} {key}")
+        return plt.gcf().axes
 
     @no_type_check
     def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
         """Method returning a plot composed of subplots along different elements.
 
         Returns:
-            a pyplot object with different subfigures for each projection
-            The blue and red colors are for spin up and spin down
-            The bigger the red or blue dot in the band structure the higher
-            character for the corresponding element and orbital
+            np.ndarray[plt.Axes]: 2x2 array of plt.Axes with different subfigures for each projection
+                The blue and red colors are for spin up and spin down
+                The bigger the red or blue dot in the band structure the higher
+                character for the corresponding element and orbital
         """
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
@@ -1053,9 +1051,8 @@ class BSPlotterProjected(BSPlotter):
         e_min, e_max = -4, 4
         if self._bs.is_metal():
             e_min, e_max = -10, 10
-        count = 1
-        for el in self._bs.structure.elements:
-            plt.subplot(220 + count)
+        for idx, el in enumerate(self._bs.structure.elements, 1):
+            ax = plt.subplot(220 + idx)
             self._make_ticks(ax)
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
@@ -1119,9 +1116,8 @@ class BSPlotterProjected(BSPlotter):
             else:
                 ax.set_ylim(ylim)
             ax.set_title(str(el))
-            count += 1
 
-        return ax
+        return axs
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """Returns a pyplot plot object with one plot where the band structure

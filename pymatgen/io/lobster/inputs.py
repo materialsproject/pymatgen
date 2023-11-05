@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import itertools
 import os
+import re
 import warnings
+from collections import UserDict
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -49,7 +51,7 @@ due.cite(
 )
 
 
-class Lobsterin(dict, MSONable):
+class Lobsterin(UserDict, MSONable):
     """
     This class can handle and generate lobsterin files
     Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
@@ -159,7 +161,10 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = item
 
-        return dict.__getitem__(self, new_key)
+        return super().__getitem__(new_key)
+
+    def __delitem__(self, key):
+        del self.data[key.lower()]
 
     def diff(self, other):
         """
@@ -580,31 +585,31 @@ class Lobsterin(dict, MSONable):
         Lobsterindict: dict[str, Any] = {}
 
         for datum in data:
-            # will remove all comments to avoid complications
-            raw_datum = datum.split("!")[0]
-            raw_datum = raw_datum.split("//")[0]
-            raw_datum = raw_datum.split("#")[0]
-            raw_datum = raw_datum.split(" ")
-            while "" in raw_datum:
-                raw_datum.remove("")
-            if len(raw_datum) > 1:
-                # check which type of keyword this is, handle accordingly
-                if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
-                        if raw_datum[0].lower() not in Lobsterindict:
-                            Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
+            # Remove all comments
+            if not datum.startswith(("!", "#", "//")):
+                pattern = r"\b[^!#//]+"  # exclude comments after commands
+                matched_pattern = re.findall(pattern, datum)
+                if matched_pattern:
+                    raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
+                    key_word = raw_datum.strip().split(" ")  # extract keyword
+                    if len(key_word) > 1:
+                        # check which type of keyword this is, handle accordingly
+                        if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
+                            if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
+                                if key_word[0].lower() not in Lobsterindict:
+                                    Lobsterindict[key_word[0].lower()] = " ".join(key_word[1:])
+                                else:
+                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
+                            elif key_word[0].lower() not in Lobsterindict:
+                                Lobsterindict[key_word[0].lower()] = float(key_word[1])
+                            else:
+                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
+                        elif key_word[0].lower() not in Lobsterindict:
+                            Lobsterindict[key_word[0].lower()] = [" ".join(key_word[1:])]
                         else:
-                            raise ValueError(f"Same keyword {raw_datum[0].lower()} twice!")
-                    elif raw_datum[0].lower() not in Lobsterindict:
-                        Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
-                    else:
-                        raise ValueError(f"Same keyword {raw_datum[0].lower()} twice!")
-                elif raw_datum[0].lower() not in Lobsterindict:
-                    Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
-                else:
-                    Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
-            elif len(raw_datum) > 0:
-                Lobsterindict[raw_datum[0].lower()] = True
+                            Lobsterindict[key_word[0].lower()].append(" ".join(key_word[1:]))
+                    elif len(key_word) > 0:
+                        Lobsterindict[key_word[0].lower()] = True
 
         return cls(Lobsterindict)
 

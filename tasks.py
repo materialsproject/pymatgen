@@ -64,6 +64,7 @@ def make_doc(ctx):
         #         f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
+        ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
         # ctx.run("cp ../README.md index.md")
         ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf doctrees", warn=True)
@@ -220,8 +221,6 @@ def release(ctx, version=None, nodoc=False):
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
-    ctx.run("black setup.py")
-    ctx.run("black pymatgen/core/__init__.py")
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
@@ -249,5 +248,5 @@ def open_doc(ctx):
 
 @task
 def lint(ctx):
-    for cmd in ["ruff", "mypy", "black"]:
+    for cmd in ["ruff", "mypy", "ruff format"]:
         ctx.run(f"{cmd} pymatgen")

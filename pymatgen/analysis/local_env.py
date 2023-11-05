@@ -1011,7 +1011,8 @@ class VoronoiNN(NearNeighbors):
             nns ([dicts]): Nearest neighbor information for a structure
 
         Returns:
-            (list of tuples (Site, array, float)): See nn_info
+            list[tuple[PeriodicSite, np.ndarray, float]]: tuples of the form
+                (site, image, weight). See nn_info.
         """
         # Get the target information
         targets = structure.elements if self.targets is None else self.targets
@@ -1454,7 +1455,7 @@ class OpenBabelNN(NearNeighbors):
             n: index of site for which to determine near neighbors.
 
         Returns:
-            (dict): representing a neighboring site and the type of
+            dict: representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
         from pymatgen.io.babel import BabelMolAdaptor
@@ -1878,7 +1879,7 @@ class MinimumVIRENN(NearNeighbors):
 
 
 def _get_vire(structure: Structure | IStructure):
-    """Get the ValenceIonicRadiusEvaluator object for an structure taking
+    """Get the ValenceIonicRadiusEvaluator object for a structure taking
     advantage of caching.
 
     Args:

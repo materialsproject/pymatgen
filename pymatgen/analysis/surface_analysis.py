@@ -510,7 +510,7 @@ class SurfaceEnergyPlotter:
             no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
-            (WulffShape): The WulffShape at u_ref and u_ads.
+            WulffShape: The WulffShape at u_ref and u_ads.
         """
         latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
@@ -628,7 +628,7 @@ class SurfaceEnergyPlotter:
                 format: Symbol("delu_el") where el is the name of the element.
 
         Returns:
-            (array): Array containing a solution to x equations with x
+            array: Array containing a solution to x equations with x
                 variables (x-1 chemical potential and 1 surface energy)
         """
         # Generate all possible coefficients
@@ -930,7 +930,7 @@ class SurfaceEnergyPlotter:
             no_label (bool): Option to turn off labels.
 
         Returns:
-            (Plot): Plot of surface energy vs chempot for all entries.
+            Plot: Plot of surface energy vs chempot for all entries.
         """
         if delu_dict is None:
             delu_dict = {}
@@ -1011,7 +1011,7 @@ class SurfaceEnergyPlotter:
                  energy multiplied by number of adsorbates) instead.
 
         Returns:
-            (Plot): Plot of binding energy vs monolayer for all facets.
+            Plot: Plot of binding energy vs monolayer for all facets.
         """
         ax = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries:
@@ -1098,7 +1098,7 @@ class SurfaceEnergyPlotter:
                 eV/A^2 (False)
 
         Returns:
-            (Plot): Plot of clean surface energy vs binding energy for
+            Plot: Plot of clean surface energy vs binding energy for
                 all facets.
         """
         ax = pretty_plot(width=8, height=7)

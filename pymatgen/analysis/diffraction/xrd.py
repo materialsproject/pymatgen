@@ -223,7 +223,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
                 fs = zs - 41.78214 * s2 * np.sum(
-                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1  # type: ignore
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2),
+                    axis=1,  # type: ignore
                 )
 
                 dw_correction = np.exp(-dwfactors * s2)

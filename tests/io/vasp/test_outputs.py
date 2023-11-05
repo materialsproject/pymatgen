@@ -18,7 +18,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Kpoints, Poscar, Potcar
 from pymatgen.io.vasp.outputs import (
     WSWQ,
     BSVasprun,
@@ -590,36 +590,27 @@ class TestVasprun(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
         potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
+
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
-        ]
+        potcars = Potcar.from_file(potcar_path)
+        expected_spec = [{"titel": titel, "hash": None, "summary_stats": {}} for titel in vasp_run.potcar_symbols]
+        assert vasp_run.potcar_spec == expected_spec
 
         vasp_run.update_potcar_spec(potcar_path)
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-        ]
+        potcars = Potcar.from_file(potcar_path)
+        expected_spec = []
+        for titel in vasp_run.potcar_symbols:
+            for potcar in potcars:
+                if titel == potcar.TITEL:
+                    break
+            expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
+        assert vasp_run.potcar_spec == expected_spec
 
-        vasprun2 = Vasprun(filepath, parse_potcar_file=False)
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
-            vasprun2.update_potcar_spec(potcar_path2)
-        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
+            Vasprun(filepath, parse_potcar_file=potcar_path2)
 
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-        ]
+        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
+        assert vasp_run.potcar_spec == expected_spec
 
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
@@ -642,11 +633,11 @@ class TestVasprun(PymatgenTest):
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
         assert len(warns) == 2
         assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": None, "summary_stats": {}},
         ]
 
     def test_parsing_chemical_shift_calculations(self):
@@ -1164,128 +1155,24 @@ class TestOutcar(PymatgenTest):
 
     def test_mag_electrostatic_error(self):
         outcar = Outcar(f"{TEST_FILES_DIR}/OUTCAR.electrostaticerror.gz")
+        # fmt: off
         assert outcar.electrostatic_potential == [
-            -21.1667,
-            -19.6865,
-            -22.3983,
-            -22.3307,
-            -20.5213,
-            -20.9292,
-            -21.5063,
-            -21.3554,
-            -21.74,
-            -21.7018,
-            -20.3422,
-            -20.6128,
-            -21.4405,
-            -21.0022,
-            -21.975,
-            -21.915,
-            -21.0156,
-            -21.9027,
-            -22.3712,
-            -21.5816,
-            -21.8535,
-            -20.5061,
-            -22.2474,
-            -22.1904,
-            -22.2203,
-            -20.1727,
-            -21.1068,
-            -20.1669,
-            -22.1272,
-            -21.3446,
-            -82.4717,
-            -83.035,
-            -81.8289,
-            -82.5957,
-            -81.7813,
-            -82.5011,
-            -82.6098,
-            -82.2885,
-            -81.606,
-            -99.1621,
-            -99.3146,
-            -99.1742,
-            -99.4728,
-            -100.2139,
-            -99.852,
-            -99.3575,
-            -99.4135,
-            -98.9092,
-            -99.8867,
-            -99.3707,
-            -99.0794,
-            -98.8376,
-            -99.3656,
-            -98.6474,
-            -99.3264,
-            -98.844,
-            -99.074,
-            -98.9354,
-            -99.1643,
-            -99.2412,
-            -68.7667,
-            -68.2528,
-            -66.7326,
-            -67.7113,
-            -69.2228,
-            -67.014,
-            -69.1456,
-            -67.3151,
-            -68.2625,
-            -67.6156,
-            -69.8112,
-            -68.9266,
-            -67.8286,
-            -69.3289,
-            -68.7017,
-            -67.2834,
-            -68.4665,
-            -68.0188,
-            -67.7083,
-            -69.7195,
-            -67.4078,
-            -67.9646,
-            -68.584,
-            -69.2387,
-            -69.7822,
-            -67.0701,
-            -67.8236,
-            -68.2468,
-            -68.6533,
-            -68.3218,
-            -67.5923,
-            -69.1266,
-            -68.4615,
-            -68.302,
-            -67.999,
-            -68.6709,
-            -68.9973,
-            -67.4147,
-            -68.4463,
-            -68.0899,
-            -67.665,
-            -69.6705,
-            -68.6433,
-            -68.4288,
-            -66.9027,
-            -67.3211,
-            -68.604,
-            -69.1299,
-            -67.5565,
-            -69.0845,
-            -67.4289,
-            -66.6864,
-            -67.6484,
-            -67.9783,
-            -67.7661,
-            -66.9797,
-            -67.8007,
-            -68.3194,
-            -69.3671,
-            -67.2708,
+            -21.1667, -19.6865, -22.3983, -22.3307, -20.5213, -20.9292, -21.5063, -21.3554, -21.74,
+            -21.7018, -20.3422, -20.6128, -21.4405, -21.0022, -21.975, -21.915, -21.0156, -21.9027,
+            -22.3712, -21.5816, -21.8535, -20.5061, -22.2474, -22.1904, -22.2203, -20.1727, -21.1068,
+            -20.1669, -22.1272, -21.3446, -82.4717, -83.035, -81.8289, -82.5957, -81.7813, -82.5011,
+            -82.6098, -82.2885, -81.606, -99.1621, -99.3146, -99.1742, -99.4728, -100.2139, -99.852,
+            -99.3575, -99.4135, -98.9092, -99.8867, -99.3707, -99.0794, -98.8376, -99.3656, -98.6474,
+            -99.3264, -98.844, -99.074, -98.9354, -99.1643, -99.2412, -68.7667, -68.2528, -66.7326,
+            -67.7113, -69.2228, -67.014, -69.1456, -67.3151, -68.2625, -67.6156, -69.8112, -68.9266,
+            -67.8286, -69.3289, -68.7017, -67.2834, -68.4665, -68.0188, -67.7083, -69.7195, -67.4078,
+            -67.9646, -68.584, -69.2387, -69.7822, -67.0701, -67.8236, -68.2468, -68.6533, -68.3218,
+            -67.5923, -69.1266, -68.4615, -68.302, -67.999, -68.6709, -68.9973, -67.4147, -68.4463,
+            -68.0899, -67.665, -69.6705, -68.6433, -68.4288, -66.9027, -67.3211, -68.604, -69.1299,
+            -67.5565, -69.0845, -67.4289, -66.6864, -67.6484, -67.9783, -67.7661, -66.9797, -67.8007,
+            -68.3194, -69.3671, -67.2708,
         ]
+        # fmt: on
 
     def test_onsite_density_matrix(self):
         outcar = Outcar(f"{TEST_FILES_DIR}/OUTCAR.LinearResponseU.gz")
@@ -1306,16 +1193,16 @@ class TestOutcar(PymatgenTest):
     def test_nplwvs(self):
         outcar = Outcar(f"{TEST_FILES_DIR}/OUTCAR")
         assert outcar.data["nplwv"] == [[34560]]
+        # fmt: off
         assert outcar.data["nplwvs_at_kpoints"] == [
-            # fmt: off
             1719, 1714, 1722, 1728, 1722, 1726, 1722, 1720, 1717, 1724, 1715, 1724, 1726,
             1724, 1728, 1715, 1722, 1715, 1726, 1730, 1730, 1715, 1716, 1729, 1727, 1723,
             1721, 1712, 1723, 1719, 1717, 1717, 1724, 1719, 1719, 1727, 1726, 1730, 1719,
             1720, 1718, 1717, 1722, 1719, 1709, 1714, 1724, 1726, 1718, 1713, 1720, 1713,
             1711, 1713, 1715, 1717, 1728, 1726, 1712, 1722, 1714, 1713, 1717, 1714, 1714,
             1717, 1712, 1710, 1721, 1722, 1724, 1720, 1726, 1719, 1722, 1714,
-            # fmt: on
         ]
+        # fmt: on
         outcar = Outcar(f"{TEST_FILES_DIR}/OUTCAR.CL")
         assert outcar.data["nplwv"] == [[None]]
         assert outcar.data["nplwvs_at_kpoints"] == [85687]
@@ -1458,19 +1345,16 @@ class TestChgcar(PymatgenTest):
         chgcar = self.chgcar_spin - self.chgcar_spin
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
-        ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
+        expected = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        assert_allclose(actual[:, 1], ans)
+        assert_allclose(actual[:, 1], expected)
 
     def test_write(self):
-        self.chgcar_spin.write_file("CHGCAR_pmg")
-        with open("CHGCAR_pmg") as f:
-            for i, line in enumerate(f):
-                if i == 22130:
+        self.chgcar_spin.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg")
+        with open(out_path) as file:
+            for idx, line in enumerate(file):
+                if idx in (22130, 44255):
                     assert line == "augmentation occupancies   1  15\n"
-                if i == 44255:
-                    assert line == "augmentation occupancies   1  15\n"
-        os.remove("CHGCAR_pmg")
 
     def test_soc_chgcar(self):
         assert set(self.chgcar_NiO_SOC.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
@@ -1480,11 +1364,7 @@ class TestChgcar(PymatgenTest):
         # check our construction of chg.data['diff'] makes sense
         # this has been checked visually too and seems reasonable
         assert abs(self.chgcar_NiO_SOC.data["diff"][0][0][0]) == np.linalg.norm(
-            [
-                self.chgcar_NiO_SOC.data["diff_x"][0][0][0],
-                self.chgcar_NiO_SOC.data["diff_y"][0][0][0],
-                self.chgcar_NiO_SOC.data["diff_z"][0][0][0],
-            ]
+            [self.chgcar_NiO_SOC.data[f"diff_{key}"][0][0][0] for key in "xyz"]
         )
 
         # and that the net magnetization is about zero
@@ -1492,18 +1372,17 @@ class TestChgcar(PymatgenTest):
         # vasp output, but might be due to chgcar limitations?
         assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, abs=1e-0)
 
-        self.chgcar_NiO_SOC.write_file("CHGCAR_pmg_soc")
-        chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
+        self.chgcar_NiO_SOC.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg_soc")
+        chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
-        os.remove("CHGCAR_pmg_soc")
 
     @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
-        chgcar.to_hdf5("chgcar_test.hdf5")
+        chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
         import h5py
 
-        with h5py.File("chgcar_test.hdf5", "r") as f:
+        with h5py.File(out_path, "r") as f:
             assert_allclose(f["vdata"]["total"], chgcar.data["total"])
             assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
             assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
@@ -1514,9 +1393,8 @@ class TestChgcar(PymatgenTest):
             for sp in f["species"]:
                 assert sp in [b"Ni", b"O"]
 
-        chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
+        chgcar2 = Chgcar.from_hdf5(out_path)
         assert_allclose(chgcar2.data["total"], chgcar.data["total"])
-        os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
         for v in self.chgcar_spin.spin_data.values():

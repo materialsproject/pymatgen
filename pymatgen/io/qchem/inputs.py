@@ -113,7 +113,7 @@ class QCInput(InputFile):
                     Ex:
 
                     1. For a single-state calculation with two constraints:
-                     cdft=[[
+                    cdft=[[
                         {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [2], "types": [None]},
                         {"value": 2.0, "coefficients": [1.0, -1.0], "first_atoms": [1, 17], "last_atoms": [3, 19],
                             "types": ["s"]}
@@ -347,8 +347,8 @@ class QCInput(InputFile):
         with zopen(filename, "wt") as f:
             f.write(QCInput.multi_job_string(job_list))
 
-    @staticmethod
-    def from_file(filename: str | Path) -> QCInput:
+    @classmethod
+    def from_file(cls, filename: str | Path) -> QCInput:
         """
         Create QcInput from file.
 
@@ -359,7 +359,7 @@ class QCInput(InputFile):
             QcInput
         """
         with zopen(filename, "rt") as f:
-            return QCInput.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
@@ -989,9 +989,7 @@ class QCInput(InputFile):
         if not smx_table:
             print("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
             return {}
-        smx = {}
-        for key, val in smx_table[0]:
-            smx[key] = val
+        smx = dict(smx_table[0])
         if smx["solvent"] == "tetrahydrofuran":
             smx["solvent"] = "thf"
         # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
@@ -1052,10 +1050,7 @@ class QCInput(InputFile):
         if plots_table == []:
             print("No valid plots inputs found. Note that there should be no '=' characters in plots input lines.")
             return {}
-        plots = {}
-        for key, val in plots_table[0]:
-            plots[key] = val
-        return plots
+        return dict(plots_table[0])
 
     @staticmethod
     def read_nbo(string: str) -> dict:
@@ -1075,10 +1070,7 @@ class QCInput(InputFile):
         if nbo_table == []:
             print("No valid nbo inputs found.")
             return {}
-        nbo = {}
-        for key, val in nbo_table[0]:
-            nbo[key] = val
-        return nbo
+        return dict(nbo_table[0])
 
     @staticmethod
     def read_geom_opt(string: str) -> dict:
@@ -1098,10 +1090,7 @@ class QCInput(InputFile):
         if geom_opt_table == []:
             print("No valid geom_opt inputs found.")
             return {}
-        geom_opt = {}
-        for key, val in geom_opt_table[0]:
-            geom_opt[key] = val
-        return geom_opt
+        return dict(geom_opt_table[0])
 
     @staticmethod
     def read_cdft(string: str) -> list[list[dict]]:

@@ -220,8 +220,8 @@ class PWInput:
         with open(filename, "w") as f:
             f.write(str(self))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads an PWInput object from a file.
 
@@ -232,15 +232,15 @@ class PWInput:
             PWInput object
         """
         with zopen(filename, "rt") as f:
-            return PWInput.from_str(f.read())
+            return cls.from_str(f.read())
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string):
         """
         Reads an PWInput object from a string.
 
@@ -343,7 +343,7 @@ class PWInput:
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
         )
-        return PWInput(
+        return cls(
             structure=structure,
             control=sections["control"],
             pseudo=pseudo,

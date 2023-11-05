@@ -69,8 +69,7 @@ reports. The following are resources for pymatgen:
 
 ## Matgenie & Examples
 
-The [Materials Virtual Lab] has developed a [matgenie web app](http://matgenie.materialsvirtuallab.org) which
-demonstrates some of the basic functionality of pymatgen, as well as a [matgenb] repository of Jupyter notebooks for
+The [Materials Virtual Lab] has created a [matgenb] repository of Jupyter notebooks for
 common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
 
 Below are a quick look at some of the graphical output possible.

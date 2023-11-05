@@ -547,7 +547,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 l_pre_group = list(pre_group)
                 if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br", "H2O"] and self.fuzzy_matching:
                     # group by number of sites
-                    for idx, site_group in groupby(sorted(l_pre_group, key=lambda s: len(s)), key=lambda s: len(s)):
+                    for idx, site_group in groupby(sorted(l_pre_group, key=len), key=len):
                         l_sitegroup = list(site_group)
                         row_list.append(
                             self._populate_df_row(l_sitegroup, comp, sg, idx, pd_type_1, pd_type_2, all_entries)

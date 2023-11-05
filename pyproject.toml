@@ -11,9 +11,6 @@ build-backend = "setuptools.build_meta"
 method = "git"
 default-tag = "0.0.1"
 
-[tool.black]
-line-length = 120
-
 [tool.cibuildwheel.linux]
 archs = ["auto64"]
 skip = ["*musllinux*"]

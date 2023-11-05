@@ -505,7 +505,7 @@ class PhaseDiagram(MSONable):
             The coordinates for a given composition in the PhaseDiagram's basis
         """
         if set(comp.elements) - set(self.elements):
-            raise ValueError(f"{comp} has elements not in the phase diagram {', '.join(map(str,self.elements))}")
+            raise ValueError(f"{comp} has elements not in the phase diagram {', '.join(map(str, self.elements))}")
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
@@ -894,7 +894,8 @@ class PhaseDiagram(MSONable):
         same_comp_mem_ids = [
             id(c)
             for c in compare_entries
-            if (  # NOTE use this construction to avoid calls to fractional_composition
+            # NOTE use this construction to avoid calls to fractional_composition
+            if (
                 len(entry_frac) == len(c.composition)
                 and all(
                     abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
