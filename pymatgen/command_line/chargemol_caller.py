@@ -96,12 +96,6 @@ class ChargemolAnalysis:
         """
         Initializes the Chargemol Analysis.
 
-        path: str | Path | None = None,
-        atomic_densities_path: str | Path | None = None,
-        run_chargemol: bool = True,
-    ) -> None:
-        """Initializes the Chargemol Analysis.
-
 
         Args:
             path (str): Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.
@@ -129,20 +123,13 @@ class ChargemolAnalysis:
         if atomic_densities_path == "":
             atomic_densities_path = os.getcwd()
         self._atomic_densities_path = atomic_densities_path
-
         self.save = save
-
+        
         self._chgcarpath = self._get_filepath(path, "CHGCAR")
         self._potcarpath = self._get_filepath(path, "POTCAR")
         self._aeccar0path = self._get_filepath(path, "AECCAR0")
         self._aeccar2path = self._get_filepath(path, "AECCAR2")
-        if run_chargemol and not (self._chgcarpath and self._potcarpath and self._aeccar0path and self._aeccar2path):
 
-
-        self._chgcar_path = self._get_filepath(path, "CHGCAR")
-        self._potcar_path = self._get_filepath(path, "POTCAR")
-        self._aeccar0_path = self._get_filepath(path, "AECCAR0")
-        self._aeccar2_path = self._get_filepath(path, "AECCAR2")
         if run_chargemol and not (
             self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
         ):
@@ -197,14 +184,6 @@ class ChargemolAnalysis:
         """
         Internal function to run Chargemol.
 
-            if len(paths) > 1:
-                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}")
-            fpath = paths[0]
-        return fpath
-
-    def _execute_chargemol(self, **job_control_kwargs):
-        """Internal function to run Chargemol.
-
 
         Args:
             atomic_densities_path (str): Path to the atomic densities directory
@@ -246,30 +225,6 @@ class ChargemolAnalysis:
                 cwd=save_path,
             ) as rs:
                 rs.communicate()
-
-            job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
-        """
-        with ScratchDir("."):
-            try:
-                os.symlink(self._chgcar_path, "./CHGCAR")
-                os.symlink(self._potcar_path, "./POTCAR")
-                os.symlink(self._aeccar0_path, "./AECCAR0")
-                os.symlink(self._aeccar2_path, "./AECCAR2")
-            except OSError as exc:
-                print(f"Error creating symbolic link: {exc}")
-
-            # write job_script file:
-            self._write_jobscript_for_chargemol(**job_control_kwargs)
-
-            # Run Chargemol
-            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                _stdout, stderr = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError(
-                    f"{CHARGEMOL_EXE} exit code: {rs.returncode}, error message: {stderr!s}. "
-                    "Please check your Chargemol installation."
-                )
-            self._from_data_dir(chargemol_output_path=save_path)
 
         else:
             with ScratchDir("."):
