@@ -47,11 +47,8 @@ import os
 import subprocess
 import warnings
 from glob import glob
-from shutil import which
-
-from typing import TYPE_CHECKING
 from pathlib import Path
-
+from shutil import which
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -59,9 +56,6 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
-
-
-
 
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
@@ -86,7 +80,7 @@ class ChargemolAnalysis:
 
     def __init__(
         self,
-        path: str | None =None,
+        path: str | None = None,
         atomic_densities_path=None,
         run_chargemol: bool = True,
         mpi: bool = False,
@@ -183,7 +177,7 @@ class ChargemolAnalysis:
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, mpi=False, ncores: int | None =None, **jobcontrol_kwargs):
+    def _execute_chargemol(self, mpi=False, ncores: int | None = None, **jobcontrol_kwargs):
         """
         Internal function to run Chargemol.
 
@@ -265,7 +259,7 @@ class ChargemolAnalysis:
 
                 self._from_data_dir()
 
-    def _from_data_dir(self, chargemol_output_path: str | None =None):
+    def _from_data_dir(self, chargemol_output_path: str | None = None):
         """
         Internal command to parse Chargemol files from a directory.
 
@@ -340,7 +334,7 @@ class ChargemolAnalysis:
             charge_transfer = -self.cm5_charges[atom_index]
         return charge_transfer
 
-    def get_charge(self, atom_index, nelect: int | None =None, charge_type="ddec"):
+    def get_charge(self, atom_index, nelect: int | None = None, charge_type="ddec"):
         """Convenience method to get the charge on a particular atom using the same
         sign convention as the BaderAnalysis. Note that this is *not* the partial
         atomic charge. This value is nelect (e.g. ZVAL from the POTCAR) + the
