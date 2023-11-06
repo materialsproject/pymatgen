@@ -42,16 +42,14 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 
 from __future__ import annotations
 
+import multiprocessing
 import os
 import subprocess
-import multiprocessing
 import warnings
 from glob import glob
-from shutil import which
-
 from pathlib import Path
+from shutil import which
 from typing import TYPE_CHECKING
-
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -81,14 +79,14 @@ class ChargemolAnalysis:
     """
 
     CHARGEMOLEXE = (
-    which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
-)
+        which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
+    )
 
     def __init__(
         self,
         path=None,
         atomic_densities_path=None,
-        run_chargemol: bool =True,
+        run_chargemol: bool = True,
         mpi: bool = False,
         ncores: int = None,
         save: bool = False,
@@ -124,7 +122,7 @@ class ChargemolAnalysis:
             atomic_densities_path = os.getcwd()
         self._atomic_densities_path = atomic_densities_path
         self.save = save
-        
+
         self._chgcarpath = self._get_filepath(path, "CHGCAR")
         self._potcarpath = self._get_filepath(path, "POTCAR")
         self._aeccar0path = self._get_filepath(path, "AECCAR0")
@@ -149,7 +147,7 @@ class ChargemolAnalysis:
         self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
 
         if run_chargemol:
-            self._execute_chargemol(mpi=mpi,ncores=ncores)
+            self._execute_chargemol(mpi=mpi, ncores=ncores)
         else:
             self._from_data_dir(chargemol_output_path=path)
 
@@ -195,12 +193,11 @@ class ChargemolAnalysis:
             ncores (int): The number of cores you want to use. Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS') or multiprocessing.cpu_count().
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-
         if mpi:
             if ncores:
                 CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
             else:
-                ncores = os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS')
+                ncores = os.getenv("SLURM_CPUS_ON_NODE") or os.getenv("SLURM_NTASKS")
                 if ncores:
                     ncores = multiprocessing.cpu_count()
                 CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
@@ -208,13 +205,18 @@ class ChargemolAnalysis:
             CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE
 
         if self.save:
-            save_path = Path(Path.cwd(),"charge")
+            save_path = Path(Path.cwd(), "charge")
             save_path.mkdir(parents=True, exist_ok=True)
-            source = [Path(self._chgcarpath),Path(self._potcarpath),Path(self._aeccar0path),Path(self._aeccar2path)]
-            links = [Path(save_path,"CHGCAR"),Path(save_path,"POTCAR"),Path(save_path,"AECCAR0"),Path(save_path,"AECCAR2")]
+            source = [Path(self._chgcarpath), Path(self._potcarpath), Path(self._aeccar0path), Path(self._aeccar2path)]
+            links = [
+                Path(save_path, "CHGCAR"),
+                Path(save_path, "POTCAR"),
+                Path(save_path, "AECCAR0"),
+                Path(save_path, "AECCAR2"),
+            ]
             [links[i].symlink_to(source[i]) for i in range(len(links))]
             # write job_script file:
-            self._write_jobscript_for_chargemol(write_path=str(save_path)+"/job_control.txt",**jobcontrol_kwargs)
+            self._write_jobscript_for_chargemol(write_path=str(save_path) + "/job_control.txt", **jobcontrol_kwargs)
 
             # Run Chargemol
             with subprocess.Popen(
@@ -229,8 +231,13 @@ class ChargemolAnalysis:
         else:
             with ScratchDir("."):
                 cwd = Path.cwd()
-                source = [Path(self._chgcarpath),Path(self._potcarpath),Path(self._aeccar0path),Path(self._aeccar2path)]
-                links = [Path(cwd,"CHGCAR"),Path(cwd,"POTCAR"),Path(cwd,"AECCAR0"),Path(cwd,"AECCAR2")]
+                source = [
+                    Path(self._chgcarpath),
+                    Path(self._potcarpath),
+                    Path(self._aeccar0path),
+                    Path(self._aeccar2path),
+                ]
+                links = [Path(cwd, "CHGCAR"), Path(cwd, "POTCAR"), Path(cwd, "AECCAR0"), Path(cwd, "AECCAR2")]
                 [links[i].symlink_to(source[i]) for i in range(len(links))]
                 # write job_script file:
                 self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
