@@ -83,7 +83,7 @@ class ChargemolAnalysis:
     CHARGEMOLEXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
 )
-    
+
     def __init__(
         self,
         path=None,
@@ -115,7 +115,7 @@ class ChargemolAnalysis:
                 Default: True.
             mpi (bool): Whether to run the Chargemol in a parallel way.
             ncores: Use how many cores to run the Chargemol! Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE') or os.environ.get('SLURM_CPUS_ON_NODE')",
-            or "multiprocessing.cpu_count()". Take your own risk! This default value might not suit you! You'd better set your own number!!! 
+            or "multiprocessing.cpu_count()". Take your own risk! This default value might not suit you! You'd better set your own number!!!
             save: save (bool): Whether to save the Chargemol output files. Default is False.
                 the existing Chargemol output files will be read from path. Default: True.
         """
@@ -131,7 +131,7 @@ class ChargemolAnalysis:
         self._atomic_densities_path = atomic_densities_path
 
         self.save = save
-        
+
         self._chgcarpath = self._get_filepath(path, "CHGCAR")
         self._potcarpath = self._get_filepath(path, "POTCAR")
         self._aeccar0path = self._get_filepath(path, "AECCAR0")
@@ -213,10 +213,10 @@ class ChargemolAnalysis:
                 Default: None.
 
             mpi(bool): Whether run the Chargemol in a parallel way. Default is False.
-            ncores (int): The number of cores you want to use. Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS') or multiprocessing.cpu_count().       
+            ncores (int): The number of cores you want to use. Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS') or multiprocessing.cpu_count().
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-        
+
         if mpi:
             if ncores:
                 CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
@@ -227,7 +227,7 @@ class ChargemolAnalysis:
                 CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
         else:
             CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE
-            
+
         if self.save:
             save_path = Path(Path.cwd(),"charge")
             save_path.mkdir(parents=True, exist_ok=True)
@@ -279,7 +279,7 @@ class ChargemolAnalysis:
                 [links[i].symlink_to(source[i]) for i in range(len(links))]
                 # write job_script file:
                 self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
-    
+
                 # Run Chargemol
                 with subprocess.Popen(
                     CHARGEMOLEXE,
@@ -292,7 +292,7 @@ class ChargemolAnalysis:
                     raise RuntimeError(
                         f"Chargemol exited with return code {int(rs.returncode)}. Please check your Chargemol installation."
                     )
-    
+
                 self._from_data_dir()
 
     def _from_data_dir(self, chargemol_output_path=None):
