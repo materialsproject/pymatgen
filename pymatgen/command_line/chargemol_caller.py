@@ -49,7 +49,10 @@ import warnings
 from glob import glob
 from pathlib import Path
 from shutil import which
+
+from pathlib import Path
 from typing import TYPE_CHECKING
+
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -86,9 +89,9 @@ class ChargemolAnalysis:
         self,
         path=None,
         atomic_densities_path=None,
-        run_chargemol: bool = True,
+        run_chargemol: bool =True,
         mpi: bool = False,
-        ncores: int = None,
+        ncores: Optional[int] = None,
         save: bool = False,
     ):
         """
@@ -106,10 +109,13 @@ class ChargemolAnalysis:
             the existing Chargemol output files will be read from path.
                 Default: True.
             mpi (bool): Whether to run the Chargemol in a parallel way.
-            ncores: Use how many cores to run the Chargemol! Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE') or os.environ.get('SLURM_CPUS_ON_NODE')",
-            or "multiprocessing.cpu_count()". Take your own risk! This default value might not suit you! You'd better set your own number!!!
+            ncores: Use how many cores to run the Chargemol! 
+                    Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE'), 
+                    or os.environ.get('SLURM_CPUS_ON_NODE')", or "multiprocessing.cpu_count()". 
+                    Take your own risk! This default value might not suit you! 
+                    You'd better set your own number!!!
             save: save (bool): Whether to save the Chargemol output files. Default is False.
-                the existing Chargemol output files will be read from path. Default: True.
+                  the existing Chargemol output files will be read from path. Default: True.
         """
         path = path or os.getcwd()
         if run_chargemol and not CHARGEMOL_EXE:
@@ -190,7 +196,9 @@ class ChargemolAnalysis:
                 Default: None.
 
             mpi(bool): Whether run the Chargemol in a parallel way. Default is False.
-            ncores (int): The number of cores you want to use. Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS') or multiprocessing.cpu_count().
+            ncores (int): The number of cores you want to use. 
+                          Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS') 
+                          or multiprocessing.cpu_count().
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         if mpi:
@@ -258,12 +266,13 @@ class ChargemolAnalysis:
                 self._from_data_dir()
 
     def _from_data_dir(self, chargemol_output_path=None):
-        """Internal command to parse Chargemol files from a directory.
+        """
+        Internal command to parse Chargemol files from a directory.
 
         Args:
-            chargemol_output_path (str): Path to the folder containing the
-            Chargemol output files.
-                Default: None (current working directory).
+            chargemol_output_path (str): Path to the folder containing 
+            the Chargemol output files.
+            Default: None (current working directory).
         """
         if chargemol_output_path is None:
             chargemol_output_path = "."
@@ -411,6 +420,7 @@ class ChargemolAnalysis:
             method (str): Method to use for the analysis. Options include "ddec6"
                 and "ddec3". Default: "ddec6"
             compute_bond_orders (bool): Whether to compute bond orders. Default: True.
+            write_path (str): The path of output files of chargemol if you want to save them. 
         """
         self.net_charge = net_charge
         self.periodicity = periodicity
