@@ -47,11 +47,9 @@ import os
 import subprocess
 import warnings
 from glob import glob
-from pathlib import Path
 from shutil import which
 
-from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 
 import numpy as np
