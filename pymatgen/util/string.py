@@ -1,23 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-This module provides utility classes for string operations.
-"""
+"""This module provides utility classes for string operations."""
+
+from __future__ import annotations
+
 import re
 from fractions import Fraction
 
-SUBSCRIPT_UNICODE = {
-    "0": "₀",
-    "1": "₁",
-    "2": "₂",
-    "3": "₃",
-    "4": "₄",
-    "5": "₅",
-    "6": "₆",
-    "7": "₇",
-    "8": "₈",
-    "9": "₉",
-}
+SUBSCRIPT_UNICODE = {"0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉"}
 
 SUPERSCRIPT_UNICODE = {
     "0": "⁰",
@@ -40,26 +28,23 @@ SUPERSCRIPT_UNICODE = {
 
 
 class Stringify:
-    """
-    Mix-in class for string formatting, e.g. superscripting numbers and symbols or superscripting.
-    """
+    """Mix-in class for string formatting, e.g. superscripting numbers and symbols or superscripting."""
 
     STRING_MODE = "SUBSCRIPT"
 
     def to_pretty_string(self) -> str:
-        """
-        :return: A pretty string representation. By default, the __str__ output is used, but this method can be
-            overridden if a different representation from default is desired.
+        """A pretty string representation. By default, the __str__ output is used, but this method can be
+        overridden if a different representation from default is desired.
         """
         return str(self)
 
     def to_latex_string(self) -> str:
-        """
-        Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
+        """Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
         "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
         superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
-        :return: String for display as in LaTeX with proper superscripts and subscripts.
+        Returns:
+            String for display as in LaTeX with proper superscripts and subscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
@@ -72,18 +57,18 @@ class Stringify:
         return str_
 
     def to_html_string(self) -> str:
-        """
-        Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
-        :return: HTML formatted string.
+        """Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
+
+        Returns:
+            HTML formatted string.
         """
         str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
         str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
         return re.sub(r"\$\\overline\{([^}]+)\}\$", r'<span style="text-decoration:overline">\1</span>', str_)
 
     def to_unicode_string(self):
-        """
-        :return: Unicode string with proper sub and superscripts. Note that this works only with systems where the sub
-            and superscripts are pure integers.
+        """Unicode string with proper sub and superscripts. Note that this works only
+        with systems where the sub and superscripts are pure integers.
         """
         str_ = self.to_latex_string()
         for m in re.finditer(r"\$_\{(\d+)\}\$", str_):
@@ -98,30 +83,29 @@ class Stringify:
 
 
 def str_delimited(results, header=None, delimiter="\t"):
-    """
-    Given a tuple of tuples, generate a delimited string form.
+    r"""Given a tuple of tuples, generate a delimited string form.
     >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
     >>> print(str_delimited(results,delimiter=","))
     a,b,c
     d,e,f
-    1,2,3
+    1,2,3.
 
     Args:
-        result: 2d sequence of arbitrary types.
+        results: 2d sequence of arbitrary types.
         header: optional header
+        delimiter: Defaults to "\t" for tab-delimited output.
 
     Returns:
         Aligned string output in a table-like format.
     """
-    returnstr = ""
+    out = ""
     if header is not None:
-        returnstr += delimiter.join(header) + "\n"
-    return returnstr + "\n".join([delimiter.join([str(m) for m in result]) for result in results])
+        out += delimiter.join(header) + "\n"
+    return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
-def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
-    """
-    This function is used to make pretty formulas by formatting the amounts.
+def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
+    """This function is used to make pretty formulas by formatting the amounts.
     Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
 
     Args:
@@ -135,27 +119,22 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     if ignore_ones and afloat == 1:
         return ""
     if abs(afloat - int(afloat)) < tol:
-        return str(int(afloat))
-    return str(round(afloat, 8))
+        return int(afloat)
+    return round(afloat, 8)
 
 
 def charge_string(charge, brackets=True, explicit_one=True):
-    """
-    Returns a string representing the charge of an Ion. By default, the
+    """Returns a string representing the charge of an Ion. By default, the
     charge is placed in brackets with the sign preceding the magnitude, e.g.,
-    '[+2]'. For uncharged species, the string returned is '(aq)'
+    '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
+        charge: the charge of the Ion
         brackets: whether to enclose the charge in brackets, e.g. [+2]. Default: True
         explicit_one: whether to include the number one for monovalent ions, e.g.
             +1 rather than +. Default: True
     """
-    if charge > 0:
-        chg_str = f"+{formula_double_format(charge, False)}"
-    elif charge < 0:
-        chg_str = f"-{formula_double_format(abs(charge), False)}"
-    else:
-        chg_str = "(aq)"
+    chg_str = "(aq)" if charge == 0 else f"{formula_double_format(charge, ignore_ones= False):+}"
 
     if chg_str in ["+1", "-1"] and not explicit_one:
         chg_str = chg_str.replace("1", "")
@@ -167,8 +146,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
 
 
 def latexify(formula):
-    """
-    Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
+    """Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
     Note that Composition now has a to_latex_string() method that may
@@ -184,31 +162,26 @@ def latexify(formula):
 
 
 def htmlify(formula):
-    """
-    Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
-    Fe<sub>2</sub>O</sub>3</sub>
+    """Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
+    Fe<sub>2</sub>O</sub>3</sub>.
 
     Note that Composition now has a to_html_string() method that may
     be used instead.
 
     :param formula:
-    :return:
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
 
 def unicodeify(formula):
-    """
-    Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
+    """Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
 
     Note that Composition now has a to_unicode_string() method that may
     be used instead.
 
     :param formula:
-    :return:
     """
-
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
 
@@ -219,8 +192,7 @@ def unicodeify(formula):
 
 
 def latexify_spacegroup(spacegroup_symbol):
-    r"""
-    Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
+    r"""Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
     Note that SymmetryGroup now has a to_latex_string() method that may
@@ -237,8 +209,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
-    r"""
-    Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
+    r"""Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
 
     Note that SymmetryGroup now has a to_unicode_string() method that
@@ -250,15 +221,14 @@ def unicodeify_spacegroup(spacegroup_symbol):
     Returns:
         A unicode spacegroup with proper subscripts and overlines.
     """
-
     if not spacegroup_symbol:
         return ""
 
     symbol = latexify_spacegroup(spacegroup_symbol)
 
-    for number, unicode_number in SUBSCRIPT_UNICODE.items():
-        symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
-        symbol = symbol.replace("_" + str(number), unicode_number)
+    for num, unicode_number in SUBSCRIPT_UNICODE.items():
+        symbol = symbol.replace(f"$_{{{num}}}$", unicode_number)
+        symbol = symbol.replace(f"_{num}", unicode_number)
 
     overline = "\u0305"  # u"\u0304" (macron) is also an option
 
@@ -266,14 +236,11 @@ def unicodeify_spacegroup(spacegroup_symbol):
     symbol = symbol.replace("$", "")
     symbol = symbol.replace("{", "")
     # overline unicode symbol comes after the character with the overline
-    symbol = symbol.replace("}", overline)
-
-    return symbol
+    return symbol.replace("}", overline)
 
 
 def unicodeify_species(specie_string):
-    """
-    Generates a unicode formatted species string, with appropriate
+    """Generates a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 
     Note that Species now has a to_unicode_string() method that
@@ -285,7 +252,6 @@ def unicodeify_species(specie_string):
     Returns:
         Species string, e.g. O²⁻
     """
-
     if not specie_string:
         return ""
 
@@ -295,10 +261,8 @@ def unicodeify_species(specie_string):
     return specie_string
 
 
-def stream_has_colours(stream):
-    """
-    True if stream supports colours. Python cookbook, #475186
-    """
+def stream_has_colors(stream):
+    """True if stream supports colors. Python cookbook, #475186."""
     if not hasattr(stream, "isatty"):
         return False
 
@@ -308,49 +272,53 @@ def stream_has_colours(stream):
         import curses
 
         curses.setupterm()
-        return curses.tigetnum("colors") > 2
     except Exception:
         return False  # guess false in case of error
+    else:
+        return curses.tigetnum("colors") > 2
 
 
 def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x", "y", "z"), c="", delim=","):
-    """
-    Convenience method. Given matrix returns string, e.g. x+2y+1/4
-    :param matrix
-    :param translation_vec
-    :param components: either ('x', 'y', 'z') or ('a', 'b', 'c')
-    :param c: optional additional character to print (used for magmoms)
-    :param delim: delimiter
-    :return: xyz string
+    """Convenience method. Given matrix returns string, e.g. x+2y+1/4.
+
+    Args:
+        matrix: A 3x3 matrix.
+        translation_vec: A 3-element tuple representing the translation vector. Defaults to (0, 0, 0).
+        components: A tuple of 3 strings representing the components. Either ('x', 'y', 'z') or ('a', 'b', 'c').
+            Defaults to ('x', 'y', 'z').
+        c: An optional additional character to print (used for magmoms). Defaults to "".
+        delim: A delimiter. Defaults to ",".
+
+    Returns:
+        xyz string.
     """
     parts = []
-    for i in range(3):
-        s = ""
-        m = matrix[i]
-        t = translation_vec[i]
+    for idx in range(3):
+        string = ""
+        m = matrix[idx]
+        offset = translation_vec[idx]
         for j, dim in enumerate(components):
             if m[j] != 0:
                 f = Fraction(m[j]).limit_denominator()
-                if s != "" and f >= 0:
-                    s += "+"
+                if string != "" and f >= 0:
+                    string += "+"
                 if abs(f.numerator) != 1:
-                    s += str(f.numerator)
+                    string += str(f.numerator)
                 elif f < 0:
-                    s += "-"
-                s += c + dim
+                    string += "-"
+                string += c + dim
                 if f.denominator != 1:
-                    s += "/" + str(f.denominator)
-        if t != 0:
-            s += ("+" if (t > 0 and s != "") else "") + str(Fraction(t).limit_denominator())
-        if s == "":
-            s += "0"
-        parts.append(s)
+                    string += f"/{f.denominator}"
+        if offset != 0:
+            string += ("+" if (offset > 0 and string != "") else "") + str(Fraction(offset).limit_denominator())
+        if string == "":
+            string += "0"
+        parts.append(string)
     return delim.join(parts)
 
 
 def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
-    """
-    Returns a formula of a form like AxB1-x (x=0.5)
+    """Returns a formula of a form like AxB1-x (x=0.5)
     for disordered structures. Will only return a
     formula for disordered structures with one
     kind of disordered site at present.
@@ -365,7 +333,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
 
     Returns (str): a disordered formula string
     """
-
     # this is in string utils and not in
     # Composition because we need to have access
     # to site occupancies to calculate this, so
@@ -412,19 +379,18 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
-    remainder = formula_double_format(total_disordered_occu, ignore_ones=False) + "-" + "-".join(symbols)
+    remainder = f"{formula_double_format(total_disordered_occu, ignore_ones=False)}-{'-'.join(symbols)}"
 
     for sp, occu in comp:
-        sp = str(sp)
-        if sp not in disordered_species:
-            disordered_comp.append((sp, formula_double_format(occu / factor)))
+        species = str(sp)
+        if species not in disordered_species:
+            disordered_comp.append((species, formula_double_format(occu / factor)))
+        elif len(symbols) > 0:
+            symbol = symbols.pop(0)
+            disordered_comp.append((species, symbol))
+            variable_map[symbol] = occu / total_disordered_occu / factor
         else:
-            if len(symbols) > 0:
-                symbol = symbols.pop(0)
-                disordered_comp.append((sp, symbol))
-                variable_map[symbol] = occu / total_disordered_occu / factor
-            else:
-                disordered_comp.append((sp, remainder))
+            disordered_comp.append((species, remainder))
 
     if fmt == "LaTeX":
         sub_start = "_{"
@@ -445,6 +411,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
             if fmt != "plain":
                 disordered_formula.append(sub_end)
     disordered_formula.append(" ")
-    disordered_formula += [f"{k}={formula_double_format(v)} " for k, v in variable_map.items()]
+    disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
     return "".join(map(str, disordered_formula))[0:-1]

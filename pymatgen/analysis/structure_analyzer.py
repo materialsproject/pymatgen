@@ -1,18 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides classes to perform topological analyses of structures."""
 
-"""
-This module provides classes to perform topological analyses of structures.
-"""
-
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
-__copyright__ = "Copyright 2011, The Materials Project"
+from __future__ import annotations
 
 import collections
 import itertools
 from math import acos, pi
+from typing import TYPE_CHECKING
 from warnings import warn
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi
 
@@ -21,7 +17,12 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.num import abs_cap
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
+__copyright__ = "Copyright 2011, The Materials Project"
 
 
 def average_coordination_number(structures, freq=10):
@@ -38,7 +39,7 @@ def average_coordination_number(structures, freq=10):
         Dictionary of elements as keys and average coordination numbers as values.
     """
     coordination_numbers = {}
-    for spec in structures[0].composition.as_dict().keys():
+    for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
     for i, s in enumerate(structures):
@@ -50,8 +51,7 @@ def average_coordination_number(structures, freq=10):
             cn = vnn.get_cn(s, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
-    coordination_numbers = {el: v / elements[el] / count for el, v in coordination_numbers.items()}
-    return coordination_numbers
+    return {el: v / elements[el] / count for el, v in coordination_numbers.items()}
 
 
 class VoronoiAnalyzer:
@@ -74,12 +74,12 @@ class VoronoiAnalyzer:
         Args:
             cutoff (float): cutoff distance to search for neighbors of a given atom
                 (default = 5.0)
-            qhull_options (str): options to pass to qhull (optional)
+            qhull_options (str): options to pass to qhull (optional).
         """
         self.cutoff = cutoff
         self.qhull_options = qhull_options
 
-    def analyze(self, structure, n=0):
+    def analyze(self, structure: Structure, n=0):
         """
         Performs Voronoi analysis and returns the polyhedra around atom n
         in Schlaefli notation.
@@ -146,78 +146,74 @@ class VoronoiAnalyzer:
         return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[:most_frequent_polyhedra]
 
     @staticmethod
-    def plot_vor_analysis(voronoi_ensemble):
-        """
-        Plot the Voronoi analysis.
+    def plot_vor_analysis(voronoi_ensemble: list[tuple[str, float]]) -> plt.Axes:
+        """Plot the Voronoi analysis.
 
-        :param voronoi_ensemble:
-        :return: matplotlib.pyplot
-        """
-        t = list(zip(*voronoi_ensemble))
-        labels = t[0]
-        val = list(t[1])
-        tot = np.sum(val)
-        val = [float(j) / tot for j in val]
-        pos = np.arange(len(val)) + 0.5  # the bar centers on the y axis
-        import matplotlib.pyplot as plt
+        Args:
+            voronoi_ensemble (list[tuple[str, float]]): List of tuples containing labels and
+                values for Voronoi analysis.
 
-        plt.figure()
-        plt.barh(pos, val, align="center", alpha=0.5)
-        plt.yticks(pos, labels)
-        plt.xlabel("Count")
-        plt.title("Voronoi Spectra")
-        plt.grid(True)
-        return plt
+        Returns:
+            plt.Axes: Matplotlib Axes object with the plotted Voronoi analysis.
+        """
+        labels, val = zip(*voronoi_ensemble)
+        arr = np.array(val, dtype=float)
+        arr /= np.sum(arr)
+        pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis
+
+        fig, ax = plt.subplots()
+        ax.barh(pos, arr, align="center", alpha=0.5)
+        ax.set_yticks(pos)
+        ax.set_yticklabels(labels)
+        ax.set(title="Voronoi Spectra", xlabel="Count")
+        ax.grid(visible=True)
+        return ax
 
 
 class RelaxationAnalyzer:
-    """
-    This class analyzes the relaxation in a calculation.
-    """
+    """This class analyzes the relaxation in a calculation."""
 
-    def __init__(self, initial_structure, final_structure):
-        """
-        Please note that the input and final structures should have the same
-        ordering of sites. This is typically the case for most computational
-        codes.
+    def __init__(self, initial_structure: Structure, final_structure: Structure) -> None:
+        """Please note that the input and final structures should have the same
+        ordering of sites. This is typically the case for most computational codes.
 
         Args:
             initial_structure (Structure): Initial input structure to
                 calculation.
             final_structure (Structure): Final output structure from
                 calculation.
+
+        Raises:
+            ValueError: If initial and final structures have different formulas.
         """
         if final_structure.formula != initial_structure.formula:
             raise ValueError("Initial and final structures have different formulas!")
         self.initial = initial_structure
         self.final = final_structure
 
-    def get_percentage_volume_change(self):
+    def get_percentage_volume_change(self) -> float:
         """
         Returns the percentage volume change.
 
         Returns:
-            Volume change in percentage, e.g., 0.055 implies a 5.5% increase.
+            float: Volume change in percent. 0.055 means a 5.5% increase.
         """
-        initial_vol = self.initial.lattice.volume
-        final_vol = self.final.lattice.volume
-        return final_vol / initial_vol - 1
+        return self.final.volume / self.initial.volume - 1
 
-    def get_percentage_lattice_parameter_changes(self):
+    def get_percentage_lattice_parameter_changes(self) -> dict[str, float]:
         """
         Returns the percentage lattice parameter changes.
 
         Returns:
-            A dict of the percentage change in lattice parameter, e.g.,
-            {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
-            2.1% and -3.1% in the a, b and c lattice parameters respectively.
+            dict[str, float]: Percent changes in lattice parameter, e.g.,
+                {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
+                2.1% and -3.1% in the a, b and c lattice parameters respectively.
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1 for l in ["a", "b", "c"]}
-        return d
+        return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
-    def get_percentage_bond_dist_changes(self, max_radius=3.0):
+    def get_percentage_bond_dist_changes(self, max_radius: float = 3.0) -> dict[int, dict[int, float]]:
         """
         Returns the percentage bond distance changes for each site up to a
         maximum radius for nearest neighbors.
@@ -228,13 +224,12 @@ class RelaxationAnalyzer:
                not the final structure.
 
         Returns:
-            Bond distance changes as a dict of dicts. E.g.,
-            {index1: {index2: 0.011, ...}}. For economy of representation, the
-            index1 is always less than index2, i.e., since bonding between
-            site1 and siten is the same as bonding between siten and site1,
-            there is no reason to duplicate the information or computation.
+            dict[int, dict[int, float]]: Bond distance changes in the form {index1: {index2: 0.011, ...}}.
+                For economy of representation, the index1 is always less than index2, i.e., since bonding
+                between site1 and site_n is the same as bonding between site_n and site1, there is no
+                reason to duplicate the information or computation.
         """
-        data = collections.defaultdict(dict)
+        data: dict[int, dict[int, float]] = collections.defaultdict(dict)
         for inds in itertools.combinations(list(range(len(self.initial))), 2):
             (i, j) = sorted(inds)
             initial_dist = self.initial[i].distance(self.initial[j])
@@ -250,7 +245,7 @@ class VoronoiConnectivity:
     polyhedron between two sites.
     """
 
-    def __init__(self, structure, cutoff=10):
+    def __init__(self, structure: Structure, cutoff=10):
         """
         Args:
             structure (Structure): Input structure
@@ -271,11 +266,11 @@ class VoronoiConnectivity:
         Provides connectivity array.
 
         Returns:
-            connectivity: An array of shape [atomi, atomj, imagej]. atomi is
+            connectivity: An array of shape [atom_i, atom_j, image_j]. atom_i is
             the index of the atom in the input structure. Since the second
             atom can be outside of the unit cell, it must be described
             by both an atom index and an image index. Array data is the
-            solid angle of polygon between atomi and imagej of atomj
+            solid angle of polygon between atom_i and image_j of atom_j
         """
         # shape = [site, axis]
         cart_coords = np.array(self.s.cart_coords)
@@ -287,24 +282,24 @@ class VoronoiConnectivity:
         connectivity = np.zeros(cs)
         vts = np.array(vt.vertices)
         for (ki, kj), v in vt.ridge_dict.items():
-            atomi = ki // n_images
-            atomj = kj // n_images
+            atom_i = ki // n_images
+            atom_j = kj // n_images
 
-            imagei = ki % n_images
-            imagej = kj % n_images
+            image_i = ki % n_images
+            image_j = kj % n_images
 
-            if imagei != n_images // 2 and imagej != n_images // 2:
+            if image_i != n_images // 2 and image_j != n_images // 2:
                 continue
 
-            if imagei == n_images // 2:
-                # atomi is in original cell
+            if image_i == n_images // 2:
+                # atom_i is in original cell
                 val = solid_angle(vt.points[ki], vts[v])
-                connectivity[atomi, atomj, imagej] = val
+                connectivity[atom_i, atom_j, image_j] = val
 
-            if imagej == n_images // 2:
-                # atomj is in original cell
+            if image_j == n_images // 2:
+                # atom_j is in original cell
                 val = solid_angle(vt.points[kj], vts[v])
-                connectivity[atomj, atomi, imagei] = val
+                connectivity[atom_j, atom_i, image_i] = val
 
             if -10.101 in vts[v]:
                 warn("Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect")
@@ -313,9 +308,8 @@ class VoronoiConnectivity:
     @property
     def max_connectivity(self):
         """
-        returns the 2d array [sitei, sitej] that represents
-        the maximum connectivity of site i to any periodic
-        image of site j
+        Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
+        site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)
 
@@ -325,10 +319,10 @@ class VoronoiConnectivity:
         with their real-space distances.
         """
         con = []
-        maxconn = self.max_connectivity
-        for ii in range(0, maxconn.shape[0]):
-            for jj in range(0, maxconn.shape[1]):
-                if maxconn[ii][jj] != 0:
+        max_conn = self.max_connectivity
+        for ii in range(max_conn.shape[0]):
+            for jj in range(max_conn.shape[1]):
+                if max_conn[ii][jj] != 0:
                     dist = self.s.get_distance(ii, jj)
                     con.append([ii, jj, dist])
         return con
@@ -337,7 +331,7 @@ class VoronoiConnectivity:
         """
         Assuming there is some value in the connectivity array at indices
         (1, 3, 12). sitei can be obtained directly from the input structure
-        (structure[1]). sitej can be obtained by passing 3, 12 to this function
+        (structure[1]). sitej can be obtained by passing 3, 12 to this function.
 
         Args:
             site_index (int): index of the site (3 in the example)
@@ -351,25 +345,24 @@ class VoronoiConnectivity:
 
 def solid_angle(center, coords):
     """
-    Helper method to calculate the solid angle of a set of coords from the
-    center.
+    Helper method to calculate the solid angle of a set of coords from the center.
 
     Args:
         center (3x1 array): Center to measure solid angle from.
         coords (Nx3 array): List of coords to determine solid angle.
 
     Returns:
-        The solid angle.
+        float: The solid angle.
     """
-    o = np.array(center)
-    r = [np.array(c) - o for c in coords]
+    origin = np.array(center)
+    r = [np.array(c) - origin for c in coords]
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
     vals = []
     for i in range(len(n) - 1):
         v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-        vals.append(acos(abs_cap(v)))
+        vals.append(acos(np.clip(v, -1, 1)))
     phi = sum(vals)
     return phi + (3 - len(r)) * pi
 
@@ -381,16 +374,16 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 
     Args:
         structure: (structure)
-        el_radius_updates: (dict) symbol->float to update atomic radii
+        el_radius_updates: (dict) symbol->float to update atom_ic radii
 
-    Returns: (dict) - (Element1, Element2) -> float. The two elements are
-        ordered by Z.
+    Returns:
+        dict[(Element1, Element2)], float]: The two elements are ordered by Z.
     """
     # jmc = JMolCoordFinder(el_radius_updates)
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
-    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+    els = sorted(structure.elements, key=lambda x: x.Z)
 
     for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
@@ -416,11 +409,9 @@ def contains_peroxide(structure, relative_cutoff=1.1):
 
 
 class OxideType:
-    """
-    Separate class for determining oxide type.
-    """
+    """Separate class for determining oxide type."""
 
-    def __init__(self, structure, relative_cutoff=1.1):
+    def __init__(self, structure: Structure, relative_cutoff=1.1):
         """
         Args:
             structure: Input structure.
@@ -433,15 +424,14 @@ class OxideType:
         self.relative_cutoff = relative_cutoff
         self.oxide_type, self.nbonds = self.parse_oxide()
 
-    def parse_oxide(self):
+    def parse_oxide(self) -> tuple[str, int]:
         """
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
             oxide_type (str): Type of oxide
             ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in
-            structure.
+            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff
@@ -449,19 +439,19 @@ class OxideType:
         h_sites_frac_coords = []
         lattice = structure.lattice
 
-        if isinstance(structure.composition.elements[0], Element):
+        if isinstance(structure.elements[0], Element):
             comp = structure.composition
-        elif isinstance(structure.composition.elements[0], Species):
-            elmap = collections.defaultdict(float)
+        elif isinstance(structure.elements[0], Species):
+            elem_map: dict[Element, float] = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
-                    elmap[species.element] += occu
-            comp = Composition(elmap)
+                    elem_map[species.element] += occu
+            comp = Composition(elem_map)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species.keys()]
+            syms = [sp.symbol for sp in site.species]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -470,10 +460,7 @@ class OxideType:
         if h_sites_frac_coords:
             dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return (
-                    "hydroxide",
-                    len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0,
-                )
+                return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
@@ -485,14 +472,13 @@ class OxideType:
         elif np.any(dist_matrix < relative_cutoff * 1.49):
             is_peroxide = True
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.49)[0]
-        if is_superoxide:
-            if len(bond_atoms) > len(set(bond_atoms)):
-                is_superoxide = False
-                is_ozonide = True
+        if is_superoxide and len(bond_atoms) > len(set(bond_atoms)):
+            is_superoxide = False
+            is_ozonide = True
         try:
-            nbonds = len(set(bond_atoms))
+            n_bonds = len(set(bond_atoms))
         except UnboundLocalError:
-            nbonds = 0.0
+            n_bonds = 0
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:
@@ -502,13 +488,15 @@ class OxideType:
         else:
             str_oxide = "oxide"
         if str_oxide == "oxide":
-            nbonds = comp["O"]
-        return str_oxide, nbonds
+            n_bonds = int(comp["O"])
+        return str_oxide, n_bonds
 
 
-def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
+def oxide_type(
+    structure: Structure, relative_cutoff: float = 1.1, return_nbonds: bool = False
+) -> str | tuple[str, int]:
     """
-    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
     Args:
         structure (Structure): Input structure.
@@ -516,7 +504,6 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
             max distance two O atoms must be from each other.
         return_nbonds (bool): Should number of bonds be requested?
     """
-
     ox_obj = OxideType(structure, relative_cutoff)
     if return_nbonds:
         return ox_obj.oxide_type, ox_obj.nbonds
@@ -525,7 +512,7 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/polysulfide/sulfate
+    Determines if a structure is a sulfide/polysulfide/sulfate.
 
     Args:
         structure (Structure): Input structure.
@@ -535,22 +522,21 @@ def sulfide_type(structure):
     """
     structure = structure.copy()
     structure.remove_oxidation_states()
-    s = Element("S")
+    sulphur = Element("S")
     comp = structure.composition
-    if comp.is_element or s not in comp:
+    if comp.is_element or sulphur not in comp:
         return None
 
     try:
         finder = SpacegroupAnalyzer(structure, symprec=0.1)
         symm_structure = finder.get_symmetrized_structure()
-        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == sulphur]
     except Exception:
         # Sometimes the symmetry analyzer fails for some tolerance or other issues. This is a fall back that simply
         # analyzes all S sites.
-        s_sites = [site for site in structure if site.specie == s]
+        s_sites = [site for site in structure if site.specie == sulphur]
 
     def process_site(site):
-
         # in an exceptionally rare number of structures, the search
         # radius needs to be increased to find a neighbor atom
         search_radius = 4
@@ -565,9 +551,9 @@ def sulfide_type(structure):
         dist = neighbors[0].nn_distance
         coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
-        if avg_electroneg > s.X:
+        if avg_electroneg > sulphur.X:
             return "sulfate"
-        if avg_electroneg == s.X and s in coord_elements:
+        if avg_electroneg == sulphur.X and sulphur in coord_elements:
             return "polysulfide"
         return "sulfide"
 

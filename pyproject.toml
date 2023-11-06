@@ -1,32 +1,138 @@
 [build-system]
 requires = [
-     # pin NumPy version used in the build
-     "oldest-supported-numpy",
-     "setuptools>=43.0.0",
-     "Cython>=0.29.23"
+  "Cython>=0.29.23",
+  # pin NumPy version used in the build
+  "oldest-supported-numpy",
+  "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.versioningit.vcs]
+method = "git"
+default-tag = "0.0.1"
 
-[tool.black]
+[tool.cibuildwheel.linux]
+archs = ["auto64"]
+skip = ["*musllinux*"]
+before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
+
+[tool.cibuildwheel.macos]
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
+
+[tool.ruff]
+target-version = "py39"
 line-length = 120
-target-version = ['py39']
-include = '\.pyi?$'
-exclude = '''
+select = [
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "D",      # pydocstyle
+  "E",      # pycodestyle error
+  "EXE",    # flake8-executable
+  "F",      # pyflakes
+  "FA",     # flake8-future-annotations
+  "FBT003", # boolean-positional-value-in-call
+  "FLY",    # flynt
+  "I",      # isort
+  "ICN",    # flake8-import-conventions
+  "ISC",    # flake8-implicit-str-concat
+  "PD",     # pandas-vet
+  "PERF",   # perflint
+  "PIE",    # flake8-pie
+  "PL",     # pylint
+  "PT",     # flake8-pytest-style
+  "PYI",    # flakes8-pyi
+  "Q",      # flake8-quotes
+  "RET",    # flake8-return
+  "RSE",    # flake8-raise
+  "RUF",    # Ruff-specific rules
+  "SIM",    # flake8-simplify
+  "SLOT",   # flake8-slots
+  "TCH",    # flake8-type-checking
+  "TID",    # tidy imports
+  "TID",    # flake8-tidy-imports
+  "UP",     # pyupgrade
+  "W",      # pycodestyle warning
+  "YTT",    # flake8-2020
+]
+ignore = [
+  "B023",    # Function definition does not bind loop variable
+  "B028",    # No explicit stacklevel keyword argument found
+  "B904",    # Within an except clause, raise exceptions with ...
+  "C408",    # unnecessary-collection-call
+  "D105",    # Missing docstring in magic method
+  "D205",    # 1 blank line required between summary line and description
+  "D212",    # Multi-line docstring summary should start at the first line
+  "PD901",   # pandas-df-variable-name
+  "PERF203", # try-except-in-loop
+  "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
+  "PLR",     # pylint refactor
+  "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PT013",   # pytest-incorrect-pytest-import
+  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
+  "RUF012",  # Disable checks for mutable class args. This is a non-problem.
+  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+]
+pydocstyle.convention = "google"
+isort.required-imports = ["from __future__ import annotations"]
+isort.split-on-trailing-comma = false
 
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | test_files
-  )/
-)
-'''
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["D"]
+"tasks.py" = ["D"]
+"pymatgen/analysis/*" = ["D"]
+"pymatgen/vis/*" = ["D"]
+"pymatgen/io/*" = ["D"]
+"dev_scripts/*" = ["D"]
+
+[tool.pytest.ini_options]
+addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
+
+[tool.coverage.run]
+parallel = true
+omit = [
+  "pymatgen/cli/feff_plot_cross_section.py",
+  "pymatgen/cli/feff_plot_dos.py",
+  "pymatgen/cli/pmg_config.py",
+  "pymatgen/cli/pmg_plot.py",
+  "pymatgen/cli/pmg_potcar.py",
+  "pymatgen/cli/pmg_query.py",
+  "pymatgen/dao.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+  "@deprecated",
+  "@np.deprecate",
+  "def __repr__",
+  "except ImportError:",
+  "if 0:",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "if typing.TYPE_CHECKING:",
+  "pragma: no cover",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "show_plot",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+namespace_packages = true
+explicit_package_bases = true
+no_implicit_optional = false
+disable_error_code = "annotation-unchecked"
+
+[[tool.mypy.overrides]]
+module = ["requests.*", "tabulate.*"]
+ignore_missing_imports = true
+
+[tool.codespell]
+ignore-words-list = """
+titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,coul,ser,leary,thre,fase,
+rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew,atomate
+"""
+skip = "pymatgen/analysis/aflow_prototypes.json"
+check-filenames = true

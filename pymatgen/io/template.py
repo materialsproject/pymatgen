@@ -3,13 +3,17 @@ This module defines a simple concrete implementation of the InputGenerator class
 used to facilitate writing large numbers of input files based on a template.
 """
 
-from pathlib import Path
+from __future__ import annotations
+
 from string import Template
-from typing import Dict, Optional, Union
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 
 from pymatgen.io.core import InputGenerator, InputSet
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -28,7 +32,7 @@ class TemplateInputGen(InputGenerator):
     """
 
     def get_input_set(  # type: ignore
-        self, template: Union[str, Path], variables: Optional[Dict] = None, filename: str = "input.txt"
+        self, template: str | Path, variables: dict | None = None, filename: str = "input.txt"
     ):
         """
         Args:
@@ -38,10 +42,10 @@ class TemplateInputGen(InputGenerator):
                 text to replaced with the values, e.g. {"TEMPERATURE": 298} will
                 replace the text $TEMPERATURE in the template. See Python's
                 Template.safe_substitute() method documentation for more details.
-            filename: name of the file to be written
+            filename: name of the file to be written.
         """
         self.template = template
-        self.variables = variables if variables else {}
+        self.variables = variables or {}
         self.filename = filename
 
         # load the template

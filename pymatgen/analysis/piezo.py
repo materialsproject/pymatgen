@@ -1,9 +1,7 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides classes for the Piezoelectric tensor."""
 
-"""
-This module provides classes for the Piezoelectric tensor
-"""
+from __future__ import annotations
+
 import warnings
 
 import numpy as np
@@ -20,11 +18,9 @@ __date__ = "Feb, 2016"
 
 
 class PiezoTensor(Tensor):
-    """
-    This class describes the 3x6 piezo tensor in Voigt-notation
-    """
+    """This class describes the 3x6 piezo tensor in Voigt-notation."""
 
-    def __new__(cls, input_array, tol=1e-3):
+    def __new__(cls, input_array, tol: float = 1e-3):
         """
         Create an PiezoTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3, i. e. in true
@@ -57,7 +53,7 @@ class PiezoTensor(Tensor):
         pt = np.zeros([rank, 3, 3])
         for dim in range(rank):
             for pos, val in enumerate(voigt_map):
-                pt[dim][voigt_map[pos]] = input_vasp_array[dim][pos]
-                pt[dim].T[voigt_map[pos]] = input_vasp_array[dim][pos]
+                pt[dim][val] = input_vasp_array[dim][pos]
+                pt[dim].T[val] = input_vasp_array[dim][pos]
 
         return cls(pt)

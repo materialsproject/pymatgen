@@ -1,37 +1,121 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
-"""
-Implementation for `pmg config` CLI.
-"""
+"""Implementation for `pmg config` CLI."""
 
 from __future__ import annotations
 
-import glob
 import os
 import shutil
 import subprocess
-import sys
-from argparse import Namespace
-from typing import Literal
+from glob import glob
+from typing import TYPE_CHECKING, Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
 
-from pymatgen.core import SETTINGS_FILE
+from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE
+
+if TYPE_CHECKING:
+    from argparse import Namespace
+
+
+def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
+    """Setup CP2K basis and potential data directory."""
+    data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
+    try:
+        os.mkdir(target_dir)
+    except OSError:
+        reply = input("Destination directory exists. Continue (y/n)?")
+        if reply != "y":
+            print("Exiting ...")
+            raise SystemExit(0)
+    print("Generating pymatgen resource directory for CP2K...")
+
+    from monty.json import jsanitize
+    from ruamel import yaml
+
+    from pymatgen.core import Element
+    from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
+    from pymatgen.io.cp2k.utils import chunk
+
+    basis_files = glob(f"{data_dir}/*BASIS*")
+    potential_files = glob(f"{data_dir}/*POTENTIAL*")
+
+    settings: dict[str, dict] = {str(el): {"potentials": {}, "basis_sets": {}} for el in Element}
+
+    for potential_file in potential_files:
+        print(f"Processing... {potential_file}")
+        with open(potential_file) as file:
+            try:
+                chunks = chunk(file.read())
+            except IndexError:
+                continue
+        for chk in chunks:
+            try:
+                potential = GthPotential.from_str(chk)
+                potential.filename = os.path.basename(potential_file)
+                potential.version = None
+                settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
+                    potential, strict=True
+                )
+            except ValueError:
+                # Chunk was readable, but the element is not pmg recognized
+                continue
+            except IndexError:
+                # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
+                continue
+
+    for basis_file in basis_files:
+        print(f"Processing... {basis_file}")
+        with open(basis_file) as file:
+            try:
+                chunks = chunk(file.read())
+            except IndexError:
+                continue
+        for chk in chunks:
+            try:
+                basis = GaussianTypeOrbitalBasisSet.from_str(chk)
+                basis.filename = os.path.basename(basis_file)
+                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
+                    basis, strict=True
+                )
+            except ValueError:
+                # Chunk was readable, but the element is not pmg recognized
+                continue
+            except IndexError:
+                # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
+                continue
+
+    print("Done processing cp2k data files")
+
+    for el in settings:
+        print(f"Writing {el} settings file")
+        with open(os.path.join(target_dir, el), "w") as file:
+            yaml.dump(settings.get(el), file, default_flow_style=False)
+
+    print(
+        "\n CP2K resource directory generated. It is recommended that you run:"
+        f"\n  'pmg config --add PMG_CP2K_DATA_DIR {os.path.abspath(target_dir)}' "
+    )
+    print(
+        "\n It is also recommended that you set the following (with example values):"
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_FUNCTIONAL PBE' "
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_BASIS_TYPE TZVP-MOLOPT' "
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_AUX_BASIS_TYPE pFIT' "
+    )
+    print("\n Start a new terminal to ensure that your environment variables are properly set.")
 
 
 def setup_potcars(potcar_dirs: list[str]):
     """Setup POTCAR directories."""
-    pspdir, targetdir = (os.path.abspath(d) for d in potcar_dirs)
+    psp_dir, target_dir = (os.path.abspath(d) for d in potcar_dirs)
     try:
-        os.makedirs(targetdir)
+        os.makedirs(target_dir)
     except OSError:
-        r = input("Destination directory exists. Continue (y/n)? ")
-        if r != "y":
+        reply = input("Destination directory exists. Continue (y/n)? ")
+        if reply != "y":
             print("Exiting ...")
-            sys.exit(0)
+            raise SystemExit(0)
 
     print("Generating pymatgen resources directory...")
 
@@ -51,18 +135,17 @@ def setup_potcars(potcar_dirs: list[str]):
         "potUSPP_GGA": "POT_GGA_US_PW91",
     }
 
-    for (parent, subdirs, files) in os.walk(pspdir):
+    for parent, subdirs, _files in os.walk(psp_dir):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
-            filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
+            filenames = glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
                 try:
-                    basedir = os.path.join(targetdir, basename)
-                    if not os.path.exists(basedir):
-                        os.makedirs(basedir)
+                    base_dir = os.path.join(target_dir, basename)
+                    os.makedirs(base_dir, exist_ok=True)
                     fname = filenames[0]
-                    dest = os.path.join(basedir, os.path.basename(fname))
+                    dest = os.path.join(base_dir, os.path.basename(fname))
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
                     if ext.upper() in ["Z", "GZ"]:
@@ -73,23 +156,22 @@ def setup_potcars(potcar_dirs: list[str]):
                             p.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
-                    dest = os.path.join(basedir, f"POTCAR.{subdir}")
-                    shutil.move(os.path.join(basedir, "POTCAR"), dest)
+                    dest = os.path.join(base_dir, f"POTCAR.{subdir}")
+                    shutil.move(f"{base_dir}/POTCAR", dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
-                except Exception as ex:
-                    print(f"An error has occurred. Message is {str(ex)}. Trying to continue... ")
+                except Exception as exc:
+                    print(f"An error has occurred. Message is {exc}. Trying to continue... ")
 
     print(
         "\nPSP resources directory generated. It is recommended that you "
-        f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(targetdir)}'"
+        f"run 'pmg config --add PMG_VASP_PSP_DIR {os.path.abspath(target_dir)}'"
     )
     print("Start a new terminal to ensure that your environment variables are properly set.")
 
 
 def build_enum(fortran_command: str = "gfortran") -> bool:
-    """
-    Build enum.
+    """Build enum.
 
     :param fortran_command:
     """
@@ -97,17 +179,16 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     state = True
     try:
         subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib.git"])
-        os.chdir(os.path.join(cwd, "enumlib", "symlib", "src"))
+        os.chdir(f"{cwd}/enumlib/symlib/src")
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
-        enumpath = os.path.join(cwd, "enumlib", "src")
+        enumpath = f"{cwd}/enumlib/src"
         os.chdir(enumpath)
         subprocess.call(["make"])
-        for f in ["enum.x", "makestr.x"]:
-            subprocess.call(["make", f])
-            shutil.copy(f, os.path.join("..", ".."))
-    except Exception as ex:
-        print(ex)
+        subprocess.call(["make", "enum.x"])
+        shutil.copy("enum.x", os.path.join("..", ".."))
+    except Exception as exc:
+        print(exc)
         state = False
     finally:
         os.chdir(cwd)
@@ -116,13 +197,12 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
 
 
 def build_bader(fortran_command="gfortran"):
-    """
-    Build bader package.
+    """Build bader package.
 
     :param fortran_command:
     """
     bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
-    currdir = os.getcwd()
+    cwd = os.getcwd()
     state = True
     try:
         urlretrieve(bader_url, "bader.tar.gz")
@@ -135,11 +215,11 @@ def build_bader(fortran_command="gfortran"):
         shutil.rmtree("bader")
         os.remove("bader.tar.gz")
         shutil.move("bader_exe", "bader")
-    except Exception as ex:
-        print(str(ex))
+    except Exception as exc:
+        print(str(exc))
         state = False
     finally:
-        os.chdir(currdir)
+        os.chdir(cwd)
     return state
 
 
@@ -154,13 +234,11 @@ def install_software(install: Literal["enumlib", "bader"]):
             subprocess.call(["gfortran", "--version"])
             print("Found gfortran")
             fortran_command = "gfortran"
-        except Exception as ex:
-            print(str(ex))
-            print("No fortran compiler found.")
-            sys.exit(-1)
+        except Exception as exc:
+            print(str(exc))
+            raise SystemExit("No fortran compiler found.")
 
-    enum = None
-    bader = None
+    enum = bader = None
     if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
@@ -178,18 +256,28 @@ def install_software(install: Literal["enumlib", "bader"]):
 
 def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     """Add/update keys in .pmgrc.yaml config file."""
-    d = {}
-    if os.path.exists(SETTINGS_FILE):
-        if backup_suffix:
-            shutil.copy(SETTINGS_FILE, SETTINGS_FILE + backup_suffix)
-            print(f"Existing {SETTINGS_FILE} backed up to {SETTINGS_FILE}{backup_suffix}")
-        d = loadfn(SETTINGS_FILE)
     if len(tokens) % 2 != 0:
         raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
+    if os.path.exists(SETTINGS_FILE):
+        # read and write new config file if exists
+        rc_path = SETTINGS_FILE
+    elif os.path.exists(OLD_SETTINGS_FILE):
+        # else use old config file if exists
+        rc_path = OLD_SETTINGS_FILE
+    else:
+        # if neither exists, create new config file
+        rc_path = SETTINGS_FILE
+    dct = {}
+    if os.path.exists(rc_path):
+        if backup_suffix:
+            shutil.copy(rc_path, rc_path + backup_suffix)
+            print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
+        dct = loadfn(rc_path)
+    special_vals = {"true": True, "false": False, "none": None, "null": None}
     for key, val in zip(tokens[0::2], tokens[1::2]):
-        d[key] = val
-    dumpfn(d, SETTINGS_FILE)
-    print(f"New {SETTINGS_FILE} written!")
+        dct[key] = special_vals.get(val.lower(), val)
+    dumpfn(dct, rc_path)
+    print(f"New {rc_path} written!")
 
 
 def configure_pmg(args: Namespace):
@@ -200,3 +288,5 @@ def configure_pmg(args: Namespace):
         install_software(args.install)
     elif args.var_spec:
         add_config_var(args.var_spec, args.backup)
+    elif args.cp2k_data_dirs:
+        setup_cp2k_data(args.cp2k_data_dirs)

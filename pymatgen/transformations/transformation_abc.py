@@ -1,17 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Defines an abstract base class contract for Transformation object.
-"""
+"""Defines an abstract base class contract for Transformation object."""
 
 from __future__ import annotations
 
 import abc
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.core import Structure
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,24 +19,20 @@ __date__ = "Sep 23, 2011"
 
 
 class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
-    """
-    Abstract transformation class.
-    """
+    """Abstract transformation class."""
 
     @abc.abstractmethod
     def apply_transformation(self, structure: Structure):
-        """
-        Applies the transformation to a structure. Depending on whether a
+        """Applies the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.
 
         Args:
             structure:
                 input structure
-            return_ranked_list:
-                Boolean stating whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             depending on returned_ranked list, either a transformed structure
@@ -58,16 +51,14 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def inverse(self) -> AbstractTransformation | None:
-        """
-        Returns the inverse transformation if available.
+        """Returns the inverse transformation if available.
         Otherwise, should return None.
         """
 
     @property
     @abc.abstractmethod
     def is_one_to_many(self) -> bool:
-        """
-        Determines if a Transformation is a one-to-many transformation. If a
+        """Determines if a Transformation is a one-to-many transformation. If a
         Transformation is a one-to-many transformation, the
         apply_transformation method should have a keyword arg
         "return_ranked_list" which allows for the transformed structures to be
@@ -77,8 +68,7 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def use_multiprocessing(self) -> bool:
-        """
-        Indicates whether the transformation can be applied by a
+        """Indicates whether the transformation can be applied by a
         subprocessing pool. This should be overridden to return True for
         transformations that the transmuter can parallelize.
         """

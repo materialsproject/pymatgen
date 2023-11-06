@@ -1,1 +1,119 @@
-number,symbol,name,Empirical,Calculated,van der Waals,Covalent�(single bond),Covalent (triple bond),Metallic1,H,hydrogen,25,53,120,38,no data,2,He,helium,no data,31,140,32,no data,3,Li,lithium,145,167,182,134,no data,1524,Be,beryllium,105,112,153,90,85,1125,B,boron,85,87,192,82,73,6,C,carbon,70,67,170,77,60,7,N,nitrogen,65,56,155,75,54,8,O,oxygen,60,48,152,73,53,9,F,fluorine,50,42,147,71,53,10,Ne,neon,no data,38,154,69,no data,11,Na,sodium,180,190,227,154,no data,18612,Mg,magnesium,150,145,173,130,127,16013,Al,aluminium,125,118,184,118,111,14314,Si,silicon,110,111,210,111,102,15,P,phosphorus,100,98,180,106,94,16,S,sulfur,100,88,180,102,95,17,Cl,chlorine,100,79,175,99,93,18,Ar,argon,71,71,188,97,96,19,K,potassium,220,243,275,196,no data,22720,Ca,calcium,180,194,231,174,133,19721,Sc,scandium,160,184,211,144,114,16222,Ti,titanium,140,176,no data,136,108,14723,V,vanadium,135,171,no data,125,106,13424,Cr,chromium,140,166,no data,127,103,12825,Mn,manganese,140,161,no data,139,103,12726,Fe,iron,140,156,no data,125,102,12627,Co,cobalt,135,152,no data,126,96,12528,Ni,nickel,135,149,163,121,101,12429,Cu,copper,135,145,140,138,120,12830,Zn,zinc,135,142,139,131,no data,13431,Ga,gallium,130,136,187,126,121,13532,Ge,germanium,125,125,211,122,114,33,As,arsenic,115,114,185,119,106,34,Se,selenium,115,103,190,116,107,35,Br,bromine,115,94,185,114,110,36,Kr,krypton,no data,88,202,110,108,37,Rb,rubidium,235,265,303,211,no data,24838,Sr,strontium,200,219,249,192,139,21539,Y,yttrium,180,212,no data,162,124,18040,Zr,zirconium,155,206,no data,148,121,16041,Nb,niobium,145,198,no data,137,116,14642,Mo,molybdenum,145,190,no data,145,113,13943,Tc,technetium,135,183,no data,156,110,13644,Ru,ruthenium,130,178,no data,126,103,13445,Rh,rhodium,135,173,no data,135,106,13446,Pd,palladium,140,169,163,131,112,13747,Ag,silver,160,165,172,153,137,14448,Cd,cadmium,155,161,158,148,no data,15149,In,indium,155,156,193,144,146,16750,Sn,tin,145,145,217,141,132,51,Sb,antimony,145,133,206,138,127,52,Te,tellurium,140,123,206,135,121,53,I,iodine,140,115,198,133,125,54,Xe,xenon,no data,108,216,130,122,55,Cs,caesium,260,298,343,225,no data,26556,Ba,barium,215,253,268,198,149,22257,La,lanthanum,195,no data,no data,169,139,18758,Ce,cerium,185,no data,no data,no data,131,181.859,Pr,praseodymium,185,247,no data,no data,128,182.460,Nd,neodymium,185,206,no data,no data,no data,181.461,Pm,promethium,185,205,no data,no data,no data,183.462,Sm,samarium,185,238,no data,no data,no data,180.463,Eu,europium,185,231,no data,no data,no data,180.464,Gd,gadolinium,180,233,no data,no data,132,180.465,Tb,terbium,175,225,no data,no data,no data,177.366,Dy,dysprosium,175,228,no data,no data,no data,178.167,Ho,holmium,175,no data,no data,no data,no data,176.268,Er,erbium,175,226,no data,no data,no data,176.169,Tm,thulium,175,222,no data,no data,no data,175.970,Yb,ytterbium,175,222,no data,no data,no data,17671,Lu,lutetium,175,217,no data,160,131,173.872,Hf,hafnium,155,208,no data,150,122,15973,Ta,tantalum,145,200,no data,138,119,14674,W,tungsten,135,193,no data,146,115,13975,Re,rhenium,135,188,no data,159,110,13776,Os,osmium,130,185,no data,128,109,13577,Ir,iridium,135,180,no data,137,107,135.578,Pt,platinum,135,177,175,128,110,138.579,Au,gold,135,174,166,144,123,14480,Hg,mercury,150,171,155,149,no data,15181,Tl,thallium,190,156,196,148,150,17082,Pb,lead,180,154,202,147,137,83,Bi,bismuth,160,143,207,146,135,84,Po,polonium,190,135,197,no data,129,85,At,astatine,no data,no data,202,no data,138,86,Rn,radon,no data,120,220,145,133,87,Fr,francium,no data,no data,348,no data,no data,no data88,Ra,radium,215,no data,283,no data,159,no data89,Ac,actinium,195,no data,no data,no data,140,90,Th,thorium,180,no data,no data,no data,136,17991,Pa,protactinium,180,no data,no data,no data,129,16392,U,uranium,175,no data,186,no data,118,15693,Np,neptunium,175,no data,no data,no data,116,15594,Pu,plutonium,175,no data,no data,no data,no data,15995,Am,americium,175,no data,no data,no data,no data,17396,Cm,curium,no data,no data,no data,no data,no data,17497,Bk,berkelium,no data,no data,no data,no data,no data,17098,Cf,californium,no data,no data,no data,no data,no data,186+/- 299,Es,einsteinium,no data,no data,no data,no data,no data,186+/- 2100,Fm,fermium,no data,no data,no data,no data,no data,no data101,Md,mendelevium,no data,no data,no data,no data,no data,no data102,No,nobelium,no data,no data,no data,no data,no data,no data103,Lr,lawrencium,no data,no data,no data,no data,no data,no data104,Rf,rutherfordium,no data,no data,no data,no data,131,no data105,Db,dubnium,no data,no data,no data,no data,126,no data106,Sg,seaborgium,no data,no data,no data,no data,121,no data107,Bh,bohrium,no data,no data,no data,no data,119,no data108,Hs,hassium,no data,no data,no data,no data,118,no data109,Mt,meitnerium,no data,no data,no data,no data,113,no data110,Ds,darmstadtium,no data,no data,no data,no data,112,no data111,Rg,roentgenium,no data,no data,no data,no data,118,no data112,Cn,copernicium,no data,no data,no data,no data,130,no data113,Uut,ununtrium,no data,no data,no data,no data,no data,no data114,Fl,flerovium,no data,no data,no data,no data,no data,no data115,Uup,ununpentium,no data,no data,no data,no data,no data,no data116,Lv,livermorium,no data,no data,no data,no data,no data,no data117,Uus,ununseptium,no data,no data,no data,no data,no data,no data118,Uuo,ununoctium,no data,no data,no data,no data,no data,no data
+number,symbol,name,Empirical,Calculated,van der Waals,Covalent (single bond),Covalent (triple bond),Metallic
+1,H,hydrogen,25,53,120,38,no data,
+2,He,helium,no data,31,140,32,no data,
+3,Li,lithium,145,167,182,134,no data,152
+4,Be,beryllium,105,112,153,90,85,112
+5,B,boron,85,87,192,82,73,
+6,C,carbon,70,67,170,77,60,
+7,N,nitrogen,65,56,155,75,54,
+8,O,oxygen,60,48,152,73,53,
+9,F,fluorine,50,42,147,71,53,
+10,Ne,neon,no data,38,154,69,no data,
+11,Na,sodium,180,190,227,154,no data,186
+12,Mg,magnesium,150,145,173,130,127,160
+13,Al,aluminium,125,118,184,118,111,143
+14,Si,silicon,110,111,210,111,102,
+15,P,phosphorus,100,98,180,106,94,
+16,S,sulfur,100,88,180,102,95,
+17,Cl,chlorine,100,79,175,99,93,
+18,Ar,argon,71,71,188,97,96,
+19,K,potassium,220,243,275,196,no data,227
+20,Ca,calcium,180,194,231,174,133,197
+21,Sc,scandium,160,184,211,144,114,162
+22,Ti,titanium,140,176,no data,136,108,147
+23,V,vanadium,135,171,no data,125,106,134
+24,Cr,chromium,140,166,no data,127,103,128
+25,Mn,manganese,140,161,no data,139,103,127
+26,Fe,iron,140,156,no data,125,102,126
+27,Co,cobalt,135,152,no data,126,96,125
+28,Ni,nickel,135,149,163,121,101,124
+29,Cu,copper,135,145,140,138,120,128
+30,Zn,zinc,135,142,139,131,no data,134
+31,Ga,gallium,130,136,187,126,121,135
+32,Ge,germanium,125,125,211,122,114,
+33,As,arsenic,115,114,185,119,106,
+34,Se,selenium,115,103,190,116,107,
+35,Br,bromine,115,94,185,114,110,
+36,Kr,krypton,no data,88,202,110,108,
+37,Rb,rubidium,235,265,303,211,no data,248
+38,Sr,strontium,200,219,249,192,139,215
+39,Y,yttrium,180,212,no data,162,124,180
+40,Zr,zirconium,155,206,no data,148,121,160
+41,Nb,niobium,145,198,no data,137,116,146
+42,Mo,molybdenum,145,190,no data,145,113,139
+43,Tc,technetium,135,183,no data,156,110,136
+44,Ru,ruthenium,130,178,no data,126,103,134
+45,Rh,rhodium,135,173,no data,135,106,134
+46,Pd,palladium,140,169,163,131,112,137
+47,Ag,silver,160,165,172,153,137,144
+48,Cd,cadmium,155,161,158,148,no data,151
+49,In,indium,155,156,193,144,146,167
+50,Sn,tin,145,145,217,141,132,
+51,Sb,antimony,145,133,206,138,127,
+52,Te,tellurium,140,123,206,135,121,
+53,I,iodine,140,115,198,133,125,
+54,Xe,xenon,no data,108,216,130,122,
+55,Cs,caesium,260,298,343,225,no data,265
+56,Ba,barium,215,253,268,198,149,222
+57,La,lanthanum,195,no data,no data,169,139,187
+58,Ce,cerium,185,no data,no data,no data,131,181.8
+59,Pr,praseodymium,185,247,no data,no data,128,182.4
+60,Nd,neodymium,185,206,no data,no data,no data,181.4
+61,Pm,promethium,185,205,no data,no data,no data,183.4
+62,Sm,samarium,185,238,no data,no data,no data,180.4
+63,Eu,europium,185,231,no data,no data,no data,180.4
+64,Gd,gadolinium,180,233,no data,no data,132,180.4
+65,Tb,terbium,175,225,no data,no data,no data,177.3
+66,Dy,dysprosium,175,228,no data,no data,no data,178.1
+67,Ho,holmium,175,no data,no data,no data,no data,176.2
+68,Er,erbium,175,226,no data,no data,no data,176.1
+69,Tm,thulium,175,222,no data,no data,no data,175.9
+70,Yb,ytterbium,175,222,no data,no data,no data,176
+71,Lu,lutetium,175,217,no data,160,131,173.8
+72,Hf,hafnium,155,208,no data,150,122,159
+73,Ta,tantalum,145,200,no data,138,119,146
+74,W,tungsten,135,193,no data,146,115,139
+75,Re,rhenium,135,188,no data,159,110,137
+76,Os,osmium,130,185,no data,128,109,135
+77,Ir,iridium,135,180,no data,137,107,135.5
+78,Pt,platinum,135,177,175,128,110,138.5
+79,Au,gold,135,174,166,144,123,144
+80,Hg,mercury,150,171,155,149,no data,151
+81,Tl,thallium,190,156,196,148,150,170
+82,Pb,lead,180,154,202,147,137,
+83,Bi,bismuth,160,143,207,146,135,
+84,Po,polonium,190,135,197,no data,129,
+85,At,astatine,no data,no data,202,no data,138,
+86,Rn,radon,no data,120,220,145,133,
+87,Fr,francium,no data,no data,348,no data,no data,no data
+88,Ra,radium,215,no data,283,no data,159,no data
+89,Ac,actinium,195,no data,no data,no data,140,
+90,Th,thorium,180,no data,no data,no data,136,179
+91,Pa,protactinium,180,no data,no data,no data,129,163
+92,U,uranium,175,no data,186,no data,118,156
+93,Np,neptunium,175,no data,no data,no data,116,155
+94,Pu,plutonium,175,no data,no data,no data,no data,159
+95,Am,americium,175,no data,no data,no data,no data,173
+96,Cm,curium,no data,no data,no data,no data,no data,174
+97,Bk,berkelium,no data,no data,no data,no data,no data,170
+98,Cf,californium,no data,no data,no data,no data,no data,186+/- 2
+99,Es,einsteinium,no data,no data,no data,no data,no data,186+/- 2
+100,Fm,fermium,no data,no data,no data,no data,no data,no data
+101,Md,mendelevium,no data,no data,no data,no data,no data,no data
+102,No,nobelium,no data,no data,no data,no data,no data,no data
+103,Lr,lawrencium,no data,no data,no data,no data,no data,no data
+104,Rf,rutherfordium,no data,no data,no data,no data,131,no data
+105,Db,dubnium,no data,no data,no data,no data,126,no data
+106,Sg,seaborgium,no data,no data,no data,no data,121,no data
+107,Bh,bohrium,no data,no data,no data,no data,119,no data
+108,Hs,hassium,no data,no data,no data,no data,118,no data
+109,Mt,meitnerium,no data,no data,no data,no data,113,no data
+110,Ds,darmstadtium,no data,no data,no data,no data,112,no data
+111,Rg,roentgenium,no data,no data,no data,no data,118,no data
+112,Cn,copernicium,no data,no data,no data,no data,130,no data
+113,Uut,ununtrium,no data,no data,no data,no data,no data,no data
+114,Fl,flerovium,no data,no data,no data,no data,no data,no data
+115,Uup,ununpentium,no data,no data,no data,no data,no data,no data
+116,Lv,livermorium,no data,no data,no data,no data,no data,no data
+117,Uus,ununseptium,no data,no data,no data,no data,no data,no data
+118,Uuo,ununoctium,no data,no data,no data,no data,no data,no data

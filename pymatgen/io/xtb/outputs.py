@@ -1,8 +1,7 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Parsers for XTB output files and directories
-"""
+"""Parsers for XTB output files and directories."""
+
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -23,19 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
-    """
-    Class to parse CREST output files
-    """
+    """Class to parse CREST output files."""
 
     def __init__(self, output_filename, path="."):
         """
-        Assumes runtype is iMTD-GC [default]
+        Assumes runtype is iMTD-GC [default].
+
         Args:
             output_filename (str): Filename to parse
             path (str): Path to directory including output_filename and all
                 other xtb output files (crest_best.xyz, etc.)
         """
-
         self.path = path
         self.filename = output_filename
 
@@ -53,7 +50,7 @@ class CRESTOutput(MSONable):
             sorted_structrues_energies: n x m x 2 list, for n conformers,
                 m rotamers per conformer, and tuple of
                 [Molecule, energy]
-            properly_terminated: True or False if run properly terminated
+            properly_terminated: True or False if run properly terminated.
         """
         output_filepath = os.path.join(self.path, self.filename)
 
@@ -77,27 +74,19 @@ class CRESTOutput(MSONable):
         # Get CREST input flags
         for i, entry in enumerate(split_cmd):
             value = None
-            if entry:
-                if "-" in entry:
-                    option = entry[1:]
-                    if i + 1 < len(split_cmd):
-                        if "-" not in split_cmd[i + 1]:
-                            value = split_cmd[i + 1]
-                    self.cmd_options[option] = value
+            if entry and "-" in entry:
+                option = entry[1:]
+                if i + 1 < len(split_cmd) and "-" not in split_cmd[i + 1]:
+                    value = split_cmd[i + 1]
+                self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
-        if "chrg" in self.cmd_options.keys():
+        if "chrg" in self.cmd_options:
             str_chg = self.cmd_options["chrg"]
-            if "-" in str_chg:
-                chg = int(str_chg)
-            else:
-                chg = int(str_chg[-1])
-        elif "c" in self.cmd_options.keys():
+            chg = int(str_chg) if "-" in str_chg else int(str_chg[-1])
+        elif "c" in self.cmd_options:
             str_chg = self.cmd_options["c"]
-            if "-" in str_chg:
-                chg = int(str_chg)
-            else:
-                chg = int(str_chg[-1])
+            chg = int(str_chg) if "-" in str_chg else int(str_chg[-1])
 
         # Check for proper termination
         with open(output_filepath, "rb+") as xtbout_file:

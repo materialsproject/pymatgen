@@ -1,15 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module defines classes to represent all xas and stitching methods
-"""
+"""This module defines classes to represent all xas and stitching methods."""
 
 from __future__ import annotations
 
 import math
 import warnings
-from typing import List, Literal
+from typing import Literal
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -38,27 +33,16 @@ class XAS(Spectrum):
         edge (str): Absorption edge associated with the spectrum
         spectrum_type (str): 'XANES' or 'EXAFS'
         absorbing_index (None or int): If None, the spectrum is assumed to be a
-         site-weighted spectrum, which is comparable to experimental one.
-         Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
+            site-weighted spectrum, which is comparable to experimental one.
+            Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
 
-
-    .. attribute: x
-        The sequence of energies
-
-    .. attribute: y
-        The sequence of mu(E)
-
-    .. attribute: absorbing_element
-        The absorbing_element of the spectrum
-
-    .. attribute: edge
-        The edge of the spectrum
-
-    .. attribute: spectrum_type
-        XANES or EXAFS spectrum
-
-    .. attribute: absorbing_index
-        The absorbing_index of the spectrum
+    Attributes:
+        x (Sequence[float]): The sequence of energies.
+        y (Sequence[float]): The sequence of mu(E).
+        absorbing_element (str): The absorbing element of the spectrum.
+        edge (str): The edge of the spectrum.
+        spectrum_type (str): The type of the spectrum (XANES or EXAFS).
+        absorbing_index (int): The absorbing index of the spectrum.
     """
 
     XLABEL = "Energy"
@@ -74,10 +58,7 @@ class XAS(Spectrum):
         spectrum_type="XANES",
         absorbing_index=None,
     ):
-        """
-        Initializes a spectrum object.
-        """
-
+        """Initializes a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
         self.absorbing_element = absorbing_element
@@ -90,12 +71,12 @@ class XAS(Spectrum):
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
         if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
+            raise ValueError("Double check the intensities. Most of them are non-positive.")
 
     def __str__(self):
         return (
             f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
-            f"for {self.structure.composition.reduced_formula}: {super().__str__()}"
+            f"for {self.structure.composition.reduced_formula}: {super()}"
         )
 
     def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:
@@ -142,13 +123,14 @@ class XAS(Spectrum):
                 raise ValueError("Energy overlap between XANES and EXAFS is needed for stitching")
 
             # for k <= 3
-            wavenumber, mu = [], []  # type: List[float],  List[float]
+            wavenumber: list[float] = []
+            mu: list[float] = []
             idx = xanes.k.index(min(self.k, key=lambda x: (abs(x - 3), x)))
             mu.extend(xanes.y[:idx])
             wavenumber.extend(xanes.k[:idx])
 
             # for 3 < k < max(xanes.k)
-            fs = []  # type: List[float]
+            fs: list[float] = []
             ks = np.linspace(3, max(xanes.k), 50)
             for k in ks:
                 f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2
@@ -180,9 +162,7 @@ class XAS(Spectrum):
             f_final = interp1d(np.asarray(wavenumber), np.asarray(mu), bounds_error=False, fill_value=0)
             wavenumber_final = np.linspace(min(wavenumber), max(wavenumber), num=num_samples)
             mu_final = f_final(wavenumber_final)
-            energy_final = [
-                3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final
-            ]
+            energy_final = [3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final]
 
             return XAS(
                 energy_final,

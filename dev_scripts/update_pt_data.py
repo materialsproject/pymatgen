@@ -2,15 +2,17 @@
 
 """
 Developer script to convert yaml periodic table to json format.
-Created on Nov 15, 2011
+Created on Nov 15, 2011.
 """
+
+from __future__ import annotations
 
 import json
 import re
 from itertools import product
 
-import ruamel.yaml as yaml
 from monty.serialization import dumpfn, loadfn
+from ruamel import yaml
 
 from pymatgen.core import Element
 from pymatgen.core.periodic_table import get_el_sp
@@ -32,17 +34,17 @@ def parse_oxi_state():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("oxidation_states.txt") as f:
-        oxidata = f.read()
-    oxidata = re.sub("[\n\r]", "", oxidata)
+        oxi_data = f.read()
+    oxi_data = re.sub("[\n\r]", "", oxi_data)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
 
-    for m in patt.finditer(oxidata):
+    for m in patt.finditer(oxi_data):
         line = m.group(1)
         line = re.sub("</td>", "", line)
         line = re.sub("(<td>)+", "<td>", line)
         line = re.sub("</*a[^>]*>", "", line)
         el = None
-        oxistates = []
+        oxi_states = []
         common_oxi = []
         for tok in re.split("<td>", line.strip()):
             m2 = re.match(r"<b>([A-Z][a-z]*)</b>", tok)
@@ -51,7 +53,7 @@ def parse_oxi_state():
             else:
                 m3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
                 if m3:
-                    oxistates.append(int(m3.group(2)))
+                    oxi_states.append(int(m3.group(2)))
                     if m3.group(1):
                         common_oxi.append(int(m3.group(2)))
         if el in data:
@@ -59,7 +61,7 @@ def parse_oxi_state():
             del data[el]["Min oxidation state"]
             del data[el]["Oxidation_states"]
             del data[el]["Common_oxidation_states"]
-            data[el]["Oxidation states"] = oxistates
+            data[el]["Oxidation states"] = oxi_states
             data[el]["Common oxidation states"] = common_oxi
         else:
             print(el)
@@ -71,21 +73,21 @@ def parse_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("ionic_radii.csv") as f:
-        radiidata = f.read()
-    radiidata = radiidata.split("\r")
-    header = radiidata[0].split(",")
-    for i in range(1, len(radiidata)):
-        line = radiidata[i]
-        toks = line.strip().split(",")
+        radii_data = f.read()
+    radii_data = radii_data.split("\r")
+    header = radii_data[0].split(",")
+    for idx in range(1, len(radii_data)):
+        line = radii_data[idx]
+        tokens = line.strip().split(",")
         suffix = ""
-        name = toks[1]
+        name = tokens[1]
         if len(name.split(" ")) > 1:
             suffix = "_" + name.split(" ")[1]
-        el = toks[2]
+        el = tokens[2]
 
         ionic_radii = {}
-        for j in range(3, len(toks)):
-            m = re.match(r"^\s*([0-9\.]+)", toks[j])
+        for j in range(3, len(tokens)):
+            m = re.match(r"^\s*([0-9\.]+)", tokens[j])
             if m:
                 ionic_radii[int(header[j])] = float(m.group(1))
 
@@ -103,27 +105,26 @@ def parse_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("radii.csv") as f:
-        radiidata = f.read()
-    radiidata = radiidata.split("\r")
+        radii_data = f.read()
+    radii_data = radii_data.split("\r")
 
-    for i in range(1, len(radiidata)):
-        line = radiidata[i]
-        toks = line.strip().split(",")
-        el = toks[1]
+    for line in radii_data:
+        tokens = line.strip().split(",")
+        el = tokens[1]
         try:
-            atomic_radii = float(toks[3]) / 100
+            atomic_radii = float(tokens[3]) / 100
         except Exception:
-            atomic_radii = toks[3]
-
-        try:
-            atomic_radii_calc = float(toks[4]) / 100
-        except Exception:
-            atomic_radii_calc = toks[4]
+            atomic_radii = tokens[3]
 
         try:
-            vdw_radii = float(toks[5]) / 100
+            atomic_radii_calc = float(tokens[4]) / 100
         except Exception:
-            vdw_radii = toks[5]
+            atomic_radii_calc = tokens[4]
+
+        try:
+            vdw_radii = float(tokens[5]) / 100
+        except Exception:
+            vdw_radii = tokens[5]
 
         if el in data:
             data[el]["Atomic radius"] = atomic_radii
@@ -141,7 +142,7 @@ def update_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
 
-    for el, d in data.items():
+    for d in data.values():
         if "Ionic_radii" in d:
             d["Ionic radii"] = {k: v / 100 for k, v in d["Ionic_radii"].items()}
             del d["Ionic_radii"]
@@ -169,29 +170,26 @@ def parse_shannon_radii():
     sheet = wb["Sheet1"]
     i = 2
     radii = collections.defaultdict(dict)
-    while sheet[f"E{int(i)}"].value:
-        if sheet[f"A{int(i)}"].value:
-            el = sheet[f"A{int(i)}"].value
-        if sheet[f"B{int(i)}"].value:
-            charge = int(sheet[f"B{int(i)}"].value)
-            radii[el][charge] = dict()
-        if sheet[f"C{int(i)}"].value:
-            cn = sheet[f"C{int(i)}"].value
+    while sheet[f"E{i}"].value:
+        if sheet[f"A{i}"].value:
+            el = sheet[f"A{i}"].value
+        if sheet[f"B{i}"].value:
+            charge = int(sheet[f"B{i}"].value)
+            radii[el][charge] = {}
+        if sheet[f"C{i}"].value:
+            cn = sheet[f"C{i}"].value
             if cn not in radii[el][charge]:
-                radii[el][charge][cn] = dict()
+                radii[el][charge][cn] = {}
 
-        if sheet[f"D{int(i)}"].value is not None:
-            spin = sheet[f"D{int(i)}"].value
-        else:
-            spin = ""
+        spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
 
         radii[el][charge][cn][spin] = {
-            "crystal_radius": float(sheet[f"E{int(i)}"].value),
-            "ionic_radius": float(sheet[f"F{int(i)}"].value),
+            "crystal_radius": float(sheet[f"E{i}"].value),
+            "ionic_radius": float(sheet[f"F{i}"].value),
         }
         i += 1
 
-    for el in radii.keys():
+    for el in radii:
         if el in data:
             data[el]["Shannon radii"] = dict(radii[el])
 
@@ -252,9 +250,7 @@ def gen_iupac_ordering():
 
 
 def add_electron_affinities():
-    """
-    Update the periodic table data file with electron affinities.
-    """
+    """Update the periodic table data file with electron affinities."""
     import requests
     from bs4 import BeautifulSoup
 
@@ -271,18 +267,16 @@ def add_electron_affinities():
         data.append(row)
     data.pop(0)
     ea = {int(r[0]): float(re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))) for r in data}
-    assert set(ea.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+    assert set(ea).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     print(ea)
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
-        v["Electron affinity"] = ea.get(Element(k).Z, None)
+        v["Electron affinity"] = ea.get(Element(k).Z)
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 
 def add_ionization_energies():
-    """
-    Update the periodic table data file with ground level and ionization energies from NIST.
-    """
+    """Update the periodic table data file with ground level and ionization energies from NIST."""
     import collections
 
     from bs4 import BeautifulSoup
@@ -298,14 +292,11 @@ def add_ionization_energies():
         if row:
             Z = int(row[0])
             val = re.sub(r"\s", "", row[8].strip("()[]"))
-            if val == "":
-                val = None
-            else:
-                val = float(val)
+            val = None if val == "" else float(val)
             data[Z].append(val)
     print(data)
     print(data[51])
-    assert set(data.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+    assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
         del v["Ionization energy"]

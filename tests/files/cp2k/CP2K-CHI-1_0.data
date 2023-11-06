@@ -1,0 +1,20 @@
+ Magnetic Susceptibility Tensor                                                  
+ CHI from SOFT J in 10^-30 J/T^2 units
+  XX =     5.9508  XY =    -1.6579  XZ =    -1.6579
+  YX =    -1.6579  YY =     5.9508  YZ =    -1.6579
+  ZX =    -1.6579  ZY =    -1.6579  ZZ =     5.9508
+ CHI from LOCAL J in 10^-30 J/T^2 units
+  XX =     0.0000  XY =     0.0000  XZ =     0.0000
+  YX =     0.0000  YY =     0.0000  YZ =     0.0000
+  ZX =     0.0000  ZY =     0.0000  ZZ =     0.0000
+ Total CHI in 10^-30 J/T^2 units
+  XX =     5.9508  XY =    -1.6579  XZ =    -1.6579
+  YX =    -1.6579  YY =     5.9508  YZ =    -1.6579
+  ZX =    -1.6579  ZY =    -1.6579  ZZ =     5.9508
+ Total CHI in ppm-cgs units
+  XX =     0.3584  XY =    -0.0998  XZ =    -0.0998
+  YX =    -0.0998  YY =     0.3584  YZ =    -0.0998
+  ZX =    -0.0998  ZY =    -0.0998  ZZ =     0.3584
+
+  PV1=    0.1587  PV2=    0.4582  PV3=    0.4582
+  ISO=    0.3584          ANISO=    0.1498

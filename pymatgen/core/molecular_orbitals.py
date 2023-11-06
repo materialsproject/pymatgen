@@ -1,10 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module implements a MolecularOrbital class to represent band character in
+"""This module implements a MolecularOrbital class to represent band character in
 solids. Useful for predicting PDOS character from structural information.
 """
+
+from __future__ import annotations
 
 from itertools import chain, combinations
 
@@ -13,8 +11,7 @@ from pymatgen.core.periodic_table import Element
 
 
 class MolecularOrbitals:
-    """
-    Represents the character of bands in a solid. The input is a chemical
+    """Represents the character of bands in a solid. The input is a chemical
     formula, since no structural characteristics are taken into account.
 
     The band character of a crystal emerges from the atomic orbitals of the
@@ -26,40 +23,33 @@ class MolecularOrbitals:
 
     The atomic orbital energies are stored in pymatgen.core.periodic_table.JSON
 
-    >>> MOs = MolecularOrbitals('SrTiO3')
-    >>> MOs.band_edges
-    {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
+    MOs = MolecularOrbitals('SrTiO3')
+    MOs.band_edges
+    # gives {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
     """
 
     def __init__(self, formula):
         """
         Args:
-            chemical formula as a string. formula must have integer subscripts
-            Ex: 'SrTiO3'
+            formula (str): Chemical formula. Must have integer subscripts. Ex: 'SrTiO3'.
 
         Attributes:
-            composition: the composition as a dictionary.
-                         Ex: {'Sr': 1, 'Ti': 1, 'O', 3}
-            elements:    the dictionary keys for the composition
-            elec_neg:    the maximum pairwise electronegativity difference
-            aos:         the consituant atomic orbitals for each element as a
-                         dictionary
-            band_edges:  dictionary containing the highest occupied molecular
-                         orbital (HOMO), lowest unoccupied molecular orbital
-                         (LUMO), and whether the material is predicted to be a
-                         metal
+            composition: the composition as a dictionary. Ex: {'Sr': 1, 'Ti': 1, 'O', 3}
+            elements: the dictionary keys for the composition
+            elec_neg: the maximum pairwise electronegativity difference
+            aos: the constituent atomic orbitals for each element as a dictionary
+            band_edges: dictionary containing the highest occupied molecular orbital (HOMO),
+                lowest unoccupied molecular orbital (LUMO), and whether the material is predicted
+                to be a metal
         """
         self.composition = Composition(formula).as_dict()
-        self.elements = self.composition.keys()
+        self.elements = list(self.composition)
         for subscript in self.composition.values():
             if not float(subscript).is_integer():
                 raise ValueError("composition subscripts must be integers")
 
         self.elec_neg = self.max_electronegativity()
-        self.aos = {
-            str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()]  # pylint: disable=E1101
-            for el in self.elements
-        }
+        self.aos = {str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()] for el in self.elements}
         self.band_edges = self.obtain_band_edges()
 
     def max_electronegativity(self):
@@ -74,14 +64,13 @@ class MolecularOrbitals:
         return maximum
 
     def aos_as_list(self):
-        """
+        """The orbitals energies in eV are represented as
+        [['O', '1s', -18.758245], ['O', '2s', -0.871362], ['O', '2p', -0.338381]]
+        Data is obtained from
+        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations.
+
         Returns:
             A list of atomic orbitals, sorted from lowest to highest energy.
-
-            The orbitals energies in eV are represented as
-                [['O', '1s', -18.758245], ['O', '2s', -0.871362], ['O', '2p', -0.338381]]
-            Data is obtained from
-            https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
         """
         return sorted(
             chain.from_iterable([self.aos[el] * int(self.composition[el]) for el in self.elements]),
@@ -89,8 +78,8 @@ class MolecularOrbitals:
         )
 
     def obtain_band_edges(self):
-        """
-        Fill up the atomic orbitals with available electrons.
+        """Fill up the atomic orbitals with available electrons.
+
         Returns:
             HOMO, LUMO, and whether it's a metal.
         """

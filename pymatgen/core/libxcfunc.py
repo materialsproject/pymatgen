@@ -1,12 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Enumerator with the libxc identifiers.
+"""Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
 but use the API provided by the Xcfunc object defined in core.xcfunc.py.
 Part of this module is automatically generated so be careful when refactoring stuff.
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
+
+from __future__ import annotations
 
 import json
 import os
@@ -32,8 +31,7 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
 
 # @unique
 class LibxcFunc(Enum):
-    """
-    Enumerator with the identifiers. This object is used by Xcfunc
+    """Enumerator with the identifiers. This object is used by Xcfunc
     declared in xcfunc.py to create an internal representation of the XC functional.
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
@@ -405,109 +403,99 @@ class LibxcFunc(Enum):
 
     # end_include_dont_touch
 
-    def __init__(self, num):
+    def __init__(self, _num):
         """
-        Init.
-
-        :param num: Number for the xc.
+        Args:
+            num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
-        self.kind = info["Kind"]
-        self.family = info["Family"]
+        self.kind = info["Kind"]  # type: ignore
+        self.family = info["Family"]  # type: ignore
 
-    def __str__(self):
-        return f"name={self.name}, kind={self.kind}, family={self.family}"
+    def __repr__(self):
+        name, kind, family = self.name, self.kind, self.family
+        return f"{type(self).__name__}({name=}, {kind=}, {family=})"
 
     @staticmethod
     def all_families():
-        """
-        List of strings with the libxc families.
-        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
+        """List of strings with the libxc families.
+        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
         """
         return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
-        """
-        List of strings with the libxc kinds.
+        """List of strings with the libxc kinds.
         Also in this case, the string is obtained by remove the XC_ prefix.
-        XC_CORRELATION --> CORRELATION
+        XC_CORRELATION --> CORRELATION.
         """
         return sorted({d["Kind"] for d in _all_xcfuncs.values()})
 
     @property
     def info_dict(self):
-        """Dictionary with metadata. see libxc_docs.json"""
+        """Dictionary with metadata. see libxc_docs.json."""
         return _all_xcfuncs[self.value]
 
     @property
-    def is_x_kind(self):
-        """True if this is an exchange-only functional"""
+    def is_x_kind(self) -> bool:
+        """True if this is an exchange-only functional."""
         return self.kind == "EXCHANGE"
 
     @property
-    def is_c_kind(self):
-        """True if this is a correlation-only functional"""
+    def is_c_kind(self) -> bool:
+        """True if this is a correlation-only functional."""
         return self.kind == "CORRELATION"
 
     @property
-    def is_k_kind(self):
-        """True if this is a kinetic functional"""
+    def is_k_kind(self) -> bool:
+        """True if this is a kinetic functional."""
         return self.kind == "KINETIC"
 
     @property
-    def is_xc_kind(self):
-        """True if this is a exchange+correlation functional"""
+    def is_xc_kind(self) -> bool:
+        """True if this is a exchange+correlation functional."""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
-    def is_lda_family(self):
+    def is_lda_family(self) -> bool:
         """True if this functional belongs to the LDA family."""
         return self.family == "LDA"
 
     @property
-    def is_gga_family(self):
+    def is_gga_family(self) -> bool:
         """True if this functional belongs to the GGA family."""
         return self.family == "GGA"
 
     @property
-    def is_mgga_family(self):
+    def is_mgga_family(self) -> bool:
         """True if this functional belongs to the meta-GGA family."""
         return self.family == "MGGA"
 
     @property
-    def is_hyb_gga_family(self):
+    def is_hyb_gga_family(self) -> bool:
         """True if this functional belongs to the hybrid + GGA family."""
         return self.family == "HYB_GGA"
 
     @property
-    def is_hyb_mgga_family(self):
+    def is_hyb_mgga_family(self) -> bool:
         """True if this functional belongs to the hybrid + meta-GGA family."""
         return self.family == "HYB_MGGA"
 
     def as_dict(self):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {
-            "name": self.name,
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-        }
+        return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
 
-    @staticmethod
-    def from_dict(d):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+    @classmethod
+    def from_dict(cls, dct):
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return LibxcFunc[d["name"]]
+        return cls[dct["name"]]
 
     def to_json(self):
-        """
-        Returns a json string representation of the MSONable object.
-        """
+        """Returns a json string representation of the MSONable object."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
 
 

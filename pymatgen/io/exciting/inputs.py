@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Classes for reading/manipulating/writing exciting input files."""
 
-"""
-Classes for reading/manipulating/writing exciting input files.
-"""
+from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
@@ -32,30 +29,21 @@ class ExcitingInput(MSONable):
     Object for representing the data stored in the structure part of the
     exciting input.
 
-    .. attribute:: structure
-
-        Associated Structure.
-
-    .. attribute:: title
-
-        Optional title string.
-
-    .. attribute:: lockxyz
-
-        Lockxyz attribute for each site if available. A Nx3 array of
-        booleans.
+    Attributes:
+        structure (Structure): Associated Structure.
+        title (str): Optional title string.
+        lockxyz (numpy.ndarray): Lockxyz attribute for each site if available. A Nx3 array of booleans.
     """
 
-    def __init__(self, structure, title=None, lockxyz=None):
+    def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
-            structure (Structure):  Structure object.
+            structure (Structure): Structure object.
             title (str): Optional title for exciting input. Defaults to unit
                 cell formula of structure. Defaults to None.
             lockxyz (Nx3 array): bool values for selective dynamics,
                 where N is number of sites. Defaults to None.
         """
-
         if structure.is_ordered:
             site_properties = {}
             if lockxyz:
@@ -70,23 +58,23 @@ class ExcitingInput(MSONable):
 
     @property
     def lockxyz(self):
-        """
-        :return: Selective dynamics site properties.
-        """
+        """Selective dynamics site properties."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @lockxyz.setter
     def lockxyz(self, lockxyz):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
-    @staticmethod
-    def from_string(data):
-        """
-        Reads the exciting input from a string
-        """
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
+    @classmethod
+    def from_str(cls, data):
+        """Reads the exciting input from a string."""
         root = ET.fromstring(data)
-        speciesnode = root.find("structure").iter("species")
+        species_node = root.find("structure").iter("species")
         elements = []
         positions = []
         vectors = []
@@ -94,7 +82,7 @@ class ExcitingInput(MSONable):
         # get title
         title_in = str(root.find("title").text)
         # Read elements and coordinates
-        for nodes in speciesnode:
+        for nodes in species_node:
             symbol = nodes.get("speciesfile").split(".")[0]
             if len(symbol.split("_")) == 2:
                 symbol = symbol.split("_")[0]
@@ -110,8 +98,8 @@ class ExcitingInput(MSONable):
                 # Obtain lockxyz for each atom
                 if atom.get("lockxyz") is not None:
                     lxyz = []
-                    for l in atom.get("lockxyz").split():
-                        if l in ("True", "true"):
+                    for line in atom.get("lockxyz").split():
+                        if line in ("True", "true"):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
@@ -119,10 +107,10 @@ class ExcitingInput(MSONable):
                 else:
                     lockxyz.append([False, False, False])
         # check the atomic positions type
-        if "cartesian" in root.find("structure").attrib.keys():
+        if "cartesian" in root.find("structure").attrib:
             if root.find("structure").attrib["cartesian"]:
                 cartesian = True
-                for i, p in enumerate(positions):
+                for p in positions:
                     for j in range(3):
                         p[j] = p[j] * ExcitingInput.bohr2ang
                 print(positions)
@@ -130,16 +118,10 @@ class ExcitingInput(MSONable):
             cartesian = False
         # get the scale attribute
         scale_in = root.find("structure").find("crystal").get("scale")
-        if scale_in:
-            scale = float(scale_in) * ExcitingInput.bohr2ang
-        else:
-            scale = ExcitingInput.bohr2ang
+        scale = float(scale_in) * ExcitingInput.bohr2ang if scale_in else ExcitingInput.bohr2ang
         # get the stretch attribute
         stretch_in = root.find("structure").find("crystal").get("stretch")
-        if stretch_in:
-            stretch = np.array([float(a) for a in stretch_in])
-        else:
-            stretch = np.array([1.0, 1.0, 1.0])
+        stretch = np.array([float(a) for a in stretch_in]) if stretch_in else np.array([1.0, 1.0, 1.0])
         # get basis vectors and scale them accordingly
         basisnode = root.find("structure").find("crystal").iter("basevect")
         for vect in basisnode:
@@ -155,33 +137,35 @@ class ExcitingInput(MSONable):
         lattice_in = Lattice(vectors)
         structure_in = Structure(lattice_in, elements, positions, coords_are_cartesian=cartesian)
 
-        return ExcitingInput(structure_in, title_in, lockxyz)
+        return cls(structure_in, title_in, lockxyz)
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         :param filename: Filename
-        :return: ExcitingInput
+
+        Returns:
+            ExcitingInput
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
-        return ExcitingInput.from_string(data)
+        return cls.from_str(data)
 
-    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
+    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
         Writes the exciting input parameters to an xml object.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
-            from self.structure ("unchanged"), the conventional cell
-            ("conventional"), or the primitive unit cell ("primitive").
+                from self.structure ("unchanged"), the conventional cell
+                ("conventional"), or the primitive unit cell ("primitive").
 
             cartesian (bool): Whether the atomic positions are provided in
-            Cartesian or unit-cell coordinates. Default is False.
+                Cartesian or unit-cell coordinates. Default is False.
 
             bandstr (bool): Whether the bandstructure path along the
-            HighSymmKpath is included in the input file. Only supported if the
-            celltype is set to "primitive". Default is False.
+                HighSymmKpath is included in the input file. Only supported if the
+                celltype is set to "primitive". Default is False.
 
             symprec (float): Tolerance for the symmetry finding. Default is 0.4.
 
@@ -222,14 +206,14 @@ class ExcitingInput(MSONable):
 
         # write lattice
         basis = new_struct.lattice.matrix
-        for i in range(3):
-            basevect = ET.SubElement(crystal, "basevect")
-            basevect.text = f"{basis[i][0]:16.8f} {basis[i][1]:16.8f} {basis[i][2]:16.8f}"
+        for idx in range(3):
+            base_vec = ET.SubElement(crystal, "basevect")
+            base_vec.text = f"{basis[idx][0]:16.8f} {basis[idx][1]:16.8f} {basis[idx][2]:16.8f}"
         # write atomic positions for each species
         index = 0
-        for i in sorted(new_struct.types_of_species, key=lambda el: el.X):
-            species = ET.SubElement(structure, "species", speciesfile=i.symbol + ".xml")
-            sites = new_struct.indices_from_symbol(i.symbol)
+        for elem in sorted(new_struct.types_of_species, key=lambda el: el.X):
+            species = ET.SubElement(structure, "species", speciesfile=elem.symbol + ".xml")
+            sites = new_struct.indices_from_symbol(elem.symbol)
 
             for j in sites:
                 fc = new_struct[j].frac_coords
@@ -253,12 +237,12 @@ class ExcitingInput(MSONable):
         if bandstr and celltype == "primitive":
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop = ET.SubElement(root, "properties")
-            bandstrct = ET.SubElement(prop, "bandstructure")
-            for i in range(len(kpath.kpath["path"])):
-                plot = ET.SubElement(bandstrct, "plot1d")
+            band_struct = ET.SubElement(prop, "bandstructure")
+            for idx in range(len(kpath.kpath["path"])):
+                plot = ET.SubElement(band_struct, "plot1d")
                 path = ET.SubElement(plot, "path", steps="100")
-                for j in range(len(kpath.kpath["path"][i])):
-                    symbol = kpath.kpath["path"][i][j]
+                for j in range(len(kpath.kpath["path"][idx])):
+                    symbol = kpath.kpath["path"][idx][j]
                     coords = kpath.kpath["kpoints"][symbol]
                     coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
                     if symbol == "\\Gamma":
@@ -275,7 +259,7 @@ class ExcitingInput(MSONable):
 
         return root
 
-    def write_string(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
+    def write_string(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input.xml as a string.
 
@@ -310,7 +294,9 @@ class ExcitingInput(MSONable):
             raise ValueError("Incorrect celltype!")
         return string
 
-    def write_file(self, celltype, filename, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
+    def write_file(
+        self, celltype, filename, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs
+    ):
         """
         Writes exciting input file.
 
@@ -351,7 +337,6 @@ class ExcitingInput(MSONable):
 
         :param elem:
         :param level:
-        :return:
         """
         i = "\n" + level * "  "
         if len(elem):
@@ -363,9 +348,8 @@ class ExcitingInput(MSONable):
                 ExcitingInput._indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+        elif level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
     def _dicttoxml(self, paramdict_, element):
         for key, value in paramdict_.items():

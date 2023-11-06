@@ -1,15 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements classes and methods for processing LAMMPS output
 files (log and dump).
 """
 
+from __future__ import annotations
 
-import glob
 import re
+from glob import glob
 from io import StringIO
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -17,6 +16,9 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.io.lammps.data import LammpsBox
+
+if TYPE_CHECKING:
+    from typing import Any
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -27,20 +29,17 @@ __date__ = "Aug 1, 2018"
 
 
 class LammpsDump(MSONable):
-    """
-    Object for representing dump data for a single snapshot.
-    """
+    """Object for representing dump data for a single snapshot."""
 
-    def __init__(self, timestep, natoms, box, data):
+    def __init__(self, timestep: int, natoms: int, box: LammpsBox, data: pd.DataFrame) -> None:
         """
         Base constructor.
 
         Args:
-            timestep (int): Current timestep.
+            timestep (int): Current time step.
             natoms (int): Total number of atoms in the box.
             box (LammpsBox): Simulation box.
             data (pd.DataFrame): Dumped atomic data.
-
         """
         self.timestep = timestep
         self.natoms = natoms
@@ -48,17 +47,21 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    def from_string(cls, string):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs) -> LammpsDump:
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string: str) -> LammpsDump:
         """
         Constructor from string parsing.
 
         Args:
             string (str): Input string.
-
         """
         lines = string.split("\n")
         timestep = int(lines[1])
-        natoms = int(lines[3])
+        n_atoms = int(lines[3])
         box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
         bounds = box_arr[:, :2]
         tilt = None
@@ -70,13 +73,13 @@ class LammpsDump(MSONable):
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
         data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
-        return cls(timestep, natoms, box, data)
+        return cls(timestep, n_atoms, box, data)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> LammpsDump:
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             LammpsDump
@@ -86,18 +89,16 @@ class LammpsDump(MSONable):
         items["data"] = pd.read_json(d["data"], orient="split")
         return cls(**items)
 
-    def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["timestep"] = self.timestep
-        d["natoms"] = self.natoms
-        d["box"] = self.box.as_dict()
-        d["data"] = self.data.to_json(orient="split")
-        return d
+    def as_dict(self) -> dict[str, Any]:
+        """Returns: MSONable dict."""
+        dct: dict[str, Any] = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["timestep"] = self.timestep
+        dct["natoms"] = self.natoms
+        dct["box"] = self.box.as_dict()
+        dct["data"] = self.data.to_json(orient="split")
+        return dct
 
 
 def parse_lammps_dumps(file_pattern):
@@ -111,9 +112,8 @@ def parse_lammps_dumps(file_pattern):
 
     Yields:
         LammpsDump for each available snapshot.
-
     """
-    files = glob.glob(file_pattern)
+    files = glob(file_pattern)
     if len(files) > 1:
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
@@ -124,14 +124,14 @@ def parse_lammps_dumps(file_pattern):
             for line in f:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
-                        yield LammpsDump.from_string("".join(dump_cache))
+                        yield LammpsDump.from_str("".join(dump_cache))
                     dump_cache = [line]
                 else:
                     dump_cache.append(line)
-            yield LammpsDump.from_string("".join(dump_cache))
+            yield LammpsDump.from_str("".join(dump_cache))
 
 
-def parse_lammps_log(filename="log.lammps"):
+def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
     """
     Parses log file with focus on thermo data. Both one and multi line
     formats are supported. Any incomplete runs (no "Loop time" marker)
@@ -147,7 +147,6 @@ def parse_lammps_log(filename="log.lammps"):
 
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
-
     """
     with zopen(filename, "rt") as f:
         lines = f.readlines()
@@ -157,23 +156,25 @@ def parse_lammps_log(filename="log.lammps"):
     )
     end_flag = "Loop time of"
     begins, ends = [], []
-    for i, l in enumerate(lines):
-        if l.startswith(begin_flag):
-            begins.append(i)
-        elif l.startswith(end_flag):
-            ends.append(i)
+    for idx, line in enumerate(lines):
+        if line.startswith(begin_flag):
+            begins.append(idx)
+        elif line.startswith(end_flag):
+            ends.append(idx)
 
-    def _parse_thermo(lines):
+    def _parse_thermo(lines: list[str]) -> pd.DataFrame:
         multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
         # multi line thermo data
         if re.match(multi_pattern, lines[0]):
-            timestep_marks = [i for i, l in enumerate(lines) if re.match(multi_pattern, l)]
+            timestep_marks = [idx for idx, line in enumerate(lines) if re.match(multi_pattern, line)]
             timesteps = np.split(lines, timestep_marks)[1:]
             dicts = []
             kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"
             for ts in timesteps:
                 data = {}
-                data["Step"] = int(re.match(multi_pattern, ts[0]).group(1))
+                step = re.match(multi_pattern, ts[0])
+                assert step is not None
+                data["Step"] = int(step.group(1))
                 data.update({k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))})
                 dicts.append(data)
             df = pd.DataFrame(dicts)

@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Implementation for `pmg analyze` CLI."""
 
-"""
-Implementation for `pmg analyze` CLI.
-"""
+from __future__ import annotations
 
 import logging
 import multiprocessing
@@ -12,10 +9,7 @@ import re
 
 from tabulate import tabulate
 
-from pymatgen.apps.borg.hive import (
-    SimpleVaspToComputedEntryDrone,
-    VaspToComputedEntryDrone,
-)
+from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.io.vasp import Outcar
 
@@ -30,8 +24,8 @@ SAVE_FILE = "vasp_data.gz"
 
 
 def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
-    """
-    Get energies of all vaspruns in directory (nested).
+    """Get energies of all vaspruns in directory (nested).
+
     Args:
         rootdir (str): Root directory.
         reanalyze (bool): Whether to ignore saved results and reanalyze
@@ -97,20 +91,19 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     return 0
 
 
-def get_magnetizations(mydir, ion_list):
-    """
-    Get magnetization info from OUTCARs.
+def get_magnetizations(dir: str, ion_list: list[int]):
+    """Get magnetization info from OUTCARs.
 
     Args:
-        mydir (str): Directory name
-        ion_list (List): List of ions to obtain magnetization information for.
+        dir (str): Directory name
+        ion_list (list[int]): List of ions to obtain magnetization information for.
 
     Returns:
-
+        int: 0 if successful.
     """
     data = []
     max_row = 0
-    for (parent, subdirs, files) in os.walk(mydir):
+    for parent, _subdirs, files in os.walk(dir):
         for f in files:
             if re.match(r"OUTCAR*", f):
                 try:
@@ -142,8 +135,7 @@ def get_magnetizations(mydir, ion_list):
 
 
 def analyze(args):
-    """
-    Master function controlling which analysis to call.
+    """Master function controlling which analysis to call.
 
     Args:
         args (dict): args from argparse.

@@ -1,0 +1,6 @@
+  COBI#   No. of atoms  Nc-ICOBI (at) eF for spin 1  Atoms for Nc-ICOBI
+      1              2                      0.00000  X1[0 0 0]->X20 0 0]
+      2              3                      0.00009  X22[0 0 0]->Xs42[0 0 0]->X31[0 0 0]
+  COBI#   No. of atoms  Nc-ICOBI (at) eF for spin 2  Atoms for Nc-ICOBI
+      1              2                      0.00000  X1[0 0 0]->X2[0 0 0]
+      2              3                      0.00009  X22[0 0 0]->Xs42[0 0 0]->X31[0 0 0]

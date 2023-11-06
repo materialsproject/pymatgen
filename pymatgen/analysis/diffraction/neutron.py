@@ -1,23 +1,23 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module implements a neutron diffraction (ND) pattern calculator."""
 
-"""
-This module implements a neutron diffraction (ND) pattern calculator.
-"""
+from __future__ import annotations
 
 import json
 import os
 from math import asin, cos, degrees, pi, radians, sin
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from .core import (
+from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
     get_unique_families,
 )
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -47,7 +47,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
     """
 
-    def __init__(self, wavelength=1.54184, symprec=0, debye_waller_factors=None):
+    def __init__(self, wavelength=1.54184, symprec: float = 0, debye_waller_factors=None):
         """
         Initializes the ND calculator with a given radiation.
 
@@ -65,7 +65,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
-    def get_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
+    def get_pattern(self, structure: Structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the powder neutron diffraction pattern for a structure.
 
@@ -109,10 +109,10 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         # later. Note that these are not necessarily the same size as the
         # structure as each partially occupied specie occupies its own
         # position in the flattened array.
-        coeffs = []
-        fcoords = []
-        occus = []
-        dwfactors = []
+        _coeffs = []
+        _fcoords = []
+        _occus = []
+        _dwfactors = []
 
         for site in structure:
             for sp, occu in site.species.items():
@@ -122,23 +122,22 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                     raise ValueError(
                         f"Unable to calculate ND pattern as there is no scattering coefficients for {sp.symbol}."
                     )
-                coeffs.append(c)
-                dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                fcoords.append(site.frac_coords)
-                occus.append(occu)
+                _coeffs.append(c)
+                _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
+                _fcoords.append(site.frac_coords)
+                _occus.append(occu)
 
-        coeffs = np.array(coeffs)
-        fcoords = np.array(fcoords)
-        occus = np.array(occus)
-        dwfactors = np.array(dwfactors)
-        peaks = {}
-        two_thetas = []
+        coeffs = np.array(_coeffs)
+        fcoords = np.array(_fcoords)
+        occus = np.array(_occus)
+        dwfactors = np.array(_dwfactors)
+        peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
+        two_thetas: list[float] = []
 
         for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
                 d_hkl = 1 / g_hkl
 
                 # Bragg condition
@@ -175,7 +174,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) < self.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
-                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
+                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))  # type: ignore
                 else:
                     peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
                     two_thetas.append(two_theta)
@@ -186,11 +185,11 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         y = []
         hkls = []
         d_hkls = []
-        for k in sorted(peaks.keys()):
-            v = peaks[k]
+        for key in sorted(peaks):
+            v = peaks[key]
             fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:
-                x.append(k)
+            if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:  # type: ignore
+                x.append(key)
                 y.append(v[0])
                 hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
                 d_hkls.append(v[2])

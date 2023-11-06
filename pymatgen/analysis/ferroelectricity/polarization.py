@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 r"""
 This module contains classes useful for analyzing ferroelectric candidates.
 The Polarization class can recover the spontaneous polarization using
@@ -47,6 +44,8 @@ determine the spontaneous polarization because it serves as a reference point.
 """
 
 
+from __future__ import annotations
+
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -63,7 +62,7 @@ __date__ = "April 15, 2017"
 def zval_dict_from_potcar(potcar):
     """
     Creates zval_dictionary for calculating the ionic polarization from
-    Potcar object
+    Potcar object.
 
     potcar: Potcar object
     """
@@ -73,9 +72,9 @@ def zval_dict_from_potcar(potcar):
     return zval_dict
 
 
-def calc_ionic(site, structure, zval):
+def calc_ionic(site, structure: Structure, zval):
     """
-    Calculate the ionic dipole moment using ZVAL from pseudopotential
+    Calculate the ionic dipole moment using ZVAL from pseudopotential.
 
     site: PeriodicSite
     structure: Structure
@@ -96,7 +95,6 @@ def get_total_ionic_dipole(structure, zval_dict):
     center (np.array with shape [3,1]) : dipole center used by VASP
     tiny (float) : tolerance for determining boundary of calculation.
     """
-
     tot_ionic = []
     for site in structure:
         zval = zval_dict[str(site.specie)]
@@ -105,13 +103,12 @@ def get_total_ionic_dipole(structure, zval_dict):
 
 
 class PolarizationLattice(Structure):
-    """
-    Why is a Lattice inheriting a structure? This is ridiculous.
-    """
+    """Why is a Lattice inheriting a structure? This is ridiculous."""
 
     def get_nearest_site(self, coords, site, r=None):
         """
         Given coords and a site, find closet site to coords.
+
         Args:
             coords (3x1 array): Cartesian coords of center of sphere
             site: site to find closest to coords
@@ -193,12 +190,12 @@ class Polarization:
         p_elecs = []
         p_ions = []
 
-        for i, o in enumerate(outcars):
-            p_elecs.append(o.p_elec)
+        for idx, outcar in enumerate(outcars):
+            p_elecs.append(outcar.p_elec)
             if calc_ionic_from_zval:
-                p_ions.append(get_total_ionic_dipole(structures[i], o.zval_dict))
+                p_ions.append(get_total_ionic_dipole(structures[idx], outcar.zval_dict))
             else:
-                p_ions.append(o.p_ion)
+                p_ions.append(outcar.p_ion)
         return cls(p_elecs, p_ions, structures)
 
     def get_pelecs_and_pions(self, convert_to_muC_per_cm2=False):
@@ -208,7 +205,6 @@ class Polarization:
         convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb
             per centimeter**2
         """
-
         if not convert_to_muC_per_cm2:
             return self.p_elecs, self.p_ions
 
@@ -216,10 +212,10 @@ class Polarization:
             p_elecs = self.p_elecs.T
             p_ions = self.p_ions.T
 
-            volumes = [s.lattice.volume for s in self.structures]
+            volumes = [struct.volume for struct in self.structures]
             e_to_muC = -1.6021766e-13
             cm2_to_A2 = 1e16
-            units = 1.0 / np.array(volumes)
+            units = 1 / np.array(volumes)
             units *= e_to_muC * cm2_to_A2
 
             p_elecs = np.matmul(units, p_elecs)
@@ -269,7 +265,6 @@ class Polarization:
             microCoulomb per centimeter**2
         all_in_polar: convert polarization to be in polar (final structure) polarization lattice
         """
-
         p_elec, p_ion = self.get_pelecs_and_pions()
         p_tot = p_elec + p_ion
         p_tot = np.array(p_tot)
@@ -281,7 +276,7 @@ class Polarization:
 
         e_to_muC = -1.6021766e-13
         cm2_to_A2 = 1e16
-        units = 1.0 / np.array(volumes)
+        units = 1 / np.array(volumes)
         units *= e_to_muC * cm2_to_A2
 
         # convert polarizations and lattice lengths prior to adjustment
@@ -291,9 +286,7 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                l = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[i]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
         #  convert polarizations to polar lattice
         elif convert_to_muC_per_cm2 and all_in_polar:
             abc = [lattice.abc for lattice in lattices]
@@ -302,35 +295,28 @@ class Polarization:
             p_tot *= abc[-1] / volumes[-1] * e_to_muC * cm2_to_A2  # to muC / cm^2
             for i in range(L):
                 lattice = lattices[-1]  # Use polar lattice
-                l = lattice.lengths
-                a = lattice.angles
                 # Use polar units (volume)
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[-1]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
         d_structs = []
         sites = []
         for i in range(L):
-            l = lattices[i]
-            frac_coord = np.divide(np.array([p_tot[i]]), np.array([l.a, l.b, l.c]))
-            d = PolarizationLattice(l, ["C"], [np.array(frac_coord).ravel()])
+            lattice = lattices[i]
+            frac_coord = np.divide(np.array([p_tot[i]]), np.array(lattice.lengths))
+            d = PolarizationLattice(lattice, ["C"], [np.array(frac_coord).ravel()])
             d_structs.append(d)
             site = d[0]
-            if i == 0:
-                # Adjust nonpolar polarization to be closest to zero.
-                # This is compatible with both a polarization of zero or a half quantum.
-                prev_site = [0, 0, 0]
-            else:
-                prev_site = sites[-1].coords
+            # Adjust nonpolar polarization to be closest to zero.
+            # This is compatible with both a polarization of zero or a half quantum.
+            prev_site = [0, 0, 0] if i == 0 else sites[-1].coords
             new_site = d.get_nearest_site(prev_site, site)
             sites.append(new_site[0])
 
         adjust_pol = []
         for s, d in zip(sites, d_structs):
-            l = d.lattice
-            adjust_pol.append(np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel())
-        adjust_pol = np.array(adjust_pol)
-
-        return adjust_pol
+            lattice = d.lattice
+            adjust_pol.append(np.multiply(s.frac_coords, np.array(lattice.lengths)).ravel())
+        return np.array(adjust_pol)
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
@@ -338,13 +324,13 @@ class Polarization:
         all structures.
         """
         lattices = [s.lattice for s in self.structures]
-        volumes = np.array([s.lattice.volume for s in self.structures])
+        volumes = np.array([struct.volume for struct in self.structures])
 
         L = len(self.structures)
 
         e_to_muC = -1.6021766e-13
         cm2_to_A2 = 1e16
-        units = 1.0 / np.array(volumes)
+        units = 1 / np.array(volumes)
         units *= e_to_muC * cm2_to_A2
 
         # convert polarizations and lattice lengths prior to adjustment
@@ -352,24 +338,16 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                l = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[i]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
         elif convert_to_muC_per_cm2 and all_in_polar:
             for i in range(L):
                 lattice = lattices[-1]
-                l = lattice.lengths
-                a = lattice.angles
-                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[-1]), *a)
+                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
-        quanta = np.array([np.array(l.lengths) for l in lattices])
-
-        return quanta
+        return np.array([np.array(latt.lengths) for latt in lattices])
 
     def get_polarization_change(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get difference between nonpolar and polar same branch polarization.
-        """
+        """Get difference between nonpolar and polar same branch polarization."""
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -388,8 +366,7 @@ class Polarization:
         P = self.get_polarization_change(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         ).ravel()
-        P_norm = np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
-        return P_norm
+        return np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
 
     def same_branch_splines(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
@@ -417,9 +394,7 @@ class Polarization:
         return sp_a, sp_b, sp_c
 
     def max_spline_jumps(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get maximum difference between spline and same branch polarization data.
-        """
+        """Get maximum difference between spline and same branch polarization data."""
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -431,9 +406,7 @@ class Polarization:
         return max_jumps
 
     def smoothness(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get rms average difference between spline and same branch polarization data.
-        """
+        """Get rms average difference between spline and same branch polarization data."""
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -445,34 +418,24 @@ class Polarization:
             return None
         sp_latt = [sp[i](range(L)) for i in range(3)]
         diff = [sp_latt[i] - tot[:, i].ravel() for i in range(3)]
-        rms = [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
-        return rms
+        return [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
 
 
 class EnergyTrend:
-    """
-    Class for fitting trends to energies.
-    """
+    """Class for fitting trends to energies."""
 
     def __init__(self, energies):
-        """
-        :param energies: Energies
-        """
+        """:param energies: Energies"""
         self.energies = energies
 
     def spline(self):
-        """
-        Fit spline to energy trend data.
-        """
+        """Fit spline to energy trend data."""
         from scipy.interpolate import UnivariateSpline
 
-        sp = UnivariateSpline(range(len(self.energies)), self.energies, k=4)
-        return sp
+        return UnivariateSpline(range(len(self.energies)), self.energies, k=4)
 
     def smoothness(self):
-        """
-        Get rms average difference between spline and energy trend.
-        """
+        """Get rms average difference between spline and energy trend."""
         energies = self.energies
         try:
             sp = self.spline()
@@ -481,20 +444,15 @@ class EnergyTrend:
             return None
         spline_energies = sp(range(len(energies)))
         diff = spline_energies - energies
-        rms = np.sqrt(np.sum(np.square(diff)) / len(energies))
-        return rms
+        return np.sqrt(np.sum(np.square(diff)) / len(energies))
 
     def max_spline_jump(self):
-        """
-        Get maximum difference between spline and energy trend.
-        """
+        """Get maximum difference between spline and energy trend."""
         sp = self.spline()
         return max(self.energies - sp(range(len(self.energies))))
 
     def endpoints_minima(self, slope_cutoff=5e-3):
-        """
-        Test if spline endpoints are at minima for a given slope cutoff.
-        """
+        """Test if spline endpoints are at minima for a given slope cutoff."""
         energies = self.energies
         try:
             sp = self.spline()

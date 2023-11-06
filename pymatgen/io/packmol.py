@@ -17,11 +17,12 @@ After installation, you may need to manually add the path of the packmol
 executable to the PATH environment variable.
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 from pathlib import Path
 from shutil import which
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 
@@ -37,15 +38,16 @@ __date__ = "Nov 2021"
 
 class PackmolSet(InputSet):
     """
-    InputSet for the Packmol software. This class defines several attributes related
-    to
+    InputSet for the Packmol software. This class defines several attributes related to.
     """
 
-    def run(self, path: Union[str, Path], timeout=30):
+    def run(self, path: str | Path, timeout=30):
         """Run packmol and write out the packed structure.
+
         Args:
             path: The path in which packmol input files are located.
             timeout: Timeout in seconds.
+
         Raises:
             ValueError if packmol does not succeed in packing the box.
             TimeoutExpiredError if packmold does not finish within the timeout.
@@ -53,16 +55,14 @@ class PackmolSet(InputSet):
         wd = os.getcwd()
         if not which("packmol"):
             raise RuntimeError(
-                "Running a PackmolSet requires the executable 'packmol' to be in "
-                "the path. Please download packmol from "
-                "https://github.com/leandromartinez98/packmol "
-                "and follow the instructions in the README to compile. "
-                "Don't forget to add the packmol binary to your path"
+                "Running a PackmolSet requires the executable 'packmol' to be in the path. Please "
+                "download packmol from https://github.com/leandromartinez98/packmol and follow the "
+                "instructions in the README to compile. Don't forget to add the packmol binary to your path"
             )
         try:
             os.chdir(path)
             p = subprocess.run(
-                f"packmol < '{self.inputfile}'",
+                f"packmol < {self.inputfile!r}",
                 check=True,
                 shell=True,
                 timeout=timeout,
@@ -79,8 +79,8 @@ class PackmolSet(InputSet):
                     )
                 msg = p.stdout.decode().split("ERROR")[-1]
                 raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
-        except subprocess.CalledProcessError as e:
-            raise ValueError(f"Packmol failed with errorcode {e.returncode} and stderr: {e.stderr}") from e
+        except subprocess.CalledProcessError as exc:
+            raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
         else:
             with open(Path(path, self.stdoutfile), "w") as out:
                 out.write(p.stdout.decode())
@@ -88,12 +88,12 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    def from_directory(cls, directory: Union[str, Path]):
+    def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
 
         Args:
-            directory: Directory to read input files from
+            directory (str | Path): Directory to read input files from.
         """
         raise NotImplementedError(f"from_directory has not been implemented in {cls}")
 
@@ -108,11 +108,11 @@ class PackmolBoxGen(InputGenerator):
         self,
         tolerance: float = 2.0,
         seed: int = 1,
-        control_params: Optional[Dict] = None,
-        inputfile: Union[str, Path] = "packmol.inp",
-        outputfile: Union[str, Path] = "packmol_out.xyz",
-        stdoutfile: Union[str, Path] = "packmol.stdout",
-    ):
+        control_params: dict | None = None,
+        inputfile: str | Path = "packmol.inp",
+        outputfile: str | Path = "packmol_out.xyz",
+        stdoutfile: str | Path = "packmol.stdout",
+    ) -> None:
         """
         Instantiate a PackmolBoxGen class. The init method defines simulations parameters
         like filenames, random seed, tolerance, etc.
@@ -128,15 +128,15 @@ class PackmolBoxGen(InputGenerator):
         self.inputfile = inputfile
         self.outputfile = outputfile
         self.stdoutfile = stdoutfile
-        self.control_params = control_params if control_params else {}
+        self.control_params = control_params or {}
         self.tolerance = tolerance
         self.seed = seed
 
     def get_input_set(  # type: ignore
         self,
-        molecules: List[Dict],
-        box: Optional[List[float]] = None,
-    ):
+        molecules: list[dict],
+        box: list[float] | None = None,
+    ) -> PackmolSet:
         """
         Generate a Packmol InputSet for a set of molecules.
 
@@ -147,7 +147,8 @@ class PackmolBoxGen(InputGenerator):
                     2. "number" - the number of that molecule to pack into the box
                     3. "coords" - Coordinates in the form of either a Molecule object or
                         a path to a file.
-                Example:
+
+        Example:
                     {"name": "water",
                      "number": 500,
                      "coords": "/path/to/input/file.xyz"}
@@ -157,13 +158,13 @@ class PackmolBoxGen(InputGenerator):
         """
         mapping = {}
         file_contents = "# Packmol input generated by pymatgen.\n"
-        file_contents += "# " + " + ".join(str(d["number"]) + " " + d["name"] for d in molecules) + "\n"
+        file_contents += f"# {' + '.join(str(d['number']) + ' ' + d['name'] for d in molecules)}\n"
 
         for k, v in self.control_params.items():
             if isinstance(v, list):
                 file_contents += f"{k} {' '.join(str(x) for x in v)}\n"
             else:
-                file_contents += f"{k} {str(v)}\n"
+                file_contents += f"{k} {v}\n"
         file_contents += f"seed {self.seed}\n"
         file_contents += f"tolerance {self.tolerance}\n\n"
 
@@ -182,10 +183,7 @@ class PackmolBoxGen(InputGenerator):
             # estimate the total volume of all molecules in cubic Å
             net_volume = 0.0
             for d in molecules:
-                if not isinstance(d["coords"], Molecule):
-                    mol = Molecule.from_file(d["coords"])
-                else:
-                    mol = d["coords"]
+                mol = Molecule.from_file(d["coords"]) if not isinstance(d["coords"], Molecule) else d["coords"]
                 # pad the calculated length by an amount related to the tolerance parameter
                 # the amount to add was determined arbitrarily
                 length = (
@@ -193,7 +191,7 @@ class PackmolBoxGen(InputGenerator):
                     + self.tolerance
                 )
                 net_volume += (length**3.0) * float(d["number"])
-            box_length = net_volume ** (1.0 / 3.0)
+            box_length = net_volume ** (1 / 3)
             print(f"Auto determined box size is {box_length:.1f} Å per side.")
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
@@ -209,11 +207,11 @@ class PackmolBoxGen(InputGenerator):
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off
-                file_contents += f'structure "{fname}"\n'
+                file_contents += f"structure {fname!r}\n"
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"
-            file_contents += f"  number {str(d['number'])}\n"
+            file_contents += f"  number {d['number']}\n"
             file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 

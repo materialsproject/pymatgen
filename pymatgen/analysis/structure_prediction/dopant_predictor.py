@@ -1,14 +1,12 @@
-"""
-Predicting potential dopants
-"""
+"""Predicting potential dopants."""
+
+from __future__ import annotations
 
 import warnings
 
 import numpy as np
 
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionPredictor,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.core.periodic_table import Element, Species
 
 
@@ -47,8 +45,8 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     subs = [
         {
             "probability": pred["probability"],
-            "dopant_species": list(pred["substitutions"].keys())[0],
-            "original_species": list(pred["substitutions"].values())[0],
+            "dopant_species": next(iter(pred["substitutions"])),
+            "original_species": next(iter(pred["substitutions"].values())),
         }
         for species_preds in subs
         for pred in species_preds
@@ -88,10 +86,10 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
     # get a series of tuples with (coordination number, specie)
     cn_and_species = {
         (
-            bonded_structure.get_coordination_of_site(i),
-            bonded_structure.structure[i].specie,
+            bonded_structure.get_coordination_of_site(idx),
+            bonded_structure.structure[idx].specie,
         )
-        for i in range(bonded_structure.structure.num_sites)
+        for idx in range(len(bonded_structure))
     }
 
     cn_to_radii_map = {}
@@ -126,9 +124,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign):
-    """
-    Utility method to get n- and p-type dopants from a list of substitutions.
-    """
+    """Utility method to get n- and p-type dopants from a list of substitutions."""
     n_type = [
         pred
         for pred in substitutions
@@ -199,8 +195,8 @@ def _int_to_roman(number):
     roman_conv = [(10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
 
     result = []
-    for (arabic, roman) in roman_conv:
-        (factor, number) = divmod(number, arabic)
+    for arabic, roman in roman_conv:
+        factor, number = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:
             break

@@ -1,9 +1,49 @@
 {
+  "default_unary_layout": {
+    "autosize": true,
+    "xaxis": {
+      "range": [
+        -0.1,
+        0.1
+      ],
+      "visible": false,
+      "showgrid": false,
+      "zeroline": false
+    },
+    "yaxis": {
+      "title": "Formation energy (eV/atom)",
+      "anchor": "x",
+      "mirror": "ticks",
+      "showgrid": true,
+      "showline": true,
+      "side": "left",
+      "tickfont": {
+        "size": 16.0
+      },
+      "ticks": "inside",
+      "titlefont": {
+        "color": "#000000",
+        "size": 20.0
+      },
+      "type": "linear",
+      "gridcolor": "rgba(0,0,0,0.1)"
+    },
+    "hovermode": "closest",
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "showlegend": false,
+    "margin": {
+      "b": 20,
+      "l": 10,
+      "pad": 20,
+      "t": 20,
+      "r": 10
+    }
+  },
   "default_binary_layout": {
     "autosize": true,
-    "height": 700,
     "xaxis": {
-      "title": "Fraction",
+      "title": "Composition (Fraction)",
       "anchor": "y",
       "mirror": "ticks",
       "nticks": 8,
@@ -53,107 +93,69 @@
       "tracegroupgap": 7
     },
     "margin": {
-      "b": 20,
+      "b": 10,
       "l": 10,
-      "pad": 20,
-      "t": 20,
+      "pad": 0,
+      "t": 0,
       "r": 10
     }
   },
-  "default_ternary_layout": {
+  "default_ternary_2d_layout": {
     "autosize": true,
-    "height": 700,
-    "hovermode": "closest",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "margin": {
-      "b": 10,
-      "l": 0,
-      "pad": 0,
-      "t": 0,
-      "r": 0
+      "b": 40,
+      "l": 20,
+      "t": 40,
+      "r": 20
     },
-    "showlegend": true,
-    "legend": {
-      "orientation": "h",
-      "x": 0.5,
-      "y": 0.0,
-      "traceorder": "reversed",
-      "xanchor": "center",
-      "yanchor": "top"
-    },
-    "scene_camera": {
-      "center": {
-        "x": -0.1,
-        "y": 0,
-        "z": -0.15
+    "ternary": {
+      "sum": 1,
+      "aaxis": {
+        "showgrid": true,
+        "tickfont": {
+          "size": 7,
+          "color": "rgba(0,0,0,0)"
+        },
+        "showticklabels": true,
+        "layer": "below traces"
       },
-      "eye": {
-        "x": -0.1,
-        "y": 0,
-        "z": 2.5
+      "baxis": {
+        "min": 0,
+        "showgrid": true,
+        "tickfont": {
+          "size": 7,
+          "color": "rgba(0,0,0,0)"
+        },
+        "showticklabels": true,
+        "layer": "below traces"
       },
-      "projection": {
-        "type": "orthographic"
+      "caxis": {
+        "min": 0,
+        "showgrid": true,
+        "tickfont": {
+          "size": 7,
+          "color": "rgba(0,0,0,0)"
+        },
+        "showticklabels": true,
+        "layer": "below traces"
       }
     },
-    "scene": {
-      "xaxis": {
-        "title": null,
-        "visible": false,
-        "autorange": true,
-        "showgrid": false,
-        "zeroline": false,
-        "showline": false,
-        "ticks": "",
-        "showaxeslabels": false,
-        "showticklabels": false,
-        "showspikes": false
-      },
-      "yaxis": {
-        "title": null,
-        "visible": false,
-        "autorange": true,
-        "showgrid": false,
-        "zeroline": false,
-        "showline": false,
-        "ticks": "",
-        "showaxeslabels": false,
-        "showticklabels": false,
-        "showspikes": false
-      },
-      "zaxis": {
-        "title": null,
-        "visible": false,
-        "autorange": true,
-        "showgrid": false,
-        "zeroline": false,
-        "showline": false,
-        "ticks": "",
-        "showaxeslabels": false,
-        "showticklabels": false,
-        "showspikes": false
-      }
-    },
-    "scene_aspectratio": {
-      "x": 1.7,
-      "y": 1.7,
-      "z": 1.2
-    }
+    "showlegend": true
   },
-  "default_quaternary_layout": {
+  "default_ternary_3d_layout": {
     "autosize": true,
-    "height": 700,
     "hovermode": "closest",
-    "margin": {
-      "b": 10,
-      "l": 0,
-      "pad": 0,
-      "t": 0,
-      "r": 0
-    },
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
+    "margin": {
+      "b": 10,
+      "l": 5,
+      "pad": 0,
+      "t": 10,
+      "r": 5
+    },
     "showlegend": true,
     "legend": {
       "orientation": "h",
@@ -162,91 +164,174 @@
       "traceorder": "reversed",
       "xanchor": "center",
       "yanchor": "top"
-    },
-    "scene": {
-      "xaxis": {
-        "title": null,
-        "visible": false,
-        "autorange": true,
-        "showgrid": false,
-        "zeroline": false,
-        "showline": false,
-        "ticks": "",
-        "showaxeslabels": false,
-        "showticklabels": false,
-        "showspikes": false
-      },
-      "yaxis": {
-        "title": null,
-        "visible": false,
-        "autorange": true,
-        "showgrid": false,
-        "zeroline": false,
-        "showline": false,
-        "ticks": "",
-        "showaxeslabels": false,
-        "showticklabels": false,
-        "showspikes": false
-      },
-      "zaxis": {
-        "title": null,
-        "visible": false,
-        "autorange": true,
-        "showgrid": false,
-        "zeroline": false,
-        "showline": false,
-        "ticks": "",
-        "showaxeslabels": false,
-        "showticklabels": false,
-        "showspikes": false
-      }
     },
     "scene_camera": {
       "center": {
         "x": 0,
-        "y": -0.08,
+        "y": 0,
         "z": 0
+      },
+      "eye": {
+        "x": 0,
+        "y": 0,
+        "z": 5
+      },
+      "projection": {
+        "type": "orthographic"
+      }
+    },
+    "scene": {
+      "xaxis": {
+        "title": null,
+        "visible": false,
+        "autorange": true,
+        "showgrid": false,
+        "zeroline": false,
+        "showline": false,
+        "ticks": "",
+        "showaxeslabels": false,
+        "showticklabels": false,
+        "showspikes": false
+      },
+      "yaxis": {
+        "title": null,
+        "visible": false,
+        "autorange": true,
+        "showgrid": false,
+        "zeroline": false,
+        "showline": false,
+        "ticks": "",
+        "showaxeslabels": false,
+        "showticklabels": false,
+        "showspikes": false
+      },
+      "zaxis": {
+        "title": null,
+        "visible": false,
+        "autorange": true,
+        "showgrid": false,
+        "zeroline": false,
+        "showline": false,
+        "ticks": "",
+        "showaxeslabels": false,
+        "showticklabels": false,
+        "showspikes": false
+      }
+    },
+    "scene_aspectratio": {
+      "x": 2.0,
+      "y": 2.0,
+      "z": 1.0
+    }
+  },
+  "default_quaternary_layout": {
+    "autosize": true,
+    "hovermode": "closest",
+    "margin": {
+      "b": 10,
+      "l": 5,
+      "pad": 0,
+      "t": 10,
+      "r": 5
+    },
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "showlegend": true,
+    "legend": {
+      "orientation": "h",
+      "x": 0.5,
+      "y": 0.0,
+      "traceorder": "reversed",
+      "xanchor": "center",
+      "yanchor": "top"
+    },
+    "scene": {
+      "xaxis": {
+        "title": null,
+        "visible": false,
+        "autorange": true,
+        "showgrid": false,
+        "zeroline": false,
+        "showline": false,
+        "ticks": "",
+        "showaxeslabels": false,
+        "showticklabels": false,
+        "showspikes": false
+      },
+      "yaxis": {
+        "title": null,
+        "visible": false,
+        "autorange": true,
+        "showgrid": false,
+        "zeroline": false,
+        "showline": false,
+        "ticks": "",
+        "showaxeslabels": false,
+        "showticklabels": false,
+        "showspikes": false
+      },
+      "zaxis": {
+        "title": null,
+        "visible": false,
+        "autorange": true,
+        "showgrid": false,
+        "zeroline": false,
+        "showline": false,
+        "ticks": "",
+        "showaxeslabels": false,
+        "showticklabels": false,
+        "showspikes": false
+      }
+    },
+    "scene_camera": {
+      "eye": {
+        "x": 2,
+        "y": 5,
+        "z": 3
+      },
+      "center": {
+        "x": 0,
+        "y": -0.2,
+        "z": -0.2
       },
       "projection": {
         "type": "orthographic"
       }
     },
     "scene_aspectratio": {
-      "x": 1.4,
-      "y": 1.4,
-      "z": 1.4
+      "x": 1.5,
+      "y": 1.5,
+      "z": 1.5
     }
   },
   "stable_colorscale": [
     [
       0.0,
-      "#0c8c00"
+      "#0d7002"
     ],
     [
       0.5,
-      "#d8ffd4"
+      "#c1ffba"
     ],
     [
       1.0,
       "#ffffff"
     ]
   ],
-
   "unstable_colorscale": [
     [
       0.0,
-      "#fad393"
+      "#fff5e3"
     ],
     [
       0.5,
-      "#ff813d"
+      "#f24324"
     ],
     [
       1.0,
-      "#ff0000"
+      "#c40000"
     ]
   ],
-
   "stable_markers_colorscale": [
     [
       0.0,
@@ -257,6 +342,23 @@
       "#7ce371"
     ]
   ],
+  "default_unary_marker_settings": {
+    "mode": "markers",
+    "marker": {
+      "size": 8,
+      "line": {
+        "width": 4,
+        "color": "black"
+      }
+    },
+    "hoverinfo": "text",
+    "hoverlabel": {
+      "font": {
+        "size": 14
+      }
+    },
+    "showlegend": true
+  },
   "default_binary_marker_settings": {
     "mode": "markers",
     "marker": {
@@ -274,15 +376,45 @@
     },
     "showlegend": true
   },
-  "default_ternary_marker_settings": {
+  "default_ternary_2d_marker_settings": {
     "mode": "markers",
-    "marker": {
-      "size": 7,
-      "line": {
-        "width": 4,
-        "color": "black"
+    "hoverinfo": "text",
+    "hoverlabel": {
+      "font": {
+        "size": 14
       }
     },
+    "showlegend": true,
+    "cliponaxis": false
+  },
+  "default_fill_colors": [
+    "#2E91E5",
+    "#E15F99",
+    "#1CA71C",
+    "#FB0D0D",
+    "#DA16FF",
+    "#222A2A",
+    "#B68100",
+    "#750D86",
+    "#EB663B",
+    "#511CFB",
+    "#00A08B",
+    "#FB00D1",
+    "#FC0080",
+    "#B2828D",
+    "#6C7C32",
+    "#778AAE",
+    "#862A16",
+    "#A777F1",
+    "#620042",
+    "#1616A7",
+    "#DA60CA",
+    "#6C4516",
+    "#0D2A63",
+    "#AF0038"
+  ],
+  "default_ternary_3d_marker_settings": {
+    "mode": "markers",
     "hoverinfo": "text",
     "hoverlabel": {
       "font": {
@@ -316,10 +448,6 @@
     "align": "center",
     "opacity": 0.7,
     "showarrow": false,
-    "xanchor": "right",
-    "yanchor": "auto",
-    "xshift": -10,
-    "yshift": -10,
     "xref": "x",
     "yref": "y"
   },

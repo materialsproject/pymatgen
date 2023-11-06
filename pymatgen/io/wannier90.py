@@ -1,14 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Modules for working with wannier90 input and output."""
 
-"""
-Modules for working with wannier90 input and output.
-"""
+from __future__ import annotations
 
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.io import FortranEOFError, FortranFile
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Mark Turiansky"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -23,29 +23,15 @@ class Unk:
     """
     Object representing the data in a UNK file.
 
-    .. attribute:: ik
-
-        int index of kpoint for this file
-
-    .. attribute:: data
-
-        numpy.ndarray that contains the wavefunction data for in the UNK file.
-        The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
-        (nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.
-
-    .. attribute:: is_noncollinear
-
-        bool that specifies if data is from a noncollinear calculation
-
-    .. attribute:: nbnd
-
-        int number of bands in data
-
-    .. attribute:: ng
-
-        sequence of three integers that correspond to the grid size of the
-        given data. The definition is ng = (ngx, ngy, ngz).
-
+    Attributes:
+        ik (int): Index of kpoint for this file.
+        data (numpy.ndarray): Numpy array that contains the wavefunction data for in the UNK file.
+            The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and (nbnd, 2, ngx, ngy, ngz)
+            for noncollinear calculations.
+        is_noncollinear (bool): Boolean that specifies if data is from a noncollinear calculation.
+        nbnd (int): Number of bands in data.
+        ng (tuple): Sequence of three integers that correspond to the grid size of the given data.
+            The definition is ng = (ngx, ngy, ngz).
     """
 
     ik: int
@@ -80,7 +66,7 @@ class Unk:
         Sets the value of data.
 
         Args:
-            value (np.ndarray): data to replace stored data, must haveshape
+            value (np.ndarray): data to replace stored data, must have shape
                 (nbnd, ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if
                 noncollinear calculation
         """
@@ -102,8 +88,8 @@ class Unk:
         self.nbnd = self.data.shape[0]
         self.ng = self.data.shape[-3:]
 
-    @staticmethod
-    def from_file(filename: str) -> object:
+    @classmethod
+    def from_file(cls, filename: str) -> object:
         """
         Reads the UNK data from file.
 
@@ -136,8 +122,8 @@ class Unk:
             temp_data = np.empty((nbnd, 2, *ng), dtype=np.complex128)
             temp_data[:, 0, :, :, :] = data[::2, :, :, :]
             temp_data[:, 1, :, :, :] = data[1::2, :, :, :]
-            return Unk(ik, temp_data)
-        return Unk(ik, data)
+            return cls(ik, temp_data)
+        return cls(ik, data)
 
     def write_file(self, filename: str) -> None:
         """
@@ -158,10 +144,8 @@ class Unk:
                     f.write_record(self.data[ib].flatten("F"))
 
     def __repr__(self) -> str:
-        return (
-            f"<UNK ik={self.ik} nbnd={self.nbnd} ncl={self.is_noncollinear}"
-            + f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
-        )
+        ik, nbnd, ncl, ngx, ngy, ngz = self.ik, self.nbnd, self.is_noncollinear, *self.ng
+        return f"{(type(self).__name__)}({ik=}, {nbnd=}, {ncl=}, {ngx=}, {ngy=}, {ngz=})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Unk):
@@ -186,7 +170,6 @@ class Unk:
                     and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)
                 ):
                     return False
-            else:
-                if not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
-                    return False
+            elif not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
+                return False
         return True

@@ -1,44 +1,43 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
-"""
-Implementation for `pmg plot` CLI.
-"""
+"""Implementation for `pmg plot` CLI."""
 
+from __future__ import annotations
+
+import matplotlib.pyplot as plt
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Chgcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.plotting import pretty_plot
 
 
 def get_dos_plot(args):
-    """
-    Plot DOS.
+    """Plot DOS.
 
     Args:
         args (dict): Args from argparse.
     """
-    v = Vasprun(args.dos_file)
-    dos = v.complete_dos
+    vasp_run = Vasprun(args.dos_file)
+    dos = vasp_run.complete_dos
 
     all_dos = {}
     all_dos["Total"] = dos
 
-    structure = v.final_structure
+    structure = vasp_run.final_structure
 
     if args.site:
         for i, site in enumerate(structure):
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
+            all_dos[f"Site {i} {site.specie.symbol}"] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
         all_dos = {}
-        for el, dos in dos.get_element_dos().items():
+        for el, el_dos in dos.get_element_dos().items():
             if el.symbol in syms:
-                all_dos[el] = dos
+                all_dos[el] = el_dos
     if args.orbital:
         all_dos = dos.get_spd_dos()
 
@@ -47,51 +46,50 @@ def get_dos_plot(args):
     return plotter.get_plot()
 
 
-def get_chgint_plot(args):
-    """
-    Plot integrated charge.
+def get_chgint_plot(args, ax: plt.Axes = None) -> plt.Axes:
+    """Plot integrated charge.
 
     Args:
         args (dict): args from argparse.
+        ax (plt.Axes): Matplotlib Axes object for plotting.
+
+    Returns:
+        plt.Axes: Matplotlib Axes object.
     """
     chgcar = Chgcar.from_file(args.chgcar_file)
-    s = chgcar.structure
+    struct = chgcar.structure
 
     if args.inds:
         atom_ind = [int(i) for i in args.inds[0].split(",")]
     else:
-        finder = SpacegroupAnalyzer(s, symprec=0.1)
+        finder = SpacegroupAnalyzer(struct, symprec=0.1)
         sites = [sites[0] for sites in finder.get_symmetrized_structure().equivalent_sites]
-        atom_ind = [s.sites.index(site) for site in sites]
+        atom_ind = [struct.index(site) for site in sites]
 
-    from pymatgen.util.plotting import pretty_plot
-
-    plt = pretty_plot(12, 8)
-    for i in atom_ind:
-        d = chgcar.get_integrated_diff(i, args.radius, 30)
-        plt.plot(d[:, 0], d[:, 1], label=f"Atom {i} - {s[i].species_string}")
-    plt.legend(loc="upper left")
-    plt.xlabel("Radius (A)")
-    plt.ylabel("Integrated charge (e)")
+    ax = ax or pretty_plot(12, 8)
+    for idx in atom_ind:
+        d = chgcar.get_integrated_diff(idx, args.radius, 30)
+        ax.plot(d[:, 0], d[:, 1], label=f"Atom {idx} - {struct[idx].species_string}")
+    ax.legend(loc="upper left")
+    ax.set_xlabel("Radius (A)")
+    ax.set_ylabel("Integrated charge (e)")
     plt.tight_layout()
-    return plt
+    return ax
 
 
 def get_xrd_plot(args):
-    """
-    Plot XRD
+    """Plot XRD.
 
     Args:
         args (dict): Args from argparse
     """
-    s = Structure.from_file(args.xrd_structure_file)
+    struct = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
-    return c.get_plot(s)
+    return c.get_plot(struct)
 
 
 def plot(args):
-    """
-    Master control method calling other plot methods based on args.
+    """Master control method calling other plot methods based on args.
 
     Args:
         args (dict): Args from argparse.

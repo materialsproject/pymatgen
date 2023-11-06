@@ -1,6 +1,5 @@
-"""
-Module to call mcsqs, distributed with AT-AT
-https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
+"""Module to call mcsqs, distributed with AT-AT
+https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/.
 """
 
 from __future__ import annotations
@@ -21,7 +20,7 @@ Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
 """
 Return type for run_mcsqs.
 bestsqs: Structure
-objective_function: Union[float, str]
+objective_function: float | str
 allsqs: List
 clusters: List
 directory: str
@@ -39,14 +38,13 @@ def run_mcsqs(
     search_time: float = 60,
     directory: str | None = None,
     instances: int | None = None,
-    temperature: int | float = 1,
+    temperature: float = 1,
     wr: float = 1,
     wn: float = 1,
     wd: float = 0.5,
     tol: float = 1e-3,
 ) -> Sqs:
-    """
-    Helper function for calling mcsqs with different arguments
+    """Helper function for calling mcsqs with different arguments
     Args:
         structure (Structure): Disordered pymatgen Structure object
         clusters (dict): Dictionary of cluster interactions with entries in the form
@@ -67,13 +65,12 @@ def run_mcsqs(
             function (default = 1)
         wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
         wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3)
+        tol (int or float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-
     num_atoms = len(structure)
 
     if structure.is_ordered:
@@ -84,18 +81,15 @@ def run_mcsqs(
         instances = os.cpu_count()
 
     original_directory = os.getcwd()
-    if not directory:
-        directory = tempfile.mkdtemp()
+    directory = directory or tempfile.mkdtemp()
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
-
-        if scaling % 1:
-            raise ValueError(f"Scaling should be an integer, not {scaling}")
+        if scaling % 1 != 0:
+            raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
-
         # Set supercell to identity (will make supercell with pymatgen)
         with open("sqscell.out", "w") as f:
             f.write("1\n1 0 0\n0 1 0\n0 0 1\n")
@@ -107,20 +101,14 @@ def run_mcsqs(
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
     for num in clusters:
-        mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
+        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
 
     # Run mcsqs to find clusters
-    with Popen(mcsqs_generate_clusters_cmd) as p:
-        p.communicate()
+    with Popen(mcsqs_generate_clusters_cmd) as process:
+        process.communicate()
 
     # Generate SQS structures
-    add_ons = [
-        f"-T {temperature}",
-        f"-wr {wr}",
-        f"-wn {wn}",
-        f"-wd {wd}",
-        f"-tol {tol}",
-    ]
+    add_ons = [f"-T {temperature}", f"-wr {wr}", f"-wn {wn}", f"-wd {wd}", f"-tol {tol}"]
 
     mcsqs_find_sqs_processes = []
     if instances and instances > 1:
@@ -128,21 +116,21 @@ def run_mcsqs(
         for i in range(instances):
             instance_cmd = [f"-ip {i + 1}"]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
-            p = Popen(cmd)  # pylint: disable=R1732
-            mcsqs_find_sqs_processes.append(p)
+            process = Popen(cmd)
+            mcsqs_find_sqs_processes.append(process)
     else:
         # run normal mcsqs command
         cmd = mcsqs_find_sqs_cmd + add_ons
-        p = Popen(cmd)  # pylint: disable=R1732
-        mcsqs_find_sqs_processes.append(p)
+        process = Popen(cmd)
+        mcsqs_find_sqs_processes.append(process)
 
     try:
-        for idx, p in enumerate(mcsqs_find_sqs_processes):
-            p.communicate(timeout=search_time * 60)
+        for process in mcsqs_find_sqs_processes:
+            process.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
-            p.communicate()
+            process = Popen(["mcsqs", "-best"])
+            process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
             return _parse_sqs_path(".")
@@ -150,53 +138,49 @@ def run_mcsqs(
         raise RuntimeError("mcsqs exited before timeout reached")
 
     except TimeoutExpired:
-        for p in mcsqs_find_sqs_processes:
-            p.kill()
-            p.communicate()
+        for process in mcsqs_find_sqs_processes:
+            process.kill()
+            process.communicate()
 
         # Find the best sqs structures
         if instances and instances > 1:
-
             if not os.path.exists("bestcorr1.out"):
                 raise RuntimeError(
                     "mcsqs did not generate output files, "
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
-            p.communicate()
+            process = Popen(["mcsqs", "-best"])
+            process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         os.chdir(original_directory)
         raise TimeoutError("Cluster expansion took too long.")
 
 
 def _parse_sqs_path(path) -> Sqs:
-    """
-    Private function to parse mcsqs output directory
+    """Private function to parse mcsqs output directory
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-
     path = Path(path)
 
     # detected instances will be 0 if mcsqs was run in series, or number of instances
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
-    # Convert best SQS structure to cif file and pymatgen Structure
+    # Convert best SQS structure to CIF file and pymatgen Structure
     with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as p:
         p.communicate()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        bestsqs = Structure.from_file(path / "bestsqs.out")
+        best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
     with open(path / "bestcorr.out") as f:
@@ -204,13 +188,10 @@ def _parse_sqs_path(path) -> Sqs:
 
     objective_function_str = lines[-1].split("=")[-1].strip()
     objective_function: float | str
-    if objective_function_str != "Perfect_match":
-        objective_function = float(objective_function_str)
-    else:
-        objective_function = "Perfect_match"
+    objective_function = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
 
     # Get all SQS structures and objective functions
-    allsqs = []
+    all_sqs = []
 
     for i in range(detected_instances):
         sqs_out = f"bestsqs{i + 1}.out"
@@ -218,41 +199,34 @@ def _parse_sqs_path(path) -> Sqs:
         corr_out = f"bestcorr{i + 1}.out"
         with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
             p.communicate()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            sqs = Structure.from_file(path / sqs_out)
+        sqs = Structure.from_file(path / sqs_out)
         with open(path / corr_out) as f:
             lines = f.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
         obj: float | str
-        if objective_function_str != "Perfect_match":
-            obj = float(objective_function_str)
-        else:
-            obj = "Perfect_match"
-        allsqs.append({"structure": sqs, "objective_function": obj})
+        obj = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
+        all_sqs.append({"structure": sqs, "objective_function": obj})
 
     clusters = _parse_clusters(path / "clusters.out")
 
     return Sqs(
-        bestsqs=bestsqs,
+        bestsqs=best_sqs,
         objective_function=objective_function,
-        allsqs=allsqs,
+        allsqs=all_sqs,
         directory=str(path.resolve()),
         clusters=clusters,
     )
 
 
 def _parse_clusters(filename):
-    """
-    Private function to parse clusters.out file
+    """Private function to parse clusters.out file
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         List of dicts
     """
-
     with open(filename) as f:
         lines = f.readlines()
 

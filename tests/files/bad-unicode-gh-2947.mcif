@@ -1,0 +1,162 @@
+#\#CIF_2.0
+# Created by the Bilbao Crystallographic Server
+# http://www.cryst.ehu.es
+# Date: 11/19/2017 17:05:30
+# Database entry: 1.6 NiO
+# Cif-like file for the case 1.6
+
+
+data_5yOhtAoR
+_audit_creation_date            2017-11-19
+_audit_creation_method          "Bilbao Crystallographic Server"
+
+_chemical_name_systematic
+;
+;
+_chemical_name_common                    ?
+_chemical_formula_moiety                 ?
+_chemical_formula_structural             ?
+_chemical_formula_analytical             ?
+_chemical_formula_iupac                  ?
+_chemical_formula_sum                    'Ni O'
+_chemical_formula_weight                 ?
+_chemical_melting_point                  ?
+_chemical_compound_source                ?
+_chemical_absolute_configuration         .
+
+
+_citation_journal_abbrev        "Physica B"
+_citation_journal_volume        385Ð386
+_citation_page_first            394
+_citation_page_last             ?
+_citation_article_id            .
+_citation_year                  2006
+_citation_DOI                   10.1016/j.physb.2006.05.082
+
+loop_
+_citation_author_name
+"E. Ressouche"
+"N. Kernavanois"
+"L.-P. Regnault"
+"J.-Y. Henry"
+
+
+
+
+
+_atomic_positions_source_database_code_ICSD  .
+_atomic_positions_source_other               .
+
+_transition_temperature     523
+_experiment_temperature     ?
+
+loop_
+_irrep_id
+_irrep_dimension
+_irrep_small_dimension
+_irrep_direction_type
+_irrep_action
+_irrep_modes_number
+_irrep_presence
+mL3+ 8 2 special primary . .
+
+_exptl_crystal_magnetic_properties_details
+;
+SNP
+arbitrary spin scale.
+spins along the (11-2) direction, perpendicular to the propagation vector
+monoclinic axis along (1,-1,0) direction, also perpendicular to k.
+;
+
+_active_magnetic_irreps_details
+;
+irrep mL3+, special direction.
+a secondary weak spin component (irrep mL2+, 1dim-irrep) along the propagation vector, direction (1,1,1), is allowed and sometimes reported. Not included here.
+;
+
+_parent_space_group.name_H-M_alt  'F  m  -3m'
+_parent_space_group.IT_number                       225
+_parent_space_group.transform_Pp_abc  'a,b,c;0,0,0'
+
+loop_
+_parent_propagation_vector.id
+_parent_propagation_vector.kxkykz
+k1 [1/2 1/2 1/2]
+
+_parent_space_group.child_transform_Pp_abc  '2a,2b,2c;0,0,0'
+_space_group_magn.transform_BNS_Pp_abc  'a/4+b/4-c/2,a/4-b/4,-a/2-b/2;0,0,0'
+
+
+_space_group_magn.number_BNS  15.90
+_space_group_magn.name_BNS  "C_c  2/c"
+_space_group_magn.point_group_name  "2/m1'"
+_space_group_magn.point_group_number  "5.2.13"
+_cell_length_a                 8.3500
+_cell_length_b                 8.3500
+_cell_length_c                 8.3500
+_cell_angle_alpha              90.0000
+_cell_angle_beta               90.0000
+_cell_angle_gamma              90.0000
+
+loop_
+_space_group_symop_magn_operation.id
+_space_group_symop_magn_operation.xyz
+1 x,y,z,+1
+2 -y+3/4,-x+3/4,-z,+1
+3 -x+1/4,-y+3/4,-z,+1
+4 y,x+1/2,z,+1
+
+loop_
+_space_group_symop_magn_centering.id
+_space_group_symop_magn_centering.xyz
+1 x,y,z,+1
+2 x,y+1/4,z+3/4,+1
+3 x,y+1/2,z+1/2,+1
+4 x,y+3/4,z+1/4,+1
+5 x+1/4,y,z+3/4,+1
+6 x+1/4,y+1/4,z+1/2,+1
+7 x+1/4,y+1/2,z+1/4,+1
+8 x+1/4,y+3/4,z,+1
+9 x+1/2,y,z+1/2,+1
+10 x+1/2,y+1/4,z+1/4,+1
+11 x+1/2,y+1/2,z,+1
+12 x+1/2,y+3/4,z+3/4,+1
+13 x+3/4,y,z+1/4,+1
+14 x+3/4,y+1/4,z,+1
+15 x+3/4,y+1/2,z+3/4,+1
+16 x+3/4,y+3/4,z+1/2,+1
+17 x+3/4,y+3/4,z,-1
+18 x+3/4,y,z+3/4,-1
+19 x+3/4,y+1/4,z+1/2,-1
+20 x+3/4,y+1/2,z+1/4,-1
+21 x,y+3/4,z+3/4,-1
+22 x,y,z+1/2,-1
+23 x,y+1/4,z+1/4,-1
+24 x,y+1/2,z,-1
+25 x+1/4,y+3/4,z+1/2,-1
+26 x+1/4,y,z+1/4,-1
+27 x+1/4,y+1/4,z,-1
+28 x+1/4,y+1/2,z+3/4,-1
+29 x+1/2,y+3/4,z+1/4,-1
+30 x+1/2,y,z,-1
+31 x+1/2,y+1/4,z+3/4,-1
+32 x+1/2,y+1/2,z+1/2,-1
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Ni Ni 0.00000 0.00000 0.00000 1
+O O 0.75000 0.50000 0.00000 1
+
+loop_
+_atom_site_moment.label
+_atom_site_moment.crystalaxis_x
+_atom_site_moment.crystalaxis_y
+_atom_site_moment.crystalaxis_z
+_atom_site_moment.symmform
+Ni 1. 1. -2. mx,mx,mz
+

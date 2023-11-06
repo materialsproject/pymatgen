@@ -1,0 +1,106 @@
+# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# as well as the pymatgen.ext package. Coverage is computed based on this workflow.
+name: Tests
+
+on:
+  push:
+    branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
+  pull_request:
+    branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [tests, release]
+        default: tests
+        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
+    strategy:
+      fail-fast: false
+      matrix:
+        # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.9", "3.11"]
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        # include/exclude is meant to maximize CI coverage of different platforms and python
+        # versions while minimizing the total number of jobs. We run all pytest splits with the
+        # oldest supported python version (currently 3.9) on windows (seems most likely to surface
+        # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
+        # coverage on unix). We ignore mac-os, which is assumed to be similar to ubuntu.
+        exclude:
+          - os: windows-latest
+            python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.9"
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/tests/files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+      PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.py
+      - name: Copy GULP to bin
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
+      - name: Install Bader
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+          tar xvzf bader_lnx_64.tar.gz
+          sudo mv bader /usr/local/bin/
+        continue-on-error: true # This is not critical to succeed.
+      - name: Install Enumlib
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          git clone --recursive https://github.com/msg-byu/enumlib.git
+          cd enumlib/symlib/src
+          export F90=gfortran
+          make
+          cd ../../src
+          make enum.x
+          sudo mv enum.x /usr/local/bin/
+          cd ..
+          sudo cp aux_src/makeStr.py /usr/local/bin/
+        continue-on-error: true # This is not critical to succeed.
+      - name: Install Packmol
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
+          tar xvzf packmol.tar.gz
+          export F90=gfortran
+          cd packmol-20.14.2
+          ./configure
+          make
+          sudo mv packmol /usr/local/bin/
+          cd ..
+        continue-on-error: true # This is not critical to succeed.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install numpy cython packaging
+          python -m pip install -e '.[dev,optional]'
+
+      - name: pytest split ${{ matrix.split }}
+        run: |
+          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests

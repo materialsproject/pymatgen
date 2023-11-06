@@ -2,8 +2,8 @@
 
 ## Supported Versions
 
-Currently we only support the latest release.
+We only provide active support for the [latest release](https://pypi.org/project/pymatgen).
 
 ## Reporting a Vulnerability
 
-Please submit any vulnerabilities or bug reports via Github Issues.
+Please submit any vulnerabilities or bug reports via [GitHub issues](https://github.com/materialsproject/pymatgen/issues).

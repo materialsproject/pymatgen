@@ -1,10 +1,9 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""A module to perform experimental thermochemical data analysis."""
 
-"""
-A module to perform experimental thermochemical data analysis.
-"""
 
+from __future__ import annotations
+
+from pymatgen.core.composition import Composition
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -13,16 +12,11 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jun 10, 2012"
 
-
-from pymatgen.core.composition import Composition
-
 STANDARD_TEMP = 298.0
 
 
 class ThermoData:
-    """
-    A object container for an experimental Thermochemical Data.
-    """
+    """A object container for an experimental Thermochemical Data."""
 
     def __init__(
         self,
@@ -41,7 +35,7 @@ class ThermoData:
             data_type: The thermochemical data type. Should be one of the
                 following: fH - Formation enthalpy, S - Entropy,
                 A, B, C, D, E, F, G, H - variables for use in the various
-                quations for generating formation enthaplies or Cp at
+                equations for generating formation enthalpies or Cp at
                 various temperatures.
             cpdname (str): A name for the compound. For example, hematite for
                 Fe2O3.
@@ -73,7 +67,7 @@ class ThermoData:
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             ThermoData
@@ -87,13 +81,11 @@ class ThermoData:
             d["ref"],
             d["method"],
             d["temp_range"],
-            d.get("uncertainty", None),
+            d.get("uncertainty"),
         )
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -109,19 +101,8 @@ class ThermoData:
         }
 
     def __repr__(self):
-        props = [
-            "formula",
-            "compound_name",
-            "phaseinfo",
-            "type",
-            "temp_range",
-            "value",
-            "method",
-            "ref",
-            "uncertainty",
-        ]
-        output = [f"{k} : {getattr(self, k)}" for k in props]
-        return "\n".join(output)
+        props = ["formula", "compound_name", "phaseinfo", "type", "temp_range", "value", "method", "ref", "uncertainty"]
+        return "\n".join(f"{k} : {getattr(self, k)}" for k in props)
 
     def __str__(self):
         return (

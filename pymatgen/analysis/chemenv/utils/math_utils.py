@@ -1,9 +1,12 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module contains some math utils that are used in the chemenv package."""
 
-"""
-This module contains some math utils that are used in the chemenv package.
-"""
+from __future__ import annotations
+
+from functools import reduce
+from math import sqrt
+
+import numpy as np
+from scipy.special import erf
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -12,12 +15,6 @@ __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
-
-from functools import reduce
-from math import sqrt
-
-import numpy as np
-from scipy.special import erf
 
 ##############################################################
 # Cartesian product of lists ##################################
@@ -31,7 +28,7 @@ def _append_es2sequences(sequences, es):
             result.append([e])
     else:
         for e in es:
-            result += [seq + [e] for seq in sequences]
+            result += [[*seq, e] for seq in sequences]
     return result
 
 
@@ -39,23 +36,23 @@ def _cartesian_product(lists):
     """
     given a list of lists,
     returns all the possible combinations taking one element from each list
-    The list does not have to be of equal length
+    The list does not have to be of equal length.
     """
     return reduce(_append_es2sequences, lists, [])
 
 
-def prime_factors(n):
+def prime_factors(n: int) -> list[int]:
     """Lists prime factors of a given natural integer, from greatest to smallest
     :param n: Natural integer
-    :rtype : list of all prime factors of the given natural n
+    :rtype : list of all prime factors of the given natural n.
     """
-    i = 2
-    while i <= sqrt(n):
-        if n % i == 0:
-            l = prime_factors(n / i)
-            l.append(i)
-            return l
-        i += 1
+    idx = 2
+    while idx <= sqrt(n):
+        if n % idx == 0:
+            lst = prime_factors(n // idx)
+            lst.append(idx)
+            return lst
+        idx += 1
     return [n]  # n is prime
 
 
@@ -63,7 +60,6 @@ def _factor_generator(n):
     """
     From a given natural integer, returns the prime factors and their multiplicity
     :param n: Natural integer
-    :return:
     """
     p = prime_factors(n)
     factors = {}
@@ -79,11 +75,13 @@ def divisors(n):
     """
     From a given natural integer, returns the list of divisors in ascending order
     :param n: Natural integer
-    :return: List of divisors of n in ascending order
+
+    Returns:
+        List of divisors of n in ascending order.
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
+    listexponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
     listfactors = _cartesian_product(listexponents)
     for f in listfactors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))
@@ -96,7 +94,6 @@ def get_center_of_arc(p1, p2, radius):
     :param p1:
     :param p2:
     :param radius:
-    :return:
     """
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
@@ -113,7 +110,6 @@ def get_center_of_arc(p1, p2, radius):
 def get_linearly_independent_vectors(vectors_list):
     """
     :param vectors_list:
-    :return:
     """
     independent_vectors_list = []
     for vector in vectors_list:
@@ -140,7 +136,6 @@ def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
     :param edge1:
     :param clamp0:
     :param clamp1:
-    :return:
     """
     return np.clip((xx - edge0) / (edge1 - edge0), clamp0, clamp1)
 
@@ -151,7 +146,6 @@ def normal_cdf_step(xx, mean, scale):
     :param xx:
     :param mean:
     :param scale:
-    :return:
     """
     return 0.5 * (1.0 + erf((xx - mean) / (np.sqrt(2.0) * scale)))
 
@@ -168,7 +162,6 @@ def smoothstep(xx, edges=None, inverse=False):
     :param xx:
     :param edges:
     :param inverse:
-    :return:
     """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -184,7 +177,6 @@ def smootherstep(xx, edges=None, inverse=False):
     :param xx:
     :param edges:
     :param inverse:
-    :return:
     """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -200,7 +192,6 @@ def cosinus_step(xx, edges=None, inverse=False):
     :param xx:
     :param edges:
     :param inverse:
-    :return:
     """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -216,7 +207,6 @@ def power3_step(xx, edges=None, inverse=False):
     :param xx:
     :param edges:
     :param inverse:
-    :return:
     """
     return smoothstep(xx, edges=edges, inverse=inverse)
 
@@ -227,7 +217,6 @@ def powern_parts_step(xx, edges=None, inverse=False, nn=2):
     :param edges:
     :param inverse:
     :param nn:
-    :return:
     """
     if edges is None:
         aa = np.power(0.5, 1.0 - nn)
@@ -269,7 +258,6 @@ def powern_decreasing(xx, edges=None, nn=2):
     :param xx:
     :param edges:
     :param nn:
-    :return:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, nn)
@@ -283,7 +271,6 @@ def power2_decreasing_exp(xx, edges=None, alpha=1.0):
     :param xx:
     :param edges:
     :param alpha:
-    :return:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2)
@@ -302,14 +289,10 @@ def power2_tangent_decreasing(xx, edges=None, prefactor=None):
     :param xx:
     :param edges:
     :param prefactor:
-    :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
-        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)  # pylint: disable=E1130
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
+        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_tangent_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -320,13 +303,9 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
     :param xx:
     :param edges:
     :param prefactor:
-    :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
         # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
@@ -338,13 +317,9 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
     :param xx:
     :param edges:
     :param prefactor:
-    :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return np.where(
             np.isclose(xx, 0.0),
             aa * float("inf"),
@@ -360,13 +335,9 @@ def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0)
     :param edges:
     :param prefactor:
     :param powern:
-    :return:
     """
     if edges is None:
-        if prefactor is None:
-            aa = 1.0 / np.power(-1.0, 2)
-        else:
-            aa = prefactor
+        aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
         return aa * np.power(xx - 1.0, 2) / xx**powern
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)

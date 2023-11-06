@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -9,22 +6,24 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
-import glob
-import os
+from __future__ import annotations
 
+import os
+from glob import glob
+
+import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MSONable, jsanitize
 from scipy.interpolate import CubicSpline
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.io.vasp import Outcar, Poscar
+from pymatgen.core import Structure
+from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
 
 
 class NEBAnalysis(MSONable):
-    """
-    An NEBAnalysis class.
-    """
+    """An NEBAnalysis class."""
 
     def __init__(self, r, energies, forces, structures, spline_options=None):
         """
@@ -57,7 +56,7 @@ class NEBAnalysis(MSONable):
 
     def setup_spline(self, spline_options=None):
         """
-        Setup of the options for the spline interpolation
+        Setup of the options for the spline interpolation.
 
         Args:
             spline_options (dict): Options for cubic spline. For example,
@@ -86,7 +85,7 @@ class NEBAnalysis(MSONable):
     def from_outcars(cls, outcars, structures, **kwargs):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g., :class:`from_dir` instead if you
+        the static constructors, e.g., from_dir instead if you
         prefer to have these automatically generated from a directory of NEB
         calculations.
 
@@ -153,7 +152,7 @@ class NEBAnalysis(MSONable):
                 max_extrema.append((x[i] * scale, y[i]))
         return min_extrema, max_extrema
 
-    def get_plot(self, normalize_rxn_coordinate=True, label_barrier=True):
+    def get_plot(self, normalize_rxn_coordinate: bool = True, label_barrier: bool = True) -> plt.Axes:
         """
         Returns the NEB plot. Uses Henkelman's approach of spline fitting
         each section of the reaction path based on tangent force and energies.
@@ -164,14 +163,14 @@ class NEBAnalysis(MSONable):
             label_barrier (bool): Whether to label the maximum barrier.
 
         Returns:
-            matplotlib.pyplot object.
+            plt.Axes: matplotlib axes object.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
         relative_energies = self.energies - self.energies[0]
-        plt.plot(
+        ax.plot(
             self.r * scale,
             relative_energies * 1000,
             "ro",
@@ -181,21 +180,21 @@ class NEBAnalysis(MSONable):
             linewidth=2,
             markersize=10,
         )
-        plt.xlabel("Reaction coordinate")
-        plt.ylabel("Energy (meV)")
-        plt.ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
+        ax.set_xlabel("Reaction coordinate")
+        ax.set_ylabel("Energy (meV)")
+        ax.set_ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
         if label_barrier:
             data = zip(x * scale, y)
             barrier = max(data, key=lambda d: d[1])
-            plt.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
-            plt.annotate(
+            ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
+            ax.annotate(
                 f"{np.max(y) - np.min(y):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
             )
         plt.tight_layout()
-        return plt
+        return ax
 
     @classmethod
     def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs):
@@ -236,10 +235,10 @@ class NEBAnalysis(MSONable):
         """
         neb_dirs = []
 
-        for d in os.listdir(root_dir):
-            pth = os.path.join(root_dir, d)
-            if os.path.isdir(pth) and d.isdigit():
-                i = int(d)
+        for digit in os.listdir(root_dir):
+            pth = os.path.join(root_dir, digit)
+            if os.path.isdir(pth) and digit.isdigit():
+                i = int(digit)
                 neb_dirs.append((i, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
         outcars = []
@@ -255,24 +254,24 @@ class NEBAnalysis(MSONable):
         terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
 
         for i, d in neb_dirs:
-            outcar = glob.glob(os.path.join(d, "OUTCAR*"))
-            contcar = glob.glob(os.path.join(d, "CONTCAR*"))
-            poscar = glob.glob(os.path.join(d, "POSCAR*"))
+            outcar = glob(f"{d}/OUTCAR*")
+            contcar = glob(f"{d}/CONTCAR*")
+            poscar = glob(f"{d}/POSCAR*")
             terminal = i in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
-                    outcar = glob.glob(os.path.join(od, "OUTCAR*"))
+                    outcar = glob(f"{od}/OUTCAR*")
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
                     raise ValueError(f"OUTCAR cannot be found for terminal point {d}")
-                structures.append(Poscar.from_file(poscar[0]).structure)
+                structures.append(Structure.from_file(poscar[0]))
             else:
                 outcars.append(Outcar(outcar[0]))
-                structures.append(Poscar.from_file(contcar[0]).structure)
+                structures.append(Structure.from_file(contcar[0]))
         return NEBAnalysis.from_outcars(outcars, structures, **kwargs)
 
     def as_dict(self):
@@ -294,7 +293,7 @@ class NEBAnalysis(MSONable):
 
 def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=False):
     """
-    neb_analyses: a list of NEBAnalysis objects
+    neb_analyses: a list of NEBAnalysis objects.
 
     arranged_neb_analyses: The code connects two end points with the
     smallest-energy difference. If all end points have very close energies, it's

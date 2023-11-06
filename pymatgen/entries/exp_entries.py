@@ -1,9 +1,12 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module defines Entry classes for containing experimental data."""
 
-"""
-This module defines Entry classes for containing experimental data.
-"""
+from __future__ import annotations
+
+from monty.json import MSONable
+
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.analysis.thermochemistry import ThermoData
+from pymatgen.core.composition import Composition
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -13,16 +16,8 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jun 27, 2012"
 
 
-from monty.json import MSONable
-
-from pymatgen.analysis.phase_diagram import PDEntry
-from pymatgen.analysis.thermochemistry import ThermoData
-from pymatgen.core.composition import Composition
-
-
 class ExpEntry(PDEntry, MSONable):
-    """
-    An lightweight ExpEntry object containing experimental data for a
+    """An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for
     phase diagram generation and reaction calculation.
 
@@ -55,22 +50,18 @@ class ExpEntry(PDEntry, MSONable):
     def __repr__(self):
         return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
 
-    def __str__(self):
-        return self.__repr__()
-
     @classmethod
     def from_dict(cls, d):
-        """
-        :param d: Dict representation.
-        :return: ExpEntry
+        """:param d: Dict representation.
+
+        Returns:
+            ExpEntry
         """
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
         return cls(d["composition"], thermodata, d["temperature"])
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

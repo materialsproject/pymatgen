@@ -1,8 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Entries are containers for calculated information, which is used in
+"""Entries are containers for calculated information, which is used in
 many analyses. This module contains entry related tools and implements
 the base Entry class, which is the basic entity that can be used to
 store calculated information. Other Entry classes such as ComputedEntry
@@ -12,12 +8,16 @@ and PDEntry inherit from this class.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Literal, Union
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
+
+if TYPE_CHECKING:
+    from pymatgen.core import DummySpecies, Element, Species
+
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -29,27 +29,20 @@ __date__ = "Mar 03, 2020"
 
 
 class Entry(MSONable, metaclass=ABCMeta):
-    """
-    A lightweight object containing the energy associated with
+    """A lightweight object containing the energy associated with
     a specific chemical composition. This base class is not
     intended to be instantiated directly. Note that classes
     which inherit from Entry must define a .energy property.
 
     """
 
-    def __init__(
-        self,
-        composition: Composition | str | dict[str, float],
-        energy: float,
-    ):
-        """
-        Initializes an Entry.
+    def __init__(self, composition: Composition | str | dict[str, float], energy: float) -> None:
+        """Initializes an Entry.
 
         Args:
             composition (Composition): Composition of the entry. For
-                flexibility, this can take the form of all the typical input
-                taken by a Composition, including a {symbol: amt} dict,
-                a string formula, and others.
+                flexibility, this can take the form of all the typical input taken by a
+                Composition, including a {symbol: amt} dict, a string formula, and others.
             energy (float): Energy of the entry.
         """
         self._composition = Composition(composition)
@@ -57,50 +50,42 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     @property
     def is_element(self) -> bool:
-        """
-        :return: Whether composition of entry is an element.
-        """
-        # NOTE _composition rather than composition as GrandPDEntry
-        # edge case exists if we have a compound where chempots are
-        # given for all bar one element type
+        """Whether composition of entry is an element."""
+        # NOTE _composition rather than composition as GrandPDEntry edge case exists if we
+        # have a compound where chempots are given for all bar one element type
         return self._composition.is_element
 
     @property
     def composition(self) -> Composition:
-        """
-        :return: the composition of the entry.
-        """
+        """The composition of the entry."""
         return self._composition
 
     @property
     @abstractmethod
     def energy(self) -> float:
-        """
-        :return: the energy of the entry.
-        """
+        """The energy of the entry."""
+        raise NotImplementedError
+
+    @property
+    def elements(self) -> list[Element | Species | DummySpecies]:
+        """The set of elements in the entry."""
+        return self._composition.elements
 
     @property
     def energy_per_atom(self) -> float:
-        """
-        :return: the energy per atom of the entry.
-        """
+        """The energy per atom of the entry."""
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
         return f"{type(self).__name__} : {self.composition} with energy = {self.energy:.4f}"
 
-    def __str__(self):
-        return self.__repr__()
-
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> Entry:
-        """
-        Normalize the entry's composition and energy.
+        """Normalize the entry's composition and energy.
 
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
                 "atom" normalizes such that the composition amounts sum to 1.
         """
-
         factor = self._normalization_factor(mode)
         new_composition = self._composition / factor
         new_energy = self._energy / factor
@@ -125,9 +110,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         return factor
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -135,7 +118,9 @@ class Entry(MSONable, metaclass=ABCMeta):
             "composition": self._composition.as_dict(),
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.
         if self is other:
@@ -150,7 +135,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return self.composition == other.composition
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
         return hash(f"{type(self).__name__}{self._composition.formula}{self._energy:.8f}")

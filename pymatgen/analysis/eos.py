@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements various equation of states.
 
@@ -8,16 +5,22 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
 """
 
+from __future__ import annotations
+
 import logging
 import warnings
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
+
+if TYPE_CHECKING:
+    from matplotlib import pyplot as plt
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
@@ -27,7 +30,7 @@ logger = logging.getLogger(__file__)
 
 class EOSBase(metaclass=ABCMeta):
     """
-    Abstract class that must be subcalssed by all equation of state
+    Abstract class that must be subclassed by all equation of state
     implementations.
     """
 
@@ -35,7 +38,7 @@ class EOSBase(metaclass=ABCMeta):
         """
         Args:
             volumes (list/numpy.array): volumes in Ang^3
-            energies (list/numpy.array): energy in eV
+            energies (list/numpy.array): energy in eV.
         """
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
@@ -43,7 +46,7 @@ class EOSBase(metaclass=ABCMeta):
         # derivative of bulk modulus wrt pressure(b1), minimum volume(v0)
         self._params = None
         # the eos function parameters. It is the same as _params except for
-        # equation of states that uses polynomial fits(deltafactor and
+        # equation of states that uses polynomial fits(delta_factor and
         # numerical_eos)
         self.eos_params = None
 
@@ -62,10 +65,10 @@ class EOSBase(metaclass=ABCMeta):
         b0 = 2 * a * v0
         b1 = 4  # b1 is usually a small number like 4
 
-        vmin, vmax = min(self.volumes), max(self.volumes)
+        vol_min, vol_max = min(self.volumes), max(self.volumes)
 
-        if not vmin < v0 and v0 < vmax:
-            raise EOSError("The minimum volume of a fitted parabola is not in the input volumes\n.")
+        if not vol_min < v0 and v0 < vol_max:
+            raise EOSError("The minimum volume of a fitted parabola is not in the input volumes.")
 
         return e0, b0, b1, v0
 
@@ -74,8 +77,7 @@ class EOSBase(metaclass=ABCMeta):
         Do the fitting. Does least square fitting. If you want to use custom
         fitting, must override this.
         """
-        # the objective function that will be minimized in the least square
-        # fitting
+        # the objective function that will be minimized in the least square fitting
         self._params = self._initial_guess()
         self.eos_params, ierr = leastsq(
             lambda pars, x, y: y - self._func(x, pars),
@@ -84,7 +86,7 @@ class EOSBase(metaclass=ABCMeta):
         )
         # e0, b0, b1, v0
         self._params = self.eos_params
-        if ierr not in [1, 2, 3, 4]:
+        if ierr not in (1, 2, 3, 4):
             raise EOSError("Optimal parameters not found")
 
     @abstractmethod
@@ -94,8 +96,8 @@ class EOSBase(metaclass=ABCMeta):
         that derive from this abstract class.
 
         Args:
-            volume (float/numpy.array)
-             params (list/tuple): values for the parameters other than the
+            volume (float | list[float])
+            params (list | tuple): values for the parameters other than the
                 volume used by the eos.
         """
 
@@ -105,17 +107,17 @@ class EOSBase(metaclass=ABCMeta):
         to the ones obtained from fitting.
 
         Args:
-             volume (list/numpy.array)
+            volume (float | list[float]): volumes in Ang^3
 
         Returns:
             numpy.array
         """
         return self._func(np.array(volume), self.eos_params)
 
-    def __call__(self, volume):
+    def __call__(self, volume: float) -> float:
         """
         Args:
-            volume (): Volume
+            volume (float | list[float]): volume(s) in Ang^3
 
         Returns:
             Compute EOS with this volume.
@@ -124,9 +126,7 @@ class EOSBase(metaclass=ABCMeta):
 
     @property
     def e0(self):
-        """
-        Returns the min energy.
-        """
+        """Returns the min energy."""
         return self._params[0]
 
     @property
@@ -142,22 +142,18 @@ class EOSBase(metaclass=ABCMeta):
         """
         Returns the bulk modulus in GPa.
         Note: This assumes that the energy and volumes are in eV and Ang^3
-            respectively
+            respectively.
         """
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     @property
     def b1(self):
-        """
-        Returns the derivative of bulk modulus wrt pressure(dimensionless)
-        """
+        """Returns the derivative of bulk modulus wrt pressure(dimensionless)."""
         return self._params[2]
 
     @property
     def v0(self):
-        """
-        Returns the minimum or the reference volume in Ang^3.
-        """
+        """Returns the minimum or the reference volume in Ang^3."""
         return self._params[3]
 
     @property
@@ -168,9 +164,9 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             dict
         """
-        return dict(e0=self.e0, b0=self.b0, b1=self.b1, v0=self.v0)
+        return {"e0": self.e0, "b0": self.b0, "b1": self.b1, "v0": self.v0}
 
-    def plot(self, width=8, height=None, plt=None, dpi=None, **kwargs):
+    def plot(self, width=8, height=None, ax: plt.Axes = None, dpi=None, **kwargs):
         """
         Plot the equation of state.
 
@@ -178,66 +174,16 @@ class EOSBase(metaclass=ABCMeta):
             width (float): Width of plot in inches. Defaults to 8in.
             height (float): Height of plot in inches. Defaults to width *
                 golden ratio.
-            plt (matplotlib.pyplot): If plt is supplied, changes will be made
-                to an existing plot. Otherwise, a new plot will be created.
+            ax (plt.Axes): If supplied, changes will be made to the existing Axes.
+                Otherwise, new Axes will be created.
             dpi:
             kwargs (dict): additional args fed to pyplot.plot.
                 supported keys: style, color, text, label
 
         Returns:
-            Matplotlib plot object.
+            plt.Axes: The matplotlib axes.
         """
-        # pylint: disable=E1307
-        plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
-
-        color = kwargs.get("color", "r")
-        label = kwargs.get("label", f"{type(self).__name__} fit")
-        lines = [
-            f"Equation of State: {type(self).__name__}",
-            f"Minimum energy = {self.e0:1.2f} eV",
-            f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
-            f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
-        ]
-        text = "\n".join(lines)
-        text = kwargs.get("text", text)
-
-        # Plot input data.
-        plt.plot(self.volumes, self.energies, linestyle="None", marker="o", color=color)
-
-        # Plot eos fit.
-        vmin, vmax = min(self.volumes), max(self.volumes)
-        vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
-        vfit = np.linspace(vmin, vmax, 100)
-
-        plt.plot(vfit, self.func(vfit), linestyle="dashed", color=color, label=label)
-
-        plt.grid(True)
-        plt.xlabel("Volume $\\AA^3$")
-        plt.ylabel("Energy (eV)")
-        plt.legend(loc="best", shadow=True)
-        # Add text with fit parameters.
-        plt.text(0.4, 0.5, text, transform=plt.gca().transAxes)
-
-        return plt
-
-    @add_fig_kwargs
-    def plot_ax(self, ax=None, fontsize=12, **kwargs):
-        """
-        Plot the equation of state on axis `ax`
-
-        Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
-            fontsize: Legend fontsize.
-            color (str): plot color.
-            label (str): Plot label
-            text (str): Legend text (options)
-
-        Returns:
-            Matplotlib figure object.
-        """
-        # pylint: disable=E1307
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax = pretty_plot(width=width, height=height, ax=ax, dpi=dpi)
 
         color = kwargs.get("color", "r")
         label = kwargs.get("label", f"{type(self).__name__} fit")
@@ -261,7 +207,55 @@ class EOSBase(metaclass=ABCMeta):
 
         ax.plot(vfit, self.func(vfit), linestyle="dashed", color=color, label=label)
 
-        ax.grid(True)
+        ax.grid(visible=True)
+        ax.set_xlabel("Volume $\\AA^3$")
+        ax.set_ylabel("Energy (eV)")
+        ax.legend(loc="best", shadow=True)
+        # Add text with fit parameters.
+        ax.text(0.4, 0.5, text, transform=ax.transAxes)
+
+        return ax
+
+    @add_fig_kwargs
+    def plot_ax(self, ax: plt.Axes = None, fontsize=12, **kwargs):
+        """
+        Plot the equation of state on axis `ax`.
+
+        Args:
+            ax: matplotlib Axes or None if a new figure should be created.
+            fontsize: Legend fontsize.
+            color (str): plot color.
+            label (str): Plot label
+            text (str): Legend text (options)
+
+        Returns:
+            plt.Figure: matplotlib figure.
+        """
+        ax, fig = get_ax_fig(ax=ax)
+
+        color = kwargs.get("color", "r")
+        label = kwargs.get("label", f"{type(self).__name__} fit")
+        lines = [
+            f"Equation of State: {type(self).__name__}",
+            f"Minimum energy = {self.e0:1.2f} eV",
+            f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
+            f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
+            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
+        ]
+        text = "\n".join(lines)
+        text = kwargs.get("text", text)
+
+        # Plot input data.
+        ax.plot(self.volumes, self.energies, linestyle="None", marker="o", color=color)
+
+        # Plot eos fit.
+        vmin, vmax = min(self.volumes), max(self.volumes)
+        vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
+        vfit = np.linspace(vmin, vmax, 100)
+
+        ax.plot(vfit, self.func(vfit), linestyle="dashed", color=color, label=label)
+
+        ax.grid(visible=True)
         ax.set_xlabel("Volume $\\AA^3$")
         ax.set_ylabel("Energy (eV)")
         ax.legend(loc="best", shadow=True)
@@ -280,80 +274,62 @@ class EOSBase(metaclass=ABCMeta):
 
 
 class Murnaghan(EOSBase):
-    """
-    Murnaghan EOS.
-    """
+    """Murnaghan EOS."""
 
     def _func(self, volume, params):
-        """
-        From PRB 28,5480 (1983)
-        """
+        """From PRB 28,5480 (1983)."""
         e0, b0, b1, v0 = tuple(params)
         return e0 + b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1.0) + 1.0) - v0 * b0 / (b1 - 1.0)
 
 
 class Birch(EOSBase):
-    """
-    Birch EOS.
-    """
+    """Birch EOS."""
 
     def _func(self, volume, params):
         """
         From Intermetallic compounds: Principles and Practice, Vol. I:
         Principles Chapter 9 pages 195-210 by M. Mehl. B. Klein,
         D. Papaconstantopoulos.
-        case where n=0
+        case where n=0.
         """
         e0, b0, b1, v0 = tuple(params)
         return (
             e0
-            + 9.0 / 8.0 * b0 * v0 * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 2
-            + 9.0 / 16.0 * b0 * v0 * (b1 - 4.0) * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 3
+            + 9 / 8 * b0 * v0 * ((v0 / volume) ** (2 / 3.0) - 1.0) ** 2
+            + 9 / 16 * b0 * v0 * (b1 - 4.0) * ((v0 / volume) ** (2 / 3.0) - 1.0) ** 3
         )
 
 
 class BirchMurnaghan(EOSBase):
-    """
-    BirchMurnaghan EOS
-    """
+    """BirchMurnaghan EOS."""
 
     def _func(self, volume, params):
-        """
-        BirchMurnaghan equation from PRB 70, 224107
-        """
+        """BirchMurnaghan equation from PRB 70, 224107."""
         e0, b0, b1, v0 = tuple(params)
-        eta = (v0 / volume) ** (1.0 / 3.0)
-        return e0 + 9.0 * b0 * v0 / 16.0 * (eta**2 - 1) ** 2 * (6 + b1 * (eta**2 - 1.0) - 4.0 * eta**2)
+        eta = (v0 / volume) ** (1 / 3)
+        return e0 + 9 * b0 * v0 / 16 * (eta**2 - 1) ** 2 * (6 + b1 * (eta**2 - 1.0) - 4 * eta**2)
 
 
 class PourierTarantola(EOSBase):
-    """
-    PourierTarantola EOS
-    """
+    """PourierTarantola EOS."""
 
     def _func(self, volume, params):
-        """
-        Pourier-Tarantola equation from PRB 70, 224107
-        """
+        """Pourier-Tarantola equation from PRB 70, 224107."""
         e0, b0, b1, v0 = tuple(params)
-        eta = (volume / v0) ** (1.0 / 3.0)
-        squiggle = -3.0 * np.log(eta)
-        return e0 + b0 * v0 * squiggle**2 / 6.0 * (3.0 + squiggle * (b1 - 2))
+        eta = (volume / v0) ** (1 / 3)
+        squiggle = -3 * np.log(eta)
+        return e0 + b0 * v0 * squiggle**2 / 6 * (3 + squiggle * (b1 - 2))
 
 
 class Vinet(EOSBase):
-    """
-    Vinet EOS.
-    """
+    """Vinet EOS."""
 
     def _func(self, volume, params):
-        """
-        Vinet equation from PRB 70, 224107
-        """
+        """Vinet equation from PRB 70, 224107."""
         e0, b0, b1, v0 = tuple(params)
-        eta = (volume / v0) ** (1.0 / 3.0)
-        return e0 + 2.0 * b0 * v0 / (b1 - 1.0) ** 2 * (
-            2.0 - (5.0 + 3.0 * b1 * (eta - 1.0) - 3.0 * eta) * np.exp(-3.0 * (b1 - 1.0) * (eta - 1.0) / 2.0)
+        eta = (volume / v0) ** (1 / 3)
+        return e0 + 2 * b0 * v0 / (b1 - 1.0) ** 2 * (
+            2 - (5 + 3 * b1 * (eta - 1.0) - 3 * eta) * np.exp(-3 * (b1 - 1.0) * (eta - 1.0) / 2.0)
         )
 
 
@@ -371,7 +347,7 @@ class PolynomialEOS(EOSBase):
         Do polynomial fitting and set the parameters. Uses numpy polyfit.
 
         Args:
-             order (int): order of the fit polynomial
+            order (int): order of the fit polynomial
         """
         self.eos_params = np.polyfit(self.volumes, self.energies, order)
         self._set_params()
@@ -398,19 +374,15 @@ class PolynomialEOS(EOSBase):
 
 
 class DeltaFactor(PolynomialEOS):
-    """
-    Fitting a polynomial EOS using delta factor.
-    """
+    """Fitting a polynomial EOS using delta factor."""
 
     def _func(self, volume, params):
-        x = volume ** (-2.0 / 3.0)
+        x = volume ** (-2 / 3.0)
         return np.poly1d(list(params))(x)
 
     def fit(self, order=3):
-        """
-        Overridden since this eos works with volume**(2/3) instead of volume.
-        """
-        x = self.volumes ** (-2.0 / 3.0)
+        """Overridden since this eos works with volume**(2/3) instead of volume."""
+        x = self.volumes ** (-2 / 3.0)
         self.eos_params = np.polyfit(x, self.energies, order)
         self._set_params()
 
@@ -426,24 +398,22 @@ class DeltaFactor(PolynomialEOS):
 
         for x in np.roots(deriv1):
             if x > 0 and deriv2(x) > 0:
-                v0 = x ** (-3.0 / 2.0)
+                v0 = x ** (-3 / 2.0)
                 break
         else:
             raise EOSError("No minimum could be found")
 
-        derivV2 = 4.0 / 9.0 * x**5.0 * deriv2(x)
-        derivV3 = -20.0 / 9.0 * x ** (13.0 / 2.0) * deriv2(x) - 8.0 / 27.0 * x ** (15.0 / 2.0) * deriv3(x)
-        b0 = derivV2 / x ** (3.0 / 2.0)
-        b1 = -1 - x ** (-3.0 / 2.0) * derivV3 / derivV2
+        derivV2 = 4 / 9 * x**5 * deriv2(x)
+        derivV3 = -20 / 9 * x ** (13 / 2.0) * deriv2(x) - 8 / 27 * x ** (15 / 2.0) * deriv3(x)
+        b0 = derivV2 / x ** (3 / 2.0)
+        b1 = -1 - x ** (-3 / 2.0) * derivV3 / derivV2
 
         # e0, b0, b1, v0
-        self._params = [deriv0(v0 ** (-2.0 / 3.0)), b0, b1, v0]
+        self._params = [deriv0(v0 ** (-2 / 3.0)), b0, b1, v0]
 
 
 class NumericalEOS(PolynomialEOS):
-    """
-    A numerical EOS.
-    """
+    """A numerical EOS."""
 
     def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
         """
@@ -490,11 +460,11 @@ class NumericalEOS(PolynomialEOS):
         # sort by volume
         e_v = sorted(e_v, key=lambda x: x[1])
         # index of minimum energy tuple in the volume sorted list
-        emin_idx = e_v.index(e_min)
+        e_min_idx = e_v.index(e_min)
         # the volume lower than the volume corresponding to minimum energy
-        v_before = e_v[emin_idx - 1][1]
+        v_before = e_v[e_min_idx - 1][1]
         # the volume higher than the volume corresponding to minimum energy
-        v_after = e_v[emin_idx + 1][1]
+        v_after = e_v[e_min_idx + 1][1]
         e_v_work = deepcopy(e_v)
 
         # loop over the data points.
@@ -503,18 +473,18 @@ class NumericalEOS(PolynomialEOS):
             e = [ei[0] for ei in e_v_work]
             v = [ei[1] for ei in e_v_work]
             # loop over polynomial order
-            for i in range(min_poly_order, max_poly_order + 1):
-                coeffs = np.polyfit(v, e, i)
+            for idx in range(min_poly_order, max_poly_order + 1):
+                coeffs = np.polyfit(v, e, idx)
                 pder = np.polyder(coeffs)
                 a = np.poly1d(pder)(v_before)
                 b = np.poly1d(pder)(v_after)
                 if a * b < 0:
                     rms = get_rms(e, np.poly1d(coeffs)(v))
-                    rms_min = min(rms_min, rms * i / ndata_fit)
-                    all_coeffs[(i, ndata_fit)] = [coeffs.tolist(), rms]
+                    rms_min = min(rms_min, rms * idx / ndata_fit)
+                    all_coeffs[(idx, ndata_fit)] = [coeffs.tolist(), rms]
                     # store the fit coefficients small to large,
                     # i.e a0, a1, .. an
-                    all_coeffs[(i, ndata_fit)][0].reverse()
+                    all_coeffs[(idx, ndata_fit)][0].reverse()
             # remove 1 data point from each end.
             e_v_work.pop()
             e_v_work.pop(0)
@@ -579,15 +549,15 @@ class EOS:
        eos_fit.plot()
     """
 
-    MODELS = {
-        "murnaghan": Murnaghan,
-        "birch": Birch,
-        "birch_murnaghan": BirchMurnaghan,
-        "pourier_tarantola": PourierTarantola,
-        "vinet": Vinet,
-        "deltafactor": DeltaFactor,
-        "numerical_eos": NumericalEOS,
-    }
+    MODELS = dict(
+        murnaghan=Murnaghan,
+        birch=Birch,
+        birch_murnaghan=BirchMurnaghan,
+        pourier_tarantola=PourierTarantola,
+        vinet=Vinet,
+        deltafactor=DeltaFactor,
+        numerical_eos=NumericalEOS,
+    )
 
     def __init__(self, eos_name="murnaghan"):
         """
@@ -596,8 +566,8 @@ class EOS:
         """
         if eos_name not in self.MODELS:
             raise EOSError(
-                f"The equation of state '{eos_name}' is not supported. "
-                f"Please choose one from the following list: {list(self.MODELS.keys())}"
+                f"The equation of state {eos_name!r} is not supported. "
+                f"Please choose one from the following list: {list(self.MODELS)}"
             )
         self._eos_name = eos_name
         self.model = self.MODELS[eos_name]
@@ -619,6 +589,4 @@ class EOS:
 
 
 class EOSError(Exception):
-    """
-    Error class for EOS fitting.
-    """
+    """Error class for EOS fitting."""
