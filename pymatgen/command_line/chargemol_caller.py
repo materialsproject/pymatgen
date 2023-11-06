@@ -259,8 +259,8 @@ class ChargemolAnalysis:
                     rs.communicate()
                 if rs.returncode != 0:
                     raise RuntimeError(
-                        f"Chargemol exited with return code {int(rs.returncode)}.
-                        Please check your Chargemol installation."
+                        f"Chargemol exited with return code {int(rs.returncode)}. "
+                        "Please check your Chargemol installation."
                     )
 
                 self._from_data_dir()
