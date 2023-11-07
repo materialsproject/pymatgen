@@ -10,8 +10,8 @@ INCAR:
   ISIF: 3
   ISMEAR: 0 # included as a reasonable default
   ISPIN: 2
-  LASPH: true
-  LDAU: true
+  LASPH: True
+  LDAU: True
   LDAUJ:
     F:
       Co: 0
@@ -73,8 +73,8 @@ INCAR:
   LDAUPRINT: 1
   LMAXMIX: 6
   LORBIT: 11
-  LREAL: AUTO
-  LWAVE: false
+  LREAL: False
+  LWAVE: False
   NELM: 100
   NSW: 99
   PREC: Accurate

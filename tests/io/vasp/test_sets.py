@@ -454,6 +454,10 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert mpr.incar["ISMEAR"] == -5
         assert mpr.incar["SIGMA"] == 0.5
 
+        # check LREAL = False is the default
+        mpr = MPRelaxSet(struct)
+        assert mpr.incar["LREAL"] is False
+
     def test_get_kpoints(self):
         # check number of kpoints is correct for bandgap in [None, 0, 1]
         kpoints = MPRelaxSet(self.structure, bandgap=None).kpoints
@@ -1549,6 +1553,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert incar["LASPH"]
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
+        assert incar["LREAL"] is False
         assert incar["NSW"] == 500
         # the default POTCAR contains metals
         assert incar["KSPACING"] == 0.22

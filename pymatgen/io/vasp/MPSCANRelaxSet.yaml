@@ -13,7 +13,8 @@ INCAR:
   ISPIN: 2
   LORBIT: 11
   LASPH: True
-  LREAL: Auto
+  LREAL: false
+  LMAXMIX: 6
   LMIXTAU: True
   LCHARG: True # write CHGCAR
   LAECHG: True # write AECCAR
