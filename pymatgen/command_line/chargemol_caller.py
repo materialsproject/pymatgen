@@ -232,10 +232,10 @@ class ChargemolAnalysis:
             if CHARGEMOLEXE:
                 if isinstance(CHARGEMOLEXE, list):
                     CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
-                    CHARGEMOLEXE = cast("list[str]", CHARGEMOLEXE)
+                    CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
                 if not CHARGEMOLEXE:
                     raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-                popen_args = cast("str | list[str]", CHARGEMOLEXE)
+                popen_args = cast(str | list[str], CHARGEMOLEXE)
                 with subprocess.Popen(
                     popen_args,
                     stdout=subprocess.PIPE,
@@ -266,10 +266,10 @@ class ChargemolAnalysis:
                 if CHARGEMOLEXE:
                     if isinstance(CHARGEMOLEXE, list):
                         CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
-                        CHARGEMOLEXE = cast("list[str]", CHARGEMOLEXE)
+                        CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
                     if not CHARGEMOLEXE:
                         raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-                    popen_args = cast("str | list[str]", CHARGEMOLEXE)
+                    popen_args = cast(str | list[str], CHARGEMOLEXE)
                     with subprocess.Popen(
                         popen_args,
                         stdout=subprocess.PIPE,
