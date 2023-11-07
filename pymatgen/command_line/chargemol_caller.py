@@ -63,7 +63,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
 
-CHARGEMOL_EXE: str | list[str] = (
+CHARGEMOL_EXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
 )
 
@@ -74,7 +74,7 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
-    CHARGEMOLEXE: str | list[str] = (
+    CHARGEMOLEXE = (
         which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
     )
 
@@ -196,14 +196,14 @@ class ChargemolAnalysis:
         """
         if mpi:
             if ncores:
-                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
+                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE] # type: ignore
             else:
                 ncores = os.getenv("SLURM_CPUS_ON_NODE") or os.getenv("SLURM_NTASKS")
                 if not ncores:
                     ncores = str(multiprocessing.cpu_count())
-                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
+                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE] # type: ignore
         else:
-            CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE
+            CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE # type: ignore
 
         if self.save:
             save_path = Path(Path.cwd(), "charge")
@@ -231,12 +231,12 @@ class ChargemolAnalysis:
             if CHARGEMOLEXE:
                 if isinstance(CHARGEMOLEXE, list):
                     CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
-                    # CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
+                    popen_args: list[str] = CHARGEMOLEXE # type: ignore
                 if not CHARGEMOLEXE:
                     raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-                popen_args = CHARGEMOLEXE
+                popen_args = CHARGEMOLEXE  # type: ignore
                 with subprocess.Popen(
-                    popen_args,
+                    popen_args, # type: ignore
                     stdout=subprocess.PIPE,
                     stdin=subprocess.PIPE,
                     close_fds=True,
@@ -268,9 +268,9 @@ class ChargemolAnalysis:
                         # CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
                     if not CHARGEMOLEXE:
                         raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-                    popen_args = CHARGEMOLEXE
+                    popen_args = CHARGEMOLEXE # type: ignore
                     with subprocess.Popen(
-                        popen_args,
+                        popen_args, # type: ignore
                         stdout=subprocess.PIPE,
                         stdin=subprocess.PIPE,
                         close_fds=True,
