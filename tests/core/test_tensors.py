@@ -272,7 +272,7 @@ class TestTensor(PymatgenTest):
         reconstructed = []
         for k, v in reduced.items():
             reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
-        reconstructed = sorted(reconstructed, key=lambda x: np.argmax(x))
+        reconstructed = sorted(reconstructed, key=np.argmax)
         assert_allclose(list(reconstructed), np.eye(6) * 0.01)
 
     def test_tensor_mapping(self):

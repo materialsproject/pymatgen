@@ -160,12 +160,12 @@ class Keyword(MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(s):
+    @classmethod
+    def from_str(cls, s):
         """
         Initialize from a string.
 
-        Keywords must be labeled with strings. If the postprocessor finds
+        Keywords must be labeled with strings. If the post-processor finds
         that the keywords is a number, then None is return (used by
         the file reader).
 
@@ -183,7 +183,7 @@ class Keyword(MSONable):
         args = s.split()
         args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))
         args[0] = str(args[0])
-        return Keyword(*args, units=units[0], description=description)
+        return cls(*args, units=units[0], description=description)
 
     def verbosity(self, v):
         """Change the printing of this keyword's description."""
@@ -730,26 +730,26 @@ class Cp2kInput(Section):
             .subsections,
         )
 
-    @staticmethod
-    def from_file(file: str):
+    @classmethod
+    def from_file(cls, file: str):
         """Initialize from a file."""
         with zopen(file, "rt") as f:
             txt = preprocessor(f.read(), os.path.dirname(f.name))
-            return Cp2kInput.from_str(txt)
+            return cls.from_str(txt)
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(s: str):
+    @classmethod
+    def from_str(cls, s: str):
         """Initialize from a string."""
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
         lines = [line.strip() for line in lines]
         lines = [line for line in lines if line]
-        return Cp2kInput.from_lines(lines)
+        return cls.from_lines(lines)
 
     @classmethod
     def from_lines(cls, lines: list | tuple):

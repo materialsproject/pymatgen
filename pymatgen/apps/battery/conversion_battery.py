@@ -73,10 +73,7 @@ class ConversionElectrode(AbstractElectrode):
         if len(profile) < 2:
             return None
         working_ion = working_ion_entry.elements[0].symbol
-        normalization_els = {}
-        for el, amt in comp.items():
-            if el != Element(working_ion):
-                normalization_els[el] = amt
+        normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion)}
         framework = comp.as_dict()
         if working_ion in framework:
             framework.pop(working_ion)

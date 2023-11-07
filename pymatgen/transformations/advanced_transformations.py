@@ -1070,9 +1070,7 @@ class DopingTransformation(AbstractTransformation):
                 logger.info(f"Doping {sp} for {self.dopant} at level {1 / nsp:.3f}")
             elif self.codopant:
                 codopant = _find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore
-                supercell.replace_species(
-                    {sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}}
-                )  # type: ignore
+                supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})  # type: ignore
                 logger.info(f"Doping {sp} for {self.dopant} + {codopant} at level {1 / nsp:.3f}")
             elif abs(sp.oxi_state) < abs(ox):  # type: ignore
                 # Strategy: replace the target species with a

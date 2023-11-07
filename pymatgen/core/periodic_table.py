@@ -938,9 +938,7 @@ class Species(MSONable, Stringify):
             return NotImplemented
 
         return (
-            self.symbol == other.symbol
-            and self.oxi_state == other.oxi_state
-            and (self.spin == other.spin)  # type: ignore
+            self.symbol == other.symbol and self.oxi_state == other.oxi_state and (self.spin == other.spin)  # type: ignore
         )
 
     def __hash__(self) -> int:
@@ -1013,8 +1011,8 @@ class Species(MSONable, Stringify):
         """Use from_str instead."""
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(species_string: str) -> Species:
+    @classmethod
+    def from_str(cls, species_string: str) -> Species:
         """Returns a Species from a string representation.
 
         Args:
@@ -1053,10 +1051,10 @@ class Species(MSONable, Stringify):
 
             # but we need either an oxidation state or a property
             if oxi is None and properties == {}:
-                raise ValueError("Invalid Species String")
+                raise ValueError("Invalid species string")
 
-            return Species(sym, 0 if oxi is None else oxi, **properties)
-        raise ValueError("Invalid Species String")
+            return cls(sym, 0 if oxi is None else oxi, **properties)
+        raise ValueError("Invalid species string")
 
     def __repr__(self):
         return f"Species {self}"
@@ -1296,8 +1294,8 @@ class DummySpecies(Species):
     def __deepcopy__(self, memo):
         return DummySpecies(self.symbol, self._oxi_state)
 
-    @staticmethod
-    def from_str(species_string: str) -> DummySpecies:
+    @classmethod
+    def from_str(cls, species_string: str) -> DummySpecies:
         """Returns a Dummy from a string representation.
 
         Args:
@@ -1313,7 +1311,7 @@ class DummySpecies(Species):
         m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
-            if m.group(2) == "" and m.group(3) == "":
+            if m.group(2) == m.group(3) == "":
                 oxi = 0.0
             else:
                 oxi = 1.0 if m.group(2) == "" else float(m.group(2))
@@ -1322,7 +1320,7 @@ class DummySpecies(Species):
             if m.group(4):  # has Spin property
                 tokens = m.group(4).split("=")
                 properties = {tokens[0]: float(tokens[1])}
-            return DummySpecies(sym, oxi, **properties)
+            return cls(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self) -> dict:

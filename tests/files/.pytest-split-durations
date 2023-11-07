@@ -2504,7 +2504,7 @@
     "tests/util/test_coord.py::TestCoordUtils::test_lattice_points_in_supercell": 0.00042262504575774074,
     "tests/util/test_coord.py::TestCoordUtils::test_pbc_diff": 0.00033979100408032537,
     "tests/util/test_coord.py::TestCoordUtils::test_pbc_shortest_vectors": 0.0004611250478774309,
-    "tests/util/test_coord.py::TestSimplex::test_2dtriangle": 0.0004170419997535646,
+    "tests/util/test_coord.py::TestSimplex::test_2d_triangle": 0.0004170419997535646,
     "tests/util/test_coord.py::TestSimplex::test_bary_coords": 0.00034245802089571953,
     "tests/util/test_coord.py::TestSimplex::test_equal": 0.00038299994776025414,
     "tests/util/test_coord.py::TestSimplex::test_in_simplex": 0.0003631249419413507,

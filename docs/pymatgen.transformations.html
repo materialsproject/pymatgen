@@ -5,21 +5,21 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pymatgen.transformations package &mdash; pymatgen 2023.10.4 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.transformations.html"/>
   <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
+    <script src="assets/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=b21dff6d"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="assets/jquery.js?v=5d32c60e"></script>
+        <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="assets/documentation_options.js?v=b21dff6d"></script>
+        <script src="assets/doctools.js?v=888ff710"></script>
+        <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="_static/js/theme.js"></script>
+    <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
@@ -726,8 +726,8 @@ max_disordered_sites. Must set max_cell_size to None when using
 this parameter.</p></li>
 <li><p><strong>sort_criteria</strong> (<em>str</em><em> or </em><em>callable</em>) – Sort by Ewald energy (“ewald”, must have oxidation states and slow) or
 M3GNet relaxed energy (“m3gnet_relax”, which is the most accurate but most expensive and provides
-pre-relaxed structures - needs m3gnet package installed) or by M3GNet static energy (“m3gnet_static”)
-or by number of sites (“nsites”, the fastest, the default). The expense of m3gnet_relax or m3gnet_static
+pre-relaxed structures - needs m3gnet package installed) or by M3GNet static energy (“m3gnetassets”)
+or by number of sites (“nsites”, the fastest, the default). The expense of m3gnet_relax or m3gnetassets
 can be worth it if it significantly reduces the number of structures to be considered. m3gnet_relax
 speeds up the subsequent DFT calculations. Alternatively, a callable can be supplied that returns a
 (Structure, energy) tuple.</p></li>

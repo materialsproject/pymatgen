@@ -116,8 +116,8 @@ class TestFeffAtoms(unittest.TestCase):
         header = Header.from_str(header_string)
         struct = header.struct
         central_atom = "O"
-        a = Atoms(struct, central_atom, radius=10.0)
-        atoms = str(a)
+        atoms = Atoms(struct, central_atom, radius=10.0)
+        atoms = str(atoms)
         assert atoms.splitlines()[3].split()[4] == central_atom, "failed to create ATOMS string"
 
     def test_as_dict_and_from_dict(self):
@@ -136,6 +136,12 @@ class TestFeffAtoms(unittest.TestCase):
         assert mol_1.formula == mol_2.formula
         assert len(mol_1) == len(mol_2)
         os.remove("ATOMS_test")
+
+    def test_atom_num(self):
+        filepath = f"{TEST_FILES_DIR}/Pt37_atoms.inp.gz"
+        atoms = Atoms.cluster_from_file(filepath)
+        assert len(atoms) == 37
+        assert atoms.formula == "Pt37"
 
 
 class TestFeffTags(unittest.TestCase):

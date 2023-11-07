@@ -38,14 +38,14 @@ H      -1.22338913        1.57085004        0.00000000
 END
 """
 
-h2oxyz = """3
+h2o_xyz = """3
 0.0
 O -0.90293455 0.66591421 0.0
 H  0.05706545 0.66591421 0.0
 H -1.22338913 1.57085004 0.0
 """
 
-rhb18xyz = """19
+rhb18_xyz = """19
 0.0
 Rh       -0.453396   -0.375115    0.000000
 B         0.168139    3.232791    0.000000
@@ -70,7 +70,7 @@ B         0.445855   -2.382027   -2.415013
 
 
 def readfile(file_object):
-    """
+    """`
     Return the content of the file as a string.
 
     Parameters
@@ -170,7 +170,7 @@ class TestAdfKey:
 
     def test_atom_block_key(self):
         block = AdfKey("atoms")
-        o = Molecule.from_str(h2oxyz, "xyz")
+        o = Molecule.from_str(h2o_xyz, "xyz")
         for site in o:
             block.add_subkey(AdfKey(str(site.specie), list(site.coords)))
         assert str(block) == atoms_string
@@ -252,7 +252,7 @@ rhb18 = {
 class TestAdfInput(PymatgenTest):
     def test_main(self):
         tmp_file = f"{self.tmp_path}/adf.temp"
-        mol = Molecule.from_str(rhb18xyz, "xyz")
+        mol = Molecule.from_str(rhb18_xyz, "xyz")
         mol.set_charge_and_spin(-1, 3)
         task = AdfTask("optimize", **rhb18)
         inp = AdfInput(task)

@@ -390,7 +390,7 @@ class LammpsData(MSONable):
         all_stats = list(counts.values()) + list(types.values())
         right_indent = len(str(max(all_stats)))
         count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
-        type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
+        type_lines = [f"{v:>{right_indent}}  {k + ' types'}" for k, v in types.items()]
         stats = "\n".join([*count_lines, "", *type_lines])
 
         def map_coords(q) -> str:
@@ -874,8 +874,8 @@ class LammpsData(MSONable):
 
         Args:
             charges: A dictionary with atom indexes as keys and
-                     charges as values, e.g., to set the charge
-                     of the atom with index 3 to -2, use `{3: -2}`.
+                charges as values, e.g., to set the charge
+                of the atom with index 3 to -2, use `{3: -2}`.
         """
         for iat, q in charges.items():
             self.atoms.loc[iat, "q"] = q
@@ -886,10 +886,10 @@ class LammpsData(MSONable):
 
         Args:
             charges: Dict containing the charges for the atom types to set.
-                     The dict should contain atom types as integers or labels and charges.
-                     Example: change the charge of Li atoms to +3:
-                         charges={"Li": 3}
-                         charges={1: 3} if Li atoms are of type 1
+                The dict should contain atom types as integers or labels and charges.
+                Example: change the charge of Li atoms to +3:
+                    charges={"Li": 3}
+                    charges={1: 3} if Li atoms are of type 1
         """
         for iat, q in charges.items():
             if isinstance(iat, str):

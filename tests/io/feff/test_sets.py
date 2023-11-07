@@ -141,13 +141,10 @@ TITLE sites: 4
         all_input = elnes.all_input()
         assert "ATOMS" not in all_input
         assert "POTENTIALS" not in all_input
-        elnes.write_input()
+        elnes.write_input(output_dir=self.tmp_path)
         structure = Structure.from_file("Co2O2.cif")
         assert self.structure.matches(structure)
-        os.remove("HEADER")
-        os.remove("PARAMETERS")
-        os.remove("feff.inp")
-        os.remove("Co2O2.cif")
+        assert {*os.listdir()} == {"Co2O2.cif", "HEADER", "PARAMETERS", "feff.inp"}
 
     def test_small_system_exafs(self):
         exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
@@ -208,11 +205,11 @@ TITLE sites: 4
         assert "RECIPROCAL" in feff_reci_input.tags
 
         feff_reci_input.write_input(f"{self.tmp_path}/Dup_reci")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/HEADER")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/feff.inp")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/PARAMETERS")
-        assert not os.path.exists(f"{self.tmp_path}/Dup_reci/ATOMS")
-        assert not os.path.exists(f"{self.tmp_path}/Dup_reci/POTENTIALS")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/HEADER")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/feff.inp")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/PARAMETERS")
+        assert not os.path.isfile(f"{self.tmp_path}/Dup_reci/ATOMS")
+        assert not os.path.isfile(f"{self.tmp_path}/Dup_reci/POTENTIALS")
 
         tags_original = Tags.from_file(f"{self.tmp_path}/xanes_reci/feff.inp")
         tags_output = Tags.from_file(f"{self.tmp_path}/Dup_reci/feff.inp")

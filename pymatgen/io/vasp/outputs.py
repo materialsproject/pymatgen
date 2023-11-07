@@ -334,7 +334,9 @@ class Vasprun(MSONable):
                         self.final_structure = self.initial_structure
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
-                        self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
+                        self.potcar_spec = [
+                            {"titel": p, "hash": None, "summary_stats": {}} for p in self.potcar_symbols
+                        ]
                 if tag == "calculation":
                     parsed_header = True
                     if not self.parameters.get("LCHIMAG", False):
@@ -355,8 +357,8 @@ class Vasprun(MSONable):
                 elif tag == "dielectricfunction":
                     if (
                         "comment" not in elem.attrib
-                        or elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including "
-                        "local field effects in RPA (Hartree))"
+                        or elem.attrib["comment"]
+                        == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
                     ):
                         if "density" not in self.dielectric_data:
                             self.dielectric_data["density"] = self._parse_diel(elem)
@@ -1041,7 +1043,7 @@ class Vasprun(MSONable):
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
-                {"titel": sym, "hash": ps.md5_header_hash}
+                {"titel": sym, "hash": ps.md5_header_hash, "summary_stats": ps._summary_stats}
                 for sym in self.potcar_symbols
                 for ps in potcar
                 if ps.symbol == sym.split()[1]
@@ -1212,7 +1214,7 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = Kpoints.supported_modes.from_str(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
+        k.style = Kpoints.supported_modes.from_str(e.attrib.get("param", "Reciprocal"))
         for v in e.findall("v"):
             name = v.attrib.get("name")
             tokens = v.text.split()
@@ -1480,7 +1482,9 @@ class BSVasprun(Vasprun):
                         self.parameters = self._parse_params(elem)
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
-                        self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
+                        self.potcar_spec = [
+                            {"titel": p, "hash": None, "summary_stats": {}} for p in self.potcar_symbols
+                        ]
                         parsed_header = True
                 elif tag == "i" and elem.attrib.get("name") == "efermi":
                     self.efermi = float(elem.text)
@@ -2158,13 +2162,10 @@ class Outcar:
         cs_valence_and_core = self.read_table_pattern(
             h2, row_pattern, footer_pattern, postprocess=float, last_one_only=True
         )
-        all_cs = {}
-        for name, cs_table in [
-            ["valence_only", cs_valence_only],
-            ["valence_and_core", cs_valence_and_core],
-        ]:
-            all_cs[name] = cs_table
-        self.data["chemical_shielding"] = all_cs
+        self.data["chemical_shielding"] = {
+            "valence_only": cs_valence_only,
+            "valence_and_core": cs_valence_and_core,
+        }
 
     def read_cs_g0_contribution(self):
         """
@@ -3466,8 +3467,8 @@ class Chgcar(VolumetricData):
         super().__init__(struct, data, data_aug=data_aug)
         self._distance_matrix = {}
 
-    @staticmethod
-    def from_file(filename: str):
+    @classmethod
+    def from_file(cls, filename: str):
         """Read a CHGCAR file.
 
         Args:
@@ -3477,7 +3478,7 @@ class Chgcar(VolumetricData):
             Chgcar
         """
         poscar, data, data_aug = VolumetricData.parse_file(filename)
-        return Chgcar(poscar, data, data_aug=data_aug)
+        return cls(poscar, data, data_aug=data_aug)
 
     @property
     def net_magnetization(self):
@@ -4015,14 +4016,14 @@ class Xdatcar:
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
+                    lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")
                     for site in structure:
                         coords = site.frac_coords
                         line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
+                lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")
                 for site in structure:
                     coords = site.frac_coords
                     line = " ".join(format_str.format(c) for c in coords)
@@ -4663,7 +4664,7 @@ class Wavecar:
 
         N = np.prod(self.ng)
         for ik in range(self.nk):
-            fname = f"UNK{ik+1:05d}."
+            fname = f"UNK{ik + 1:05d}."
             if self.vasp_type.lower()[0] == "n":
                 data = np.empty((self.nb, 2, *self.ng), dtype=np.complex128)
                 for ib in range(self.nb):
@@ -4675,7 +4676,7 @@ class Wavecar:
                 for ispin in range(self.spin):
                     for ib in range(self.nb):
                         data[ib, :, :, :] = np.fft.ifftn(self.fft_mesh(ik, ib, spin=ispin)) * N
-                    Unk(ik + 1, data).write_file(str(out_dir / f"{fname}{ispin+1}"))
+                    Unk(ik + 1, data).write_file(str(out_dir / f"{fname}{ispin + 1}"))
 
 
 class Eigenval:

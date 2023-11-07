@@ -22,17 +22,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff black mypy
+          pip install --upgrade ruff mypy
 
       - name: ruff
         run: |
           ruff --version
           ruff .
-
-      - name: black
-        run: |
-          black --version
-          black --check --diff --color ${{ github.event.repository.name }}
+          ruff format --check .
 
       - name: mypy
         run: |

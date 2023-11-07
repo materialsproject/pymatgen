@@ -89,7 +89,7 @@ class TestDosPlotter(PymatgenTest):
         return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
 
 
-class TestBSPlotter(unittest.TestCase):
+class TestBSPlotter(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as f:
             d = json.loads(f.read())
@@ -171,9 +171,8 @@ class TestBSPlotter(unittest.TestCase):
         assert ax.get_ylim() == (-4.0, 7.6348), "wrong ylim"
         ax = self.plotter.get_plot(smooth=True)
         ax = self.plotter.get_plot(vbm_cbm_marker=True)
-        self.plotter.save_plot("bsplot.png")
-        assert os.path.isfile("bsplot.png")
-        os.remove("bsplot.png")
+        self.plotter.save_plot(f"{self.tmp_path}/bsplot.png")
+        assert os.path.isfile(f"{self.tmp_path}/bsplot.png")
         plt.close("all")
 
         # test plotter with 2 bandstructures
@@ -183,9 +182,8 @@ class TestBSPlotter(unittest.TestCase):
         ax = self.plotter_multi.get_plot(zero_to_efermi=False)
         assert ax.get_ylim() == (-15.2379, 12.67141266), "wrong ylim"
         ax = self.plotter_multi.get_plot(smooth=True)
-        self.plotter_multi.save_plot("bsplot.png")
-        assert os.path.isfile("bsplot.png")
-        os.remove("bsplot.png")
+        self.plotter_multi.save_plot(f"{self.tmp_path}/bsplot.png")
+        assert os.path.isfile(f"{self.tmp_path}/bsplot.png")
         plt.close("all")
 
 
@@ -489,14 +487,14 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_cohp.lines[1].get_linestyle() == "--"
         for label in legend_labels:
             assert label in self.cohp_plot._cohps
-        linesindex = legend_labels.index("1")
-        linestyles = {Spin.up: "-", Spin.down: "--"}
+        lines_index = legend_labels.index("1")
+        line_styles = {Spin.up: "-", Spin.down: "--"}
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2 * linesindex + s]
+            lines = ax_cohp.lines[2 * lines_index + s]
             assert_allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
             assert_allclose(lines.get_ydata(), self.cohp.energies)
-            assert lines.get_linestyle() == linestyles[spin]
+            assert lines.get_linestyle() == line_styles[spin]
         plt.close()
 
         ax_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
@@ -504,7 +502,7 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_cohp.get_xlabel() == "$E$ (eV)"
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2 * linesindex + s]
+            lines = ax_cohp.lines[2 * lines_index + s]
             assert_allclose(lines.get_xdata(), self.cohp.energies)
             assert_allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt.close()
@@ -513,7 +511,7 @@ class TestCohpPlotter(PymatgenTest):
 
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2 * linesindex + s]
+            lines = ax_cohp.lines[2 * lines_index + s]
             assert_allclose(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
@@ -526,14 +524,13 @@ class TestCohpPlotter(PymatgenTest):
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
         assert_allclose(lines_coop.get_xdata(), coop_bi_bi)
 
-        # Cleanup.
+        # cleanup
         plt.close("all")
 
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
         ax = self.cohp_plot.get_plot()
         assert isinstance(ax, plt.Axes)
-        self.cohp_plot.save_plot("cohpplot.png")
-        assert os.path.isfile("cohpplot.png")
-        os.remove("cohpplot.png")
+        self.cohp_plot.save_plot(f"{self.tmp_path}/cohpplot.png")
+        assert os.path.isfile(f"{self.tmp_path}/cohpplot.png")
         plt.close("all")

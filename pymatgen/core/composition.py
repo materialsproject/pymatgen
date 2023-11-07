@@ -138,7 +138,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __getitem__(self, key: SpeciesLike) -> float:
         try:
             sp = get_el_sp(key)
-            return self._data.get(sp, 0)
+            if isinstance(sp, Species):
+                return self._data.get(sp, 0)
+            # sp is Element or str
+            return sum(
+                val for key, val in self._data.items() if getattr(key, "symbol", key) == getattr(sp, "symbol", sp)
+            )
         except ValueError as exc:
             raise KeyError(f"Invalid {key=}") from exc
 
@@ -153,7 +158,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(key)
             if isinstance(sp, Species):
                 return sp in self._data
-            # Element or str
+            # key is Element or str
             return any(sp.symbol == s.symbol for s in self._data)
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
@@ -280,7 +285,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
-        formula = [f"{s}{formula_double_format(sym_amt[s],ignore_ones= False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones= False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -302,7 +307,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
-        formula = [f"{s}{formula_double_format(sym_amt[s],ignore_ones= False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones= False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -632,7 +637,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
+                {"Fe": 4.0, "O": 6.0}.
         """
         dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
@@ -645,7 +650,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+                {"Fe": 4.0, "O": 6.0} or {"Fe3+": 4.0, "O2-": 6.0}
         """
         dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-import os
 import pickle
 import unittest
 from copy import deepcopy
@@ -405,13 +404,12 @@ class SpeciesTestCase(PymatgenTest):
         cs = Species("Cs1+")
         cl = Species("Cl1+")
 
-        with open("cscl.pickle", "wb") as file:
+        with open(f"{self.tmp_path}/cscl.pickle", "wb") as file:
             pickle.dump((cs, cl), file)
 
-        with open("cscl.pickle", "rb") as file:
+        with open(f"{self.tmp_path}/cscl.pickle", "rb") as file:
             tup = pickle.load(file)
             assert tup == (cs, cl)
-        os.remove("cscl.pickle")
 
     def test_get_crystal_field_spin(self):
         assert Species("Fe", 2).get_crystal_field_spin() == 4

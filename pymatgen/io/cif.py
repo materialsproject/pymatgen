@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.string import remove_non_ascii
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -137,7 +136,7 @@ class CifBlock:
         # remove empty lines
         string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
-        string = remove_non_ascii(string)
+        string = string.encode("ascii", "ignore").decode("ascii")
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
@@ -366,8 +365,8 @@ class CifParser:
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(cif_string: str, **kwargs) -> CifParser:
+    @classmethod
+    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
         """
         Creates a CifParser from a string.
 
@@ -379,7 +378,7 @@ class CifParser:
             CifParser
         """
         stream = StringIO(cif_string)
-        return CifParser(stream, **kwargs)
+        return cls(stream, **kwargs)
 
     def _sanitize_data(self, data):
         """
@@ -1168,7 +1167,6 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:

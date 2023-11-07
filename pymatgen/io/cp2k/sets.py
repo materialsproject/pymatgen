@@ -507,11 +507,10 @@ class DftSet(Cp2kInput):
                     break
 
             if basis is None:
-                if basis_and_potential.get(el, {}).get("basis"):
-                    warnings.warn(f"Unable to validate basis for {el}. Exact name provided will be put in input file.")
-                    basis = basis_and_potential[el].get("basis")
-                else:
-                    raise ValueError("No explicit basis found and matching has failed.")
+                if not basis_and_potential.get(el, {}).get("basis"):
+                    raise ValueError(f"No explicit basis found for {el} and matching has failed.")
+                warnings.warn(f"Unable to validate basis for {el}. Exact name provided will be put in input file.")
+                basis = basis_and_potential[el].get("basis")
 
             if aux_basis is None and basis_and_potential.get(el, {}).get("aux_basis"):
                 warnings.warn(
@@ -528,7 +527,7 @@ class DftSet(Cp2kInput):
                 else:
                     raise ValueError("No explicit potential found and matching has failed.")
 
-            if basis.filename:
+            if hasattr(basis, "filename"):
                 data["basis_filenames"].append(basis.filename)
             pfn1 = data.get("potential_filename")
             pfn2 = potential.filename
@@ -539,11 +538,7 @@ class DftSet(Cp2kInput):
                 )
             data["potential_filename"] = pfn2
 
-            data[el] = {
-                "basis": basis,
-                "aux_basis": aux_basis,
-                "potential": potential,
-            }
+            data[el] = {"basis": basis, "aux_basis": aux_basis, "potential": potential}
         return data
 
     @staticmethod

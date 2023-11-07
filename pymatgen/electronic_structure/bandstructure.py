@@ -533,7 +533,7 @@ class BandStructure:
             tol (float): tolerance below which coordinates are considered equal.
 
         Returns:
-            (int or None): degeneracy or None if structure is not available
+            int | None: degeneracy or None if structure is not available
         """
         all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
         if all_kpts is not None:

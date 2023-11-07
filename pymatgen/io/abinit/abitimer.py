@@ -12,7 +12,6 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.string import is_string, list_strings
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -107,7 +106,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         Return: list of successfully read files.
         """
-        filenames = list_strings(filenames)
+        if isinstance(filenames, str):
+            filenames = [filenames]
 
         read_ok = []
         for fname in filenames:
@@ -667,16 +667,16 @@ class AbinitTimer:
 
     def to_csv(self, fileobj=sys.stdout):
         """Write data on file fileobj using CSV format."""
-        openclose = is_string(fileobj)
+        is_str = isinstance(fileobj, str)
 
-        if openclose:
+        if is_str:
             fileobj = open(fileobj, "w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
         fileobj.flush()
 
-        if openclose:
+        if is_str:
             fileobj.close()
 
     def to_table(self, sort_key="wall_time", stop=None):
@@ -718,7 +718,7 @@ class AbinitTimer:
 
     def get_values(self, keys):
         """Return a list of values associated to a particular list of keys."""
-        if is_string(keys):
+        if isinstance(keys, str):
             return [s.__dict__[keys] for s in self.sections]
         values = []
         for k in keys:

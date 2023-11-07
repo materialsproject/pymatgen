@@ -1077,8 +1077,8 @@ def write_lammps_inputs(
     variables = {} if settings is None else settings
     template = Template(script_template)
     input_script = template.safe_substitute(**variables)
-    if make_dir_if_not_present and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    if make_dir_if_not_present:
+        os.makedirs(output_dir, exist_ok=True)
     with open(os.path.join(output_dir, script_filename), "w") as f:
         f.write(input_script)
     read_data = re.search(r"read_data\s+(.*)\n", input_script)

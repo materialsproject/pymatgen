@@ -347,9 +347,7 @@ class CompletePhononDos(PhononDos):
         """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        pdoss = {}
-        for at, pdos in zip(struct, dct["pdos"]):
-            pdoss[at] = pdos
+        pdoss = dict(zip(struct, dct["pdos"]))
 
         return cls(struct, tdos, pdoss)
 
