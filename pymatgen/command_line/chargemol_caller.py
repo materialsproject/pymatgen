@@ -177,7 +177,7 @@ class ChargemolAnalysis:
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, mpi=False, ncores: str | None = None, **jobcontrol_kwargs):
+    def _execute_chargemol(self, mpi=False, ncores: str | None =  None, **jobcontrol_kwargs):
         """
         Internal function to run Chargemol.
 
@@ -209,15 +209,10 @@ class ChargemolAnalysis:
             save_path = Path(Path.cwd(), "charge")
             save_path.mkdir(parents=True, exist_ok=True)
             source = [
-                
-                Path(self._chgcar_path),
-                
-                Path(self._potcar_path),
-                
-                Path(self._aeccar0_path),
-                
+                Path(self._chgcar_path), 
+                Path(self._potcar_path), 
+                Path(self._aeccar0_path), 
                 Path(self._aeccar2_path),
-            ,
             ]
 
             links = [
@@ -241,9 +236,8 @@ class ChargemolAnalysis:
                 cwd=save_path,
             ) as rs:
                 rs.communicate()
-            
             self._from_data_dir(chargemol_output_path = str(save_path))
-
+            
         else:
             with ScratchDir("."):
                 cwd = Path.cwd()
