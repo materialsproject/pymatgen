@@ -49,6 +49,7 @@ import warnings
 from glob import glob
 from pathlib import Path
 from shutil import which
+from typing import List, Optional, Union, cast
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -74,7 +75,7 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
-    CHARGEMOLEXE = (
+    CHARGEMOLEXE: Optional[Union[str, List[Optional[str]]]] = (
         which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
     )
 
@@ -231,10 +232,12 @@ class ChargemolAnalysis:
             if CHARGEMOLEXE:
                 if isinstance(CHARGEMOLEXE, list):
                     CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
+                    CHARGEMOLEXE = cast(List[str], CHARGEMOLEXE)
                 if not CHARGEMOLEXE:
                     raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+                popen_args = cast(Union[str, List[str]], CHARGEMOLEXE)
                 with subprocess.Popen(
-                    CHARGEMOLEXE,
+                    popen_args,
                     stdout=subprocess.PIPE,
                     stdin=subprocess.PIPE,
                     close_fds=True,
@@ -263,8 +266,10 @@ class ChargemolAnalysis:
                 if CHARGEMOLEXE:
                     if isinstance(CHARGEMOLEXE, list):
                         CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
+                        CHARGEMOLEXE = cast(List[str], CHARGEMOLEXE)
                     if not CHARGEMOLEXE:
                         raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+                    popen_args = cast(Union[str, List[str]], CHARGEMOLEXE)
                     with subprocess.Popen(
                         CHARGEMOLEXE,
                         stdout=subprocess.PIPE,
