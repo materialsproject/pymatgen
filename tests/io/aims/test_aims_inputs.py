@@ -34,7 +34,7 @@ def compare_files(ref_file, test_file):
         assert test_line.strip() == ref_line.strip()
 
 
-def test_read_write_si_in(tmpdir):
+def test_read_write_si_in(tmp_path):
     si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz")
 
     in_lattice = np.array([[0.0, 2.715, 2.716], [2.717, 0.0, 2.718], [2.719, 2.720, 0.0]])
@@ -48,7 +48,7 @@ def test_read_write_si_in(tmpdir):
     assert si.structure == si_test_from_struct.structure
 
     workdir = Path.cwd()
-    os.chdir(tmpdir)
+    os.chdir(tmp_path)
     si_test_from_struct.write_file(overwrite=True)
     with pytest.raises(
         ValueError,
@@ -66,7 +66,7 @@ def test_read_write_si_in(tmpdir):
     assert si.structure == si_from_dct.structure
 
 
-def test_read_h2o_in(tmpdir):
+def test_read_h2o_in(tmp_path):
     h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz")
 
     in_coords = np.array(
@@ -84,7 +84,7 @@ def test_read_h2o_in(tmpdir):
     assert h2o.structure == h2o_test_from_struct.structure
 
     workdir = Path.cwd()
-    os.chdir(tmpdir)
+    os.chdir(tmp_path)
     h2o_test_from_struct.write_file(overwrite=True)
 
     with pytest.raises(
@@ -181,7 +181,7 @@ def test_aims_cube():
     assert test_cube_from_dict.control_block == test_cube.control_block
 
 
-def test_aims_control_in(tmpdir):
+def test_aims_control_in(tmp_path):
     parameters = {
         "cubes": [
             AimsCube(type="eigenstate 1", points=[10, 10, 10]),
@@ -206,7 +206,7 @@ def test_aims_control_in(tmpdir):
     assert "xc" not in aims_control.parameters
     aims_control.parameters = parameters
 
-    os.chdir(tmpdir)
+    os.chdir(tmp_path)
     h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz").structure
 
     si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz").structure
