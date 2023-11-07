@@ -650,6 +650,8 @@ class ChargemolAnalysis:
         else:
             raise FileNotFoundError(f"{ddec_analysis_path} not found")
         return props
+
+
 """This module implements an interface to Thomas Manz's Chargemol code
 https://sourceforge.net/projects/ddec for calculating DDEC3, DDEC6, and CM5 population analyses.
 
@@ -829,7 +831,7 @@ class ChargemolAnalysis:
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, mpi=False, ncores: str | None =  None, **jobcontrol_kwargs):
+    def _execute_chargemol(self, mpi=False, ncores: str | None = None, **jobcontrol_kwargs):
         """
         Internal function to run Chargemol.
 
@@ -888,7 +890,7 @@ class ChargemolAnalysis:
                 cwd=save_path,
             ) as rs:
                 rs.communicate()
-            self._from_data_dir(chargemol_output_path = str(save_path))
+            self._from_data_dir(chargemol_output_path=str(save_path))
         else:
             with ScratchDir("."):
                 cwd = Path.cwd()
