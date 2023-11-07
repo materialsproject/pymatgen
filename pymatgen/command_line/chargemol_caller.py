@@ -209,11 +209,17 @@ class ChargemolAnalysis:
             save_path = Path(Path.cwd(), "charge")
             save_path.mkdir(parents=True, exist_ok=True)
             source = [
+                
                 Path(self._chgcar_path),
+                
                 Path(self._potcar_path),
+                
                 Path(self._aeccar0_path),
+                
                 Path(self._aeccar2_path),
+            ,
             ]
+
             links = [
                 Path(save_path, "CHGCAR"),
                 Path(save_path, "POTCAR"),
@@ -223,7 +229,8 @@ class ChargemolAnalysis:
             for link, src in zip(links, source):
                 link.symlink_to(src)
             # write job_script file:
-            self._write_jobscript_for_chargemol(write_path=str(save_path) + "/job_control.txt", **jobcontrol_kwargs)
+            write_path = str(save_path) + "/job_control.txt"
+            self._write_jobscript_for_chargemol(write_path=write_path, **jobcontrol_kwargs)
 
             # Run Chargemol
             with subprocess.Popen(
@@ -234,8 +241,8 @@ class ChargemolAnalysis:
                 cwd=save_path,
             ) as rs:
                 rs.communicate()
-
-            self._from_data_dir(chargemol_output_path=str(save_path))
+            
+            self._from_data_dir(chargemol_output_path = str(save_path))
 
         else:
             with ScratchDir("."):
