@@ -64,7 +64,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
 
-CHARGEMOL_EXE: "str | list[str | None] | None" = (
+CHARGEMOL_EXE: str | list[str | None] | None = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
 )
 
@@ -75,7 +75,7 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
-    CHARGEMOLEXE: "str | list[str | None] | None" = (
+    CHARGEMOLEXE: str | list[str | None] | None = (
         which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
     )
 
