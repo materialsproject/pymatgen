@@ -84,7 +84,7 @@ class ChargemolAnalysis:
         atomic_densities_path=None,
         run_chargemol: bool = True,
         mpi: bool = False,
-        ncores: int | None = None,
+        ncores: str | None = None,
         save: bool = False,
     ):
         """
@@ -102,11 +102,11 @@ class ChargemolAnalysis:
             the existing Chargemol output files will be read from path.
                 Default: True.
             mpi (bool): Whether to run the Chargemol in a parallel way.
-            ncores: Use how many cores to run the Chargemol!
-                    Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE'),
-                    or os.environ.get('SLURM_CPUS_ON_NODE')", or "multiprocessing.cpu_count()".
-                    Take your own risk! This default value might not suit you!
-                    You'd better set your own number!!!
+            ncores (str): Use how many cores to run the Chargemol!
+                          Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE'),
+                          or os.environ.get('SLURM_CPUS_ON_NODE')", or "multiprocessing.cpu_count()".
+                          Take your own risk! This default value might not suit you!
+                          You'd better set your own number!!!
             save: save (bool): Whether to save the Chargemol output files. Default is False.
                   the existing Chargemol output files will be read from path. Default: True.
         """
@@ -200,7 +200,7 @@ class ChargemolAnalysis:
             else:
                 ncores = os.getenv("SLURM_CPUS_ON_NODE") or os.getenv("SLURM_NTASKS")
                 if not ncores:
-                    ncores = multiprocessing.cpu_count()
+                    ncores = str(multiprocessing.cpu_count())
                 CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]
         else:
             CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE
@@ -228,16 +228,23 @@ class ChargemolAnalysis:
             self._write_jobscript_for_chargemol(write_path=write_path, **jobcontrol_kwargs)
 
             # Run Chargemol
-            with subprocess.Popen(
-                CHARGEMOLEXE,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                close_fds=True,
-                cwd=save_path,
-            ) as rs:
-                rs.communicate()
-            self._from_data_dir(chargemol_output_path=str(save_path))
-
+            if CHARGEMOLEXE:
+                if isinstance(CHARGEMOLEXE, list):
+                    CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
+                if not CHARGEMOLEXE:
+                    raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+                
+                with subprocess.Popen(
+                    CHARGEMOLEXE,
+                    stdout=subprocess.PIPE,
+                    stdin=subprocess.PIPE,
+                    close_fds=True,
+                    cwd=save_path,
+                ) as rs:
+                    rs.communicate()
+                self._from_data_dir(chargemol_output_path=str(save_path))
+            else:
+                raise RuntimeError("Make sure compiled chargemol executable being available in the path")
         else:
             with ScratchDir("."):
                 cwd = Path.cwd()
@@ -254,20 +261,26 @@ class ChargemolAnalysis:
                 self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
 
                 # Run Chargemol
-                with subprocess.Popen(
-                    CHARGEMOLEXE,
-                    stdout=subprocess.PIPE,
-                    stdin=subprocess.PIPE,
-                    close_fds=True,
-                ) as rs:
-                    rs.communicate()
-                if rs.returncode != 0:
-                    raise RuntimeError(
-                        f"Chargemol exited with return code {int(rs.returncode)}. "
-                        "Please check your Chargemol installation."
-                    )
-
-                self._from_data_dir()
+                if CHARGEMOLEXE:
+                    if isinstance(CHARGEMOLEXE, list):
+                        CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
+                    if not CHARGEMOLEXE:
+                        raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+                    with subprocess.Popen(
+                        CHARGEMOLEXE,
+                        stdout=subprocess.PIPE,
+                        stdin=subprocess.PIPE,
+                        close_fds=True,
+                    ) as rs:
+                        rs.communicate()
+                    if rs.returncode != 0:
+                        raise RuntimeError(
+                            f"Chargemol exited with return code {int(rs.returncode)}. "
+                            "Please check your Chargemol installation."
+                        )
+                    self._from_data_dir()
+                else:
+                    raise RuntimeError("Make sure compiled chargemol executable being available in the path")
 
     def _from_data_dir(self, chargemol_output_path: str | None = None):
         """
