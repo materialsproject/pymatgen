@@ -233,7 +233,6 @@ class ChargemolAnalysis:
                     CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
                 if not CHARGEMOLEXE:
                     raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-
                 with subprocess.Popen(
                     CHARGEMOLEXE,
                     stdout=subprocess.PIPE,
