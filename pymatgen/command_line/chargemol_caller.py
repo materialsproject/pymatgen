@@ -49,7 +49,7 @@ import warnings
 from glob import glob
 from pathlib import Path
 from shutil import which
-from typing import Optional, Union, cast
+from typing import cast
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -64,7 +64,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
 
-CHARGEMOL_EXE = (
+CHARGEMOL_EXE: "str | list[str | None] | None" = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
 )
 
@@ -75,7 +75,7 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
-    CHARGEMOLEXE: Optional[Union[str, list[Optional[str]]]] = (
+    CHARGEMOLEXE: "str | list[str | None] | None" = (
         which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
     )
 
@@ -232,10 +232,10 @@ class ChargemolAnalysis:
             if CHARGEMOLEXE:
                 if isinstance(CHARGEMOLEXE, list):
                     CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
-                    CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
+                    CHARGEMOLEXE = cast("list[str]", CHARGEMOLEXE)
                 if not CHARGEMOLEXE:
                     raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-                popen_args = cast(Union[str, list[str]], CHARGEMOLEXE)
+                popen_args = cast("str | list[str]", CHARGEMOLEXE)
                 with subprocess.Popen(
                     popen_args,
                     stdout=subprocess.PIPE,
@@ -266,10 +266,10 @@ class ChargemolAnalysis:
                 if CHARGEMOLEXE:
                     if isinstance(CHARGEMOLEXE, list):
                         CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
-                        CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
+                        CHARGEMOLEXE = cast("list[str]", CHARGEMOLEXE)
                     if not CHARGEMOLEXE:
                         raise RuntimeError("Make sure compiled chargemol executable being available in the path")
-                    popen_args = cast(Union[str, list[str]], CHARGEMOLEXE)
+                    popen_args = cast("str | list[str]", CHARGEMOLEXE)
                     with subprocess.Popen(
                         popen_args,
                         stdout=subprocess.PIPE,
