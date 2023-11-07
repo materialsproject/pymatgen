@@ -271,7 +271,7 @@ class ChargemolAnalysis:
                         raise RuntimeError("Make sure compiled chargemol executable being available in the path")
                     popen_args = cast(Union[str, List[str]], CHARGEMOLEXE)
                     with subprocess.Popen(
-                        CHARGEMOLEXE,
+                        popen_args,
                         stdout=subprocess.PIPE,
                         stdin=subprocess.PIPE,
                         close_fds=True,
