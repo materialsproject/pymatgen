@@ -2696,5 +2696,5 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir), open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
-            subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
+        with cd(run_dir), open(output_file, "w") as stdout_file, open(err_file, "w", buffering=1) as stderr_file:
+            subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)
