@@ -236,8 +236,8 @@ class ChargemolAnalysis:
                 cwd=save_path,
             ) as rs:
                 rs.communicate()
-            self._from_data_dir(chargemol_output_path=str(save_path))
-
+            self._from_data_dir(chargemol_output_path = str(save_path))
+            
         else:
             with ScratchDir("."):
                 cwd = Path.cwd()
