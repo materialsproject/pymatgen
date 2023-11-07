@@ -271,11 +271,7 @@ class AimsCube(MSONable):
     type: str = field(default_factory=str)
     origin: Sequence[float] | tuple[float, float, float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
     edges: Sequence[Sequence[float]] = field(
-        default_factory=lambda: [
-            [0.1, 0.0, 0.0],
-            [0.0, 0.1, 0.0],
-            [0.0, 0.0, 0.1],
-        ]
+        default_factory=lambda: 0.1 * np.eye(3)
     )
     points: Sequence[int] | tuple[int, int, int] = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"
