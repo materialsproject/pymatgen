@@ -29,7 +29,6 @@ class AimsGeometryIn(MSONable):
         _content (str): The content of the input file
         _structure (Structure or Molecule): The structure or molecule
             representation of the file
-
     """
 
     _content: str
@@ -44,7 +43,6 @@ class AimsGeometryIn(MSONable):
 
         Returns:
             The AimsGeometryIn file for the string contents
-
         """
         content_lines = [
             line.strip() for line in contents.split("\n") if len(line.strip()) > 0 and line.strip()[0] != "#"
@@ -118,7 +116,6 @@ class AimsGeometryIn(MSONable):
 
         Returns:
             The input object represented in the file
-
         """
         if str(filepath).endswith(".gz"):
             with gzip.open(filepath, "rt") as infile:
@@ -137,7 +134,6 @@ class AimsGeometryIn(MSONable):
 
         Returns:
             The input object for the structure
-
         """
         content_lines = []
 
@@ -172,7 +168,6 @@ class AimsGeometryIn(MSONable):
         Args:
             directory (str | Path | None): The directory to write the geometry.in file
             overwrite (bool): If True allow to overwrite existing files
-
         """
         if directory is None:
             directory = Path.cwd()
@@ -207,7 +202,6 @@ class AimsGeometryIn(MSONable):
 
         Returns:
             The input object represented by the dict
-
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 
@@ -217,7 +211,7 @@ class AimsGeometryIn(MSONable):
         )
 
 
-ALLOWED_AIMS_CUBE_TYPES = [
+ALLOWED_AIMS_CUBE_TYPES = (
     "delta_density",
     "spin_density",
     "stm",
@@ -230,20 +224,20 @@ ALLOWED_AIMS_CUBE_TYPES = [
     "ion_dens",
     "dielec_func",
     "elf",
-]
+)
 
-ALLOWED_AIMS_CUBE_TYPES_STATE = [
+ALLOWED_AIMS_CUBE_TYPES_STATE = (
     "first_order_density",
     "eigenstate",
     "eigenstate_imag",
     "eigenstate_density",
-]
+)
 
-ALLOWED_AIMS_CUBE_FORMATS = [
+ALLOWED_AIMS_CUBE_FORMATS = (
     "cube",
     "gOpenMol",
     "xsf",
-]
+)
 
 
 @dataclass
@@ -297,7 +291,7 @@ class AimsCube(MSONable):
             raise ValueError("Cube type undefined")
 
         if self.format not in ALLOWED_AIMS_CUBE_FORMATS:
-            raise ValueError("Cube file must have a format of cube, gOpenMol, or xsf")
+            raise ValueError(f"{self.format} is invalid. Cube files must have a format of {ALLOWED_AIMS_CUBE_FORMATS}")
 
         if self.spinstate is not None and (self.spinstate not in [1, 2]):
             raise ValueError("Spin state must be 1 or 2")
@@ -365,7 +359,6 @@ class AimsCube(MSONable):
 
         Returns:
             The AimsCube for d
-
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 
@@ -467,7 +460,6 @@ class AimsControlIn(MSONable):
 
         Returns:
             The line to add to the control.in file
-
         """
         return f"{key :35s}" + (format % value) + "\n"
 
@@ -609,7 +601,6 @@ class AimsControlIn(MSONable):
 
         Returns:
             The AimsControlIn for d
-
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
 

@@ -72,7 +72,6 @@ class AimsOutChunk:
 
         Returns:
             The last time one of the keys appears in self.lines
-
         """
         for ll, line in enumerate(self.lines[line_start:][::-1]):
             if any(key in line for key in keys):
@@ -90,7 +89,6 @@ class AimsOutChunk:
 
         Returns:
             All times the key appears in the lines
-
         """
         line_index = []
         for ll, line in enumerate(self.lines[line_start:line_end]):
@@ -106,7 +104,6 @@ class AimsOutChunk:
 
         Returns:
             The scalar value of the property or None if not found
-
         """
         line_start = self.reverse_search_for(scalar_property_to_line_key[property])
 
@@ -956,7 +953,6 @@ def get_lines(content: str | TextIOWrapper) -> list[str]:
 
     Returns:
         The list of lines
-
     """
     if isinstance(content, str):
         return [line.strip() for line in content.split("\n")]
@@ -971,7 +967,6 @@ def get_header_chunk(content: str | TextIOWrapper) -> AimsOutHeaderChunk:
 
     Returns:
         The AimsHeaderChunk of the file
-
     """
     lines = get_lines(content)
     header = []
@@ -1059,7 +1054,6 @@ def check_convergence(chunks: list[AimsOutCalcChunk], non_convergence_ok: bool =
 
     Returns:
         True if the calculation is converged
-
     """
     if not non_convergence_ok and not chunks[-1].converged:
         raise ParseError("The calculation did not complete successfully")
@@ -1091,7 +1085,6 @@ def read_aims_header_info(
 
     Returns:
         The metadata for the header of the aims calculation
-
     """
     content = None
     for path in [Path(filename), Path(f"{filename}.gz")]:
@@ -1150,7 +1143,6 @@ def read_aims_output(
 
     Returns:
         The list of images to get
-
     """
     content = None
     for path in [Path(filename), Path(f"{filename}.gz")]:

@@ -66,7 +66,6 @@ class AimsOutput(MSONable):
 
         Returns:
             The AimsOutput object for the output file
-
         """
         metadata, structure_summary = read_aims_header_info(outfile)
         results = read_aims_output(outfile, index=slice(0, None))
@@ -82,7 +81,6 @@ class AimsOutput(MSONable):
 
         Returns:
             The AimsOutput for the output file content
-
         """
         metadata, structure_summary = read_aims_header_info_from_content(content)
         results = read_aims_output_from_content(content, index=slice(0, None))
@@ -98,7 +96,6 @@ class AimsOutput(MSONable):
 
         Returns:
             The AimsOutput for d
-
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
         for struct in decoded["results"]:
@@ -118,7 +115,6 @@ class AimsOutput(MSONable):
 
         Returns:
             The results of the image with index images_ind
-
         """
         return self._results[image_ind]
 
