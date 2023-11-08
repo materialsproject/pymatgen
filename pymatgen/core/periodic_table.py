@@ -55,7 +55,7 @@ class ElementBase(Enum):
             symbol (str): Element symbol.
             long_name (str): Long name for element. E.g., "Hydrogen".
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
-                Data is obtained from http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+                Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
                 from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
                 data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.

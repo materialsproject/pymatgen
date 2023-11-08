@@ -14,27 +14,26 @@ from itertools import product
 from monty.serialization import dumpfn, loadfn
 from ruamel import yaml
 
-from pymatgen.core import Element
-from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core import Element, get_el_sp
 
 
 def test_yaml():
-    with open("periodic_table.yaml") as f:
-        data = yaml.load(f)
+    with open("periodic_table.yaml") as file:
+        data = yaml.load(file)
         print(data)
 
 
 def test_json():
-    with open("periodic_table.json") as f:
-        data = json.load(f)
+    with open("periodic_table.json") as file:
+        data = json.load(file)
         print(data)
 
 
 def parse_oxi_state():
-    with open("periodic_table.yaml") as f:
-        data = yaml.load(f)
-    with open("oxidation_states.txt") as f:
-        oxi_data = f.read()
+    with open("periodic_table.yaml") as file:
+        data = yaml.load(file)
+    with open("oxidation_states.txt") as file:
+        oxi_data = file.read()
     oxi_data = re.sub("[\n\r]", "", oxi_data)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
 
@@ -65,8 +64,8 @@ def parse_oxi_state():
             data[el]["Common oxidation states"] = common_oxi
         else:
             print(el)
-    with open("periodic_table2.yaml", "w") as f:
-        yaml.dump(data, f)
+    with open("periodic_table2.yaml", "w") as file:
+        yaml.dump(data, file)
 
 
 def parse_ionic_radii():
@@ -254,7 +253,7 @@ def add_electron_affinities():
     import requests
     from bs4 import BeautifulSoup
 
-    req = requests.get("https://en.wikipedia.org/wiki/Electron_affinity_(data_page)")
+    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)")
     soup = BeautifulSoup(req.text, "html.parser")
     for t in soup.find_all("table"):
         if "Hydrogen" in t.text:

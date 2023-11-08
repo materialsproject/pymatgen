@@ -68,7 +68,7 @@ def run_mcsqs(
         tol (int or float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
-        Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
+        tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
     num_atoms = len(structure)
@@ -166,7 +166,7 @@ def _parse_sqs_path(path) -> Sqs:
         path: directory to perform parsing.
 
     Returns:
-        Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
+        tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
     path = Path(path)
@@ -225,7 +225,14 @@ def _parse_clusters(filename):
         path: directory to perform parsing.
 
     Returns:
-        List of dicts
+        list[dict]: List of cluster dictionaries with keys:
+            multiplicity: int
+            longest_pair_length: float
+            num_points_in_cluster: int
+            coordinates: list[dict] of points with keys:
+                coordinates: list[float]
+                num_possible_species: int
+                cluster_function: float
     """
     with open(filename) as f:
         lines = f.readlines()

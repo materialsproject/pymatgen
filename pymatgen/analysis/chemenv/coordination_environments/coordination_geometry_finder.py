@@ -42,9 +42,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     sort_separation,
     sort_separation_tuple,
 )
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Species, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 

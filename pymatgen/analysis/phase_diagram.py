@@ -2028,8 +2028,7 @@ class PhaseDiagramError(Exception):
 
 
 def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
-    """
-    Get the simplex facets for the Convex hull.
+    """Get the simplex facets for the Convex hull.
 
     Args:
         qhull_data (np.ndarray): The data from which to construct the convex
@@ -2039,7 +2038,7 @@ def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
             errors.
 
     Returns:
-        List of simplices of the Convex Hull.
+        scipy.spatial.ConvexHull: with list of simplices of the convex hull.
     """
     if joggle:
         return ConvexHull(qhull_data, qhull_options="QJ i").simplices

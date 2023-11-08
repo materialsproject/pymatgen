@@ -99,18 +99,15 @@ class StandardTransmuter:
             transformation: Transformation to append
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations. extend_collection can be a
-                number, which determines the maximum branching for each
-                transformation.
+                number, which determines the maximum branching for each transformation.
             clear_redo (bool): Whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of
                 undoing. However, when using append_transformation to do a
-                redo, the redo list should not be cleared to allow multiple
-                redos.
+                redo, the redo list should not be cleared to allow multiple redos.
 
         Returns:
-            List of booleans corresponding to initial transformed structures
-            each boolean describes whether the transformation altered the
-            structure
+            list[bool]: corresponding to initial transformed structures each boolean
+                describes whether the transformation altered the structure
         """
         if self.ncores and transformation.use_multiprocessing:
             with Pool(self.ncores) as p:
@@ -369,8 +366,8 @@ def _apply_transformation(inputs):
             collection, and a boolean indicating whether to clear the redo
 
     Returns:
-        List of output structures (the modified initial structure, plus
-        any new structures created by a one-to-many transformation)
+        list[Structure]: the modified initial structure, plus
+            any new structures created by a one-to-many transformation
     """
     ts, transformation, extend_collection, clear_redo = inputs
     new = ts.append_transformation(transformation, extend_collection, clear_redo=clear_redo)

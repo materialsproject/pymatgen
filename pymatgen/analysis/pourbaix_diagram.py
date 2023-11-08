@@ -26,9 +26,8 @@ from typing import TYPE_CHECKING, Any, no_type_check
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
-from pymatgen.core.periodic_table import Element
 from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
