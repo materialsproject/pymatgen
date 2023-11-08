@@ -21,7 +21,7 @@ from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
 from tabulate import tabulate
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig

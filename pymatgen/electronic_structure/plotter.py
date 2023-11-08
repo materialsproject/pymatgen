@@ -18,7 +18,7 @@ import scipy.interpolate as scint
 from monty.dev import requires
 from monty.json import jsanitize
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
@@ -1949,7 +1949,7 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core.periodic_table import Element
+        from pymatgen.core import Element
 
         individual_orbs = {
             "p": ["px", "py", "pz"],

@@ -4,7 +4,7 @@ import json
 
 from pytest import approx
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 

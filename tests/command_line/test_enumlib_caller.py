@@ -7,8 +7,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import RemoveSitesTransformation
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation

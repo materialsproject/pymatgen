@@ -4,8 +4,7 @@ import json
 import os
 
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Species
+from pymatgen.core import Composition, Species
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 

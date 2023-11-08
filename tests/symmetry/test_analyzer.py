@@ -7,9 +7,7 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Molecule, PeriodicSite, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest

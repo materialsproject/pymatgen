@@ -5,8 +5,7 @@ import unittest
 from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Molecule, Species, Structure
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,

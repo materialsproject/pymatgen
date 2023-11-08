@@ -30,10 +30,7 @@ from monty.os.path import zpath
 from monty.serialization import dumpfn, loadfn
 from tabulate import tabulate
 
-from pymatgen.core import SETTINGS
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
