@@ -17,7 +17,7 @@ from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
 

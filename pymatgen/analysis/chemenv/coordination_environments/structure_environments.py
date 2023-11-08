@@ -17,9 +17,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import PeriodicNeighbor, Structure
+from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt

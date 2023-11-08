@@ -30,12 +30,11 @@ from monty.json import MSONable
 from ruamel.yaml import YAML
 from tabulate import tabulate
 
+from pymatgen.core import DummySpecies, Element, PeriodicSite, Site, Species, get_el_sp
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
-from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup

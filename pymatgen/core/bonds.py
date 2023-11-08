@@ -10,7 +10,7 @@ import os
 import warnings
 from typing import TYPE_CHECKING
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from pymatgen.core.sites import Site

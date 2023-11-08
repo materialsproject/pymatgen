@@ -1823,7 +1823,7 @@ class BSPlotterProjected(BSPlotter):
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
         from collections import Counter
 
-        from pymatgen.core.periodic_table import Element
+        from pymatgen.core import Element
 
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")

@@ -29,10 +29,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
