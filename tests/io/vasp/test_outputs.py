@@ -586,6 +586,14 @@ class TestVasprun(PymatgenTest):
         estep = vasp_run.ionic_steps[0]["electronic_steps"][29]
         assert np.isnan(estep["e_wo_entrp"])
 
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.force_overflow"
+        with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun"):
+            vasp_run = Vasprun(filepath)
+        vasp_run = Vasprun(filepath)
+        step = vasp_run.ionic_steps[0]
+        assert np.isnan(step['e_fr_energy'])
+        assert np.isnan(step['forces']).any()
+
     def test_update_potcar(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
