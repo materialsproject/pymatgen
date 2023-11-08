@@ -25,10 +25,7 @@ from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.units import unitized
 from pymatgen.electronic_structure.bandstructure import (
     BandStructure,

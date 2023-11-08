@@ -26,8 +26,7 @@ from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core import DummySpecies, Element, Species, Structure, get_el_sp
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor

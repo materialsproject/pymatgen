@@ -8,8 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Union
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import DummySpecies, Element, Species
+from pymatgen.core import Composition, DummySpecies, Element, Species
 
 if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]

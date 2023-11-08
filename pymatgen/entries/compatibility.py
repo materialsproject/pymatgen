@@ -19,8 +19,7 @@ from tqdm import tqdm
 from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.core import SETTINGS
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import SETTINGS, Element
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,

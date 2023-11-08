@@ -9,7 +9,8 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from pymatgen.core.periodic_table import DummySpecies, Element, ElementBase, Species, get_el_sp
+from pymatgen.core import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import ElementBase
 from pymatgen.util.testing import PymatgenTest
 
 

@@ -9,7 +9,7 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.io.phonopy import (
     CompletePhononDos,
     PhononBandStructure,

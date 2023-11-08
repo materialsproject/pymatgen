@@ -29,10 +29,7 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due

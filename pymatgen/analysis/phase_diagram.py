@@ -24,8 +24,8 @@ from scipy.spatial import ConvexHull
 from tqdm import tqdm
 
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.due import Doi, due

@@ -7,10 +7,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import DummySpecies, Element, Species
-from pymatgen.core.structure import Structure
+from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure

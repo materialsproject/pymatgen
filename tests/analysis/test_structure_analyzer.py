@@ -16,9 +16,7 @@ from pymatgen.analysis.structure_analyzer import (
     solid_angle,
     sulfide_type,
 )
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
