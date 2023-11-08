@@ -17,7 +17,7 @@ import pytest
 eps_hp = 1e-15  # The espsilon value used to compare numbers that are high-precision
 eps_lp = 1e-7  # The espsilon value used to compare numbers that are low-precision
 
-parser_file_dir = Path(__file__).parent / "aims_parser_checks"
+parser_file_dir = Path(__file__).parent / "parser_checks"
 
 
 @pytest.fixture

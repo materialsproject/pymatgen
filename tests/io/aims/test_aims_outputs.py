@@ -10,7 +10,7 @@ from monty.json import MontyDecoder, MontyEncoder
 from pymatgen.core import Structure
 from pymatgen.io.aims.outputs import AimsOutput
 
-outfile_dir = Path(__file__).parent / "aims_output_files"
+outfile_dir = Path(__file__).parent / "output_files"
 
 
 def comp_images(test, ref):

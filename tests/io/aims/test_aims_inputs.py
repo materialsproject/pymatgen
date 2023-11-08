@@ -16,7 +16,7 @@ from pymatgen.io.aims.inputs import (
     AimsGeometryIn,
 )
 
-infile_dir = Path(__file__).parent / "aims_input_files"
+infile_dir = Path(__file__).parent / "input_files"
 
 
 def compare_files(ref_file, test_file):
