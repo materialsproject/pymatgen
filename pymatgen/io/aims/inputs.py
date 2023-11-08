@@ -372,28 +372,19 @@ class AimsCube(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> AimsCube:
+    def from_dict(cls, dct: dict[str, Any]) -> AimsCube:
         """Initialize from dictionary.
 
         Args:
-            d(dict[str, Any]): The MontyEncoded dictionary
+            dct (dict[str, Any]): The MontyEncoded dictionary
 
         Returns:
-            The AimsCube for d
+            AimsCube
         """
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+        attrs = ("type", "origin", "edges", "points", "format", "spin_state", "kpoint", "filename", "elf_type")
+        decoded = {key: MontyDecoder().process_decoded(dct[key]) for key in attrs}
 
-        return cls(
-            type=decoded["type"],
-            origin=decoded["origin"],
-            edges=decoded["edges"],
-            points=decoded["points"],
-            format=decoded["format"],
-            spinstate=decoded["spinstate"],
-            kpoint=decoded["kpoint"],
-            filename=decoded["filename"],
-            elf_type=decoded["elf_type"],
-        )
+        return cls(**decoded)
 
 
 @dataclass
