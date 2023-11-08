@@ -578,13 +578,17 @@ class TestVasprun(PymatgenTest):
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(6.0165)
 
-    def test_sc_step_overflow(self):
+    def test_float_overflow(self):
+        # test we interpret VASP's *********** for overflowed values as NaNs
+        # https://github.com/materialsproject/pymatgen/pull/3452
         filepath = f"{TEST_FILES_DIR}/vasprun.xml.sc_overflow"
         with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun"):
             vasp_run = Vasprun(filepath)
-        vasp_run = Vasprun(filepath)
-        estep = vasp_run.ionic_steps[0]["electronic_steps"][29]
-        assert np.isnan(estep["e_wo_entrp"])
+        first_ionic_step = vasp_run.ionic_steps[0]
+        elec_step = first_ionic_step["electronic_steps"][29]
+        assert np.isnan(elec_step["e_wo_entrp"])
+        assert np.isnan(elec_step["e_fr_energy"])
+        assert np.isnan(first_ionic_step["forces"]).any()
 
     def test_update_potcar(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
