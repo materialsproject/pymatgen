@@ -570,7 +570,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def add_oxidation_state_by_guess(self, **kwargs) -> None:
         """Decorates the structure with oxidation state, guessing
-        using Composition.oxi_state_guesses().
+        using Composition.oxi_state_guesses(). If multiple guesses are found
+        we take the first one.
 
         Args:
             **kwargs: parameters to pass into oxi_state_guesses()
@@ -1193,7 +1194,7 @@ class IStructure(SiteCollection, MSONable):
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
 
     def unset_charge(self):
-        """Reset the charge to None, i.e., computed dynamically based on oxidation states."""
+        """Reset the charge to None. E.g. to compute it dynamically based on oxidation states."""
         self._charge = None
 
     @property
@@ -1222,10 +1223,10 @@ class IStructure(SiteCollection, MSONable):
         formal_charge = super().charge
         if self._charge is None:
             return super().charge
-        if formal_charge != self._charge:
+        if abs(formal_charge - self._charge) > 1e-8:
             warnings.warn(
                 f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
-                f" ({formal_charge}). Use `unset_charge` if this is not desired."
+                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None."
             )
         return self._charge
 

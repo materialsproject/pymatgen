@@ -5,9 +5,8 @@ import unittest
 import pytest
 from pytest import approx
 
+from pymatgen.core import Element, Site
 from pymatgen.core.bonds import CovalentBond, get_bond_length, get_bond_order, obtain_all_bond_lengths
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import Site
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

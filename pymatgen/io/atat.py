@@ -5,9 +5,7 @@ from __future__ import annotations
 import numpy as np
 from monty.dev import deprecated
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Structure, get_el_sp
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"

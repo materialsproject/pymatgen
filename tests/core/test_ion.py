@@ -5,9 +5,8 @@ import unittest
 
 import pytest
 
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
-from pymatgen.core.periodic_table import Element
 
 
 class TestIon(unittest.TestCase):

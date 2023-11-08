@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm, colors
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

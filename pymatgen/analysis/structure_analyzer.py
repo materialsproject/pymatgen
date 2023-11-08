@@ -13,9 +13,7 @@ import numpy as np
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core import Composition, Element, PeriodicSite, Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:

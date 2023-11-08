@@ -30,10 +30,7 @@ from monty.os.path import zpath
 from monty.serialization import dumpfn, loadfn
 from tabulate import tabulate
 
-from pymatgen.core import SETTINGS
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
@@ -57,6 +54,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
 # written to some newer POTCARs by VASP
 VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH = os.path.join(module_dir, "potcar_summary_stats.json.bz2")
 
 
 class Poscar(MSONable):
@@ -1692,7 +1690,7 @@ class PotcarSingle:
     )
 
     # used for POTCAR validation
-    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.bz2")
+    potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
 
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
@@ -2390,10 +2388,6 @@ def _gen_potcar_summary_stats(
         summary_stats_filename (str): Name of the output summary stats file. Defaults to
             '<pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.bz2'.
     """
-
-    if not os.path.isfile(summary_stats_filename):
-        dumpfn({func: {} for func in PotcarSingle.functional_dir}, summary_stats_filename)
-
     func_dir_exist: dict[str, str] = {}
     vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
     for func in PotcarSingle.functional_dir:

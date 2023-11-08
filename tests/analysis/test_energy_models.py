@@ -54,7 +54,7 @@ class TestSymmetryModel(unittest.TestCase):
 class TestIsingModel(unittest.TestCase):
     def test_get_energy(self):
         m = IsingModel(5, 6)
-        from pymatgen.core.periodic_table import Species
+        from pymatgen.core import Species
 
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         struct.replace_species({"Fe": Species("Fe", 2, spin=4)})

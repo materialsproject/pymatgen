@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import Element, Species, get_el_sp
+from pymatgen.core import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
