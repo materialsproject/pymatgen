@@ -392,7 +392,7 @@ class AimsControlIn(MSONable):
     """Class representing and FHI-aims control.in file
 
     Attributes:
-        _parameters (dict[str, Any]): The parameters dictionary conataining all input
+        _parameters (dict[str, Any]): The parameters dictionary containing all input
             flags (key) and values for the control.in file
     """
 
