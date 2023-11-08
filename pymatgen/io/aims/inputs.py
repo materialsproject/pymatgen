@@ -154,23 +154,22 @@ class AimsGeometryIn(MSONable):
 
     @property
     def structure(self) -> Structure | Molecule:
-        """Accses structure for the file"""
+        """Access structure for the file"""
         return self._structure
 
     @property
     def content(self) -> str:
-        """Accses the contents of the file"""
+        """Access the contents of the file"""
         return self._content
 
     def write_file(self, directory: str | Path | None = None, overwrite: bool = False) -> None:
-        """Writes the geometry.in file
+        """Write the geometry.in file
 
         Args:
             directory (str | Path | None): The directory to write the geometry.in file
             overwrite (bool): If True allow to overwrite existing files
         """
-        if directory is None:
-            directory = Path.cwd()
+        directory = directory or Path.cwd()
 
         if not overwrite and (Path(directory) / "geometry.in").exists():
             raise ValueError(f"geometry.in file exists in {directory}")
@@ -194,16 +193,16 @@ class AimsGeometryIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> AimsGeometryIn:
+    def from_dict(cls, dct: dict[str, Any]) -> AimsGeometryIn:
         """Initialize from dictionary.
 
         Args:
-            d (dict[str, Any]): The MontyEncoded dictionary of the AimsGeometryIn object
+            dct (dict[str, Any]): The MontyEncoded dictionary of the AimsGeometryIn object
 
         Returns:
             The input object represented by the dict
         """
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+        decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
         return cls(
             _content=decoded["content"],
@@ -272,6 +271,40 @@ class AimsCube(MSONable):
     filename: str | None = None
     elf_type: int | None = None
 
+    def __eq__(self, other: object) -> bool:
+        """Check if two cubes are equal to each other"""
+        if not isinstance(other, AimsCube):
+            return NotImplemented
+
+        if self.type != other.type:
+            return False
+
+        if not np.allclose(self.origin, other.origin):
+            return False
+
+        if not np.allclose(self.edges, other.edges):
+            return False
+
+        if not np.allclose(self.points, other.points):
+            return False
+
+        if self.format != other.format:
+            return False
+
+        if self.spinstate != other.spinstate:
+            return False
+
+        if self.kpoint != other.kpoint:
+            return False
+
+        if self.filename != other.filename:
+            return False
+
+        if self.elf_type != other.elf_type:
+            return False
+
+        return True
+
     def __post_init__(self) -> None:
         """Check the inputted variables to make sure they are correct
 
@@ -293,8 +326,8 @@ class AimsCube(MSONable):
         if self.format not in ALLOWED_AIMS_CUBE_FORMATS:
             raise ValueError(f"{self.format} is invalid. Cube files must have a format of {ALLOWED_AIMS_CUBE_FORMATS}")
 
-        if self.spinstate is not None and (self.spinstate not in [1, 2]):
-            raise ValueError("Spin state must be 1 or 2")
+        if self.spinstate not in (None, 1, 2):
+            raise ValueError("Spin state must be 1, 2, or None")
 
         if len(self.origin) != 3:
             raise ValueError("The cube origin must have 3 components")
@@ -310,7 +343,7 @@ class AimsCube(MSONable):
                 raise ValueError("Each cube edge must have 3 components")
 
         if self.elf_type is not None and self.type != "elf":
-            raise ValueError("elf_type only used when the cube type is elf")
+            raise ValueError("elf_type is only used when the cube type is elf. Otherwise it must be None")
 
     @property
     def control_block(self) -> str:
@@ -484,8 +517,7 @@ class AimsControlIn(MSONable):
             ValueError: If a file must be overwritten and overwrite is False
             ValueError: If k-grid is not provided for the periodic structures
         """
-        if directory is None:
-            directory = Path.cwd()
+        directory = directory or Path.cwd()
 
         if (Path(directory) / "control.in").exists() and not overwrite:
             raise ValueError(f"control.in file already in {directory}")
@@ -593,16 +625,16 @@ class AimsControlIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> AimsControlIn:
+    def from_dict(cls, dct: dict[str, Any]) -> AimsControlIn:
         """Initialize from dictionary.
 
         Args:
-            d(dict[str, Any]): The MontyEncoded dictionary
+            dct (dict[str, Any]): The MontyEncoded dictionary
 
         Returns:
-            The AimsControlIn for d
+            The AimsControlIn for dct
         """
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+        decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
         return cls(
             _parameters=decoded["parameters"],

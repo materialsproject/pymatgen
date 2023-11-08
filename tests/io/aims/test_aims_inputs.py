@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 from pathlib import Path
 
 import numpy as np
@@ -47,18 +46,14 @@ def test_read_write_si_in(tmp_path):
     si_test_from_struct = AimsGeometryIn.from_structure(si.structure)
     assert si.structure == si_test_from_struct.structure
 
-    workdir = Path.cwd()
-    os.chdir(tmp_path)
-    si_test_from_struct.write_file(overwrite=True)
+    si_test_from_struct.write_file(directory=tmp_path, overwrite=True)
     with pytest.raises(
         ValueError,
         match="geometry.in file exists in ",
     ):
-        si_test_from_struct.write_file(overwrite=False)
+        si_test_from_struct.write_file(directory=tmp_path, overwrite=False)
 
-    compare_files(infile_dir / "geometry.in.si.ref", "geometry.in")
-
-    os.chdir(workdir)
+    compare_files(infile_dir / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
 
     with gzip.open(f"{infile_dir}/si_ref.json.gz", "rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
@@ -83,19 +78,15 @@ def test_read_h2o_in(tmp_path):
     h2o_test_from_struct = AimsGeometryIn.from_structure(h2o.structure)
     assert h2o.structure == h2o_test_from_struct.structure
 
-    workdir = Path.cwd()
-    os.chdir(tmp_path)
-    h2o_test_from_struct.write_file(overwrite=True)
+    h2o_test_from_struct.write_file(directory=tmp_path, overwrite=True)
 
     with pytest.raises(
         ValueError,
         match="geometry.in file exists in ",
     ):
-        h2o_test_from_struct.write_file(overwrite=False)
+        h2o_test_from_struct.write_file(directory=tmp_path, overwrite=False)
 
-    compare_files(infile_dir / "geometry.in.h2o.ref", "geometry.in")
-
-    os.chdir(workdir)
+    compare_files(infile_dir / "geometry.in.h2o.ref", f"{tmp_path}/geometry.in")
 
     with gzip.open(f"{infile_dir}/h2o_ref.json.gz", "rt") as h2o_ref_json:
         h2o_from_dct = json.load(h2o_ref_json, cls=MontyDecoder)
@@ -125,7 +116,7 @@ def test_aims_cube():
 
     with pytest.raises(
         ValueError,
-        match="Cube file must have a format of cube, gOpenMol, or xsf",
+        match="TEST_ERR is invalid. Cube files must have a format of",
     ):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], format="TEST_ERR")
 
@@ -144,7 +135,7 @@ def test_aims_cube():
             edges=[[0.0, 0.0, 0.1], [0.1, 0.0, 0.0], [0.1, 0.0]],
         )
 
-    with pytest.raises(ValueError, match="elf_type only used when the cube type is elf"):
+    with pytest.raises(ValueError, match="elf_type is only used when the cube type is elf. Otherwise it must be None"):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], elf_type=1)
 
     with pytest.raises(ValueError, match="The number of points per edge must have 3 components"):
@@ -196,7 +187,6 @@ def test_aims_control_in(tmp_path):
         "species_dir": str(infile_dir.parent / "species_directory/light"),
     }
 
-    workdir = Path.cwd()
     aims_control = AimsControlIn(parameters.copy())
 
     for key, val in parameters.items():
@@ -206,35 +196,35 @@ def test_aims_control_in(tmp_path):
     assert "xc" not in aims_control.parameters
     aims_control.parameters = parameters
 
-    os.chdir(tmp_path)
     h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz").structure
 
     si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz").structure
-    aims_control.write_file(h2o, overwrite=True)
+    aims_control.write_file(h2o, directory=tmp_path, overwrite=True)
 
-    compare_files(infile_dir / "control.in.h2o", "control.in")
+    compare_files(infile_dir / "control.in.h2o", f"{tmp_path}/control.in")
 
     with pytest.raises(
         ValueError,
         match="k-grid must be defined for periodic systems",
     ):
-        aims_control.write_file(si, overwrite=True)
+        aims_control.write_file(si, directory=tmp_path, overwrite=True)
     aims_control["k_grid"] = [1, 1, 1]
 
     with pytest.raises(
         ValueError,
         match="control.in file already in ",
     ):
-        aims_control.write_file(si, overwrite=False)
+        aims_control.write_file(si, directory=tmp_path, overwrite=False)
 
     aims_control["output"] = "band 0 0 0 0.5 0 0.5 10 G X"
     aims_control["output"] = "band 0 0 0 0.5 0.5 0.5 10 G L"
 
     aims_control_from_dict = json.loads(json.dumps(aims_control.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
     for key, val in aims_control.parameters.items():
+        print("\n\n", key, "\n", val, "\n", aims_control_from_dict[key], "\n\n")
+        if key in ["output", "cubes"]:
+            np.all(aims_control_from_dict[key] == val)
         assert aims_control_from_dict[key] == val
 
-    aims_control_from_dict.write_file(si, verbose_header=True, overwrite=True)
-    compare_files(infile_dir / "control.in.si", "control.in")
-
-    os.chdir(workdir)
+    aims_control_from_dict.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
+    compare_files(infile_dir / "control.in.si", f"{tmp_path}/control.in")
