@@ -9,9 +9,7 @@ import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
 
 

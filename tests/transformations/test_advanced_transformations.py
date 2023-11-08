@@ -12,9 +12,7 @@ from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

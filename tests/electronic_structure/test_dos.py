@@ -10,8 +10,7 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest

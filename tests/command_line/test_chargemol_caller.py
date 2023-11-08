@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.util.testing import TEST_FILES_DIR
 
 

@@ -303,8 +303,8 @@ class BaderAnalysis:
         Returns:
             Structure: with bader-analysis-based oxidation states.
         """
-        charges = [self.get_partial_charge(i, None if not nelects else nelects[i]) for i in range(len(self.structure))]
         struct = self.structure.copy()
+        charges = [self.get_partial_charge(idx, None if not nelects else nelects[idx]) for idx in range(len(struct))]
         struct.add_oxidation_state_by_site(charges)
         return struct
 

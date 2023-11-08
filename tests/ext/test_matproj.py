@@ -14,9 +14,7 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
-from pymatgen.core import SETTINGS
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Composition, Structure
+from pymatgen.core import SETTINGS, Composition, Element, Structure
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility

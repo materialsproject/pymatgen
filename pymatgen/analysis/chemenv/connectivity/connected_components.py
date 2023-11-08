@@ -371,12 +371,10 @@ class ConnectedComponent(MSONable):
     def __len__(self):
         return len(self.graph)
 
-    def compute_periodicity(self, algorithm="all_simple_paths"):
+    def compute_periodicity(self, algorithm="all_simple_paths") -> None:
         """
         Args:
             algorithm ():
-
-        Returns:
         """
         if algorithm == "all_simple_paths":
             self.compute_periodicity_all_simple_paths_algorithm()
@@ -519,6 +517,7 @@ class ConnectedComponent(MSONable):
             multiplicity ():
 
         Returns:
+            nx.MultiGraph: Super graph of the connected component.
         """
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 

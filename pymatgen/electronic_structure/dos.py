@@ -12,9 +12,8 @@ from monty.json import MSONable
 from scipy.constants import value as _cd
 from scipy.signal import hilbert
 
-from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core import Structure, get_el_sp
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure

@@ -809,6 +809,7 @@ class PourbaixDiagram(MSONable):
             V (float): V to find stable entry.
 
         Returns:
+            PourbaixEntry: stable entry at pH, V
         """
         energies_at_conditions = [e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries]
         return self.stable_entries[np.argmin(energies_at_conditions)]

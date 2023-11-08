@@ -15,8 +15,7 @@ from scipy.optimize import curve_fit
 
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 
 
 class CorrectionCalculator:

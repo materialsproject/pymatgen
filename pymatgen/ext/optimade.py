@@ -11,8 +11,7 @@ from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
 
-from pymatgen.core.periodic_table import DummySpecies
-from pymatgen.core.structure import Structure
+from pymatgen.core import DummySpecies, Structure
 from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 

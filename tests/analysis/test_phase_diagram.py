@@ -26,8 +26,7 @@ from pymatgen.analysis.phase_diagram import (
     triangular_coord,
     uniquelines,
 )
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import DummySpecies, Element
+from pymatgen.core import Composition, DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import PymatgenTest

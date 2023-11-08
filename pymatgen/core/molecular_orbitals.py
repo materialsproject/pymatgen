@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from itertools import chain, combinations
 
+from pymatgen.core import Element
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
 
 
 class MolecularOrbitals:

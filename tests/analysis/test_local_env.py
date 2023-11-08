@@ -37,8 +37,7 @@ from pymatgen.analysis.local_env import (
     site_is_of_motif_type,
     solid_angle,
 )
-from pymatgen.core import Lattice, Molecule, Structure
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 test_dir = f"{TEST_FILES_DIR}/fragmenter_files"
