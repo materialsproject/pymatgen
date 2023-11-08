@@ -529,13 +529,13 @@ class Trajectory(MSONable):
         """Create trajectory from XDATCAR, vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:
-            filename: Path to the file to read from.
-            constant_lattice: Whether the lattice changes during the simulation,
-                such as in an NPT MD simulation.
+            filename (str | Path): Path to the file to read from.
+            constant_lattice (bool): Whether the lattice changes during the simulation,
+                such as in an NPT MD simulation. Defaults to True.
             **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
-            A trajectory from the file.
+            Trajectory: containing the structures or molecules in the file.
         """
         fname = Path(filename).expanduser().resolve().name
         is_mol = False
@@ -546,9 +546,10 @@ class Trajectory(MSONable):
             structures = Vasprun(filename).structures
         elif fnmatch(fname, "*.traj"):
             try:
-                from ase.io.trajectory import Trajectory as ASE_Trajectory
+                from ase.io.trajectory import Trajectory as AseTrajectory
 
-                ase_traj = ASE_Trajectory(fname)
+                ase_traj = AseTrajectory(fname)
+                # periodic boundary conditions should be the same for all frames so just check the first
                 pbc = ase_traj[0].pbc
                 if any(pbc):
                     structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
@@ -560,19 +561,12 @@ class Trajectory(MSONable):
                 raise exc
 
         else:
-            supported = ("XDATCAR", "vasprun.xml", "*.traj")
-            raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
+            supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")
+            raise ValueError(f"Expect file to be one of {supported_file_types}; got {filename}.")
 
         if is_mol:
-            return cls.from_molecules(
-                molecules,
-                **kwargs,
-            )
-        return cls.from_structures(
-            structures,
-            constant_lattice=constant_lattice,
-            **kwargs,
-        )
+            return cls.from_molecules(molecules, **kwargs)
+        return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
