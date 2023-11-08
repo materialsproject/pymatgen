@@ -26,8 +26,10 @@ class TestTrajectory(PymatgenTest):
         coords = out.data["geometries"]
 
         self.molecules = []
-        for c in coords:
-            mol = Molecule(species, c, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity))
+        for coord in coords:
+            mol = Molecule(
+                species, coord, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity)
+            )
             self.molecules.append(mol)
 
         self.traj_mols = Trajectory(
@@ -473,5 +475,5 @@ class TestTrajectory(PymatgenTest):
         os.remove("traj_test_XDATCAR")
 
     def test_read_file(self):
-        traj2 = Trajectory.from_file("chgnet_test_relax.traj")
-        assert isinstance(traj2, Trajectory)
+        traj = Trajectory.from_file(f"{TEST_FILES_DIR}/LiMnO2_chgnet_relax.traj")
+        assert isinstance(traj, Trajectory)
