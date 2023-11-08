@@ -21,7 +21,6 @@ from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, _MPResterBasic
 from pymatgen.ext.matproj_legacy import TaskType, _MPResterLegacy
-from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -127,8 +126,8 @@ class TestMPResterOld(PymatgenTest):
         cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
-        s = CifParser(cif_file).get_structures()[0]
-        data = mpr.find_structure(s)
+        struct = Structure.from_file(cif_file, primitive=True)
+        data = mpr.find_structure(struct)
         assert len(data) > 1
 
     def test_get_entries_in_chemsys(self):
@@ -621,15 +620,6 @@ class TestMPResterNewBasic:
     #     mpr = _MPResterLegacy()
     #     data = mpr.get_materials_id_references("mp-123")
     #     assert len(data) > 1000
-
-    # def test_find_structure(self):
-    #     mpr = _MPResterLegacy()
-    #     cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
-    #     data = mpr.find_structure(str(cif_file))
-    #     assert len(data) > 1
-    #     s = CifParser(cif_file).get_structures()[0]
-    #     data = mpr.find_structure(s)
-    #     assert len(data) > 1
 
     def test_get_entries_and_in_chemsys(self):
         # One large system test.

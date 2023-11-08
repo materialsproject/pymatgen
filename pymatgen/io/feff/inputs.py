@@ -207,8 +207,8 @@ class Header(MSONable):
         Returns:
             Header Object
         """
-        r = CifParser(cif_file)
-        structure = r.get_structures()[0]
+        parser = CifParser(cif_file)
+        structure = parser.parse_structures(primitive=True)[0]
         return Header(structure, source, comment)
 
     @property

@@ -7,7 +7,6 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.core.structure import Lattice, Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -30,7 +29,7 @@ TITLE sites: 4
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
-        cls.structure = CifParser(cif_file).get_structures()[0]
+        cls.structure = Structure.from_file(cif_file, primitive=True)
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
 
@@ -259,6 +258,6 @@ TITLE sites: 4
     def test_cluster_index(self):
         # https://github.com/materialsproject/pymatgen/pull/3256
         cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
-        structure = CifParser(cif_file).get_structures()[0]
+        structure = Structure.from_file(cif_file)
         for idx in range(len(structure.species)):
             assert Atoms(structure, idx, 3).cluster

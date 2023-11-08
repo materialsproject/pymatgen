@@ -29,8 +29,7 @@ class StructInputFile(InputFile):
 
     @classmethod
     def from_str(cls, contents: str):
-        parser = CifParser.from_str(contents)
-        struct = parser.get_structures()[0]
+        struct = Structure.from_str(contents, fmt="cif")
         return cls(structure=struct)
 
 
@@ -55,7 +54,7 @@ class TestInputFile(PymatgenTest):
         assert isinstance(sif.structure, Structure)
 
         sif.write_file("newLi.cif")
-        assert os.path.exists("newLi.cif")
+        assert os.path.isfile("newLi.cif")
 
     def test_msonable(self):
         sif = StructInputFile.from_file(f"{TEST_FILES_DIR}/Li.cif")
@@ -142,14 +141,14 @@ class TestInputSet(PymatgenTest):
     def test_write(self):
         inp_set = InputSet({"cif1": self.sif1, "cif2": self.sif2}, kwarg1=1, kwarg2="hello")
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
-        assert os.path.exists("input_dir/cif1")
-        assert os.path.exists("input_dir/cif2")
+        assert os.path.isfile("input_dir/cif1")
+        assert os.path.isfile("input_dir/cif2")
         assert len(os.listdir("input_dir")) == 2
         with pytest.raises(FileExistsError, match="cif1"):
             inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
         assert len(os.listdir("input_dir")) == 1
-        assert os.path.exists(f"input_dir/{type(inp_set).__name__}.zip")
+        assert os.path.isfile(f"input_dir/{type(inp_set).__name__}.zip")
         with pytest.raises(FileNotFoundError, match="input_dir2"):
             inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
 
@@ -158,12 +157,12 @@ class TestInputSet(PymatgenTest):
             {"cif1": self.sif1, "file_from_str": "hello you", "file_from_str_cast": FakeClass(a="Aha", b="Beh")}
         )
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
-        assert os.path.exists("input_dir/cif1")
-        assert os.path.exists("input_dir/file_from_str")
-        assert os.path.exists("input_dir/file_from_str_cast")
+        assert os.path.isfile("input_dir/cif1")
+        assert os.path.isfile("input_dir/file_from_str")
+        assert os.path.isfile("input_dir/file_from_str_cast")
         assert len(os.listdir("input_dir")) == 3
         parser = CifParser(filename="input_dir/cif1")
-        assert parser.get_structures()[0] == self.sif1.structure
+        assert parser.parse_structures()[0] == self.sif1.structure
         with open("input_dir/file_from_str") as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"
