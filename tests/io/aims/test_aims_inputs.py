@@ -120,7 +120,7 @@ def test_aims_cube():
     ):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], format="TEST_ERR")
 
-    with pytest.raises(ValueError, match="Spin state must be 1 or 2"):
+    with pytest.raises(ValueError, match=r"Spin state must be one of \(1, 2, None\)"):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], spin_state=3)
 
     with pytest.raises(ValueError, match="The cube origin must have 3 components"):

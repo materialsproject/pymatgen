@@ -314,8 +314,9 @@ class AimsCube(MSONable):
         if self.format not in ALLOWED_AIMS_CUBE_FORMATS:
             raise ValueError(f"{self.format} is invalid. Cube files must have a format of {ALLOWED_AIMS_CUBE_FORMATS}")
 
-        if self.spin_state not in (None, 1, 2):
-            raise ValueError("Spin state must be 1, 2, or None")
+        valid_spins = (1, 2, None)
+        if self.spin_state not in valid_spins:
+            raise ValueError(f"Spin state must be one of {valid_spins}")
 
         if len(self.origin) != 3:
             raise ValueError("The cube origin must have 3 components")
@@ -345,7 +346,7 @@ class AimsCube(MSONable):
             cb += f"{self.edges[idx][2]: .12e}\n"
         cb += f"    cube format {self.format}\n"
         if self.spin_state is not None:
-            cb += f"    cube spin_state {self.spin_state}\n"
+            cb += f"    cube spinstate {self.spin_state}\n"
         if self.kpoint is not None:
             cb += f"    cube kpoint {self.kpoint}\n"
         if self.filename is not None:
@@ -615,6 +616,4 @@ class AimsControlIn(MSONable):
         """
         decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
-        return cls(
-            _parameters=decoded["parameters"],
-        )
+        return cls(_parameters=decoded["parameters"])
