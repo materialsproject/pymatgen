@@ -591,8 +591,8 @@ class TestVasprun(PymatgenTest):
             vasp_run = Vasprun(filepath)
         vasp_run = Vasprun(filepath)
         step = vasp_run.ionic_steps[0]
-        assert np.isnan(step['e_fr_energy'])
-        assert np.isnan(step['forces']).any()
+        assert np.isnan(step["e_fr_energy"])
+        assert np.isnan(step["forces"]).any()
 
     def test_update_potcar(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
