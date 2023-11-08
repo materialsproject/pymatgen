@@ -252,7 +252,7 @@ class AimsCube(MSONable):
             dx (float): The length of the step in the x direction
         points (Sequence[int] or tuple[int, int, int]): The number of points
             along each edge
-        spinstate (int): The spin-channel to use either 1 or 2
+        spin_state (int): The spin-channel to use either 1 or 2
         kpoint (int): The k-point to use (the index of the list printed from
             `output k_point_list`)
         filename (str): The filename to use
@@ -266,7 +266,7 @@ class AimsCube(MSONable):
     edges: Sequence[Sequence[float]] = field(default_factory=lambda: 0.1 * np.eye(3))
     points: Sequence[int] | tuple[int, int, int] = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"
-    spinstate: int | None = None
+    spin_state: int | None = None
     kpoint: int | None = None
     filename: str | None = None
     elf_type: int | None = None
@@ -291,7 +291,7 @@ class AimsCube(MSONable):
         if self.format != other.format:
             return False
 
-        if self.spinstate != other.spinstate:
+        if self.spin_state != other.spin_state:
             return False
 
         if self.kpoint != other.kpoint:
@@ -326,7 +326,7 @@ class AimsCube(MSONable):
         if self.format not in ALLOWED_AIMS_CUBE_FORMATS:
             raise ValueError(f"{self.format} is invalid. Cube files must have a format of {ALLOWED_AIMS_CUBE_FORMATS}")
 
-        if self.spinstate not in (None, 1, 2):
+        if self.spin_state not in (None, 1, 2):
             raise ValueError("Spin state must be 1, 2, or None")
 
         if len(self.origin) != 3:
@@ -350,14 +350,14 @@ class AimsCube(MSONable):
         """Get the block of text for the control.in file of the Cube"""
         cb = f"output cube {self.type}\n"
         cb += f"    cube origin {self.origin[0]: .12e} {self.origin[1]: .12e} {self.origin[2]: .12e}\n"
-        for ii in range(3):
-            cb += f"    cube edge {self.points[ii]} "
-            cb += f"{self.edges[ii][0]: .12e} "
-            cb += f"{self.edges[ii][1]: .12e} "
-            cb += f"{self.edges[ii][2]: .12e}\n"
+        for idx in range(3):
+            cb += f"    cube edge {self.points[idx]} "
+            cb += f"{self.edges[idx][0]: .12e} "
+            cb += f"{self.edges[idx][1]: .12e} "
+            cb += f"{self.edges[idx][2]: .12e}\n"
         cb += f"    cube format {self.format}\n"
-        if self.spinstate is not None:
-            cb += f"    cube spinstate {self.spinstate}\n"
+        if self.spin_state is not None:
+            cb += f"    cube spin_state {self.spin_state}\n"
         if self.kpoint is not None:
             cb += f"    cube kpoint {self.kpoint}\n"
         if self.filename is not None:
@@ -377,7 +377,7 @@ class AimsCube(MSONable):
         dct["edges"] = self.edges
         dct["points"] = self.points
         dct["format"] = self.format
-        dct["spinstate"] = self.spinstate
+        dct["spin_state"] = self.spin_state
         dct["kpoint"] = self.kpoint
         dct["filename"] = self.filename
         dct["elf_type"] = self.elf_type

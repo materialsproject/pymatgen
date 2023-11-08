@@ -121,7 +121,7 @@ def test_aims_cube():
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], format="TEST_ERR")
 
     with pytest.raises(ValueError, match="Spin state must be 1 or 2"):
-        AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], spinstate=3)
+        AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], spin_state=3)
 
     with pytest.raises(ValueError, match="The cube origin must have 3 components"):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], origin=[0])
@@ -146,7 +146,7 @@ def test_aims_cube():
         origin=[0, 0, 0],
         edges=[[0.01, 0, 0], [0.0, 0.01, 0], [0.0, 0, 0.01]],
         points=[100, 100, 100],
-        spinstate=1,
+        spin_state=1,
         kpoint=1,
         filename="test.cube",
         format="cube",
