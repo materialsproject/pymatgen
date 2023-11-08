@@ -2346,11 +2346,14 @@ class IStructure(SiteCollection, MSONable):
                 for a in factors(det):
                     for e in factors(det // a):
                         g = det // a // e
-                        yield det, np.array(
-                            [
-                                [[a, b, c], [0, e, f], [0, 0, g]]
-                                for b, c, f in itertools.product(range(a), range(a), range(e))
-                            ]
+                        yield (
+                            det,
+                            np.array(
+                                [
+                                    [[a, b, c], [0, e, f], [0, 0, g]]
+                                    for b, c, f in itertools.product(range(a), range(a), range(e))
+                                ]
+                            ),
                         )
 
         # we can't let sites match to their neighbors in the supercell
@@ -2764,7 +2767,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.cif import CifParser
 
             parser = CifParser.from_str(input_string, **kwargs)
-            struct = parser.get_structures(primitive=primitive)[0]
+            struct = parser.parse_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
@@ -3391,7 +3394,9 @@ class IMolecule(SiteCollection, MSONable):
         centered_coords = self.cart_coords - self.center_of_mass + offset
 
         for i, j, k in itertools.product(
-            list(range(images[0])), list(range(images[1])), list(range(images[2]))  # type: ignore
+            list(range(images[0])),
+            list(range(images[1])),
+            list(range(images[2])),  # type: ignore
         ):
             box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:

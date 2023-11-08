@@ -7,7 +7,6 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -59,8 +58,7 @@ class TestHeader(unittest.TestCase):
 class TestFeffAtoms(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        r = CifParser(f"{TEST_FILES_DIR}/CoO19128.cif")
-        cls.structure = r.get_structures()[0]
+        cls.structure = Structure.from_file(f"{TEST_FILES_DIR}/CoO19128.cif")
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
     def test_absorbing_atom(self):
