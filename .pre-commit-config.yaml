@@ -56,3 +56,9 @@ repos:
         # MD041: first line in a file should be a top-level heading
         # MD025: single title
         args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+        args: [--drop-empty-cells, --keep-output]
