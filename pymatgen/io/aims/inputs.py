@@ -88,34 +88,25 @@ class AimsGeometryIn(MSONable):
         else:
             raise ValueError("Incorrect number of lattice vectors passed.")
 
+        site_props = {"magmom": magmom, "charge": charge}
         if lattice is None:
-            structure = Molecule(
-                species,
-                coords,
-                np.sum(charge),
-                site_properties={"magmom": magmom, "charge": charge},
-            )
+            structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
         else:
             structure = Structure(
-                lattice,
-                species,
-                coords,
-                np.sum(charge),
-                coords_are_cartesian=True,
-                site_properties={"magmom": magmom, "charge": charge},
+                lattice, species, coords, np.sum(charge), coords_are_cartesian=True, site_properties=site_props
             )
 
         return cls(_content="\n".join(content_lines), _structure=structure)
 
     @classmethod
     def from_file(cls, filepath: str | Path) -> AimsGeometryIn:
-        """Create an AimsGeometryIn from an input file
+        """Create an AimsGeometryIn from an input file.
 
         Args:
-            filepath (str): The path to the input file (either plain text of gzipped)
+            filepath (str | Path): The path to the input file (either plain text of gzipped)
 
         Returns:
-            The input object represented in the file
+            AimsGeometryIn: The input object represented in the file
         """
         if str(filepath).endswith(".gz"):
             with gzip.open(filepath, "rt") as infile:
@@ -127,13 +118,13 @@ class AimsGeometryIn(MSONable):
 
     @classmethod
     def from_structure(cls, structure: Structure | Molecule) -> AimsGeometryIn:
-        """Construct an input file from an input structure
+        """Construct an input file from an input structure.
 
         Args:
             structure (Structure or Molecule): The structure for the file
 
         Returns:
-            The input object for the structure
+            AimsGeometryIn: The input object for the structure
         """
         content_lines = []
 
@@ -204,10 +195,7 @@ class AimsGeometryIn(MSONable):
         """
         decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
-        return cls(
-            _content=decoded["content"],
-            _structure=decoded["structure"],
-        )
+        return cls(_content=decoded["content"], _structure=decoded["structure"])
 
 
 ALLOWED_AIMS_CUBE_TYPES = (
