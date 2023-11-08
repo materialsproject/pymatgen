@@ -8,7 +8,7 @@ import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core import Structure
-from pymatgen.io.aims.output import AimsOutput
+from pymatgen.io.aims.outputs import AimsOutput
 
 outfile_dir = Path(__file__).parent / "aims_output_files"
 
