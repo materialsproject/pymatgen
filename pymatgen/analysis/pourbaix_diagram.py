@@ -12,17 +12,12 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, partial
 from multiprocessing import Pool
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 from scipy.spatial import ConvexHull, HalfspaceIntersection
-
-try:
-    from scipy.special import comb
-except ImportError:
-    from scipy.misc import comb
-
-from typing import TYPE_CHECKING, Any, no_type_check
+from scipy.special import comb
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError

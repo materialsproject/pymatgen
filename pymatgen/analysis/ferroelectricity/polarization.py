@@ -47,6 +47,7 @@ determine the spontaneous polarization because it serves as a reference point.
 from __future__ import annotations
 
 import numpy as np
+from scipy.interpolate import UnivariateSpline
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -371,10 +372,8 @@ class Polarization:
     def same_branch_splines(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Fit splines to same branch polarization. This is used to assess any jumps
-        in the same branch polarizaiton.
+        in the same branch polarization.
         """
-        from scipy.interpolate import UnivariateSpline
-
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -430,8 +429,6 @@ class EnergyTrend:
 
     def spline(self):
         """Fit spline to energy trend data."""
-        from scipy.interpolate import UnivariateSpline
-
         return UnivariateSpline(range(len(self.energies)), self.energies, k=4)
 
     def smoothness(self):

@@ -31,7 +31,9 @@ from monty.json import MSONable
 from numpy import cross, eye
 from numpy.linalg import norm
 from ruamel.yaml import YAML
-from scipy.linalg import expm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.linalg import expm, polar
+from scipy.spatial.distance import squareform
 from tabulate import tabulate
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -42,6 +44,9 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.cif import CifWriter
+from pymatgen.io.gaussian import GaussianInput
+from pymatgen.io.xyz import XYZ
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
@@ -2218,8 +2223,6 @@ class IStructure(SiteCollection, MSONable):
 
         if interpolate_lattices:
             # interpolate lattice matrices using polar decomposition
-            from scipy.linalg import polar
-
             # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
             lvec = p - np.identity(3)
@@ -2661,12 +2664,8 @@ class IStructure(SiteCollection, MSONable):
         fmt = fmt.lower()
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
-            from pymatgen.io.cif import CifWriter
-
             writer = CifWriter(self, **kwargs)
         elif fmt == "mcif" or fnmatch(filename.lower(), "*.mcif*"):
-            from pymatgen.io.cif import CifWriter
-
             writer = CifWriter(self, write_magmoms=True, **kwargs)
         elif fmt == "poscar" or fnmatch(filename, "*POSCAR*"):
             from pymatgen.io.vasp import Poscar
@@ -3548,9 +3547,6 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             IMolecule or Molecule.
         """
-        from pymatgen.io.gaussian import GaussianInput
-        from pymatgen.io.xyz import XYZ
-
         fmt = fmt.lower()  # type: ignore[assignment]
         if fmt == "xyz":
             mol = XYZ.from_str(input_string).molecule
@@ -4235,9 +4231,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
         """
-        from scipy.cluster.hierarchy import fcluster, linkage
-        from scipy.spatial.distance import squareform
-
         dist_mat = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
@@ -4632,10 +4625,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
         """
-        from numpy import cross, eye
-        from numpy.linalg import norm
-        from scipy.linalg import expm
-
         if indices is None:
             indices = range(len(self))
 

@@ -10,7 +10,7 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
@@ -351,7 +351,6 @@ class TestMagOrderingTransformation(PymatgenTest):
         _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         assert trans.mag_species_spin == {"Fe": 5}
-        from pymatgen.analysis.energy_models import SymmetryModel
 
         assert isinstance(trans.energy_model, SymmetryModel)
 

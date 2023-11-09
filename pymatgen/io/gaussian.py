@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import scipy.constants as cst
 from monty.io import zopen
+from scipy.stats import norm
 
 from pymatgen.core import Composition, Element, Molecule
 from pymatgen.core.operations import SymmOp
@@ -1242,8 +1243,6 @@ class GaussianOutput:
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """
-        from scipy.stats import norm
-
         ax = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()
