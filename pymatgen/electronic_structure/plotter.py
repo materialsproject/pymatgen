@@ -4217,7 +4217,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
+def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs) -> plt.Axes:
     """Gives the plot (as a matplotlib object) of the symmetry line path in
         the Brillouin Zone.
 
@@ -4227,8 +4227,7 @@ def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        matplotlib figure
-
+        plt.Axes: matplotlib Axes
     """
     lines = [[kpath.kpath["kpoints"][k] for k in p] for p in kpath.kpath["path"]]
     return plot_brillouin_zone(

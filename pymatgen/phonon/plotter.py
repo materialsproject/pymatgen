@@ -41,8 +41,7 @@ def freq_units(units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"]) -> Fre
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1.
 
     Returns:
-        Returns conversion factor from THz to the required units and the label in the form of a namedtuple
-
+        Conversion factor from THz to the required units and the label in the form of a namedtuple
     """
     dct = {
         "thz": FreqUnits(1, "THz"),

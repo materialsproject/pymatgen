@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+from fractions import Fraction
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -1246,7 +1247,6 @@ class TestStructure(PymatgenTest):
                 ["Cs"],
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-        from fractions import Fraction
 
         struct = Structure.from_spacegroup(139, np.eye(3), ["H"], [[Fraction(1, 2), Fraction(1, 4), Fraction(0)]])
         assert len(struct) == 8

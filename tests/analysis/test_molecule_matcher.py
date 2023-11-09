@@ -18,6 +18,7 @@ from pymatgen.analysis.molecule_matcher import (
 )
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
@@ -72,8 +73,6 @@ def permute(mol, seed):
 
 
 def generate_Si_cluster():
-    from pymatgen.io.xyz import XYZ
-
     coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
 
@@ -108,8 +107,6 @@ def generate_Si_cluster():
 
 
 def generate_Si2O_cluster():
-    from pymatgen.io.xyz import XYZ
-
     coords = [
         [0.625, 0.625, 0.625],
         [0.625, 0.625, 0.125],

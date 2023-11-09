@@ -333,12 +333,9 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
 
     Returns (str): a disordered formula string
     """
-    # this is in string utils and not in
-    # Composition because we need to have access
-    # to site occupancies to calculate this, so
-    # have to pass the full structure as an argument
-    # (alternatively this could be made a method on
-    # Structure)
+    # this is in string utils and not in Composition because we need to have access to
+    # site occupancies to calculate this, so have to pass the full structure as an
+    # argument (alternatively this could be made a method on Structure)
     from pymatgen.core import Composition, get_el_sp
 
     if disordered_struct.is_ordered:

@@ -31,7 +31,9 @@ from monty.json import MSONable
 from numpy import cross, eye
 from numpy.linalg import norm
 from ruamel.yaml import YAML
-from scipy.linalg import expm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.linalg import expm, polar
+from scipy.spatial.distance import squareform
 from tabulate import tabulate
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -2218,8 +2220,6 @@ class IStructure(SiteCollection, MSONable):
 
         if interpolate_lattices:
             # interpolate lattice matrices using polar decomposition
-            from scipy.linalg import polar
-
             # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
             lvec = p - np.identity(3)
@@ -4235,9 +4235,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
         """
-        from scipy.cluster.hierarchy import fcluster, linkage
-        from scipy.spatial.distance import squareform
-
         dist_mat = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
@@ -4632,10 +4629,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
         """
-        from numpy import cross, eye
-        from numpy.linalg import norm
-        from scipy.linalg import expm
-
         if indices is None:
             indices = range(len(self))
 

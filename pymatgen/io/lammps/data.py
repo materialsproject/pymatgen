@@ -898,10 +898,8 @@ class LammpsData(MSONable):
 
 class Topology(MSONable):
     """
-    Class carrying most data in Atoms, Velocities and molecular
-    topology sections for ONE SINGLE Molecule or Structure
-    object, or a plain list of Sites.
-
+    Class carrying most data in Atoms, Velocities and molecular topology sections for
+    ONE SINGLE Molecule or Structure object, or a plain list of Sites.
     """
 
     def __init__(

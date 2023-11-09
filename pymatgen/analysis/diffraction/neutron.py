@@ -44,7 +44,6 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     Reference:
     Marc De Graef and Michael E. McHenry, Structure of Materials 2nd ed,
     Chapter13, Cambridge University Press 2003.
-
     """
 
     def __init__(self, wavelength=1.54184, symprec: float = 0, debye_waller_factors=None):
