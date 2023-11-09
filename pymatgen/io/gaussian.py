@@ -578,7 +578,6 @@ class GaussianOutput:
     .. method:: save_scan_plot()
 
         Save a matplotlib plot of the potential energy surface to a file
-
     """
 
     def __init__(self, filename):

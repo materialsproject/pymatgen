@@ -82,7 +82,6 @@ def readfile(file_object):
     -------
     content : str
         The content of the file.
-
     """
     if hasattr(file_object, "read"):
         return file_object.read()

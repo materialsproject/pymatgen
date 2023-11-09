@@ -1384,8 +1384,6 @@ class ICOHPNeighborsInfo(NamedTuple):
         atoms (list[list[str]]): list of list describing the species present in the identified interactions
             (names from ICOHPLIST), e.g., ["Ag3", "O5"]
         central_isites (list[int]): list of the central isite for each identified interaction.
-
-
     """
 
     total_icohp: float

@@ -735,12 +735,10 @@ def unitized(unit):
     Args:
         unit: Specific unit (eV, Ha, m, ang, etc.).
 
-    Example usage::
-
+    Example:
         @unitized(unit="kg")
         def get_mass():
             return 123.45
-
     """
 
     def wrap(func):

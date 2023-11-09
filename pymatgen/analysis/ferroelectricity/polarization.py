@@ -132,19 +132,16 @@ class PolarizationLattice(Structure):
 
 class Polarization:
     """
-    Class for recovering the same branch polarization for a set of
-    polarization calculations along the nonpolar - polar distortion
-    path of a ferroelectric.
+    Class for recovering the same branch polarization for a set of polarization
+    calculations along the nonpolar - polar distortion path of a ferroelectric.
 
     p_elecs, p_ions, and structures lists should be given in order
     of nonpolar to polar! For example, the structures returned from:
         nonpolar.interpolate(polar,interpolate_lattices=True)
     if nonpolar is the nonpolar Structure and polar is the polar structure.
 
-    It is assumed that the electronic and ionic dipole moment values
-    are given in electron Angstroms along the three lattice directions
-    (a,b,c).
-
+    It is assumed that the electronic and ionic dipole moment values are given in
+    electron Angstroms along the three lattice directions (a,b,c).
     """
 
     def __init__(

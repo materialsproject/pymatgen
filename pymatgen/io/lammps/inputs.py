@@ -1071,8 +1071,6 @@ def write_lammps_inputs(
         timestep        0.005
 
         run             100
-
-
     """
     variables = {} if settings is None else settings
     template = Template(script_template)

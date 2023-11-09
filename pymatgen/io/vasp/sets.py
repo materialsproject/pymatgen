@@ -3160,7 +3160,6 @@ class MPAbsorptionSet(MPRelaxSet):
     For all steps other than the first one (static), the
     recommendation is to use from_prev_calculation on the preceding run in
     the series. It is important to ensure Gamma centred kpoints for the RPA step.
-
     """
 
     # CONFIG = _load_yaml_config("MPAbsorptionSet")
