@@ -18,7 +18,6 @@ from monty.json import MSONable
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
@@ -429,8 +428,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 struct[ind] = new_sp
-
         # Perform enumeration
+        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
+
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(struct, 10000)
 
