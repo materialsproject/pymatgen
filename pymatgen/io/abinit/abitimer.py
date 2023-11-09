@@ -12,6 +12,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.gridspec import GridSpec
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -405,9 +406,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         n = len(timers)
 
         # Make square figures and axes
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         fig = plt.gcf()
         gspec = GridSpec(n, 1)
         for idx, timer in enumerate(timers):

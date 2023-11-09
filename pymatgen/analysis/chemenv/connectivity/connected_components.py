@@ -5,6 +5,7 @@ from __future__ import annotations
 import itertools
 import logging
 
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from matplotlib.patches import Circle, FancyArrowPatch
@@ -533,7 +534,6 @@ class ConnectedComponent(MSONable):
                 If not provided, the graph is not saved.
             drawing_type (str): The type of drawing to use. Can be "internal" or "external".
         """
-        import matplotlib.pyplot as plt
 
         shown_graph = self._connected_subgraph if graph is None else graph
 

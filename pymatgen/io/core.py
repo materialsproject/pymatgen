@@ -26,6 +26,7 @@ If you want to implement a new InputGenerator, please take note of the following
 from __future__ import annotations
 
 import abc
+import copy
 import os
 from collections.abc import Iterator, MutableMapping
 from pathlib import Path
@@ -172,8 +173,6 @@ class InputSet(MSONable, MutableMapping):
         return new_instance
 
     def __deepcopy__(self, memo: dict[int, InputSet]) -> InputSet:
-        import copy
-
         cls = self.__class__
         new_instance = cls.__new__(cls)
         memo[id(self)] = new_instance

@@ -15,6 +15,7 @@ import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate as scint
+from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
 
@@ -2236,10 +2237,6 @@ class BSDOSPlotter:
         Returns:
             plt.Axes | tuple[plt.Axes, plt.Axes]: matplotlib axes for the band structure and DOS, resp.
         """
-        import matplotlib.lines as mlines
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
         if dos:

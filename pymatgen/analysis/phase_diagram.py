@@ -1109,7 +1109,7 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Evolution data as a list of dictionaries of the following format:
-            [ {'chempot': -10.487582010000001, 'evolution': -2.0,
+            [ {'chempot': -10.487582, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
         element = get_el_sp(element)
@@ -3558,7 +3558,7 @@ class PDPlotter:
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
             _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
-            energies = [en if en < 0 else -0.00000001 for en in _energies]
+            energies = [en if en < 0 else -0.000_000_01 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:

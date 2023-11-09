@@ -27,7 +27,10 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+from numpy import cross, eye
+from numpy.linalg import norm
 from ruamel.yaml import YAML
+from scipy.linalg import expm
 from tabulate import tabulate
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -4121,10 +4124,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
         """
-        from numpy import cross, eye
-        from numpy.linalg import norm
-        from scipy.linalg import expm
-
         if indices is None:
             indices = list(range(len(self)))
 

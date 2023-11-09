@@ -10,8 +10,10 @@ import collections
 import logging
 import os
 import sys
+import traceback
 from collections import defaultdict, namedtuple
 from typing import TYPE_CHECKING
+from xml.etree import ElementTree as Et
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -46,7 +48,6 @@ __maintainer__ = "Matteo Giantomassi"
 
 def straceback():
     """Returns a string with the traceback."""
-    import traceback
 
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -1261,7 +1262,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def root(self):
         """Root tree of XML."""
-        from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
         return tree.getroot()
@@ -1507,8 +1507,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    title = kwargs.pop("title", "Potentials")
     #    show = kwargs.pop("show", True)
     #    savefig = kwargs.pop("savefig", None)
-
-    #    import matplotlib.pyplot as plt
 
     #    fig = plt.figure()
 

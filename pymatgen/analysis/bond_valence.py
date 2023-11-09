@@ -117,13 +117,13 @@ class BVAnalyzer:
     is selected.
     """
 
-    CHARGE_NEUTRALITY_TOLERANCE = 0.00001
+    CHARGE_NEUTRALITY_TOLERANCE = 0.000_01
 
     def __init__(
         self,
         symm_tol=0.1,
         max_radius=4,
-        max_permutations=100000,
+        max_permutations=100_000,
         distance_scale_factor=1.015,
         charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
         forbidden_species=None,

@@ -3,8 +3,10 @@ from __future__ import annotations
 import gzip
 import json
 import os
+import sys
 import unittest
 import xml.etree.ElementTree as ElementTree
+from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -1384,7 +1386,6 @@ class TestChgcar(PymatgenTest):
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
-        import h5py
 
         with h5py.File(out_path, "r") as f:
             assert_allclose(f["vdata"]["total"], chgcar.data["total"])
@@ -1620,9 +1621,6 @@ class TestWavecar(PymatgenTest):
 
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
             Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2", vasp_type="n")
-
-        import sys
-        from io import StringIO
 
         saved_stdout = sys.stdout
         try:
