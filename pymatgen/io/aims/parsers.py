@@ -997,7 +997,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
     Yields:
         The next AimsOutChunk
     """
-    lines = list(filter(lambda x: x not in header_chunk.lines, get_lines(content)))
+    lines = get_lines(content)[len(header_chunk.lines) :]
     if len(lines) == 0:
         return
 
@@ -1122,7 +1122,9 @@ def read_aims_output_from_content(
     check_convergence(chunks, non_convergence_ok)
     # Relaxations have an additional footer chunk due to how it is split
     images = (
-        [chunk.structure for chunk in chunks[:-1]] if header_chunk.is_relaxation else [chunk.atoms for chunk in chunks]
+        [chunk.structure for chunk in chunks[:-1]]
+        if header_chunk.is_relaxation
+        else [chunk.structure for chunk in chunks]
     )
     return images[index]
 
