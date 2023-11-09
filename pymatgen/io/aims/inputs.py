@@ -21,6 +21,11 @@ from pymatgen.core import Lattice, Molecule, Structure
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+__author__ = "Thomas A. R. Purcell"
+__version__ = "1.0"
+__email__ = "purcellt@arizona.edu"
+__date__ = "November 2023"
+
 
 @dataclass
 class AimsGeometryIn(MSONable):

@@ -16,6 +16,11 @@ if TYPE_CHECKING:
 
     from emmet.core.math import Matrix3D, Vector3D
 
+__author__ = "Thomas A. R. Purcell and Andrey Sobolev"
+__version__ = "1.0"
+__email__ = "purcellt@arizona.edu and andrey.n.sobolev@gmail.com"
+__date__ = "November 2023"
+
 # TARP: Originally an object, but type hinting needs this to be an int
 LINE_NOT_FOUND = -1000
 EV_PER_A3_TO_KBAR = 1.60217653e-19 * 1e22
