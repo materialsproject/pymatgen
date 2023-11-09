@@ -16,6 +16,11 @@ if TYPE_CHECKING:
 
     from emmet.core.math import Matrix3D, Vector3D
 
+__author__ = "Thomas A. R. Purcell and Andrey Sobolev"
+__version__ = "1.0"
+__email__ = "purcellt@arizona.edu and andrey.n.sobolev@gmail.com"
+__date__ = "November 2023"
+
 # TARP: Originally an object, but type hinting needs this to be an int
 LINE_NOT_FOUND = -1000
 EV_PER_A3_TO_KBAR = 1.60217653e-19 * 1e22
@@ -997,7 +1002,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
     Yields:
         The next AimsOutChunk
     """
-    lines = list(filter(lambda x: x not in header_chunk.lines, get_lines(content)))
+    lines = get_lines(content)[len(header_chunk.lines) :]
     if len(lines) == 0:
         return
 
@@ -1122,7 +1127,9 @@ def read_aims_output_from_content(
     check_convergence(chunks, non_convergence_ok)
     # Relaxations have an additional footer chunk due to how it is split
     images = (
-        [chunk.structure for chunk in chunks[:-1]] if header_chunk.is_relaxation else [chunk.atoms for chunk in chunks]
+        [chunk.structure for chunk in chunks[:-1]]
+        if header_chunk.is_relaxation
+        else [chunk.structure for chunk in chunks]
     )
     return images[index]
 
