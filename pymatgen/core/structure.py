@@ -44,6 +44,9 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.cif import CifWriter
+from pymatgen.io.gaussian import GaussianInput
+from pymatgen.io.xyz import XYZ
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
@@ -2663,12 +2666,8 @@ class IStructure(SiteCollection, MSONable):
         fmt = fmt.lower()
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
-            from pymatgen.io.cif import CifWriter
-
             writer = CifWriter(self, **kwargs)
         elif fmt == "mcif" or fnmatch(filename.lower(), "*.mcif*"):
-            from pymatgen.io.cif import CifWriter
-
             writer = CifWriter(self, write_magmoms=True, **kwargs)
         elif fmt == "poscar" or fnmatch(filename, "*POSCAR*"):
             from pymatgen.io.vasp import Poscar
@@ -3550,9 +3549,6 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             IMolecule or Molecule.
         """
-        from pymatgen.io.gaussian import GaussianInput
-        from pymatgen.io.xyz import XYZ
-
         fmt = fmt.lower()  # type: ignore[assignment]
         if fmt == "xyz":
             mol = XYZ.from_str(input_string).molecule
