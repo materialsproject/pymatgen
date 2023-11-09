@@ -24,6 +24,7 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Literal, SupportsIndex, cast, get_args
 
 import numpy as np
+import pandas as pd
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -2609,7 +2610,6 @@ class IStructure(SiteCollection, MSONable):
             for k in prop_keys:
                 row.append(site.properties.get(k))
             data.append(row)
-        import pandas as pd
 
         df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z", *prop_keys])
         df.attrs["Reduced Formula"] = self.composition.reduced_formula

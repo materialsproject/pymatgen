@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import collections
 import numbers
+import re
 from functools import partial
 from typing import Any
 
@@ -174,7 +175,6 @@ class Unit(collections.abc.Mapping):
         """
         if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
-            import re
 
             for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)

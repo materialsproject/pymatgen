@@ -12,6 +12,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from matplotlib.gridspec import GridSpec
 
 from pymatgen.io.core import ParseError
@@ -298,7 +299,6 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     def summarize(self, **kwargs):
         """Return pandas DataFrame with the most important results stored in the timers."""
-        import pandas as pd
 
         col_names = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
@@ -696,7 +696,6 @@ class AbinitTimer:
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        import pandas as pd
 
         frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
 

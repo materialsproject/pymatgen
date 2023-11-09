@@ -148,8 +148,6 @@ class DosPlotter:
         """
         n_colors = min(9, max(3, len(self._doses)))
 
-        import palettable
-
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
@@ -842,8 +840,6 @@ class BSPlotter:
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
         # TODO: add exception if the band structures are not compatible
-        import matplotlib.lines as mlines
-
         ax = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()

@@ -5,6 +5,7 @@ All major VASP input files.
 
 from __future__ import annotations
 
+import codecs
 import hashlib
 import itertools
 import json
@@ -1835,7 +1836,6 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
-            import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as file:
                 return cls(file.read(), symbol=symbol or None)

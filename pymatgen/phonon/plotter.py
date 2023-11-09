@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable
 import scipy.constants as const
 from matplotlib.collections import LineCollection
 from monty.json import jsanitize
@@ -144,8 +145,6 @@ class PhononDosPlotter:
 
         n_colors = max(3, len(self._doses))
         n_colors = min(9, n_colors)
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 

@@ -12,6 +12,8 @@ serve to show the default.
 
 from __future__ import annotations
 
+import inspect
+import os
 import sys
 
 from pymatgen.core import __author__, __file__, __version__
@@ -343,8 +345,6 @@ def linkcode_resolve(domain, info):
         obj = sys.modules[info["module"]]
         for part in info["fullname"].split("."):
             obj = getattr(obj, part)
-        import inspect
-        import os
 
         fn = inspect.getsourcefile(obj)
         fn = os.path.relpath(fn, start=os.path.dirname(__file__))
