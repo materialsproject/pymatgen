@@ -20,7 +20,7 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as plt
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"

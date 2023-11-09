@@ -14,7 +14,9 @@ from typing import TYPE_CHECKING, Literal, cast, no_type_check
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable
 import scipy.interpolate as scint
+from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
@@ -1822,10 +1824,6 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from collections import Counter
-
-        from pymatgen.core import Element
-
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
         if len(dictpa) == 0:
@@ -1950,8 +1948,6 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core import Element
-
         individual_orbs = {
             "p": ["px", "py", "pz"],
             "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
@@ -2508,8 +2504,6 @@ class BSDOSPlotter:
             alpha: alpha values data
             linestyles: linestyle for plot (e.g., "solid" or "dotted").
         """
-        from matplotlib.collections import LineCollection
-
         pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
@@ -3717,8 +3711,6 @@ class CohpPlotter:
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 

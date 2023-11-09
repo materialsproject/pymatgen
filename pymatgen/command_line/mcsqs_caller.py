@@ -60,12 +60,12 @@ def run_mcsqs(
             runs calculations in a temp directory)
         instances (int): Specifies the number of parallel instances of mcsqs to run
             (default: number of cpu cores detected by Python)
-        temperature (int or float): Monte Carlo temperature (default: 1), "T" in atat code
-        wr (int or float): Weight assigned to range of perfect correlation match in objective
+        temperature (float): Monte Carlo temperature (default: 1), "T" in atat code
+        wr (float): Weight assigned to range of perfect correlation match in objective
             function (default = 1)
-        wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
-        wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3).
+        wn (float): Multiplicative decrease in weight per additional point in cluster (default: 1)
+        wd (float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
+        tol (float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
         tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,

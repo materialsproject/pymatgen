@@ -581,7 +581,6 @@ class _MPResterLegacy:
                 Default: MaterialsProject2020Compatibility
         """
         # imports are not top-level due to expense
-
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
