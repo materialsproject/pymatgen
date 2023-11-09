@@ -1927,6 +1927,9 @@ class Outcar:
         mag_x = []
         mag_y = []
         mag_z = []
+        orbmom_x = []
+        orbmom_y = []
+        orbmom_z = []
         header = []
         run_stats: dict[str, float | None] = {}
         total_mag = nelect = efermi = e_fr_energy = e_wo_entrp = e0 = None
@@ -1988,9 +1991,12 @@ class Outcar:
         read_mag_x = False
         read_mag_y = False  # for SOC calculations only
         read_mag_z = False
+        read_orbmom_x = False  # For SOC calculations with LORBMOM=.TRUE.
+        read_orbmom_y = False
+        read_orbmom_z = False
         all_lines.reverse()
         for clean in all_lines:
-            if read_charge or read_mag_x or read_mag_y or read_mag_z:
+            if read_charge or read_mag_x or read_mag_y or read_mag_z or read_orbmom_x or read_orbmom_y or read_orbmom_z:
                 if clean.startswith("# of ion"):
                     header = re.split(r"\s{2,}", clean.strip())
                     header.pop(0)
@@ -2005,29 +2011,102 @@ class Outcar:
                         mag_y.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_z:
                         mag_z.append(dict(zip(header, tokens, strict=True)))
+                    elif read_orbmom_x:
+                        orbmom_x.append(dict(zip(header, tokens, strict=True)))
+                    elif read_orbmom_y:
+                        orbmom_y.append(dict(zip(header, tokens, strict=True)))
+                    elif read_orbmom_z:
+                        orbmom_z.append(dict(zip(header, tokens, strict=True)))
                 elif clean.startswith("tot"):
                     read_charge = False
                     read_mag_x = False
                     read_mag_y = False
                     read_mag_z = False
+                    read_orbmom_x = False
+                    read_orbmom_y = False
+                    read_orbmom_z = False
             if clean == "total charge":
                 charge = []
                 read_charge = True
-                read_mag_x, read_mag_y, read_mag_z = False, False, False
+                read_mag_x, read_mag_y, read_mag_z, read_orbmom_x, read_orbmom_y, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
             elif clean == "magnetization (x)":
                 mag_x = []
                 read_mag_x = True
-                read_charge, read_mag_y, read_mag_z = False, False, False
+                read_charge, read_mag_y, read_mag_z, read_orbmom_x, read_orbmom_y, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
             elif clean == "magnetization (y)":
                 mag_y = []
                 read_mag_y = True
-                read_charge, read_mag_x, read_mag_z = False, False, False
+                read_charge, read_mag_x, read_mag_z, read_orbmom_x, read_orbmom_y, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
             elif clean == "magnetization (z)":
                 mag_z = []
                 read_mag_z = True
-                read_charge, read_mag_x, read_mag_y = False, False, False
+                read_charge, read_mag_x, read_mag_y, read_orbmom_x, read_orbmom_y, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
+            elif clean == "orbital moment (x)":
+                orbmom_x = []
+                read_orbmom_x = True
+                read_charge, read_mag_x, read_mag_y, read_mag_z, read_orbmom_y, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
+            elif clean == "orbital moment (y)":
+                orbmom_y = []
+                read_orbmom_y = True
+                read_charge, read_mag_x, read_mag_y, read_mag_z, read_orbmom_x, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
+            elif clean == "orbital moment (z)":
+                orbmom_z = []
+                read_orbmom_z = True
+                read_charge, read_mag_x, read_mag_y, read_mag_z, read_orbmom_x, read_orbmom_y = (
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                )
             elif re.search("electrostatic", clean):
-                read_charge, read_mag_x, read_mag_y, read_mag_z = (
+                read_charge, read_mag_x, read_mag_y, read_mag_z, read_orbmom_x, read_orbmom_y, read_orbmom_z = (
+                    False,
+                    False,
+                    False,
                     False,
                     False,
                     False,
@@ -2042,6 +2121,13 @@ class Outcar:
                 mag.append({key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]})
         else:
             mag = mag_x
+        # merge x, y and z components of orbmoms if present (SOC calculation with LORBMOM=.TRUE.)
+        orbmom = []
+        if orbmom_x and orbmom_y and orbmom_z:
+            for idx in range(len(orbmom_x)):
+                orbmom.append(
+                    {key: Magmom([orbmom_x[idx][key], orbmom_y[idx][key], orbmom_z[idx][key]]) for key in orbmom_x[0]}
+                )
 
         # Data from beginning of OUTCAR
         run_stats["cores"] = None
@@ -2061,6 +2147,7 @@ class Outcar:
 
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
+        self.orbital_moment = tuple(orbmom)
         self.charge = tuple(charge)
         self.efermi = efermi
         self.nelect = nelect
