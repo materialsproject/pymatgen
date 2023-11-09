@@ -1862,6 +1862,8 @@ class Outcar:
     Attributes:
         magnetization (tuple): Magnetization on each ion as a tuple of dict, e.g.
             ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... )
+        orbital_moment (tuple): Orbital moments on each ion as a tuple of dict, e.g.,
+            ({"d": 0.109, "p": -0.001, "tot": 0.108}, ... )
         chemical_shielding (dict): Chemical shielding on each ion as a dictionary with core and valence contributions.
         unsym_cs_tensor (list): Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
             e.g. [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], ...]
