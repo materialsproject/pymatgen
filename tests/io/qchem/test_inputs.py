@@ -8,6 +8,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
+from pymatgen.io.qchem.sets import OptSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
@@ -1173,8 +1174,6 @@ $end"""
         assert QCInput.read_almo(str_almo) == result
 
     def test_write_file_from_opt_set(self):
-        from pymatgen.io.qchem.sets import OptSet
-
         odd_dict = loadfn(f"{module_dir}/odd.json")
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
@@ -1190,8 +1189,6 @@ $end"""
         os.remove(f"{module_dir}/test.qin")
 
     def test_write_file_from_opt_set_with_vdw(self):
-        from pymatgen.io.qchem.sets import OptSet
-
         odd_dict = loadfn(f"{module_dir}/odd.json")
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})

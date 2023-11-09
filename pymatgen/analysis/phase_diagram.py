@@ -17,6 +17,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
 from matplotlib import cm
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib.font_manager import FontProperties
 from monty.json import MontyDecoder, MSONable
 from scipy import interpolate
 from scipy.optimize import minimize
@@ -1109,7 +1112,7 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Evolution data as a list of dictionaries of the following format:
-            [ {'chempot': -10.487582010000001, 'evolution': -2.0,
+            [ {'chempot': -10.487582, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
         element = get_el_sp(element)
@@ -3515,7 +3518,6 @@ class PDPlotter:
         Imports are done within the function as matplotlib is no longer the default.
         """
         ax = ax or pretty_plot(8, 6)
-        from matplotlib.font_manager import FontProperties
 
         if ordering is None:
             lines, labels, unstable = self.pd_plot_data
@@ -3540,9 +3542,6 @@ class PDPlotter:
                 for x, y in lines:
                     plt.plot(x, y, "ko-", **self.plotkwargs)
         else:
-            from matplotlib.cm import ScalarMappable
-            from matplotlib.colors import LinearSegmentedColormap, Normalize
-
             for x, y in lines:
                 plt.plot(x, y, "k-", markeredgecolor="k")
             vmin = vmin_mev / 1000.0
@@ -3558,7 +3557,7 @@ class PDPlotter:
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
             _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
-            energies = [en if en < 0 else -0.00000001 for en in _energies]
+            energies = [en if en < 0 else -0.000_000_01 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
@@ -3706,8 +3705,6 @@ class PDPlotter:
         Returns:
             plt.Axes: The axes object with the plot.
         """
-        from matplotlib.font_manager import FontProperties
-
         ax = ax or plt.figure().add_subplot(111, projection="3d")
 
         font = FontProperties(weight="bold", size=13)

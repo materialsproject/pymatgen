@@ -8,10 +8,12 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable
 import scipy.constants as const
+from matplotlib.collections import LineCollection
 from monty.json import jsanitize
 
-from pymatgen.electronic_structure.plotter import plot_brillouin_zone
+from pymatgen.electronic_structure.plotter import BSDOSPlotter, plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
@@ -143,8 +145,6 @@ class PhononDosPlotter:
 
         n_colors = max(3, len(self._doses))
         n_colors = min(9, n_colors)
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
@@ -438,10 +438,6 @@ class PhononBSPlotter:
             rgb_labels: a list of rgb colors for the labels; if not specified,
                 the colors will be automatically generated.
         """
-        from matplotlib.collections import LineCollection
-
-        from pymatgen.electronic_structure.plotter import BSDOSPlotter
-
         assert self._bs.structure is not None, "Structure is required for get_proj_plot"
         elements = [e.symbol for e in self._bs.structure.elements]
         if site_comb == "element":

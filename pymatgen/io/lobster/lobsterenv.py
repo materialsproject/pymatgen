@@ -15,6 +15,7 @@ from __future__ import annotations
 import collections
 import copy
 import math
+import tempfile
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -488,8 +489,6 @@ class LobsterNeighbors(NearNeighbors):
         summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
             isites=isites, onlycation_isites=onlycation_isites
         )
-
-        import tempfile
 
         with tempfile.TemporaryDirectory() as t:
             path = f"{t}/POSCAR.vasp"

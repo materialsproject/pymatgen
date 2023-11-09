@@ -14,7 +14,10 @@ from typing import TYPE_CHECKING, Literal, cast, no_type_check
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable
 import scipy.interpolate as scint
+from matplotlib.collections import LineCollection
+from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
 
@@ -144,8 +147,6 @@ class DosPlotter:
             plt.Axes: matplotlib Axes object.
         """
         n_colors = min(9, max(3, len(self._doses)))
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
@@ -839,8 +840,6 @@ class BSPlotter:
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
         # TODO: add exception if the band structures are not compatible
-        import matplotlib.lines as mlines
-
         ax = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -1821,10 +1820,6 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from collections import Counter
-
-        from pymatgen.core import Element
-
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
         if len(dictpa) == 0:
@@ -1949,8 +1944,6 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core import Element
-
         individual_orbs = {
             "p": ["px", "py", "pz"],
             "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
@@ -2236,10 +2229,6 @@ class BSDOSPlotter:
         Returns:
             plt.Axes | tuple[plt.Axes, plt.Axes]: matplotlib axes for the band structure and DOS, resp.
         """
-        import matplotlib.lines as mlines
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
         if dos:
@@ -2284,16 +2273,16 @@ class BSDOSPlotter:
 
             # add $ notation for LaTeX kpoint labels
             if left_k[0] == "\\" or "_" in left_k:
-                left_k = "$" + left_k + "$"
+                left_k = f"${left_k}$"
             if right_k[0] == "\\" or "_" in right_k:
-                right_k = "$" + right_k + "$"
+                right_k = f"${right_k}$"
 
             # add left k label to list of labels
             if prev_right_klabel is None:
                 xlabels.append(left_k)
                 xlabel_distances.append(0)
             elif prev_right_klabel != left_k:  # used for pipe separator
-                xlabels[-1] = xlabels[-1] + "$\\mid$ " + left_k
+                xlabels[-1] = f"{xlabels[-1]}$\\mid$ {left_k}"
 
             # add right k label to list of labels
             xlabels.append(right_k)
@@ -2511,8 +2500,6 @@ class BSDOSPlotter:
             alpha: alpha values data
             linestyles: linestyle for plot (e.g., "solid" or "dotted").
         """
-        from matplotlib.collections import LineCollection
-
         pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
@@ -3720,8 +3707,6 @@ class CohpPlotter:
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 

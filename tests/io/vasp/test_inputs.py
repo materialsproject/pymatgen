@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 import pickle
 import re
@@ -30,6 +31,7 @@ from pymatgen.io.vasp.inputs import (
     UnknownPotcarWarning,
     VaspInput,
     _gen_potcar_summary_stats,
+    module_dir,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -874,7 +876,6 @@ Cartesian
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
         k = Kpoints.from_file(file_name)
         d = k.as_dict()
-        import json
 
         json.dumps(d)
         # This doesn't work
@@ -1257,8 +1258,6 @@ class TestVaspInput(PymatgenTest):
 
 
 def test_potcar_summary_stats() -> None:
-    from pymatgen.io.vasp.inputs import module_dir
-
     potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.bz2")
 
     assert len(potcar_summary_stats) == 16

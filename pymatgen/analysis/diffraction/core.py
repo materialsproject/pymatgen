@@ -6,8 +6,8 @@ import abc
 import collections
 from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import pyplot as plt
 
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs, pretty_plot
@@ -186,7 +186,6 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 long version, e.g. (1, 0, 0). If None, do not show anything.
             fontsize: (int) fontsize for peak labels.
         """
-        import matplotlib.pyplot as plt
 
         nrows = len(structures)
         fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)

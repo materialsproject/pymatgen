@@ -10,6 +10,7 @@ import datetime
 import itertools
 import json
 import logging
+import multiprocessing as mp
 import re
 from typing import TYPE_CHECKING, Literal
 
@@ -114,7 +115,6 @@ def group_entries_by_structure(
         symm_entries = collections.defaultdict(list)
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
-        import multiprocessing as mp
 
         logging.info(f"Using {ncpus} cpus")
         manager = mp.Manager()

@@ -1,5 +1,4 @@
-"""
-This module implements various equation of states.
+"""This module implements various equation of states.
 
 Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
@@ -20,7 +19,7 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as plt
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
@@ -426,12 +425,11 @@ class NumericalEOS(PolynomialEOS):
         Args:
             min_ndata_factor (int): parameter that controls the minimum number
                 of data points that will be used for fitting.
-                minimum number of data points =
-                    total data points-2*min_ndata_factor
+                minimum number of data points = total data points-2*min_ndata_factor
             max_poly_order_factor (int): parameter that limits the max order
                 of the polynomial used for fitting.
                 max_poly_order = number of data points used for fitting -
-                                 max_poly_order_factor
+                max_poly_order_factor
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """

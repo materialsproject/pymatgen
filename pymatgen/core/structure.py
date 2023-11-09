@@ -24,10 +24,14 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Literal, SupportsIndex, cast, get_args
 
 import numpy as np
+import pandas as pd
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+from numpy import cross, eye
+from numpy.linalg import norm
 from ruamel.yaml import YAML
+from scipy.linalg import expm
 from tabulate import tabulate
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -2606,7 +2610,6 @@ class IStructure(SiteCollection, MSONable):
             for k in prop_keys:
                 row.append(site.properties.get(k))
             data.append(row)
-        import pandas as pd
 
         df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z", *prop_keys])
         df.attrs["Reduced Formula"] = self.composition.reduced_formula
@@ -4121,10 +4124,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
         """
-        from numpy import cross, eye
-        from numpy.linalg import norm
-        from scipy.linalg import expm
-
         if indices is None:
             indices = list(range(len(self)))
 

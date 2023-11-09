@@ -1041,9 +1041,7 @@ class StructureGraph(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        As in pymatgen.core.Structure except
-        restoring graphs using `from_dict_of_dicts`
+        """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """
         struct = Structure.from_dict(d["structure"])

@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from copy import deepcopy
 
 
 def parse_libxc_docs(path):
@@ -46,8 +47,6 @@ def parse_libxc_docs(path):
 
 def write_libxc_docs_json(xcfuncs, jpath):
     """Write json file with libxc metadata to path jpath."""
-    from copy import deepcopy
-
     xcfuncs = deepcopy(xcfuncs)
 
     # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.

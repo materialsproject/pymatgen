@@ -7,10 +7,13 @@ Created on Nov 15, 2011.
 
 from __future__ import annotations
 
+import collections
 import json
 import re
 from itertools import product
 
+import requests
+from bs4 import BeautifulSoup
 from monty.serialization import dumpfn, loadfn
 from ruamel import yaml
 
@@ -160,7 +163,6 @@ def update_ionic_radii():
 def parse_shannon_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
-    import collections
 
     from openpyxl import load_workbook
 
@@ -250,8 +252,6 @@ def gen_iupac_ordering():
 
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
-    import requests
-    from bs4 import BeautifulSoup
 
     req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)")
     soup = BeautifulSoup(req.text, "html.parser")
@@ -276,9 +276,6 @@ def add_electron_affinities():
 
 def add_ionization_energies():
     """Update the periodic table data file with ground level and ionization energies from NIST."""
-    import collections
-
-    from bs4 import BeautifulSoup
 
     with open("NIST Atomic Ionization Energies Output.html") as f:
         soup = BeautifulSoup(f.read(), "html.parser")
