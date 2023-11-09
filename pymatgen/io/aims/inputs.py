@@ -594,7 +594,7 @@ class AimsControlIn(MSONable):
                 with gzip.open(f"{filename}.gz", "rt") as sf:
                     sb += "".join(sf.readlines())
             else:
-                raise ValueError("Species file for {sp.symbol} not found.")
+                raise ValueError(f"Species file for {sp.symbol} not found.")
 
         return sb
 
