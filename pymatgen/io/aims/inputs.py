@@ -6,6 +6,7 @@ Works for aims cube objects, geometry.in and control.in
 from __future__ import annotations
 
 import gzip
+import os
 import time
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -566,7 +567,8 @@ class AimsControlIn(MSONable):
                     fd.write(cube.control_block)
 
             fd.write(lim + "\n\n")
-            fd.write(self.get_species_block(structure, self._parameters["species_dir"]))
+            species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
+            fd.write(self.get_species_block(structure, species_dir))
 
     def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
         """Get the basis set information for a structure

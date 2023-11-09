@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -29,7 +30,6 @@ def compare_files(ref_file, test_file):
     for test_line, ref_line in zip(test_lines, ref_lines):
         if "species_dir" in ref_line:
             continue
-
         assert test_line.strip() == ref_line.strip()
 
 
@@ -228,3 +228,68 @@ def test_aims_control_in(tmp_path):
 
     aims_control_from_dict.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
     compare_files(infile_dir / "control.in.si", f"{tmp_path}/control.in")
+
+
+def test_aims_control_in_default_species_dir(tmp_path):
+    original_sd = os.environ.get("AIMS_SPECIES_DIR", None)
+    os.environ["AIMS_SPECIES_DIR"] = str(infile_dir.parent / "species_directory/light")
+
+    parameters = {
+        "cubes": [
+            AimsCube(type="eigenstate 1", points=[10, 10, 10]),
+            AimsCube(type="total_density", points=[10, 10, 10]),
+        ],
+        "xc": "LDA",
+        "smearing": ["fermi-dirac", 0.01],
+        "vdw_correction_hirshfeld": True,
+        "compute_forces": True,
+        "relax_geometry": ["trm", "1e-3"],
+        "batch_size_limit": 200,
+    }
+
+    aims_control = AimsControlIn(parameters.copy())
+
+    for key, val in parameters.items():
+        assert aims_control[key] == val
+
+    del aims_control["xc"]
+    assert "xc" not in aims_control.parameters
+    aims_control.parameters = parameters
+
+    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz").structure
+
+    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz").structure
+    aims_control.write_file(h2o, directory=tmp_path, overwrite=True)
+
+    compare_files(infile_dir / "control.in.h2o", f"{tmp_path}/control.in")
+
+    with pytest.raises(
+        ValueError,
+        match="k-grid must be defined for periodic systems",
+    ):
+        aims_control.write_file(si, directory=tmp_path, overwrite=True)
+    aims_control["k_grid"] = [1, 1, 1]
+
+    with pytest.raises(
+        ValueError,
+        match="control.in file already in ",
+    ):
+        aims_control.write_file(si, directory=tmp_path, overwrite=False)
+
+    aims_control["output"] = "band 0 0 0 0.5 0 0.5 10 G X"
+    aims_control["output"] = "band 0 0 0 0.5 0.5 0.5 10 G L"
+
+    aims_control_from_dict = json.loads(json.dumps(aims_control.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
+    for key, val in aims_control.parameters.items():
+        if key in ["output", "cubes"]:
+            np.all(aims_control_from_dict[key] == val)
+        assert aims_control_from_dict[key] == val
+
+    print(aims_control_from_dict.parameters)
+    aims_control_from_dict.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
+    compare_files(infile_dir / "control.in.si.no_sd", f"{tmp_path}/control.in")
+
+    if original_sd is not None:
+        os.environ["AIMS_SPECIES_DIR"] = original_sd
+    else:
+        del os.environ["AIMS_SPECIES_DIR"]
