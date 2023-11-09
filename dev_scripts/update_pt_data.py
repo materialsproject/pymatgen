@@ -277,8 +277,6 @@ def add_electron_affinities():
 def add_ionization_energies():
     """Update the periodic table data file with ground level and ionization energies from NIST."""
 
-    from bs4 import BeautifulSoup
-
     with open("NIST Atomic Ionization Energies Output.html") as f:
         soup = BeautifulSoup(f.read(), "html.parser")
     for t in soup.find_all("table"):

@@ -2273,16 +2273,16 @@ class BSDOSPlotter:
 
             # add $ notation for LaTeX kpoint labels
             if left_k[0] == "\\" or "_" in left_k:
-                left_k = "$" + left_k + "$"
+                left_k = f"${left_k}$"
             if right_k[0] == "\\" or "_" in right_k:
-                right_k = "$" + right_k + "$"
+                right_k = f"${right_k}$"
 
             # add left k label to list of labels
             if prev_right_klabel is None:
                 xlabels.append(left_k)
                 xlabel_distances.append(0)
             elif prev_right_klabel != left_k:  # used for pipe separator
-                xlabels[-1] = xlabels[-1] + "$\\mid$ " + left_k
+                xlabels[-1] = f"{xlabels[-1]}$\\mid$ {left_k}"
 
             # add right k label to list of labels
             xlabels.append(right_k)
