@@ -8,6 +8,7 @@ right away.
 from __future__ import annotations
 
 import json
+import pickle  # use pickle, not cPickle so that we get the traceback in case of errors
 import string
 import unittest
 from pathlib import Path
@@ -78,9 +79,6 @@ class PymatgenTest(unittest.TestCase):
             Nested list with the objects deserialized with the specified
             protocols.
         """
-        # use pickle, not cPickle so that we get the traceback in case of errors
-        import pickle
-
         # Build a list even when we receive a single object.
         got_single_object = False
         if not isinstance(objects, (list, tuple)):

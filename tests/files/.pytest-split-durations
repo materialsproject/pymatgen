@@ -2169,7 +2169,7 @@
     "tests/io/vasp/test_outputs.py::TestVasprun::test_potcar_not_found": 0.1334625000017695,
     "tests/io/vasp/test_outputs.py::TestVasprun::test_projected_magnetisation": 4.4185712080216035,
     "tests/io/vasp/test_outputs.py::TestVasprun::test_runtype": 14.43198950093938,
-    "tests/io/vasp/test_outputs.py::TestVasprun::test_sc_step_overflow": 1.980604083975777,
+    "tests/io/vasp/test_outputs.py::TestVasprun::test_float_overflow": 1.980604083975777,
     "tests/io/vasp/test_outputs.py::TestVasprun::test_search_for_potcar": 0.2289056670269929,
     "tests/io/vasp/test_outputs.py::TestVasprun::test_selective_dynamics": 1.798271125066094,
     "tests/io/vasp/test_outputs.py::TestVasprun::test_smart_efermi": 2.6953831250430085,

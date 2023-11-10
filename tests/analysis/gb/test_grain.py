@@ -241,10 +241,10 @@ class TestGrainBoundaryGenerator(PymatgenTest):
         # tetragonal
         Pa_ratio = self.GB_Pa.get_ratio(max_denominator=5)
         assert Pa_ratio == [2, 3]
-        # orthorombic
+        # orthorhombic
         Br_ratio = self.GB_Br.get_ratio(max_denominator=5)
         assert Br_ratio == [21, 20, 5]
-        # orthorombic
+        # orthorhombic
         Bi_ratio = self.GB_Bi.get_ratio(max_denominator=5)
         assert Bi_ratio == [19, 5]
 

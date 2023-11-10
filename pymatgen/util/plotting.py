@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import importlib
 import math
+from functools import wraps
+from string import ascii_letters
 from typing import TYPE_CHECKING, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable.colorbrewer.diverging
 from matplotlib import cm, colors
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -49,8 +53,6 @@ def pretty_plot(
         height = int(width * golden_ratio)
 
     if ax is None:
-        import importlib
-
         mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         colors = getattr(mod, color_cycle[1]).mpl_colors
         from cycler import cycler
@@ -108,8 +110,6 @@ def pretty_plot_two_axis(
     Returns:
         matplotlib.pyplot
     """
-    import palettable.colorbrewer.diverging
-
     colors = palettable.colorbrewer.diverging.RdYlBu_4.mpl_colors
     c1 = colors[0]
     c2 = colors[-1]
@@ -118,8 +118,6 @@ def pretty_plot_two_axis(
 
     if not height:
         height = int(width * golden_ratio)
-
-    import matplotlib.pyplot as plt
 
     width = 12
     labelsize = int(width * 3)
@@ -324,9 +322,6 @@ def periodic_table_heatmap(
             continue
         value_table[plot_row - 1, plot_group - 1] = value
 
-    # Initialize the plt object
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots()
     plt.gcf().set_size_inches(12, 8)
 
@@ -454,9 +449,6 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     d = pt3 - pt1
     slope2 = d[1] / d[0]
     b2 = pt3[1] - slope2 * pt3[0]
-
-    # Initialize the plt object
-    import matplotlib.pyplot as plt
 
     # set labels and appropriate limits for plot
     plt.xlim(pt2[0] - 0.45, -b2 / slope2 + 0.45)
@@ -613,8 +605,6 @@ def get_axarray_fig_plt(
         figure: matplotlib figure
         plt: matplotlib pyplot module.
     """
-    import matplotlib.pyplot as plt
-
     if ax_array is None:
         fig, ax_array = plt.subplots(
             nrows=nrows,
@@ -646,7 +636,6 @@ def add_fig_kwargs(func):
     some sort of error/unexpected event.
     See doc string below for the list of supported options.
     """
-    from functools import wraps
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -677,8 +666,6 @@ def add_fig_kwargs(func):
                 ax.grid(bool(ax_grid))
 
         if ax_annotate:
-            from string import ascii_letters
-
             tags = ascii_letters
             if len(fig.axes) > len(tags):
                 tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
@@ -695,8 +682,6 @@ def add_fig_kwargs(func):
 
         if savefig:
             fig.savefig(savefig)
-
-        import matplotlib.pyplot as plt
 
         if show:
             plt.show()

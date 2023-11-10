@@ -16,7 +16,7 @@ from operator import mul
 
 from monty.design_patterns import cached_class
 
-from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.core import Species, get_el_sp
 from pymatgen.util.due import Doi, due
 
 __author__ = "Will Richards, Geoffroy Hautier"

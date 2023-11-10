@@ -425,11 +425,11 @@ def rotateCoords(coords, R):
     Returns:
         List of rotated points.
     """
-    newlist = []
+    new_coords = []
     for pp in coords:
         rpp = matrixTimesVector(R, pp)
-        newlist.append(rpp)
-    return newlist
+        new_coords.append(rpp)
+    return new_coords
 
 
 def rotateCoordsOpt(coords, R):
@@ -461,10 +461,10 @@ def changebasis(uu, vv, nn, pps):
         MM[ii, 1] = vv[ii]
         MM[ii, 2] = nn[ii]
     PP = np.linalg.inv(MM)
-    newpps = []
+    new_pps = []
     for pp in pps:
-        newpps.append(matrixTimesVector(PP, pp))
-    return newpps
+        new_pps.append(matrixTimesVector(PP, pp))
+    return new_pps
 
 
 def collinear(p1, p2, p3=None, tolerance=0.25):

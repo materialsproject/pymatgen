@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -465,8 +466,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """Write a json file for the phononwebsite:
         http://henriquemiranda.github.io/phononwebsite.
         """
-        import json
-
         with open(filename, "w") as f:
             json.dump(self.as_phononwebsite(), f)
 

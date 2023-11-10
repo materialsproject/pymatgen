@@ -13,9 +13,9 @@ from monty.json import MontyDecoder
 from pytest import approx
 
 import pymatgen
+from pymatgen.core import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import (
     MU_H2O,
@@ -998,8 +998,6 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         MaterialsProject2020Compatibility(check_potcar=False).process_entries(entry)
 
     def test_process_entry_with_oxidation_state(self):
-        from pymatgen.core.periodic_table import Species
-
         params = {"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"}
         entry = ComputedEntry({Species("Fe2+"): 2, Species("O2-"): 3}, -1, parameters=params)
 
@@ -1474,7 +1472,6 @@ class TestSulfideTypeCorrection2020(unittest.TestCase):
         # that entry has a Structure attached to it.
 
         # Na2S2, entry mp-2400, with and without structure
-        from collections import defaultdict
 
         entry_struct_as_dict = {
             "@module": "pymatgen.entries.computed_entries",

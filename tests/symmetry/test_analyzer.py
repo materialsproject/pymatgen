@@ -7,11 +7,10 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Molecule, PeriodicSite, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 test_dir_mol = f"{TEST_FILES_DIR}/molecules"
@@ -219,7 +218,6 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         # Check copying
         assert symm_struct.copy() == symm_struct
         d = symm_struct.as_dict()
-        from pymatgen.symmetry.structure import SymmetrizedStructure
 
         ss = SymmetrizedStructure.from_dict(d)
         assert ss.wyckoff_symbols[0] == "16h"

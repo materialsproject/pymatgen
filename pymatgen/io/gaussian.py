@@ -8,11 +8,10 @@ import warnings
 import numpy as np
 import scipy.constants as cst
 from monty.io import zopen
+from scipy.stats import norm
 
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Element, Molecule
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
@@ -579,7 +578,6 @@ class GaussianOutput:
     .. method:: save_scan_plot()
 
         Save a matplotlib plot of the potential energy surface to a file
-
     """
 
     def __init__(self, filename):
@@ -1244,8 +1242,6 @@ class GaussianOutput:
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """
-        from scipy.stats import norm
-
         ax = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()

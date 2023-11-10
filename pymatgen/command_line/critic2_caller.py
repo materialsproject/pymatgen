@@ -55,7 +55,7 @@ from monty.tempfile import ScratchDir
 from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.periodic_table import DummySpecies
+from pymatgen.core import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 from pymatgen.util.due import Doi, due
@@ -111,8 +111,8 @@ class Critic2Caller:
         self._stdout = stdout
         self._stderr = stderr
 
-        cpreport = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
-        self._cpreport = cpreport
+        cp_report = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
+        self._cp_report = cp_report
 
         yt = loadfn("yt.json") if os.path.exists("yt.json") else None
         self._yt = yt
@@ -240,7 +240,7 @@ class Critic2Caller:
                 structure,
                 stdout=caller._stdout,
                 stderr=caller._stderr,
-                cpreport=caller._cpreport,
+                cpreport=caller._cp_report,
                 yt=caller._yt,
                 zpsp=zpsp,
             )

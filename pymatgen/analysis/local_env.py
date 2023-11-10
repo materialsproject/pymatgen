@@ -26,9 +26,7 @@ from scipy.spatial import Voronoi
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite, Site
-from pymatgen.core.structure import IStructure, PeriodicNeighbor, Structure
+from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
 
 try:
     from openbabel import openbabel
@@ -303,7 +301,7 @@ class NearNeighbors:
                 'take_max_species' will use Fe as the site specie.
 
         Returns:
-            cn (int or float): coordination number.
+            cn (float): coordination number.
         """
         structure = _handle_disorder(structure, on_disorder)
         siw = self.get_nn_info(structure, n)
@@ -1929,7 +1927,7 @@ def solid_angle(center, coords):
     r_norm = [np.linalg.norm(i) for i in r]
 
     # Compute the solid angle for each tetrahedron that makes up the facet
-    #  Following: https://en.wikipedia.org/wiki/Solid_angle#Tetrahedron
+    #  Following: https://wikipedia.org/wiki/Solid_angle#Tetrahedron
     angle = 0
     for i in range(1, len(r) - 1):
         j = i + 1
@@ -4011,7 +4009,7 @@ class CrystalNN(NearNeighbors):
                 'take_max_species' will use Fe as the site specie.
 
         Returns:
-            cn (int or float): coordination number.
+            cn (float): coordination number.
         """
         use_weights = kwargs.get("use_weights", False)
         if self.weighted_cn != use_weights:
@@ -4312,9 +4310,8 @@ class Critic2NN(NearNeighbors):
         Returns:
             StructureGraph: Bonded structure
         """
-        # not a top-level import because critic2 is an optional
-        # dependency, only want to raise an import error if
-        # Critic2NN() is used
+        # not a top-level import because critic2 is an optional dependency, only want
+        # to raise an import error if Critic2NN() is used
         from pymatgen.command_line.critic2_caller import Critic2Caller
 
         if structure == self.__last_structure:
@@ -4339,13 +4336,11 @@ class Critic2NN(NearNeighbors):
 
         Args:
             structure (Structure): input structure.
-            n (int): index of site for which to determine near-neighbor
-                sites.
+            n (int): index of site for which to determine near-neighbor sites.
 
         Returns:
             siw (list of tuples (Site, array, float)): tuples, each one
-                of which represents a coordinated site, its image location,
-                and its weight.
+                of which represents a coordinated site, its image location, and its weight.
         """
         sg = self.get_bonded_structure(structure)
 
@@ -4413,7 +4408,6 @@ def metal_edge_extender(
     Returns:
         mol_graph: pymatgen.analysis.graphs.MoleculeGraph object with additional
             metal bonds (if any found) added
-
     """
     if metals is None:
         metals = []

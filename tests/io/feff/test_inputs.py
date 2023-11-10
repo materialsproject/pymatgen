@@ -7,7 +7,6 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -59,8 +58,7 @@ class TestHeader(unittest.TestCase):
 class TestFeffAtoms(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        r = CifParser(f"{TEST_FILES_DIR}/CoO19128.cif")
-        cls.structure = r.get_structures()[0]
+        cls.structure = Structure.from_file(f"{TEST_FILES_DIR}/CoO19128.cif")
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
     def test_absorbing_atom(self):
@@ -116,8 +114,8 @@ class TestFeffAtoms(unittest.TestCase):
         header = Header.from_str(header_string)
         struct = header.struct
         central_atom = "O"
-        a = Atoms(struct, central_atom, radius=10.0)
-        atoms = str(a)
+        atoms = Atoms(struct, central_atom, radius=10.0)
+        atoms = str(atoms)
         assert atoms.splitlines()[3].split()[4] == central_atom, "failed to create ATOMS string"
 
     def test_as_dict_and_from_dict(self):
@@ -136,6 +134,12 @@ class TestFeffAtoms(unittest.TestCase):
         assert mol_1.formula == mol_2.formula
         assert len(mol_1) == len(mol_2)
         os.remove("ATOMS_test")
+
+    def test_atom_num(self):
+        filepath = f"{TEST_FILES_DIR}/Pt37_atoms.inp.gz"
+        atoms = Atoms.cluster_from_file(filepath)
+        assert len(atoms) == 37
+        assert atoms.formula == "Pt37"
 
 
 class TestFeffTags(unittest.TestCase):

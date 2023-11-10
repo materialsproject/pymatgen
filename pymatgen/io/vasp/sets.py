@@ -47,9 +47,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import SiteCollection, Structure
+from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
+from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -162,8 +161,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 same name as the InputSet (e.g., MPStaticSet.zip)
         """
         if potcar_spec:
-            if make_dir_if_not_present and not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+            if make_dir_if_not_present:
+                os.makedirs(output_dir, exist_ok=True)
 
             with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
                 file.write("\n".join(self.potcar_symbols))
@@ -974,7 +973,7 @@ class MPScanRelaxSet(DictSet):
 
         updates: dict[str, float] = {}
         # select the KSPACING and smearing parameters based on the bandgap
-        if self.bandgap < 1e-4:
+        if self.bandgap < bandgap_tol:
             updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
             rmin = max(1.5, 25.22 - 2.87 * bandgap)  # Eq. 25
@@ -2893,8 +2892,6 @@ class LobsterSet(DictSet):
 
     @property
     def incar(self) -> Incar:
-        from pymatgen.io.lobster import Lobsterin
-
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:
             basis = Lobsterin.get_basis(structure=self.structure, potcar_symbols=self.potcar_symbols)
@@ -3163,7 +3160,6 @@ class MPAbsorptionSet(MPRelaxSet):
     For all steps other than the first one (static), the
     recommendation is to use from_prev_calculation on the preceding run in
     the series. It is important to ensure Gamma centred kpoints for the RPA step.
-
     """
 
     # CONFIG = _load_yaml_config("MPAbsorptionSet")

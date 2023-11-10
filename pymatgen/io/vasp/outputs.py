@@ -25,10 +25,7 @@ from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.units import unitized
 from pymatgen.electronic_structure.bandstructure import (
     BandStructure,
@@ -334,7 +331,9 @@ class Vasprun(MSONable):
                         self.final_structure = self.initial_structure
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
-                        self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
+                        self.potcar_spec = [
+                            {"titel": p, "hash": None, "summary_stats": {}} for p in self.potcar_symbols
+                        ]
                 if tag == "calculation":
                     parsed_header = True
                     if not self.parameters.get("LCHIMAG", False):
@@ -1041,7 +1040,7 @@ class Vasprun(MSONable):
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
-                {"titel": sym, "hash": ps.md5_header_hash}
+                {"titel": sym, "hash": ps.md5_header_hash, "summary_stats": ps._summary_stats}
                 for sym in self.potcar_symbols
                 for ps in potcar
                 if ps.symbol == sym.split()[1]
@@ -1302,7 +1301,7 @@ class Vasprun(MSONable):
 
     def _parse_calculation(self, elem):
         try:
-            istep = {i.attrib["name"]: float(i.text) for i in elem.find("energy").findall("i")}
+            istep = {i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")}
         except AttributeError:  # not all calculations have an energy
             istep = {}
         esteps = []
@@ -1480,7 +1479,9 @@ class BSVasprun(Vasprun):
                         self.parameters = self._parse_params(elem)
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
-                        self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
+                        self.potcar_spec = [
+                            {"titel": p, "hash": None, "summary_stats": {}} for p in self.potcar_symbols
+                        ]
                         parsed_header = True
                 elif tag == "i" and elem.attrib.get("name") == "efermi":
                     self.efermi = float(elem.text)

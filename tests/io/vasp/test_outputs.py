@@ -3,8 +3,10 @@ from __future__ import annotations
 import gzip
 import json
 import os
+import sys
 import unittest
 import xml.etree.ElementTree as ElementTree
+from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -18,7 +20,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Kpoints, Poscar, Potcar
 from pymatgen.io.vasp.outputs import (
     WSWQ,
     BSVasprun,
@@ -578,48 +580,43 @@ class TestVasprun(PymatgenTest):
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(6.0165)
 
-    def test_sc_step_overflow(self):
+    def test_float_overflow(self):
+        # test we interpret VASP's *********** for overflowed values as NaNs
+        # https://github.com/materialsproject/pymatgen/pull/3452
         filepath = f"{TEST_FILES_DIR}/vasprun.xml.sc_overflow"
         with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun"):
             vasp_run = Vasprun(filepath)
-        vasp_run = Vasprun(filepath)
-        estep = vasp_run.ionic_steps[0]["electronic_steps"][29]
-        assert np.isnan(estep["e_wo_entrp"])
+        first_ionic_step = vasp_run.ionic_steps[0]
+        elec_step = first_ionic_step["electronic_steps"][29]
+        assert np.isnan(elec_step["e_wo_entrp"])
+        assert np.isnan(elec_step["e_fr_energy"])
+        assert np.isnan(first_ionic_step["forces"]).any()
 
     def test_update_potcar(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
         potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
+
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
-        ]
+        potcars = Potcar.from_file(potcar_path)
+        expected_spec = [{"titel": titel, "hash": None, "summary_stats": {}} for titel in vasp_run.potcar_symbols]
+        assert vasp_run.potcar_spec == expected_spec
 
         vasp_run.update_potcar_spec(potcar_path)
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-        ]
+        potcars = Potcar.from_file(potcar_path)
+        expected_spec = []
+        for titel in vasp_run.potcar_symbols:
+            for potcar in potcars:
+                if titel == potcar.TITEL:
+                    break
+            expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
+        assert vasp_run.potcar_spec == expected_spec
 
-        vasprun2 = Vasprun(filepath, parse_potcar_file=False)
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
-            vasprun2.update_potcar_spec(potcar_path2)
-        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
+            Vasprun(filepath, parse_potcar_file=potcar_path2)
 
-        assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-        ]
+        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
+        assert vasp_run.potcar_spec == expected_spec
 
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
@@ -642,11 +639,11 @@ class TestVasprun(PymatgenTest):
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
         assert len(warns) == 2
         assert vasp_run.potcar_spec == [
-            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": None, "summary_stats": {}},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": None, "summary_stats": {}},
         ]
 
     def test_parsing_chemical_shift_calculations(self):
@@ -1354,19 +1351,16 @@ class TestChgcar(PymatgenTest):
         chgcar = self.chgcar_spin - self.chgcar_spin
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
-        ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
+        expected = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        assert_allclose(actual[:, 1], ans)
+        assert_allclose(actual[:, 1], expected)
 
     def test_write(self):
-        self.chgcar_spin.write_file("CHGCAR_pmg")
-        with open("CHGCAR_pmg") as f:
-            for i, line in enumerate(f):
-                if i == 22130:
+        self.chgcar_spin.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg")
+        with open(out_path) as file:
+            for idx, line in enumerate(file):
+                if idx in (22130, 44255):
                     assert line == "augmentation occupancies   1  15\n"
-                if i == 44255:
-                    assert line == "augmentation occupancies   1  15\n"
-        os.remove("CHGCAR_pmg")
 
     def test_soc_chgcar(self):
         assert set(self.chgcar_NiO_SOC.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
@@ -1376,11 +1370,7 @@ class TestChgcar(PymatgenTest):
         # check our construction of chg.data['diff'] makes sense
         # this has been checked visually too and seems reasonable
         assert abs(self.chgcar_NiO_SOC.data["diff"][0][0][0]) == np.linalg.norm(
-            [
-                self.chgcar_NiO_SOC.data["diff_x"][0][0][0],
-                self.chgcar_NiO_SOC.data["diff_y"][0][0][0],
-                self.chgcar_NiO_SOC.data["diff_z"][0][0][0],
-            ]
+            [self.chgcar_NiO_SOC.data[f"diff_{key}"][0][0][0] for key in "xyz"]
         )
 
         # and that the net magnetization is about zero
@@ -1388,18 +1378,16 @@ class TestChgcar(PymatgenTest):
         # vasp output, but might be due to chgcar limitations?
         assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, abs=1e-0)
 
-        self.chgcar_NiO_SOC.write_file("CHGCAR_pmg_soc")
-        chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
+        self.chgcar_NiO_SOC.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg_soc")
+        chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
-        os.remove("CHGCAR_pmg_soc")
 
     @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
-        chgcar.to_hdf5("chgcar_test.hdf5")
-        import h5py
+        chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
-        with h5py.File("chgcar_test.hdf5", "r") as f:
+        with h5py.File(out_path, "r") as f:
             assert_allclose(f["vdata"]["total"], chgcar.data["total"])
             assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
             assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
@@ -1410,9 +1398,8 @@ class TestChgcar(PymatgenTest):
             for sp in f["species"]:
                 assert sp in [b"Ni", b"O"]
 
-        chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
+        chgcar2 = Chgcar.from_hdf5(out_path)
         assert_allclose(chgcar2.data["total"], chgcar.data["total"])
-        os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
         for v in self.chgcar_spin.spin_data.values():
@@ -1634,9 +1621,6 @@ class TestWavecar(PymatgenTest):
 
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
             Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2", vasp_type="n")
-
-        import sys
-        from io import StringIO
 
         saved_stdout = sys.stdout
         try:

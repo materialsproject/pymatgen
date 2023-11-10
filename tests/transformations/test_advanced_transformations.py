@@ -10,13 +10,10 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -302,13 +299,11 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(latt, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
-        self.Fe3O4 = parser.get_structures()[0]
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8 = parser.get_structures()[0]
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
         self.Li8Fe2NiCoO8.remove_oxidation_states()
 
     def test_apply_transformation(self):
@@ -356,7 +351,6 @@ class TestMagOrderingTransformation(PymatgenTest):
         _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         assert trans.mag_species_spin == {"Fe": 5}
-        from pymatgen.analysis.energy_models import SymmetryModel
 
         assert isinstance(trans.energy_model, SymmetryModel)
 

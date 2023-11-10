@@ -16,9 +16,7 @@ from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.core import ParseError
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -209,8 +207,8 @@ class Header(MSONable):
         Returns:
             Header Object
         """
-        r = CifParser(cif_file)
-        structure = r.get_structures()[0]
+        parser = CifParser(cif_file)
+        structure = parser.parse_structures(primitive=True)[0]
         return Header(structure, source, comment)
 
     @property
@@ -482,13 +480,13 @@ class Atoms(MSONable):
                 is the one at the origin.
         """
         atoms_string = Atoms.atoms_string_from_file(filename)
-        lines = [line.split() for line in atoms_string.splitlines()[3:]]
+        lines = [line.split() for line in atoms_string.splitlines()[1:]]
         coords = []
         symbols = []
-        for line in lines:
-            if line:
-                coords.append([float(val) for val in line[:3]])
-                symbols.append(line[4])
+        for tokens in lines:
+            if tokens and not tokens[0].startswith("*"):
+                coords.append([float(val) for val in tokens[:3]])
+                symbols.append(tokens[4])
         return Molecule(symbols, coords)
 
     def get_lines(self) -> list[list[str | int]]:

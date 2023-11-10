@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+from fractions import Fraction
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -13,10 +14,8 @@ from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import (
     IMolecule,
     IStructure,
@@ -28,6 +27,7 @@ from pymatgen.core.structure import (
 )
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -780,6 +780,10 @@ Direct
         struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
+        # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
+        # i.e. uses same merge_tol for site merging, same primitive=False, etc.
+        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
+
     def test_to_file_alias(self):
         out_path = f"{self.tmp_path}/POSCAR"
         assert self.struct.to(out_path) == self.struct.to_file(out_path)
@@ -1243,7 +1247,6 @@ class TestStructure(PymatgenTest):
                 ["Cs"],
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-        from fractions import Fraction
 
         struct = Structure.from_spacegroup(139, np.eye(3), ["H"], [[Fraction(1, 2), Fraction(1, 4), Fraction(0)]])
         assert len(struct) == 8
@@ -2085,9 +2088,8 @@ class TestMolecule(PymatgenTest):
             assert m == self.mol
             assert isinstance(m, Molecule)
 
-        self.mol.to(filename="CH4_testing.xyz")
-        assert os.path.isfile("CH4_testing.xyz")
-        os.remove("CH4_testing.xyz")
+        self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/CH4_testing.xyz")
 
     def test_extract_cluster(self):
         species = self.mol.species * 2

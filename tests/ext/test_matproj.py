@@ -14,16 +14,13 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.wulff import WulffShape
-from pymatgen.core import SETTINGS
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Composition, Structure
+from pymatgen.core import SETTINGS, Composition, Element, Structure
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, _MPResterBasic
 from pymatgen.ext.matproj_legacy import TaskType, _MPResterLegacy
-from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -129,8 +126,8 @@ class TestMPResterOld(PymatgenTest):
         cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
-        s = CifParser(cif_file).get_structures()[0]
-        data = mpr.find_structure(s)
+        struct = Structure.from_file(cif_file, primitive=True)
+        data = mpr.find_structure(struct)
         assert len(data) > 1
 
     def test_get_entries_in_chemsys(self):
@@ -624,15 +621,6 @@ class TestMPResterNewBasic:
     #     data = mpr.get_materials_id_references("mp-123")
     #     assert len(data) > 1000
 
-    # def test_find_structure(self):
-    #     mpr = _MPResterLegacy()
-    #     cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
-    #     data = mpr.find_structure(str(cif_file))
-    #     assert len(data) > 1
-    #     s = CifParser(cif_file).get_structures()[0]
-    #     data = mpr.find_structure(s)
-    #     assert len(data) > 1
-
     def test_get_entries_and_in_chemsys(self):
         # One large system test.
         syms = ["Li", "Fe", "O", "P", "Mn"]
@@ -886,18 +874,18 @@ class TestMPResterNewBasic:
 
     def test_parity_with_mp_api(self):
         try:
-            from mp_api.client import MPRester as MPResterMPAPI
+            from mp_api.client import MPRester as MpApi
         except Exception:
             pytest.skip("mp_api.client.MPRester cannot be imported for this test.")
-        mpr_mpapi = MPResterMPAPI(PMG_MAPI_KEY)
+        mpr_mp_api = MpApi(PMG_MAPI_KEY)
         # Test summary
-        mp_data = mpr_mpapi.summary.search(formula="Al2O3")
+        mp_data = mpr_mp_api.summary.search(formula="Al2O3")
         pmg_data = self.rester.get_summary({"formula": "Al2O3"})
         assert len(mp_data) == len(pmg_data)
 
         # Test get_entries
         chemsys = ["Li", "Fe", "O"]
-        mp_entries = mpr_mpapi.get_entries_in_chemsys(chemsys)
+        mp_entries = mpr_mp_api.get_entries_in_chemsys(chemsys)
         pmg_entries = self.rester.get_entries_in_chemsys(chemsys)
 
         assert len(mp_entries) == len(pmg_entries)

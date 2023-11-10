@@ -12,8 +12,7 @@ from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import itertools
 import logging
 
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from matplotlib.patches import Circle, FancyArrowPatch
@@ -371,12 +372,10 @@ class ConnectedComponent(MSONable):
     def __len__(self):
         return len(self.graph)
 
-    def compute_periodicity(self, algorithm="all_simple_paths"):
+    def compute_periodicity(self, algorithm="all_simple_paths") -> None:
         """
         Args:
             algorithm ():
-
-        Returns:
         """
         if algorithm == "all_simple_paths":
             self.compute_periodicity_all_simple_paths_algorithm()
@@ -519,6 +518,7 @@ class ConnectedComponent(MSONable):
             multiplicity ():
 
         Returns:
+            nx.MultiGraph: Super graph of the connected component.
         """
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
@@ -534,7 +534,6 @@ class ConnectedComponent(MSONable):
                 If not provided, the graph is not saved.
             drawing_type (str): The type of drawing to use. Can be "internal" or "external".
         """
-        import matplotlib.pyplot as plt
 
         shown_graph = self._connected_subgraph if graph is None else graph
 
@@ -551,12 +550,8 @@ class ConnectedComponent(MSONable):
                 plt.savefig(save_file)
             # nx.draw(self._connected_subgraph)
         elif drawing_type == "draw_graphviz":
-            import networkx as nx
-
             nx.nx_pydot.graphviz_layout(shown_graph)
         elif drawing_type == "draw_random":
-            import networkx as nx
-
             nx.draw_random(shown_graph)
 
     @property

@@ -341,9 +341,16 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         assert dict_here["O"]["2p"] == approx(0.015)
 
     def test_proj_bandstructure_plot(self):
-        # make sure that it can be plotted!
-        BSPlotterProjected(self.bs_spin).get_elt_projected_plots()
-        BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
+        axs = BSPlotterProjected(self.bs_spin).get_elt_projected_plots()
+        assert isinstance(axs, np.ndarray)
+        assert axs.shape == (2, 2)
+        assert axs[0, 0].get_title() == "Si"
+        assert axs[0, 1].get_title() == "O"
+        assert axs[1, 0].get_title() == ""
+        axs = BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
+        assert isinstance(axs, list)
+        assert len(axs) == 1
+        assert axs[0].get_title() == "Si 3s"
 
     def test_get_branch(self):
         branch = self.bs_p.get_branch(0)[0]

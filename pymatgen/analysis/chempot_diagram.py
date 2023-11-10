@@ -648,7 +648,7 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
         k: Number of principal components returned
 
     Returns:
-        Tuple of projected data, eigenvalues, eigenvectors
+        tuple: projected data, eigenvalues, eigenvectors
     """
     data = data - np.mean(data.T, axis=1)  # centering the data
     cov = np.cov(data.T)  # calculating covariance matrix

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
@@ -76,8 +75,4 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         self.assert_msonable(self.bs2)
 
     def test_write_methods(self):
-        self.bs2.write_phononwebsite("test.json")
-
-    def tearDown(self):
-        if os.path.isfile("test.json"):
-            os.remove("test.json")
+        self.bs2.write_phononwebsite(f"{self.tmp_path}/test.json")

@@ -16,8 +16,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
     StructureEnvironments,
 )
-from pymatgen.core import Structure
-from pymatgen.core.periodic_table import Species
+from pymatgen.core import Species, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"

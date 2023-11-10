@@ -810,7 +810,7 @@ class KabschMatcher(MSONable):
         P and Q, centered around the their centroid.
 
         For more info see:
-        - http://en.wikipedia.org/wiki/Kabsch_algorithm and
+        - http://wikipedia.org/wiki/Kabsch_algorithm and
         - https://cnx.org/contents/HV-RsdwL@23/Molecular-Distance-Measures
 
         Args:

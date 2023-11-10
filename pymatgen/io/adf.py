@@ -24,17 +24,12 @@ def is_numeric(s) -> bool:
     """
     Return True is the string ``s`` is a numeric string.
 
-    Parameters
-    ----------
-    s : str
-        A string.
+    Args:
+        s (str): A string
 
     Returns:
-    -------
-    res : bool
-        If True, ``s`` is a numeric string and can be converted to an int or a
-        float. Otherwise False will be returned.
-
+        bool: If True, ``s`` is a numeric string and can be converted to an int or a
+            float. Otherwise False will be returned.
     """
     try:
         float(s)
@@ -680,7 +675,6 @@ class AdfOutput:
         The normal modes of the molecule.
     freq_type : str
         Either 'Analytical' or 'Numerical'.
-
     """
 
     def __init__(self, filename):

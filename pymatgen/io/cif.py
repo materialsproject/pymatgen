@@ -8,6 +8,7 @@ import re
 import textwrap
 import warnings
 from collections import deque
+from datetime import datetime
 from functools import partial
 from inspect import getfullargspec as getargspec
 from io import StringIO
@@ -18,14 +19,9 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.string import remove_non_ascii
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Composition, DummySpecies, Element, Lattice, PeriodicSite, Species, Structure, get_el_sp
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
 from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
@@ -53,7 +49,7 @@ class CifBlock:
     attribute.
     """
 
-    maxlen = 70  # not quite 80 so we can deal with semicolons and things
+    max_len = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
         """
@@ -94,7 +90,7 @@ class CifBlock:
             if key not in written:
                 # k didn't belong to a loop
                 v = self._format_field(self.data[key])
-                if len(key) + len(v) + 3 < self.maxlen:
+                if len(key) + len(v) + 3 < self.max_len:
                     out.append(f"{key}   {v}")
                 else:
                     out.extend([key, v])
@@ -110,7 +106,7 @@ class CifBlock:
                 if val[0] == ";":
                     out += line + "\n" + val
                     line = "\n"
-                elif len(line) + len(val) + 2 < self.maxlen:
+                elif len(line) + len(val) + 2 < self.max_len:
                     line += "  " + val
                 else:
                     out += line
@@ -120,8 +116,8 @@ class CifBlock:
 
     def _format_field(self, v):
         v = str(v).strip()
-        if len(v) > self.maxlen:
-            return ";\n" + textwrap.fill(v, self.maxlen) + "\n;"
+        if len(v) > self.max_len:
+            return ";\n" + textwrap.fill(v, self.max_len) + "\n;"
         # add quotes if necessary
         if v == "":
             return '""'
@@ -137,7 +133,7 @@ class CifBlock:
         # remove empty lines
         string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
-        string = remove_non_ascii(string)
+        string = string.encode("ascii", "ignore").decode("ascii")
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
@@ -1137,9 +1133,26 @@ class CifParser:
             return struct
         return None
 
-    def get_structures(
+    @np.deprecate(
+        message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
+        "The only difference is that primitive defaults to False in the new parse_structures method."
+        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
+    )
+    def get_structures(self, *args, **kwargs) -> list[Structure]:
+        """
+        Deprecated. Use parse_structures instead. Only difference between the two methods is the
+        default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
+        """
+        if len(args) > 0:  # extract primitive if passed as arg
+            kwargs["primitive"] = args[0]
+            args = args[1:]
+        kwargs.setdefault("primitive", True)
+        return self.parse_structures(*args, **kwargs)
+
+    def parse_structures(
         self,
-        primitive: bool = True,
+        primitive: bool = False,
         symmetrized: bool = False,
         check_occu: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "warn",
@@ -1147,8 +1160,8 @@ class CifParser:
         """Return list of structures in CIF file.
 
         Args:
-            primitive (bool): Set to False to return conventional unit cells.
-                Defaults to True. With magnetic CIF files, will return primitive
+            primitive (bool): Set to True to return primitive unit cells.
+                Defaults to False. With magnetic CIF files, True will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
             symmetrized (bool): If True, return a SymmetrizedStructure which will
                 include the equivalent indices and symmetry operations used to
@@ -1168,6 +1181,14 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
+        if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
+            raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
+        warnings.warn(
+            "The default value of primitive was changed from True to False in "
+            "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
+            "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
+            UserWarning,
+        )
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
@@ -1331,18 +1352,18 @@ class CifWriter:
                 # primitive to conventional structures, the standard for CIF.
                 struct = sf.get_refined_structure()
 
-        latt = struct.lattice
+        lattice = struct.lattice
         comp = struct.composition
         no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ["a", "b", "c"]:
-            block["_cell_length_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_length_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
         for cell_attr in ["alpha", "beta", "gamma"]:
-            block["_cell_angle_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_angle_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
-        block["_cell_volume"] = format_str.format(latt.volume)
+        block["_cell_volume"] = format_str.format(lattice.volume)
 
         reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
@@ -1408,7 +1429,7 @@ class CifWriter:
 
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
-                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
+                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, lattice)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")
                         atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
                         atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
