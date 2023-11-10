@@ -2215,7 +2215,7 @@ class IStructure(SiteCollection, MSONable):
 
             end_coords = sorted_end_coords
 
-        vec = (1+extrapolation)*(end_coords - start_coords)
+        vec = (1 + extrapolation) * (end_coords - start_coords)
         if pbc:
             vec[:, self.pbc] -= np.round(vec[:, self.pbc])
         sp = self.species_and_occu
@@ -2225,7 +2225,7 @@ class IStructure(SiteCollection, MSONable):
             # interpolate lattice matrices using polar decomposition
             # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
-            lvec = (1+extrapolation)*(p - np.identity(3))
+            lvec = (1 + extrapolation) * (p - np.identity(3))
             lstart = self.lattice.matrix.T
 
         for x in images:
