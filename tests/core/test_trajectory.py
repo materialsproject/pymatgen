@@ -474,6 +474,12 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(self.traj, written_traj)
         os.remove("traj_test_XDATCAR")
 
-    def test_read_file(self):
+    def test_from_file(self):
         traj = Trajectory.from_file(f"{TEST_FILES_DIR}/LiMnO2_chgnet_relax.traj")
         assert isinstance(traj, Trajectory)
+        
+        # Check length of the trajectory
+        assert len(traj) == 2
+
+        # Check composition of the first frame of the trajectory
+        assert traj[0].formula == "Li2 Mn2 O4"
