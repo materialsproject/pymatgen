@@ -296,7 +296,7 @@ class GulpIO:
         for site in structure:
             coord = [str(i) for i in getattr(site, coords_key)]
             specie = site.specie
-            core_site_desc = specie.symbol + " core " + " ".join(coord) + "\n"
+            core_site_desc = f"{specie.symbol} core {' '.join(coord)}\n"
             gin += core_site_desc
             if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
                 shel_site_desc = specie.symbol + " shel " + " ".join(coord) + "\n"
@@ -827,7 +827,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split("_")[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            species_dict[elmnt] = metal + " core " + row.split()[2] + "\n"
+                            species_dict[elmnt] = f"{metal} core {row.split()[2]}\n"
                     continue
 
                 if pot_flg:

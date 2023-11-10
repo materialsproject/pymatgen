@@ -311,7 +311,7 @@ class TestLammpsData(unittest.TestCase):
         np.testing.assert_array_equal(c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values)
         base_kws = ["Bond", "Angle", "Dihedral", "Improper"]
         for kw in base_kws:
-            ff_kw = kw + " Coeffs"
+            ff_kw = f"{kw} Coeffs"
             i = random.randint(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
             sample_coeff = c_ff.topo_coeffs[ff_kw][i]
             np.testing.assert_array_equal(sample_coeff["coeffs"], c.force_field[ff_kw].iloc[i].values, ff_kw)
@@ -323,7 +323,7 @@ class TestLammpsData(unittest.TestCase):
         assert topo.sites.site_properties["ff_map"] == [atom_labels[i - 1] for i in atoms["type"]]
         shift = min(atoms.index)
         for kw in base_kws:
-            ff_kw = kw + " Coeffs"
+            ff_kw = f"{kw} Coeffs"
             ff_coeffs = c_ff.topo_coeffs[ff_kw]
             topo_kw = kw + "s"
             topos_df = c.topology[topo_kw]

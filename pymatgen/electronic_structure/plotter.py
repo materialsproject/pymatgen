@@ -1985,7 +1985,7 @@ class BSPlotterProjected(BSPlotter):
                     label += elem + ","
                 else:
                     orb_label = [orb[1:] for orb in orbs]
-                    label += f"{elem}{str(orb_label).replace('[' , '').replace(']' , '').replace(', ', '-')},"
+                    label += f"{elem}{str(orb_label).replace('[', '').replace(']', '').replace(', ', '-')},"
             return label[:-1]
 
         if sum_atoms is None and sum_morbs is None:
@@ -3064,7 +3064,7 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     sbk_temp.append(sbk[dt][temp][d])
                 if output == "average":
-                    ax.plot(tlist, sbk_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
@@ -3171,7 +3171,7 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     pf_temp.append(pf[dt][temp][d])
                 if output == "average":
-                    ax.plot(tlist, pf_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
@@ -3698,10 +3698,10 @@ class CohpPlotter:
             plot_negative = (not self.are_coops) and (not self.are_cobis)
 
         if integrated:
-            cohp_label = "I" + cohp_label + " (eV)"
+            cohp_label = f"I{cohp_label} (eV)"
 
         if plot_negative:
-            cohp_label = "-" + cohp_label
+            cohp_label = f"-{cohp_label}"
 
         energy_label = "$E - E_f$ (eV)" if self.zero_at_efermi else "$E$ (eV)"
 

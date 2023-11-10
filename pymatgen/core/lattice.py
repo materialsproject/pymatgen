@@ -804,13 +804,13 @@ class Lattice(MSONable):
     def __repr__(self):
         outs = [
             "Lattice",
-            "    abc : " + " ".join(map(repr, self.lengths)),
-            " angles : " + " ".join(map(repr, self.angles)),
-            " volume : " + repr(self.volume),
-            "      A : " + " ".join(map(repr, self._matrix[0])),
-            "      B : " + " ".join(map(repr, self._matrix[1])),
-            "      C : " + " ".join(map(repr, self._matrix[2])),
-            "    pbc : " + " ".join(map(repr, self._pbc)),
+            f"    abc : {' '.join(map(repr, self.lengths))}",
+            f" angles : {' '.join(map(repr, self.angles))}",
+            f" volume : {self.volume!r}",
+            f"      A : {' '.join(map(repr, self._matrix[0]))}",
+            f"      B : {' '.join(map(repr, self._matrix[1]))}",
+            f"      C : {' '.join(map(repr, self._matrix[2]))}",
+            f"    pbc : {' '.join(map(repr, self._pbc))}",
         ]
         return "\n".join(outs)
 

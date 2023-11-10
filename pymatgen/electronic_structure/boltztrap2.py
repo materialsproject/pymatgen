@@ -1114,7 +1114,7 @@ class BztPlotter:
                         temps_all,
                         prop_out.mean(axis=1),
                         "s-",
-                        label=str(dop) + " $cm^{-3}$",
+                        label=f"{dop} $cm^{-3}$",
                     )
                 elif output == "eigs":
                     for i in range(3):
