@@ -55,7 +55,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
 # written to some newer POTCARs by VASP
 VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH = os.path.join(module_dir, "potcar_summary_stats.json.bz2")
+POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
 class Poscar(MSONable):
@@ -2370,23 +2370,21 @@ class PotcarSingle:
 
 
 def _gen_potcar_summary_stats(
-    append: bool = False,
-    vasp_psp_dir: str | None = None,
-    summary_stats_filename: str = f"{module_dir}/potcar_summary_stats.json.bz2",
+    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str = POTCAR_STATS_PATH
 ):
     """
     This function solely intended to be used for PMG development to regenerate the
-    potcar_summary_stats.json.bz2 file used to validate POTCARs
+    potcar-summary-stats.json.bz2 file used to validate POTCARs
 
-    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar_summary_stats.json.bz2.
+    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar-summary-stats.json.bz2.
 
     Args:
-        append (bool): Change whether data is appended to the existing potcar_summary_stats.json.bz2,
+        append (bool): Change whether data is appended to the existing potcar-summary-stats.json.bz2,
             or if a completely new file is generated. Defaults to False.
         PMG_VASP_PSP_DIR (str): Change where this function searches for POTCARs
             defaults to the PMG_VASP_PSP_DIR environment variable if not set. Defaults to None.
         summary_stats_filename (str): Name of the output summary stats file. Defaults to
-            '<pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.bz2'.
+            '<pymatgen_install_dir>/io/vasp/potcar-summary-stats.json.bz2'.
     """
     func_dir_exist: dict[str, str] = {}
     vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
