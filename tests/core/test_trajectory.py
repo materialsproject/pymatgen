@@ -474,7 +474,7 @@ class TestTrajectory(PymatgenTest):
     def test_from_file(self):
         traj = Trajectory.from_file(f"{TEST_FILES_DIR}/LiMnO2_chgnet_relax.traj")
         assert isinstance(traj, Trajectory)
-        
+
         # Check length of the trajectory
         assert len(traj) == 2
 
