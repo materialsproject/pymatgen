@@ -33,7 +33,6 @@ Pymatgen is free to use. However, we also welcome your help to improve this libr
 - Code contributions via [pull request] are welcome.
 - For questions that are not bugs or feature requests, please use the `pymatgen` [MatSci forum](https://matsci.org/pymatgen) or open a [GitHub discussion].
 - [`matgenb`](https://github.com/materialsvirtuallab/matgenb#introduction) provides some example Jupyter notebooks that demonstrate how to use `pymatgen` functionality.
-- Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 [pull request]: https://github.com/materialsproject/pymatgen/pulls
 [github issue]: https://github.com/materialsproject/pymatgen/issues
