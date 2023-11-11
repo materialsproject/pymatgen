@@ -170,9 +170,9 @@ class TestVasprun(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
 
-        # Test NELM parsing.
+        # Test NELM parsing
         assert vasp_run.parameters["NELM"] == 60
-        # test pdos parsing
+        # test pDOS parsing
 
         assert vasp_run.complete_dos.spin_polarization == 1.0
         assert Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.etest1.gz").complete_dos.spin_polarization is None
@@ -210,7 +210,7 @@ class TestVasprun(PymatgenTest):
 
         filepath2 = f"{TEST_FILES_DIR}/lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
-        totalscsteps = sum(len(i["electronic_steps"]) for i in vasp_run.ionic_steps)
+        total_sc_steps = sum(len(i["electronic_steps"]) for i in vasp_run.ionic_steps)
         assert len(vasp_run.ionic_steps) == 29
         assert len(vasp_run.structures) == len(vasp_run.ionic_steps)
 
@@ -225,7 +225,7 @@ class TestVasprun(PymatgenTest):
             vasp_run.structures[i] == vasp_run.ionic_steps[i]["structure"] for i in range(len(vasp_run.ionic_steps))
         )
 
-        assert totalscsteps == 308, "Incorrect number of energies read from vasprun.xml"
+        assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
 
         assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasp_run.atomic_symbols
         assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
@@ -234,12 +234,8 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
         assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
-        expectedans = (2.539, 4.0906, 1.5516, False)
-        (gap, cbm, vbm, direct) = vasp_run.eigenvalue_band_properties
-        assert gap == approx(expectedans[0])
-        assert cbm == approx(expectedans[1])
-        assert vbm == approx(expectedans[2])
-        assert direct == expectedans[3]
+        expected = (2.539, 4.0906, 1.5516, False)
+        assert vasp_run.eigenvalue_band_properties == approx(expected)
         assert not vasp_run.is_hubbard
         assert vasp_run.potcar_symbols == [
             "PAW_PBE Li 17Jan2003",
@@ -251,9 +247,9 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.kpoints is not None, "Kpoints cannot be read"
         assert vasp_run.actual_kpoints is not None, "Actual kpoints cannot be read"
         assert vasp_run.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
-        for atomdoses in vasp_run.pdos:
-            for orbitaldos in atomdoses:
-                assert orbitaldos is not None, "Partial Dos cannot be read"
+        for atom_doses in vasp_run.pdos:
+            for orbital_dos in atom_doses:
+                assert orbital_dos is not None, "Partial Dos cannot be read"
 
         # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
