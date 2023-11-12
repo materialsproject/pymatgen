@@ -596,7 +596,7 @@ class Vasprun(MSONable):
         if len(js) != len(us):
             js = [0] * len(us)
         if len(us) == len(symbols):
-            return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
+            return {symbols[idx]: us[idx] - js[idx] for idx in range(len(symbols))}
         if sum(us) == 0 and sum(js) == 0:
             return {}
         raise VaspParseError("Length of U value parameters and atomic symbols are mismatched")
