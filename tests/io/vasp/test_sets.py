@@ -111,7 +111,7 @@ class TestSetChangeCheck(PymatgenTest):
                 hashes[name] = hashlib.sha1(text).hexdigest()
 
         known_hashes = {
-            "MatPESStaticSet.yaml": "8789f974913c935f21ff2fbffc0502714ca39470",
+            "MatPESStaticSet.yaml": "8edecff2bbd1932c53159f56a8e6340e900aaa2f",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
             "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
@@ -120,12 +120,13 @@ class TestSetChangeCheck(PymatgenTest):
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
+            "PBE64Base.yaml": "a0d6cd02c6ff8e24b0005e30c56a33b155c2280b",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
         for input_set in hashes:
-            assert hashes[input_set] == known_hashes[input_set], f"{input_set} got {hashes[input_set]}\n\n{msg}"
+            assert hashes[input_set] == known_hashes[input_set], f"{input_set=}\n{msg}"
 
 
 class TestDictSet(PymatgenTest):
