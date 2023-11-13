@@ -718,6 +718,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         )
         if self.charge is None:
             if {getattr(el, "oxi_state", None) for el in self} == {0}:
+                # all oxidation states are 0. this usually means no way of combining oxidation states
+                # to get a zero charge was found, so the composition is not charge balanced
                 return False
             return None
         return abs(self.charge) < Composition.charge_balanced_tolerance

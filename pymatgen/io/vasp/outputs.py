@@ -1262,7 +1262,7 @@ class Vasprun(MSONable):
     def _parse_optical_transition(elem):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
-                # opticaltransitions array contains oscillator strength and probability of transition
+                # optical transitions array contains oscillator strength and probability of transition
                 oscillator_strength = np.array(_parse_vasp_array(va))[0:]
                 probability_transition = np.array(_parse_vasp_array(va))[0:, 1]
         return oscillator_strength, probability_transition

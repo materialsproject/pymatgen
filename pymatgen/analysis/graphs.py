@@ -2604,8 +2604,8 @@ class MoleculeGraph(MSONable):
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
-        m = Molecule.from_dict(dct["molecule"])
-        return cls(m, dct["graphs"])
+        mol = Molecule.from_dict(dct["molecule"])
+        return cls(mol, dct["graphs"])
 
     @classmethod
     def _edges_to_string(cls, g):

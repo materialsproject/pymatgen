@@ -75,18 +75,14 @@ class TestLammpsBox(PymatgenTest):
         )
 
 
-class TestLammpsData(unittest.TestCase):
+class TestLammpsData(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.peptide = LammpsData.from_file(filename=f"{test_dir}/data.peptide")
         cls.ethane = LammpsData.from_file(filename=f"{test_dir}/ethane.data")
         cls.quartz = LammpsData.from_file(filename=f"{test_dir}/data.quartz", atom_style="atomic")
         cls.virus = LammpsData.from_file(filename=f"{test_dir}/virus.data", atom_style="angle")
-        cls.tatb = LammpsData.from_file(
-            filename=f"{test_dir}/tatb.data",
-            atom_style="charge",
-            sort_id=True,
-        )
+        cls.tatb = LammpsData.from_file(filename=f"{test_dir}/tatb.data", atom_style="charge", sort_id=True)
 
     def test_structure(self):
         quartz = self.quartz.structure
@@ -118,8 +114,8 @@ class TestLammpsData(unittest.TestCase):
     def test_sort_structure(self):
         struct = Structure(Lattice.cubic(4), ["S", "Fe"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         lmp = LammpsData.from_structure(struct, is_sort=False)
-        lmp.write_file("test1.data")
-        lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
+        lmp.write_file(out_path := f"{self.tmp_path}/test1.data")
+        lmp2 = LammpsData.from_file(out_path, atom_style="charge")
 
         # internally element:type will be {Fe: 1, S: 2},
         # therefore without sorting the atom types in structure
@@ -128,8 +124,8 @@ class TestLammpsData(unittest.TestCase):
 
         # with sorting the atom types in structures will be [1, 2]
         lmp = LammpsData.from_structure(struct, is_sort=True)
-        lmp.write_file("test1.data")
-        lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
+        lmp.write_file(out_path)
+        lmp2 = LammpsData.from_file(out_path, atom_style="charge")
         assert lmp2.atoms["type"].tolist() == [1, 2]
 
     def test_get_str(self):
@@ -264,22 +260,22 @@ class TestLammpsData(unittest.TestCase):
 
         virus = self.virus.get_str()
         virus_lines = virus.split("\n")
-        pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
-        assert pairij_coeff.strip().split() == ["1", "4", "1", "1.000", "1.12250"]
+        pair_ij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
+        assert pair_ij_coeff.strip().split() == ["1", "4", "1", "1.000", "1.12250"]
 
     def test_write_file(self):
-        filename1 = "test1.data"
-        self.ethane.write_file(filename=filename1)
-        c2h6 = LammpsData.from_file(filename1)
+        out_path = f"{self.tmp_path}/test1.data"
+        self.ethane.write_file(filename=f"{self.tmp_path}/test1.data")
+        c2h6 = LammpsData.from_file(out_path)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
         ff_kw = random.sample(sorted(self.ethane.force_field), 1)[0]
         pd.testing.assert_frame_equal(c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw)
         topo_kw = random.sample(sorted(self.ethane.topology), 1)[0]
         pd.testing.assert_frame_equal(c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw)
-        filename2 = "test2.data"
-        self.virus.write_file(filename=filename2)
-        v = LammpsData.from_file(filename2, atom_style="angle")
+        out_path2 = f"{self.tmp_path}/test2.data"
+        self.virus.write_file(filename=out_path2)
+        v = LammpsData.from_file(out_path2, atom_style="angle")
         pd.testing.assert_frame_equal(v.force_field["PairIJ Coeffs"], self.virus.force_field["PairIJ Coeffs"])
 
     def test_disassemble(self):
@@ -335,7 +331,7 @@ class TestLammpsData(unittest.TestCase):
             topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
             assert topo_type in ff_coeffs[topo_type_idx]["types"], ff_kw
-        # test no guessing element and pairij as non-bond coeffs
+        # test no guessing element and pair_ij as non-bond coeffs
         v = self.virus
         _, v_ff, _ = v.disassemble(guess_element=False)
         assert v_ff.maps["Atoms"] == {"Qa1": 1, "Qb1": 2, "Qc1": 3, "Qa2": 4}
@@ -430,10 +426,10 @@ class TestLammpsData(unittest.TestCase):
         assert quartz.atoms.loc[7, "x"] == approx(0.299963)
         # PairIJ Coeffs section
         virus = self.virus
-        pairij = virus.force_field["PairIJ Coeffs"]
-        assert pairij.loc[7, "id1"] == 3
-        assert pairij.loc[7, "id2"] == 3
-        assert pairij.loc[7, "coeff2"] == 2.1
+        pair_ij = virus.force_field["PairIJ Coeffs"]
+        assert pair_ij.loc[7, "id1"] == 3
+        assert pair_ij.loc[7, "id2"] == 3
+        assert pair_ij.loc[7, "coeff2"] == 2.1
         # sort_id
         atom_id = random.randint(1, 384)
         assert self.tatb.atoms.loc[atom_id].name == atom_id
@@ -442,12 +438,12 @@ class TestLammpsData(unittest.TestCase):
         mass = {}
         mass["H"] = 1.0079401
         mass["O"] = 15.999400
-        nonbond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
+        non_bond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
         topo_coeffs = {
             "Bond Coeffs": [{"coeffs": [176.864, 0.9611], "types": [("H", "O")]}],
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
-        ff = ForceField(mass.items(), nonbond_coeffs, topo_coeffs)
+        ff = ForceField(mass.items(), non_bond_coeffs, topo_coeffs)
         with gzip.open(f"{test_dir}/topologies_ice.json.gz") as f:
             topo_dicts = json.load(f)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
@@ -471,27 +467,23 @@ class TestLammpsData(unittest.TestCase):
             "Bond Coeffs": [{"coeffs": [176.864, 0.9611], "types": [("H", "O")]}],
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "H", "H")]}],
         }
-        broken_ff = ForceField(mass.items(), nonbond_coeffs, broken_topo_coeffs)
+        broken_ff = ForceField(mass.items(), non_bond_coeffs, broken_topo_coeffs)
         ld_woangles = LammpsData.from_ff_and_topologies(box=box, ff=broken_ff, topologies=[sample])
         assert "Angles" not in ld_woangles.topology
 
     def test_from_structure(self):
-        latt = Lattice.monoclinic(9.78746, 4.75058, 8.95892, 115.9693)
+        lattice = Lattice.monoclinic(9.78746, 4.75058, 8.95892, 115.9693)
         structure = Structure.from_spacegroup(
             15,
-            latt,
+            lattice,
             ["Os", "O", "O"],
-            [
-                [0, 0.25583, 0.75],
-                [0.11146, 0.46611, 0.91631],
-                [0.11445, 0.04564, 0.69518],
-            ],
+            [[0, 0.25583, 0.75], [0.11146, 0.46611, 0.91631], [0.11445, 0.04564, 0.69518]],
         )
         velocities = np.random.randn(20, 3) * 0.1
         structure.add_site_property("velocities", velocities)
         ld = LammpsData.from_structure(structure=structure, ff_elements=["O", "Os", "Na"])
         i = random.randint(0, 19)
-        a = latt.matrix[0]
+        a = lattice.matrix[0]
         va = velocities[i].dot(a) / np.linalg.norm(a)
         assert va == approx(ld.velocities.loc[i + 1, "vx"])
         assert velocities[i, 1] == approx(ld.velocities.loc[i + 1, "vy"])
@@ -532,13 +524,6 @@ class TestLammpsData(unittest.TestCase):
         c2h6.topology[key].index = c2h6.topology[key].index.map(int)
         assert pd.testing.assert_frame_equal(c2h6.topology[key], target_df) is None, key
 
-    @classmethod
-    def tearDownClass(cls):
-        tmpfiles = ["test1.data", "test2.data"]
-        for t in tmpfiles:
-            if os.path.exists(t):
-                os.remove(t)
-
 
 class TestTopology(unittest.TestCase):
     def test_init(self):
@@ -546,7 +531,7 @@ class TestTopology(unittest.TestCase):
         outer_charge = np.random.rand(10) - 0.5
         inner_velo = np.random.rand(10, 3) - 0.5
         outer_velo = np.random.rand(10, 3) - 0.5
-        m = Molecule(
+        mol = Molecule(
             ["H"] * 10,
             np.random.rand(10, 3) * 100,
             site_properties={
@@ -556,17 +541,17 @@ class TestTopology(unittest.TestCase):
             },
         )
         # q and v from site properties, while type from species_string
-        topo = Topology(sites=m)
+        topo = Topology(sites=mol)
         assert topo.type_by_sites == ["H"] * 10
         np.testing.assert_array_equal(topo.charges, inner_charge)
         np.testing.assert_array_equal(topo.velocities, inner_velo)
         # q and v from overriding, while type from site property
-        topo_override = Topology(sites=m, ff_label="ff_map", charges=outer_charge, velocities=outer_velo)
+        topo_override = Topology(sites=mol, ff_label="ff_map", charges=outer_charge, velocities=outer_velo)
         assert topo_override.type_by_sites == ["D"] * 10
         np.testing.assert_array_equal(topo_override.charges, outer_charge)
         np.testing.assert_array_equal(topo_override.velocities, outer_velo)
         # test using a list of sites instead of SiteCollection
-        topo_from_list = Topology(sites=m.sites)
+        topo_from_list = Topology(sites=mol.sites)
         assert topo_from_list.type_by_sites == topo.type_by_sites
         np.testing.assert_array_equal(topo_from_list.charges, topo.charges)
         np.testing.assert_array_equal(topo_from_list.velocities, topo.velocities)

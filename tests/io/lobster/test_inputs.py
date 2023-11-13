@@ -813,7 +813,7 @@ class TestCharge(PymatgenTest):
             "@module": "pymatgen.core.structure",
         }
         s2 = Structure.from_dict(structure_dict2)
-        assert s2 == self.charge2.get_structure_with_charges(TEST_FILES_DIR / "POSCAR.MnO")
+        assert s2 == self.charge2.get_structure_with_charges(f"{TEST_FILES_DIR}/POSCAR.MnO")
 
 
 class TestLobsterout(PymatgenTest):

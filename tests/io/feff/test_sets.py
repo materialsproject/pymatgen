@@ -119,11 +119,11 @@ TITLE sites: 4
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
         with pytest.warns(UserWarning, match="ION tags"):
-            MPXANESSet("Zn", m)
+            MPXANESSet("Zn", mol)
         struct = self.structure.copy()
         struct.set_charge(1)
         with pytest.raises(ValueError, match="not supported"):

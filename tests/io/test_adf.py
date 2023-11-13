@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-test_dir = TEST_FILES_DIR / "molecules"
+test_dir = f"{TEST_FILES_DIR}/molecules"
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -23,7 +23,7 @@ converge e=0.001 grad=0.0003 rad=0.01 angle=0.5
 END
 """
 
-zlmfit_string = """ZLMFIT
+zlm_fit_string = """ZLMFIT
 AtomDepQuality
 10 good
 12 normal
@@ -122,8 +122,8 @@ class TestAdfKey:
     def test_subkeys_subkeys(self):
         atom_dep_quality = AdfKey("AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])])
         zlmfit = AdfKey("zlmfit", subkeys=[atom_dep_quality])
-        assert str(zlmfit) == zlmfit_string
-        assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlmfit_string
+        assert str(zlmfit) == zlm_fit_string
+        assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlm_fit_string
 
     def test_from_string(self):
         k1 = AdfKey.from_str("CHARGE -1 0")

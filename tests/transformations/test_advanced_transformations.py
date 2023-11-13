@@ -338,8 +338,8 @@ class TestMagOrderingTransformation(PymatgenTest):
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
-        a = SpacegroupAnalyzer(struct, 0.1)
-        struct = a.get_refined_structure()
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 1
 

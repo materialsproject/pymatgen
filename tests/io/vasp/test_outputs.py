@@ -312,10 +312,10 @@ class TestVasprun(PymatgenTest):
 
     def test_dfpt_unconverged(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.unconverged"
-        vasprun_dfpt_unconv = Vasprun(filepath, parse_potcar_file=False)
-        assert not vasprun_dfpt_unconv.converged_electronic
-        assert vasprun_dfpt_unconv.converged_ionic
-        assert not vasprun_dfpt_unconv.converged
+        vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
+        assert not vasprun_dfpt_unconverged.converged_electronic
+        assert vasprun_dfpt_unconverged.converged_ionic
+        assert not vasprun_dfpt_unconverged.converged
 
     def test_chi(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml.chi.gz"
@@ -364,7 +364,7 @@ class TestVasprun(PymatgenTest):
 
     def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.opticaltransitions",
+            f"{TEST_FILES_DIR}/vasprun.xml.optical_transitions",
             parse_potcar_file=False,
         )
         assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
@@ -519,12 +519,12 @@ class TestVasprun(PymatgenTest):
 
         # test self-consistent band structure calculation for non-hybrid functionals
         vasp_run = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.forcehybridlikecalc",
+            f"{TEST_FILES_DIR}/vasprun.xml.force_hybrid_like_calc",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
         bs = vasp_run.get_band_structure(
-            kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.forcehybridlikecalc",
+            kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.force_hybrid_like_calc",
             force_hybrid_mode=True,
             line_mode=True,
         )
@@ -699,8 +699,8 @@ class TestVasprun(PymatgenTest):
 
 class TestOutcar(PymatgenTest):
     def test_init(self):
-        for f in ["OUTCAR", "OUTCAR.gz"]:
-            filepath = TEST_FILES_DIR / f
+        for filename in ["OUTCAR", "OUTCAR.gz"]:
+            filepath = TEST_FILES_DIR / filename
             outcar = Outcar(filepath)
             expected_mag = (
                 {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
@@ -750,8 +750,8 @@ class TestOutcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for f in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
-            filepath = TEST_FILES_DIR / f
+        for filename in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
+            filepath = TEST_FILES_DIR / filename
             outcar = Outcar(filepath)
 
             assert outcar.lepsilon
@@ -780,8 +780,8 @@ class TestOutcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for f in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
-            filepath = TEST_FILES_DIR / f
+        for filename in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
+            filepath = TEST_FILES_DIR / filename
             outcar = Outcar(filepath)
 
             assert outcar.lepsilon
