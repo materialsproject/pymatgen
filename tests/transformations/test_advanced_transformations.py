@@ -310,8 +310,8 @@ class TestMagOrderingTransformation(PymatgenTest):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
-        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
-        assert f.get_space_group_number() == 31
+        spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
+        assert spg_analyzer.get_space_group_number() == 31
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5}, energy_model=model)
