@@ -70,6 +70,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     # 1e-8 is fairly tight, but should cut out most floating point arithmetic
     # errors.
     amount_tolerance = 1e-8
+    charge_balanced_tolerance = 1e-8
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
@@ -689,6 +690,38 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             "nelements": len(self),
         }
 
+    @property
+    def charge(self) -> float | None:
+        """Total charge based on oxidation states. If any oxidation states
+        are None or they're all 0, returns None. Use add_charges_from_oxi_state_guesses to
+        assign oxidation states to elements based on charge balancing.
+        """
+        warnings.warn(
+            "Composition.charge is experimental and may produce incorrect results. Use with "
+            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+        )
+        oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
+        if {*oxi_states} <= {0, None}:
+            # all oxidation states are None or 0
+            return None
+        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values()))
+
+    @property
+    def charge_balanced(self) -> bool | None:
+        """True if composition is charge balanced, False otherwise. If any oxidation states
+        are None, returns None. Use add_charges_from_oxi_state_guesses to assign oxidation
+        states to elements.
+        """
+        warnings.warn(
+            "Composition.charge_balanced is experimental and may produce incorrect results. "
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+        )
+        if self.charge is None:
+            if {getattr(el, "oxi_state", None) for el in self} == {0}:
+                return False
+            return None
+        return abs(self.charge) < Composition.charge_balanced_tolerance
+
     def oxi_state_guesses(
         self,
         oxi_states_override: dict | None = None,
@@ -797,16 +830,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         routine.
 
         Args:
-            oxi_states_override (dict): dict of str->list to override an
-                element's common oxidation states, e.g. {"V": [2,3,4,5]}
-            target_charge (int): the desired total charge on the structure.
+            oxi_states_override (dict[str, list[float]]): Override an
+                element's common oxidation states, e.g. {"V": [2, 3, 4, 5]}
+            target_charge (float): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
-            all_oxi_states (bool): if True, an element defaults to
+            all_oxi_states (bool): If True, an element defaults to
                 all oxidation states in pymatgen Element.icsd_oxidation_states.
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
-            max_sites (int): if possible, will reduce Compositions to at most
+            max_sites (int): If possible, will reduce Compositions to at most
                 this many sites to speed up oxidation state guesses. If the
                 composition cannot be reduced to this many sites a ValueError
                 will be raised. Set to -1 to just reduce fully. If set to a
