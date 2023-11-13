@@ -6,6 +6,16 @@ nav_order: 4
 
 # Changelog
 
+## v2023.11.12
+
+### 🐛 Bug Fixes
+
+- Hot fix: `pymatgen` package missing `potcar-summary-stats.json.bz2` by @janosh in https://github.com/materialsproject/pymatgen/pull/3468
+
+### 🛠 Enhancements
+
+- Add `Composition.charge` and `charge_balanced` properties by @janosh in https://github.com/materialsproject/pymatgen/pull/3471
+
 ## v2023.11.10
 
 ### 🐛 Bug Fixes
