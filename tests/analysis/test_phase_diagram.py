@@ -4,7 +4,6 @@ import collections
 import os
 import unittest
 from numbers import Number
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -31,7 +30,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import PymatgenTest
 
-module_dir = Path(__file__).absolute().parent
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestPDEntry(unittest.TestCase):
@@ -97,7 +96,7 @@ class TestPDEntry(unittest.TestCase):
         assert str(pde) == "PDEntry : Li1 Fe1 O2 with energy = 53.0000"
 
     def test_read_csv(self):
-        entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
+        entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         assert entries.chemsys == {"Li", "Fe", "O"}, "Wrong elements!"
         assert len(entries) == 490, "Wrong number of entries!"
 
@@ -161,7 +160,7 @@ class TestTransformedPDEntry(unittest.TestCase):
 
 class TestPhaseDiagram(PymatgenTest):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
 
     def test_init(self):
@@ -630,7 +629,7 @@ class TestPhaseDiagram(PymatgenTest):
 
 class TestGrandPotentialPhaseDiagram(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
 
@@ -664,7 +663,7 @@ class TestGrandPotentialPhaseDiagram(unittest.TestCase):
 
 class TestCompoundPhaseDiagram(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
     def test_stable_entries(self):
@@ -690,7 +689,7 @@ class TestCompoundPhaseDiagram(unittest.TestCase):
 
 class TestPatchedPhaseDiagram(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "reaction_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
         self.no_patch_entry = he_entry = PDEntry("He", -1.23)
         self.entries.add(he_entry)
@@ -821,7 +820,6 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
 
 class TestReactionDiagram(unittest.TestCase):
     def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
         self.entries = list(EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv").entries)
         for e in self.entries:
             if e.composition.reduced_formula == "VPO5":
@@ -834,12 +832,12 @@ class TestReactionDiagram(unittest.TestCase):
         self.rd.get_compound_pd()
 
     def test_formula(self):
-        for e in self.rd.rxn_entries:
-            assert Element.V in e.composition
-            assert Element.O in e.composition
-            assert Element.C in e.composition
-            assert Element.P in e.composition
-            assert Element.H in e.composition
+        for entry in self.rd.rxn_entries:
+            assert Element.V in entry.composition
+            assert Element.O in entry.composition
+            assert Element.C in entry.composition
+            assert Element.P in entry.composition
+            assert Element.H in entry.composition
         # formed_formula = [e.composition.reduced_formula for e in self.rd.rxn_entries]
         # expected_formula = [
         #     "V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829",

@@ -1086,13 +1086,13 @@ class StructureGraph(MSONable):
             raise NotImplementedError("Not tested with 3x3 scaling matrices yet.")
         new_lattice = Lattice(np.dot(scale_matrix, self.structure.lattice.matrix))
 
-        f_lat = lattice_points_in_supercell(scale_matrix)
-        c_lat = new_lattice.get_cartesian_coords(f_lat)
+        frac_lattice = lattice_points_in_supercell(scale_matrix)
+        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
 
         new_sites = []
         new_graphs = []
 
-        for v in c_lat:
+        for v in cart_lattice:
             # create a map of nodes from original graph to its image
             mapping = {n: n + len(new_sites) for n in range(len(self.structure))}
 

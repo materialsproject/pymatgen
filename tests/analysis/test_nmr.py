@@ -15,7 +15,7 @@ class TestChemicalShieldingNotation(PymatgenTest):
 
         cs = ChemicalShielding([1, 2, 3])
         assert cs.shape == (3, 3)
-        assert_array_equal(np.diag(cs), [1, 2, 3])
+        assert np.diag(cs).tolist() == [1, 2, 3]
 
     def test_principal_axis_system(self):
         cs = ChemicalShielding([1, 2, 3])

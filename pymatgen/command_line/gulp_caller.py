@@ -23,6 +23,8 @@ __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
 
+module_dir = os.path.dirname(os.path.abspath(__file__))
+
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(
     map(
@@ -861,7 +863,6 @@ class TersoffPotential:
 
     def __init__(self):
         """Init TersoffPotential."""
-        module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(f"{module_dir}/OxideTersoffPotentials") as f:
             data = {}
             for row in f:
