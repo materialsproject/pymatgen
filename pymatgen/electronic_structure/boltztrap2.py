@@ -253,10 +253,10 @@ class BandstructureLoader:
 
     def bandana(self, emin=-np.inf, emax=np.inf):
         """Cut out bands outside the range (emin,emax)."""
-        bandmin = np.min(self.ebands_all, axis=1)
-        bandmax = np.max(self.ebands_all, axis=1)
-        ntoolow = np.count_nonzero(bandmax <= emin)
-        accepted = np.logical_and(bandmin < emax, bandmax > emin)
+        band_min = np.min(self.ebands_all, axis=1)
+        band_max = np.max(self.ebands_all, axis=1)
+        n_too_low = np.count_nonzero(band_max <= emin)
+        accepted = np.logical_and(band_min < emax, band_max > emin)
         # self.data_bkp = np.copy(self.data.ebands)
         self.ebands = self.ebands_all[accepted]
 
@@ -273,7 +273,7 @@ class BandstructureLoader:
             self.mommat = self.mommat[:, accepted, :]
         # Removing bands may change the number of valence electrons
         if self.nelect_all:
-            self.nelect = self.nelect_all - self.dosweight * ntoolow
+            self.nelect = self.nelect_all - self.dosweight * n_too_low
 
         return accepted
 
@@ -282,8 +282,7 @@ class BandstructureLoader:
         range in the spin up/down bands when calculating the DOS.
         """
         warnings.warn(
-            "This method does not work anymore in case of spin \
-        polarized case due to the concatenation of bands !"
+            "This method does not work anymore in case of spin polarized case due to the concatenation of bands !"
         )
 
         lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
@@ -1166,10 +1165,7 @@ def merge_up_down_doses(dos_up, dos_dn):
     Return:
     CompleteDos object
     """
-    warnings.warn(
-        "This function is not useful anymore. VasprunBSLoader deals \
-                   with spin case."
-    )
+    warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
     cdos = Dos(
         dos_up.efermi,
         dos_up.energies,

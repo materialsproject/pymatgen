@@ -438,11 +438,7 @@ class TestVasprun(PymatgenTest):
 
     def test_selective_dynamics(self):
         vsd = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.indirect.gz")
-        np.testing.assert_array_equal(
-            vsd.final_structure.site_properties.get("selective_dynamics"),
-            [[True] * 3, [False] * 3],
-            "Selective dynamics parsing error",
-        )
+        assert list(vsd.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
 
     def test_as_dict(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"

@@ -52,10 +52,10 @@ class LammpsInputSet(InputSet):
     ) -> None:
         """
         Args:
-            inputfile: The input file containing settings.
-                       It can be a LammpsInputFile object or a string representation.
+            inputfile: The input file containing settings. It can be a LammpsInputFile object
+                or a string representation.
             data: The data file containing structure and topology information.
-                  It can be a LammpsData or a CombinedData object.
+                It can be a LammpsData or a CombinedData object.
             calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
             template_file: Path (string) to the template file used to create the input file for LAMMPS.
             keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.

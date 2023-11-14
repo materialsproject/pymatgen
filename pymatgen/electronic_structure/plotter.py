@@ -1524,9 +1524,9 @@ class BSPlotterProjected(BSPlotter):
                 result, correct index numbers of atoms.
             sum_atoms: Sum projection of the similar atoms together (e.g.: Cu
                 on site-1 and Cu on site-5). The format is {Element: [Site numbers]}, for instance:
-                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
-                 site-5 and O on site-3 and on site-4. If you do not want to use this functional,
-                 just turn it off by setting sum_atoms = None.
+                {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
+                site-5 and O on site-3 and on site-4. If you do not want to use this functional,
+                just turn it off by setting sum_atoms = None.
             sum_morbs: Sum projections of individual orbitals of similar atoms
                 together (e.g.: 'dxy' and 'dxz'). The format is {Element: [individual orbitals]},
                 for instance: {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections

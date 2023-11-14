@@ -1315,7 +1315,7 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                 point, or return the raw fcoord, dist, index arrays
+                point, or return the raw fcoord, dist, index arrays
 
         Returns:
             if zip_results:
@@ -1389,7 +1389,7 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                 point, or return the raw fcoord, dist, index arrays
+                point, or return the raw fcoord, dist, index arrays
 
         Returns:
             if zip_results:
@@ -1446,7 +1446,7 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                 point, or return the raw fcoord, dist, index arrays
+                point, or return the raw fcoord, dist, index arrays
 
         Returns:
             if zip_results:
