@@ -253,7 +253,10 @@ TITLE sites: 4
                 "RPATH": "-1",
             },
         )
-        assert str(dict_set) is not None
+        assert str(dict_set).startswith(
+            "EXAFS\nS02 = 0\nCOREHOLE = regular\nCONTROL = 1 1 1 1 1 1\nXANES = 4 0.04 0.1\nSCF = 7.0 0 100 0.2 3\n"
+            "FMS = 9.0 0\nEXCHANGE = 0 0.0 0.0 2\nRPATH = -1\nEDGE = K\n"
+        )
 
     def test_cluster_index(self):
         # https://github.com/materialsproject/pymatgen/pull/3256

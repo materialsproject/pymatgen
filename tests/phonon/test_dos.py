@@ -44,8 +44,8 @@ class TestDos(PymatgenTest):
 
 class TestCompleteDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.cdos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.cdos = CompletePhononDos.from_dict(json.load(file))
 
     def test_properties(self):
         site_Na = self.cdos.structure[0]
@@ -69,4 +69,7 @@ class TestCompleteDos(PymatgenTest):
         self.assert_msonable(self.cdos)
 
     def test_str(self):
-        assert str(self.cdos) is not None
+        assert str(self.cdos).startswith(
+            "Complete phonon DOS for Full Formula (Na1 Cl1)\nReduced Formula: NaCl\n"
+            "abc   :   4.023651   4.023651   4.023651\nangles"
+        )
