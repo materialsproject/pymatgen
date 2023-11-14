@@ -3195,7 +3195,7 @@ class MPAbsorptionSet(MPRelaxSet):
                 Need to be tested for convergence.
             reciprocal_density: the k-points density
             nkred: the reduced number of kpoints to calculate, equal to the k-mesh. Only applies in "RPA" mode
-                  because of the q->0 limit.
+                because of the q->0 limit.
             nedos: the density of DOS, default: 2001.
             **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """

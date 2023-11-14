@@ -1191,8 +1191,7 @@ class LocalGeometryFinder:
     def _update_results_all_csms(self, result_dict, permutations, imin, geometry):
         permutation = permutations[imin]
         # Without central site, centered on the centroid (centroid does not include the central site)
-        # result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = \
-        # result[imin]
+        # result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = result[imin]
         pdist = self.local_geometry.points_wocs_ctwocc(permutation=permutation)
         pperf = self.perfect_geometry.points_wocs_ctwocc()
         sm_info = symmetry_measure(points_distorted=pdist, points_perfect=pperf)
