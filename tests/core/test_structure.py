@@ -790,10 +790,10 @@ Direct
         assert os.path.isfile(out_path)
 
     def test_pbc(self):
-        assert_array_equal(self.struct.pbc, (True, True, True))
+        assert self.struct.pbc == (True, True, True)
         assert self.struct.is_3d_periodic
         struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
-        assert_array_equal(struct_pbc.pbc, (True, True, False))
+        assert struct_pbc.pbc == (True, True, False)
         assert not struct_pbc.is_3d_periodic
 
     def test_sites_setter(self):
@@ -1985,8 +1985,8 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
-        assert_array_equal(self.mol.cart_coords[0], [0.5, 0.5, 0.5])
+        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))
