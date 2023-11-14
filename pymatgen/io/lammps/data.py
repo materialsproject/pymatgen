@@ -1245,7 +1245,7 @@ class CombinedData(LammpsData):
         """
         Args:
             list_of_molecules: A list of LammpsData objects of a chemical cluster.
-                 Each LammpsData object (cluster) may contain one or more molecule ID.
+                Each LammpsData object (cluster) may contain one or more molecule ID.
             list_of_names: A list of name (string) for each cluster. The characters in each name are
                 restricted to word characters ([a-zA-Z0-9_]). If names with any non-word characters
                 are passed in, the special characters will be substituted by '_'.
