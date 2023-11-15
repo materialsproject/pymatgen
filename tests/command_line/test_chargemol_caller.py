@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import unittest
+import zipfile
 from typing import TYPE_CHECKING
 
 import pytest
@@ -65,13 +66,6 @@ class TestChargemolAnalysis(unittest.TestCase):
         assert ca.structure is None
 
 
-def fake_download(*args, **kwargs):
-    extraction_path = "~/.cache/pymatgen/ddec"
-    os.makedirs(os.path.expanduser(extraction_path), exist_ok=True)
-    with open(os.path.expanduser(f"{extraction_path}/fake_file"), "w") as f:
-        f.write("fake content")
-
-
 @pytest.fixture()
 def mock_xyz(tmp_path: Path):
     test_dir = tmp_path / "chargemol" / "spin_unpolarized"
@@ -86,7 +80,10 @@ O       1.20000       0.00000       0.00000      -0.8432"""
 
 
 def test_parse_chargemol(monkeypatch, mock_xyz):
-    monkeypatch.setattr("pymatgen.command_line.chargemol_caller.download", fake_download)
+    monkeypatch.setattr(
+        "pymatgen.command_line.chargemol_caller._download_and_unzip_atomic_densities",
+        fake_download,
+    )
 
     ca = ChargemolAnalysis(path=str(mock_xyz), run_chargemol=False)
     ca._atomic_densities_path = os.path.expanduser("~/.cache/pymatgen/ddec/fake_file")
@@ -94,23 +91,50 @@ def test_parse_chargemol(monkeypatch, mock_xyz):
     assert ca.ddec_charges == [0.8432, -0.8432]
 
 
-def test_auto_download(monkeypatch):
-    # mock getenv to simulate that DDEC6_ATOMIC_DENSITIES_DIR is not set
-    monkeypatch.setattr(os, "getenv", lambda *args, **kwargs: None)
+def fake_download(self, version: str = "latest", verbose: bool = True) -> None:
+    extraction_path = "~/.cache/pymatgen/ddec"
+    os.makedirs(os.path.expanduser(extraction_path), exist_ok=True)
 
+    # Create a fake zipfile with a folder named "atomic_densities"
+    fake_zip_path = os.path.expanduser(f"{extraction_path}/fake_file.zip")
+    fake_folder_path = os.path.expanduser(f"{extraction_path}/atomic_densities")
+
+    # Create a fake file inside the "atomic_densities" folder
+    fake_file_path = os.path.join(fake_folder_path, "fake_file.txt")
+    os.makedirs(fake_folder_path, exist_ok=True)
+    with open(fake_file_path, "w") as f:
+        f.write("fake content")
+
+    # Create a zipfile containing the "atomic_densities" folder
+    with zipfile.ZipFile(fake_zip_path, "w") as fake_zip:
+        fake_zip.write(fake_file_path, arcname="atomic_densities/fake_file.txt")
+
+    self._atomic_densities_path = os.path.abspath(extraction_path)
+
+
+def test_fake_download_and_modify_path(monkeypatch):
     # mock os.path.exists to simulate atomic densities are not found
-    monkeypatch.setattr(os.path, "exists", lambda *args, **kwargs: False)
+    # monkeypatch.setattr(os.path, "exists", lambda *args, **kwargs: False)
 
     # mock subprocess.Popen to simulate a successful Chargemol execution
     monkeypatch.setattr("subprocess.Popen", lambda *args, **kwargs: type("", (), {"returncode": 0})())
 
-    # monkeypatch download function
+    # monkeypatch urllib.request.urlretrieve to fake download
+    import urllib.request
+
+    monkeypatch.setattr(urllib.request, "urlretrieve", lambda url, path: None)
+
+    # monkeypatch the _download_and_unzip_atomic_densities method
     monkeypatch.setattr(
-        "pymatgen.command_line.chargemol_caller.ChargemolAnalysis._download_and_unpack_atomic_densities", fake_download
+        ChargemolAnalysis,
+        "_download_and_unzip_atomic_densities",
+        lambda self, version, verbose: fake_download(self),
     )
 
+    # Create an instance of ChargemolAnalysis
     test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
     ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
 
+    # Your assertions
     assert ca._atomic_densities_path == "~/.cache/pymatgen/ddec"
-    # TODO maybe do more tests that Chargemol was run correctly?
+    # TODO: Add more tests to ensure Chargemol was run correctly
