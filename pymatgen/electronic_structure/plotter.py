@@ -3298,7 +3298,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
 
@@ -3343,7 +3343,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3392,7 +3392,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3438,7 +3438,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3489,7 +3489,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value

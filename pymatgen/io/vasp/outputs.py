@@ -4138,12 +4138,12 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
     # make a working copy of band_structure
     bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
     if bs_working.is_metal():
-        e = efermi
-        while e < cbm:
-            e += 0.01
-            bs_working._efermi = e
+        energy = efermi
+        while energy < cbm:
+            energy += 0.01
+            bs_working._efermi = energy
             if not bs_working.is_metal():
-                return e
+                return energy
     return efermi
 
 
@@ -4249,7 +4249,7 @@ class Wavecar:
                 # and occupations in way that does not span FORTRAN records, but
                 # reader below appears to assume that record boundaries can be ignored
                 # (see OUTWAV vs. OUTWAV_4 in vasp fileio.F)
-                raise ValueError(f"invalid {rtag=}, must be one of {valid_rtags}")
+                raise ValueError(f"Invalid {rtag=}, must be one of {valid_rtags}")
 
             # padding to end of fortran REC=1
             np.fromfile(f, dtype=np.float64, count=recl8 - 3)

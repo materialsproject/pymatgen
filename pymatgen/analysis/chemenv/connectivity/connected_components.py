@@ -574,32 +574,28 @@ class ConnectedComponent(MSONable):
         """Whether this connected component is 0-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 0
+        return len(self._periodicity_vectors) == 0  # type: ignore[arg-type]
 
     @property
     def is_1d(self) -> bool:
         """Whether this connected component is 1-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 1
+        return len(self._periodicity_vectors) == 1  # type: ignore[arg-type]
 
     @property
     def is_2d(self) -> bool:
         """Whether this connected component is 2-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 2
+        return len(self._periodicity_vectors) == 2  # type: ignore[arg-type]
 
     @property
     def is_3d(self) -> bool:
         """Whether this connected component is 3-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 3
+        return len(self._periodicity_vectors) == 3  # type: ignore[arg-type]
 
     @staticmethod
     def _order_vectors(vectors):
@@ -654,10 +650,10 @@ class ConnectedComponent(MSONable):
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
-        ntest_nodes = 0
+        n_test_nodes = 0
         start_node = next(iter(self.graph.nodes()))
 
-        ntest_nodes += 1
+        n_test_nodes += 1
         centered_connected_subgraph = nx.MultiGraph()
         centered_connected_subgraph.add_nodes_from(self.graph.nodes())
         centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
@@ -782,12 +778,21 @@ class ConnectedComponent(MSONable):
         """
         Private method used to cast back lists to tuples where applicable in an edge data.
 
-        The format of the edge data is :
-        {'start': STARTINDEX, 'end': ENDINDEX, 'delta': TUPLE(DELTAX, DELTAY, DELTAZ),
-         'ligands': [TUPLE(LIGAND_1_INDEX, TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
-                                           TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1)),
-                     TUPLE(LIGAND_2_INDEX, ...),
-                     ... ]}
+        The format of the edge data is:
+        {
+            "start": STARTINDEX,
+            "end": ENDINDEX,
+            "delta": TUPLE(DELTAX, DELTAY, DELTAZ),
+            "ligands": [
+                TUPLE(
+                    LIGAND_1_INDEX,
+                    TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
+                    TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1),
+                ),
+                TUPLE(LIGAND_2_INDEX, ...),
+                ...,
+            ],
+        }
         When serializing to json/bson, these tuples are transformed into lists. This method transforms these lists
         back to tuples.
 

@@ -105,9 +105,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     Example:
         al_structure = structure_from_abivars(
             acell=3*[7.5],
-            rprim=[0.0, 0.5, 0.5,
-                   0.5, 0.0, 0.5,
-                   0.5, 0.5, 0.0],
+            rprim=[0.0, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.5, 0.0],
             typat=1,
             xred=[0.0, 0.0, 0.0],
             ntypat=1,

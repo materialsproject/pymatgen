@@ -1584,9 +1584,9 @@ class LocalGeometryFinder:
 
         Returns:
             tuple: Continuous symmetry measures for the given coordination geometry for each plane and permutation
-                   investigated, corresponding permutations, corresponding algorithms,
-                   corresponding mappings from local to perfect environment and corresponding mappings
-                   from perfect to local environment.
+                investigated, corresponding permutations, corresponding algorithms,
+                corresponding mappings from local to perfect environment and corresponding mappings
+                from perfect to local environment.
         """
         if optimization == 2:
             logging.log(level=5, msg="... using optimization = 2")
