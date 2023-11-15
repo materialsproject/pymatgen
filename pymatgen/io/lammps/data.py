@@ -617,7 +617,7 @@ class LammpsData(MSONable):
             species = masses.loc[type_ids, "element"]
             labels = masses.loc[type_ids, "label"]
             coords = atoms[["x", "y", "z"]]
-            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
+            mol = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
             charges = atoms.get("q")
             velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns else None
             topologies = {}
@@ -626,7 +626,7 @@ class LammpsData(MSONable):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
             topo_list.append(
                 Topology(
-                    sites=m,
+                    sites=mol,
                     ff_label=ff_label,
                     charges=charges,
                     velocities=velocities,
@@ -1245,7 +1245,7 @@ class CombinedData(LammpsData):
         """
         Args:
             list_of_molecules: A list of LammpsData objects of a chemical cluster.
-                 Each LammpsData object (cluster) may contain one or more molecule ID.
+                Each LammpsData object (cluster) may contain one or more molecule ID.
             list_of_names: A list of name (string) for each cluster. The characters in each name are
                 restricted to word characters ([a-zA-Z0-9_]). If names with any non-word characters
                 are passed in, the special characters will be substituted by '_'.

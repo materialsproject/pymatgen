@@ -21,6 +21,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
+    POTCAR_STATS_PATH,
     BadIncarWarning,
     Incar,
     Kpoints,
@@ -31,7 +32,6 @@ from pymatgen.io.vasp.inputs import (
     UnknownPotcarWarning,
     VaspInput,
     _gen_potcar_summary_stats,
-    module_dir,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -1258,7 +1258,7 @@ class TestVaspInput(PymatgenTest):
 
 
 def test_potcar_summary_stats() -> None:
-    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.bz2")
+    potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
 
     assert len(potcar_summary_stats) == 16
     n_potcars_per_functional = {
@@ -1287,14 +1287,15 @@ def test_potcar_summary_stats() -> None:
 
 
 def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
-    """Regenerate the potcar_summary_stats.json.bz2 file used to validate POTCARs with scrambled POTCARs."""
+    """Regenerate the potcar-summary-stats.json.bz2 file used to validate POTCARs with scrambled POTCARs."""
     psp_path = f"{TEST_FILES_DIR}/fake_potcar_library/"
-    summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.bz2"
+    summ_stats_file = f"{tmp_path}/fake-potcar-summary-stats.json.bz2"
     _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
 
     # only checking for two directories to save space, fake POTCAR library is big
     summ_stats = loadfn(summ_stats_file)
-    assert set(summ_stats) == (expected_funcs := {"LDA_64", "PBE_54_W_HASH"})
+    expected_funcs = {"LDA_64", "PBE_54_W_HASH"}
+    assert set(summ_stats) == expected_funcs
 
     # The fake POTCAR library is pretty big even with just two sub-libraries
     # just copying over entries to work with PotcarSingle.is_valid

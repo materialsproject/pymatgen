@@ -6,6 +6,65 @@ nav_order: 4
 
 # Changelog
 
+## v2023.11.12
+
+### 🐛 Bug Fixes
+
+- Hot fix: `pymatgen` package missing `potcar-summary-stats.json.bz2` by @janosh in https://github.com/materialsproject/pymatgen/pull/3468
+
+### 🛠 Enhancements
+
+- Add `Composition.charge` and `charge_balanced` properties by @janosh in https://github.com/materialsproject/pymatgen/pull/3471
+
+## v2023.11.10
+
+### 🐛 Bug Fixes
+
+- Fix `LobsterMatrices` calculated incorrectly by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3407
+- Fix `test_relax_chgnet` by @janosh in https://github.com/materialsproject/pymatgen/pull/3417
+- Breaking: return sum of `Species` with matching `Element` in `Composition.__getitem__` by @janosh in https://github.com/materialsproject/pymatgen/pull/3427
+- Update inputs.py by @RedStar-Iron in https://github.com/materialsproject/pymatgen/pull/3430
+- Fix lattice velocities formatting by @gpetretto in https://github.com/materialsproject/pymatgen/pull/3433
+- Fix lobsterin dict inheritance and treat \t in lobsterins correctly by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3439
+- Fix `BSPlotterProjected.get_elt_projected_plots`  by @janosh in https://github.com/materialsproject/pymatgen/pull/3451
+- Fix `Atoms.cluster_from_file()` in  `io.feff.inputs` giving wrong number of atoms by @kaifengZheng in https://github.com/materialsproject/pymatgen/pull/3426
+- Write test-created files to temporary directory, don't pollute test dir by @janosh in https://github.com/materialsproject/pymatgen/pull/3454
+- Issue stronger warning if `bader` is run without the `AECCAR`s by @janosh in https://github.com/materialsproject/pymatgen/pull/3458
+- Fix Vasprun not interpreting float overflow as nan by @tawe141 in https://github.com/materialsproject/pymatgen/pull/3452
+- Aims bug fixes by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3466
+
+### 🛠 Enhancements
+
+- Add `LobsterMatrices` parser to `lobster.io.outputs` by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3361
+- Propagate site labels in `SymmetrizedStructure()` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3423
+- Add lattice velocities to Poscar by @gpetretto in https://github.com/materialsproject/pymatgen/pull/3428
+- Add `summary_stats` key to `Vasprun.potcar_spec` by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3434
+- Deprecate `CifParser.get_structures()` in favor of new `parse_structures` in which `primitive`  defaults to `False` by @janosh in https://github.com/materialsproject/pymatgen/pull/3419
+- FHI-aims IO Parsers by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3435
+
+### 🧹 House-Keeping
+
+- Rename `Poscar.from_file()` `check_for_POTCAR` to `check_for_potcar` by @janosh in https://github.com/materialsproject/pymatgen/pull/3406
+- Remove warning in cohp module by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3418
+- Drop `black` for `ruff format` by @janosh in https://github.com/materialsproject/pymatgen/pull/3420
+- Refresh OPTIMADE aliases and update docstrings by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3447
+- Use convenience exports from `pymatgen/core/__init__.py` where no risk of circular imports by @janosh in https://github.com/materialsproject/pymatgen/pull/3461
+- Move needlessly function-scoped imports to module scope by @janosh in https://github.com/materialsproject/pymatgen/pull/3462
+- Module-scoped imports by @janosh in https://github.com/materialsproject/pymatgen/pull/3464
+
+### 🤷‍♂️ Other Changes
+
+- Create jekyll-gh-pages.yml by @shyuep in https://github.com/materialsproject/pymatgen/pull/3410
+- Make `from_(str|file)` `(static->class)methods` by @janosh in https://github.com/materialsproject/pymatgen/pull/3429
+
+### New Contributors
+
+- @RedStar-Iron made their first contribution in https://github.com/materialsproject/pymatgen/pull/3430
+- @tawe141 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3452
+- @tpurcell90 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3435
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2023.10.11...v2023.11.10
+
 ## v2023.10.11
 
 ### 🐛 Bug Fixes

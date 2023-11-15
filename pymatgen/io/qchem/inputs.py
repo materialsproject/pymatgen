@@ -615,8 +615,8 @@ class QCInput(InputFile):
 
         Returns:
             str: the $svp section. Note that all parameters will be concatenated onto
-                 a single line formatted as a FORTRAN namelist. This is necessary
-                 because the isodensity SS(V)PE model in Q-Chem calls a secondary code.
+                a single line formatted as a FORTRAN namelist. This is necessary
+                because the isodensity SS(V)PE model in Q-Chem calls a secondary code.
         """
         svp_list = []
         svp_list.append("$svp")

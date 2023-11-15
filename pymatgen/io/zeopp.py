@@ -336,13 +336,12 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             for el in rad_dict:
                 print(f"{el} {rad_dict[el].real}", file=fp)
 
-        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-        # vornet, vor_edge_centers, vor_face_centers = \
-        #        atmnet.perform_voronoi_decomposition()
-        red_ha_vornet = prune_voronoi_network_close_node(atmnet)
-        # generate_simplified_highaccuracy_voronoi_network(atmnet)
-        # get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
-        red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
+        atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        # vornet, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
+        red_ha_vornet = prune_voronoi_network_close_node(atom_net)
+        # generate_simplified_highaccuracy_voronoi_network(atom_net)
+        # get_nearest_largest_diameter_highaccuracy_vornode(atom_net)
+        red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atom_net)
         voro_out_filename = name + "_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
@@ -403,9 +402,9 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
                 for el in rad_dict:
                     fp.write(f"{el} {rad_dict[el].real}\n")
 
-        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"
-        atmnet.calculate_free_sphere_parameters(out_file)
+        atom_net.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
             with open(out_file) as fp:
                 output = fp.readline()

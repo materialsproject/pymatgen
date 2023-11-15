@@ -6,6 +6,7 @@ Works for aims cube objects, geometry.in and control.in
 from __future__ import annotations
 
 import gzip
+import os
 import time
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -19,6 +20,11 @@ from pymatgen.core import Lattice, Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+__author__ = "Thomas A. R. Purcell"
+__version__ = "1.0"
+__email__ = "purcellt@arizona.edu"
+__date__ = "November 2023"
 
 
 @dataclass
@@ -474,7 +480,7 @@ class AimsControlIn(MSONable):
         Returns:
             The line to add to the control.in file
         """
-        return f"{key :35s}" + (format % value) + "\n"
+        return f"{key:35s}" + (format % value) + "\n"
 
     def write_file(
         self,
@@ -566,7 +572,8 @@ class AimsControlIn(MSONable):
                     fd.write(cube.control_block)
 
             fd.write(lim + "\n\n")
-            fd.write(self.get_species_block(structure, self._parameters["species_dir"]))
+            species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
+            fd.write(self.get_species_block(structure, species_dir))
 
     def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
         """Get the basis set information for a structure
@@ -592,7 +599,7 @@ class AimsControlIn(MSONable):
                 with gzip.open(f"{filename}.gz", "rt") as sf:
                     sb += "".join(sf.readlines())
             else:
-                raise ValueError("Species file for {sp.symbol} not found.")
+                raise ValueError(f"Species file for {sp.symbol} not found.")
 
         return sb
 

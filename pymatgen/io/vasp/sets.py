@@ -3072,16 +3072,16 @@ def batch_write_input(
             in addition to structure.
     """
     output_dir = Path(output_dir)
-    for i, s in enumerate(structures):
-        formula = re.sub(r"\s+", "", s.formula)
+    for idx, site in enumerate(structures):
+        formula = re.sub(r"\s+", "", site.formula)
         if subfolder is not None:
-            subdir = subfolder(s)
+            subdir = subfolder(site)
             d = output_dir / subdir
         else:
-            d = output_dir / f"{formula}_{i}"
+            d = output_dir / f"{formula}_{idx}"
         if sanitize:
-            s = s.copy(sanitize=True)
-        v = vasp_input_set(s, **kwargs)
+            site = site.copy(sanitize=True)
+        v = vasp_input_set(site, **kwargs)
         v.write_input(
             str(d),
             make_dir_if_not_present=make_dir_if_not_present,
@@ -3195,7 +3195,7 @@ class MPAbsorptionSet(MPRelaxSet):
                 Need to be tested for convergence.
             reciprocal_density: the k-points density
             nkred: the reduced number of kpoints to calculate, equal to the k-mesh. Only applies in "RPA" mode
-                  because of the q->0 limit.
+                because of the q->0 limit.
             nedos: the density of DOS, default: 2001.
             **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """

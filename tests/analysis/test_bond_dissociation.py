@@ -8,7 +8,7 @@ from monty.serialization import loadfn
 
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestBondDissociation(unittest.TestCase):

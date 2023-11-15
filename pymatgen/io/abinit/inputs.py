@@ -247,7 +247,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid {shift_mode=}")
+    raise ValueError(f"Invalid {shift_mode=}")
 
 
 def gs_input(
@@ -272,9 +272,9 @@ def gs_input(
         kppa: Defines the sampling used for the SCF run. Defaults to 1000 if not given.
         ecut: cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)
         pawecutdg: cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos
-                   according to accuracy)
+            according to accuracy)
         scf_nband: Number of bands for SCF run. If scf_nband is None, nband is automatically initialized
-                   from the list of pseudos, the structure and the smearing option.
+            from the list of pseudos, the structure and the smearing option.
         accuracy: Accuracy of the calculation.
         spin_mode: Spin polarization.
         smearing: Smearing technique.
