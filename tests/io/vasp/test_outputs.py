@@ -1606,7 +1606,7 @@ class TestWavecar(PymatgenTest):
         assert self.w_frac_encut.encut == 100.5
 
         # Test malformed WAVECARs
-        with pytest.raises(ValueError, match="invalid rtag=.+, must be one of"):
+        with pytest.raises(ValueError, match="Invalid rtag=.+, must be one of"):
             Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.malformed")
 
         with pytest.raises(ValueError, match="invalid vasp_type='poop'"):

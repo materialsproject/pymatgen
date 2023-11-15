@@ -4249,7 +4249,7 @@ class Wavecar:
                 # and occupations in way that does not span FORTRAN records, but
                 # reader below appears to assume that record boundaries can be ignored
                 # (see OUTWAV vs. OUTWAV_4 in vasp fileio.F)
-                raise ValueError(f"invalid {rtag=}, must be one of {valid_rtags}")
+                raise ValueError(f"Invalid {rtag=}, must be one of {valid_rtags}")
 
             # padding to end of fortran REC=1
             np.fromfile(f, dtype=np.float64, count=recl8 - 3)
