@@ -111,7 +111,7 @@ class TestSetChangeCheck(PymatgenTest):
                 hashes[name] = hashlib.sha1(text).hexdigest()
 
         known_hashes = {
-            "MatPESStaticSet.yaml": "8789f974913c935f21ff2fbffc0502714ca39470",
+            "MatPESStaticSet.yaml": "8edecff2bbd1932c53159f56a8e6340e900aaa2f",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
             "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
@@ -120,12 +120,13 @@ class TestSetChangeCheck(PymatgenTest):
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
+            "PBE64Base.yaml": "a0d6cd02c6ff8e24b0005e30c56a33b155c2280b",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
         for input_set in hashes:
-            assert hashes[input_set] == known_hashes[input_set], f"{input_set} got {hashes[input_set]}\n\n{msg}"
+            assert hashes[input_set] == known_hashes[input_set], f"{input_set=}\n{msg}"
 
 
 class TestDictSet(PymatgenTest):
@@ -774,12 +775,12 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
         assert incar["LMAXMIX"] == 6
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert input_set.potcar.functional == "PBE_54"
+        assert input_set.potcar.functional == "PBE_64"
         assert input_set.kpoints is None
 
-        assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
+        assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
@@ -811,9 +812,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_prev.potcar.functional == "PBE_54"
+        assert default_prev.potcar.functional == "PBE_64"
         assert default_prev.kpoints is None
 
     def test_r2scan(self):
@@ -823,9 +824,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_scan.get("GGA") is None
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert scan.potcar.functional == "PBE_54"
+        assert scan.potcar.functional == "PBE_64"
         assert scan.kpoints is None
 
     def test_default_u(self):
@@ -834,10 +835,10 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_u["LDAU"] is True
         assert incar_u["GGA"] == "Pe"
         assert incar_u["ALGO"] == "Normal"
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert incar_u["LDAUU"] == [5.3, 0, 0]
         assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.potcar.functional == "PBE_64"
         assert default_u.kpoints is None
 
     def test_functionals(self):
@@ -847,7 +848,7 @@ class TestMatPESStaticSet(PymatgenTest):
         ):
             MatPESStaticSet(self.struct, xc_functional=xc_functional)
 
-        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_54"):
+        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_64"):
             diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
             assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 

@@ -1,7 +1,7 @@
 # Default VASP settings for static calculations in the MatPES Project
 # using the Regularized-Restored Strongly Constrained and Appropriately
 # Normed functional (default PBE, PBE+U or R2SCAN or R2SCAN+U).
-PARENT: PBE54Base
+PARENT: PBE64Base
 INCAR:
   ALGO: Normal # Normal for PBE, ALL for R2SCAN, included to have some reasonable default
   EDIFF: 1.e-05
