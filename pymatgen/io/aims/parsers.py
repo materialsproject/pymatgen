@@ -639,7 +639,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         )
 
     @property
-    def stresses(self) -> Sequence[Matrix3D] | None:
+    def stresses(self) -> np.array[Matrix3D] | None:
         """The stresses from the aims.out file and convert to kbar."""
         line_start = self.reverse_search_for(["Per atom stress (eV) used for heat flux calculation"])
         if line_start == LINE_NOT_FOUND:
