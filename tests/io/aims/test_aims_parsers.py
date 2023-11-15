@@ -5,12 +5,12 @@ from pymatgen.io.aims.parsers import (
     AimsOutChunk,
     AimsOutHeaderChunk,
     AimsOutCalcChunk,
+    voigt_to_full_stress_conv,
     EV_PER_A3_TO_KBAR,
     LINE_NOT_FOUND,
 )
 import gzip
 from pathlib import Path
-from ase.stress import full_3x3_to_voigt_6_stress
 
 import pytest
 
@@ -329,8 +329,8 @@ def test_calc_forces(calc_chunk):
 def test_calc_stresses(calc_chunk):
     stresses = EV_PER_A3_TO_KBAR * np.array(
         [
-            [-10.0, -20.0, -30.0, -60.0, -50.0, -40.0],
-            [10.0, 20.0, 30.0, 60.0, 50.0, 40.0],
+            voigt_to_full_stress_conv([-10.0, -20.0, -30.0, -60.0, -50.0, -40.0]),
+            voigt_to_full_stress_conv([10.0, 20.0, 30.0, 60.0, 50.0, 40.0]),
         ]
     )
     assert np.allclose(calc_chunk.stresses, stresses)
@@ -339,30 +339,14 @@ def test_calc_stresses(calc_chunk):
 
 
 def test_calc_stress(calc_chunk):
-    stress = EV_PER_A3_TO_KBAR * full_3x3_to_voigt_6_stress(
-        np.array(
-            [
-                [1.00000000, 2.00000000, 3.00000000],
-                [2.00000000, 5.00000000, 6.00000000],
-                [3.00000000, 6.00000000, 7.00000000],
-            ]
-        )
-    )
+    stress = EV_PER_A3_TO_KBAR * np.array([[1.0, 2.0, 3.0], [2.0, 5.0, 6.0], [3.0, 6.0, 7.0]])
     assert np.allclose(calc_chunk.stress, stress)
     assert np.allclose(calc_chunk.structure.properties["stress"], stress)
     assert np.allclose(calc_chunk.results["stress"], stress)
 
 
 def test_calc_num_stress(numerical_stress_chunk):
-    stress = EV_PER_A3_TO_KBAR * full_3x3_to_voigt_6_stress(
-        np.array(
-            [
-                [1.00000000, 2.00000000, 3.00000000],
-                [2.00000000, 5.00000000, 6.00000000],
-                [3.00000000, 6.00000000, 7.00000000],
-            ]
-        )
-    )
+    stress = EV_PER_A3_TO_KBAR * np.array([[1.0, 2.0, 3.0], [2.0, 5.0, 6.0], [3.0, 6.0, 7.0]])
     assert np.allclose(numerical_stress_chunk.stress, stress)
     assert np.allclose(numerical_stress_chunk.structure.properties["stress"], stress)
     assert np.allclose(numerical_stress_chunk.results["stress"], stress)

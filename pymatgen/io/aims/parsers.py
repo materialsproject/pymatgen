@@ -40,7 +40,7 @@ class AimsParseError(Exception):
 
 
 # Read aims.out files
-scalar_property_to_line_key = {
+SCALAR_PROPERTY_TO_LINE_KEY = {
     "free_energy": ["| Electronic free energy"],
     "number_of_iterations": ["| Number of self-consistency cycles"],
     "magnetic_moment": ["N_up - N_down"],
@@ -56,6 +56,12 @@ scalar_property_to_line_key = {
     "electronic_temp": ["Occupation type:"],
     "fermi_energy": ["| Chemical potential (Fermi level)"],
 }
+
+
+def voigt_to_full_stress_conv(voigt_stress: Sequence[float]) -> Matrix3D:
+    """Transform voigt vector to a full 3x3 matrix."""
+    xx, yy, zz, yz, xz, xy = np.array(voigt_stress).flatten()
+    return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
 
 @dataclass
@@ -110,7 +116,7 @@ class AimsOutChunk:
         Returns:
             The scalar value of the property or None if not found
         """
-        line_start = self.reverse_search_for(scalar_property_to_line_key[property])
+        line_start = self.reverse_search_for(SCALAR_PROPERTY_TO_LINE_KEY[property])
 
         if line_start == LINE_NOT_FOUND:
             return None
@@ -360,7 +366,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
     @property
     def n_bands(self) -> int | None:
         """The number of Kohn-Sham states for the chunk."""
-        line_start = self.reverse_search_for(scalar_property_to_line_key["n_bands"])
+        line_start = self.reverse_search_for(SCALAR_PROPERTY_TO_LINE_KEY["n_bands"])
 
         if line_start == LINE_NOT_FOUND:
             raise AimsParseError("No information about the number of Kohn-Sham states in the header.")
@@ -374,7 +380,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
     @property
     def n_electrons(self) -> int | None:
         """The number of electrons for the chunk."""
-        line_start = self.reverse_search_for(scalar_property_to_line_key["n_electrons"])
+        line_start = self.reverse_search_for(SCALAR_PROPERTY_TO_LINE_KEY["n_electrons"])
 
         if line_start == LINE_NOT_FOUND:
             raise AimsParseError("No information about the number of electrons in the header.")
@@ -402,7 +408,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
     @property
     def electronic_temperature(self) -> float:
         """The electronic temperature for the chunk."""
-        line_start = self.reverse_search_for(scalar_property_to_line_key["electronic_temp"])
+        line_start = self.reverse_search_for(SCALAR_PROPERTY_TO_LINE_KEY["electronic_temp"])
         # TARP: Default FHI-aims value
         if line_start == LINE_NOT_FOUND:
             return 0.00
@@ -633,7 +639,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         )
 
     @property
-    def stresses(self) -> list[Matrix3D] | None:
+    def stresses(self) -> Sequence[Matrix3D] | None:
         """The stresses from the aims.out file and convert to kbar."""
         line_start = self.reverse_search_for(["Per atom stress (eV) used for heat flux calculation"])
         if line_start == LINE_NOT_FOUND:
@@ -642,15 +648,13 @@ class AimsOutCalcChunk(AimsOutChunk):
         stresses = []
         for line in self.lines[line_start : line_start + self.n_atoms]:
             xx, yy, zz, xy, xz, yz = (float(d) for d in line.split()[2:8])
-            stresses.append([xx, yy, zz, yz, xz, xy])
+            stresses.append(voigt_to_full_stress_conv([xx, yy, zz, yz, xz, xy]))
 
         return np.array(stresses) * EV_PER_A3_TO_KBAR
 
     @property
     def stress(self) -> Matrix3D | None:
         """The stress from the aims.out file and convert to kbar."""
-        from ase.stress import full_3x3_to_voigt_6_stress
-
         line_start = self.reverse_search_for(
             [
                 "Analytical stress tensor - Symmetrized",
@@ -661,7 +665,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             return None
 
         stress = [[float(inp) for inp in line.split()[2:5]] for line in self.lines[line_start + 5 : line_start + 8]]
-        return full_3x3_to_voigt_6_stress(stress) * EV_PER_A3_TO_KBAR
+        return np.array(stress) * EV_PER_A3_TO_KBAR
 
     @property
     def is_metallic(self) -> bool:
