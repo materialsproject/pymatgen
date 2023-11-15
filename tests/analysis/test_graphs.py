@@ -43,7 +43,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 molecule_dir = f"{TEST_FILES_DIR}/molecules"
 
 
@@ -52,7 +52,7 @@ class TestStructureGraph(PymatgenTest):
         self.maxDiff = None
 
         # trivial example, simple square lattice for testing
-        structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H"], [[0, 0, 0]])
+        structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
@@ -62,7 +62,7 @@ class TestStructureGraph(PymatgenTest):
         # self.square_sg.decorate_structure_with_ce_info()
 
         # body-centered square lattice for testing
-        structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.bc_square_sg = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
@@ -75,7 +75,7 @@ class TestStructureGraph(PymatgenTest):
 
         # body-centered square lattice for testing
         # directions reversed, should be equivalent to bc_square
-        structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.bc_square_sg_r = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
@@ -89,8 +89,8 @@ class TestStructureGraph(PymatgenTest):
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
-        with open(stdout_file) as f:
-            reference_stdout = f.read()
+        with open(stdout_file) as txt_file:
+            reference_stdout = txt_file.read()
         self.structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)

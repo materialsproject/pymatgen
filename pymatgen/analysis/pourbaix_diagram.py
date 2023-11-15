@@ -12,17 +12,12 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, partial
 from multiprocessing import Pool
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 from scipy.spatial import ConvexHull, HalfspaceIntersection
-
-try:
-    from scipy.special import comb
-except ImportError:
-    from scipy.misc import comb
-
-from typing import TYPE_CHECKING, Any, no_type_check
+from scipy.special import comb
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
@@ -256,15 +251,15 @@ class PourbaixEntry(MSONable, Stringify):
     def to_pretty_string(self) -> str:
         """A pretty string representation."""
         if self.phase_type == "Solid":
-            return self.entry.composition.reduced_formula + "(s)"
+            return f"{self.entry.composition.reduced_formula}(s)"
 
         return self.entry.name
 
     def __repr__(self):
         energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
         return (
-            f"{type(self).__name__}({self.entry.composition} with {energy = :.4f}, {npH = }, "
-            f"{nPhi = }, {nH2O = }, {entry_id = })"
+            f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, "
+            f"{nPhi=}, {nH2O=}, {entry_id=})"
         )
 
 
@@ -1015,9 +1010,9 @@ class PourbaixPlotter:
     def plot_entry_stability(
         self,
         entry: Any,
-        pH_range: tuple[float, float] | None = None,
+        pH_range: tuple[float, float] = (-2, 16),
         pH_resolution: int = 100,
-        V_range: tuple[float, float] | None = None,
+        V_range: tuple[float, float] = (-3, 3),
         V_resolution: int = 100,
         e_hull_max: float = 1,
         cmap: str = "RdYlBu_r",
@@ -1029,9 +1024,9 @@ class PourbaixPlotter:
 
         Args:
             entry (Any): The entry to plot stability for.
-            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
+            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to (-2, 16).
             pH_resolution (int, optional): pH resolution. Defaults to 100.
-            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
+            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to (-3, 3).
             V_resolution (int, optional): Voltage resolution. Defaults to 100.
             e_hull_max (float, optional): Maximum energy above the hull. Defaults to 1.
             cmap (str, optional): Colormap for the plot. Defaults to "RdYlBu_r".
@@ -1041,11 +1036,6 @@ class PourbaixPlotter:
         Returns:
             plt.Axes: Matplotlib Axes object with the plotted stability.
         """
-        if pH_range is None:
-            pH_range = [-2, 16]
-        if V_range is None:
-            V_range = [-3, 3]
-
         # Plot the Pourbaix diagram
         ax = self.get_pourbaix_plot(ax=ax, **kwargs)
         pH, V = np.mgrid[

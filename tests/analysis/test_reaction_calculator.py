@@ -292,7 +292,7 @@ class TestBalancedReaction(unittest.TestCase):
         rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
         rxn = BalancedReaction(rct, prod)
-        assert str(rxn) is not None
+        assert str(rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
 
         # Test unbalanced exception
         rct = {Composition("K2SO4"): 1, Composition("Na2S"): 1, Composition("Li"): 24}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+from fractions import Fraction
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -789,10 +790,10 @@ Direct
         assert os.path.isfile(out_path)
 
     def test_pbc(self):
-        assert_array_equal(self.struct.pbc, (True, True, True))
+        assert self.struct.pbc == (True, True, True)
         assert self.struct.is_3d_periodic
         struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
-        assert_array_equal(struct_pbc.pbc, (True, True, False))
+        assert struct_pbc.pbc == (True, True, False)
         assert not struct_pbc.is_3d_periodic
 
     def test_sites_setter(self):
@@ -1246,7 +1247,6 @@ class TestStructure(PymatgenTest):
                 ["Cs"],
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-        from fractions import Fraction
 
         struct = Structure.from_spacegroup(139, np.eye(3), ["H"], [[Fraction(1, 2), Fraction(1, 4), Fraction(0)]])
         assert len(struct) == 8
@@ -1985,8 +1985,8 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
-        assert_array_equal(self.mol.cart_coords[0], [0.5, 0.5, 0.5])
+        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))
@@ -2084,9 +2084,9 @@ class TestMolecule(PymatgenTest):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None
-            m = Molecule.from_str(mol, fmt=fmt)
-            assert m == self.mol
-            assert isinstance(m, Molecule)
+            mol = Molecule.from_str(mol, fmt=fmt)
+            assert mol == self.mol
+            assert isinstance(mol, Molecule)
 
         self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
         assert os.path.isfile(f"{self.tmp_path}/CH4_testing.xyz")

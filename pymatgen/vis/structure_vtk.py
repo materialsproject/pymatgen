@@ -842,7 +842,7 @@ class StructureInteractorStyle(TrackballCamera):
         elif sym == "Right":
             parent.rotate_view(0, 90)
         elif sym == "o":
-            parent.orthongonalize_structure()
+            parent.orthogonalize_structure()
             parent.redraw()
 
         self.OnKeyPress()
@@ -858,7 +858,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
             movie.mp4
         zoom (float): A zoom to be applied to the visualizer. Defaults to 1.0.
         fps (int): Frames per second for the movie. Defaults to 20.
-        bitrate (str): Video bitate. Defaults to "10000k" (fairly high
+        bitrate (str): Video bitrate. Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
         kwargs: Any kwargs supported by StructureVis to modify the images
@@ -868,25 +868,13 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
     vis.show_help = False
     vis.redraw()
     vis.zoom(zoom)
-    sigfig = int(math.floor(math.log10(len(structures))) + 1)
-    filename = f"image{{0:0{sigfig}d}}.png"
-    for i, s in enumerate(structures):
-        vis.set_structure(s)
-        vis.write_image(filename.format(i), 3)
-    filename = f"image%0{sigfig}d.png"
-    args = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        filename,
-        "-q:v",
-        str(quality),
-        "-r",
-        str(fps),
-        "-b:v",
-        str(bitrate),
-        output_filename,
-    ]
+    sig_fig = int(math.floor(math.log10(len(structures))) + 1)
+    filename = f"image{{0:0{sig_fig}d}}.png"
+    for idx, site in enumerate(structures):
+        vis.set_structure(site)
+        vis.write_image(filename.format(idx), 3)
+    filename = f"image%0{sig_fig}d.png"
+    args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
     with subprocess.Popen(args) as p:
         p.communicate()
 

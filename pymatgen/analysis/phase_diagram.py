@@ -1778,7 +1778,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             return pd.get_decomposition(comp)
         except ValueError as e:
             # NOTE warn when stitching across pds is being used
-            warnings.warn(str(e) + " Using SLSQP to find decomposition")
+            warnings.warn(f"{e} Using SLSQP to find decomposition")
             competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 

@@ -770,11 +770,11 @@ class TestCharge(PymatgenTest):
         atomlist = ["O1", "Mn2"]
         types = ["O", "Mn"]
         num_atoms = 2
-        assert_array_equal(charge_Mulliken, self.charge2.Mulliken)
-        assert_array_equal(charge_Loewdin, self.charge2.Loewdin)
-        assert_array_equal(atomlist, self.charge2.atomlist)
-        assert_array_equal(types, self.charge2.types)
-        assert_array_equal(num_atoms, self.charge2.num_atoms)
+        assert charge_Mulliken == self.charge2.Mulliken
+        assert charge_Loewdin == self.charge2.Loewdin
+        assert atomlist == self.charge2.atomlist
+        assert types == self.charge2.types
+        assert num_atoms == self.charge2.num_atoms
 
     def test_get_structure_with_charges(self):
         structure_dict2 = {
@@ -813,7 +813,7 @@ class TestCharge(PymatgenTest):
             "@module": "pymatgen.core.structure",
         }
         s2 = Structure.from_dict(structure_dict2)
-        assert s2 == self.charge2.get_structure_with_charges(TEST_FILES_DIR / "POSCAR.MnO")
+        assert s2 == self.charge2.get_structure_with_charges(f"{TEST_FILES_DIR}/POSCAR.MnO")
 
 
 class TestLobsterout(PymatgenTest):

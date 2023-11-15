@@ -25,7 +25,8 @@ __email__ = "ajain@lbl.gov"
 __date__ = "Oct 27, 2014"
 
 
-csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hhi_data.csv")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = f"{module_dir}/hhi_data.csv"
 
 
 @singleton

@@ -8,6 +8,7 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
+from scipy.ndimage.filters import gaussian_filter1d
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
@@ -55,12 +56,10 @@ class PhononDos(MSONable):
         Returns:
             Gaussian-smeared densities.
         """
-        from scipy.ndimage.filters import gaussian_filter1d
-
         diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
-        avgdiff = sum(diff) / len(diff)
+        avg_diff = sum(diff) / len(diff)
 
-        return gaussian_filter1d(self.densities, sigma / avgdiff)
+        return gaussian_filter1d(self.densities, sigma / avg_diff)
 
     def __add__(self, other: PhononDos) -> PhononDos:
         """Adds two DOS together. Checks that frequency scales are the same.
@@ -98,10 +97,10 @@ class PhononDos(MSONable):
 
     def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
-        stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
+        str_arr = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
-            stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
-        return "\n".join(stringarray)
+            str_arr.append(f"{frequency:.5f} {self.densities[i]:.5f}")
+        return "\n".join(str_arr)
 
     @classmethod
     def from_dict(cls, d: dict[str, Sequence]) -> PhononDos:

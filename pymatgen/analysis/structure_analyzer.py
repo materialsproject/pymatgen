@@ -40,13 +40,13 @@ def average_coordination_number(structures, freq=10):
     for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
-    for i, s in enumerate(structures):
-        if i % freq != 0:
+    for idx, site in enumerate(structures):
+        if idx % freq != 0:
             continue
         count += 1
         vnn = VoronoiNN()
-        for j, atom in enumerate(s):
-            cn = vnn.get_cn(s, j, use_weights=True)
+        for j, atom in enumerate(site):
+            cn = vnn.get_cn(site, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
     return {el: v / elements[el] / count for el, v in coordination_numbers.items()}

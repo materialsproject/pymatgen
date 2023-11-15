@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, NamedTuple
 import numpy as np
 from monty.json import MSONable
 from scipy.constants import value as _cd
+from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
 
 from pymatgen.core import Structure, get_el_sp
@@ -220,13 +221,11 @@ class Dos(MSONable):
         Returns:
             Dict of Gaussian-smeared densities.
         """
-        from scipy.ndimage import gaussian_filter1d
-
         smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
-        avgdiff = sum(diff) / len(diff)
+        avg_diff = sum(diff) / len(diff)
         for spin, dens in self.densities.items():
-            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
+            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avg_diff)
         return smeared_dens
 
     def __add__(self, other):
@@ -343,14 +342,14 @@ class Dos(MSONable):
     def __str__(self):
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(stringarray)
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+        return "\n".join(str_arr)
 
     @classmethod
     def from_dict(cls, d) -> Dos:

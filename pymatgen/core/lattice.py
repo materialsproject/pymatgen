@@ -15,6 +15,7 @@ from monty.dev import deprecated
 from monty.json import MSONable
 from numpy import dot, pi, transpose
 from numpy.linalg import inv
+from scipy.spatial import Voronoi
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
@@ -803,13 +804,13 @@ class Lattice(MSONable):
     def __repr__(self):
         outs = [
             "Lattice",
-            "    abc : " + " ".join(map(repr, self.lengths)),
-            " angles : " + " ".join(map(repr, self.angles)),
-            " volume : " + repr(self.volume),
-            "      A : " + " ".join(map(repr, self._matrix[0])),
-            "      B : " + " ".join(map(repr, self._matrix[1])),
-            "      C : " + " ".join(map(repr, self._matrix[2])),
-            "    pbc : " + " ".join(map(repr, self._pbc)),
+            f"    abc : {' '.join(map(repr, self.lengths))}",
+            f" angles : {' '.join(map(repr, self.angles))}",
+            f" volume : {self.volume!r}",
+            f"      A : {' '.join(map(repr, self._matrix[0]))}",
+            f"      B : {' '.join(map(repr, self._matrix[1]))}",
+            f"      C : {' '.join(map(repr, self._matrix[2]))}",
+            f"    pbc : {' '.join(map(repr, self._pbc))}",
         ]
         return "\n".join(outs)
 
@@ -1222,8 +1223,6 @@ class Lattice(MSONable):
         for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
 
-        from scipy.spatial import Voronoi
-
         tess = Voronoi(list_k_points)
         out = []
         for r in tess.ridge_dict:
@@ -1316,7 +1315,7 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                 point, or return the raw fcoord, dist, index arrays
+                point, or return the raw fcoord, dist, index arrays
 
         Returns:
             if zip_results:
@@ -1390,7 +1389,7 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                 point, or return the raw fcoord, dist, index arrays
+                point, or return the raw fcoord, dist, index arrays
 
         Returns:
             if zip_results:
@@ -1447,7 +1446,7 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                 point, or return the raw fcoord, dist, index arrays
+                point, or return the raw fcoord, dist, index arrays
 
         Returns:
             if zip_results:

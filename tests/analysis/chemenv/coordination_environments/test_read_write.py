@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from numpy.testing import assert_allclose, assert_array_almost_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -103,8 +103,8 @@ class TestReadWriteChemenv(PymatgenTest):
 
         neighb_coords = nb_set.coords
 
-        assert_array_almost_equal(coords, neighb_coords[1:])
-        assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
+        assert_allclose(coords, neighb_coords[1:], atol=1e-6)
+        assert_allclose(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
         assert sorted(norm_dist) == approx(sorted([1.001792, 1.001792, 1, 1]))

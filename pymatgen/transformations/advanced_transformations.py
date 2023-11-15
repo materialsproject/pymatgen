@@ -12,6 +12,7 @@ from string import ascii_lowercase
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
+from joblib import Parallel, delayed
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
@@ -460,8 +461,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 }
 
             return {"num_sites": len(struct), "structure": struct}
-
-        from joblib import Parallel, delayed
 
         all_structures = Parallel(n_jobs=self.n_jobs)(delayed(_get_stats)(struct) for struct in structures)
 

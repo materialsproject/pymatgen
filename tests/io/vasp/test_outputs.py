@@ -170,9 +170,9 @@ class TestVasprun(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
 
-        # Test NELM parsing.
+        # Test NELM parsing
         assert vasp_run.parameters["NELM"] == 60
-        # test pdos parsing
+        # test pDOS parsing
 
         assert vasp_run.complete_dos.spin_polarization == 1.0
         assert Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.etest1.gz").complete_dos.spin_polarization is None
@@ -210,7 +210,7 @@ class TestVasprun(PymatgenTest):
 
         filepath2 = f"{TEST_FILES_DIR}/lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
-        totalscsteps = sum(len(i["electronic_steps"]) for i in vasp_run.ionic_steps)
+        total_sc_steps = sum(len(i["electronic_steps"]) for i in vasp_run.ionic_steps)
         assert len(vasp_run.ionic_steps) == 29
         assert len(vasp_run.structures) == len(vasp_run.ionic_steps)
 
@@ -225,7 +225,7 @@ class TestVasprun(PymatgenTest):
             vasp_run.structures[i] == vasp_run.ionic_steps[i]["structure"] for i in range(len(vasp_run.ionic_steps))
         )
 
-        assert totalscsteps == 308, "Incorrect number of energies read from vasprun.xml"
+        assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
 
         assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasp_run.atomic_symbols
         assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
@@ -234,12 +234,8 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
         assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
-        expectedans = (2.539, 4.0906, 1.5516, False)
-        (gap, cbm, vbm, direct) = vasp_run.eigenvalue_band_properties
-        assert gap == approx(expectedans[0])
-        assert cbm == approx(expectedans[1])
-        assert vbm == approx(expectedans[2])
-        assert direct == expectedans[3]
+        expected = (2.539, 4.0906, 1.5516, False)
+        assert vasp_run.eigenvalue_band_properties == approx(expected)
         assert not vasp_run.is_hubbard
         assert vasp_run.potcar_symbols == [
             "PAW_PBE Li 17Jan2003",
@@ -251,9 +247,9 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.kpoints is not None, "Kpoints cannot be read"
         assert vasp_run.actual_kpoints is not None, "Actual kpoints cannot be read"
         assert vasp_run.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
-        for atomdoses in vasp_run.pdos:
-            for orbitaldos in atomdoses:
-                assert orbitaldos is not None, "Partial Dos cannot be read"
+        for atom_doses in vasp_run.pdos:
+            for orbital_dos in atom_doses:
+                assert orbital_dos is not None, "Partial Dos cannot be read"
 
         # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
@@ -316,10 +312,10 @@ class TestVasprun(PymatgenTest):
 
     def test_dfpt_unconverged(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.unconverged"
-        vasprun_dfpt_unconv = Vasprun(filepath, parse_potcar_file=False)
-        assert not vasprun_dfpt_unconv.converged_electronic
-        assert vasprun_dfpt_unconv.converged_ionic
-        assert not vasprun_dfpt_unconv.converged
+        vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
+        assert not vasprun_dfpt_unconverged.converged_electronic
+        assert vasprun_dfpt_unconverged.converged_ionic
+        assert not vasprun_dfpt_unconverged.converged
 
     def test_chi(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml.chi.gz"
@@ -368,7 +364,7 @@ class TestVasprun(PymatgenTest):
 
     def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.opticaltransitions",
+            f"{TEST_FILES_DIR}/vasprun.xml.optical_transitions",
             parse_potcar_file=False,
         )
         assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
@@ -442,11 +438,7 @@ class TestVasprun(PymatgenTest):
 
     def test_selective_dynamics(self):
         vsd = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.indirect.gz")
-        np.testing.assert_array_equal(
-            vsd.final_structure.site_properties.get("selective_dynamics"),
-            [[True] * 3, [False] * 3],
-            "Selective dynamics parsing error",
-        )
+        assert list(vsd.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
 
     def test_as_dict(self):
         filepath = f"{TEST_FILES_DIR}/vasprun.xml"
@@ -523,12 +515,12 @@ class TestVasprun(PymatgenTest):
 
         # test self-consistent band structure calculation for non-hybrid functionals
         vasp_run = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.forcehybridlikecalc",
+            f"{TEST_FILES_DIR}/vasprun.xml.force_hybrid_like_calc",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
         bs = vasp_run.get_band_structure(
-            kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.forcehybridlikecalc",
+            kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.force_hybrid_like_calc",
             force_hybrid_mode=True,
             line_mode=True,
         )
@@ -703,8 +695,8 @@ class TestVasprun(PymatgenTest):
 
 class TestOutcar(PymatgenTest):
     def test_init(self):
-        for f in ["OUTCAR", "OUTCAR.gz"]:
-            filepath = TEST_FILES_DIR / f
+        for filename in ["OUTCAR", "OUTCAR.gz"]:
+            filepath = TEST_FILES_DIR / filename
             outcar = Outcar(filepath)
             expected_mag = (
                 {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
@@ -754,8 +746,8 @@ class TestOutcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for f in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
-            filepath = TEST_FILES_DIR / f
+        for filename in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
+            filepath = TEST_FILES_DIR / filename
             outcar = Outcar(filepath)
 
             assert outcar.lepsilon
@@ -784,8 +776,8 @@ class TestOutcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for f in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
-            filepath = TEST_FILES_DIR / f
+        for filename in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
+            filepath = TEST_FILES_DIR / filename
             outcar = Outcar(filepath)
 
             assert outcar.lepsilon
@@ -1474,49 +1466,49 @@ class TestElfcar(PymatgenTest):
 class TestProcar(PymatgenTest):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
-        p = Procar(filepath)
-        assert p.get_occupation(0, "d")[Spin.up] == approx(0)
-        assert p.get_occupation(0, "s")[Spin.up] == approx(0.35381249999999997)
-        assert p.get_occupation(0, "p")[Spin.up] == approx(1.19540625)
+        procar = Procar(filepath)
+        assert procar.get_occupation(0, "d")[Spin.up] == approx(0)
+        assert procar.get_occupation(0, "s")[Spin.up] == approx(0.35381249999999997)
+        assert procar.get_occupation(0, "p")[Spin.up] == approx(1.19540625)
         with pytest.raises(ValueError, match="'m' is not in list"):
-            p.get_occupation(1, "m")
-        assert p.nbands == 10
-        assert p.nkpoints == 10
-        assert p.nions == 3
+            procar.get_occupation(1, "m")
+        assert procar.nbands == 10
+        assert procar.nkpoints == 10
+        assert procar.nions == 3
         filepath = f"{TEST_FILES_DIR}/PROCAR"
-        p = Procar(filepath)
-        assert p.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
-        assert p.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
+        procar = Procar(filepath)
+        assert procar.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
+        assert procar.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
 
     def test_phase_factors(self):
         filepath = f"{TEST_FILES_DIR}/PROCAR.phase"
-        p = Procar(filepath)
-        assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.746 + 0.099j)
-        assert p.phase_factors[Spin.down][0, 0, 0, 0] == approx(0.372 - 0.654j)
+        procar = Procar(filepath)
+        assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.746 + 0.099j)
+        assert procar.phase_factors[Spin.down][0, 0, 0, 0] == approx(0.372 - 0.654j)
 
         # Two Li should have same phase factor.
-        assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(p.phase_factors[Spin.up][0, 0, 1, 0])
-        assert p.phase_factors[Spin.up][0, 0, 2, 0] == approx(-0.053 + 0.007j)
-        assert p.phase_factors[Spin.down][0, 0, 2, 0] == approx(0.027 - 0.047j)
+        assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(procar.phase_factors[Spin.up][0, 0, 1, 0])
+        assert procar.phase_factors[Spin.up][0, 0, 2, 0] == approx(-0.053 + 0.007j)
+        assert procar.phase_factors[Spin.down][0, 0, 2, 0] == approx(0.027 - 0.047j)
 
         # new style phase factors (VASP 5.4.4+)
         filepath = f"{TEST_FILES_DIR}/PROCAR.new_format_5.4.4"
-        p = Procar(filepath)
-        assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
+        procar = Procar(filepath)
+        assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
 
     def test_get_projection_on_elements(self):
         filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
-        p = Procar(filepath)
+        procar = Procar(filepath)
         struct = Structure(
             Lattice.cubic(3.0),
             ["Li", "Na", "K"],
             [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
         )
-        d = p.get_projection_on_elements(struct)
-        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
+        dct = procar.get_projection_on_elements(struct)
+        assert dct[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
         # https://github.com/materialsproject/pymatgen/pull/3261
         struct.replace_species({"K": "Na"})
-        d2 = p.get_projection_on_elements(struct)
+        d2 = procar.get_projection_on_elements(struct)
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
@@ -1564,53 +1556,48 @@ class TestDynmat(PymatgenTest):
 
 class TestWavecar(PymatgenTest):
     def setUp(self):
-        a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
-        self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
-        b = np.array(
-            [
-                np.cross(a[1, :], a[2, :]),
-                np.cross(a[2, :], a[0, :]),
-                np.cross(a[0, :], a[1, :]),
-            ]
-        )
+        a = np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], dtype=float)  # lattice vectors
+        self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))  # unit cell volume
+        # reciprocal lattice vectors
+        b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
         self.b = 2 * np.pi * b / self.vol
         self.a = a
-        self.w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2")
+        self.wavecar = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2")
         self.wH2 = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.H2_low_symm")
         self.wH2_gamma = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.H2_low_symm.gamma")
         self.w_ncl = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.H2.ncl")
         self.w_frac_encut = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.frac_encut")
 
     def test_standard(self):
-        w = self.w
+        wavecar = self.wavecar
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
         b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
         b = 2 * np.pi * b / vol
 
-        assert w.filename == f"{TEST_FILES_DIR}/WAVECAR.N2"
-        assert w.efermi == approx(-5.7232, abs=1e-4)
-        assert w.encut == 25.0
-        assert w.nb == 9
-        assert w.nk == 1
-        assert_allclose(w.a, a)
-        assert_allclose(w.b, b)
-        assert w.vol == approx(vol)
-        assert len(w.kpoints) == w.nk
-        assert len(w.coeffs) == w.nk
-        assert len(w.coeffs[0]) == w.nb
-        assert len(w.band_energy) == w.nk
-        assert w.band_energy[0].shape == (w.nb, 3)
-        assert len(w.Gpoints[0]) <= 257
-        for k in range(w.nk):
-            for b in range(w.nb):
-                assert len(w.coeffs[k][b]) == len(w.Gpoints[k])
+        assert wavecar.filename == f"{TEST_FILES_DIR}/WAVECAR.N2"
+        assert wavecar.efermi == approx(-5.7232, abs=1e-4)
+        assert wavecar.encut == 25.0
+        assert wavecar.nb == 9
+        assert wavecar.nk == 1
+        assert_allclose(wavecar.a, a)
+        assert_allclose(wavecar.b, b)
+        assert wavecar.vol == approx(vol)
+        assert len(wavecar.kpoints) == wavecar.nk
+        assert len(wavecar.coeffs) == wavecar.nk
+        assert len(wavecar.coeffs[0]) == wavecar.nb
+        assert len(wavecar.band_energy) == wavecar.nk
+        assert wavecar.band_energy[0].shape == (wavecar.nb, 3)
+        assert len(wavecar.Gpoints[0]) <= 257
+        for k in range(wavecar.nk):
+            for b in range(wavecar.nb):
+                assert len(wavecar.coeffs[k][b]) == len(wavecar.Gpoints[k])
 
         # Test WAVECAR with fractional encut
         assert self.w_frac_encut.encut == 100.5
 
         # Test malformed WAVECARs
-        with pytest.raises(ValueError, match="invalid rtag=.+, must be one of"):
+        with pytest.raises(ValueError, match="Invalid rtag=.+, must be one of"):
             Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.malformed")
 
         with pytest.raises(ValueError, match="invalid vasp_type='poop'"):
@@ -1632,21 +1619,21 @@ class TestWavecar(PymatgenTest):
             sys.stdout = saved_stdout
 
     def test_n2_45210(self):
-        w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.45210")
-        assert w.filename == f"{TEST_FILES_DIR}/WAVECAR.N2.45210"
-        assert w.efermi == approx(-5.7232, abs=1e-4)
-        assert w.encut == 25.0
-        assert w.nb == 9
-        assert w.nk == 1
-        assert_allclose(w.a, self.a)
-        assert_allclose(w.b, self.b)
-        assert w.vol == approx(self.vol)
-        assert len(w.kpoints) == w.nk
-        assert len(w.coeffs) == w.nk
-        assert len(w.coeffs[0]) == w.nb
-        assert len(w.band_energy) == w.nk
-        assert w.band_energy[0].shape == (w.nb, 3)
-        assert len(w.Gpoints[0]) <= 257
+        wavecar = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.45210")
+        assert wavecar.filename == f"{TEST_FILES_DIR}/WAVECAR.N2.45210"
+        assert wavecar.efermi == approx(-5.7232, abs=1e-4)
+        assert wavecar.encut == 25.0
+        assert wavecar.nb == 9
+        assert wavecar.nk == 1
+        assert_allclose(wavecar.a, self.a)
+        assert_allclose(wavecar.b, self.b)
+        assert wavecar.vol == approx(self.vol)
+        assert len(wavecar.kpoints) == wavecar.nk
+        assert len(wavecar.coeffs) == wavecar.nk
+        assert len(wavecar.coeffs[0]) == wavecar.nb
+        assert len(wavecar.band_energy) == wavecar.nk
+        assert wavecar.band_energy[0].shape == (wavecar.nb, 3)
+        assert len(wavecar.Gpoints[0]) <= 257
 
     def test_n2_spin(self):
         w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.spin")
@@ -1666,21 +1653,21 @@ class TestWavecar(PymatgenTest):
             Wavecar._generate_G_points = temp_ggp
 
     def test_generate_nbmax(self):
-        self.w._generate_nbmax()
-        assert self.w._nbmax.tolist() == [5, 5, 5]
+        self.wavecar._generate_nbmax()
+        assert self.wavecar._nbmax.tolist() == [5, 5, 5]
 
     def test_generate_g_points(self):
-        for k in range(self.w.nk):
-            kp = self.w.kpoints[k]
-            assert len(self.w._generate_G_points(kp)) <= 257
+        for k in range(self.wavecar.nk):
+            kp = self.wavecar.kpoints[k]
+            assert len(self.wavecar._generate_G_points(kp)) <= 257
 
     def test_evaluate_wavefunc(self):
-        self.w.Gpoints.append(np.array([0, 0, 0]))
-        self.w.kpoints.append(np.array([0, 0, 0]))
-        self.w.coeffs.append([[1 + 1j]])
-        assert self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
-        assert self.w.evaluate_wavefunc(0, 0, [0, 0, 0]) == approx(
-            np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol), abs=1e-4
+        self.wavecar.Gpoints.append(np.array([0, 0, 0]))
+        self.wavecar.kpoints.append(np.array([0, 0, 0]))
+        self.wavecar.coeffs.append([[1 + 1j]])
+        assert self.wavecar.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
+        assert self.wavecar.evaluate_wavefunc(0, 0, [0, 0, 0]) == approx(
+            np.sum(self.wavecar.coeffs[0][0]) / np.sqrt(self.vol), abs=1e-4
         )
         w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.spin")
         w.Gpoints.append(np.array([0, 0, 0]))
@@ -1689,11 +1676,11 @@ class TestWavecar(PymatgenTest):
         assert w.evaluate_wavefunc(-1, -1, [0, 0, 0]) == approx((1 + 1j) / np.sqrt(self.vol), abs=1e-4)
 
     def test_fft_mesh_basic(self):
-        mesh = self.w.fft_mesh(0, 5)
+        mesh = self.wavecar.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         assert np.unravel_index(ind, mesh.shape) == (14, 1, 1)
-        assert mesh[tuple((self.w.ng / 2).astype(int))] == 0j
-        mesh = self.w.fft_mesh(0, 5, shift=False)
+        assert mesh[tuple((self.wavecar.ng / 2).astype(int))] == 0j
+        mesh = self.wavecar.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         assert np.unravel_index(ind, mesh.shape) == (6, 8, 8)
         assert mesh[0, 0, 0] == 0j
@@ -1752,7 +1739,7 @@ class TestWavecar(PymatgenTest):
     def test_get_parchg(self):
         poscar = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
-        w = self.w
+        w = self.wavecar
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         assert "total" in c.data
         assert "diff" not in c.data
@@ -1811,17 +1798,17 @@ class TestWavecar(PymatgenTest):
         unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/UNK.H2.ncl")
 
         with pytest.raises(ValueError, match="invalid directory"):
-            self.w.write_unks(f"{TEST_FILES_DIR}/UNK.N2.std")
+            self.wavecar.write_unks(f"{TEST_FILES_DIR}/UNK.N2.std")
 
         # different grids
-        self.w.write_unks("./unk_dir")
+        self.wavecar.write_unks("./unk_dir")
         assert len(list(Path("./unk_dir").glob("UNK*"))) == 1
         unk = Unk.from_file("./unk_dir/UNK00001.1")
         assert unk != unk_std
 
         # correct grid
-        self.w.ng = np.array([12, 12, 12])
-        self.w.write_unks(".")
+        self.wavecar.ng = np.array([12, 12, 12])
+        self.wavecar.write_unks(".")
         unk = Unk.from_file("UNK00001.1")
         assert unk == unk_std
 

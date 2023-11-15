@@ -31,7 +31,9 @@ from monty.json import MSONable
 from numpy import cross, eye
 from numpy.linalg import norm
 from ruamel.yaml import YAML
-from scipy.linalg import expm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.linalg import expm, polar
+from scipy.spatial.distance import squareform
 from tabulate import tabulate
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -1355,12 +1357,12 @@ class IStructure(SiteCollection, MSONable):
             scale_matrix = scale_matrix * np.eye(3)
         new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
 
-        f_lat = lattice_points_in_supercell(scale_matrix)
-        c_lat = new_lattice.get_cartesian_coords(f_lat)
+        frac_lattice = lattice_points_in_supercell(scale_matrix)
+        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
 
         new_sites = []
         for site in self:
-            for vec in c_lat:
+            for vec in cart_lattice:
                 periodic_site = PeriodicSite(
                     site.species,
                     site.coords + vec,
@@ -2218,8 +2220,6 @@ class IStructure(SiteCollection, MSONable):
 
         if interpolate_lattices:
             # interpolate lattice matrices using polar decomposition
-            from scipy.linalg import polar
-
             # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
             lvec = p - np.identity(3)
@@ -2228,11 +2228,13 @@ class IStructure(SiteCollection, MSONable):
         for x in images:
             if interpolate_lattices:
                 l_a = np.dot(np.identity(3) + x * lvec, lstart).T
-                lat = Lattice(l_a)
+                lattice = Lattice(l_a)
             else:
-                lat = self.lattice
+                lattice = self.lattice
             fcoords = start_coords + x * vec
-            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties, labels=self.labels))
+            structs.append(
+                self.__class__(lattice, sp, fcoords, site_properties=self.site_properties, labels=self.labels)
+            )
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -4235,9 +4237,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
         """
-        from scipy.cluster.hierarchy import fcluster, linkage
-        from scipy.spatial.distance import squareform
-
         dist_mat = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
@@ -4632,10 +4631,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
         """
-        from numpy import cross, eye
-        from numpy.linalg import norm
-        from scipy.linalg import expm
-
         if indices is None:
             indices = range(len(self))
 

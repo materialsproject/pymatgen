@@ -48,6 +48,7 @@ from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
+from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -2891,8 +2892,6 @@ class LobsterSet(DictSet):
 
     @property
     def incar(self) -> Incar:
-        from pymatgen.io.lobster import Lobsterin
-
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:
             basis = Lobsterin.get_basis(structure=self.structure, potcar_symbols=self.potcar_symbols)
@@ -3073,16 +3072,16 @@ def batch_write_input(
             in addition to structure.
     """
     output_dir = Path(output_dir)
-    for i, s in enumerate(structures):
-        formula = re.sub(r"\s+", "", s.formula)
+    for idx, site in enumerate(structures):
+        formula = re.sub(r"\s+", "", site.formula)
         if subfolder is not None:
-            subdir = subfolder(s)
+            subdir = subfolder(site)
             d = output_dir / subdir
         else:
-            d = output_dir / f"{formula}_{i}"
+            d = output_dir / f"{formula}_{idx}"
         if sanitize:
-            s = s.copy(sanitize=True)
-        v = vasp_input_set(s, **kwargs)
+            site = site.copy(sanitize=True)
+        v = vasp_input_set(site, **kwargs)
         v.write_input(
             str(d),
             make_dir_if_not_present=make_dir_if_not_present,
@@ -3161,7 +3160,6 @@ class MPAbsorptionSet(MPRelaxSet):
     For all steps other than the first one (static), the
     recommendation is to use from_prev_calculation on the preceding run in
     the series. It is important to ensure Gamma centred kpoints for the RPA step.
-
     """
 
     # CONFIG = _load_yaml_config("MPAbsorptionSet")
@@ -3197,7 +3195,7 @@ class MPAbsorptionSet(MPRelaxSet):
                 Need to be tested for convergence.
             reciprocal_density: the k-points density
             nkred: the reduced number of kpoints to calculate, equal to the k-mesh. Only applies in "RPA" mode
-                  because of the q->0 limit.
+                because of the q->0 limit.
             nedos: the density of DOS, default: 2001.
             **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """

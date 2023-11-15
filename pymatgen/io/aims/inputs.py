@@ -480,7 +480,7 @@ class AimsControlIn(MSONable):
         Returns:
             The line to add to the control.in file
         """
-        return f"{key :35s}" + (format % value) + "\n"
+        return f"{key:35s}" + (format % value) + "\n"
 
     def write_file(
         self,

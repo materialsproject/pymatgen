@@ -1008,7 +1008,7 @@ class SurfaceEnergyPlotter:
 
         Args:
             plot_eads (bool): Option to plot the adsorption energy (binding
-                 energy multiplied by number of adsorbates) instead.
+                energy multiplied by number of adsorbates) instead.
 
         Returns:
             Plot: Plot of binding energy vs monolayer for all facets.

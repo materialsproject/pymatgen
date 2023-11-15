@@ -240,7 +240,7 @@ class ElementTestCase(PymatgenTest):
 
         for k, v in is_true.items():
             for sym in k:
-                assert getattr(Element(sym), v), sym + " is false"
+                assert getattr(Element(sym), v), f"{sym=} is false"
 
         keys = [
             "mendeleev_no",

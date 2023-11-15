@@ -2008,7 +2008,7 @@
     "tests/io/test_wannier90.py::TestUnk::test_write_file": 0.004102208011317998,
     "tests/io/test_xcrysden.py::TestXSF::test_to_string": 0.001968374941498041,
     "tests/io/test_xcrysden.py::TestXSF::test_xsf": 0.0019130410510115325,
-    "tests/io/test_xcrysden.py::TestXSF::test_xsf_symbolparse": 0.002098832046613097,
+    "tests/io/test_xcrysden.py::TestXSF::test_xsf_symbol_parse": 0.002098832046613097,
     "tests/io/test_xr.py::TestXr::test_from_file": 0.029058041982352734,
     "tests/io/test_xr.py::TestXr::test_str": 0.026537916099186987,
     "tests/io/test_xyz.py::TestXYZ::test_as_dataframe": 0.0022536650067195296,
