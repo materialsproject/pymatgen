@@ -271,7 +271,7 @@ class Tensor(np.ndarray, MSONable):
     @property
     def voigt_symmetrized(self):
         """Returns a "voigt"-symmetrized tensor, i. e. a voigt-notation
-        tensor such that it is invariant wrt permutation of indices.
+        tensor such that it is invariant w.r.t. permutation of indices.
         """
         if not (self.rank % 2 == 0 and self.rank >= 2):
             raise ValueError("V-symmetrization requires rank even and >= 2")
@@ -567,7 +567,7 @@ class Tensor(np.ndarray, MSONable):
 
         Args:
             structure (Structure): structure to base population on
-            prec (float): precision for determining a non-zero value
+            prec (float): precision for determining a non-zero value. Defaults to 1e-5.
             maxiter (int): maximum iterations for populating the tensor
             verbose (bool): whether to populate verbosely
             precond (bool): whether to precondition by cycling through
@@ -747,7 +747,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt(self):
-        """TensorCollection where all tensors are in voight form."""
+        """TensorCollection where all tensors are in Voigt form."""
         return [t.voigt for t in self]
 
     @property
@@ -804,7 +804,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return self.__class__([t.voigt_symmetrized for t in self])
 
     def as_dict(self, voigt=False):
-        """:param voigt: Whether to use voight form.
+        """:param voigt: Whether to use Voigt form.
 
         Returns:
             Dict representation of TensorCollection.

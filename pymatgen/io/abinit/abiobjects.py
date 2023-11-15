@@ -65,7 +65,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             and abs(ang_deg[0] - 90.0) + abs(ang_deg[1] - 90.0) + abs(ang_deg[2] - 90) > tol12
         ):
             # Treat the case of equal angles (except all right angles):
-            # generates trigonal symmetry wrt third axis
+            # generates trigonal symmetry w.r.t. third axis
             cos_ang = cos(pi * ang_deg[0] / 180.0)
             a2 = 2.0 / 3.0 * (1.0 - cos_ang)
             aa = sqrt(a2)

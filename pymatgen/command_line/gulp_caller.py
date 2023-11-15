@@ -176,7 +176,7 @@ _gulp_kw = {
     "spatial",
     "storevectors",
     "nomolecularinternalke",
-    "voight",
+    "voigt",
     "zsisa",
     # Optimization method
     "conjugate",

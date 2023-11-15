@@ -121,7 +121,7 @@ class QuasiharmonicDebyeApprox:
     def optimize_gibbs_free_energy(self):
         """
         Evaluate the Gibbs free energy as a function of V, T and P i.e
-        G(V, T, P), minimize G(V, T, P) wrt V for each T and store the
+        G(V, T, P), minimize G(V, T, P) w.r.t. V for each T and store the
         optimum values.
 
         Note: The data points for which the equation of state fitting fails
@@ -146,8 +146,7 @@ class QuasiharmonicDebyeApprox:
 
     def optimizer(self, temperature):
         """
-        Evaluate G(V, T, P) at the given temperature(and pressure) and
-        minimize it wrt V.
+        Evaluate G(V, T, P) at the given temperature(and pressure) and minimize it w.r.t. V.
 
         1. Compute the  vibrational Helmholtz free energy, A_vib.
         2. Compute the Gibbs free energy as a function of volume, temperature
@@ -171,7 +170,7 @@ class QuasiharmonicDebyeApprox:
 
         # fit equation of state, G(V, T, P)
         eos_fit = self.eos.fit(self.volumes, G_V)
-        # minimize the fit eos wrt volume
+        # minimize the fit EoS w.r.t. volume
         # Note: the ref energy and the ref volume(E0 and V0) not necessarily
         # the same as minimum energy and min volume.
         volume_guess = eos_fit.volumes[np.argmin(eos_fit.energies)]
@@ -288,13 +287,13 @@ class QuasiharmonicDebyeApprox:
         """
         if isinstance(self.eos, PolynomialEOS):
             p = np.poly1d(self.eos.eos_params)
-            # first derivative of energy at 0K wrt volume evaluated at the
+            # first derivative of energy at 0K w.r.t. volume evaluated at the
             # given volume, in eV/Ang^3
             dEdV = np.polyder(p, 1)(volume)
-            # second derivative of energy at 0K wrt volume evaluated at the
+            # second derivative of energy at 0K w.r.t. volume evaluated at the
             # given volume, in eV/Ang^6
             d2EdV2 = np.polyder(p, 2)(volume)
-            # third derivative of energy at 0K wrt volume evaluated at the
+            # third derivative of energy at 0K w.r.t. volume evaluated at the
             # given volume, in eV/Ang^9
             d3EdV3 = np.polyder(p, 3)(volume)
         else:
@@ -314,7 +313,7 @@ class QuasiharmonicDebyeApprox:
             )
 
         # Slater-gamma formulation
-        # first derivative of bulk modulus wrt volume, eV/Ang^6
+        # first derivative of bulk modulus w.r.t. volume, eV/Ang^6
         dBdV = d2EdV2 + d3EdV3 * volume
         return -(1.0 / 6.0 + 0.5 * volume * dBdV / FloatWithUnit(self.ev_eos_fit.b0_GPa, "GPa").to("eV ang^-3"))
 

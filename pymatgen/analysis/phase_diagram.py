@@ -2374,7 +2374,7 @@ class PDPlotter:
         Args:
             elements: Sequence of elements to be considered as independent
                 variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to uLi and uO, you will supply
+                all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
                         energy of the elemental phase. If False, gives absolute values.
@@ -2392,7 +2392,7 @@ class PDPlotter:
         Args:
             elements: Sequence of elements to be considered as independent
                 variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to uLi and uO, you will supply
+                all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
                 energy of the elemental phase. If False, gives absolute values.

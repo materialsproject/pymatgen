@@ -1125,23 +1125,23 @@ class SlabGenerator:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
         for pair in bonds:
-            blength = bonds[pair]
+            bond_len = bonds[pair]
 
             # First lets determine which element should be the
             # reference (center element) to determine broken bonds.
             # e.g. P for a PO4 bond. Find integer coordination
-            # numbers of the pair of elements wrt to each other
+            # numbers of the pair of elements w.r.t. to each other
             cn_dict = {}
             for i, el in enumerate(pair):
-                cnlist = []
+                cn_list = []
                 for site in self.oriented_unit_cell:
                     poly_coord = 0
                     if site.species_string == el:
-                        for nn in self.oriented_unit_cell.get_neighbors(site, blength):
+                        for nn in self.oriented_unit_cell.get_neighbors(site, bond_len):
                             if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1
-                    cnlist.append(poly_coord)
-                cn_dict[el] = cnlist
+                    cn_list.append(poly_coord)
+                cn_dict[el] = cn_list
 
             # We make the element with the higher coordination our reference
             if max(cn_dict[pair[0]]) > max(cn_dict[pair[1]]):
@@ -1153,7 +1153,7 @@ class SlabGenerator:
                 # Determine the coordination of our reference
                 if site.species_string == element1:
                     poly_coord = 0
-                    for neighbor in slab.get_neighbors(site, blength):
+                    for neighbor in slab.get_neighbors(site, bond_len):
                         poly_coord += 1 if neighbor.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
@@ -1164,7 +1164,7 @@ class SlabGenerator:
 
                         # find its NNs with the corresponding
                         # species it should be coordinated with
-                        neighbors = slab.get_neighbors(slab[i], blength, include_index=True)
+                        neighbors = slab.get_neighbors(slab[i], bond_len, include_index=True)
                         to_move = [nn[2] for nn in neighbors if nn[0].species_string == element2]
                         to_move.append(i)
                         # and then move those NNs along with the central
@@ -1237,7 +1237,7 @@ class SlabGenerator:
         if init_slab.is_symmetric():
             return [init_slab]
 
-        nonstoich_slabs = []
+        non_stoich_slabs = []
         # Build an equivalent surface slab for each of the different surfaces
         for top in [True, False]:
             asym = True
@@ -1261,12 +1261,12 @@ class SlabGenerator:
                 # Check if the altered surface is symmetric
                 if slab.is_symmetric():
                     asym = False
-                    nonstoich_slabs.append(slab)
+                    non_stoich_slabs.append(slab)
 
         if len(slab) <= len(self.parent):
             warnings.warn("Too many sites removed, please use a larger slab size.")
 
-        return nonstoich_slabs
+        return non_stoich_slabs
 
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
