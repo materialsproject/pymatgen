@@ -46,16 +46,16 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-_directory = os.path.join(os.path.dirname(__file__))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{_directory}/op_params.yaml") as f:
+with open(f"{module_dir}/op_params.yaml") as f:
     default_op_params = yaml.load(f)
 
-with open(f"{_directory}/cn_opt_params.yaml") as f:
+with open(f"{module_dir}/cn_opt_params.yaml") as f:
     cn_opt_params = yaml.load(f)
 
-with open(f"{_directory}/ionic_radii.json") as fp:
+with open(f"{module_dir}/ionic_radii.json") as fp:
     _ion_radii = json.load(fp)
 
 
@@ -1210,7 +1210,7 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bonds_jmol_ob.yaml")
+        bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
         with open(bonds_file) as f:
             yaml = YAML()
             self.el_radius = yaml.load(f)
@@ -4210,7 +4210,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(f"{_directory}/vesta_cutoffs.yaml")
+            cut_offs = loadfn(f"{module_dir}/vesta_cutoffs.yaml")
             return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")

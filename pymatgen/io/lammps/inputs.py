@@ -37,6 +37,9 @@ __maintainer__ = "Zhi Deng, Guillaume Brunin (Matgenix)"
 __email__ = "z4deng@eng.ucsd.edu, info@matgenix.com"
 __date__ = "Nov 2022"
 
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
+
 
 class LammpsInputFile(InputFile):
     """
@@ -868,8 +871,6 @@ class LammpsRun(MSONable):
     templates.
     """
 
-    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
-
     def __init__(self, script_template: str, settings: dict, data: LammpsData | str, script_filename: str) -> None:
         """
         Base constructor.
@@ -931,7 +932,7 @@ class LammpsRun(MSONable):
             other_settings (dict): other settings to be filled into
                 placeholders.
         """
-        template_path = os.path.join(cls.template_dir, "md.template")
+        template_path = os.path.join(template_dir, "md.template")
         with open(template_path) as f:
             script_template = f.read()
         settings = other_settings.copy() if other_settings else {}
