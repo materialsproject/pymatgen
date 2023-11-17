@@ -131,6 +131,7 @@ class PhononDosPlotter:
         xlim: float | None = None,
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        legend: dict | None = None,
     ) -> Axes:
         """Get a matplotlib plot showing the DOS.
 
@@ -139,7 +140,11 @@ class PhononDosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            legend: dict with legend options. For example, {"loc": "upper right"}
+                will place the legend in the upper right corner. Defaults to
+                {"fontsize": 30}.
         """
+        legend = legend or {"fontsize": 30}
         unit = freq_units(units)
 
         n_colors = max(3, len(self._doses))
@@ -171,15 +176,15 @@ class PhononDosPlotter:
         all_densities.reverse()
         all_frequencies.reverse()
         all_pts = []
-        for i, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
             all_pts.extend(list(zip(frequencies, densities)))
             if self.stack:
-                ax.fill(frequencies, densities, color=colors[i % n_colors], label=str(key))
+                ax.fill(frequencies, densities, color=colors[idx % n_colors], label=str(key))
             else:
                 ax.plot(
                     frequencies,
                     densities,
-                    color=colors[i % n_colors],
+                    color=colors[idx % n_colors],
                     label=str(key),
                     linewidth=3,
                 )
@@ -194,15 +199,14 @@ class PhononDosPlotter:
             if len(relevant_y) > 0:
                 ax.set_ylim((min(relevant_y), max(relevant_y)))
 
-        ylim = ax.set_ylim()
-        ax.plot([0, 0], ylim, "k--", linewidth=2)
+        ax.axvline(0, linewidth=2, color="black", linestyle="--")
 
-        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$")
-        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$")
+        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
 
         ax.legend()
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
-        plt.setp(legend_text, fontsize=30)
+        plt.setp(legend_text, **legend)
         plt.tight_layout()
         return ax
 
