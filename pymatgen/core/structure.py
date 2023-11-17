@@ -358,6 +358,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return self.composition.formula
 
     @property
+    def alphabetical_formula(self) -> str:
+        """Returns the formula as a string."""
+        return self.composition.alphabetical_formula
+
+    @property
     def elements(self) -> list[Element | Species | DummySpecies]:
         """Returns the elements in the structure as a list of Element objects."""
         return self.composition.elements
