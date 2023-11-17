@@ -146,13 +146,13 @@ class TestIStructure(PymatgenTest):
         assert self.struct.formula == "Si2"
         assert self.labeled_structure.formula == "Si2"
         assert self.propertied_structure.formula == "Si2"
-        assert self.V2O3.formula == "O6 V4"
+        assert self.V2O3.formula == "V4 O6"
 
     def test_alphabetical_formula(self):
         assert self.struct.alphabetical_formula == "Si2"
         assert self.labeled_structure.alphabetical_formula == "Si2"
         assert self.propertied_structure.alphabetical_formula == "Si2"
-        assert self.V2O3.alphabetical_formula == "V4 O6"
+        assert self.V2O3.alphabetical_formula == "O6 V4"
 
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
