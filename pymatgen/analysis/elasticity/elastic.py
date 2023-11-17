@@ -599,7 +599,6 @@ class ElasticTensorExpansion(TensorCollection):
         """
         if temperature and not structure:
             raise ValueError("If using temperature input, you must also include structure")
-        assert structure  # for mypy
 
         quad = quad or DEFAULT_QUAD
         points = quad["points"]
@@ -611,7 +610,7 @@ class ElasticTensorExpansion(TensorCollection):
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
             for u in us:
                 # TODO: this should be benchmarked
-                if temperature:
+                if temperature and structure:
                     c = self.get_heat_capacity(temperature, structure, p, u)
                 num += c * self.get_ggt(p, u) * w
                 denom += c * w
