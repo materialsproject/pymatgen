@@ -120,7 +120,7 @@ class TestSetChangeCheck(PymatgenTest):
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
-            "PBE64Base.yaml": "a0d6cd02c6ff8e24b0005e30c56a33b155c2280b",
+            "PBE64Base.yaml": "480c41c2448cb25706181de268090618e282b264",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
