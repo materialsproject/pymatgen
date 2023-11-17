@@ -85,8 +85,8 @@ class SubstitutionProbability:
     def get_lambda(self, s1, s2):
         """
         Args:
-            s1 (Element|Specie|str): Describes Ion in 1st Structure
-            s2 (Element|Specie|str): Describes Ion in 2nd Structure.
+            s1 (Element/Species/str/int): Describes Ion in 1st Structure
+            s2 (Element/Species/str/int): Describes Ion in 2nd Structure.
 
         Returns:
             Lambda values
