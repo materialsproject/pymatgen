@@ -84,6 +84,7 @@ class TestIStructure(PymatgenTest):
             [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
+        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
 
     @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -145,6 +146,13 @@ class TestIStructure(PymatgenTest):
         assert self.struct.formula == "Si2"
         assert self.labeled_structure.formula == "Si2"
         assert self.propertied_structure.formula == "Si2"
+        assert self.V2O3.formula == "V4 O6"
+
+    def test_alphabetical_formula(self):
+        assert self.struct.alphabetical_formula == "Si2"
+        assert self.labeled_structure.alphabetical_formula == "Si2"
+        assert self.propertied_structure.alphabetical_formula == "Si2"
+        assert self.V2O3.alphabetical_formula == "O6 V4"
 
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
