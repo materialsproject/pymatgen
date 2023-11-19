@@ -26,10 +26,10 @@ struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
-            dd = json.load(f)
+        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+            dct = json.load(file)
 
-        struct_envs = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dct)
         isite = 6
         _csm_and_maps_fig, csm_and_maps_ax = struct_envs.get_csm_and_maps(isite=isite)
         assert_allclose(csm_and_maps_ax.lines[0].get_xydata().flatten(), [0, 0.53499332])
@@ -119,10 +119,10 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
-            dd = json.load(f)
+        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+            dct = json.load(file)
 
-        struct_envs = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dct)
 
         strategy = SimplestChemenvStrategy()
         lse = LightStructureEnvironments.from_structure_environments(
