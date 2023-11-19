@@ -87,6 +87,12 @@ class PhononDosPlotter:
             sigma: A float specifying a standard deviation for Gaussian smearing
                 the DOS for nicer looking plots. Defaults to None for no smearing.
         """
+        # a likely user mistake is to try to pass a DOS as the first argument (similar to PhononBSPlotter) but
+        # without the isinstance check, this would not raise an error and just silently cause a blank plot
+        if not isinstance(stack, bool):
+            raise ValueError(
+                "The first argument stack expects a boolean. If you are trying to add a DOS, use the add_dos() method."
+            )
         self.stack = stack
         self.sigma = sigma
         self._doses: dict = {}
