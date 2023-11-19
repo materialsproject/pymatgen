@@ -9,7 +9,7 @@ from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestDos(PymatgenTest):
+class TestPhononDos(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_ph_dos.json") as f:
             self.dos = PhononDos.from_dict(json.load(f))
@@ -30,8 +30,8 @@ class TestDos(PymatgenTest):
         assert sum(dens) == approx(sum(smeared))
 
     def test_dict_methods(self):
-        s = json.dumps(self.dos.as_dict())
-        assert s is not None
+        json_str = json.dumps(self.dos.as_dict())
+        assert json_str is not None
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
@@ -42,7 +42,7 @@ class TestDos(PymatgenTest):
         assert self.dos.zero_point_energy(structure=self.structure) == approx(4847.462485708741, abs=1e-4)
 
 
-class TestCompleteDos(PymatgenTest):
+class TestCompletePhononDos(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
             self.cdos = CompletePhononDos.from_dict(json.load(file))
@@ -64,8 +64,8 @@ class TestCompleteDos(PymatgenTest):
         assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
-        s = json.dumps(self.cdos.as_dict())
-        assert s is not None
+        json_str = json.dumps(self.cdos.as_dict())
+        assert json_str is not None
         self.assert_msonable(self.cdos)
 
     def test_str(self):
