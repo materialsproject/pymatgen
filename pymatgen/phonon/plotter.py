@@ -577,29 +577,32 @@ class PhononBSPlotter:
         tick_labels: list[str] = []
         previous_label = self._bs.qpoints[0].label
         previous_branch = self._bs.branches[0]["name"]
-        for i, c in enumerate(self._bs.qpoints):
-            if c.label is not None:
-                tick_distance.append(self._bs.distance[i])
+        for idx, point in enumerate(self._bs.qpoints):
+            if point.label is not None:
+                tick_distance.append(self._bs.distance[idx])
                 this_branch = None
                 for b in self._bs.branches:
-                    if b["start_index"] <= i <= b["end_index"]:
+                    if b["start_index"] <= idx <= b["end_index"]:
                         this_branch = b["name"]
                         break
-                if c.label != previous_label and previous_branch != this_branch:
-                    label1 = c.label
+                if point.label != previous_label and previous_branch != this_branch:
+                    label1 = point.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
-                    label0 = previous_label
+                        label1 = f"${label1}$"
+                    label0 = previous_label or ""
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\\mid$" + label1)
-                elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"{label0}$\\mid${label1}")
+                elif point.label.startswith("\\") or point.label.find("_") != -1:
+                    tick_labels.append(f"${point.label}$")
                 else:
-                    tick_labels.append(c.label)
-                previous_label = c.label
+                    label = point.label
+                    if label == "GAMMA":
+                        label = r"$\Gamma$"
+                    tick_labels.append(label)
+                previous_label = point.label
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}
 
