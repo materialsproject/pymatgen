@@ -11,10 +11,13 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestPhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_ph_dos.json") as f:
-            self.dos = PhononDos.from_dict(json.load(f))
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.structure = CompletePhononDos.from_dict(json.load(f)).structure
+        with open(f"{TEST_FILES_DIR}/NaCl_ph_dos.json") as file:
+            self.dos = PhononDos.from_dict(json.load(file))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.structure = CompletePhononDos.from_dict(json.load(file)).structure
+
+    def test_repr(self):
+        assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
 
     def test_properties(self):
         assert self.dos.densities[15] == approx(0.0001665998)
