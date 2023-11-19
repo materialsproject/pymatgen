@@ -283,15 +283,10 @@ class PhononBSPlotter:
             if i == 0:
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
-                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
-            elif tt[1] == temp_ticks[i - 1][1]:
-                logger.debug(f"Skipping label {tt[1]}")
             else:
-                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
 
-        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
@@ -299,13 +294,8 @@ class PhononBSPlotter:
             if ticks["label"][i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
-                    else:
-                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        ax.axvline(ticks["distance"][i], color="k")
+                    ax.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     ax.axvline(ticks["distance"][i], color="k")
         return ax
 
