@@ -72,10 +72,10 @@ class TestReadWriteChemenv(PymatgenTest):
         # assert lse == lse2
 
     def test_structure_environments_neighbors_sets(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
-            dd = json.load(f)
+        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+            dct = json.load(file)
 
-        struct_envs = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dct)
 
         isite = 6
         nb_set = struct_envs.neighbors_sets[isite][4][0]

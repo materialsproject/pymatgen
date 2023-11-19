@@ -35,8 +35,8 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/dos_dw/", dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/fermi/")
 
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as f:
-            d = json.load(f)
+        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
+            d = json.load(file)
             cls.bs = BandStructure.from_dict(d)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 
@@ -247,20 +247,20 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert cdos.get_spd_dos()[OrbitalType.s].densities[Spin.down][716] == approx(6.5383268000000001)
 
     def test_extreme(self):
-        x = self.bz.get_extreme("seebeck")
-        assert x["best"]["carrier_type"] == "n"
-        assert x["p"]["value"] == approx(1255.365, abs=1e-2)
-        assert x["n"]["isotropic"]
-        assert x["n"]["temperature"] == 600
+        extreme = self.bz.get_extreme("seebeck")
+        assert extreme["best"]["carrier_type"] == "n"
+        assert extreme["p"]["value"] == approx(1255.365, abs=1e-2)
+        assert extreme["n"]["isotropic"]
+        assert extreme["n"]["temperature"] == 600
 
-        x = self.bz.get_extreme("kappa", maximize=False, min_temp=400, min_doping=1e20)
-        assert x["best"]["value"] == approx(0.105, abs=1e-2)
-        assert x["n"]["value"] == approx(0.139, abs=1e-2)
-        assert x["p"]["temperature"] == 400
-        assert x["n"]["isotropic"] is False
+        extreme = self.bz.get_extreme("kappa", maximize=False, min_temp=400, min_doping=1e20)
+        assert extreme["best"]["value"] == approx(0.105, abs=1e-2)
+        assert extreme["n"]["value"] == approx(0.139, abs=1e-2)
+        assert extreme["p"]["temperature"] == 400
+        assert extreme["n"]["isotropic"] is False
 
     def test_as_from_dict(self):
         btr_dict = self.btr.as_dict()
-        s = json.dumps(btr_dict)
-        assert s is not None
+        json_str = json.dumps(btr_dict)
+        assert json_str is not None
         assert btr_dict["bs"] is not None
