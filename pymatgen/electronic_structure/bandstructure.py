@@ -74,6 +74,11 @@ class Kpoint(MSONable):
         """The label associated with the kpoint."""
         return self._label
 
+    @label.setter
+    def label(self, label: str | None) -> None:
+        """Set the label of the kpoint."""
+        self._label = label
+
     @property
     def frac_coords(self) -> np.ndarray:
         """The fractional coordinates of the kpoint as a numpy array."""
