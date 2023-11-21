@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from pymatgen.core import Lattice, Molecule, Structure
+from pymatgen.core.tensors import Tensor
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -56,12 +57,6 @@ SCALAR_PROPERTY_TO_LINE_KEY = {
     "electronic_temp": ["Occupation type:"],
     "fermi_energy": ["| Chemical potential (Fermi level)"],
 }
-
-
-def voigt_to_full_stress_conv(voigt_stress: Sequence[float]) -> Matrix3D:
-    """Transform voigt vector to a full 3x3 matrix."""
-    xx, yy, zz, yz, xz, xy = np.array(voigt_stress).flatten()
-    return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
 
 @dataclass
@@ -626,7 +621,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._cache["lattice"]
 
     @property
-    def forces(self) -> list[Vector3D] | None:
+    def forces(self) -> np.array[Vector3D] | None:
         """The forces from the aims.out file."""
         line_start = self.reverse_search_for(["Total atomic forces"])
         if line_start == LINE_NOT_FOUND:
@@ -648,7 +643,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         stresses = []
         for line in self.lines[line_start : line_start + self.n_atoms]:
             xx, yy, zz, xy, xz, yz = (float(d) for d in line.split()[2:8])
-            stresses.append(voigt_to_full_stress_conv([xx, yy, zz, yz, xz, xy]))
+            stresses.append(Tensor.from_voigt([xx, yy, zz, yz, xz, xy]))
 
         return np.array(stresses) * EV_PER_A3_TO_KBAR
 

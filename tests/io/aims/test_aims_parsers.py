@@ -5,10 +5,10 @@ from pymatgen.io.aims.parsers import (
     AimsOutChunk,
     AimsOutHeaderChunk,
     AimsOutCalcChunk,
-    voigt_to_full_stress_conv,
     EV_PER_A3_TO_KBAR,
     LINE_NOT_FOUND,
 )
+from pymatgen.core.tensors import Tensor
 import gzip
 from pathlib import Path
 
@@ -329,8 +329,8 @@ def test_calc_forces(calc_chunk):
 def test_calc_stresses(calc_chunk):
     stresses = EV_PER_A3_TO_KBAR * np.array(
         [
-            voigt_to_full_stress_conv([-10.0, -20.0, -30.0, -60.0, -50.0, -40.0]),
-            voigt_to_full_stress_conv([10.0, 20.0, 30.0, 60.0, 50.0, 40.0]),
+            Tensor.from_voigt([-10.0, -20.0, -30.0, -60.0, -50.0, -40.0]),
+            Tensor.from_voigt([10.0, 20.0, 30.0, 60.0, 50.0, 40.0]),
         ]
     )
     assert np.allclose(calc_chunk.stresses, stresses)
