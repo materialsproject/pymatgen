@@ -2815,15 +2815,16 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
         return np.array(grad)
 
 
-def hessian_parser(filename: Path | str) -> NDArray | None:
+def hessian_parser(filename: Path | str, n_atoms: int) -> NDArray | None:
     """
     Parse the Hessian data from a Hessian scratch file.
 
     Args:
         filename: Path to the Hessian scratch file (typically "132.0")
+        n_atoms: Number of atoms in the molecule
 
     Returns:
-        Hessian, formatted as 3N_atoms x 3N_atoms. Units are Hartree/Bohr^2/amu.
+        Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
     """
     hessian_scratch = Path(filename)
     if hessian_scratch.exists() and hessian_scratch.stat().st_size > 0:
@@ -2833,5 +2834,5 @@ def hessian_parser(filename: Path | str) -> NDArray | None:
         tmp_hess_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
         return np.reshape(
             np.array(tmp_hess_data),
-            (len(qc_output["species"]) * 3, len(qc_output["species"]) * 3),
+            (n_atoms * 3, n_atoms * 3),
         )
