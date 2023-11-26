@@ -7,6 +7,7 @@ import logging
 import math
 import os
 import re
+import struct
 import warnings
 from pathlib import Path
 from typing import Any
