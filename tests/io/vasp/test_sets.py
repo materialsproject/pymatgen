@@ -920,7 +920,6 @@ class TestMPNonSCFSet(PymatgenTest):
 
         # Check as from dict.
         vis = self.set.from_dict(vis.as_dict())
-        print(vis.as_dict())
         assert vis.incar["NSW"] == 0
         # Check that the ENCUT has been inherited.
         assert vis.incar["ENCUT"] == 600
@@ -1564,7 +1563,6 @@ class TestMPScanRelaxSet(PymatgenTest):
         for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.22)):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
             assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
-            print(incar["ISMEAR"], bandgap, bandgap_tol, bandgap > bandgap_tol)
             assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
             assert incar["SIGMA"] == 0.05 if bandgap > bandgap_tol else 0.2
 
