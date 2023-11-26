@@ -2784,10 +2784,42 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
 
+def gradient_parser(filename: Path | str) -> NDArray | None:
+    """
+    Parser the gradient data from a gradient scratch file.
+
+    Args:
+        filename: Path to the gradient scratch file (typically "131.0")
+
+    Returns:
+        The gradient, in units of Hartree/Bohr.
+    """
+
+    # Read the gradient scratch file in 8 byte chunks
+    filename = Path(filename)
+    grad_scratch = filename / "131.0"
+    if grad_scratch.exists() and grad_scratch.stat().st_size > 0:
+        tmp_grad_data = []
+        with zopen(grad_scratch, mode="rb") as file:
+            binary = file.read()
+        tmp_grad_data.extend(
+            struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0]
+            for ii in range(len(binary) // 8)
+        )
+        return np.array([
+            [
+                float(tmp_grad_data[ii * 3]),
+                float(tmp_grad_data[ii * 3 + 1]),
+                float(tmp_grad_data[ii * 3 + 2]),
+            ]
+            for ii in range(len(tmp_grad_data) // 3)
+        ])
+
+        
 
 def hessian_parser(filename: Path | str) -> NDArray | None:
     """
-    Parse the Hessian data from a Hessian scratch file
+    Parse the Hessian data from a Hessian scratch file.
 
     Args:
         filename: Path to the Hessian scratch file (typically "132.0")
