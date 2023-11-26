@@ -493,7 +493,7 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
     def test_hessian(self):
-        hessian = hessian_parser(f"{TEST_FILES_DIR}/132.0")
+        hessian = hessian_parser(f"{TEST_FILES_DIR}/qchem/132.0")
         assert np.shape(hessian) == (42, 42)
 
 
