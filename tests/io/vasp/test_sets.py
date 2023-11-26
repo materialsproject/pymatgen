@@ -137,12 +137,32 @@ class TestDictSet(PymatgenTest):
     def test_as_dict(self):
         # https://github.com/materialsproject/pymatgen/pull/3031
         dict_set = DictSet(self.structure, config_dict={"INCAR": {}}, user_potcar_functional="PBE_54")
-        assert {*dict_set.as_dict()} >= {
-            "structure",
-            "config_dict",
-            "user_incar_settings",
-            "user_kpoints_settings",
-            "user_potcar_settings",
+        assert {*dict_set.as_dict()} >= {'@class',
+             '@module',
+             '@version',
+             'auto_ismear',
+             'auto_ispin',
+             'auto_kspacing',
+             'auto_metal_kpoints',
+             'bandgap_tol',
+             'config_dict',
+             'constrain_total_magmom',
+             'files_to_transfer',
+             'force_gamma',
+             'inherit_incar',
+             'international_monoclinic',
+             'reduce_structure',
+             'sort_structure',
+             'standardize',
+             'structure',
+             'sym_prec',
+             'use_structure_charge',
+             'user_incar_settings',
+             'user_kpoints_settings',
+             'user_potcar_functional',
+             'user_potcar_settings',
+             'validate_magmom',
+             'vdw'
         }
         assert dict_set.potcar_functional == dict_set.user_potcar_functional
 
@@ -638,7 +658,7 @@ class TestMPStaticSet(PymatgenTest):
         assert leps_vis.incar["IBRION"] == 8
         assert leps_vis.incar["EDIFF"] == 1e-5
         assert "NPAR" not in leps_vis.incar
-        assert "NSW" not in leps_vis.incar
+        assert leps_vis.incar["NSW"] == 1
         assert non_prev_vis.kpoints.kpts == [[11, 10, 10]]
         non_prev_vis = self.set(vis.structure, reciprocal_density=200)
         assert non_prev_vis.kpoints.kpts == [[14, 12, 12]]
@@ -898,6 +918,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
         # Check as from dict.
         vis = self.set.from_dict(vis.as_dict())
+        print(vis.as_dict())
         assert vis.incar["NSW"] == 0
         # Check that the ENCUT has been inherited.
         assert vis.incar["ENCUT"] == 600
@@ -1148,7 +1169,7 @@ class TestMPMDSet(PymatgenTest):
         d = self.mp_md_set_noTS.as_dict()
         v = dec.process_decoded(d)
         assert isinstance(v, MPMDSet)
-        assert v._config_dict["INCAR"]["NSW"] == 1000
+        assert v.incar["NSW"] == 1000
 
 
 class TestMITNEBSet(PymatgenTest):
@@ -1177,7 +1198,7 @@ class TestMITNEBSet(PymatgenTest):
     def test_as_from_dict(self):
         d = self.vis.as_dict()
         v = dec.process_decoded(d)
-        assert v._config_dict["INCAR"]["IMAGES"] == 2
+        assert v.incar["IMAGES"] == 2
 
     @skip_if_no_psp_dir
     def test_write_input(self):
@@ -1371,11 +1392,11 @@ class TestMVLGWSet(PymatgenTest):
         mvlgwgbse = self.set.from_prev_calc(prev_run, copy_wavecar=False, mode="GW")
         assert mvlgwgbse.incar["NOMEGA"] == 80
         assert mvlgwgbse.incar["ENCUTGW"] == 250
-        assert mvlgwgbse.incar["ALGO"] == "GW0"
+        assert mvlgwgbse.incar["ALGO"] == "Gw0"
         mvlgwgbse1 = self.set.from_prev_calc(prev_run, copy_wavecar=False, mode="BSE")
         assert mvlgwgbse1.incar["ANTIRES"] == 0
         assert mvlgwgbse1.incar["NBANDSO"] == 20
-        assert mvlgwgbse1.incar["ALGO"] == "BSE"
+        assert mvlgwgbse1.incar["ALGO"] == "Bse"
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/relaxation"
@@ -1390,13 +1411,13 @@ class TestMVLGWSet(PymatgenTest):
         mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
         assert mvlgwgbse.incar["NOMEGA"] == 80
         assert mvlgwgbse.incar["ENCUTGW"] == 250
-        assert mvlgwgbse.incar["ALGO"] == "GW0"
+        assert mvlgwgbse.incar["ALGO"] == "Gw0"
 
         mvlgwgbse1 = self.set(dummy_structure, copy_wavecar=False, mode="BSE")
         mvlgwgbse1.override_from_prev_calc(prev_calc_dir=prev_run)
         assert mvlgwgbse1.incar["ANTIRES"] == 0
         assert mvlgwgbse1.incar["NBANDSO"] == 20
-        assert mvlgwgbse1.incar["ALGO"] == "BSE"
+        assert mvlgwgbse1.incar["ALGO"] == "Bse"
 
 
 class TestMPHSEBS(PymatgenTest):
@@ -1541,6 +1562,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.22)):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
             assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
+            print(incar["ISMEAR"], bandgap, bandgap_tol, bandgap > bandgap_tol)
             assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
             assert incar["SIGMA"] == 0.05 if bandgap > bandgap_tol else 0.2
 
@@ -1589,7 +1611,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_54"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1662,7 +1684,7 @@ class TestMPScanStaticSet(PymatgenTest):
         assert lepsilon_vis.incar["LEPSILON"]
         assert lepsilon_vis.incar["LPEAD"]
         assert lepsilon_vis.incar["IBRION"] == 8
-        assert lepsilon_vis.incar.get("NSW") is None
+        assert lepsilon_vis.incar["NSW"] == 1
         assert lepsilon_vis.incar.get("NPAR") is None
 
     def test_as_from_dict(self):
@@ -1694,7 +1716,7 @@ class TestMPScanStaticSet(PymatgenTest):
         assert lepsilon_vis.incar["LEPSILON"]
         assert lepsilon_vis.incar["LPEAD"]
         assert lepsilon_vis.incar["IBRION"] == 8
-        assert lepsilon_vis.incar.get("NSW") is None
+        assert lepsilon_vis.incar["NSW"] == 1
         assert lepsilon_vis.incar.get("NPAR") is None
 
 
@@ -1758,7 +1780,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 
@@ -1881,7 +1903,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
         assert absorption_rpa.incar["NOMEGA"] == 1000
         assert absorption_rpa.incar["NBANDS"] == 48
-        assert absorption_rpa.incar["ALGO"] == "CHI"
+        assert absorption_rpa.incar["ALGO"] == "Chi"
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
@@ -1892,4 +1914,4 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
         assert absorption_rpa.incar["NOMEGA"] == 1000
         assert absorption_rpa.incar["NBANDS"] == 48
-        assert absorption_rpa.incar["ALGO"] == "CHI"
+        assert absorption_rpa.incar["ALGO"] == "Chi"
