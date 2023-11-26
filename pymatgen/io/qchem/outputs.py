@@ -2832,7 +2832,7 @@ def hessian_parser(filename: str = "132.0", n_atoms: int) -> NDArray:
         (n_atoms * 3, n_atoms * 3),
     )
 
-def scratch_orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
+def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
     """
     Parse the orbital coefficients from a scratch file.
 
