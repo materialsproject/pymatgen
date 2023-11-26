@@ -2812,6 +2812,7 @@ def gradient_parser(filename: str = "131.0") -> NDArray:
     ]
     return np.array(grad)
 
+
 def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
     """
     Parse the Hessian data from a Hessian scratch file.
@@ -2826,7 +2827,9 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
     tmp_hess_data = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
-    hessian = np.array(tmp_hess_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8)))
+    hessian = np.array(
+        tmp_hess_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    )
     if n_atoms:
         return np.reshape(
             hessian,
@@ -2834,6 +2837,7 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
         )
     else:
         return hessian
+
 
 def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
     """
@@ -2847,8 +2851,5 @@ def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
     """
     with zopen(filename, mode="rb") as file:
         binary = file.read()
-    prev_orbital_coeffs.extend(
-        struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0]
-        for ii in range(len(binary) // 8)
-    )
+    prev_orbital_coeffs.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
     return np.array(prev_orbital_coeffs)
