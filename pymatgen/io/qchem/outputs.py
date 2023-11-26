@@ -2788,7 +2788,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
 
 def gradient_parser(filename: str = "131.0") -> NDArray:
     """
-    Parser the gradient data from a gradient scratch file.
+    Parse the gradient data from a gradient scratch file.
 
     Args:
         filename: Path to the gradient scratch file (typically "131.0")
