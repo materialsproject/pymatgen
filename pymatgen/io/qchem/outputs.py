@@ -2835,8 +2835,7 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
             hessian,
             (n_atoms * 3, n_atoms * 3),
         )
-    else:
-        return hessian
+    return hessian
 
 
 def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
@@ -2849,6 +2848,7 @@ def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
     Returns:
         NDArray: The orbital coefficients
     """
+    prev_orbital_coeffs = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
     prev_orbital_coeffs.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
