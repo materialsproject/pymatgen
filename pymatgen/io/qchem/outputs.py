@@ -8,7 +8,9 @@ import math
 import os
 import re
 import warnings
+from pathlib import Path
 from typing import Any
+from numpy.typing import NDArray
 
 import networkx as nx
 import numpy as np
@@ -2781,3 +2783,30 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
+
+def hessian_parser(filename: Path | str) -> NDArray | None:
+    """
+    Parse the Hessian data from a Hessian scratch file
+
+    Args:
+        filename: Path to the Hessian scratch file (typically "132.0")
+
+    Returns:
+        Hessian, formatted as 3N_atoms x 3N_atoms. Units are Hartree/Bohr^2/amu.
+    """
+    hessian_scratch = Path(filename)
+    if hessian_scratch.exists() and hessian_scratch.stat().st_size > 0:
+        tmp_hess_data = []
+        with zopen(hessian_scratch, mode="rb") as file:
+            binary = file.read()
+        tmp_hess_data.extend(
+            struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0]
+            for ii in range(len(binary) // 8)
+        )
+        return np.reshape(
+            np.array(tmp_hess_data),
+            (len(qc_output["species"]) * 3, len(qc_output["species"]) * 3),
+        )
+
+    
+    
