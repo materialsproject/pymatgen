@@ -9,7 +9,6 @@ import os
 import re
 import struct
 import warnings
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import networkx as nx
@@ -2787,7 +2786,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     return dfs
 
 
-def gradient_parser(filename: Path | str) -> NDArray | None:
+def gradient_parser(filename: str) -> NDArray:
     """
     Parser the gradient data from a gradient scratch file.
 
@@ -2795,7 +2794,7 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
         filename: Path to the gradient scratch file (typically "131.0")
 
     Returns:
-        The gradient, in units of Hartree/Bohr.
+        NDArray: The gradient, in units of Hartree/Bohr.
     """
 
     # Read the gradient scratch file in 8 byte chunks
@@ -2818,7 +2817,7 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
     return None
 
 
-def hessian_parser(filename: Path | str, n_atoms: int) -> NDArray | None:
+def hessian_parser(filename: str, n_atoms: int) -> NDArray:
     """
     Parse the Hessian data from a Hessian scratch file.
 
@@ -2827,7 +2826,7 @@ def hessian_parser(filename: Path | str, n_atoms: int) -> NDArray | None:
         n_atoms: Number of atoms in the molecule
 
     Returns:
-        Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
+        NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
     """
     hessian_scratch = Path(filename)
     if hessian_scratch.exists() and hessian_scratch.stat().st_size > 0:
@@ -2839,4 +2838,21 @@ def hessian_parser(filename: Path | str, n_atoms: int) -> NDArray | None:
             np.array(tmp_hess_data),
             (n_atoms * 3, n_atoms * 3),
         )
-    return None
+
+def scratch_orbital_coeffs_parser(filename: str) -> NDArray:
+    """
+    Parse the orbital coefficients from a scratch file.
+
+    Args:
+        filename: Path to the orbital coefficients file (typically "53.0")
+
+    Returns:
+        NDArray: The orbital coefficients
+    """
+    with zopen(directory / "53.0", mode="rb") as file:
+        binary = file.read()
+    prev_orbital_coeffs.extend(
+        struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0]
+        for ii in range(len(binary) // 8)
+    )
+    return np.array(prev_orbital_coeffs)
