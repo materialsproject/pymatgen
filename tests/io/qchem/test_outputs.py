@@ -4,7 +4,6 @@ import os
 import unittest
 
 import numpy as np
-
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -495,7 +494,8 @@ class TestQCOutput(PymatgenTest):
 
     def test_hessian(self):
         hessian = hessian_parser(f"{TEST_FILES_DIR}/132.0")
-        assert np.shape(hessian) == (42,42)
+        assert np.shape(hessian) == (42, 42)
+
 
 if __name__ == "__main__":
     # TestQCOutput.generate_single_job_dict()
