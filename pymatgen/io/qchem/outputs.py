@@ -10,14 +10,13 @@ import re
 import struct
 import warnings
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable, jsanitize
-from numpy.typing import NDArray
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -35,6 +34,8 @@ try:
 except ImportError:
     openbabel = None
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -2814,6 +2815,7 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
             for ii in range(len(tmp_grad_data) // 3)
         ]
         return np.array(grad)
+    return None
 
 
 def hessian_parser(filename: Path | str, n_atoms: int) -> NDArray | None:
@@ -2837,3 +2839,4 @@ def hessian_parser(filename: Path | str, n_atoms: int) -> NDArray | None:
             np.array(tmp_hess_data),
             (n_atoms * 3, n_atoms * 3),
         )
+    return None
