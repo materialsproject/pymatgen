@@ -4,17 +4,20 @@ import json
 
 from pytest import approx
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestDos(PymatgenTest):
+class TestPhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_ph_dos.json") as f:
-            self.dos = PhononDos.from_dict(json.load(f))
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.structure = CompletePhononDos.from_dict(json.load(f)).structure
+        with open(f"{TEST_FILES_DIR}/NaCl_ph_dos.json") as file:
+            self.dos = PhononDos.from_dict(json.load(file))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.structure = CompletePhononDos.from_dict(json.load(file)).structure
+
+    def test_repr(self):
+        assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
 
     def test_properties(self):
         assert self.dos.densities[15] == approx(0.0001665998)
@@ -30,8 +33,8 @@ class TestDos(PymatgenTest):
         assert sum(dens) == approx(sum(smeared))
 
     def test_dict_methods(self):
-        s = json.dumps(self.dos.as_dict())
-        assert s is not None
+        json_str = json.dumps(self.dos.as_dict())
+        assert json_str is not None
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
@@ -42,10 +45,10 @@ class TestDos(PymatgenTest):
         assert self.dos.zero_point_energy(structure=self.structure) == approx(4847.462485708741, abs=1e-4)
 
 
-class TestCompleteDos(PymatgenTest):
+class TestCompletePhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.cdos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.cdos = CompletePhononDos.from_dict(json.load(file))
 
     def test_properties(self):
         site_Na = self.cdos.structure[0]
@@ -64,9 +67,12 @@ class TestCompleteDos(PymatgenTest):
         assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
-        s = json.dumps(self.cdos.as_dict())
-        assert s is not None
+        json_str = json.dumps(self.cdos.as_dict())
+        assert json_str is not None
         self.assert_msonable(self.cdos)
 
     def test_str(self):
-        assert str(self.cdos) is not None
+        assert str(self.cdos).startswith(
+            "Complete phonon DOS for Full Formula (Na1 Cl1)\nReduced Formula: NaCl\n"
+            "abc   :   4.023651   4.023651   4.023651\nangles"
+        )

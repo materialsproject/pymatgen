@@ -17,11 +17,13 @@ from pymatgen.core.periodic_table import DummySpecie as DummySpecie
 from pymatgen.core.periodic_table import DummySpecies as DummySpecies
 from pymatgen.core.periodic_table import Element as Element
 from pymatgen.core.periodic_table import Species as Species
+from pymatgen.core.periodic_table import get_el_sp as get_el_sp
 from pymatgen.core.sites import PeriodicSite as PeriodicSite
 from pymatgen.core.sites import Site as Site
 from pymatgen.core.structure import IMolecule as IMolecule
 from pymatgen.core.structure import IStructure as IStructure
 from pymatgen.core.structure import Molecule as Molecule
+from pymatgen.core.structure import PeriodicNeighbor as PeriodicNeighbor
 from pymatgen.core.structure import SiteCollection as SiteCollection
 from pymatgen.core.structure import Structure as Structure
 from pymatgen.core.units import ArrayWithUnit as ArrayWithUnit

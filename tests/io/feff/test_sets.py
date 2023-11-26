@@ -7,7 +7,6 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.core.structure import Lattice, Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -30,7 +29,7 @@ TITLE sites: 4
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
-        cls.structure = CifParser(cif_file).get_structures()[0]
+        cls.structure = Structure.from_file(cif_file, primitive=True)
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
 
@@ -120,11 +119,11 @@ TITLE sites: 4
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
         with pytest.warns(UserWarning, match="ION tags"):
-            MPXANESSet("Zn", m)
+            MPXANESSet("Zn", mol)
         struct = self.structure.copy()
         struct.set_charge(1)
         with pytest.raises(ValueError, match="not supported"):
@@ -254,11 +253,14 @@ TITLE sites: 4
                 "RPATH": "-1",
             },
         )
-        assert str(dict_set) is not None
+        assert str(dict_set).startswith(
+            "EXAFS\nS02 = 0\nCOREHOLE = regular\nCONTROL = 1 1 1 1 1 1\nXANES = 4 0.04 0.1\nSCF = 7.0 0 100 0.2 3\n"
+            "FMS = 9.0 0\nEXCHANGE = 0 0.0 0.0 2\nRPATH = -1\nEDGE = K\n"
+        )
 
     def test_cluster_index(self):
         # https://github.com/materialsproject/pymatgen/pull/3256
         cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
-        structure = CifParser(cif_file).get_structures()[0]
+        structure = Structure.from_file(cif_file)
         for idx in range(len(structure.species)):
             assert Atoms(structure, idx, 3).cluster

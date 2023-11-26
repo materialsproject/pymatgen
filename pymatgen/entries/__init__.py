@@ -33,7 +33,6 @@ class Entry(MSONable, metaclass=ABCMeta):
     a specific chemical composition. This base class is not
     intended to be instantiated directly. Note that classes
     which inherit from Entry must define a .energy property.
-
     """
 
     def __init__(self, composition: Composition | str | dict[str, float], energy: float) -> None:

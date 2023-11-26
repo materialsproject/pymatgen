@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+from fractions import Fraction
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -13,10 +14,8 @@ from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import (
     IMolecule,
     IStructure,
@@ -28,6 +27,7 @@ from pymatgen.core.structure import (
 )
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -84,6 +84,7 @@ class TestIStructure(PymatgenTest):
             [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
+        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
 
     @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -145,6 +146,13 @@ class TestIStructure(PymatgenTest):
         assert self.struct.formula == "Si2"
         assert self.labeled_structure.formula == "Si2"
         assert self.propertied_structure.formula == "Si2"
+        assert self.V2O3.formula == "V4 O6"
+
+    def test_alphabetical_formula(self):
+        assert self.struct.alphabetical_formula == "Si2"
+        assert self.labeled_structure.alphabetical_formula == "Si2"
+        assert self.propertied_structure.alphabetical_formula == "Si2"
+        assert self.V2O3.alphabetical_formula == "O6 V4"
 
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
@@ -780,16 +788,20 @@ Direct
         struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
+        # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
+        # i.e. uses same merge_tol for site merging, same primitive=False, etc.
+        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
+
     def test_to_file_alias(self):
         out_path = f"{self.tmp_path}/POSCAR"
         assert self.struct.to(out_path) == self.struct.to_file(out_path)
         assert os.path.isfile(out_path)
 
     def test_pbc(self):
-        assert_array_equal(self.struct.pbc, (True, True, True))
+        assert self.struct.pbc == (True, True, True)
         assert self.struct.is_3d_periodic
         struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
-        assert_array_equal(struct_pbc.pbc, (True, True, False))
+        assert struct_pbc.pbc == (True, True, False)
         assert not struct_pbc.is_3d_periodic
 
     def test_sites_setter(self):
@@ -1243,7 +1255,6 @@ class TestStructure(PymatgenTest):
                 ["Cs"],
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-        from fractions import Fraction
 
         struct = Structure.from_spacegroup(139, np.eye(3), ["H"], [[Fraction(1, 2), Fraction(1, 4), Fraction(0)]])
         assert len(struct) == 8
@@ -1982,8 +1993,8 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
-        assert_array_equal(self.mol.cart_coords[0], [0.5, 0.5, 0.5])
+        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))
@@ -2081,9 +2092,9 @@ class TestMolecule(PymatgenTest):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None
-            m = Molecule.from_str(mol, fmt=fmt)
-            assert m == self.mol
-            assert isinstance(m, Molecule)
+            mol = Molecule.from_str(mol, fmt=fmt)
+            assert mol == self.mol
+            assert isinstance(mol, Molecule)
 
         self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
         assert os.path.isfile(f"{self.tmp_path}/CH4_testing.xyz")

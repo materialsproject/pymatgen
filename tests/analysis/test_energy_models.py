@@ -5,6 +5,7 @@ import unittest
 from pytest import approx
 
 from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
+from pymatgen.core import Species
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -54,7 +55,6 @@ class TestSymmetryModel(unittest.TestCase):
 class TestIsingModel(unittest.TestCase):
     def test_get_energy(self):
         m = IsingModel(5, 6)
-        from pymatgen.core.periodic_table import Species
 
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         struct.replace_species({"Fe": Species("Fe", 2, spin=4)})

@@ -32,6 +32,8 @@ from pymatgen.electronic_structure.plotter import (
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+rc("text", usetex=False)  # Disabling latex is needed for this test to work.
+
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
@@ -54,8 +56,6 @@ class TestDosPlotter(PymatgenTest):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_get_plot(self):
-        # Disabling latex is needed for this test to work.
-        rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         ax = self.plotter.get_plot()
         assert len(ax.lines) == 2
@@ -66,9 +66,6 @@ class TestDosPlotter(PymatgenTest):
     def test_get_plot_limits(self):
         # Tests limit determination and if inverted_axes case
         # reproduces the same energy and DOS axis limits
-        from matplotlib import rc
-
-        rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
         with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as f:
@@ -162,11 +159,6 @@ class TestBSPlotter(PymatgenTest):
         # zero_to_efermi = True, ylim = None, smooth = False,
         # vbm_cbm_marker = False, smooth_tol = None
 
-        # Disabling latex is needed for this test to work.
-        from matplotlib import rc
-
-        rc("text", usetex=False)
-
         ax = self.plotter.get_plot()
         assert ax.get_ylim() == (-4.0, 7.6348), "wrong ylim"
         ax = self.plotter.get_plot(smooth=True)
@@ -189,9 +181,9 @@ class TestBSPlotter(PymatgenTest):
 
 class TestBSPlotterProjected(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as f:
-            d = json.load(f)
-            self.bs = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
+            dct = json.load(file)
+            self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotterProjected(self.bs)
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that

@@ -9,7 +9,7 @@ from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePre
 from pymatgen.core import Structure
 from pymatgen.util.testing import PymatgenTest
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestRLSVolumePredictor(PymatgenTest):

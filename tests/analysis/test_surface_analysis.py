@@ -57,8 +57,8 @@ class TestSlabEntry(PymatgenTest):
                         assert ads.Nsurfs_ads_in_slab == 1
 
                         # Determine the correct binding energy
-                        with open(f"{TEST_DIR}/isolated_O_entry.txt") as isolated_O_entry:
-                            isolated_O_entry = json.loads(isolated_O_entry.read())
+                        with open(f"{TEST_DIR}/isolated_O_entry.txt") as txt_file:
+                            isolated_O_entry = json.loads(txt_file.read())
                         O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
                         g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
                         assert g_bind == ads.gibbs_binding_energy()
@@ -307,8 +307,8 @@ class TestNanoscaleStability(PymatgenTest):
         # Load all entries
         La_hcp_entry_dict = get_entry_dict(f"{TEST_DIR}/La_hcp_entries.txt")
         La_fcc_entry_dict = get_entry_dict(f"{TEST_DIR}/La_fcc_entries.txt")
-        with open(f"{TEST_DIR}/ucell_entries.txt") as ucell_entries:
-            ucell_entries = json.loads(ucell_entries.read())
+        with open(f"{TEST_DIR}/ucell_entries.txt") as txt_file:
+            ucell_entries = json.loads(txt_file.read())
         La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
         La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
 
@@ -358,8 +358,8 @@ def get_entry_dict(filename):
     # helper to generate an entry_dict
 
     entry_dict = {}
-    with open(filename) as entries:
-        entries = json.loads(entries.read())
+    with open(filename) as file:
+        entries = json.loads(file.read())
     for k in entries:
         n = k[25:]
         miller_index = []

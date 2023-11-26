@@ -156,7 +156,7 @@ class InterfacialReactivity(MSONable):
             num_atoms = [(x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms) for x in x_kink]
             energy_per_rxt_formula = [
                 energy_kink[i]
-                * self._get_elmt_amt_in_rxn(react_kink[i])
+                * self._get_elem_amt_in_rxn(react_kink[i])
                 / num_atoms[i]
                 * InterfacialReactivity.EV_TO_KJ_PER_MOL
                 for i in range(2)
@@ -180,7 +180,7 @@ class InterfacialReactivity(MSONable):
                 # Gets balanced reaction at kinks
                 rxt = self._get_reaction(x)
                 react_kink.append(rxt)
-                rxt_energy = normalized_energy * self._get_elmt_amt_in_rxn(rxt) / n_atoms
+                rxt_energy = normalized_energy * self._get_elem_amt_in_rxn(rxt) / n_atoms
                 energy_per_rxt_formula.append(rxt_energy * self.EV_TO_KJ_PER_MOL)
 
         index_kink = range(1, len(critical_comp) + 1)
@@ -316,7 +316,7 @@ class InterfacialReactivity(MSONable):
 
         return reaction
 
-    def _get_elmt_amt_in_rxn(self, rxn: Reaction) -> int:
+    def _get_elem_amt_in_rxn(self, rxn: Reaction) -> int:
         """
         Computes total number of atoms in a reaction formula for elements
         not in external reservoir. This method is used in the calculation
@@ -474,10 +474,9 @@ class InterfacialReactivity(MSONable):
 
         if not candidate:
             warnings.warn(
-                "The reactant " + composition.reduced_formula + " has no matching entry with negative formation"
+                f"The reactant {composition.reduced_formula} has no matching entry with negative formation"
                 " energy, instead convex hull energy for this"
-                " composition will be used for reaction energy "
-                "calculation. "
+                " composition will be used for reaction energy calculation. "
             )
             return pd.get_hull_energy(composition)
         min_entry_energy = min(candidate)

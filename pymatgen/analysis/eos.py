@@ -1,5 +1,4 @@
-"""
-This module implements various equation of states.
+"""This module implements various equation of states.
 
 Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
@@ -20,7 +19,7 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as plt
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
@@ -43,7 +42,7 @@ class EOSBase(metaclass=ABCMeta):
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
         # minimum energy(e0), buk modulus(b0),
-        # derivative of bulk modulus wrt pressure(b1), minimum volume(v0)
+        # derivative of bulk modulus w.r.t. pressure(b1), minimum volume(v0)
         self._params = None
         # the eos function parameters. It is the same as _params except for
         # equation of states that uses polynomial fits(delta_factor and
@@ -148,7 +147,7 @@ class EOSBase(metaclass=ABCMeta):
 
     @property
     def b1(self):
-        """Returns the derivative of bulk modulus wrt pressure(dimensionless)."""
+        """Returns the derivative of bulk modulus w.r.t. pressure(dimensionless)."""
         return self._params[2]
 
     @property
@@ -192,7 +191,7 @@ class EOSBase(metaclass=ABCMeta):
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
+            f"Derivative of bulk modulus w.r.t. pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -240,7 +239,7 @@ class EOSBase(metaclass=ABCMeta):
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
+            f"Derivative of bulk modulus w.r.t. pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -358,8 +357,7 @@ class PolynomialEOS(EOSBase):
         and set to the _params attribute.
         """
         fit_poly = np.poly1d(self.eos_params)
-        # the volume at min energy, used as the initial guess for the
-        # optimization wrt volume.
+        # the volume at min energy, used as the initial guess for the optimization w.r.t. volume.
         v_e_min = self.volumes[np.argmin(self.energies)]
         # evaluate e0, v0, b0 and b1
         min_wrt_v = minimize(fit_poly, v_e_min)
@@ -426,12 +424,11 @@ class NumericalEOS(PolynomialEOS):
         Args:
             min_ndata_factor (int): parameter that controls the minimum number
                 of data points that will be used for fitting.
-                minimum number of data points =
-                    total data points-2*min_ndata_factor
+                minimum number of data points = total data points-2*min_ndata_factor
             max_poly_order_factor (int): parameter that limits the max order
                 of the polynomial used for fitting.
                 max_poly_order = number of data points used for fitting -
-                                 max_poly_order_factor
+                max_poly_order_factor
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """

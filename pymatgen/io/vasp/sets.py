@@ -49,9 +49,7 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import SiteCollection, Structure
+from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
@@ -348,7 +346,7 @@ class DictSet(VaspInputSet):
     user_potcar_settings: dict = field(default_factory=dict)
     constrain_total_magmom: bool = False
     sort_structure: bool = True
-    user_potcar_functional: UserPotcarFunctional | None = None
+    user_potcar_functional: UserPotcarFunctional = None
     force_gamma: bool = False
     reduce_structure: Literal["niggli", "LLL"] | None = None
     vdw: str | None = None
@@ -1353,9 +1351,7 @@ class MPScanRelaxSet(DictSet):
     """
 
     bandgap: float | None = None
-    user_potcar_functional: Literal[
-        "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"
-    ] = "PBE_54"
+    user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_kspacing: bool = True
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
@@ -1530,8 +1526,13 @@ class MatPESStaticSet(DictSet):
                 f"Unrecognized xc_functional='{self.xc_functional}'. "
                 f"Supported exchange-correlation functionals are {valid_xc_functionals}"
             )
-        if self.user_potcar_functional.upper() != "PBE_54":
-            warnings.warn(f"{self.user_potcar_functional=} is inconsistent with the recommended PBE_54.", UserWarning)
+
+        default_potcars = self.CONFIG["PARENT"].replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
+        self.user_potcar_functional = self.user_potcar_functional or default_potcars
+        if self.user_potcar_functional.upper() != default_potcars:
+            warnings.warn(
+                f"{self.user_potcar_functional=} is inconsistent with the recommended {default_potcars}.", UserWarning
+            )
 
     def get_incar_updates(self, *args, **kwargs) -> dict:
         """Get updates to the INCAR."""
@@ -2735,9 +2736,7 @@ class LobsterSet(DictSet):
 
     # newest potcars are preferred
     # Choose PBE_54 unless the user specifies a different potcar_functional
-    user_potcar_functional: Literal[
-        "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"
-    ] | None = "PBE_54"
+    user_potcar_functional: UserPotcarFunctional = "PBE_54"
 
     CONFIG = CONFIG_MP_RELAX
     _valid_potcars = ("PBE_52", "PBE_54")
@@ -2773,6 +2772,7 @@ class LobsterSet(DictSet):
         from pymatgen.io.lobster import Lobsterin
 
         potcar_symbols = Poscar(structure).site_symbols
+
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:
             basis = Lobsterin.get_basis(structure=structure, potcar_symbols=potcar_symbols)
@@ -2950,16 +2950,16 @@ def batch_write_input(
             in addition to structure.
     """
     output_dir = Path(output_dir)
-    for i, s in enumerate(structures):
-        formula = re.sub(r"\s+", "", s.formula)
+    for idx, site in enumerate(structures):
+        formula = re.sub(r"\s+", "", site.formula)
         if subfolder is not None:
-            subdir = subfolder(s)
+            subdir = subfolder(site)
             d = output_dir / subdir
         else:
-            d = output_dir / f"{formula}_{i}"
+            d = output_dir / f"{formula}_{idx}"
         if sanitize:
-            s = s.copy(sanitize=True)
-        v = vasp_input_set(s, **kwargs)
+            site = site.copy(sanitize=True)
+        v = vasp_input_set(site, **kwargs)
         v.write_input(
             str(d),
             make_dir_if_not_present=make_dir_if_not_present,
@@ -3042,14 +3042,20 @@ class MPAbsorptionSet(DictSet):
 
     Args:
         structure (Structure): Input structure.
+        prev_incar (Incar/string): Incar file from previous run.
         mode (str): Supported modes are "IPA", "RPA"
         copy_wavecar (bool): Whether to copy the WAVECAR from a previous run. Defaults to True.
+        nbands (int): For subsequent calculations, it is generally
+            recommended to perform NBANDS convergence starting from the
+            NBANDS of the previous run for DIAG, and to use the exact same
+            NBANDS for RPA. This parameter is used by
+            from_previous_calculation to set nband.
         nbands_factor (int): Multiplicative factor for NBANDS when starting
             from a previous calculation. Only applies if mode=="IPA".
             Need to be tested for convergence.
         reciprocal_density: the k-points density
         nkred: the reduced number of kpoints to calculate, equal to the k-mesh. Only applies in "RPA" mode
-              because of the q->0 limit.
+            because of the q->0 limit.
         nedos: the density of DOS, default: 2001.
         **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
     """
@@ -3088,11 +3094,9 @@ class MPAbsorptionSet(DictSet):
 
     def get_incar_updates(
         self,
-        structure: Structure,
-        prev_incar: dict | str | None = None,
-        bandgap: float = 0.0,
+        *args,
         vasprun: Vasprun | None = None,
-        outcar: Outcar | None = None,
+        **kwargs,
     ) -> dict:
         """Get incar updates."""
         updates = {

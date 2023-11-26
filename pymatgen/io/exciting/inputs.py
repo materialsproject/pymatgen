@@ -9,9 +9,7 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -249,10 +247,7 @@ class ExcitingInput(MSONable):
                         symbol = "GAMMA"
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
         elif bandstr and celltype != "primitive":
-            raise ValueError(
-                "Bandstructure is only implemented for the \
-                              standard primitive unit cell!"
-            )
+            raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")
 
         # write extra parameters from kwargs if provided
         self._dicttoxml(kwargs, root)

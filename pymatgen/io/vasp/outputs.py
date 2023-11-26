@@ -25,10 +25,7 @@ from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.units import unitized
 from pymatgen.electronic_structure.bandstructure import (
     BandStructure,
@@ -109,15 +106,13 @@ def _parse_v_parameters(val_type, val, filename, param_name):
     return val
 
 
-def _parse_varray(elem):
+def _parse_vasp_array(elem) -> list[list[float]]:
     if elem.get("type") == "logical":
-        m = [[i == "T" for i in v.text.split()] for v in elem]
-    else:
-        m = [[_vasprun_float(i) for i in v.text.split()] for v in elem]
-    return m
+        return [[i == "T" for i in v.text.split()] for v in elem]
+    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
 
 
-def _parse_from_incar(filename, key):
+def _parse_from_incar(filename: str, key: str) -> str | None:
     """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
@@ -130,19 +125,19 @@ def _parse_from_incar(filename, key):
     return None
 
 
-def _vasprun_float(f):
+def _vasprun_float(flt: float | str) -> float:
     """
     Large numbers are often represented as ********* in the vasprun.
     This function parses these values as np.nan.
     """
     try:
-        return float(f)
-    except ValueError as e:
-        f = f.strip()
-        if f == "*" * len(f):
+        return float(flt)
+    except ValueError as exc:
+        flt = flt.strip()  # type: ignore[union-attr]
+        if flt == "*" * len(flt):
             warnings.warn("Float overflow (*******) encountered in vasprun")
             return np.nan
-        raise e
+        raise exc
 
 
 class Vasprun(MSONable):
@@ -203,17 +198,17 @@ class Vasprun(MSONable):
 
     def __init__(
         self,
-        filename,
-        ionic_step_skip=None,
-        ionic_step_offset=0,
-        parse_dos=True,
-        parse_eigen=True,
-        parse_projected_eigen=False,
-        parse_potcar_file=True,
-        occu_tol=1e-8,
-        separate_spins=False,
-        exception_on_bad_xml=True,
-    ):
+        filename: str | Path,
+        ionic_step_skip: int | None = None,
+        ionic_step_offset: int = 0,
+        parse_dos: bool = True,
+        parse_eigen: bool = True,
+        parse_projected_eigen: bool = False,
+        parse_potcar_file: bool = True,
+        occu_tol: float = 1e-8,
+        separate_spins: bool = False,
+        exception_on_bad_xml: bool = True,
+    ) -> None:
         """
         Args:
             filename (str): Filename to parse
@@ -246,7 +241,7 @@ class Vasprun(MSONable):
                 where no hashes will be determined and the potcar_spec dictionaries
                 will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
                 the same directory as the vasprun.xml, with same extensions as
-                 Vasprun.xml. If a string is provided, looks at that filepath.
+                Vasprun.xml. If a string is provided, looks at that filepath.
             occu_tol (float): Sets the minimum tol for the determination of the
                 vbm and cbm. Usually the default of 1e-8 works well enough,
                 but there may be pathological cases.
@@ -275,7 +270,7 @@ class Vasprun(MSONable):
                 # The text before the first <calculation> is the preamble!
                 preamble = steps.pop(0)
                 self.nionic_steps = len(steps)
-                new_steps = steps[ionic_step_offset :: int(ionic_step_skip)]
+                new_steps = steps[ionic_step_offset :: int(ionic_step_skip or 1)]
                 # add the tailing information in the last step from the run
                 to_parse = "<calculation>".join(new_steps)
                 if steps[-1] != new_steps[-1]:
@@ -380,7 +375,7 @@ class Vasprun(MSONable):
                             self.other_dielectric[comment] = self._parse_diel(elem)
 
                 elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
-                    self.optical_transition = np.array(_parse_varray(elem))
+                    self.optical_transition = np.array(_parse_vasp_array(elem))
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
                 elif tag == "dynmat":
@@ -403,7 +398,7 @@ class Vasprun(MSONable):
                         md_data.append({})
                         md_data[-1]["structure"] = self._parse_structure(elem)
                     elif tag == "varray" and elem.attrib.get("name") == "forces":
-                        md_data[-1]["forces"] = _parse_varray(elem)
+                        md_data[-1]["forces"] = _parse_vasp_array(elem)
                     elif tag == "energy":
                         d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
                         if "kinetic" in d:
@@ -420,7 +415,7 @@ class Vasprun(MSONable):
         self.vasp_version = self.generator["version"]
 
     @property
-    def structures(self):
+    def structures(self) -> list[Structure]:
         """
         Returns:
             List of Structure objects for the structure at each ionic step.
@@ -428,7 +423,7 @@ class Vasprun(MSONable):
         return [step["structure"] for step in self.ionic_steps]
 
     @property
-    def epsilon_static(self):
+    def epsilon_static(self) -> list[float]:
         """
         Property only available for DFPT calculations.
 
@@ -439,7 +434,7 @@ class Vasprun(MSONable):
         return self.ionic_steps[-1].get("epsilon", [])
 
     @property
-    def epsilon_static_wolfe(self):
+    def epsilon_static_wolfe(self) -> list[float]:
         """
         Property only available for DFPT calculations.
 
@@ -450,7 +445,7 @@ class Vasprun(MSONable):
         return self.ionic_steps[-1].get("epsilon_rpa", [])
 
     @property
-    def epsilon_ionic(self):
+    def epsilon_ionic(self) -> list[float]:
         """
         Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.
 
@@ -476,14 +471,14 @@ class Vasprun(MSONable):
         return self.dielectric_data["density"]
 
     @property
-    def optical_absorption_coeff(self):
+    def optical_absorption_coeff(self) -> list[float]:
         """
         Calculate the optical absorption coefficient
         from the dielectric constants. Note that this method is only
         implemented for optical properties calculated with GGA and BSE.
 
         Returns:
-            optical absorption coefficient in list
+            list[float]: optical absorption coefficient
         """
         if self.dielectric_data["density"]:
             real_avg = [
@@ -509,7 +504,7 @@ class Vasprun(MSONable):
         return absorption_coeff
 
     @property
-    def converged_electronic(self):
+    def converged_electronic(self) -> bool:
         """
         Returns:
             bool: True if electronic step convergence has been reached in the final ionic step.
@@ -527,7 +522,7 @@ class Vasprun(MSONable):
         return len(final_elec_steps) < self.parameters["NELM"]
 
     @property
-    def converged_ionic(self):
+    def converged_ionic(self) -> bool:
         """
         Returns:
             bool: True if ionic step convergence has been reached, i.e. that vasp
@@ -537,7 +532,7 @@ class Vasprun(MSONable):
         return nsw <= 1 or len(self.ionic_steps) < nsw
 
     @property
-    def converged(self):
+    def converged(self) -> bool:
         """
         Returns:
             bool: True if a relaxation run is both ionically and electronically converged.
@@ -581,17 +576,17 @@ class Vasprun(MSONable):
     @property
     def complete_dos_normalized(self) -> CompleteDos:
         """
-        A CompleteDos object which incorporates the total DOS and all
-        projected DOS. Normalized by the volume of the unit cell with
-        units of states/eV/unit cell volume.
+        A CompleteDos object which incorporates the total DOS and all projected DOS.
+        Normalized by the volume of the unit cell with units of states/eV/unit cell
+        volume.
         """
         final_struct = self.final_structure
         pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
         return CompleteDos(self.final_structure, self.tdos, pdoss, normalize=True)
 
     @property
-    def hubbards(self):
-        """Hubbard U values used if a vasprun is a GGA+U run. {} otherwise."""
+    def hubbards(self) -> dict[str, float]:
+        """Hubbard U values used if a vasprun is a GGA+U run. Otherwise an empty dict."""
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
         if not self.incar.get("LDAU", False):
@@ -601,7 +596,7 @@ class Vasprun(MSONable):
         if len(js) != len(us):
             js = [0] * len(us)
         if len(us) == len(symbols):
-            return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
+            return {symbols[idx]: us[idx] - js[idx] for idx in range(len(symbols))}
         if sum(us) == 0 and sum(js) == 0:
             return {}
         raise VaspParseError("Length of U value parameters and atomic symbols are mismatched")
@@ -1227,9 +1222,9 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = _parse_varray(va)
+                actual_kpoints = _parse_vasp_array(va)
             elif name == "weights":
-                weights = [i[0] for i in _parse_varray(va)]
+                weights = [i[0] for i in _parse_vasp_array(va)]
         elem.clear()
         if k.style == Kpoints.supported_modes.Reciprocal:
             k = Kpoints(
@@ -1242,12 +1237,12 @@ class Vasprun(MSONable):
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
-        latt = _parse_varray(elem.find("crystal").find("varray"))
-        pos = _parse_varray(elem.find("varray"))
+        latt = _parse_vasp_array(elem.find("crystal").find("varray"))
+        pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(latt, self.atomic_symbols, pos)
         sdyn = elem.find("varray/[@name='selective']")
         if sdyn:
-            struct.add_site_property("selective_dynamics", _parse_varray(sdyn))
+            struct.add_site_property("selective_dynamics", _parse_vasp_array(sdyn))
         return struct
 
     @staticmethod
@@ -1267,9 +1262,9 @@ class Vasprun(MSONable):
     def _parse_optical_transition(elem):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
-                # opticaltransitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_varray(va))[0:]
-                probability_transition = np.array(_parse_varray(va))[0:, 1]
+                # optical transitions array contains oscillator strength and probability of transition
+                oscillator_strength = np.array(_parse_vasp_array(va))[0:]
+                probability_transition = np.array(_parse_vasp_array(va))[0:, 1]
         return oscillator_strength, probability_transition
 
     def _parse_chemical_shielding_calculation(self, elem):
@@ -1280,7 +1275,7 @@ class Vasprun(MSONable):
         except AttributeError:  # not all calculations have a structure
             struct = None
         for va in elem.findall("varray"):
-            istep[va.attrib["name"]] = _parse_varray(va)
+            istep[va.attrib["name"]] = _parse_vasp_array(va)
         istep["structure"] = struct
         istep["electronic_steps"] = []
         calculation.append(istep)
@@ -1304,7 +1299,7 @@ class Vasprun(MSONable):
 
     def _parse_calculation(self, elem):
         try:
-            istep = {i.attrib["name"]: float(i.text) for i in elem.find("energy").findall("i")}
+            istep = {i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")}
         except AttributeError:  # not all calculations have an energy
             istep = {}
         esteps = []
@@ -1319,7 +1314,7 @@ class Vasprun(MSONable):
         except AttributeError:  # not all calculations have a structure
             struct = None
         for va in elem.findall("varray"):
-            istep[va.attrib["name"]] = _parse_varray(va)
+            istep[va.attrib["name"]] = _parse_vasp_array(va)
         istep["electronic_steps"] = esteps
         istep["structure"] = struct
         elem.clear()
@@ -1333,7 +1328,7 @@ class Vasprun(MSONable):
         idensities = {}
 
         for s in elem.find("total").find("array").find("set").findall("set"):
-            data = np.array(_parse_varray(s))
+            data = np.array(_parse_vasp_array(s))
             energies = data[:, 0]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             tdensities[spin] = data[:, 1]
@@ -1350,7 +1345,7 @@ class Vasprun(MSONable):
 
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
-                    data = np.array(_parse_varray(ss))
+                    data = np.array(_parse_vasp_array(ss))
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
                         orb = Orbital(j - 1) if lm else OrbitalType(j - 1)
@@ -1369,7 +1364,7 @@ class Vasprun(MSONable):
         for s in elem.find("array").find("set").findall("set"):
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for ss in s.findall("set"):
-                eigenvalues[spin].append(_parse_varray(ss))
+                eigenvalues[spin].append(_parse_vasp_array(ss))
         eigenvalues = {spin: np.array(v) for spin, v in eigenvalues.items()}
         elem.clear()
         return eigenvalues
@@ -1385,7 +1380,7 @@ class Vasprun(MSONable):
             for ss in s.findall("set"):
                 dk = []
                 for sss in ss.findall("set"):
-                    db = _parse_varray(sss)
+                    db = _parse_vasp_array(sss)
                     dk.append(db)
                 proj_eigen[spin].append(dk)
         proj_eigen = {spin: np.array(v) for spin, v in proj_eigen.items()}
@@ -1448,7 +1443,7 @@ class BSVasprun(Vasprun):
                 where no hashes will be determined and the potcar_spec dictionaries
                 will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
                 the same directory as the vasprun.xml, with same extensions as
-                 Vasprun.xml. If a string is provided, looks at that filepath.
+                Vasprun.xml. If a string is provided, looks at that filepath.
             occu_tol: Sets the minimum tol for the determination of the
                 vbm and cbm. Usually the default of 1e-8 works well enough,
                 but there may be pathological cases.
@@ -4143,12 +4138,12 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
     # make a working copy of band_structure
     bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
     if bs_working.is_metal():
-        e = efermi
-        while e < cbm:
-            e += 0.01
-            bs_working._efermi = e
+        energy = efermi
+        while energy < cbm:
+            energy += 0.01
+            bs_working._efermi = energy
             if not bs_working.is_metal():
-                return e
+                return energy
     return efermi
 
 
@@ -4254,7 +4249,7 @@ class Wavecar:
                 # and occupations in way that does not span FORTRAN records, but
                 # reader below appears to assume that record boundaries can be ignored
                 # (see OUTWAV vs. OUTWAV_4 in vasp fileio.F)
-                raise ValueError(f"invalid {rtag=}, must be one of {valid_rtags}")
+                raise ValueError(f"Invalid {rtag=}, must be one of {valid_rtags}")
 
             # padding to end of fortran REC=1
             np.fromfile(f, dtype=np.float64, count=recl8 - 3)

@@ -27,7 +27,7 @@ __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 class SymmOp(MSONable):
     """A symmetry operation in Cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
-    for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation.
+    for efficiency. Read: http://wikipedia.org/wiki/Affine_transformation.
 
     Attributes:
         affine_matrix (np.ndarray): A 4x4 array representing the symmetry operation.

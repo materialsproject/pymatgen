@@ -7,7 +7,6 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -59,8 +58,7 @@ class TestHeader(unittest.TestCase):
 class TestFeffAtoms(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        r = CifParser(f"{TEST_FILES_DIR}/CoO19128.cif")
-        cls.structure = r.get_structures()[0]
+        cls.structure = Structure.from_file(f"{TEST_FILES_DIR}/CoO19128.cif")
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
     def test_absorbing_atom(self):
@@ -76,9 +74,9 @@ class TestFeffAtoms(unittest.TestCase):
         """
         # one Zn+2, 9 triflate, plus water
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
-        atoms = Atoms(m, "Zn", 9)
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
+        atoms = Atoms(mol, "Zn", 9)
         # Zn should not appear in the pot_dict
         assert not atoms.pot_dict.get("Zn", False)
 
@@ -212,8 +210,8 @@ class TestFeffTags(unittest.TestCase):
 class TestFeffPot(unittest.TestCase):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/POTENTIALS"
-        feffpot = Potential.pot_string_from_file(filepath)
-        d, dr = Potential.pot_dict_from_string(feffpot)
+        feff_pot = Potential.pot_string_from_file(filepath)
+        d, dr = Potential.pot_dict_from_string(feff_pot)
         assert d["Co"] == 1, "Wrong symbols read in for Potential"
 
     def test_single_absorbing_atom(self):
@@ -223,9 +221,9 @@ class TestFeffPot(unittest.TestCase):
         """
         # one Zn+2, 9 triflate, plus water
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
-        pot = Potential(m, "Zn")
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
+        pot = Potential(mol, "Zn")
         # Zn should not appear in the pot_dict
         assert not pot.pot_dict.get("Zn", False)
         # Zn should only appear in the first row of the string representation

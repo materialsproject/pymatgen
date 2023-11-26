@@ -308,7 +308,6 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
 
     Return:
         np.array: Array of size `nx` with delta function on the desired outputgrid.
-
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
@@ -370,7 +369,6 @@ def epsilon_imag(
 
     Return:
         np.array: Array of size `nedos` with the imaginary part of the dielectric function.
-
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
     egrid = np.linspace(0, nedos * deltae, nedos, endpoint=False)

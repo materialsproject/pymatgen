@@ -205,23 +205,23 @@ def diamond_functions(xx, yy, y_x0, x_y0):
     Returns:
         A dictionary with the lower and upper diamond functions.
     """
-    npxx = np.array(xx)
-    npyy = np.array(yy)
-    if np.any(npxx == npyy):
+    np_xx = np.array(xx)
+    np_yy = np.array(yy)
+    if np.any(np_xx == np_yy):
         raise RuntimeError("Invalid points for diamond_functions")
-    if np.all(npxx < npyy) or np.all(npxx > npyy):
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
+    if np.all(np_xx < np_yy) or np.all(np_xx > np_yy):
+        if np_xx[0] < np_yy[0]:
+            p1 = np_xx
+            p2 = np_yy
         else:
-            p1 = npyy
-            p2 = npxx
-    elif npxx[0] < npyy[0]:
-        p1 = npxx
-        p2 = npyy
+            p1 = np_yy
+            p2 = np_xx
+    elif np_xx[0] < np_yy[0]:
+        p1 = np_xx
+        p2 = np_yy
     else:
-        p1 = npyy
-        p2 = npxx
+        p1 = np_yy
+        p2 = np_xx
     slope = (p2[1] - p1[1]) / (p2[0] - p1[0])
     if slope > 0.0:
         x_bpoint = p1[0] + x_y0
@@ -425,11 +425,11 @@ def rotateCoords(coords, R):
     Returns:
         List of rotated points.
     """
-    newlist = []
+    new_coords = []
     for pp in coords:
         rpp = matrixTimesVector(R, pp)
-        newlist.append(rpp)
-    return newlist
+        new_coords.append(rpp)
+    return new_coords
 
 
 def rotateCoordsOpt(coords, R):
@@ -461,10 +461,10 @@ def changebasis(uu, vv, nn, pps):
         MM[ii, 1] = vv[ii]
         MM[ii, 2] = nn[ii]
     PP = np.linalg.inv(MM)
-    newpps = []
+    new_pps = []
     for pp in pps:
-        newpps.append(matrixTimesVector(PP, pp))
-    return newpps
+        new_pps.append(matrixTimesVector(PP, pp))
+    return new_pps
 
 
 def collinear(p1, p2, p3=None, tolerance=0.25):

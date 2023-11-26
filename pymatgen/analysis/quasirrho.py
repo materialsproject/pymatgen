@@ -92,7 +92,6 @@ class QuasiRRHO:
         free_energy_ho (float): Free energy calculated without the Quasi-RRHO
             method, i.e. with a harmonic oscillator approximation for the
             vibrational entropy [Ha]
-
     """
 
     def __init__(

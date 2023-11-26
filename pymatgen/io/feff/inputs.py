@@ -16,9 +16,7 @@ from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.core import ParseError
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -209,8 +207,8 @@ class Header(MSONable):
         Returns:
             Header Object
         """
-        r = CifParser(cif_file)
-        structure = r.get_structures()[0]
+        parser = CifParser(cif_file)
+        structure = parser.parse_structures(primitive=True)[0]
         return Header(structure, source, comment)
 
     @property

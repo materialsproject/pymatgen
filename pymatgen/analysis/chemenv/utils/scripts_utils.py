@@ -240,7 +240,7 @@ def compute_environments(chemenv_configuration):
             if not found:
                 input_source = input("Enter path to CIF file : ")
             parser = CifParser(input_source)
-            structure = parser.get_structures()[0]
+            structure = parser.parse_structures(primitive=True)[0]
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')

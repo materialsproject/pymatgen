@@ -1,4 +1,4 @@
-"""Test for the piezo tensor class."""
+"""Tests for the PiezoTensor class."""
 
 from __future__ import annotations
 

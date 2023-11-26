@@ -6,6 +6,7 @@ where it was originally done by Guido Petretto and Matteo Giantomassi.
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -89,8 +90,6 @@ class IRDielectricTensor(MSONable):
 
     def write_json(self, filename: str | PathLike) -> None:
         """Save a json file with this data."""
-        import json
-
         with open(filename, "w") as f:
             json.dump(self.as_dict(), f)
 

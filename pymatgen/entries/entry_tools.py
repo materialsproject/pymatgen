@@ -10,6 +10,7 @@ import datetime
 import itertools
 import json
 import logging
+import multiprocessing as mp
 import re
 from typing import TYPE_CHECKING, Literal
 
@@ -17,8 +18,7 @@ from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -115,7 +115,6 @@ def group_entries_by_structure(
         symm_entries = collections.defaultdict(list)
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
-        import multiprocessing as mp
 
         logging.info(f"Using {ncpus} cpus")
         manager = mp.Manager()

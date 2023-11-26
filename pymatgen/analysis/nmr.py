@@ -6,8 +6,7 @@ from collections import namedtuple
 
 import numpy as np
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Site
+from pymatgen.core import Site, Species
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
@@ -50,7 +49,7 @@ class ChemicalShielding(SquareTensor):
                 or a 1x3 array of the primary sigma values corresponding
                 to the principal axis system
             vscale (6x1 array-like): 6x1 array-like scaling the
-                Voigt-notation vector with the tensor entries
+                Voigt notation vector with the tensor entries
         """
         t_array = np.array(cs_matrix)
 
@@ -140,7 +139,7 @@ class ElectricFieldGradient(SquareTensor):
                 or a 1x3 array of the primary values corresponding
                 to the principal axis system
             vscale (6x1 array-like): 6x1 array-like scaling the
-                voigt-notation vector with the tensor entries
+                Voigt notation vector with the tensor entries
         """
         t_array = np.array(efg_matrix)
 

@@ -26,15 +26,15 @@ import copy
 import itertools
 from collections import defaultdict
 
+import networkx as nx
 import numpy as np
 from networkx.readwrite import json_graph
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import JmolNN
 from pymatgen.analysis.structure_analyzer import get_max_bond_lengths
+from pymatgen.core import Molecule, Species, Structure
 from pymatgen.core.lattice import get_integer_index
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -122,8 +122,6 @@ def get_structure_components(
         - "molecule_graph": If inc_molecule_graph is `True`, the site a
             MoleculeGraph object for zero-dimensional components.
     """
-    import networkx as nx  # optional dependency therefore not top level import
-
     comp_graphs = (bonded_structure.graph.subgraph(c) for c in nx.weakly_connected_components(bonded_structure.graph))
 
     components = []
@@ -262,8 +260,6 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     Returns:
         (MoleculeGraph): A MoleculeGraph object of the component.
     """
-    import networkx as nx
-
     seen_indices = []
     sites = []
 

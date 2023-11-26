@@ -1664,9 +1664,8 @@ def get_orb_from_str(orbs):
 
     Returns:
         list of tw Orbital objects
-
     """
-    # TODO: also useful for plotting of dos
+    # TODO: also useful for plotting of DOS
     orb_labs = [
         "s",
         "p_y",

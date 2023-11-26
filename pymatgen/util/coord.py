@@ -348,7 +348,7 @@ def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"]
 
 
 class Simplex(MSONable):
-    """A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
+    """A generalized simplex object. See http://wikipedia.org/wiki/Simplex.
 
     Attributes:
         space_dim (int): Dimension of the space. Usually, this is 1 more than the simplex_dim.
@@ -409,7 +409,7 @@ class Simplex(MSONable):
         simplex from this origin by subtracting all other vertices from the
         origin. We then project the point into this coordinate system and
         determine the linear decomposition coefficients in this coordinate
-        system. If the coeffs satisfy that all coeffs >= 0, the composition
+        system. If the coeffs satisfy all(coeffs >= 0), the composition
         is in the facet.
 
         Args:

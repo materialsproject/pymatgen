@@ -53,7 +53,7 @@ class Tensor(np.ndarray, MSONable):
             input_array: (array-like with shape 3^N): array-like representing
                 a tensor quantity in standard (i. e. non-voigt) notation
             vscale: (N x M array-like): a matrix corresponding
-                to the coefficients of the voigt-notation tensor
+                to the coefficients of the Voigt-notation tensor
             check_rank: (int): If not None, checks that input_array's rank == check_rank.
                 Defaults to None.
         """
@@ -270,8 +270,8 @@ class Tensor(np.ndarray, MSONable):
 
     @property
     def voigt_symmetrized(self):
-        """Returns a "voigt"-symmetrized tensor, i. e. a voigt-notation
-        tensor such that it is invariant wrt permutation of indices.
+        """Returns a "voigt"-symmetrized tensor, i. e. a Voigt-notation
+        tensor such that it is invariant w.r.t. permutation of indices.
         """
         if not (self.rank % 2 == 0 and self.rank >= 2):
             raise ValueError("V-symmetrization requires rank even and >= 2")
@@ -567,7 +567,7 @@ class Tensor(np.ndarray, MSONable):
 
         Args:
             structure (Structure): structure to base population on
-            prec (float): precision for determining a non-zero value
+            prec (float): precision for determining a non-zero value. Defaults to 1e-5.
             maxiter (int): maximum iterations for populating the tensor
             verbose (bool): whether to populate verbosely
             precond (bool): whether to precondition by cycling through
@@ -635,7 +635,7 @@ class Tensor(np.ndarray, MSONable):
 
         Args:
             voigt (bool): flag for whether to store entries in
-                voigt-notation. Defaults to false, as information
+                Voigt notation. Defaults to false, as information
                 may be lost in conversion.
 
         Returns (dict):
@@ -668,11 +668,11 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     or for having a tensor expansion.
     """
 
-    def __init__(self, tensor_list, base_class=Tensor):
+    def __init__(self, tensor_list: Sequence, base_class=Tensor) -> None:
         """:param tensor_list: List of tensors.
         :param base_class: Class to be used.
         """
-        self.tensors = [base_class(t) if not isinstance(t, base_class) else t for t in tensor_list]
+        self.tensors = [tensor if isinstance(tensor, base_class) else base_class(tensor) for tensor in tensor_list]
 
     def __len__(self):
         return len(self.tensors)
@@ -747,7 +747,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt(self):
-        """TensorCollection where all tensors are in voight form."""
+        """TensorCollection where all tensors are in Voigt form."""
         return [t.voigt for t in self]
 
     @property
@@ -804,7 +804,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return self.__class__([t.voigt_symmetrized for t in self])
 
     def as_dict(self, voigt=False):
-        """:param voigt: Whether to use voight form.
+        """:param voigt: Whether to use Voigt form.
 
         Returns:
             Dict representation of TensorCollection.
@@ -848,7 +848,7 @@ class SquareTensor(Tensor):
             input_array (3x3 array-like): the 3x3 array-like
                 representing the content of the tensor
             vscale (6x1 array-like): 6x1 array-like scaling the
-                voigt-notation vector with the tensor entries
+                Voigt-notation vector with the tensor entries
         """
         obj = super().__new__(cls, input_array, vscale, check_rank=2)
         return obj.view(cls)
