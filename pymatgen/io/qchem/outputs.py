@@ -2798,24 +2798,20 @@ def gradient_parser(filename: str) -> NDArray:
     """
 
     # Read the gradient scratch file in 8 byte chunks
-    filename = Path(filename)
     grad_scratch = filename / "131.0"
-    if grad_scratch.exists() and grad_scratch.stat().st_size > 0:
-        tmp_grad_data = []
-        with zopen(grad_scratch, mode="rb") as file:
-            binary = file.read()
-        tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
-        grad = [
-            [
-                float(tmp_grad_data[ii * 3]),
-                float(tmp_grad_data[ii * 3 + 1]),
-                float(tmp_grad_data[ii * 3 + 2]),
-            ]
-            for ii in range(len(tmp_grad_data) // 3)
+    tmp_grad_data = []
+    with zopen(grad_scratch, mode="rb") as file:
+        binary = file.read()
+    tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    grad = [
+        [
+            float(tmp_grad_data[ii * 3]),
+            float(tmp_grad_data[ii * 3 + 1]),
+            float(tmp_grad_data[ii * 3 + 2]),
         ]
-        return np.array(grad)
-    return None
-
+        for ii in range(len(tmp_grad_data) // 3)
+    ]
+    return np.array(grad)
 
 def hessian_parser(filename: str, n_atoms: int) -> NDArray:
     """
@@ -2828,16 +2824,14 @@ def hessian_parser(filename: str, n_atoms: int) -> NDArray:
     Returns:
         NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
     """
-    hessian_scratch = Path(filename)
-    if hessian_scratch.exists() and hessian_scratch.stat().st_size > 0:
-        tmp_hess_data = []
-        with zopen(hessian_scratch, mode="rb") as file:
-            binary = file.read()
-        tmp_hess_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
-        return np.reshape(
-            np.array(tmp_hess_data),
-            (n_atoms * 3, n_atoms * 3),
-        )
+    tmp_hess_data = []
+    with zopen(hessian_scratch, mode="rb") as file:
+        binary = file.read()
+    tmp_hess_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    return np.reshape(
+        np.array(tmp_hess_data),
+        (n_atoms * 3, n_atoms * 3),
+    )
 
 def scratch_orbital_coeffs_parser(filename: str) -> NDArray:
     """
