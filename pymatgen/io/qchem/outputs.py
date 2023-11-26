@@ -2805,13 +2805,13 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
             binary = file.read()
         tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
         grad = [
-                [
-                    float(tmp_grad_data[ii * 3]),
-                    float(tmp_grad_data[ii * 3 + 1]),
-                    float(tmp_grad_data[ii * 3 + 2]),
-                ]
-                for ii in range(len(tmp_grad_data) // 3)
+            [
+                float(tmp_grad_data[ii * 3]),
+                float(tmp_grad_data[ii * 3 + 1]),
+                float(tmp_grad_data[ii * 3 + 2]),
             ]
+            for ii in range(len(tmp_grad_data) // 3)
+        ]
         return np.array(grad)
 
 
