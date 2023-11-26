@@ -3,12 +3,14 @@ from __future__ import annotations
 import os
 import unittest
 
+import numpy as np
+
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
+from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes, hessian_parser
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -491,6 +493,9 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["acceptor type"][723] == "3C*"
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
+    def test_hessian(self):
+        hessian = hessian_parser(f"{TEST_FILES_DIR}/132.0")
+        assert np.shape(hessian) == (42,42)
 
 if __name__ == "__main__":
     # TestQCOutput.generate_single_job_dict()
