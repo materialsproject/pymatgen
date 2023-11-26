@@ -2827,7 +2827,9 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
     tmp_hess_data = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
-    hessian = tmp_hess_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    hessian = tmp_hess_data.extend(
+        struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8)
+    )
     if n_atoms:
         return np.reshape(
             hessian,
