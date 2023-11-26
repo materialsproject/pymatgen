@@ -2804,8 +2804,7 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
         with zopen(grad_scratch, mode="rb") as file:
             binary = file.read()
         tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
-        return np.array(
-            [
+        grad = [
                 [
                     float(tmp_grad_data[ii * 3]),
                     float(tmp_grad_data[ii * 3 + 1]),
@@ -2813,7 +2812,7 @@ def gradient_parser(filename: Path | str) -> NDArray | None:
                 ]
                 for ii in range(len(tmp_grad_data) // 3)
             ]
-        )
+        return np.array(grad)
 
 
 def hessian_parser(filename: Path | str) -> NDArray | None:
