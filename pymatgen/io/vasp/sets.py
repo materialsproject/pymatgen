@@ -96,19 +96,7 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-
-        elements = self.poscar.site_symbols
-        potcar_symbols = []
-        settings = self._config_dict["POTCAR"]
-
-        if isinstance(settings[elements[-1]], dict):
-            for el in elements:
-                potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
-        else:
-            for el in elements:
-                potcar_symbols.append(settings.get(el, el))
-
-        return potcar_symbols
+        return get_potcar_symbols(self.poscar, self._config_dict["POTCAR"])
 
     @property
     def potcar(self) -> Potcar:
@@ -821,9 +809,14 @@ class DictSet(VaspInputSet):
             return self._config_dict["INCAR"]["KSPACING"]
         return None
 
-    def _get_potcar(self, structure: Structure, potcar_spec: bool = False) -> Potcar:
+    def _get_potcar(self, structure: Structure, potcar_spec: bool = False) -> Potcar | list:
         """Get the POTCAR."""
-        potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        potcar_symbols = get_potcar_symbols(Poscar(structure), self._config_dict["POTCAR"])
+
+        if potcar_spec:
+            return potcar_symbols
+
+        potcar = Potcar(potcar_symbols, functional=self.potcar_functional)
 
         # warn if the selected POTCARs do not correspond to the chosen potcar_functional
         for psingle in potcar:
@@ -3359,3 +3352,19 @@ def _get_nedos(vasprun: Vasprun | None, dedos: float) -> int:
     emax = max(eigs.max() for eigs in vasprun.eigenvalues.values())
     emin = min(eigs.min() for eigs in vasprun.eigenvalues.values())
     return int((emax - emin) / dedos)
+
+
+def get_potcar_symbols(poscar, settings):
+    """List of POTCAR symbols."""
+
+    elements = poscar.site_symbols
+    potcar_symbols = []
+
+    if isinstance(settings[elements[-1]], dict):
+        for el in elements:
+            potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
+    else:
+        for el in elements:
+            potcar_symbols.append(settings.get(el, el))
+
+    return potcar_symbols
