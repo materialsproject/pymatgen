@@ -598,9 +598,8 @@ class PhononBSPlotter:
                 elif point.label.startswith("\\") or point.label.find("_") != -1:
                     tick_labels.append(f"${point.label}$")
                 else:
-                    label = point.label
-                    if label == "GAMMA":
-                        label = r"$\Gamma$"
+                    # map atomate2 all-upper-case point.labels to pretty LaTeX
+                    label = dict(GAMMA=r"$\Gamma$", DELTA=r"$\Delta$").get(point.label, point.label)
                     tick_labels.append(label)
                 previous_label = point.label
                 previous_branch = this_branch
