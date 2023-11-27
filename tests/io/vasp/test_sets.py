@@ -143,9 +143,6 @@ class TestDictSet(PymatgenTest):
             "@module",
             "@version",
             "auto_ismear",
-            "auto_ispin",
-            "auto_kspacing",
-            "auto_metal_kpoints",
             "bandgap_tol",
             "config_dict",
             "constrain_total_magmom",
@@ -1073,7 +1070,7 @@ class TestMITMDSet(PymatgenTest):
         self.set = MITMDSet
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         self.struct = Structure.from_file(filepath)
-        self.mit_md_param = self.set(self.struct, 300, 1200, 10000)
+        self.mit_md_param = self.set(structure=self.struct, start_temp=300, end_temp=1200, nsteps=10000)
 
     def test_params(self):
         param = self.mit_md_param
@@ -1090,8 +1087,8 @@ class TestMITMDSet(PymatgenTest):
         dct = self.mit_md_param.as_dict()
         input_set = dec.process_decoded(dct)
         assert isinstance(input_set, self.set)
-        assert input_set._config_dict["INCAR"]["TEBEG"] == 300
-        assert input_set._config_dict["INCAR"]["PREC"] == "Low"
+        assert input_set.incar["TEBEG"] == 300
+        assert input_set.incar["PREC"] == "Low"
 
 
 @skip_if_no_psp_dir
@@ -1128,7 +1125,7 @@ class TestMVLNPTMDSet(PymatgenTest):
         dct = self.mvl_npt_set.as_dict()
         input_set = dec.process_decoded(dct)
         assert isinstance(input_set, MVLNPTMDSet)
-        assert input_set._config_dict["INCAR"]["NSW"] == 1000
+        assert input_set.incar["NSW"] == 1000
 
 
 class TestMPMDSet(PymatgenTest):
@@ -1515,7 +1512,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
         d = self.mvl_scan_set.as_dict()
         v = dec.process_decoded(d)
         assert isinstance(v, self.set)
-        assert v._config_dict["INCAR"]["METAGGA"] == "SCAN"
+        assert v.incar["METAGGA"] == "Scan"
         assert v.user_incar_settings["NSW"] == 500
 
 
