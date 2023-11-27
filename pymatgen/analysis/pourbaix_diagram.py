@@ -473,7 +473,7 @@ class PourbaixDiagram(MSONable):
             for entry in ion_entries:
                 ion_elts = list(set(entry.elements) - ELEMENTS_HO)
                 # TODO: the logic here for ion concentration setting is in two
-                #       places, in PourbaixEntry and here, should be consolidated
+                # places, in PourbaixEntry and here, should be consolidated
                 if len(ion_elts) == 1:
                     entry.concentration = conc_dict[ion_elts[0].symbol] * entry.normalization_factor
                 elif len(ion_elts) > 1 and not entry.concentration:
@@ -481,7 +481,7 @@ class PourbaixDiagram(MSONable):
 
             self._unprocessed_entries = solid_entries + ion_entries
 
-            if not len(solid_entries + ion_entries) == len(entries):
+            if len(solid_entries + ion_entries) != len(entries):
                 raise ValueError('All supplied entries must have a phase type of either "Solid" or "Ion"')
 
             if self.filter_solids:
