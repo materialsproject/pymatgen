@@ -516,9 +516,8 @@ class PhononBSPlotter:
         """Show the plot using matplotlib.
 
         Args:
-            ylim: Specify the y-axis (frequency) limits; by default None let
-                the code choose.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
         self.get_plot(ylim, units=units)
         plt.show()
@@ -526,20 +525,18 @@ class PhononBSPlotter:
     def save_plot(
         self,
         filename: str | PathLike,
-        img_format: str = "eps",
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
-            ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            filename (str | Path): Filename to write to.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
         self.get_plot(ylim=ylim, units=units)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
         plt.close()
 
     def show_proj(
