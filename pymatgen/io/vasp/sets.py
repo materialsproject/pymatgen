@@ -229,9 +229,6 @@ UserPotcarFunctional = Union[
     Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
 ]
 
-CONFIG_MP_HSE_RELAX = _load_yaml_config("MPHSERelaxSet")
-CONFIG_MP_RELAX = _load_yaml_config("MPRelaxSet")
-
 
 @dataclass
 class DictSet(VaspInputSet):
@@ -1255,7 +1252,7 @@ class MPRelaxSet(DictSet):
         **kwargs: Same as those supported by DictSet.
     """
 
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = _load_yaml_config("MPRelaxSet")
 
 
 @due.dcite(
@@ -1350,7 +1347,7 @@ class MPMetalRelaxSet(DictSet):
     k point density, and a.
     """
 
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_incar_updates(self, *args, **kwargs) -> dict:
         """Get updates to the INCAR."""
@@ -1365,7 +1362,7 @@ class MPMetalRelaxSet(DictSet):
 class MPHSERelaxSet(DictSet):
     """Same as the MPRelaxSet, but with HSE parameters."""
 
-    CONFIG = CONFIG_MP_HSE_RELAX
+    CONFIG = _load_yaml_config("MPHSERelaxSet")
 
 
 @dataclass
@@ -1394,7 +1391,7 @@ class MPStaticSet(DictSet):
     inherit_incar: bool = True
     prev_incar: dict | str | None = None
     prev_kpoints: Kpoints | None = None
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_incar_updates(self, *args, **kwargs) -> dict:
         """Get updates to the INCAR."""
@@ -1609,7 +1606,7 @@ class MPHSEBSSet(DictSet):
     zero_weighted_reciprocal_density: float = 100
     dedos: float = 0.02
     optics: bool = False
-    CONFIG = CONFIG_MP_HSE_RELAX
+    CONFIG = MPHSERelaxSet.CONFIG
 
     def __post_init__(self) -> None:
         """Ensure mode is set correctly."""
@@ -1728,7 +1725,7 @@ class MPNonSCFSet(DictSet):
     small_gap_multiply: tuple[float, float] | None = None
     inherit_incar: bool = True
     prev_incar: dict | str | None = None
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def __post_init__(self):
         """Perform inputset validation."""
@@ -1853,7 +1850,7 @@ class MPSOCSet(DictSet):
     magmom: list[Vector3D] | None = None
     inherit_incar: bool = True
     copy_chgcar: bool = True
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
     prev_incar: dict | str | None = None
 
     def __post_init__(self):
@@ -1951,7 +1948,7 @@ class MPNMRSet(DictSet):
     small_gap_multiply: tuple[float, float] | None = None
     inherit_incar: bool = True
     prev_incar: dict | str | None = None
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_incar_updates(self, structure: Structure, *args, **kwargs) -> dict:
         """Get updates to the INCAR."""
@@ -2022,7 +2019,7 @@ class MVLElasticSet(DictSet):
     """
 
     potim: float = 0.015
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_incar_updates(self, *args, **kwargs) -> dict:
         return {"IBRION": 6, "NFREE": 2, "POTIM": self.potim, "NPAR": None}
@@ -2160,7 +2157,7 @@ class MVLSlabSet(DictSet):
     bulk: bool = False
     auto_dipole: bool = False
     set_mix: bool = True
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_incar_updates(self, structure: Structure, *args, **kwargs) -> dict:
         """Get updates to INCAR from base input set."""
@@ -2235,7 +2232,7 @@ class MVLGBSet(DictSet):
     k_product: int = 40
     slab_mode: bool = False
     is_metal: bool = True
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_kpoints_updates(self, structure: Structure, *args, **kwargs):
         """
@@ -2503,7 +2500,7 @@ class MPMDSet(DictSet):
     nsteps: int = 1000
     time_step: float | None = None
     spin_polarized: bool = False
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def get_incar_updates(self, structure: Structure, *args, **kwargs) -> dict:
         """Get incar settings"""
@@ -2645,7 +2642,7 @@ class MVLScanRelaxSet(DictSet):
 
     user_potcar_functional: UserPotcarFunctional = "PBE_52"
     _valid_potcars = ("PBE_52", "PBE_54")
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
 
     def __post_init__(self):
         super().__post_init__()
@@ -2698,7 +2695,7 @@ class LobsterSet(DictSet):
     # Choose PBE_54 unless the user specifies a different potcar_functional
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
 
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
     _valid_potcars = ("PBE_52", "PBE_54")
 
     def __post_init__(self):
@@ -3038,7 +3035,7 @@ class MPAbsorptionSet(DictSet):
     nedos: int = 2001
     inherit_incar: bool = True
     force_gamma: bool = True
-    CONFIG = CONFIG_MP_RELAX
+    CONFIG = MPRelaxSet.CONFIG
     nbands: int | None = None
     prev_incar: dict | str | None = None
     SUPPORTED_MODES = ("IPA", "RPA")
