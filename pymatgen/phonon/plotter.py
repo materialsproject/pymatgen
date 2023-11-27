@@ -95,7 +95,7 @@ class PhononDosPlotter:
             )
         self.stack = stack
         self.sigma = sigma
-        self._doses: dict = {}
+        self._doses: dict[str, dict[Literal["frequencies", "densities"], np.ndarray]] = {}
 
     def add_dos(self, label: str, dos: PhononDos) -> None:
         """Adds a dos for plotting.
@@ -138,6 +138,7 @@ class PhononDosPlotter:
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         legend: dict | None = None,
+        ax: Axes | None = None,
     ) -> Axes:
         """Get a matplotlib plot showing the DOS.
 
@@ -149,6 +150,8 @@ class PhononDosPlotter:
             legend: dict with legend options. For example, {"loc": "upper right"}
                 will place the legend in the upper right corner. Defaults to
                 {"fontsize": 30}.
+            ax (Axes): An existing axes object onto which the plot will be
+                added. If None, a new figure will be created.
         """
         legend = legend or {"fontsize": 30}
         unit = freq_units(units)
@@ -161,7 +164,7 @@ class PhononDosPlotter:
         y = None
         all_densities = []
         all_frequencies = []
-        ax = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8, ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
