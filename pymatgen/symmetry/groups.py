@@ -18,7 +18,6 @@ import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.core.operations import SymmOp
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
 
     # don't import at runtime to avoid circular import
     from pymatgen.core.lattice import Lattice
+    from pymatgen.core.operations import SymmOp  # noqa: TCH004
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
@@ -115,6 +115,8 @@ class PointGroup(SymmetryGroup):
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
         """
+        from pymatgen.core.operations import SymmOp
+
         self.symbol = int_symbol
         self.generators = [
             SYMM_DATA["generator_matrices"][enc] for enc in SYMM_DATA["point_group_encoding"][int_symbol]
@@ -205,6 +207,8 @@ class SpaceGroup(SymmetryGroup):
                 classmethod. Alternative origin choices can be indicated by a
                 translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
+        from pymatgen.core.operations import SymmOp
+
         int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
@@ -315,6 +319,8 @@ class SpaceGroup(SymmetryGroup):
         """Full set of symmetry operations as matrices. Lazily initialized as
         generation sometimes takes a bit of time.
         """
+        from pymatgen.core.operations import SymmOp
+
         if self._symmetry_ops is None:
             self._symmetry_ops = {SymmOp(m) for m in self._generate_full_symmetry_ops()}
         return self._symmetry_ops
@@ -351,6 +357,8 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             tuple[list[np.ndarray], list[SymmOp]]: Orbit and generators for point.
         """
+        from pymatgen.core.operations import SymmOp
+
         orbit: list[np.ndarray] = [np.array(p, dtype=float)]
         identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
         generators: list[np.ndarray] = [identity]
