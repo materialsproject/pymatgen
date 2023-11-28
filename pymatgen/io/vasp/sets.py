@@ -574,33 +574,102 @@ class DictSet(VaspInputSet):
             prev_incar = {k: self.prev_incar[k] for k in self.inherit_incar if k in self.prev_incar}  # type: ignore
 
         incar_updates = self.incar_updates
-        incar_settings = dict(self._config_dict["INCAR"])
-        config_magmoms = incar_settings.get("MAGMOM", {})
+        settings = dict(self._config_dict["INCAR"])
         auto_updates = {}
 
         # apply updates from input set generator to SETTINGS
-        _apply_incar_updates(incar_settings, incar_updates)
+        _apply_incar_updates(settings, incar_updates)
 
         # apply user incar settings to SETTINGS not to INCAR
-        _apply_incar_updates(incar_settings, self.user_incar_settings)
+        _apply_incar_updates(settings, self.user_incar_settings)
 
         # generate incar
+        structure = self.structure
+        comp = structure.composition
+        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda e: e.X)
+        most_electro_neg = elements[-1].symbol
+        poscar = Poscar(structure)
+        hubbard_u = settings.get("LDAU", False)
         incar = Incar()
-        for k, v in incar_settings.items():
+
+        for k, v in settings.items():
             if k == "MAGMOM":
-                magmoms = self.user_incar_settings.get("MAGMOM", config_magmoms)
-                incar[k] = _get_magmoms(self.structure, magmoms=magmoms)
-            elif k in ("LDAUU", "LDAUJ", "LDAUL") and incar_settings.get("LDAU", False):
-                incar[k] = _get_u_param(k, v, self.structure)
+                mag = []
+                for site in structure:
+                    if hasattr(site, "magmom"):
+                        mag.append(site.magmom)
+                    elif getattr(site.specie, "spin", None) is not None:
+                        mag.append(site.specie.spin)
+                    elif str(site.specie) in v:
+                        if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
+                            warnings.warn(
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
+                            )
+                        mag.append(v.get(str(site.specie)))
+                    else:
+                        if site.specie.symbol == "Co":
+                            warnings.warn(
+                                "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
+                                "If this default behavior is not desired, please set the spin on the magmom on the "
+                                "site directly to ensure correct initialization."
+                            )
+                        mag.append(v.get(site.specie.symbol, 0.6))
+                incar[k] = mag
+            elif k in ("LDAUU", "LDAUJ", "LDAUL"):
+                if hubbard_u:
+                    if hasattr(structure[0], k.lower()):
+                        m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
+                        incar[k] = [m[sym] for sym in poscar.site_symbols]
+                        # lookup specific LDAU if specified for most_electroneg atom
+                    elif most_electro_neg in v and isinstance(v[most_electro_neg], dict):
+                        incar[k] = [v[most_electro_neg].get(sym, 0) for sym in poscar.site_symbols]
+                        # else, use fallback LDAU value if it exists
+                    else:
+                        incar[k] = [
+                            v.get(sym, 0) if isinstance(v.get(sym, 0), (float, int)) else 0
+                            for sym in poscar.site_symbols
+                        ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
-                incar["EDIFF"] = _get_ediff(k, v, self.structure, incar_settings)
+                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
+                    incar["EDIFF"] = float(v) * len(structure)
+                else:
+                    incar["EDIFF"] = float(settings["EDIFF"])
             elif k == "KSPACING" and v == "auto":
                 # default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
                 incar[k] = auto_kspacing(bandgap, self.bandgap_tol)
             else:
                 incar[k] = v
-        _set_u_params(incar, incar_settings, self.structure)
+        has_u = hubbard_u and sum(incar["LDAUU"]) > 0
+        if not has_u:
+            for key in list(incar):
+                if key.startswith("LDAU"):
+                    del incar[key]
+
+        # Modify LMAXMIX if you have d or f electrons present. Note that if the user
+        # explicitly sets LMAXMIX in settings it will override this logic.
+        # Previously, this was only set if Hubbard U was enabled as per the VASP manual
+        # but following an investigation it was determined that this would lead to a
+        # significant difference between SCF -> NonSCF even without Hubbard U enabled.
+        # Thanks to Andrew Rosen for investigating and reporting.
+        if "LMAXMIX" not in settings:
+            # contains f-electrons
+            if any(el.Z > 56 for el in structure.composition):
+                incar["LMAXMIX"] = 6
+            # contains d-electrons
+            elif any(el.Z > 20 for el in structure.composition):
+                incar["LMAXMIX"] = 4
+
+        # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
+        if not incar.get("LASPH", False) and (
+            incar.get("METAGGA")
+            or incar.get("LHFCALC", False)
+            or incar.get("LDAU", False)
+            or incar.get("LUSE_VDW", False)
+        ):
+            warnings.warn("LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT", BadInputSetWarning)
 
         # apply previous incar settings, be careful not to override user_incar_settings
         # or the settings updates from the specific input set implementations
@@ -625,6 +694,13 @@ class DictSet(VaspInputSet):
 
         if self.use_structure_charge:
             auto_updates["NELECT"] = self.nelect
+
+        # Check that ALGO is appropriate
+        if incar.get("LHFCALC", False) is True and incar.get("ALGO", "Normal") not in ["Normal", "All", "Damped"]:
+            warnings.warn(
+                "Hybrid functionals only support Algo = All, Damped, or Normal.",
+                BadInputSetWarning,
+            )
 
         if self.auto_ismear:
             if self.bandgap is None:
@@ -651,13 +727,6 @@ class DictSet(VaspInputSet):
         # Remove unused INCAR parameters
         _remove_unused_incar_params(incar, skip=list(self.user_incar_settings))
 
-        # Check that ALGO is appropriate
-        if incar.get("LHFCALC", False) is True and incar.get("ALGO", "Normal") not in ["Normal", "All", "Damped"]:
-            warnings.warn(
-                "Hybrid functionals only support Algo = All, Damped, or Normal.",
-                BadInputSetWarning,
-            )
-
         # Ensure adequate number of KPOINTS are present for the tetrahedron method
         # (ISMEAR=-5). If KSPACING is in the INCAR file the number of kpoints is not
         # known before calling VASP, but a warning is raised when the KSPACING value is
@@ -674,25 +743,12 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if (
-            all(k.is_metal for k in self.structure.composition)
-            and incar.get("NSW", 0) > 0
-            and incar.get("ISMEAR", 1) < 1
-        ):
+        if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
             warnings.warn(
                 "Relaxation of likely metal with ISMEAR < 1 detected. See VASP "
                 "recommendations on ISMEAR for metals.",
                 BadInputSetWarning,
             )
-
-        # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
-        if not incar.get("LASPH", False) and (
-            incar.get("METAGGA")
-            or incar.get("LHFCALC", False)
-            or incar.get("LDAU", False)
-            or incar.get("LUSE_VDW", False)
-        ):
-            warnings.warn("LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT", BadInputSetWarning)
 
         return incar
 
@@ -722,13 +778,6 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             return n_elect - self.structure.charge
         return n_elect
-
-    @property
-    def potcar(self) -> Potcar:
-        """Potcar object"""
-        if self.structure is None:
-            raise RuntimeError("No structure is associated with the input set!")
-        return super().potcar
 
     @property
     def kpoints(self) -> Kpoints | None:
@@ -875,6 +924,13 @@ class DictSet(VaspInputSet):
             )
 
         return _combine_kpoints(base_kpoints, zero_weighted_kpoints, added_kpoints)  # type: ignore
+
+    @property
+    def potcar(self) -> Potcar:
+        """Potcar object"""
+        if self.structure is None:
+            raise RuntimeError("No structure is associated with the input set!")
+        return super().potcar
 
     def estimate_nbands(self) -> int:
         """
@@ -1075,6 +1131,46 @@ class DictSet(VaspInputSet):
         finer_g_scale = 2 if PREC[0].lower() in {"a", "n"} else 1
 
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
+
+
+# Helper functions to determine valid FFT grids for VASP
+def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
+    """
+    Return the next number greater than or equal to n that only has the desired prime factors.
+
+    Args:
+        n (int): Initial guess at the grid density
+        max_prime_factor (int): the maximum prime factor
+        must_inc_2 (bool): 2 must be a prime factor of the result
+
+    Returns:
+        int: first product of the prime_factors that is >= n
+    """
+    if max_prime_factor < 2:
+        raise ValueError("Must choose a maximum prime factor greater than 2")
+    prime_factors = primes_less_than(max_prime_factor)
+    for new_val in itertools.count(start=n):
+        if must_inc_2 and new_val % 2 != 0:
+            continue
+        cur_val_ = new_val
+        for j in prime_factors:
+            while cur_val_ % j == 0:
+                cur_val_ //= j
+        if cur_val_ == 1:
+            return new_val
+    raise ValueError("No factorable number found, not possible.")
+
+
+def primes_less_than(max_val: int) -> list[int]:
+    """Get the primes less than or equal to the max value."""
+    res = []
+    for i in range(2, max_val + 1):
+        for j in range(2, i):
+            if i % j == 0:
+                break
+        else:
+            res.append(i)
+    return res
 
 
 @due.dcite(
@@ -3103,135 +3199,6 @@ def _remove_unused_incar_params(incar, skip: Sequence[str] = ()) -> None:
         for ldau_flag in ldau_flags:
             if ldau_flag not in skip:
                 incar.pop(ldau_flag, None)
-
-
-def _get_magmoms(
-    structure: Structure,
-    magmoms: dict[str, float] | None = None,
-) -> list[float]:
-    """Get the mamgoms using the following precedence.
-
-    The initialization differs depending on the type of
-    structure and the configuration settings. The order in which the magmom is
-    determined is as follows:
-
-    1. If the site itself has a magmom setting (i.e. site.properties["magmom"] = float),
-        that is used. This can be set with structure.add_site_property().
-    2. If the species of the site has a spin setting, that is used. This can be set
-        with structure.add_spin_by_element().
-    3. If the species itself has a particular setting in the config file, that
-       is used, e.g., Mn3+ may have a different magmom than Mn4+.
-    4. Lastly, the element symbol itself is checked in the config file. If
-       there are no settings, a default value of 0.6 is used.
-    """
-    magmoms = magmoms or {}
-    mag = []
-    msg = (
-        "Co without an oxidation state is initialized as low spin by default in "
-        "pymatgen. If this default behavior is not desired, please set the spin on the "
-        "magmom on the site directly to ensure correct initialization."
-    )
-    for site in structure:
-        if hasattr(site, "magmom"):
-            mag.append(site.magmom)
-        elif getattr(site.specie, "spin", None) is not None:
-            mag.append(site.specie.spin)
-        elif str(site.specie) in magmoms:
-            if site.specie.symbol == "Co" and magmoms[str(site.specie)] <= 1.0:
-                warnings.warn(msg)
-            mag.append(magmoms.get(str(site.specie)))
-        else:
-            if site.specie.symbol == "Co":
-                warnings.warn(msg)
-            mag.append(magmoms.get(site.specie.symbol, 0.6))
-    return mag
-
-
-def _get_u_param(lda_param, lda_config, structure: Structure) -> list[float]:
-    """Get U parameters."""
-    comp = structure.composition
-    elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda e: e.X)
-    most_electroneg = elements[-1].symbol
-    poscar = Poscar(structure)
-
-    if hasattr(structure[0], lda_param.lower()):
-        m = {site.specie.symbol: getattr(site, lda_param.lower()) for site in structure}
-        return [m[sym] for sym in poscar.site_symbols]
-    if isinstance(lda_config.get(most_electroneg, 0), dict):
-        # lookup specific LDAU if specified for most_electroneg atom
-        return [lda_config[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
-    return [
-        lda_config.get(sym, 0) if isinstance(lda_config.get(sym, 0), (float, int)) else 0 for sym in poscar.site_symbols
-    ]
-
-
-def _get_ediff(param, value, structure: Structure, incar_settings) -> float:
-    """Get EDIFF."""
-    if incar_settings.get("EDIFF") is None and param == "EDIFF_PER_ATOM":
-        return float(value) * structure.num_sites
-    return float(incar_settings["EDIFF"])
-
-
-def _set_u_params(incar: Incar, incar_settings, structure: Structure) -> None:
-    """Modify INCAR for use with U parameters."""
-    has_u = incar_settings.get("LDAU") and sum(incar["LDAUU"]) > 0
-
-    if not has_u:
-        ldau_keys = [key for key in incar if key.startswith("LDAU")]
-        for key in ldau_keys:
-            incar.pop(key, None)
-
-    # Modify LMAXMIX if you have d or f electrons present. Note that if the user
-    # explicitly sets LMAXMIX in settings it will override this logic (setdefault keeps
-    # current value). Previously, this was only set if Hubbard U was enabled as per the
-    # VASP manual but following an investigation it was determined that this would lead
-    # to a significant difference between SCF -> NonSCF even without Hubbard U enabled.
-    # Thanks to Andrew Rosen for investigating and reporting.
-    blocks = [site.specie.block for site in structure]
-    if "f" in blocks:  # contains f-electrons
-        incar.setdefault("LMAXMIX", 6)
-    elif "d" in blocks:  # contains d-electrons
-        incar.setdefault("LMAXMIX", 4)
-
-
-# Helper functions to determine valid FFT grids for VASP
-def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
-    """
-    Return the next number greater than or equal to n that only has the desired prime factors.
-
-    Args:
-        n (int): Initial guess at the grid density
-        max_prime_factor (int): the maximum prime factor
-        must_inc_2 (bool): 2 must be a prime factor of the result
-
-    Returns:
-        int: first product of the prime_factors that is >= n
-    """
-    if max_prime_factor < 2:
-        raise ValueError("Must choose a maximum prime factor greater than 2")
-    prime_factors = primes_less_than(max_prime_factor)
-    for new_val in itertools.count(start=n):
-        if must_inc_2 and new_val % 2 != 0:
-            continue
-        cur_val_ = new_val
-        for j in prime_factors:
-            while cur_val_ % j == 0:
-                cur_val_ //= j
-        if cur_val_ == 1:
-            return new_val
-    raise ValueError("No factorable number found, not possible.")
-
-
-def primes_less_than(max_val: int) -> list[int]:
-    """Get the primes less than or equal to the max value."""
-    res = []
-    for i in range(2, max_val + 1):
-        for j in range(2, i):
-            if i % j == 0:
-                break
-        else:
-            res.append(i)
-    return res
 
 
 def _get_nedos(vasprun: Vasprun | None, dedos: float) -> int:
