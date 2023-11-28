@@ -96,7 +96,19 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-        return get_potcar_symbols(self.poscar, self._config_dict["POTCAR"])
+
+        elements = self.poscar.site_symbols
+        potcar_symbols = []
+        settings = self._config_dict["POTCAR"]
+
+        if isinstance(settings[elements[-1]], dict):
+            for el in elements:
+                potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
+        else:
+            for el in elements:
+                potcar_symbols.append(settings.get(el, el))
+
+        return potcar_symbols
 
     @property
     def potcar(self) -> Potcar:
@@ -362,7 +374,7 @@ class DictSet(VaspInputSet):
             raise ValueError(f"Invalid {self.user_potcar_functional=}, must be one of {valid_potcars}")
 
         if hasattr(self, "CONFIG"):
-            self.config_dict = deepcopy(self.CONFIG)
+            self.config_dict = self.CONFIG
 
         self._config_dict = deepcopy(self.config_dict)
 
@@ -3230,22 +3242,6 @@ def _get_nedos(vasprun: Vasprun | None, dedos: float) -> int:
     emax = max(eigs.max() for eigs in vasprun.eigenvalues.values())
     emin = min(eigs.min() for eigs in vasprun.eigenvalues.values())
     return int((emax - emin) / dedos)
-
-
-def get_potcar_symbols(poscar, settings):
-    """List of POTCAR symbols."""
-
-    elements = poscar.site_symbols
-    potcar_symbols = []
-
-    if isinstance(settings[elements[-1]], dict):
-        for el in elements:
-            potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
-    else:
-        for el in elements:
-            potcar_symbols.append(settings.get(el, el))
-
-    return potcar_symbols
 
 
 def auto_kspacing(bandgap, bandgap_tol):
