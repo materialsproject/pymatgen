@@ -1324,14 +1324,7 @@ class MPMetalRelaxSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         return {"reciprocal_density": 200}
 
 
@@ -1384,14 +1377,7 @@ class MPStaticSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1597,14 +1583,7 @@ class MPHSEBSSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         kpoints: dict[str, Any] = {"reciprocal_density": self.reciprocal_density, "explicit": True}
 
         if self.mode == "line":
@@ -1757,14 +1736,7 @@ class MPNonSCFSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1857,14 +1829,7 @@ class MPSOCSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1954,14 +1919,7 @@ class MPNMRSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -2064,14 +2022,7 @@ class MVLGWSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         # Generate gamma center k-points mesh grid for GW calc, which is requested
         # by GW calculation.
         return {"reciprocal_density": self.reciprocal_density}
@@ -2457,14 +2408,7 @@ class MITMDSet(DictSet):
 
     @property
     def kpoints_updates(self) -> Kpoints | dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         return Kpoints.gamma_automatic()
 
 
@@ -2549,14 +2493,7 @@ class MPMDSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         return Kpoints.gamma_automatic()
 
 
@@ -2621,14 +2558,7 @@ class MVLNPTMDSet(DictSet):
 
     @property
     def kpoints_updates(self) -> Kpoints | dict:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         return Kpoints.gamma_automatic()
 
 
@@ -2731,14 +2661,7 @@ class LobsterSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type.
-
-        Note, these updates will be ignored if the user has set user_kpoint_settings.
-
-        Returns:
-            dict or Kpoints: A dictionary of updates to apply to the KPOINTS config
-                or a Kpoints object.
-        """
+        """Get updates to the kpoints configuration for this calculation type."""
         # test, if this is okay
         return {"reciprocal_density": self.reciprocal_density if self.reciprocal_density else 310}
 
