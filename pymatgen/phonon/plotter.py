@@ -95,7 +95,7 @@ class PhononDosPlotter:
             )
         self.stack = stack
         self.sigma = sigma
-        self._doses: dict = {}
+        self._doses: dict[str, dict[Literal["frequencies", "densities"], np.ndarray]] = {}
 
     def add_dos(self, label: str, dos: PhononDos) -> None:
         """Adds a dos for plotting.
@@ -138,6 +138,7 @@ class PhononDosPlotter:
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         legend: dict | None = None,
+        ax: Axes | None = None,
     ) -> Axes:
         """Get a matplotlib plot showing the DOS.
 
@@ -149,6 +150,8 @@ class PhononDosPlotter:
             legend: dict with legend options. For example, {"loc": "upper right"}
                 will place the legend in the upper right corner. Defaults to
                 {"fontsize": 30}.
+            ax (Axes): An existing axes object onto which the plot will be
+                added. If None, a new figure will be created.
         """
         legend = legend or {"fontsize": 30}
         unit = freq_units(units)
@@ -161,7 +164,7 @@ class PhononDosPlotter:
         y = None
         all_densities = []
         all_frequencies = []
-        ax = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8, ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
@@ -516,9 +519,8 @@ class PhononBSPlotter:
         """Show the plot using matplotlib.
 
         Args:
-            ylim: Specify the y-axis (frequency) limits; by default None let
-                the code choose.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
         self.get_plot(ylim, units=units)
         plt.show()
@@ -526,20 +528,18 @@ class PhononBSPlotter:
     def save_plot(
         self,
         filename: str | PathLike,
-        img_format: str = "eps",
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
-            ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            filename (str | Path): Filename to write to.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
         self.get_plot(ylim=ylim, units=units)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
         plt.close()
 
     def show_proj(
@@ -598,9 +598,8 @@ class PhononBSPlotter:
                 elif point.label.startswith("\\") or point.label.find("_") != -1:
                     tick_labels.append(f"${point.label}$")
                 else:
-                    label = point.label
-                    if label == "GAMMA":
-                        label = r"$\Gamma$"
+                    # map atomate2 all-upper-case point.labels to pretty LaTeX
+                    label = dict(GAMMA=r"$\Gamma$", DELTA=r"$\Delta$").get(point.label, point.label)
                     tick_labels.append(label)
                 previous_label = point.label
                 previous_branch = this_branch
