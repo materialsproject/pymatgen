@@ -1042,19 +1042,12 @@ class TestPotcarSingle(unittest.TestCase):
 
     def test_functional_types(self):
         assert self.psingle_Mn_pv.functional == "PBE"
-
         assert self.psingle_Mn_pv.functional_class == "GGA"
-
         assert self.psingle_Mn_pv.potential_type == "PAW"
-
         psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_LDA_PAW/POTCAR.Fe.gz")
-
         assert psingle.functional == "Perdew-Zunger81"
-
         assert psingle.functional_class == "LDA"
-
         assert psingle.potential_type == "PAW"
-
         assert self.psingle_Mn_pv.symbol == "Mn_pv"
 
     def test_is_valid(self):
