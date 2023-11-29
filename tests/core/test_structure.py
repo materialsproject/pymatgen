@@ -473,16 +473,16 @@ class TestIStructure(PymatgenTest):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct1 = IStructure(l1, ["Si"] * 2, coords)
         struct2 = IStructure(l2, ["Si"] * 2, coords)
-        
+
         # Test positive end_amplitudes
-        for end_amplitude in [0,0.5,1,2]:
+        for end_amplitude in [0, 0.5, 1, 2]:
             int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
             # Assert that volume is monotonic
             assert struct2.volume >= int_s[1].volume
             assert int_s[1].volume >= struct1.volume
 
         # Test negative end_amplitudes
-        for end_amplitude in [-2,-0.5,0]:
+        for end_amplitude in [-2, -0.5, 0]:
             int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
             # Assert that volume is monotonic
             assert struct2.volume >= int_s[1].volume
