@@ -2138,7 +2138,7 @@ class IStructure(SiteCollection, MSONable):
         interpolate_lattices: bool = False,
         pbc: bool = True,
         autosort_tol: float = 0,
-        extrapolation: float = 0,
+        end_amplitude: float = 1,
     ) -> list[IStructure | Structure]:
         """Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -2158,8 +2158,7 @@ class IStructure(SiteCollection, MSONable):
                 closest points in this particular structure. This is usually
                 what you want in a NEB calculation. 0 implies no sorting.
                 Otherwise, a 0.5 value usually works pretty well.
-            extrapolation (float): A fractional amount by which to extend the
-                interpolation beyond the end_structure
+            end_amplitude (float): The fractional amplitude of the endpoint of the interpolation, or a cofactor of the distortion vector connecting structure to end_structure. Thus, 0 implies no distortion, 1 implies full distortion to end_structure (default), 0.5 implies distortion to a point halfway between structure and end_structure, and -1 implies full distortion in the opposite direction to end_structure.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -2215,7 +2214,7 @@ class IStructure(SiteCollection, MSONable):
 
             end_coords = sorted_end_coords
 
-        vec = (1 + extrapolation) * (end_coords - start_coords)
+        vec = end_amplitude * (end_coords - start_coords)
         if pbc:
             vec[:, self.pbc] -= np.round(vec[:, self.pbc])
         sp = self.species_and_occu
@@ -2225,7 +2224,7 @@ class IStructure(SiteCollection, MSONable):
             # interpolate lattice matrices using polar decomposition
             # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
-            lvec = (1 + extrapolation) * (p - np.identity(3))
+            lvec = end_amplitude * (p - np.identity(3))
             lstart = self.lattice.matrix.T
 
         for x in images:
