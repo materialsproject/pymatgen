@@ -9,7 +9,7 @@ import os
 import re
 import struct
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any,TypedDict
 
 import networkx as nx
 import numpy as np
@@ -2759,7 +2759,6 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
 
     return e2_dfs
 
-
 def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     """
     Parse all the important sections of NBO output.
@@ -2784,7 +2783,6 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
-
 
 def gradient_parser(filename: str = "131.0") -> NDArray:
     """
