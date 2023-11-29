@@ -2825,15 +2825,8 @@ def hessian_parser(filename: str = "132.0", natoms: int | None = None) -> NDArra
     hessian: list[float] = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
-<<<<<<< Updated upstream
     hessian.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
-    if n_atoms:
-=======
-    hessian.extend(
-        struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8)
-    )
     if natoms:
->>>>>>> Stashed changes
         return np.reshape(
             hessian,
             (natoms * 3, natoms * 3),
