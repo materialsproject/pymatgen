@@ -500,7 +500,7 @@ class TestQCScratch(PymatgenTest):
         assert gradient.all()
 
     def test_hessian(self):
-        hessian = hessian_parser(f"{TEST_FILES_DIR}/qchem/132.0", n_atoms=14)
+        hessian = hessian_parser(f"{TEST_FILES_DIR}/qchem/132.0", natoms=14)
         assert np.shape(hessian) == (42, 42)
         assert hessian.all()
 

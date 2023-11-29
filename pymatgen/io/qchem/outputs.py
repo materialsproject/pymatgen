@@ -2811,25 +2811,32 @@ def gradient_parser(filename: str = "131.0") -> NDArray:
     return np.array(grad)
 
 
-def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
+def hessian_parser(filename: str = "132.0", natoms: int | None = None) -> NDArray:
     """
     Parse the Hessian data from a Hessian scratch file.
 
     Args:
         filename: Path to the Hessian scratch file (typically "132.0")
-        n_atoms: Number of atoms in the molecule. If None, no reshaping will be done.
+        natoms: Number of atoms in the molecule. If None, no reshaping will be done.
 
     Returns:
-        NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
+        NDArray: Hessian, formatted as 3natoms x 3natoms. Units are Hartree/Bohr^2/amu.
     """
     hessian: list[float] = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
+<<<<<<< Updated upstream
     hessian.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
     if n_atoms:
+=======
+    hessian.extend(
+        struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8)
+    )
+    if natoms:
+>>>>>>> Stashed changes
         return np.reshape(
             hessian,
-            (n_atoms * 3, n_atoms * 3),
+            (natoms * 3, natoms * 3),
         )
     return np.array(hessian)
 
