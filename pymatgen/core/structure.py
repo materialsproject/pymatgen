@@ -2160,12 +2160,12 @@ class IStructure(SiteCollection, MSONable):
                 closest points in this particular structure. This is usually
                 what you want in a NEB calculation. 0 implies no sorting.
                 Otherwise, a 0.5 value usually works pretty well.
-            end_amplitude (float): The fractional amplitude of the endpoint 
-                of the interpolation, or a cofactor of the distortion vector 
-                connecting structure to end_structure. Thus, 0 implies no 
-                distortion, 1 implies full distortion to end_structure 
-                (default), 0.5 implies distortion to a point halfway 
-                between structure and end_structure, and -1 implies full 
+            end_amplitude (float): The fractional amplitude of the endpoint
+                of the interpolation, or a cofactor of the distortion vector
+                connecting structure to end_structure. Thus, 0 implies no
+                distortion, 1 implies full distortion to end_structure
+                (default), 0.5 implies distortion to a point halfway
+                between structure and end_structure, and -1 implies full
                 distortion in the opposite direction to end_structure.
 
         Returns:
