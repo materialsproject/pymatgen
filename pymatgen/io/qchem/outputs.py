@@ -2824,7 +2824,7 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
     Returns:
         NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
     """
-    hessian = []
+    hessian: list[float] = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
     hessian.extend(
