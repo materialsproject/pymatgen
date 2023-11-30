@@ -1,0 +1,10 @@
+{
+  "xc": "pbe",
+  "relativistic": "atomic_zora scalar",
+  "species_dir": "/home/andrey/workspace/atomate2-fhi-aims/tests/species_dir",
+  "k_grid": [
+    4,
+    4,
+    4
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "xc": "pbe",
+  "relativistic": "atomic_zora scalar",
+  "k_grid": [
+    2,
+    2,
+    2
+  ]
+}

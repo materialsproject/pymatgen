@@ -1,0 +1,10 @@
+{
+  "xc": "pbe",
+  "relativistic": "atomic_zora scalar",
+  "compute_forces": true,
+  "k_grid": [
+    6,
+    6,
+    6
+  ]
+}
