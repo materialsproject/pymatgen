@@ -267,7 +267,7 @@ def test_input_set():
 
     parameters = {
         "xc": "pbe",
-        "species_dir": str(species_dir / "light"),
+        "species_dir": f'{species_dir / "light"}',
         "k_grid": [2, 2, 2],
     }
     properties = ("energy", "free_energy", "forces")
