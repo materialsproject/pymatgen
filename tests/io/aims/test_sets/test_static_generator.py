@@ -6,6 +6,7 @@ import os
 from glob import glob
 from pathlib import Path
 
+from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.io.aims.sets.core import StaticSetGenerator
 
 
@@ -37,7 +38,20 @@ def comp_system(atoms, user_params, test_name, work_path, ref_path):
     compare_files(test_name, work_path, ref_path)
 
 
-def test_static_si(Si, species_dir, tmp_path, ref_path):
+O2 = Molecule(species=["O", "O"], coords=[[0, 0, 0.622978], [0, 0, -0.622978]])
+
+Si = Structure(
+    lattice=Lattice([[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]]),
+    species=["Si", "Si"],
+    coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
+)
+species_dir = Path(__file__).resolve().parents[1] / "species_directory"
+
+module_dir = Path(__file__).resolve().parents[1]
+ref_path = (module_dir / "aims_input_generator_ref").resolve()
+
+
+def test_static_si(tmp_path):
     parameters = {
         "species_dir": str(species_dir / "light"),
         "k_grid": [2, 2, 2],
@@ -45,12 +59,12 @@ def test_static_si(Si, species_dir, tmp_path, ref_path):
     comp_system(Si, parameters, "static-si", tmp_path, ref_path)
 
 
-def test_static_si_no_kgrid(Si, species_dir, tmp_path, ref_path):
+def test_static_si_no_kgrid(tmp_path):
     parameters = {"species_dir": str(species_dir / "light")}
     comp_system(Si, parameters, "static-no-kgrid-si", tmp_path, ref_path)
 
 
-def test_static_default_species_dir(Si, species_dir, tmp_path, ref_path):
+def test_static_default_species_dir(tmp_path):
     sd_def = os.getenv("AIMS_SPECIES_DIR", None)
     os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
     parameters = {"k_grid": [2, 2, 2]}
@@ -63,12 +77,12 @@ def test_static_default_species_dir(Si, species_dir, tmp_path, ref_path):
         os.unsetenv("AIMS_SPECIES_DIR")
 
 
-def test_static_o2(O2, species_dir, tmp_path, ref_path):
+def test_static_o2(tmp_path):
     parameters = {"species_dir": str(species_dir / "light")}
     comp_system(O2, parameters, "static-o2", tmp_path, ref_path)
 
 
-def test_static_default_species_dir_o2(O2, species_dir, tmp_path, ref_path):
+def test_static_default_species_dir_o2(tmp_path):
     sd_def = os.getenv("AIMS_SPECIES_DIR", None)
     os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
     parameters = {"k_grid": [2, 2, 2]}

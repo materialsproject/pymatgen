@@ -246,7 +246,7 @@ def check_file(ref: str, test: str) -> bool:
 
 
 def test_input_set():
-    species_dir = infile_dir.parent / "species_directory/"
+    species_dir = infile_dir.parents[1] / "species_directory/"
     Si = Structure(
         lattice=[[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]],
         species=["Si", "Si"],

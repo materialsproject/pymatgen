@@ -8,6 +8,7 @@ import shutil
 from glob import glob
 from pathlib import Path
 
+from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.io.aims.sets.core import StaticSetGenerator
 
 
@@ -49,7 +50,20 @@ def comp_system(atoms, prev_dir, test_name, work_path, ref_path, species_dir):
     shutil.move(Path(prev_dir) / "~parameters.json", params_file)
 
 
-def test_static_from_relax_si(Si, species_dir, tmp_path, ref_path):
+O2 = Molecule(species=["O", "O"], coords=[[0, 0, 0.622978], [0, 0, -0.622978]])
+
+Si = Structure(
+    lattice=Lattice([[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]]),
+    species=["Si", "Si"],
+    coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
+)
+species_dir = Path(__file__).resolve().parents[1] / "species_directory"
+
+module_dir = Path(__file__).resolve().parents[1]
+ref_path = (module_dir / "aims_input_generator_ref").resolve()
+
+
+def test_static_from_relax_si(tmp_path):
     comp_system(
         Si,
         f"{ref_path}/relax-si/outputs",
@@ -60,7 +74,7 @@ def test_static_from_relax_si(Si, species_dir, tmp_path, ref_path):
     )
 
 
-def test_static_from_relax_si_no_kgrid(Si, species_dir, tmp_path, ref_path):
+def test_static_from_relax_si_no_kgrid(tmp_path):
     comp_system(
         Si,
         f"{ref_path}/relax-no-kgrid-si/",
@@ -71,7 +85,7 @@ def test_static_from_relax_si_no_kgrid(Si, species_dir, tmp_path, ref_path):
     )
 
 
-def test_static_from_relax_default_species_dir(Si, species_dir, tmp_path, ref_path):
+def test_static_from_relax_default_species_dir(tmp_path):
     sd_def = os.getenv("AIMS_SPECIES_DIR", None)
     os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
 
@@ -90,7 +104,7 @@ def test_static_from_relax_default_species_dir(Si, species_dir, tmp_path, ref_pa
         os.unsetenv("AIMS_SPECIES_DIR")
 
 
-def test_static_from_relax_o2(O2, species_dir, tmp_path, ref_path):
+def test_static_from_relax_o2(tmp_path):
     comp_system(
         O2,
         f"{ref_path}/relax-o2/",
@@ -101,7 +115,7 @@ def test_static_from_relax_o2(O2, species_dir, tmp_path, ref_path):
     )
 
 
-def test_static_from_relax_default_species_dir_o2(O2, species_dir, tmp_path, ref_path):
+def test_static_from_relax_default_species_dir_o2(tmp_path):
     sd_def = os.getenv("AIMS_SPECIES_DIR", None)
     os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
 
