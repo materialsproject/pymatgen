@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
+from pymatgen.core import Lattice, Structure
 from pymatgen.io.aims.sets.bs import BandStructureSetGenerator
 
 
@@ -61,7 +62,18 @@ def comp_system(atoms, user_params, test_name, work_path, ref_path):
     compare_files(test_name, work_path, ref_path)
 
 
-def test_si_bs(Si, species_dir, tmp_path, ref_path):
+Si = Structure(
+    lattice=Lattice([[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]]),
+    species=["Si", "Si"],
+    coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
+)
+species_dir = Path(__file__).resolve().parents[1] / "species_directory"
+
+module_dir = Path(__file__).resolve().parents[1]
+ref_path = (module_dir / "aims_input_generator_ref").resolve()
+
+
+def test_si_bs(tmp_path):
     parameters = {
         "species_dir": str(species_dir / "light"),
         "k_grid": [8, 8, 8],
@@ -69,7 +81,7 @@ def test_si_bs(Si, species_dir, tmp_path, ref_path):
     comp_system(Si, parameters, "static-si-bs", tmp_path, ref_path)
 
 
-def test_si_bs_output(Si, species_dir, tmp_path, ref_path):
+def test_si_bs_output(tmp_path):
     parameters = {
         "species_dir": str(species_dir / "light"),
         "k_grid": [8, 8, 8],
@@ -80,7 +92,7 @@ def test_si_bs_output(Si, species_dir, tmp_path, ref_path):
     comp_system(Si, parameters, "static-si-bs-output", tmp_path, ref_path)
 
 
-def test_si_bs_density(Si, species_dir, tmp_path, ref_path):
+def test_si_bs_density(tmp_path):
     parameters = {
         "species_dir": str(species_dir / "light"),
         "k_grid": [8, 8, 8],
