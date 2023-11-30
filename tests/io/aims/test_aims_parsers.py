@@ -8,14 +8,14 @@ from pymatgen.io.aims.parsers import (
     EV_PER_A3_TO_KBAR,
     LINE_NOT_FOUND,
 )
+from pymatgen.core.tensors import Tensor
 import gzip
 from pathlib import Path
-from ase.stress import full_3x3_to_voigt_6_stress
 
 import pytest
 
-eps_hp = 1e-15  # The espsilon value used to compare numbers that are high-precision
-eps_lp = 1e-7  # The espsilon value used to compare numbers that are low-precision
+eps_hp = 1e-15  # The epsilon value used to compare numbers that are high-precision
+eps_lp = 1e-7  # The epsilon value used to compare numbers that are low-precision
 
 parser_file_dir = Path(__file__).parent / "parser_checks"
 
@@ -52,10 +52,10 @@ def empty_header_chunk():
     return AimsOutHeaderChunk([])
 
 
-@pytest.mark.parametrize("attrname", ["n_atoms", "n_bands", "n_electrons", "n_spins", "initial_structure"])
-def test_missing_parameter(attrname, empty_header_chunk):
+@pytest.mark.parametrize("attr_name", ["n_atoms", "n_bands", "n_electrons", "n_spins", "initial_structure"])
+def test_missing_parameter(attr_name, empty_header_chunk):
     with pytest.raises(AimsParseError, match="No information about"):
-        getattr(empty_header_chunk, attrname)
+        getattr(empty_header_chunk, attr_name)
 
 
 def test_default_header_electronic_temperature(empty_header_chunk):
@@ -90,9 +90,9 @@ def test_default_header_k_point_weights(empty_header_chunk):
 def initial_lattice():
     return np.array(
         [
-            [1.00000000, 2.70300000, 3.70300000],
-            [4.70300000, 2.00000000, 6.70300000],
-            [8.70300000, 7.70300000, 3.00000000],
+            [1, 2.70300000, 3.70300000],
+            [4.70300000, 2, 6.70300000],
+            [8.70300000, 7.70300000, 3],
         ]
     )
 
@@ -329,8 +329,8 @@ def test_calc_forces(calc_chunk):
 def test_calc_stresses(calc_chunk):
     stresses = EV_PER_A3_TO_KBAR * np.array(
         [
-            [-10.0, -20.0, -30.0, -60.0, -50.0, -40.0],
-            [10.0, 20.0, 30.0, 60.0, 50.0, 40.0],
+            Tensor.from_voigt([-10.0, -20.0, -30.0, -60.0, -50.0, -40.0]),
+            Tensor.from_voigt([10.0, 20.0, 30.0, 60.0, 50.0, 40.0]),
         ]
     )
     assert np.allclose(calc_chunk.stresses, stresses)
@@ -339,30 +339,14 @@ def test_calc_stresses(calc_chunk):
 
 
 def test_calc_stress(calc_chunk):
-    stress = EV_PER_A3_TO_KBAR * full_3x3_to_voigt_6_stress(
-        np.array(
-            [
-                [1.00000000, 2.00000000, 3.00000000],
-                [2.00000000, 5.00000000, 6.00000000],
-                [3.00000000, 6.00000000, 7.00000000],
-            ]
-        )
-    )
+    stress = EV_PER_A3_TO_KBAR * np.array([[1.0, 2.0, 3.0], [2.0, 5.0, 6.0], [3.0, 6.0, 7.0]])
     assert np.allclose(calc_chunk.stress, stress)
     assert np.allclose(calc_chunk.structure.properties["stress"], stress)
     assert np.allclose(calc_chunk.results["stress"], stress)
 
 
 def test_calc_num_stress(numerical_stress_chunk):
-    stress = EV_PER_A3_TO_KBAR * full_3x3_to_voigt_6_stress(
-        np.array(
-            [
-                [1.00000000, 2.00000000, 3.00000000],
-                [2.00000000, 5.00000000, 6.00000000],
-                [3.00000000, 6.00000000, 7.00000000],
-            ]
-        )
-    )
+    stress = EV_PER_A3_TO_KBAR * np.array([[1.0, 2.0, 3.0], [2.0, 5.0, 6.0], [3.0, 6.0, 7.0]])
     assert np.allclose(numerical_stress_chunk.stress, stress)
     assert np.allclose(numerical_stress_chunk.structure.properties["stress"], stress)
     assert np.allclose(numerical_stress_chunk.results["stress"], stress)
@@ -470,9 +454,9 @@ def test_molecular_header_initial_structure(molecular_header_chunk, molecular_po
         molecular_header_chunk.initial_structure.cart_coords,
         np.array(
             [
-                [0.00000000, 0.00000000, 0.00000000],
-                [0.95840000, 0.00000000, 0.00000000],
-                [-0.24000000, 0.92790000, 0.00000000],
+                [0, 0, 0],
+                [0.95840000, 0, 0],
+                [-0.24000000, 0.92790000, 0],
             ]
         ),
     )
@@ -490,13 +474,7 @@ def molecular_calc_chunk(molecular_header_chunk):
 
 @pytest.fixture
 def molecular_positions():
-    return np.array(
-        [
-            [-0.00191785, -0.00243279, 0.00000000],
-            [0.97071531, -0.00756333, 0.00000000],
-            [-0.25039746, 0.93789612, 0.00000000],
-        ]
-    )
+    return np.array([[-0.00191785, -0.00243279, 0], [0.97071531, -0.00756333, 0], [-0.25039746, 0.93789612, 0]])
 
 
 def test_molecular_calc_atoms(molecular_calc_chunk, molecular_positions):
@@ -572,11 +550,7 @@ def test_molecular_calc_hirshfeld_volumes(molecular_calc_chunk):
 
 def test_molecular_calc_hirshfeld_atomic_dipoles(molecular_calc_chunk):
     hirshfeld_atomic_dipoles = np.array(
-        [
-            [0.04249319, 0.05486053, 0.00000000],
-            [0.13710134, -0.00105126, 0.00000000],
-            [-0.03534982, 0.13248706, 0.00000000],
-        ]
+        [[0.04249319, 0.05486053, 0], [0.13710134, -0.00105126, 0], [-0.03534982, 0.13248706, 0]]
     )
     assert np.allclose(molecular_calc_chunk.hirshfeld_atomic_dipoles, hirshfeld_atomic_dipoles)
     assert np.allclose(
