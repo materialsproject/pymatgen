@@ -61,7 +61,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged_ionic
 
     def test_vasprun_md(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.md")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.md.gz")
         assert len(vasp_run.ionic_steps) == 10
         assert vasp_run.final_energy == approx(-327.73014059)
         assert vasp_run.md_n_steps == 10
