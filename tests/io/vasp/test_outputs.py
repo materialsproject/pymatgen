@@ -57,6 +57,15 @@ class TestVasprun(PymatgenTest):
             assert "forces" in d
             assert "energy" in d
         assert vasp_run.md_data[-1]["energy"]["total"] == approx(-491.51831988)
+        assert vasp_run.md_n_steps == 100
+        assert vasp_run.converged_ionic
+
+    def test_vasprun_md(self):
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.md")
+        assert len(vasp_run.ionic_steps) == 10
+        assert vasp_run.final_energy == approx(-327.73014059)
+        assert vasp_run.md_n_steps == 10
+        assert vasp_run.converged_ionic
 
     def test_bad_random_seed(self):
         _ = Vasprun(f"{TEST_FILES_DIR}/vasprun.bad_random_seed.xml")
