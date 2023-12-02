@@ -502,7 +502,7 @@ class TestQCOutput(PymatgenTest):
 
 
 def test_gradient(tmp_path):
-    tmp_path.chdir()
+    os.chdir(tmp_path)
     with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     gradient = gradient_parser("131.0")
@@ -511,7 +511,7 @@ def test_gradient(tmp_path):
 
 
 def test_hessian(tmp_path):
-    tmp_path.chdir()
+    os.chdir(tmp_path)
     with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     hessian = hessian_parser("132.0", natoms=14)
@@ -524,7 +524,7 @@ def test_hessian(tmp_path):
 
 
 def test_prev_orbital_coeffs(tmp_path):
-    tmp_path.chdir()
+    os.chdir(tmp_path)
     with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     orbital_coeffs = orbital_coeffs_parser("53.0")
