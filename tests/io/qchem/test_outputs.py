@@ -501,34 +501,33 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
 
-class TestQCScratch(PymatgenTest):
-    def test_gradient(self, tmpdir):
-        tmpdir.chdir()
-        with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", 'rb') as f_in, open(tmpdir / "131.0", 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        gradient = gradient_parser("131.0")
-        assert np.shape(gradient) == (14, 3)
-        assert gradient.all()
+def test_gradient(self, tmpdir):
+    tmpdir.chdir()
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", 'rb') as f_in, open(tmpdir / "131.0", 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    gradient = gradient_parser("131.0")
+    assert np.shape(gradient) == (14, 3)
+    assert gradient.all()
 
-    def test_hessian(self, tmpdir):
-        tmpdir.chdir()
-        with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", 'rb') as f_in, open(tmpdir / "132.0", 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        hessian = hessian_parser("132.0", natoms=14)
-        assert np.shape(hessian) == (42, 42)
-        assert hessian.all()
+def test_hessian(self, tmpdir):
+    tmpdir.chdir()
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", 'rb') as f_in, open(tmpdir / "132.0", 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    hessian = hessian_parser("132.0", natoms=14)
+    assert np.shape(hessian) == (42, 42)
+    assert hessian.all()
 
-        hessian = hessian_parser("132.0")
-        assert np.shape(hessian) == (42 * 42,)
-        assert hessian.all()
+    hessian = hessian_parser("132.0")
+    assert np.shape(hessian) == (42 * 42,)
+    assert hessian.all()
 
-    def test_prev_orbital_coeffs(self, tmpdir):
-        tmpdir.chdir()
-        with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", 'rb') as f_in, open(tmpdir / "53.0", 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        orbital_coeffs = orbital_coeffs_parser("53.0")
-        assert len(orbital_coeffs) == 360400
-        assert orbital_coeffs.all()
+def test_prev_orbital_coeffs(self, tmpdir):
+    tmpdir.chdir()
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", 'rb') as f_in, open(tmpdir / "53.0", 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    orbital_coeffs = orbital_coeffs_parser("53.0")
+    assert len(orbital_coeffs) == 360400
+    assert orbital_coeffs.all()
 
 
 if __name__ == "__main__":
