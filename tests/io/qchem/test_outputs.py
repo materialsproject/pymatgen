@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import gzip
 import os
+import shutil
 import unittest
 
 import numpy as np
@@ -500,22 +502,29 @@ class TestQCOutput(PymatgenTest):
 
 
 class TestQCScratch(PymatgenTest):
-    def test_gradient(self):
-        gradient = gradient_parser(f"{TEST_FILES_DIR}/qchem/131.0")
+    def test_gradient(self, tmpdir):
+        tmpdir.chdir()
+        with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", 'rb') as f_in, open(tmpdir / "131.0", 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        gradient = gradient_parser("131.0")
         assert np.shape(gradient) == (14, 3)
         assert gradient.all()
 
-    def test_hessian(self):
-        hessian = hessian_parser(f"{TEST_FILES_DIR}/qchem/132.0", natoms=14)
+    def test_hessian(self, tmpdir):
+        with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", 'rb') as f_in, open(tmpdir / "132.0", 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        hessian = hessian_parser("132.0", natoms=14)
         assert np.shape(hessian) == (42, 42)
         assert hessian.all()
 
-        hessian = hessian_parser(f"{TEST_FILES_DIR}/qchem/132.0")
+        hessian = hessian_parser("132.0")
         assert np.shape(hessian) == (42 * 42,)
         assert hessian.all()
 
     def test_prev_orbital_coeffs(self):
-        orbital_coeffs = orbital_coeffs_parser(f"{TEST_FILES_DIR}/qchem/53.0")
+        with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", 'rb') as f_in, open(tmpdir / "53.0", 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        orbital_coeffs = orbital_coeffs_parser("53.0")
         assert len(orbital_coeffs) == 360400
         assert orbital_coeffs.all()
 
