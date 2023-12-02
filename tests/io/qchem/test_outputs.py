@@ -511,6 +511,7 @@ class TestQCScratch(PymatgenTest):
         assert gradient.all()
 
     def test_hessian(self, tmpdir):
+        tmpdir.chdir()
         with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", 'rb') as f_in, open(tmpdir / "132.0", 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
         hessian = hessian_parser("132.0", natoms=14)
@@ -521,7 +522,8 @@ class TestQCScratch(PymatgenTest):
         assert np.shape(hessian) == (42 * 42,)
         assert hessian.all()
 
-    def test_prev_orbital_coeffs(self):
+    def test_prev_orbital_coeffs(self, tmpdir):
+        tmpdir.chdir()
         with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", 'rb') as f_in, open(tmpdir / "53.0", 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
         orbital_coeffs = orbital_coeffs_parser("53.0")
