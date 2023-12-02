@@ -501,7 +501,7 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
 
-def test_gradient(self, tmpdir):
+def test_gradient(tmpdir):
     tmpdir.chdir()
     with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", 'rb') as f_in, open(tmpdir / "131.0", 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
@@ -509,7 +509,7 @@ def test_gradient(self, tmpdir):
     assert np.shape(gradient) == (14, 3)
     assert gradient.all()
 
-def test_hessian(self, tmpdir):
+def test_hessian(tmpdir):
     tmpdir.chdir()
     with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", 'rb') as f_in, open(tmpdir / "132.0", 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
@@ -521,7 +521,7 @@ def test_hessian(self, tmpdir):
     assert np.shape(hessian) == (42 * 42,)
     assert hessian.all()
 
-def test_prev_orbital_coeffs(self, tmpdir):
+def test_prev_orbital_coeffs(tmpdir):
     tmpdir.chdir()
     with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", 'rb') as f_in, open(tmpdir / "53.0", 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
