@@ -1,14 +1,23 @@
 from __future__ import annotations
 
+import gzip
 import os
+import shutil
 import unittest
 
+import numpy as np
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
+from pymatgen.io.qchem.outputs import (
+    QCOutput,
+    check_for_structure_changes,
+    gradient_parser,
+    hessian_parser,
+    orbital_coeffs_parser,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -490,6 +499,34 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["donor atom 2 number"][2593] == "info_is_from_3C"
         assert perturb_ene[0]["acceptor type"][723] == "3C*"
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
+
+
+def test_gradient(tmp_path):
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    gradient = gradient_parser(tmp_path / "131.0")
+    assert np.shape(gradient) == (14, 3)
+    assert gradient.all()
+
+
+def test_hessian(tmp_path):
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    hessian = hessian_parser(tmp_path / "132.0", natoms=14)
+    assert np.shape(hessian) == (42, 42)
+    assert hessian.all()
+
+    hessian = hessian_parser(tmp_path / "132.0")
+    assert np.shape(hessian) == (42 * 42,)
+    assert hessian.all()
+
+
+def test_prev_orbital_coeffs(tmp_path):
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    orbital_coeffs = orbital_coeffs_parser(tmp_path / "53.0")
+    assert len(orbital_coeffs) == 360400
+    assert orbital_coeffs.all()
 
 
 if __name__ == "__main__":

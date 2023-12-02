@@ -62,7 +62,7 @@ MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 dec = MontyDecoder()
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
-skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
+skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
 
 dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -457,13 +457,13 @@ class TestMITMPRelaxSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_get_vasp_input(self):
-        d = self.mit_set.get_vasp_input()
-        assert d["INCAR"]["ISMEAR"] == -5
+        dct = self.mit_set.get_vasp_input()
+        assert dct["INCAR"]["ISMEAR"] == -5
         struct = self.structure.copy()
         struct.make_supercell(4)
-        paramset = MPRelaxSet(struct)
-        d = paramset.get_vasp_input()
-        assert d["INCAR"]["ISMEAR"] == 0
+        relax_set = MPRelaxSet(struct)
+        dct = relax_set.get_vasp_input()
+        assert dct["INCAR"]["ISMEAR"] == 0
 
     def test_mp_metal_relax_set(self):
         mp_metal_set = MPMetalRelaxSet(self.get_structure("Sn"))
