@@ -52,10 +52,10 @@ class TestVasprun(PymatgenTest):
     def test_vasprun_ml(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")
         assert len(vasp_run.md_data) == 100
-        for d in vasp_run.md_data:
-            assert "structure" in d
-            assert "forces" in d
-            assert "energy" in d
+        for frame in vasp_run.md_data:
+            assert "structure" in frame
+            assert "forces" in frame
+            assert "energy" in frame
         assert vasp_run.md_data[-1]["energy"]["total"] == approx(-491.51831988)
 
     def test_bad_random_seed(self):

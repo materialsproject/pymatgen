@@ -2791,12 +2791,11 @@ def gradient_parser(filename: str = "131.0") -> NDArray:
     Parse the gradient data from a gradient scratch file.
 
     Args:
-        filename: Path to the gradient scratch file (typically "131.0")
+        filename: Path to the gradient scratch file. Defaults to "131.0".
 
     Returns:
         NDArray: The gradient, in units of Hartree/Bohr.
     """
-
     # Read the gradient scratch file in 8 byte chunks
     tmp_grad_data: list[float] = []
     with zopen(filename, mode="rb") as file:
@@ -2813,26 +2812,23 @@ def gradient_parser(filename: str = "131.0") -> NDArray:
     return np.array(grad)
 
 
-def hessian_parser(filename: str = "132.0", natoms: int | None = None) -> NDArray:
+def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
     """
     Parse the Hessian data from a Hessian scratch file.
 
     Args:
-        filename: Path to the Hessian scratch file (typically "132.0")
-        natoms: Number of atoms in the molecule. If None, no reshaping will be done.
+        filename: Path to the Hessian scratch file. Defaults to "132.0".
+        n_atoms: Number of atoms in the molecule. If None, no reshaping will be done.
 
     Returns:
-        NDArray: Hessian, formatted as 3natoms x 3natoms. Units are Hartree/Bohr^2/amu.
+        NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
     """
     hessian: list[float] = []
     with zopen(filename, mode="rb") as file:
         binary = file.read()
     hessian.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
-    if natoms:
-        return np.reshape(
-            hessian,
-            (natoms * 3, natoms * 3),
-        )
+    if n_atoms:
+        return np.reshape(hessian, (n_atoms * 3, n_atoms * 3))
     return np.array(hessian)
 
 
@@ -2841,7 +2837,7 @@ def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
     Parse the orbital coefficients from a scratch file.
 
     Args:
-        filename: Path to the orbital coefficients file (typically "53.0")
+        filename: Path to the orbital coefficients file. Defaults to "53.0".
 
     Returns:
         NDArray: The orbital coefficients
