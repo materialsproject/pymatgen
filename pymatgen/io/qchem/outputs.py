@@ -948,7 +948,7 @@ class QCOutput(MSONable):
     def _read_charges_and_dipoles(self):
         """
         Parses Mulliken/ESP/RESP charges.
-        Parses associated dipoles.
+        Parses associated dipole/multipole moments.
         Also parses spins given an unrestricted SCF.
         """
         
