@@ -976,6 +976,132 @@ class QCOutput(MSONable):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
 
+        self.data["multipoles"] = dict()
+
+        temp_quadrupole_moment = read_pattern(
+            self.text,
+            {
+                "key": (r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
+                        r"\s+([\-\.0-9]+)\s+XZ\s+([\-\.0-9]+)\s+YZ\s+([\-\.0-9]+)\s+ZZ\s+([\-\.0-9]+)")
+            }
+        ).get("key")
+        if temp_quadrupole_moment is not None:
+            if len(temp_quadrupole_moment) == 1:
+                self.data["multipoles"]["quadrupole"] = {
+                    "XX": temp_quadrupole_moment[0][0],
+                    "XY": temp_quadrupole_moment[0][1],
+                    "YY": temp_quadrupole_moment[0][2],
+                    "XZ": temp_quadrupole_moment[0][3],
+                    "YZ": temp_quadrupole_moment[0][4],
+                    "ZZ": temp_quadrupole_moment[0][5],
+                }
+            else:
+                self.data["multipoles"]["quadrupole"] = list()
+                for qpole in temp_quadrupole_moment:
+                    self.data["multipoles"]["quadrupole"].append(
+                        {
+                            "XX": qpole[0],
+                            "XY": qpole[1],
+                            "YY": qpole[2],
+                            "XZ": qpole[3],
+                            "YZ": qpole[4],
+                            "ZZ": qpole[5],
+                        }
+                    )
+
+        temp_octopole_moment = read_pattern(
+            self.text,
+            {
+                "key": (r"\s*Octopole Moments \(Debye\-Ang\^2\)\s+XXX\s+([\-\.0-9]+)\s+XXY\s+([\-\.0-9]+)"
+                        r"\s+XYY\s+([\-\.0-9]+)\s+YYY\s+([\-\.0-9]+)\s+XXZ\s+([\-\.0-9]+)\s+XYZ\s+([\-\.0-9]+)"
+                        r"\s+YYZ\s+([\-\.0-9]+)\s+XZZ\s+([\-\.0-9]+)\s+YZZ\s+([\-\.0-9]+)\s+ZZZ\s+([\-\.0-9]+)")
+            }
+            ).get("key")
+        if temp_octopole_moment is not None:
+            if len(temp_octopole_moment) == 1:
+                self.data["multipoles"]["octopole"] = {
+                    "XXX": temp_octopole_moment[0][0],
+                    "XXZ": temp_octopole_moment[0][1],
+                    "XYY": temp_octopole_moment[0][2],
+                    "YYY": temp_octopole_moment[0][3],
+                    "XXZ": temp_octopole_moment[0][4],
+                    "XYZ": temp_octopole_moment[0][5],
+                    "YYZ": temp_octopole_moment[0][6],
+                    "XZZ": temp_octopole_moment[0][7],
+                    "YZZ": temp_octopole_moment[0][8],
+                    "ZZZ": temp_octopole_moment[0][9],
+                }
+            else:
+                self.data["multipoles"]["octopole"] = list()
+                for opole in temp_octopole_moment:
+                    self.data["multipoles"]["octopole"].append(
+                        {
+                            "XXX": opole[0],
+                            "XXZ": opole[1],
+                            "XYY": opole[2],
+                            "YYY": opole[3],
+                            "XXZ": opole[4],
+                            "XYZ": opole[5],
+                            "YYZ": opole[6],
+                            "XZZ": opole[7],
+                            "YZZ": opole[8],
+                            "ZZZ": opole[9],
+                        }
+                    )
+
+        temp_hexadecapole_moment = read_pattern(
+            self.text,
+            {
+                "key": (r"\s*Hexadecapole Moments \(Debye\-Ang\^3\)\s+XXXX\s+([\-\.0-9]+)\s+XXXY\s+([\-\.0-9]+)"
+                        r"\s+XXYY\s+([\-\.0-9]+)\s+XYYY\s+([\-\.0-9]+)\s+YYYY\s+([\-\.0-9]+)\s+XXXZ\s+([\-\.0-9]+)"
+                        r"\s+XXYZ\s+([\-\.0-9]+)\s+XYYZ\s+([\-\.0-9]+)\s+YYYZ\s+([\-\.0-9]+)\s+XXZZ\s+([\-\.0-9]+)"
+                        r"\s+XYZZ\s+([\-\.0-9]+)\s+YYZZ\s+([\-\.0-9]+)\s+XZZZ\s+([\-\.0-9]+)\s+YZZZ\s+([\-\.0-9]+)"
+                        r"\s+ZZZZ\s+([\-\.0-9]+)")
+            }
+        ).get("key")
+        if temp_hexadecapole_moment is not None:
+            if len(temp_hexadecapole_moment) == 1:
+                self.data["multipoles"]["hexadecapole"] = {
+                    "XXXX": temp_hexadecapole_moment[0][0],
+                    "XXXY": temp_hexadecapole_moment[0][1],
+                    "XXYY": temp_hexadecapole_moment[0][2],
+                    "XYYY": temp_hexadecapole_moment[0][3],
+                    "YYYY": temp_hexadecapole_moment[0][4],
+                    "XXXZ": temp_hexadecapole_moment[0][5],
+                    "XXYZ": temp_hexadecapole_moment[0][6],
+                    "XYYZ": temp_hexadecapole_moment[0][7],
+                    "YYYZ": temp_hexadecapole_moment[0][8],
+                    "XXZZ": temp_hexadecapole_moment[0][9],
+                    "XYZZ": temp_hexadecapole_moment[0][10],
+                    "YYZZ": temp_hexadecapole_moment[0][11],
+                    "XZZZ": temp_hexadecapole_moment[0][12],
+                    "YZZZ": temp_hexadecapole_moment[0][13],
+                    "ZZZZ": temp_hexadecapole_moment[0][14],
+                }
+            else:
+                self.data["multipoles"]["hexadecapole"] = list()
+                for hpole in temp_hexadecapole_moment:
+                    self.data["multipoles"]["hexadecapole"].append(
+                        {
+                            "XXXX": hpole[0],
+                            "XXXY": hpole[1],
+                            "XXYY": hpole[2],
+                            "XYYY": hpole[3],
+                            "YYYY": hpole[4],
+                            "XXXZ": hpole[5],
+                            "XXYZ": hpole[6],
+                            "XYYZ": hpole[7],
+                            "YYYZ": hpole[8],
+                            "XXZZ": hpole[9],
+                            "XYZZ": hpole[10],
+                            "YYZZ": hpole[11],
+                            "XZZZ": hpole[12],
+                            "YZZZ": hpole[13],
+                            "ZZZZ": hpole[14],
+                        }
+                    )
+
+
         if self.data.get("unrestricted", []):
             header_pattern = (
                 r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+"
