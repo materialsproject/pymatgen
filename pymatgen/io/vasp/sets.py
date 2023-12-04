@@ -1270,7 +1270,9 @@ class MatPESStaticSet(DictSet):
             self._config_dict["INCAR"].pop("GGA", None)
         if xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
-        default_potcars = self.CONFIG["PARENT"].replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
+
+        default_potcars = self.CONFIG["PARENT"].upper()
+        default_potcars = default_potcars.replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
         user_potcar_functional = kwargs.get("user_potcar_functional", default_potcars)
         if user_potcar_functional.upper() != default_potcars:
             warnings.warn(

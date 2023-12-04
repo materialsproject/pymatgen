@@ -61,6 +61,8 @@ MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 
 dec = MontyDecoder()
 
+MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", f"{TEST_FILES_DIR}/fake_potcar_library/")
+
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
@@ -239,13 +241,13 @@ class TestMITMPRelaxSet(PymatgenTest):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
-        assert self.set(struct).nelect == 16
-        assert MPRelaxSet(struct).nelect == 22
+        assert self.set(struct).nelect == 18.758
+        assert MPRelaxSet(struct).nelect == 27.166
 
         # Expect same answer when oxidation states are present. Was a bug previously.
         oxi_struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
-        assert self.set(oxi_struct).nelect == 16
-        assert MPRelaxSet(oxi_struct).nelect == 22
+        assert self.set(oxi_struct).nelect == 18.758
+        assert MPRelaxSet(oxi_struct).nelect == 27.166
 
         # disordered structure are not supported
         disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
@@ -262,13 +264,13 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # pure Si
         struct = Structure(lattice, ["Si", "Si", "Si"], coords)
-        assert self.set(struct).estimate_nbands() == 11
-        assert MPRelaxSet(struct).estimate_nbands() == 11
+        assert self.set(struct).estimate_nbands() == 13
+        assert MPRelaxSet(struct).estimate_nbands() == 13
 
         # Si + Fe
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
-        assert self.set(struct).estimate_nbands() == 15
-        assert MPRelaxSet(struct).estimate_nbands() == 18
+        assert self.set(struct).estimate_nbands() == 16
+        assert MPRelaxSet(struct).estimate_nbands() == 20
 
         # Si + Fe with NPAR = 4
         uis = {"NPAR": 4}
@@ -277,8 +279,8 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # Si + Fe with noncollinear magnetism turned on
         uis = {"LNONCOLLINEAR": True}
-        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == approx(30)
-        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(36)
+        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == approx(32)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(40)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
@@ -413,7 +415,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         )
         struct = Structure(lattice, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct, use_structure_charge=True)
-        assert mpr.incar["NELECT"] == 7, "NELECT not properly set for nonzero charge"
+        assert mpr.incar["NELECT"] == -1, "NELECT not properly set for nonzero charge"
 
         # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)
@@ -777,10 +779,11 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMAXMIX"] == 6
         # test POTCAR files are default PBE_64 PSPs and functional
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert input_set.potcar.functional == "PBE_64"
+        assert input_set.potcar_functional == "PBE_64"
+        if not NO_PSP_DIR:
+            assert input_set.potcar.functional == "PBE_64"
+            assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
         assert input_set.kpoints is None
-
-        assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
@@ -814,7 +817,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["SIGMA"] == 0.05
         # test POTCAR files are default PBE_64 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_prev.potcar.functional == "PBE_64"
+        assert default_prev.potcar_functional == "PBE_64"
+        if not NO_PSP_DIR:
+            assert default_prev.potcar.functional == "PBE_64"
         assert default_prev.kpoints is None
 
     def test_r2scan(self):
@@ -826,7 +831,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_scan.get("LDAU") is None
         # test POTCAR files are default PBE_64 PSPs and functional
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert scan.potcar.functional == "PBE_64"
+        assert scan.potcar_functional == "PBE_64"
+        if not NO_PSP_DIR:
+            assert scan.potcar.functional == "PBE_64"
         assert scan.kpoints is None
 
     def test_default_u(self):
@@ -838,7 +845,9 @@ class TestMatPESStaticSet(PymatgenTest):
         # test POTCAR files are default PBE_64 PSPs and functional
         assert incar_u["LDAUU"] == [5.3, 0, 0]
         assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_u.potcar.functional == "PBE_64"
+        assert default_u.potcar_functional == "PBE_64"
+        if not NO_PSP_DIR:
+            assert default_u.potcar.functional == "PBE_64"
         assert default_u.kpoints is None
 
     def test_functionals(self):

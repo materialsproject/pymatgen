@@ -2370,7 +2370,7 @@ class PotcarSingle:
 
 
 def _gen_potcar_summary_stats(
-    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str = POTCAR_STATS_PATH
+    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
     This function solely intended to be used for PMG development to regenerate the
@@ -2426,7 +2426,10 @@ def _gen_potcar_summary_stats(
                 }
             )
 
-    dumpfn(new_summary_stats, summary_stats_filename)
+    if summary_stats_filename:
+        dumpfn(new_summary_stats, summary_stats_filename)
+
+    return new_summary_stats
 
 
 class Potcar(list, MSONable):

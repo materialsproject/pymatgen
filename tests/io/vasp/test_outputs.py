@@ -604,13 +604,13 @@ class TestVasprun(PymatgenTest):
             expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
         vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
@@ -655,13 +655,13 @@ class TestVasprun(PymatgenTest):
 
     def test_charged_structure(self):
         vpath = f"{TEST_FILES_DIR}/vasprun.charged.xml"
-        potcar_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
+        potcar_path = f"{TEST_FILES_DIR}/fake_potcar_library/POT_GGA_PAW_PBE/POTCAR.Si.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 8) == 9
-        assert vasp_run.structures[0].charge == -1
-        assert vasp_run.initial_structure.charge == -1
-        assert vasp_run.final_structure.charge == -1
+        assert vasp_run.structures[0].charge == approx(1.758, abs=1e-4)
+        assert vasp_run.initial_structure.charge == approx(1.758, abs=1e-4)
+        assert vasp_run.final_structure.charge == approx(1.758, abs=1e-4)
 
         vpath = f"{TEST_FILES_DIR}/vasprun.split.charged.xml"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.split.charged.gz"
