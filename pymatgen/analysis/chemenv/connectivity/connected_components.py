@@ -155,14 +155,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print(
-                        "delta not equal to periodicity nor 0 ... : ",
-                        n1,
-                        n2,
-                        key,
-                        data["delta"],
-                        data,
-                    )
+                    print("delta not equal to periodicity nor 0 ... : ", n1, n2, key, data["delta"], data)
                     input("Are we ok with this ?")
                 other_edges.append((n1, n2, key, data))
 

@@ -392,6 +392,42 @@ class TestIStructure(PymatgenTest):
         int_s_pbc = struct_pbc.interpolate(struct2_pbc, nimages=2)
         assert_allclose(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
 
+        # Test end_amplitude =/= 1
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        struct = IStructure(self.lattice, ["Si"] * 2, coords)
+        coords2 = []
+        coords2.extend(([0, 0, 0], [0.5, 0.5, 0.5]))
+        struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
+        # testing large positive values
+        interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=2)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
+        assert_array_equal(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
+        # testing large negative values
+        interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=-2)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_array_equal(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
+        # testing partial interpolation
+        interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=-0.5)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
+        # testing end_amplitude=0
+        interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=0)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+            assert_array_equal(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
+
     def test_interpolate_lattice(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
@@ -405,10 +441,39 @@ class TestIStructure(PymatgenTest):
         assert_allclose(struct2.lattice.angles, int_s[2].lattice.angles)
         int_angles = [110.3976469, 94.5359731, 64.5165856]
         assert_allclose(int_angles, int_s[1].lattice.angles)
-
         # Assert that volume is monotonic
         assert struct2.volume >= int_s[1].volume
         assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = 0.5
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=0.5)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(int_angles, int_s[2].lattice.angles)
+        # Assert that volume is monotonic
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = 2
+        int_s = struct.interpolate(struct2, 4, interpolate_lattices=True, end_amplitude=2)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(int_angles, int_s[1].lattice.angles)
+        # Assert that volume is monotonic
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = -1
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=-1)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        int_angles = [127.72010946461334, 86.27613506707404, 56.52554566317311]
+        assert_allclose(int_angles, int_s[1].lattice.angles)
+        # Assert that volume is monotonic (should be shrinking for negative end_amplitude)
+        assert int_s[1].volume <= struct.volume
+        # Assert that coordinate shift is reversed
+        assert_array_equal(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_array_equal(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -416,11 +481,20 @@ class TestIStructure(PymatgenTest):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct1 = IStructure(l1, ["Si"] * 2, coords)
         struct2 = IStructure(l2, ["Si"] * 2, coords)
-        int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True)
 
-        # Assert that volume is monotonic
-        assert struct2.volume >= int_s[1].volume
-        assert int_s[1].volume >= struct1.volume
+        # Test positive end_amplitudes
+        for end_amplitude in [0, 0.5, 1, 2]:
+            int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
+            # Assert that volume is monotonic
+            assert struct2.volume >= int_s[1].volume
+            assert int_s[1].volume >= struct1.volume
+
+        # Test negative end_amplitudes
+        for end_amplitude in [-2, -0.5, 0]:
+            int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
+            # Assert that volume is monotonic
+            assert struct2.volume >= int_s[1].volume
+            assert int_s[1].volume <= struct1.volume
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]

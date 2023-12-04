@@ -399,6 +399,8 @@ class Vasprun(MSONable):
                         md_data[-1]["structure"] = self._parse_structure(elem)
                     elif tag == "varray" and elem.attrib.get("name") == "forces":
                         md_data[-1]["forces"] = _parse_vasp_array(elem)
+                    elif tag == "varray" and elem.attrib.get("name") == "stress":
+                        md_data[-1]["stress"] = _parse_vasp_array(elem)
                     elif tag == "energy":
                         d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
                         if "kinetic" in d:
@@ -527,8 +529,13 @@ class Vasprun(MSONable):
         Returns:
             bool: True if ionic step convergence has been reached, i.e. that vasp
                 exited before reaching the max ionic steps for a relaxation run.
+                In case IBRION=0 (MD) True if the max ionic steps are reached.
         """
         nsw = self.parameters.get("NSW", 0)
+        ibrion = self.parameters.get("IBRION", -1 if nsw in (-1, 0) else 0)
+        if ibrion == 0:
+            return nsw <= 1 or self.md_n_steps == nsw
+
         return nsw <= 1 or len(self.ionic_steps) < nsw
 
     @property
@@ -695,6 +702,14 @@ class Vasprun(MSONable):
     def is_spin(self) -> bool:
         """True if run is spin-polarized."""
         return self.parameters.get("ISPIN", 1) == 2
+
+    @property
+    def md_n_steps(self) -> int:
+        """Number of steps for md runs."""
+        # if ML enabled count all the actual MD steps
+        if self.md_data:
+            return len(self.md_data)
+        return self.nionic_steps
 
     def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None):
         """
@@ -1023,7 +1038,8 @@ class Vasprun(MSONable):
         from pymatgen.core.trajectory import Trajectory
 
         structs = []
-        for step in self.ionic_steps:
+        steps_list = self.md_data or self.ionic_steps
+        for step in steps_list:
             struct = step["structure"].copy()
             struct.add_site_property("forces", step["forces"])
             structs.append(struct)
