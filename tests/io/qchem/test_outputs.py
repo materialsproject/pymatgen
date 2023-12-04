@@ -148,6 +148,7 @@ property_list = {
     "norm_of_stepsize",
     "version",
     "dipoles",
+    "multipoles",
     "gap_info",
 }
 
@@ -309,6 +310,27 @@ class TestQCOutput(PymatgenTest):
 
         for key in property_list:
             self._test_property(key, single_outs, multi_outs)
+
+    def test_multipole_parsing(self):
+        sp = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo.qout")
+
+        mpoles = sp.data["multipoles"]
+        assert len(mpoles["quadrupole"]) == 6
+        assert len(mpoles["octopole"]) == 10
+        assert len(mpoles["hexadecapole"]) == 15
+        assert mpoles["quadrupole"]["XX"] == -51.3957
+        assert mpoles["quadrupole"]["YZ"] == 3.5356
+        assert mpoles["octopole"]["XYY"] == -15.0294
+        assert mpoles["octopole"]["XZZ"] == -14.9756
+        assert mpoles["hexadecapole"]["YYYY"] == -326.317
+        assert mpoles["hexadecapole"]["XYZZ"] == 58.0584
+
+        opt = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
+        mpoles = opt.data["multipoles"]
+
+        assert len(mpoles["quadrupole"]) == 5
+        assert len(mpoles["octopole"]) == 5
+        assert len(mpoles["hexadecapole"]) == 5
 
     @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
     def test_structural_change(self):

@@ -951,6 +951,7 @@ class QCOutput(MSONable):
         Parses associated dipoles.
         Also parses spins given an unrestricted SCF.
         """
+        
         self.data["dipoles"] = {}
         temp_dipole_total = read_pattern(
             self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
@@ -988,24 +989,24 @@ class QCOutput(MSONable):
         if temp_quadrupole_moment is not None:
             if len(temp_quadrupole_moment) == 1:
                 self.data["multipoles"]["quadrupole"] = {
-                    "XX": temp_quadrupole_moment[0][0],
-                    "XY": temp_quadrupole_moment[0][1],
-                    "YY": temp_quadrupole_moment[0][2],
-                    "XZ": temp_quadrupole_moment[0][3],
-                    "YZ": temp_quadrupole_moment[0][4],
-                    "ZZ": temp_quadrupole_moment[0][5],
+                    "XX": float(temp_quadrupole_moment[0][0]),
+                    "XY": float(temp_quadrupole_moment[0][1]),
+                    "YY": float(temp_quadrupole_moment[0][2]),
+                    "XZ": float(temp_quadrupole_moment[0][3]),
+                    "YZ": float(temp_quadrupole_moment[0][4]),
+                    "ZZ": float(temp_quadrupole_moment[0][5]),
                 }
             else:
                 self.data["multipoles"]["quadrupole"] = list()
                 for qpole in temp_quadrupole_moment:
                     self.data["multipoles"]["quadrupole"].append(
                         {
-                            "XX": qpole[0],
-                            "XY": qpole[1],
-                            "YY": qpole[2],
-                            "XZ": qpole[3],
-                            "YZ": qpole[4],
-                            "ZZ": qpole[5],
+                            "XX": float(qpole[0]),
+                            "XY": float(qpole[1]),
+                            "YY": float(qpole[2]),
+                            "XZ": float(qpole[3]),
+                            "YZ": float(qpole[4]),
+                            "ZZ": float(qpole[5]),
                         }
                     )
 
@@ -1020,32 +1021,32 @@ class QCOutput(MSONable):
         if temp_octopole_moment is not None:
             if len(temp_octopole_moment) == 1:
                 self.data["multipoles"]["octopole"] = {
-                    "XXX": temp_octopole_moment[0][0],
-                    "XXZ": temp_octopole_moment[0][1],
-                    "XYY": temp_octopole_moment[0][2],
-                    "YYY": temp_octopole_moment[0][3],
-                    "XXZ": temp_octopole_moment[0][4],
-                    "XYZ": temp_octopole_moment[0][5],
-                    "YYZ": temp_octopole_moment[0][6],
-                    "XZZ": temp_octopole_moment[0][7],
-                    "YZZ": temp_octopole_moment[0][8],
-                    "ZZZ": temp_octopole_moment[0][9],
+                    "XXX": float(temp_octopole_moment[0][0]),
+                    "XXY": float(temp_octopole_moment[0][1]),
+                    "XYY": float(temp_octopole_moment[0][2]),
+                    "YYY": float(temp_octopole_moment[0][3]),
+                    "XXZ": float(temp_octopole_moment[0][4]),
+                    "XYZ": float(temp_octopole_moment[0][5]),
+                    "YYZ": float(temp_octopole_moment[0][6]),
+                    "XZZ": float(temp_octopole_moment[0][7]),
+                    "YZZ": float(temp_octopole_moment[0][8]),
+                    "ZZZ": float(temp_octopole_moment[0][9]),
                 }
             else:
                 self.data["multipoles"]["octopole"] = list()
                 for opole in temp_octopole_moment:
                     self.data["multipoles"]["octopole"].append(
                         {
-                            "XXX": opole[0],
-                            "XXZ": opole[1],
-                            "XYY": opole[2],
-                            "YYY": opole[3],
-                            "XXZ": opole[4],
-                            "XYZ": opole[5],
-                            "YYZ": opole[6],
-                            "XZZ": opole[7],
-                            "YZZ": opole[8],
-                            "ZZZ": opole[9],
+                            "XXX": float(opole[0]),
+                            "XXY": float(opole[1]),
+                            "XYY": float(opole[2]),
+                            "YYY": float(opole[3]),
+                            "XXZ": float(opole[4]),
+                            "XYZ": float(opole[5]),
+                            "YYZ": float(opole[6]),
+                            "XZZ": float(opole[7]),
+                            "YZZ": float(opole[8]),
+                            "ZZZ": float(opole[9]),
                         }
                     )
 
@@ -1062,45 +1063,44 @@ class QCOutput(MSONable):
         if temp_hexadecapole_moment is not None:
             if len(temp_hexadecapole_moment) == 1:
                 self.data["multipoles"]["hexadecapole"] = {
-                    "XXXX": temp_hexadecapole_moment[0][0],
-                    "XXXY": temp_hexadecapole_moment[0][1],
-                    "XXYY": temp_hexadecapole_moment[0][2],
-                    "XYYY": temp_hexadecapole_moment[0][3],
-                    "YYYY": temp_hexadecapole_moment[0][4],
-                    "XXXZ": temp_hexadecapole_moment[0][5],
-                    "XXYZ": temp_hexadecapole_moment[0][6],
-                    "XYYZ": temp_hexadecapole_moment[0][7],
-                    "YYYZ": temp_hexadecapole_moment[0][8],
-                    "XXZZ": temp_hexadecapole_moment[0][9],
-                    "XYZZ": temp_hexadecapole_moment[0][10],
-                    "YYZZ": temp_hexadecapole_moment[0][11],
-                    "XZZZ": temp_hexadecapole_moment[0][12],
-                    "YZZZ": temp_hexadecapole_moment[0][13],
-                    "ZZZZ": temp_hexadecapole_moment[0][14],
+                    "XXXX": float(temp_hexadecapole_moment[0][0]),
+                    "XXXY": float(temp_hexadecapole_moment[0][1]),
+                    "XXYY": float(temp_hexadecapole_moment[0][2]),
+                    "XYYY": float(temp_hexadecapole_moment[0][3]),
+                    "YYYY": float(temp_hexadecapole_moment[0][4]),
+                    "XXXZ": float(temp_hexadecapole_moment[0][5]),
+                    "XXYZ": float(temp_hexadecapole_moment[0][6]),
+                    "XYYZ": float(temp_hexadecapole_moment[0][7]),
+                    "YYYZ": float(temp_hexadecapole_moment[0][8]),
+                    "XXZZ": float(temp_hexadecapole_moment[0][9]),
+                    "XYZZ": float(temp_hexadecapole_moment[0][10]),
+                    "YYZZ": float(temp_hexadecapole_moment[0][11]),
+                    "XZZZ": float(temp_hexadecapole_moment[0][12]),
+                    "YZZZ": float(temp_hexadecapole_moment[0][13]),
+                    "ZZZZ": float(temp_hexadecapole_moment[0][14]),
                 }
             else:
                 self.data["multipoles"]["hexadecapole"] = list()
                 for hpole in temp_hexadecapole_moment:
                     self.data["multipoles"]["hexadecapole"].append(
                         {
-                            "XXXX": hpole[0],
-                            "XXXY": hpole[1],
-                            "XXYY": hpole[2],
-                            "XYYY": hpole[3],
-                            "YYYY": hpole[4],
-                            "XXXZ": hpole[5],
-                            "XXYZ": hpole[6],
-                            "XYYZ": hpole[7],
-                            "YYYZ": hpole[8],
-                            "XXZZ": hpole[9],
-                            "XYZZ": hpole[10],
-                            "YYZZ": hpole[11],
-                            "XZZZ": hpole[12],
-                            "YZZZ": hpole[13],
-                            "ZZZZ": hpole[14],
+                            "XXXX": float(hpole[0]),
+                            "XXXY": float(hpole[1]),
+                            "XXYY": float(hpole[2]),
+                            "XYYY": float(hpole[3]),
+                            "YYYY": float(hpole[4]),
+                            "XXXZ": float(hpole[5]),
+                            "XXYZ": float(hpole[6]),
+                            "XYYZ": float(hpole[7]),
+                            "YYYZ": float(hpole[8]),
+                            "XXZZ": float(hpole[9]),
+                            "XYZZ": float(hpole[10]),
+                            "YYZZ": float(hpole[11]),
+                            "XZZZ": float(hpole[12]),
+                            "YZZZ": float(hpole[13]),
+                            "ZZZZ": float(hpole[14]),
                         }
                     )
-
 
         if self.data.get("unrestricted", []):
             header_pattern = (
