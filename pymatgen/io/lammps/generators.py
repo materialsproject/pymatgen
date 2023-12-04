@@ -27,7 +27,8 @@ __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
 
 
 @dataclass
@@ -46,8 +47,8 @@ class BaseLammpsGenerator(InputGenerator):
         calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
         settings: Dictionary containing the values of the parameters to replace in the template.
         keep_stages: If True, the string is formatted in a block structure with stage names
-                     and newlines that differentiate commands in the respective stages of the InputFile.
-                     If False, stage names are not printed and all commands appear in a single block.
+        and newlines that differentiate commands in the respective stages of the InputFile.
+        If False, stage names are not printed and all commands appear in a single block.
 
     /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others

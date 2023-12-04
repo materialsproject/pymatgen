@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json"))
+AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{module_dir}/aflow_prototypes.json")
 
 
 @due.dcite(
@@ -66,8 +66,8 @@ class AflowPrototypeMatcher:
     def _match_prototype(structure_matcher, structure):
         tags = []
         for d in AFLOW_PROTOTYPE_LIBRARY:
-            p = d["snl"].structure
-            match = structure_matcher.fit_anonymous(p, structure)
+            struct = d["snl"].structure
+            match = structure_matcher.fit_anonymous(struct, structure)
             if match:
                 tags.append(d)
         return tags

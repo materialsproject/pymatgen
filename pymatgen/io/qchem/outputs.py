@@ -7,8 +7,9 @@ import logging
 import math
 import os
 import re
+import struct
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 import numpy as np
@@ -32,6 +33,8 @@ try:
 except ImportError:
     openbabel = None
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -1382,11 +1385,7 @@ class QCOutput(MSONable):
                     self.text,
                     {"key": r"Maximum number of iterations reached during minimization algorithm"},
                     terminate_on_match=True,
-                ).get(
-                    "key"
-                ) == [
-                    []
-                ]:
+                ).get("key") == [[]]:
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
@@ -2045,9 +2044,7 @@ class QCOutput(MSONable):
             "key"
         ) == [[]] or read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get(
             "key"
-        ) == [
-            []
-        ]:
+        ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
@@ -2787,3 +2784,66 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
+
+
+def gradient_parser(filename: str = "131.0") -> NDArray:
+    """
+    Parse the gradient data from a gradient scratch file.
+
+    Args:
+        filename: Path to the gradient scratch file. Defaults to "131.0".
+
+    Returns:
+        NDArray: The gradient, in units of Hartree/Bohr.
+    """
+    # Read the gradient scratch file in 8 byte chunks
+    tmp_grad_data: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    grad = [
+        [
+            float(tmp_grad_data[ii * 3]),
+            float(tmp_grad_data[ii * 3 + 1]),
+            float(tmp_grad_data[ii * 3 + 2]),
+        ]
+        for ii in range(len(tmp_grad_data) // 3)
+    ]
+    return np.array(grad)
+
+
+def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
+    """
+    Parse the Hessian data from a Hessian scratch file.
+
+    Args:
+        filename: Path to the Hessian scratch file. Defaults to "132.0".
+        n_atoms: Number of atoms in the molecule. If None, no reshaping will be done.
+
+    Returns:
+        NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
+    """
+    hessian: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    hessian.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    if n_atoms:
+        return np.reshape(hessian, (n_atoms * 3, n_atoms * 3))
+    return np.array(hessian)
+
+
+def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
+    """
+    Parse the orbital coefficients from a scratch file.
+
+    Args:
+        filename: Path to the orbital coefficients file. Defaults to "53.0".
+
+    Returns:
+        NDArray: The orbital coefficients
+    """
+    orbital_coeffs: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    orbital_coeffs.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    return np.array(orbital_coeffs)

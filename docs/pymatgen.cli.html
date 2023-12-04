@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.cli package &mdash; pymatgen 2023.7.17 documentation</title>
+  <title>pymatgen.cli package &mdash; pymatgen 2023.10.4 documentation</title>
       <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
       <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
@@ -13,20 +13,14 @@
     <script src="assets/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="assets/documentation_options.js?v=b3ba4146"></script>
+        <script src="assets/jquery.js?v=5d32c60e"></script>
+        <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="assets/documentation_options.js?v=b21dff6d"></script>
         <script src="assets/doctools.js?v=888ff710"></script>
-        <script src="assets/sphinx_highlight.js?v=4825356b"></script>
+        <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
- 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-33990148-1']);
-  _gaq.push(['_trackPageview']);
-</script>
-
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -34,14 +28,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2023.7.17
+                2023.10.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -57,11 +55,6 @@
 </li>
 <li><a class="reference internal" href="#module-pymatgen.cli.feff_plot_dos">pymatgen.cli.feff_plot_dos module</a><ul>
 <li><a class="reference internal" href="#pymatgen.cli.feff_plot_dos.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pymatgen.cli.gaussian_analyzer">pymatgen.cli.gaussian_analyzer module</a><ul>
-<li><a class="reference internal" href="#pymatgen.cli.gaussian_analyzer.get_energies"><code class="docutils literal notranslate"><span class="pre">get_energies()</span></code></a></li>
-<li><a class="reference internal" href="#pymatgen.cli.gaussian_analyzer.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-pymatgen.cli.get_environment">pymatgen.cli.get_environment module</a><ul>
@@ -132,7 +125,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">pymatgen.cli package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.cli.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -144,77 +137,50 @@
            <div itemprop="articleBody">
              
   <section id="module-pymatgen.cli">
-<span id="pymatgen-cli-package"></span><h1>pymatgen.cli package<a class="headerlink" href="#module-pymatgen.cli" title="Permalink to this heading"></a></h1>
+<span id="pymatgen-cli-package"></span><h1>pymatgen.cli package<a class="headerlink" href="#module-pymatgen.cli" title="Link to this heading"></a></h1>
 <p>This package contains various command line interfaces for common
 pymatgen functionality such as file conversion, etc. Entry points to these
 interfaces are defined in setup.py.</p>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
 <section id="module-pymatgen.cli.feff_plot_cross_section">
-<span id="pymatgen-cli-feff-plot-cross-section-module"></span><h2>pymatgen.cli.feff_plot_cross_section module<a class="headerlink" href="#module-pymatgen.cli.feff_plot_cross_section" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-feff-plot-cross-section-module"></span><h2>pymatgen.cli.feff_plot_cross_section module<a class="headerlink" href="#module-pymatgen.cli.feff_plot_cross_section" title="Link to this heading"></a></h2>
 <p>Script for plotting cross sections generated by FEFF found in xmu.dat files.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.feff_plot_cross_section.main">
-<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/feff_plot_cross_section.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.feff_plot_cross_section.main" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/feff_plot_cross_section.py#L23-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.feff_plot_cross_section.main" title="Link to this definition"></a></dt>
 <dd><p>Main function.</p>
 </dd></dl>
 
 </section>
 <section id="module-pymatgen.cli.feff_plot_dos">
-<span id="pymatgen-cli-feff-plot-dos-module"></span><h2>pymatgen.cli.feff_plot_dos module<a class="headerlink" href="#module-pymatgen.cli.feff_plot_dos" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-feff-plot-dos-module"></span><h2>pymatgen.cli.feff_plot_dos module<a class="headerlink" href="#module-pymatgen.cli.feff_plot_dos" title="Link to this heading"></a></h2>
 <p>Script to plot density of states (DOS) generated by an FEFF run
 either by site, element, or orbital.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.feff_plot_dos.main">
-<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/feff_plot_dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.feff_plot_dos.main" title="Permalink to this definition"></a></dt>
-<dd><p>Main function.</p>
-</dd></dl>
-
-</section>
-<section id="module-pymatgen.cli.gaussian_analyzer">
-<span id="pymatgen-cli-gaussian-analyzer-module"></span><h2>pymatgen.cli.gaussian_analyzer module<a class="headerlink" href="#module-pymatgen.cli.gaussian_analyzer" title="Permalink to this heading"></a></h2>
-<p>A convenience script engine to read Gaussian output in a directory tree.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.cli.gaussian_analyzer.get_energies">
-<span class="sig-name descname"><span class="pre">get_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reanalyze</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/gaussian_analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.gaussian_analyzer.get_energies" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rootdir</strong> – </p></li>
-<li><p><strong>reanalyze</strong> – </p></li>
-<li><p><strong>verbose</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.cli.gaussian_analyzer.main">
-<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/gaussian_analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.gaussian_analyzer.main" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/feff_plot_dos.py#L23-L84"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.feff_plot_dos.main" title="Link to this definition"></a></dt>
 <dd><p>Main function.</p>
 </dd></dl>
 
 </section>
 <section id="module-pymatgen.cli.get_environment">
-<span id="pymatgen-cli-get-environment-module"></span><h2>pymatgen.cli.get_environment module<a class="headerlink" href="#module-pymatgen.cli.get_environment" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-get-environment-module"></span><h2>pymatgen.cli.get_environment module<a class="headerlink" href="#module-pymatgen.cli.get_environment" title="Link to this heading"></a></h2>
 <p>Command line script to get the chemical environment of a structure.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.get_environment.main">
-<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/get_environment.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.get_environment.main" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/get_environment.py#L14-L44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.get_environment.main" title="Link to this definition"></a></dt>
 <dd><p>Main function for get_environment CLI.</p>
 </dd></dl>
 
 </section>
 <section id="module-pymatgen.cli.pmg">
-<span id="pymatgen-cli-pmg-module"></span><h2>pymatgen.cli.pmg module<a class="headerlink" href="#module-pymatgen.cli.pmg" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-module"></span><h2>pymatgen.cli.pmg module<a class="headerlink" href="#module-pymatgen.cli.pmg" title="Link to this heading"></a></h2>
 <p>A master convenience script with many tools for vasp and structure analysis.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg.diff_incar">
-<span class="sig-name descname"><span class="pre">diff_incar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg.diff_incar" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">diff_incar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg.py#L38-L76"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg.diff_incar" title="Link to this definition"></a></dt>
 <dd><p>Handle diff commands.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -225,13 +191,13 @@ either by site, element, or orbital.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg.main">
-<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg.main" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg.py#L79-L450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg.main" title="Link to this definition"></a></dt>
 <dd><p>Handle main.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg.parse_view">
-<span class="sig-name descname"><span class="pre">parse_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg.parse_view" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parse_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg.py#L23-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg.parse_view" title="Link to this definition"></a></dt>
 <dd><p>Handle view commands.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -242,11 +208,11 @@ either by site, element, or orbital.</p>
 
 </section>
 <section id="module-pymatgen.cli.pmg_analyze">
-<span id="pymatgen-cli-pmg-analyze-module"></span><h2>pymatgen.cli.pmg_analyze module<a class="headerlink" href="#module-pymatgen.cli.pmg_analyze" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-analyze-module"></span><h2>pymatgen.cli.pmg_analyze module<a class="headerlink" href="#module-pymatgen.cli.pmg_analyze" title="Link to this heading"></a></h2>
 <p>Implementation for <cite>pmg analyze</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_analyze.analyze">
-<span class="sig-name descname"><span class="pre">analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_analyze.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.analyze" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_analyze.py#L137-L157"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.analyze" title="Link to this definition"></a></dt>
 <dd><p>Master function controlling which analysis to call.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -257,7 +223,7 @@ either by site, element, or orbital.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_analyze.get_energies">
-<span class="sig-name descname"><span class="pre">get_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reanalyze</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_analyze.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_energies" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_energies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reanalyze</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_analyze.py#L26-L91"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_energies" title="Link to this definition"></a></dt>
 <dd><p>Get energies of all vaspruns in directory (nested).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -276,7 +242,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_analyze.get_magnetizations">
-<span class="sig-name descname"><span class="pre">get_magnetizations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_analyze.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_magnetizations" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_magnetizations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_analyze.py#L94-L134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_magnetizations" title="Link to this definition"></a></dt>
 <dd><p>Get magnetization info from OUTCARs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -296,17 +262,17 @@ of vasprun.xml</p></li>
 
 </section>
 <section id="module-pymatgen.cli.pmg_config">
-<span id="pymatgen-cli-pmg-config-module"></span><h2>pymatgen.cli.pmg_config module<a class="headerlink" href="#module-pymatgen.cli.pmg_config" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-config-module"></span><h2>pymatgen.cli.pmg_config module<a class="headerlink" href="#module-pymatgen.cli.pmg_config" title="Link to this heading"></a></h2>
 <p>Implementation for <cite>pmg config</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.add_config_var">
-<span class="sig-name descname"><span class="pre">add_config_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.add_config_var" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_config_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L258-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.add_config_var" title="Link to this definition"></a></dt>
 <dd><p>Add/update keys in .pmgrc.yaml config file.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.build_bader">
-<span class="sig-name descname"><span class="pre">build_bader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fortran_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gfortran'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_bader" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">build_bader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fortran_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gfortran'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L200-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_bader" title="Link to this definition"></a></dt>
 <dd><p>Build bader package.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -317,7 +283,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.build_enum">
-<span class="sig-name descname"><span class="pre">build_enum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fortran_command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gfortran'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_enum" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">build_enum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fortran_command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gfortran'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L174-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.build_enum" title="Link to this definition"></a></dt>
 <dd><p>Build enum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -328,46 +294,55 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.configure_pmg">
-<span class="sig-name descname"><span class="pre">configure_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.configure_pmg" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">configure_pmg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L284-L293"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.configure_pmg" title="Link to this definition"></a></dt>
 <dd><p>Handle configure command.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.install_software">
-<span class="sig-name descname"><span class="pre">install_software</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">install</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'enumlib'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bader'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.install_software" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">install_software</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">install</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'enumlib'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bader'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L227-L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.install_software" title="Link to this definition"></a></dt>
 <dd><p>Install all optional external software.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.setup_cp2k_data">
-<span class="sig-name descname"><span class="pre">setup_cp2k_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cp2k_data_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.setup_cp2k_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_cp2k_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cp2k_data_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L22-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.setup_cp2k_data" title="Link to this definition"></a></dt>
 <dd><p>Setup CP2K basis and potential data directory.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_config.setup_potcars">
-<span class="sig-name descname"><span class="pre">setup_potcars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potcar_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_config.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.setup_potcars" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_potcars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potcar_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_config.py#L109-L171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_config.setup_potcars" title="Link to this definition"></a></dt>
 <dd><p>Setup POTCAR directories.</p>
 </dd></dl>
 
 </section>
 <section id="module-pymatgen.cli.pmg_plot">
-<span id="pymatgen-cli-pmg-plot-module"></span><h2>pymatgen.cli.pmg_plot module<a class="headerlink" href="#module-pymatgen.cli.pmg_plot" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-plot-module"></span><h2>pymatgen.cli.pmg_plot module<a class="headerlink" href="#module-pymatgen.cli.pmg_plot" title="Link to this heading"></a></h2>
 <p>Implementation for <cite>pmg plot</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.get_chgint_plot">
-<span class="sig-name descname"><span class="pre">get_chgint_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_plot.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_chgint_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_chgint_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_plot.py#L49-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_chgint_plot" title="Link to this definition"></a></dt>
 <dd><p>Plot integrated charge.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>dict</em>) – args from argparse.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> (<em>dict</em>) – args from argparse.</p></li>
+<li><p><strong>ax</strong> (<em>plt.Axes</em>) – Matplotlib Axes object for plotting.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib Axes object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Axes</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.get_dos_plot">
-<span class="sig-name descname"><span class="pre">get_dos_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_plot.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_dos_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dos_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_plot.py#L17-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_dos_plot" title="Link to this definition"></a></dt>
 <dd><p>Plot DOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -378,7 +353,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.get_xrd_plot">
-<span class="sig-name descname"><span class="pre">get_xrd_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_plot.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_xrd_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_xrd_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_plot.py#L80-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_xrd_plot" title="Link to this definition"></a></dt>
 <dd><p>Plot XRD.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -389,7 +364,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_plot.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_plot.py#L91-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.plot" title="Link to this definition"></a></dt>
 <dd><p>Master control method calling other plot methods based on args.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -400,11 +375,11 @@ of vasprun.xml</p></li>
 
 </section>
 <section id="module-pymatgen.cli.pmg_potcar">
-<span id="pymatgen-cli-pmg-potcar-module"></span><h2>pymatgen.cli.pmg_potcar module<a class="headerlink" href="#module-pymatgen.cli.pmg_potcar" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-potcar-module"></span><h2>pymatgen.cli.pmg_potcar module<a class="headerlink" href="#module-pymatgen.cli.pmg_potcar" title="Link to this heading"></a></h2>
 <p>Implementation for <cite>pmg potcar</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_potcar.gen_potcar">
-<span class="sig-name descname"><span class="pre">gen_potcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_potcar.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_potcar.gen_potcar" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">gen_potcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_potcar.py#L27-L40"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_potcar.gen_potcar" title="Link to this definition"></a></dt>
 <dd><p>Generate POTCAR from POTCAR.spec in directories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -418,7 +393,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_potcar.generate_potcar">
-<span class="sig-name descname"><span class="pre">generate_potcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_potcar.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_potcar.generate_potcar" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_potcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_potcar.py#L43-L59"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_potcar.generate_potcar" title="Link to this definition"></a></dt>
 <dd><p>Generate POTCAR.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -429,7 +404,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_potcar.proc_dir">
-<span class="sig-name descname"><span class="pre">proc_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">procfilefunction</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_potcar.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_potcar.proc_dir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">proc_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">procfilefunction</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_potcar.py#L13-L24"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_potcar.proc_dir" title="Link to this definition"></a></dt>
 <dd><p>Process a directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -443,11 +418,11 @@ of vasprun.xml</p></li>
 
 </section>
 <section id="module-pymatgen.cli.pmg_query">
-<span id="pymatgen-cli-pmg-query-module"></span><h2>pymatgen.cli.pmg_query module<a class="headerlink" href="#module-pymatgen.cli.pmg_query" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-query-module"></span><h2>pymatgen.cli.pmg_query module<a class="headerlink" href="#module-pymatgen.cli.pmg_query" title="Link to this heading"></a></h2>
 <p>Implementation for <cite>pmg query</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_query.do_query">
-<span class="sig-name descname"><span class="pre">do_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_query.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_query.do_query" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">do_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_query.py#L15-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_query.do_query" title="Link to this definition"></a></dt>
 <dd><p>Perform query to the Materials Project.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -458,11 +433,11 @@ of vasprun.xml</p></li>
 
 </section>
 <section id="module-pymatgen.cli.pmg_structure">
-<span id="pymatgen-cli-pmg-structure-module"></span><h2>pymatgen.cli.pmg_structure module<a class="headerlink" href="#module-pymatgen.cli.pmg_structure" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-cli-pmg-structure-module"></span><h2>pymatgen.cli.pmg_structure module<a class="headerlink" href="#module-pymatgen.cli.pmg_structure" title="Link to this heading"></a></h2>
 <p>Implementation for <cite>pmg structure</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.analyze_localenv">
-<span class="sig-name descname"><span class="pre">analyze_localenv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_structure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_localenv" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze_localenv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_structure.py#L49-L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_localenv" title="Link to this definition"></a></dt>
 <dd><p>Analyze local env of structures in files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -473,7 +448,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.analyze_structures">
-<span class="sig-name descname"><span class="pre">analyze_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_structure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_structure.py#L100-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_structures" title="Link to this definition"></a></dt>
 <dd><p>Master function to handle which operation to perform.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -484,7 +459,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.analyze_symmetry">
-<span class="sig-name descname"><span class="pre">analyze_symmetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_structure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_symmetry" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">analyze_symmetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_structure.py#L33-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.analyze_symmetry" title="Link to this definition"></a></dt>
 <dd><p>Analyze symmetry of structures in files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -495,7 +470,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.compare_structures">
-<span class="sig-name descname"><span class="pre">compare_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_structure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.compare_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compare_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_structure.py#L77-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.compare_structures" title="Link to this definition"></a></dt>
 <dd><p>Compare structures in files for similarity using structure matcher.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -506,7 +481,7 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_structure.convert_fmt">
-<span class="sig-name descname"><span class="pre">convert_fmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/cli/pmg_structure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.convert_fmt" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">convert_fmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../cli/pmg_structure.py#L21-L30"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_structure.convert_fmt" title="Link to this definition"></a></dt>
 <dd><p>Convert files from one format to another.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -543,22 +518,7 @@ of vasprun.xml</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
- 
-<div class="footer">This page uses <a href="http://analytics.google.com/">
-Google Analytics</a> to collect statistics. You can disable it by blocking
-the JavaScript coming from www.google-analytics.com.
-<script type="text/javascript">
-  (function() {
-    var ga = document.createElement('script');
-    ga.src = ('https:' == document.location.protocol ?
-              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    ga.setAttribute('async', 'true');
-    document.documentElement.firstChild.appendChild(ga);
-  })();
-</script>
-</div>
-
+  </script> 
 
 </body>
 </html>

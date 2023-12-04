@@ -50,6 +50,7 @@ class SymmetrizedStructure(Structure):
             structure.frac_coords,
             site_properties=structure.site_properties,
             properties=structure.properties,
+            labels=structure.labels,
         )
 
         equivalent_indices: list[list[int]] = [[] for _ in range(len(uniq))]
@@ -83,7 +84,7 @@ class SymmetrizedStructure(Structure):
             ValueError: if site is not in the structure.
 
         Returns:
-            ([PeriodicSite]): List of all symmetrically equivalent sites.
+            list[PeriodicSite]: all symmetrically equivalent sites.
         """
         for sites in self.equivalent_sites:
             if site in sites:

@@ -200,10 +200,10 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
+        recp_symm_ops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
-            for op in recp_symmops:
+            for op in recp_symm_ops:
                 miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
                     all_hkl.append(miller)
@@ -654,7 +654,7 @@ class WulffShape:
     def area_fraction_dict(self):
         """
         Returns:
-            (dict): {hkl: area_hkl/total area on wulff}.
+            dict: {hkl: area_hkl/total area on wulff}.
         """
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 

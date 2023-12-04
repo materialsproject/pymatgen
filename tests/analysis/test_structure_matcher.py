@@ -15,10 +15,7 @@ from pymatgen.analysis.structure_matcher import (
     OrderDisorderElementComparator,
     StructureMatcher,
 )
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 

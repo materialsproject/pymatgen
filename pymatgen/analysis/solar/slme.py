@@ -155,7 +155,6 @@ def slme(
 
     Returns:
         The calculated maximum efficiency.
-
     """
     # Defining constants for tidy equations
     c = constants.c  # speed of light, m/s

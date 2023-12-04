@@ -188,8 +188,8 @@ class TestQChemDictSet(PymatgenTest):
             pcm_dielectric=10.0,
             max_scf_cycles=35,
         )
-        dict_set.write("mol.qin")
-        test_dict = QCInput.from_file("mol.qin").as_dict()
+        dict_set.write(f"{self.tmp_path}/mol.qin")
+        test_dict = QCInput.from_file(f"{self.tmp_path}/mol.qin").as_dict()
         rem = {
             "job_type": "opt",
             "basis": "6-31G*",
@@ -216,7 +216,6 @@ class TestQChemDictSet(PymatgenTest):
         qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": 10.0})
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        os.remove("mol.qin")
 
     def test_isosvp_write(self):
         """Also tests overwrite_inputs with a RHOISO value."""
@@ -231,8 +230,8 @@ class TestQChemDictSet(PymatgenTest):
             max_scf_cycles=35,
             overwrite_inputs={"svp": {"RHOISO": 0.0009}},
         )
-        dict_set.write("mol.qin")
-        test_dict = QCInput.from_file("mol.qin").as_dict()
+        dict_set.write(f"{self.tmp_path}/mol.qin")
+        test_dict = QCInput.from_file(f"{self.tmp_path}/mol.qin").as_dict()
         rem = {
             "job_type": "opt",
             "basis": "def2-SVPD",
@@ -258,7 +257,6 @@ class TestQChemDictSet(PymatgenTest):
         )
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        os.remove("mol.qin")
 
     def test_smd_write(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
@@ -271,8 +269,8 @@ class TestQChemDictSet(PymatgenTest):
             smd_solvent="water",
             max_scf_cycles=35,
         )
-        dict_set.write("mol.qin")
-        test_dict = QCInput.from_file("mol.qin").as_dict()
+        dict_set.write(f"{self.tmp_path}/mol.qin")
+        test_dict = QCInput.from_file(f"{self.tmp_path}/mol.qin").as_dict()
         rem = {
             "job_type": "opt",
             "basis": "6-31G*",
@@ -293,7 +291,6 @@ class TestQChemDictSet(PymatgenTest):
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "water"})
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        os.remove("mol.qin")
 
     def test_cmirs_write(self):
         """Also tests overwrite_inputs with a RHOISO value."""
@@ -308,8 +305,8 @@ class TestQChemDictSet(PymatgenTest):
             max_scf_cycles=35,
             overwrite_inputs={"svp": {"RHOISO": 0.0005}},
         )
-        dict_set.write("mol.qin")
-        test_dict = QCInput.from_file("mol.qin").as_dict()
+        dict_set.write(f"{self.tmp_path}/mol.qin")
+        test_dict = QCInput.from_file(f"{self.tmp_path}/mol.qin").as_dict()
         rem = {
             "job_type": "opt",
             "basis": "def2-SVPD",
@@ -345,7 +342,6 @@ class TestQChemDictSet(PymatgenTest):
         )
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        os.remove("mol.qin")
 
     def test_custom_smd_write(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
@@ -359,8 +355,8 @@ class TestQChemDictSet(PymatgenTest):
             custom_smd="90.00,1.415,0.00,0.735,20.2,0.00,0.00",
             max_scf_cycles=35,
         )
-        dict_set.write("mol.qin")
-        test_dict = QCInput.from_file("mol.qin").as_dict()
+        dict_set.write(f"{self.tmp_path}/mol.qin")
+        test_dict = QCInput.from_file(f"{self.tmp_path}/mol.qin").as_dict()
         rem = {
             "job_type": "opt",
             "basis": "6-31G*",
@@ -381,7 +377,6 @@ class TestQChemDictSet(PymatgenTest):
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "other"})
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        os.remove("mol.qin")
         with open("solvent_data") as sd:
             lines = sd.readlines()
             assert lines[0] == "90.00,1.415,0.00,0.735,20.2,0.00,0.00"

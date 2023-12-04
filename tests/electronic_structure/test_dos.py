@@ -10,8 +10,7 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -164,7 +163,7 @@ class TestCompleteDos(unittest.TestCase):
         assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
 
     def test_str(self):
-        assert str(self.dos) is not None
+        assert str(self.dos).startswith("Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4")
 
     def test_as_dict(self):
         dos_dict = self.dos.as_dict()

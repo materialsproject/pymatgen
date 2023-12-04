@@ -60,15 +60,15 @@ def run_mcsqs(
             runs calculations in a temp directory)
         instances (int): Specifies the number of parallel instances of mcsqs to run
             (default: number of cpu cores detected by Python)
-        temperature (int or float): Monte Carlo temperature (default: 1), "T" in atat code
-        wr (int or float): Weight assigned to range of perfect correlation match in objective
+        temperature (float): Monte Carlo temperature (default: 1), "T" in atat code
+        wr (float): Weight assigned to range of perfect correlation match in objective
             function (default = 1)
-        wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
-        wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3).
+        wn (float): Multiplicative decrease in weight per additional point in cluster (default: 1)
+        wd (float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
+        tol (float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
-        Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
+        tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
     num_atoms = len(structure)
@@ -166,7 +166,7 @@ def _parse_sqs_path(path) -> Sqs:
         path: directory to perform parsing.
 
     Returns:
-        Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
+        tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
     path = Path(path)
@@ -225,7 +225,14 @@ def _parse_clusters(filename):
         path: directory to perform parsing.
 
     Returns:
-        List of dicts
+        list[dict]: List of cluster dictionaries with keys:
+            multiplicity: int
+            longest_pair_length: float
+            num_points_in_cluster: int
+            coordinates: list[dict] of points with keys:
+                coordinates: list[float]
+                num_possible_species: int
+                cluster_function: float
     """
     with open(filename) as f:
         lines = f.readlines()

@@ -10,8 +10,7 @@ from scipy.constants import N_A
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.reaction_calculator import BalancedReaction
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
 
 if TYPE_CHECKING:
@@ -73,10 +72,7 @@ class ConversionElectrode(AbstractElectrode):
         if len(profile) < 2:
             return None
         working_ion = working_ion_entry.elements[0].symbol
-        normalization_els = {}
-        for el, amt in comp.items():
-            if el != Element(working_ion):
-                normalization_els[el] = amt
+        normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion)}
         framework = comp.as_dict()
         if working_ion in framework:
             framework.pop(working_ion)

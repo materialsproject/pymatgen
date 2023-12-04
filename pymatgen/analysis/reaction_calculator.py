@@ -249,8 +249,8 @@ class BalancedReaction(MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(rxn_str):
+    @classmethod
+    def from_str(cls, rxn_str):
         """
         Generates a balanced reaction from a string. The reaction must
         already be balanced.

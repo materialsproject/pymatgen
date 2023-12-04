@@ -12,9 +12,7 @@ import subprocess
 from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Bharat Medasani, Wenhao Sun"
@@ -24,6 +22,8 @@ __maintainer__ = "Bharat Medasani"
 __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
+
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(
@@ -176,7 +176,7 @@ _gulp_kw = {
     "spatial",
     "storevectors",
     "nomolecularinternalke",
-    "voight",
+    "voigt",
     "zsisa",
     # Optimization method
     "conjugate",
@@ -298,7 +298,7 @@ class GulpIO:
         for site in structure:
             coord = [str(i) for i in getattr(site, coords_key)]
             specie = site.specie
-            core_site_desc = specie.symbol + " core " + " ".join(coord) + "\n"
+            core_site_desc = f"{specie.symbol} core {' '.join(coord)}\n"
             gin += core_site_desc
             if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
                 shel_site_desc = specie.symbol + " shel " + " ".join(coord) + "\n"
@@ -829,7 +829,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split("_")[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            species_dict[elmnt] = metal + " core " + row.split()[2] + "\n"
+                            species_dict[elmnt] = f"{metal} core {row.split()[2]}\n"
                     continue
 
                 if pot_flg:
@@ -863,7 +863,6 @@ class TersoffPotential:
 
     def __init__(self):
         """Init TersoffPotential."""
-        module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(f"{module_dir}/OxideTersoffPotentials") as f:
             data = {}
             for row in f:

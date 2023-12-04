@@ -10,14 +10,10 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io.cif import CifParser
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -63,10 +59,9 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = f"{TEST_FILES_DIR}/struct_predictor"
-    json_file = f"{data_dir}/test_lambda.json"
-    with open(json_file) as f:
-        return json.load(f)
+    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    with open(json_path) as file:
+        return json.load(file)
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -172,8 +167,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
@@ -203,8 +197,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -230,8 +223,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -306,23 +298,20 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(latt, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
-        self.Fe3O4 = parser.get_structures()[0]
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8 = parser.get_structures()[0]
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
         self.Li8Fe2NiCoO8.remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
-        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
-        assert f.get_space_group_number() == 31
+        spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
+        assert spg_analyzer.get_space_group_number() == 31
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5}, energy_model=model)
@@ -348,10 +337,9 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
-        a = SpacegroupAnalyzer(struct, 0.1)
-        struct = a.get_refined_structure()
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 1
 
@@ -362,7 +350,6 @@ class TestMagOrderingTransformation(PymatgenTest):
         _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         assert trans.mag_species_spin == {"Fe": 5}
-        from pymatgen.analysis.energy_models import SymmetryModel
 
         assert isinstance(trans.energy_model, SymmetryModel)
 

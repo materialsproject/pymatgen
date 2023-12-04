@@ -12,18 +12,18 @@ import json
 import logging
 import os
 from collections import namedtuple
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping, MutableMapping, Sequence
 from enum import Enum
 
 import numpy as np
 from monty.collections import AttrDict
 from monty.json import MSONable
-from monty.string import is_string, list_strings
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 logger = logging.getLogger(__file__)
 
@@ -31,7 +31,7 @@ logger = logging.getLogger(__file__)
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
 # they will be generated with structure.to_abivars()
-GEOVARS = {
+GEOVARS = (
     "acell",
     "rprim",
     "rprimd",
@@ -43,10 +43,10 @@ GEOVARS = {
     "typat",
     "ntypat",
     "natom",
-}
+)
 
 # Variables defining tolerances (used in pop_tolerances)
-_TOLVARS = {
+_TOLVARS = (
     "toldfe",
     "tolvrs",
     "tolwfr",
@@ -55,19 +55,19 @@ _TOLVARS = {
     "tolimg",
     "tolmxf",
     "tolrde",
-}
+)
 
-# Variables defining tolerances for the SCF cycle that are mutally exclusive
-_TOLVARS_SCF = {
+# Variables defining tolerances for the SCF cycle that are mutually exclusive
+_TOLVARS_SCF = (
     "toldfe",
     "tolvrs",
     "tolwfr",
     "tolrff",
     "toldff",
-}
+)
 
 # Variables determining if data files should be read in input
-_IRDVARS = {
+_IRDVARS = (
     "irdbseig",
     "irdbsreso",
     "irdhaydock",
@@ -83,7 +83,7 @@ _IRDVARS = {
     "irdwfkfine",
     "irdwfq",
     "ird1wf",
-}
+)
 
 
 # Tolerances for the different levels of accuracy.
@@ -99,9 +99,7 @@ del T
 
 
 # Default values used if user does not specify them
-_DEFAULTS = {
-    "kppa": 1000,
-}
+_DEFAULTS = {"kppa": 1000}
 
 
 def as_structure(obj):
@@ -115,7 +113,7 @@ def as_structure(obj):
     if isinstance(obj, Structure):
         return obj
 
-    if is_string(obj):
+    if isinstance(obj, str):
         return Structure.from_file(obj)
 
     if isinstance(obj, Mapping):
@@ -151,7 +149,7 @@ class ShiftMode(Enum):
         """
         if isinstance(obj, cls):
             return obj
-        if is_string(obj):
+        if isinstance(obj, str):
             return cls(obj[0].upper())
         raise TypeError(f"The object provided is not handled: type {type(obj).__name__}")
 
@@ -249,7 +247,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid {shift_mode=}")
+    raise ValueError(f"Invalid {shift_mode=}")
 
 
 def gs_input(
@@ -274,9 +272,9 @@ def gs_input(
         kppa: Defines the sampling used for the SCF run. Defaults to 1000 if not given.
         ecut: cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)
         pawecutdg: cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos
-                   according to accuracy)
+            according to accuracy)
         scf_nband: Number of bands for SCF run. If scf_nband is None, nband is automatically initialized
-                   from the list of pseudos, the structure and the smearing option.
+            from the list of pseudos, the structure and the smearing option.
         accuracy: Accuracy of the calculation.
         spin_mode: Spin polarization.
         smearing: Smearing technique.
@@ -614,8 +612,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
     def write(self, filepath="run.abi"):
         """Write the input file to file to filepath."""
         dirname = os.path.dirname(os.path.abspath(filepath))
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
         with open(filepath, "w") as fh:
@@ -668,7 +665,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         """
         return self.remove_vars(keys, strict=False)
 
-    def remove_vars(self, keys, strict=True):
+    def remove_vars(self, keys: Sequence[str], strict: bool = True) -> dict[str, InputVariable]:
         """
         Remove the variables listed in keys.
         Return dictionary with the variables that have been removed.
@@ -677,8 +674,10 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
             keys: string or list of strings with variable names.
             strict: If True, KeyError is raised if at least one variable is not present.
         """
+        if isinstance(keys, str):
+            keys = [keys]
         removed = {}
-        for key in list_strings(keys):
+        for key in keys:
             if strict and key not in self:
                 raise KeyError(f"{key=} not in self:\n {list(self)}")
             if key in self:
@@ -711,7 +710,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
     def __init__(
         self,
         structure,
-        pseudos,
+        pseudos: str | list[str] | list[Pseudo] | PseudoTable,
         pseudo_dir=None,
         comment=None,
         abi_args=None,
@@ -746,11 +745,14 @@ class BasicAbinitInput(AbstractInput, MSONable):
         self._vars = dict(args)
         self.set_structure(structure)
 
+        if isinstance(pseudos, str):
+            pseudos = [pseudos]
+
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.exists(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
-            pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
+            pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
 
         try:
             self._pseudos = PseudoTable.as_table(pseudos).get_pseudos_for_structure(self.structure)
@@ -924,8 +926,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 If None, we use the default high-symmetry k-path defined in the pymatgen database.
         """
         if kptbounds is None:
-            from pymatgen.symmetry.bandstructure import HighSymmKpath
-
             hsym_kpath = HighSymmKpath(self.structure)
 
             name2frac_coords = hsym_kpath.kpath["kpoints"]
@@ -1093,8 +1093,10 @@ class BasicMultiDataset:
 
         else:
             # String(s)
+            if isinstance(pseudos, str):
+                pseudos = [pseudos]
             pseudo_dir = os.path.abspath(pseudo_dir)
-            pseudo_paths = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
+            pseudo_paths = [os.path.join(pseudo_dir, p) for p in pseudos]
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:

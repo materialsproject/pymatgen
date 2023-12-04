@@ -7,15 +7,14 @@ import pytest
 from pytest import approx
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
-from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestEwaldSummation(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
-        self.original_struct = poscar.structure
+        self.original_struct = Structure.from_file(filepath)
         self.struct = self.original_struct.copy()
         self.struct.add_oxidation_state_by_element({"Li": 1, "Fe": 2, "P": 5, "O": -2})
 
@@ -109,9 +108,8 @@ class TestEwaldMinimizer(unittest.TestCase):
     def test_site(self):
         """Test that uses an uncharged structure."""
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath, check_for_POTCAR=False)
-        original_s = p.structure
-        s = original_s.copy()
+        struct = Structure.from_file(filepath)
+        s = struct.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 3, "P": 5, "O": -2})
 
         # Comparison to LAMMPS result

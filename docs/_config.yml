@@ -11,8 +11,6 @@ github_username: materialsproject
 
 # Build settings
 remote_theme: just-the-docs/just-the-docs
-plugins:
-  - jekyll-feed
 
 color_scheme: pmg
 favicon_ico: /assets/favicon.ico

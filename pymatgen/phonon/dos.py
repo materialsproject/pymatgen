@@ -8,6 +8,7 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
+from scipy.ndimage.filters import gaussian_filter1d
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
@@ -19,22 +20,8 @@ BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Bolt
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
-def coth(x):
-    """Coth function.
-
-    Args:
-        x (): value
-
-    Returns:
-        coth(x)
-    """
-    return 1.0 / np.tanh(x)
-
-
 class PhononDos(MSONable):
-    """Basic DOS object. All other DOS objects are extended versions of this
-    object.
-    """
+    """Basic DOS object. All other DOS objects are extended versions of this object."""
 
     def __init__(self, frequencies: Sequence, densities: Sequence) -> None:
         """
@@ -55,12 +42,10 @@ class PhononDos(MSONable):
         Returns:
             Gaussian-smeared densities.
         """
-        from scipy.ndimage.filters import gaussian_filter1d
+        diff = [self.frequencies[idx + 1] - self.frequencies[idx] for idx in range(len(self.frequencies) - 1)]
+        avg_diff = sum(diff) / len(diff)
 
-        diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
-        avgdiff = sum(diff) / len(diff)
-
-        return gaussian_filter1d(self.densities, sigma / avgdiff)
+        return gaussian_filter1d(self.densities, sigma / avg_diff)
 
     def __add__(self, other: PhononDos) -> PhononDos:
         """Adds two DOS together. Checks that frequency scales are the same.
@@ -88,6 +73,11 @@ class PhononDos(MSONable):
         """
         return self.__add__(other)
 
+    def __repr__(self) -> str:
+        frequencies, densities = self.frequencies.shape, self.densities.shape
+        n_positive_freqs = len(self._positive_frequencies)
+        return f"{type(self).__name__}({frequencies=}, {densities=}, {n_positive_freqs=})"
+
     def get_interpolated_value(self, frequency) -> float:
         """Returns interpolated density for a particular frequency.
 
@@ -98,10 +88,10 @@ class PhononDos(MSONable):
 
     def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
-        stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
+        str_arr = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
-            stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
-        return "\n".join(stringarray)
+            str_arr.append(f"{frequency:.5f} {self.densities[i]:.5f}")
+        return "\n".join(str_arr)
 
     @classmethod
     def from_dict(cls, d: dict[str, Sequence]) -> PhononDos:
@@ -193,7 +183,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        s = np.trapz((wd2kt * coth(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
+        s = np.trapz((wd2kt * 1 / np.tanh(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
 
         s *= const.Boltzmann * const.Avogadro
 
@@ -226,7 +216,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        e = np.trapz(freqs * coth(wd2kt) * dens, x=freqs) / 2
+        e = np.trapz(freqs * 1 / np.tanh(wd2kt) * dens, x=freqs) / 2
 
         e *= THZ_TO_J * const.Avogadro
 
@@ -347,9 +337,7 @@ class CompletePhononDos(PhononDos):
         """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        pdoss = {}
-        for at, pdos in zip(struct, dct["pdos"]):
-            pdoss[at] = pdos
+        pdoss = dict(zip(struct, dct["pdos"]))
 
         return cls(struct, tdos, pdoss)
 

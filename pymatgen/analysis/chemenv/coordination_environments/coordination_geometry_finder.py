@@ -42,9 +42,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     sort_separation,
     sort_separation_tuple,
 )
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Species, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
@@ -1193,8 +1191,7 @@ class LocalGeometryFinder:
     def _update_results_all_csms(self, result_dict, permutations, imin, geometry):
         permutation = permutations[imin]
         # Without central site, centered on the centroid (centroid does not include the central site)
-        # result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = \
-        # result[imin]
+        # result_dict[geometry.mp_symbol]['csm_wocs_ctwocc'] = result[imin]
         pdist = self.local_geometry.points_wocs_ctwocc(permutation=permutation)
         pperf = self.perfect_geometry.points_wocs_ctwocc()
         sm_info = symmetry_measure(points_distorted=pdist, points_perfect=pperf)
@@ -1587,9 +1584,9 @@ class LocalGeometryFinder:
 
         Returns:
             tuple: Continuous symmetry measures for the given coordination geometry for each plane and permutation
-                   investigated, corresponding permutations, corresponding algorithms,
-                   corresponding mappings from local to perfect environment and corresponding mappings
-                   from perfect to local environment.
+                investigated, corresponding permutations, corresponding algorithms,
+                corresponding mappings from local to perfect environment and corresponding mappings
+                from perfect to local environment.
         """
         if optimization == 2:
             logging.log(level=5, msg="... using optimization = 2")

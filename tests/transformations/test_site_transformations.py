@@ -255,14 +255,17 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
         assert s.formula == "Li2 O2"
 
     def test_as_from_dict(self):
-        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        trafo = PartialRemoveSitesTransformation.from_dict(d)
+        dct = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
+        assert {*dct} == {"@module", "@class", "@version", "algo", "indices", "fractions"}
+        trafo = PartialRemoveSitesTransformation.from_dict(dct)
         s = trafo.apply_transformation(self.struct)
         assert s.formula == "Li2 O4"
 
     def test_str(self):
-        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        assert str(d) is not None
+        trafo = PartialRemoveSitesTransformation([tuple(range(4))], [0.5])
+        assert (
+            str(trafo) == "PartialRemoveSitesTransformation : Indices and fraction to remove = [(0, 1, 2, 3)], ALGO = 1"
+        )
 
 
 class TestAddSitePropertyTransformation(PymatgenTest):

@@ -55,7 +55,7 @@ from monty.tempfile import ScratchDir
 from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.periodic_table import DummySpecies
+from pymatgen.core import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 from pymatgen.util.due import Doi, due
@@ -111,8 +111,8 @@ class Critic2Caller:
         self._stdout = stdout
         self._stderr = stderr
 
-        cpreport = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
-        self._cpreport = cpreport
+        cp_report = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
+        self._cp_report = cp_report
 
         yt = loadfn("yt.json") if os.path.exists("yt.json") else None
         self._yt = yt
@@ -195,7 +195,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join(f"{symbol} {zval}" for symbol, zval in zpsp.items())
+                zpsp_str = f" zpsp {' '.join(f'{symbol} {zval}' for symbol, zval in zpsp.items())}"
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -240,7 +240,7 @@ class Critic2Caller:
                 structure,
                 stdout=caller._stdout,
                 stderr=caller._stderr,
-                cpreport=caller._cpreport,
+                cpreport=caller._cp_report,
                 yt=caller._yt,
                 zpsp=zpsp,
             )
@@ -353,7 +353,7 @@ class CriticalPoint(MSONable):
         coords=None,
         field_hessian=None,
     ):
-        """Class to characterise a critical point from a topological
+        """Class to characterize a critical point from a topological
         analysis of electron charge density.
 
         Note this class is usually associated with a Structure, so
@@ -388,7 +388,7 @@ class CriticalPoint(MSONable):
         return f"Critical Point: {self.type.name} ({self.frac_coords})"
 
     @property
-    def laplacian(self):
+    def laplacian(self) -> float:
         """Returns: The Laplacian of the field at the critical point."""
         return np.trace(self.field_hessian)
 
@@ -408,7 +408,15 @@ class CriticalPoint(MSONable):
 class Critic2Analysis(MSONable):
     """Class to process the standard output from critic2 into pymatgen-compatible objects."""
 
-    def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
+    def __init__(
+        self,
+        structure: Structure,
+        stdout: str | None = None,
+        stderr: str | None = None,
+        cpreport: dict | None = None,
+        yt: dict | None = None,
+        zpsp: dict | None = None,
+    ) -> None:
         """This class is used to store results from the Critic2Caller.
 
         To explore the bond graph, use the "structure_graph"
@@ -443,6 +451,18 @@ class Critic2Analysis(MSONable):
         :param zpsp (dict): Dict of element/symbol name to number of electrons
         (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
         Optional.
+
+        Args:
+            structure (Structure): Associated Structure.
+            stdout (str, optional): stdout from running critic2 in automatic mode.
+            stderr (str, optional): stderr from running critic2 in automatic mode.
+            cpreport (dict, optional): JSON output from CPREPORT command. Either this or stdout required.
+            yt (dict, optional): JSON output from YT command.
+            zpsp (dict, optional): Dict of element/symbol name to number of electrons (ZVAL in VASP pseudopotential),
+                with which to calculate charge transfer. Optional.
+
+        Raises:
+            ValueError: If one of cpreport or stdout is not provided.
         """
         self.structure = structure
 
@@ -471,10 +491,8 @@ class Critic2Analysis(MSONable):
         """A StructureGraph object describing bonding information in the crystal.
 
         Args:
-            include_critical_points: add DummySpecies for
-            the critical points themselves, a list of
-            "nucleus", "bond", "ring", "cage", set to None
-            to disable
+            include_critical_points: add DummySpecies for the critical points themselves, a list of
+                "nucleus", "bond", "ring", "cage", set to None to disable
 
         Returns:
             StructureGraph

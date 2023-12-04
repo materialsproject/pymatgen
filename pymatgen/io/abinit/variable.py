@@ -164,9 +164,9 @@ class InputVariable:
 
         # Determine the format
         width = max(len(str(s)) for s in flattened_list)
-        if type_all == int:
+        if type_all is int:
             fmt_spec = f">{width}d"
-        elif type_all == str:
+        elif type_all is str:
             fmt_spec = f">{width}"
         else:
             # Number of decimal
@@ -176,7 +176,7 @@ class InputVariable:
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in flattened_list):
                 fmt_spec = f">{n_dec + 5}.{n_dec}f"
             else:
-                fmt_spec = f">{n_dec + 8}.{n_dec}e"  # noqa: F841
+                fmt_spec = f">{n_dec + 8}.{n_dec}e"
 
         line = "\n"
         for lst in values:

@@ -40,9 +40,7 @@ from monty.dev import requires
 from monty.fractions import lcm
 from monty.tempfile import ScratchDir
 
-from pymatgen.core.periodic_table import DummySpecies
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import DummySpecies, PeriodicSite, Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -201,7 +199,7 @@ class EnumlibAdaptor:
         target_sg_num = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sg_num = get_sg_info(curr_sites)
-        ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
+        ordered_sites = sorted(ordered_sites, key=len)
         logger.debug(f"Disordered sites has sg # {sg_num}")
         self.ordered_sites = []
 

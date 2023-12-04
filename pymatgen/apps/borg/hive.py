@@ -195,8 +195,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def __init__(self, inc_structure=False):
         """
         Args:
-            inc_structure (bool): Set to True if you want
-                ComputedStructureEntries to be returned instead of
+            inc_structure (bool): Set to True if you want ComputedStructureEntries to be returned instead of
                 ComputedEntries. Structure will be parsed from the CONTCAR.
         """
         self._inc_structure = inc_structure

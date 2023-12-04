@@ -83,19 +83,19 @@ class TestConnectedComponent(PymatgenTest):
         assert len(cc2.graph) == 6
 
     def test_serialization(self):
-        lat = Lattice.hexagonal(a=2.0, c=2.5)
+        lattice = Lattice.hexagonal(a=2.0, c=2.5)
         en1 = EnvironmentNode(
-            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
+            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lattice),
             i_central_site=3,
             ce_symbol="T:4",
         )
         en2 = EnvironmentNode(
-            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.0, 0.5]), lattice=lat),
+            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.0, 0.5]), lattice=lattice),
             i_central_site=5,
             ce_symbol="T:4",
         )
         en3 = EnvironmentNode(
-            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.5, 0.5]), lattice=lat),
+            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.5, 0.5]), lattice=lattice),
             i_central_site=8,
             ce_symbol="O:6",
         )

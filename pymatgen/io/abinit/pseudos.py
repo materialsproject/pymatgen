@@ -7,11 +7,16 @@ from __future__ import annotations
 
 import abc
 import collections
+import hashlib
 import logging
 import os
+import shutil
 import sys
+import tempfile
+import traceback
 from collections import defaultdict, namedtuple
 from typing import TYPE_CHECKING
+from xml.etree import ElementTree as Et
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -19,10 +24,9 @@ from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
-from monty.string import is_string, list_strings
 from tabulate import tabulate
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -47,7 +51,6 @@ __maintainer__ = "Matteo Giantomassi"
 
 def straceback():
     """Returns a string with the traceback."""
-    import traceback
 
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -230,9 +233,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and return MD5 hash value."""
-
-        import hashlib
-
         with open(self.path) as fh:
             text = fh.read()
             # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
@@ -287,10 +287,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             tmpdir: If None, a new temporary directory is created and files are copied here
                 else tmpdir is used.
         """
-
-        import shutil
-        import tempfile
-
         tmpdir = tempfile.mkdtemp() if tmpdir is None else tmpdir
         new_path = os.path.join(tmpdir, self.basename)
         shutil.copy(self.filepath, new_path)
@@ -612,7 +608,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
     Raises:
         ValueError if parsing fails.
     """
-    if is_string(lines):
+    if isinstance(lines, str):
         lines = [lines]
 
     if not isinstance(key_nums, collections.abc.Iterable):
@@ -1262,7 +1258,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def root(self):
         """Root tree of XML."""
-        from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
         return tree.getroot()
@@ -1509,8 +1504,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    show = kwargs.pop("show", True)
     #    savefig = kwargs.pop("savefig", None)
 
-    #    import matplotlib.pyplot as plt
-
     #    fig = plt.figure()
 
     #    ax = fig.add_subplot(1,1,1)
@@ -1611,8 +1604,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         if not isinstance(pseudos, collections.abc.Iterable):
             pseudos = [pseudos]
 
-        if len(pseudos) and is_string(pseudos[0]):
-            pseudos = list_strings(pseudos)
+        if isinstance(pseudos, str):
+            pseudos = [pseudos]
 
         self._pseudos_with_z = defaultdict(list)
 
@@ -1772,7 +1765,9 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                 Prepend the symbol string with "-", to exclude pseudos.
             ret_list: if True a list of pseudos is returned instead of a PseudoTable
         """
-        symbols = list_strings(symbols)
+        if isinstance(symbols, str):
+            symbols = [symbols]
+
         exclude = symbols[0].startswith("-")
 
         if exclude:

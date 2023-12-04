@@ -23,6 +23,7 @@ from math import cos, sin
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+import scipy.cluster
 import spglib
 
 from pymatgen.core.lattice import Lattice
@@ -33,7 +34,7 @@ from pymatgen.util.coord import find_in_coord_list, pbc_diff
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from pymatgen.core.periodic_table import Element, Species
+    from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
 
@@ -123,7 +124,7 @@ class SpacegroupAnalyzer:
         """Get the spacegroup symbol (e.g., Pnma) for structure.
 
         Returns:
-            (str): Spacegroup symbol for structure.
+            str: Spacegroup symbol for structure.
         """
         return self._space_group_data["international"]
 
@@ -131,7 +132,7 @@ class SpacegroupAnalyzer:
         """Get the international spacegroup number (e.g., 62) for structure.
 
         Returns:
-            (int): International spacegroup number for structure.
+            int: International spacegroup number for structure.
         """
         return int(self._space_group_data["number"])
 
@@ -151,7 +152,7 @@ class SpacegroupAnalyzer:
         """Returns Hall symbol for structure.
 
         Returns:
-            (str): Hall symbol
+            str: Hall symbol
         """
         return self._space_group_data["hall"]
 
@@ -159,7 +160,7 @@ class SpacegroupAnalyzer:
         """Get the point group associated with the structure.
 
         Returns:
-            (Pointgroup): Point group for structure.
+            Pointgroup: Point group for structure.
         """
         rotations = self._space_group_data["rotations"]
         # passing a 0-length rotations list to spglib can segfault
@@ -175,7 +176,7 @@ class SpacegroupAnalyzer:
             ValueError: on invalid space group numbers < 1 or > 230.
 
         Returns:
-            (str): Crystal system for structure
+            str: Crystal system for structure
         """
         n = self._space_group_data["number"]
 
@@ -206,7 +207,7 @@ class SpacegroupAnalyzer:
             ValueError: on invalid space group numbers < 1 or > 230.
 
         Returns:
-            (str): Lattice type for structure
+            str: Lattice type for structure
         """
         n = self._space_group_data["number"]
         system = self.get_crystal_system()
@@ -220,7 +221,7 @@ class SpacegroupAnalyzer:
         """Returns the symmetry dataset as a dict.
 
         Returns:
-            (dict): With the following properties:
+            dict: With the following properties:
                 number: International space group number
                 international: International symbol
                 hall: Hall symbol
@@ -266,26 +267,26 @@ class SpacegroupAnalyzer:
 
     def get_symmetry_operations(self, cartesian=False):
         """Return symmetry operations as a list of SymmOp objects. By default returns
-        fractional coord symmops. But Cartesian can be returned too.
+        fractional coord sym_ops. But Cartesian can be returned too.
 
         Returns:
-            ([SymmOp]): List of symmetry operations.
+            list[SymmOp]: symmetry operations.
         """
         rotation, translation = self._get_symmetry()
-        symmops = []
+        sym_ops = []
         mat = self._structure.lattice.matrix.T
-        invmat = np.linalg.inv(mat)
+        inv_mat = np.linalg.inv(mat)
         for rot, trans in zip(rotation, translation):
             if cartesian:
-                rot = np.dot(mat, np.dot(rot, invmat))
+                rot = np.dot(mat, np.dot(rot, inv_mat))
                 trans = np.dot(trans, self._structure.lattice.matrix)
             op = SymmOp.from_rotation_and_translation(rot, trans)
-            symmops.append(op)
-        return symmops
+            sym_ops.append(op)
+        return sym_ops
 
     def get_point_group_operations(self, cartesian=False):
         """Return symmetry operations as a list of SymmOp objects. By default returns
-        fractional coord symmops. But Cartesian can be returned too.
+        fractional coord symm ops. But Cartesian can be returned too.
 
         Args:
             cartesian (bool): Whether to return SymmOps as Cartesian or
@@ -295,7 +296,7 @@ class SpacegroupAnalyzer:
             list[SymmOp]: Point group symmetry operations.
         """
         rotation, translation = self._get_symmetry()
-        symmops = []
+        symm_ops = []
         seen = set()
         mat = self._structure.lattice.matrix.T
         inv_mat = self._structure.lattice.inv_matrix.T
@@ -307,8 +308,8 @@ class SpacegroupAnalyzer:
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, inv_mat))
             op = SymmOp.from_rotation_and_translation(rot, np.array([0, 0, 0]))
-            symmops.append(op)
-        return symmops
+            symm_ops.append(op)
+        return symm_ops
 
     def get_symmetrized_structure(self):
         """Get a symmetrized structure. A symmetrized structure is one where the sites
@@ -369,7 +370,7 @@ class SpacegroupAnalyzer:
 
         Returns:
             A primitive cell in the input cell is searched and returned
-            as an Structure object. If no primitive cell is found, None is
+            as a Structure object. If no primitive cell is found, None is
             returned.
         """
         lattice, scaled_positions, numbers = spglib.find_primitive(self._cell, symprec=self._symprec)
@@ -1160,7 +1161,7 @@ class PointGroupAnalyzer:
             if len(valid_set) > 0:
                 valid_sets.append(valid_set)
 
-        return min(valid_sets, key=lambda s: len(s))
+        return min(valid_sets, key=len)
 
     def _check_rot_sym(self, axis):
         """Determines the rotational symmetry about supplied axis.
@@ -1242,7 +1243,7 @@ class PointGroupAnalyzer:
         """
         rot_present = defaultdict(bool)
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
-        test_set = min(dist_el_sites.values(), key=lambda s: len(s))
+        test_set = min(dist_el_sites.values(), key=len)
         coords = [s.coords for s in test_set]
         for c1, c2, c3 in itertools.combinations(coords, 3):
             for cc1, cc2 in itertools.combinations([c1, c2, c3], 2):
@@ -1277,7 +1278,7 @@ class PointGroupAnalyzer:
         symmops.
 
         Returns:
-            ([SymmOp]): List of symmetry operations.
+            list[SymmOp]: symmetry operations.
         """
         return generate_full_symmops(self.symmops, self.tol)
 
@@ -1510,7 +1511,6 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.
     dists: list[list[float]] = [[float(np.linalg.norm(site.coords)), 0] for site in mol]
-    import scipy.cluster
 
     f = scipy.cluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
     clustered_dists: dict[str, list[list[float]]] = defaultdict(list)

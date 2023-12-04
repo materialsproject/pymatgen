@@ -29,10 +29,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
@@ -390,7 +388,7 @@ class LammpsData(MSONable):
         all_stats = list(counts.values()) + list(types.values())
         right_indent = len(str(max(all_stats)))
         count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
-        type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
+        type_lines = [f"{v:>{right_indent}}  {k + ' types'}" for k, v in types.items()]
         stats = "\n".join([*count_lines, "", *type_lines])
 
         def map_coords(q) -> str:
@@ -619,7 +617,7 @@ class LammpsData(MSONable):
             species = masses.loc[type_ids, "element"]
             labels = masses.loc[type_ids, "label"]
             coords = atoms[["x", "y", "z"]]
-            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
+            mol = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
             charges = atoms.get("q")
             velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns else None
             topologies = {}
@@ -628,7 +626,7 @@ class LammpsData(MSONable):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
             topo_list.append(
                 Topology(
-                    sites=m,
+                    sites=mol,
                     ff_label=ff_label,
                     charges=charges,
                     velocities=velocities,
@@ -874,8 +872,8 @@ class LammpsData(MSONable):
 
         Args:
             charges: A dictionary with atom indexes as keys and
-                     charges as values, e.g., to set the charge
-                     of the atom with index 3 to -2, use `{3: -2}`.
+                charges as values, e.g., to set the charge
+                of the atom with index 3 to -2, use `{3: -2}`.
         """
         for iat, q in charges.items():
             self.atoms.loc[iat, "q"] = q
@@ -886,10 +884,10 @@ class LammpsData(MSONable):
 
         Args:
             charges: Dict containing the charges for the atom types to set.
-                     The dict should contain atom types as integers or labels and charges.
-                     Example: change the charge of Li atoms to +3:
-                         charges={"Li": 3}
-                         charges={1: 3} if Li atoms are of type 1
+                The dict should contain atom types as integers or labels and charges.
+                Example: change the charge of Li atoms to +3:
+                    charges={"Li": 3}
+                    charges={1: 3} if Li atoms are of type 1
         """
         for iat, q in charges.items():
             if isinstance(iat, str):
@@ -900,10 +898,8 @@ class LammpsData(MSONable):
 
 class Topology(MSONable):
     """
-    Class carrying most data in Atoms, Velocities and molecular
-    topology sections for ONE SINGLE Molecule or Structure
-    object, or a plain list of Sites.
-
+    Class carrying most data in Atoms, Velocities and molecular topology sections for
+    ONE SINGLE Molecule or Structure object, or a plain list of Sites.
     """
 
     def __init__(
@@ -1249,7 +1245,7 @@ class CombinedData(LammpsData):
         """
         Args:
             list_of_molecules: A list of LammpsData objects of a chemical cluster.
-                 Each LammpsData object (cluster) may contain one or more molecule ID.
+                Each LammpsData object (cluster) may contain one or more molecule ID.
             list_of_names: A list of name (string) for each cluster. The characters in each name are
                 restricted to word characters ([a-zA-Z0-9_]). If names with any non-word characters
                 are passed in, the special characters will be substituted by '_'.

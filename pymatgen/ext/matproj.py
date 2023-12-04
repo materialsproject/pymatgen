@@ -187,7 +187,7 @@ class _MPResterBasic:
             formula (str): A formula (e.g., Fe2O3).
 
         Returns:
-            ([str]) List of all materials ids.
+            list[str]: all materials ids.
         """
         return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
 

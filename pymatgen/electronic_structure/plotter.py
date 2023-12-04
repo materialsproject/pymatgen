@@ -14,11 +14,14 @@ from typing import TYPE_CHECKING, Literal, cast, no_type_check
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable
 import scipy.interpolate as scint
+from matplotlib.collections import LineCollection
+from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
@@ -144,8 +147,6 @@ class DosPlotter:
             plt.Axes: matplotlib Axes object.
         """
         n_colors = min(9, max(3, len(self._doses)))
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
@@ -839,8 +840,6 @@ class BSPlotter:
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
         # TODO: add exception if the band structures are not compatible
-        import matplotlib.lines as mlines
-
         ax = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -979,11 +978,10 @@ class BSPlotterProjected(BSPlotter):
         if self._bs.is_metal():
             e_min = -10
             e_max = 10
-        count = 1
 
         for el in dictio:
-            for o in dictio[el]:
-                ax = plt.subplot(fig_rows + fig_cols + count)
+            for idx, key in enumerate(dictio[el], 1):
+                ax = plt.subplot(fig_rows + fig_cols + idx)
                 self._make_ticks(ax)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
@@ -1005,14 +1003,14 @@ class BSPlotterProjected(BSPlotter):
                                     data["distances"][b][j],
                                     data["energy"][str(Spin.down)][b][i][j],
                                     "ro",
-                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][o] * 15.0,
+                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][key] * 15.0,
                                 )
                         for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             ax.plot(
                                 data["distances"][b][j],
                                 data["energy"][str(Spin.up)][b][i][j],
                                 "bo",
-                                markersize=proj[b][str(Spin.up)][i][j][str(el)][o] * 15.0,
+                                markersize=proj[b][str(Spin.up)][i][j][str(el)][key] * 15.0,
                             )
                 if ylim is None:
                     if self._bs.is_metal():
@@ -1031,19 +1029,18 @@ class BSPlotterProjected(BSPlotter):
                         ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
                     ax.set_ylim(ylim)
-                ax.set_title(f"{el} {o}")
-                count += 1
-        return ax
+                ax.set_title(f"{el} {key}")
+        return plt.gcf().axes
 
     @no_type_check
     def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
         """Method returning a plot composed of subplots along different elements.
 
         Returns:
-            a pyplot object with different subfigures for each projection
-            The blue and red colors are for spin up and spin down
-            The bigger the red or blue dot in the band structure the higher
-            character for the corresponding element and orbital
+            np.ndarray[plt.Axes]: 2x2 array of plt.Axes with different subfigures for each projection
+                The blue and red colors are for spin up and spin down
+                The bigger the red or blue dot in the band structure the higher
+                character for the corresponding element and orbital
         """
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
@@ -1053,9 +1050,8 @@ class BSPlotterProjected(BSPlotter):
         e_min, e_max = -4, 4
         if self._bs.is_metal():
             e_min, e_max = -10, 10
-        count = 1
-        for el in self._bs.structure.elements:
-            plt.subplot(220 + count)
+        for idx, el in enumerate(self._bs.structure.elements, 1):
+            ax = plt.subplot(220 + idx)
             self._make_ticks(ax)
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
@@ -1119,9 +1115,8 @@ class BSPlotterProjected(BSPlotter):
             else:
                 ax.set_ylim(ylim)
             ax.set_title(str(el))
-            count += 1
 
-        return ax
+        return axs
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """Returns a pyplot plot object with one plot where the band structure
@@ -1529,9 +1524,9 @@ class BSPlotterProjected(BSPlotter):
                 result, correct index numbers of atoms.
             sum_atoms: Sum projection of the similar atoms together (e.g.: Cu
                 on site-1 and Cu on site-5). The format is {Element: [Site numbers]}, for instance:
-                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
-                 site-5 and O on site-3 and on site-4. If you do not want to use this functional,
-                 just turn it off by setting sum_atoms = None.
+                {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
+                site-5 and O on site-3 and on site-4. If you do not want to use this functional,
+                just turn it off by setting sum_atoms = None.
             sum_morbs: Sum projections of individual orbitals of similar atoms
                 together (e.g.: 'dxy' and 'dxz'). The format is {Element: [individual orbitals]},
                 for instance: {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections
@@ -1825,10 +1820,6 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from collections import Counter
-
-        from pymatgen.core.periodic_table import Element
-
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
         if len(dictpa) == 0:
@@ -1953,8 +1944,6 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core.periodic_table import Element
-
         individual_orbs = {
             "p": ["px", "py", "pz"],
             "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
@@ -1996,7 +1985,7 @@ class BSPlotterProjected(BSPlotter):
                     label += elem + ","
                 else:
                     orb_label = [orb[1:] for orb in orbs]
-                    label += f"{elem}{str(orb_label).replace('[' , '').replace(']' , '').replace(', ', '-')},"
+                    label += f"{elem}{str(orb_label).replace('[', '').replace(']', '').replace(', ', '-')},"
             return label[:-1]
 
         if sum_atoms is None and sum_morbs is None:
@@ -2240,10 +2229,6 @@ class BSDOSPlotter:
         Returns:
             plt.Axes | tuple[plt.Axes, plt.Axes]: matplotlib axes for the band structure and DOS, resp.
         """
-        import matplotlib.lines as mlines
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
         if dos:
@@ -2288,16 +2273,16 @@ class BSDOSPlotter:
 
             # add $ notation for LaTeX kpoint labels
             if left_k[0] == "\\" or "_" in left_k:
-                left_k = "$" + left_k + "$"
+                left_k = f"${left_k}$"
             if right_k[0] == "\\" or "_" in right_k:
-                right_k = "$" + right_k + "$"
+                right_k = f"${right_k}$"
 
             # add left k label to list of labels
             if prev_right_klabel is None:
                 xlabels.append(left_k)
                 xlabel_distances.append(0)
             elif prev_right_klabel != left_k:  # used for pipe separator
-                xlabels[-1] = xlabels[-1] + "$\\mid$ " + left_k
+                xlabels[-1] = f"{xlabels[-1]}$\\mid$ {left_k}"
 
             # add right k label to list of labels
             xlabels.append(right_k)
@@ -2515,8 +2500,6 @@ class BSDOSPlotter:
             alpha: alpha values data
             linestyles: linestyle for plot (e.g., "solid" or "dotted").
         """
-        from matplotlib.collections import LineCollection
-
         pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
@@ -3081,7 +3064,7 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     sbk_temp.append(sbk[dt][temp][d])
                 if output == "average":
-                    ax.plot(tlist, sbk_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
@@ -3188,7 +3171,7 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     pf_temp.append(pf[dt][temp][d])
                 if output == "average":
-                    ax.plot(tlist, pf_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
@@ -3315,7 +3298,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
 
@@ -3360,7 +3343,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3409,7 +3392,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3455,7 +3438,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3506,7 +3489,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3715,17 +3698,15 @@ class CohpPlotter:
             plot_negative = (not self.are_coops) and (not self.are_cobis)
 
         if integrated:
-            cohp_label = "I" + cohp_label + " (eV)"
+            cohp_label = f"I{cohp_label} (eV)"
 
         if plot_negative:
-            cohp_label = "-" + cohp_label
+            cohp_label = f"-{cohp_label}"
 
         energy_label = "$E - E_f$ (eV)" if self.zero_at_efermi else "$E$ (eV)"
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
@@ -4236,7 +4217,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
+def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs) -> plt.Axes:
     """Gives the plot (as a matplotlib object) of the symmetry line path in
         the Brillouin Zone.
 
@@ -4246,8 +4227,7 @@ def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        matplotlib figure
-
+        plt.Axes: matplotlib Axes
     """
     lines = [[kpath.kpath["kpoints"][k] for k in p] for p in kpath.kpath["path"]]
     return plot_brillouin_zone(
