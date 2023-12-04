@@ -49,7 +49,7 @@ class TestTransformedStructure(PymatgenTest):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = TEST_FILES_DIR
+        SETTINGS["PMG_VASP_PSP_DIR"] = TEST_FILES_DIR / "fake_potcar_library/"
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
         assert "\n".join(p.symbol for p in potcar) == "Na_pv\nFe_pv\nP\nO"
         assert len(self.trans.structures) == 2
