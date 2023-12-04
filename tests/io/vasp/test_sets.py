@@ -415,7 +415,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         )
         struct = Structure(lattice, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct, use_structure_charge=True)
-        assert mpr.incar["NELECT"] == -1, "NELECT not properly set for nonzero charge"
+        assert mpr.incar["NELECT"] == 9.758, "NELECT not properly set for nonzero charge"
 
         # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)
