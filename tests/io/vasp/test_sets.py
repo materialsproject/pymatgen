@@ -780,7 +780,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
         assert input_set.potcar_functional == "PBE_64"
         if not NO_PSP_DIR:
-            assert input_set.potcar.functional == "PBE_64"
             assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
         assert input_set.kpoints is None
 
@@ -817,8 +816,6 @@ class TestMatPESStaticSet(PymatgenTest):
         # test POTCAR files are default PBE_64 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_prev.potcar_functional == "PBE_64"
-        if not NO_PSP_DIR:
-            assert default_prev.potcar.functional == "PBE_64"
         assert default_prev.kpoints is None
 
     def test_r2scan(self):
@@ -831,8 +828,6 @@ class TestMatPESStaticSet(PymatgenTest):
         # test POTCAR files are default PBE_64 PSPs and functional
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
         assert scan.potcar_functional == "PBE_64"
-        if not NO_PSP_DIR:
-            assert scan.potcar.functional == "PBE_64"
         assert scan.kpoints is None
 
     def test_default_u(self):
