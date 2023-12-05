@@ -691,7 +691,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         coords_are_cartesian=False,
         structure=None,
         projections=None,
-    ):
+    ) -> None:
         """
         Args:
             kpoints: list of kpoint as numpy arrays, in frac_coords of the
@@ -729,7 +729,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         )
         self.distance = []
         self.branches = []
-        one_group = []
+        one_group: list = []
         branches_tmp = []
         # get labels and distance for each kpoint
         previous_kpoint = self.kpoints[0]
