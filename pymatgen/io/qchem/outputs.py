@@ -998,9 +998,7 @@ class QCOutput(MSONable):
                 self.data["multipoles"]["quadrupole"] = list()
                 for qpole in temp_quadrupole_moment:
                     self.data["multipoles"]["quadrupole"].append(
-                        {
-                            key: float(qpole[idx]) for idx, key in enumerate(keys)
-                        }
+                        {key: float(qpole[idx]) for idx, key in enumerate(keys)}
                     )
 
         temp_octopole_moment = read_pattern(
@@ -1022,11 +1020,7 @@ class QCOutput(MSONable):
             else:
                 self.data["multipoles"]["octopole"] = list()
                 for opole in temp_octopole_moment:
-                    self.data["multipoles"]["octopole"].append(
-                        {
-                            key: float(opole[idx]) for idx, key in enumerate(keys)
-                        }
-                    )
+                    self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
 
         temp_hexadecapole_moment = read_pattern(
             self.text,
@@ -1056,7 +1050,7 @@ class QCOutput(MSONable):
                 "YYZZ",
                 "XZZZ",
                 "YZZZ",
-                "ZZZZ"
+                "ZZZZ",
             ]
 
             if len(temp_hexadecapole_moment) == 1:
@@ -1067,9 +1061,7 @@ class QCOutput(MSONable):
                 self.data["multipoles"]["hexadecapole"] = list()
                 for hpole in temp_hexadecapole_moment:
                     self.data["multipoles"]["hexadecapole"].append(
-                        {
-                            key: float(hpole[idx]) for idx, key in enumerate(keys)
-                        }
+                        {key: float(hpole[idx]) for idx, key in enumerate(keys)}
                     )
 
         if self.data.get("unrestricted", []):
