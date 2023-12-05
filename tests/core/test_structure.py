@@ -757,6 +757,7 @@ Direct
         )
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2))
+        assert len(offsets3) == len(distances3) == len(s_indices3) == 24
 
     def test_get_all_neighbors_outside_cell(self):
         struct = Structure(
