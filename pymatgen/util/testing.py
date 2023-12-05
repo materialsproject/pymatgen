@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / "structures"
 TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+FAKE_POTCAR_DIR = TEST_FILES_DIR / "fake_potcars"
 
 
 class PymatgenTest(unittest.TestCase):

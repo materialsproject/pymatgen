@@ -15,7 +15,7 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 
 class TestTransformedStructure(PymatgenTest):
@@ -49,7 +49,7 @@ class TestTransformedStructure(PymatgenTest):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = TEST_FILES_DIR / "fake_potcar_library/"
+        SETTINGS["PMG_VASP_PSP_DIR"] = FAKE_POTCAR_DIR
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
         assert "\n".join(p.symbol for p in potcar) == "Na_pv\nFe_pv\nP\nO"
         assert len(self.trans.structures) == 2
