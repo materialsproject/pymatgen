@@ -51,18 +51,19 @@ TITLE sites: 4
         assert tags["COREHOLE"] == "FSR", "Failed to generate PARAMETERS string"
 
     def test_get_feff_pot(self):
-        POT = str(self.mp_xanes.potential)
-        d, dr = Potential.pot_dict_from_string(POT)
-        assert d["Co"] == 1, "Wrong symbols read in for Potential"
+        potential = str(self.mp_xanes.potential)
+        dct, dr = Potential.pot_dict_from_string(potential)
+        assert dct["Co"] == 1, "Wrong symbols read in for Potential"
+        assert dr == {0: "O", 1: "Co", 2: "O"}
 
     def test_get_feff_atoms(self):
         atoms = str(self.mp_xanes.atoms)
         assert atoms.splitlines()[3].split()[4] == self.absorbing_atom, "failed to create ATOMS string"
 
     def test_to_and_from_dict(self):
-        f1_dict = self.mp_xanes.as_dict()
-        f2 = MPXANESSet.from_dict(f1_dict)
-        assert f1_dict == f2.as_dict()
+        dct = self.mp_xanes.as_dict()
+        xanes_set = MPXANESSet.from_dict(dct)
+        assert dct == xanes_set.as_dict(), "round trip as_dict failed"
 
     def test_user_tag_settings(self):
         tags_dict_ans = self.mp_xanes.tags.as_dict()
@@ -73,7 +74,7 @@ TITLE sites: 4
         assert mp_xanes_2.tags.as_dict() == tags_dict_ans
 
     def test_eels_to_from_dict(self):
-        elnes = MPELNESSet(
+        elnes_set = MPELNESSet(
             self.absorbing_atom,
             self.structure,
             radius=5.0,
@@ -82,7 +83,7 @@ TITLE sites: 4
             collection_angle=7,
             convergence_angle=6,
         )
-        elnes_dict = elnes.as_dict()
+        elnes_dict = elnes_set.as_dict()
         elnes_2 = MPELNESSet.from_dict(elnes_dict)
         assert elnes_dict == elnes_2.as_dict()
 

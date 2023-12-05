@@ -363,7 +363,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
