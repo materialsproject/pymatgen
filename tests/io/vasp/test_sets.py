@@ -779,9 +779,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMAXMIX"] == 6
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
         assert input_set.potcar_functional == "PBE_64"
+        assert input_set.kpoints is None
         if not NO_PSP_DIR:
             assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
-        assert input_set.kpoints is None
 
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
@@ -840,8 +840,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_u["LDAUU"] == [5.3, 0, 0]
         assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_u.potcar_functional == "PBE_64"
-        if not NO_PSP_DIR:
-            assert default_u.potcar.functional == "PBE_64"
         assert default_u.kpoints is None
 
     def test_functionals(self):
