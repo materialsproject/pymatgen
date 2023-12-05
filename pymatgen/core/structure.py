@@ -625,6 +625,35 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_species[Species(sym, oxidation_state=oxi_state, spin=spin)] = occu
             site.species = Composition(new_species)
 
+    def add_interstitial(self, atom) -> None:
+        """
+        Creates an interstitial defect in the structure by adding the atom to the available voids.
+        The structure is embedded in a 3D grid. For simplicity, the grid is defined based on fractional coordinates. Each lattice side is divided into 100 points.
+        Scans voids by adding densities (gaussians) and choosing the density minima.
+        """
+        def density(r,R):
+            return np.exp(-np.dot(r - R,r - R))
+        supercell = self.copy()
+        supercell.make_supercell([3,3,3])
+        divisions = np.array([10,10,10])*3
+        n = np.zeros(divisions)
+        for i in range(divisions[0]):
+            for j in range(divisions[1]):
+                for k in range(divisions[2]):
+                    f = [i/divisions[0],j/divisions[1],k/divisions[2]]
+                    r = np.dot(f, supercell.lattice.matrix)
+
+                    for R in supercell.cart_coords:
+                        if self.distance(R,r) < 4:
+                            n[i,j,k] += density(r,R)
+        n = n[10:20,10:20,10:20]
+        p = np.where(n == np.min(n))
+        p = [p[0][0]/(divisions[0]/3),p[1][0]/(divisions[1]/3),p[2][0]/(divisions[2]/3)]
+        print(p)
+        self.append(atom, p)
+            
+
+
     def remove_spin(self) -> None:
         """Remove spin states from structure."""
         for site in self:
