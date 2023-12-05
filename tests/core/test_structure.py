@@ -648,18 +648,17 @@ Direct
         assert len(neigh_sites) == 1
 
     def test_get_neighbor_list(self):
-        struct = self.struct
-        c_indices1, c_indices2, c_offsets, c_distances = struct.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = struct._get_neighbor_list_py(3)
-        assert_allclose(sorted(c_distances), sorted(p_distances))
-
         # test mutable structure after applying strain (which makes lattice.matrix array no longer contiguous)
         # https://github.com/materialsproject/pymatgen/pull/3108
-        mutable_struct = Structure.from_sites(struct)
+        mutable_struct = Structure.from_sites(self.struct)
         mutable_struct.apply_strain(0.01)
-        c_indices1, c_indices2, c_offsets, c_distances = mutable_struct.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = mutable_struct._get_neighbor_list_py(3)
-        assert_allclose(sorted(c_distances), sorted(p_distances))
+        for struct in (self.struct, mutable_struct):
+            cy_indices1, cy_indices2, cy_offsets, cy_distances = struct.get_neighbor_list(3)
+            py_indices1, py_indices2, py_offsets, py_distances = struct._get_neighbor_list_py(3)
+            assert_allclose(cy_distances, py_distances)
+            assert_allclose(cy_indices1, py_indices1)
+            assert_allclose(cy_indices2, py_indices2)
+            assert len(cy_offsets) == len(py_offsets)
 
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
@@ -728,6 +727,8 @@ Direct
         # tetragonal group with all bonds related by symmetry
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
         c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
+        assert len(c_indices) == len(p_indices) == len(offsets) == len(distances) == 8
+        assert c_indices == pytest.approx([0, 1, 1, 1, 0, 0, 0, 0])
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
         assert all(~np.isnan(s_indices))
