@@ -438,7 +438,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Returns list of elements in Composition."""
         return list(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return " ".join(f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items())
 
     def to_pretty_string(self) -> str:
@@ -599,7 +599,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return not any(isinstance(el, DummySpecies) for el in self.elements)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         formula = " ".join(f"{k}{':' if hasattr(k, 'oxi_state') else ''}{v:g}" for k, v in self.items())
         cls_name = type(self).__name__
         return f"{cls_name}({formula!r})"
@@ -1238,7 +1238,7 @@ class ChemicalPotential(dict, MSONable):
     multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
         Args:
             *args: any valid dict init arguments
@@ -1287,7 +1287,7 @@ class ChemicalPotential(dict, MSONable):
             raise ValueError(f"Potentials not specified for {s}")
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ChemPots: {super()!r}"
 
 

@@ -39,7 +39,7 @@ class ElementBase(Enum):
     only when they were top level. See https://github.com/materialsproject/pymatgen/issues/2999.
     """
 
-    def __init__(self, symbol: SpeciesLike):
+    def __init__(self, symbol: SpeciesLike) -> None:
         """Basic immutable element object with all relevant properties.
 
         Only one instance of Element for each symbol is stored after creation,
@@ -459,10 +459,10 @@ class ElementBase(Enum):
     def __hash__(self) -> int:
         return self.Z
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Element " + self.symbol
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.symbol
 
     def __lt__(self, other):
@@ -733,7 +733,7 @@ class ElementBase(Enum):
         }
 
     @staticmethod
-    def print_periodic_table(filter_function: Callable | None = None):
+    def print_periodic_table(filter_function: Callable | None = None) -> None:
         """A pretty ASCII printer for the periodic table, based on some
         filter_function.
 
@@ -1057,10 +1057,10 @@ class Species(MSONable, Stringify):
             return cls(sym, 0 if oxi is None else oxi, **properties)
         raise ValueError("Invalid species string")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Species {self}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = self.symbol
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
@@ -1349,10 +1349,10 @@ class DummySpecies(Species):
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"DummySpecies {self}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"

@@ -41,7 +41,7 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
-    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
+    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)) -> None:
         """Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
         lattice vector.
@@ -801,7 +801,7 @@ class Lattice(MSONable):
 
         return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         outs = [
             "Lattice",
             f"    abc : {' '.join(map(repr, self.lengths))}",
@@ -830,7 +830,7 @@ class Lattice(MSONable):
     def __hash__(self) -> int:
         return 7
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(" ".join([f"{i:.6f}" for i in row]) for row in self._matrix)
 
     def as_dict(self, verbosity: int = 0) -> dict:
