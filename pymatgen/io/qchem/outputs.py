@@ -985,7 +985,7 @@ class QCOutput(MSONable):
         )
         temp_quadrupole_moment = read_pattern(self.text, {"key": quad_mom_pat}).get("key")
         if temp_quadrupole_moment is not None:
-            keys = "XX XY YY XZ YZ ZZ".split()
+            keys = ("XX", "XY", "YY", "XZ", "YZ", "ZZ")
             if len(temp_quadrupole_moment) == 1:
                 self.data["multipoles"]["quadrupole"] = {
                     key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
@@ -1004,7 +1004,7 @@ class QCOutput(MSONable):
         )
         temp_octopole_moment = read_pattern(self.text, {"key": octo_mom_pat}).get("key")
         if temp_octopole_moment is not None:
-            keys = "XXX XXY XYY YYY XXZ XYZ YYZ XZZ YZZ ZZZ".split()
+            keys = ("XXX", "XXY", "XYY", "YYY", "XXZ", "XYZ", "YYZ", "XZZ", "YZZ", "ZZZ")
             if len(temp_octopole_moment) == 1:
                 self.data["multipoles"]["octopole"] = {
                     key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
@@ -1023,7 +1023,23 @@ class QCOutput(MSONable):
         )
         temp_hexadecapole_moment = read_pattern(self.text, {"key": hexadeca_mom_pat}).get("key")
         if temp_hexadecapole_moment is not None:
-            keys = "XXXX XXXY XXYY XYYY YYYY XXXZ XXYZ XYYZ YYYZ XXZZ XYZZ YYZZ XZZZ YZZZ ZZZZ".split()
+            keys = (
+                "XXXX",
+                "XXXY",
+                "XXYY",
+                "XYYY",
+                "YYYY",
+                "XXXZ",
+                "XXYZ",
+                "XYYZ",
+                "YYYZ",
+                "XXZZ",
+                "XYZZ",
+                "YYZZ",
+                "XZZZ",
+                "YZZZ",
+                "ZZZZ",
+            )
 
             if len(temp_hexadecapole_moment) == 1:
                 self.data["multipoles"]["hexadecapole"] = {
