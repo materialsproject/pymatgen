@@ -979,17 +979,13 @@ class QCOutput(MSONable):
 
         self.data["multipoles"] = dict()
 
-        temp_quadrupole_moment = read_pattern(
-            self.text,
-            {
-                "key": (
-                    r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
-                    r"\s+([\-\.0-9]+)\s+XZ\s+([\-\.0-9]+)\s+YZ\s+([\-\.0-9]+)\s+ZZ\s+([\-\.0-9]+)"
-                )
-            },
-        ).get("key")
+        quad_mom_pat = (
+            r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
+            r"\s+([\-\.0-9]+)\s+XZ\s+([\-\.0-9]+)\s+YZ\s+([\-\.0-9]+)\s+ZZ\s+([\-\.0-9]+)"
+        )
+        temp_quadrupole_moment = read_pattern(self.text, {"key": quad_mom_pat}).get("key")
         if temp_quadrupole_moment is not None:
-            keys = ["XX", "XY", "YY", "XZ", "YZ", "ZZ"]
+            keys = "XX XY YY XZ YZ ZZ".split()
             if len(temp_quadrupole_moment) == 1:
                 self.data["multipoles"]["quadrupole"] = {
                     key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
@@ -1001,18 +997,14 @@ class QCOutput(MSONable):
                         {key: float(qpole[idx]) for idx, key in enumerate(keys)}
                     )
 
-        temp_octopole_moment = read_pattern(
-            self.text,
-            {
-                "key": (
-                    r"\s*Octopole Moments \(Debye\-Ang\^2\)\s+XXX\s+([\-\.0-9]+)\s+XXY\s+([\-\.0-9]+)"
-                    r"\s+XYY\s+([\-\.0-9]+)\s+YYY\s+([\-\.0-9]+)\s+XXZ\s+([\-\.0-9]+)\s+XYZ\s+([\-\.0-9]+)"
-                    r"\s+YYZ\s+([\-\.0-9]+)\s+XZZ\s+([\-\.0-9]+)\s+YZZ\s+([\-\.0-9]+)\s+ZZZ\s+([\-\.0-9]+)"
-                )
-            },
-        ).get("key")
+        octo_mom_pat = (
+            r"\s*Octopole Moments \(Debye\-Ang\^2\)\s+XXX\s+([\-\.0-9]+)\s+XXY\s+([\-\.0-9]+)"
+            r"\s+XYY\s+([\-\.0-9]+)\s+YYY\s+([\-\.0-9]+)\s+XXZ\s+([\-\.0-9]+)\s+XYZ\s+([\-\.0-9]+)"
+            r"\s+YYZ\s+([\-\.0-9]+)\s+XZZ\s+([\-\.0-9]+)\s+YZZ\s+([\-\.0-9]+)\s+ZZZ\s+([\-\.0-9]+)"
+        )
+        temp_octopole_moment = read_pattern(self.text, {"key": octo_mom_pat}).get("key")
         if temp_octopole_moment is not None:
-            keys = ["XXX", "XXY", "XYY", "YYY", "XXZ", "XYZ", "YYZ", "XZZ", "YZZ", "ZZZ"]
+            keys = "XXX XXY XYY YYY XXZ XYZ YYZ XZZ YZZ ZZZ".split()
             if len(temp_octopole_moment) == 1:
                 self.data["multipoles"]["octopole"] = {
                     key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
@@ -1022,36 +1014,16 @@ class QCOutput(MSONable):
                 for opole in temp_octopole_moment:
                     self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
 
-        temp_hexadecapole_moment = read_pattern(
-            self.text,
-            {
-                "key": (
-                    r"\s*Hexadecapole Moments \(Debye\-Ang\^3\)\s+XXXX\s+([\-\.0-9]+)\s+XXXY\s+([\-\.0-9]+)"
-                    r"\s+XXYY\s+([\-\.0-9]+)\s+XYYY\s+([\-\.0-9]+)\s+YYYY\s+([\-\.0-9]+)\s+XXXZ\s+([\-\.0-9]+)"
-                    r"\s+XXYZ\s+([\-\.0-9]+)\s+XYYZ\s+([\-\.0-9]+)\s+YYYZ\s+([\-\.0-9]+)\s+XXZZ\s+([\-\.0-9]+)"
-                    r"\s+XYZZ\s+([\-\.0-9]+)\s+YYZZ\s+([\-\.0-9]+)\s+XZZZ\s+([\-\.0-9]+)\s+YZZZ\s+([\-\.0-9]+)"
-                    r"\s+ZZZZ\s+([\-\.0-9]+)"
-                )
-            },
-        ).get("key")
+        hexadeca_mom_pat = (
+            r"\s*Hexadecapole Moments \(Debye\-Ang\^3\)\s+XXXX\s+([\-\.0-9]+)\s+XXXY\s+([\-\.0-9]+)"
+            r"\s+XXYY\s+([\-\.0-9]+)\s+XYYY\s+([\-\.0-9]+)\s+YYYY\s+([\-\.0-9]+)\s+XXXZ\s+([\-\.0-9]+)"
+            r"\s+XXYZ\s+([\-\.0-9]+)\s+XYYZ\s+([\-\.0-9]+)\s+YYYZ\s+([\-\.0-9]+)\s+XXZZ\s+([\-\.0-9]+)"
+            r"\s+XYZZ\s+([\-\.0-9]+)\s+YYZZ\s+([\-\.0-9]+)\s+XZZZ\s+([\-\.0-9]+)\s+YZZZ\s+([\-\.0-9]+)"
+            r"\s+ZZZZ\s+([\-\.0-9]+)"
+        )
+        temp_hexadecapole_moment = read_pattern(self.text, {"key": hexadeca_mom_pat}).get("key")
         if temp_hexadecapole_moment is not None:
-            keys = [
-                "XXXX",
-                "XXXY",
-                "XXYY",
-                "XYYY",
-                "YYYY",
-                "XXXZ",
-                "XXYZ",
-                "XYYZ",
-                "YYYZ",
-                "XXZZ",
-                "XYZZ",
-                "YYZZ",
-                "XZZZ",
-                "YZZZ",
-                "ZZZZ",
-            ]
+            keys = "XXXX XXXY XXYY XYYY YYYY XXXZ XXYZ XYYZ YYYZ XXZZ XYZZ YYZZ XZZZ YZZZ ZZZZ".split()
 
             if len(temp_hexadecapole_moment) == 1:
                 self.data["multipoles"]["hexadecapole"] = {
