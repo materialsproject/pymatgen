@@ -148,7 +148,7 @@ class TestPackmolSet(PymatgenTest):
         Make sure the code returns to the starting directory whether
         or not packmol exits cleanly.
         """
-        startdir = str(Path.cwd())
+        start_dir = str(Path.cwd())
         # this one will not exit cleanly b/c the box is too small
         pw = PackmolBoxGen().get_input_set(
             molecules=[
@@ -160,7 +160,7 @@ class TestPackmolSet(PymatgenTest):
         pw.write_input(self.tmp_path)
         with pytest.raises(ValueError):
             pw.run(self.tmp_path)
-        assert str(Path.cwd()) == startdir
+        assert str(Path.cwd()) == start_dir
 
         # this one will exit cleanly
         pw = PackmolBoxGen().get_input_set(
@@ -171,7 +171,7 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert str(Path.cwd()) == startdir
+        assert str(Path.cwd()) == start_dir
 
     def test_random_seed(self):
         """
@@ -179,7 +179,7 @@ class TestPackmolSet(PymatgenTest):
         while seed = 1 is deterministic.
         """
         pytest.importorskip("openbabel")
-        mm = MoleculeMatcher()
+        mol_matcher = MoleculeMatcher()
 
         # deterministic output
         pw = PackmolBoxGen(seed=1, inputfile="input.in", outputfile="output.xyz").get_input_set(
@@ -194,7 +194,7 @@ class TestPackmolSet(PymatgenTest):
         out1 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
         pw.run(self.tmp_path)
         out2 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
-        assert mm.fit(out1, out2)
+        assert mol_matcher.fit(out1, out2)
 
         # randomly generated structures
         pw = PackmolBoxGen(seed=-1, inputfile="input.in", outputfile="output.xyz").get_input_set(
@@ -208,7 +208,7 @@ class TestPackmolSet(PymatgenTest):
         out1 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
         pw.run(self.tmp_path)
         out2 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
-        assert not mm.fit(out1, out2)
+        assert not mol_matcher.fit(out1, out2)
 
     def test_arbitrary_filenames(self):
         """

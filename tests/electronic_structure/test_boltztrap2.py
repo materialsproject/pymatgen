@@ -27,16 +27,16 @@ except Exception:
 test_dir = f"{TEST_FILES_DIR}/boltztrap2"
 
 
-vrunfile = f"{test_dir}/vasprun.xml"
-vrun = Vasprun(vrunfile, parse_projected_eigen=True)
+vrun_file = f"{test_dir}/vasprun.xml"
+vrun = Vasprun(vrun_file, parse_projected_eigen=True)
 
-vrunfile_sp = f"{test_dir}/vasprun_spin.xml"
-vrun_sp = Vasprun(vrunfile_sp, parse_projected_eigen=True)
+vrun_file_spin = f"{test_dir}/vasprun_spin.xml"
+vrun_spin = Vasprun(vrun_file_spin, parse_projected_eigen=True)
 bs = loadfn(f"{test_dir}/PbTe_bandstructure.json")
 bs_sp = loadfn(f"{test_dir}/N2_bandstructure.json")
 
-bztinterp_fn = f"{test_dir}/bztInterp.json.gz"
-bzttransp_fn = f"{test_dir}/bztTranspProps.json.gz"
+bzt_interp_fn = f"{test_dir}/bztInterp.json.gz"
+bzt_transp_fn = f"{test_dir}/bztTranspProps.json.gz"
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
@@ -46,14 +46,14 @@ class TestVasprunBSLoader(unittest.TestCase):
         assert self.loader is not None
         self.loader = VasprunBSLoader(bs, vrun.final_structure)
         assert self.loader is not None
-        self.loader = VasprunBSLoader.from_file(vrunfile)
+        self.loader = VasprunBSLoader.from_file(vrun_file)
         assert self.loader is not None
 
-        self.loader_sp = VasprunBSLoader(vrun_sp)
+        self.loader_sp = VasprunBSLoader(vrun_spin)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader(bs_sp, vrun_sp.final_structure)
+        self.loader_sp = VasprunBSLoader(bs_sp, vrun_spin.final_structure)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader.from_file(vrunfile_sp)
+        self.loader_sp = VasprunBSLoader.from_file(vrun_file_spin)
         assert self.loader_sp is not None
 
     def test_properties(self):
@@ -85,7 +85,7 @@ class TestBandstructureLoader(unittest.TestCase):
         self.loader = BandstructureLoader(bs, vrun.structures[-1])
         assert self.loader is not None
 
-        self.loader_sp = BandstructureLoader(bs_sp, vrun_sp.structures[-1])
+        self.loader_sp = BandstructureLoader(bs_sp, vrun_spin.structures[-1])
         assert self.loader_sp is not None
         assert self.loader_sp.ebands_all.shape == (24, 198)
 
@@ -124,7 +124,7 @@ class TestVasprunLoader(unittest.TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
     def test_from_file(self):
-        self.loader = VasprunLoader().from_file(vrunfile)
+        self.loader = VasprunLoader().from_file(vrun_file)
         assert self.loader is not None
 
 
@@ -134,17 +134,17 @@ class TestBztInterpolator(unittest.TestCase):
         self.loader = VasprunBSLoader(vrun)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
         assert self.bztInterp is not None
-        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=bztinterp_fn)
+        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=bzt_interp_fn)
         assert self.bztInterp is not None
-        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=bztinterp_fn)
+        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=bzt_interp_fn)
         assert self.bztInterp is not None
 
-        self.loader_sp = VasprunBSLoader(vrun_sp)
+        self.loader_sp = VasprunBSLoader(vrun_spin)
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
         assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=bztinterp_fn)
+        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=bzt_interp_fn)
         assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=bztinterp_fn)
+        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=bzt_interp_fn)
         assert self.bztInterp_sp is not None
 
     def test_properties(self):
@@ -224,15 +224,15 @@ class TestBztTransportProperties(unittest.TestCase):
             bztInterp,
             temp_r=np.arange(300, 600, 100),
             save_bztTranspProps=True,
-            fname=bzttransp_fn,
+            fname=bzt_transp_fn,
         )
         assert self.bztTransp is not None
 
         bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=bzttransp_fn)
+        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=bzt_transp_fn)
         assert self.bztTransp is not None
 
-        loader_sp = VasprunBSLoader(vrun_sp)
+        loader_sp = VasprunBSLoader(vrun_spin)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
@@ -242,12 +242,12 @@ class TestBztTransportProperties(unittest.TestCase):
             bztInterp_sp,
             temp_r=np.arange(300, 600, 100),
             save_bztTranspProps=True,
-            fname=bzttransp_fn,
+            fname=bzt_transp_fn,
         )
         assert self.bztTransp_sp is not None
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=bzttransp_fn)
+        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=bzt_transp_fn)
         assert self.bztTransp_sp is not None
 
     def test_properties(self):

@@ -32,6 +32,7 @@ from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
 from scipy import constants
+from scipy.optimize import fsolve
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
@@ -2264,8 +2265,6 @@ def eta_from_seebeck(seeb, Lambda):
     Returns:
         float: eta where the two seebeck coefficients are equal (reduced chemical potential).
     """
-    from scipy.optimize import fsolve
-
     out = fsolve(lambda x: (seebeck_spb(x, Lambda) - abs(seeb)) ** 2, 1.0, full_output=True)
     return out[0][0]
 

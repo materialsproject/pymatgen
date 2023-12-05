@@ -67,16 +67,15 @@ class TestConversionElectrode(unittest.TestCase):
 
     def test_init(self):
         # both 'LiCoO2' and "FeF3" are using Li+ as working ion; MnO2 is for the multivalent Mg2+ ion
-        for f in self.formulas:
-            c = self.conversion_electrodes[f]["CE"]
+        for formula in self.formulas:
+            c = self.conversion_electrodes[formula]["CE"]
 
             assert len(c.get_sub_electrodes(adjacent_only=True)) == c.num_steps
             assert len(c.get_sub_electrodes(adjacent_only=False)) == sum(range(1, c.num_steps + 1))
-            assert str(c) is not None
-            p = self.expected_properties[f]
+            p = self.expected_properties[formula]
 
             for k, v in p.items():
-                assert getattr(c, "get_" + k)() == approx(v, abs=1e-2)
+                assert getattr(c, f"get_{k}")() == approx(v, abs=1e-2)
 
             assert {*c.get_summary_dict(print_subelectrodes=True)} == {
                 "adj_pairs",

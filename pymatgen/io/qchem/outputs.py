@@ -7,8 +7,9 @@ import logging
 import math
 import os
 import re
+import struct
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 import numpy as np
@@ -32,6 +33,8 @@ try:
 except ImportError:
     openbabel = None
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -945,9 +948,10 @@ class QCOutput(MSONable):
     def _read_charges_and_dipoles(self):
         """
         Parses Mulliken/ESP/RESP charges.
-        Parses associated dipoles.
+        Parses associated dipole/multipole moments.
         Also parses spins given an unrestricted SCF.
         """
+
         self.data["dipoles"] = {}
         temp_dipole_total = read_pattern(
             self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
@@ -972,6 +976,81 @@ class QCOutput(MSONable):
                     for jj, _val in enumerate(temp_dipole[ii]):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
+
+        self.data["multipoles"] = dict()
+
+        quad_mom_pat = (
+            r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
+            r"\s+([\-\.0-9]+)\s+XZ\s+([\-\.0-9]+)\s+YZ\s+([\-\.0-9]+)\s+ZZ\s+([\-\.0-9]+)"
+        )
+        temp_quadrupole_moment = read_pattern(self.text, {"key": quad_mom_pat}).get("key")
+        if temp_quadrupole_moment is not None:
+            keys = ("XX", "XY", "YY", "XZ", "YZ", "ZZ")
+            if len(temp_quadrupole_moment) == 1:
+                self.data["multipoles"]["quadrupole"] = {
+                    key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
+                }
+            else:
+                self.data["multipoles"]["quadrupole"] = list()
+                for qpole in temp_quadrupole_moment:
+                    self.data["multipoles"]["quadrupole"].append(
+                        {key: float(qpole[idx]) for idx, key in enumerate(keys)}
+                    )
+
+        octo_mom_pat = (
+            r"\s*Octopole Moments \(Debye\-Ang\^2\)\s+XXX\s+([\-\.0-9]+)\s+XXY\s+([\-\.0-9]+)"
+            r"\s+XYY\s+([\-\.0-9]+)\s+YYY\s+([\-\.0-9]+)\s+XXZ\s+([\-\.0-9]+)\s+XYZ\s+([\-\.0-9]+)"
+            r"\s+YYZ\s+([\-\.0-9]+)\s+XZZ\s+([\-\.0-9]+)\s+YZZ\s+([\-\.0-9]+)\s+ZZZ\s+([\-\.0-9]+)"
+        )
+        temp_octopole_moment = read_pattern(self.text, {"key": octo_mom_pat}).get("key")
+        if temp_octopole_moment is not None:
+            keys = ("XXX", "XXY", "XYY", "YYY", "XXZ", "XYZ", "YYZ", "XZZ", "YZZ", "ZZZ")
+            if len(temp_octopole_moment) == 1:
+                self.data["multipoles"]["octopole"] = {
+                    key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
+                }
+            else:
+                self.data["multipoles"]["octopole"] = list()
+                for opole in temp_octopole_moment:
+                    self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
+
+        hexadeca_mom_pat = (
+            r"\s*Hexadecapole Moments \(Debye\-Ang\^3\)\s+XXXX\s+([\-\.0-9]+)\s+XXXY\s+([\-\.0-9]+)"
+            r"\s+XXYY\s+([\-\.0-9]+)\s+XYYY\s+([\-\.0-9]+)\s+YYYY\s+([\-\.0-9]+)\s+XXXZ\s+([\-\.0-9]+)"
+            r"\s+XXYZ\s+([\-\.0-9]+)\s+XYYZ\s+([\-\.0-9]+)\s+YYYZ\s+([\-\.0-9]+)\s+XXZZ\s+([\-\.0-9]+)"
+            r"\s+XYZZ\s+([\-\.0-9]+)\s+YYZZ\s+([\-\.0-9]+)\s+XZZZ\s+([\-\.0-9]+)\s+YZZZ\s+([\-\.0-9]+)"
+            r"\s+ZZZZ\s+([\-\.0-9]+)"
+        )
+        temp_hexadecapole_moment = read_pattern(self.text, {"key": hexadeca_mom_pat}).get("key")
+        if temp_hexadecapole_moment is not None:
+            keys = (
+                "XXXX",
+                "XXXY",
+                "XXYY",
+                "XYYY",
+                "YYYY",
+                "XXXZ",
+                "XXYZ",
+                "XYYZ",
+                "YYYZ",
+                "XXZZ",
+                "XYZZ",
+                "YYZZ",
+                "XZZZ",
+                "YZZZ",
+                "ZZZZ",
+            )
+
+            if len(temp_hexadecapole_moment) == 1:
+                self.data["multipoles"]["hexadecapole"] = {
+                    key: float(temp_hexadecapole_moment[0][idx]) for idx, key in enumerate(keys)
+                }
+            else:
+                self.data["multipoles"]["hexadecapole"] = list()
+                for hpole in temp_hexadecapole_moment:
+                    self.data["multipoles"]["hexadecapole"].append(
+                        {key: float(hpole[idx]) for idx, key in enumerate(keys)}
+                    )
 
         if self.data.get("unrestricted", []):
             header_pattern = (
@@ -2781,3 +2860,66 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
+
+
+def gradient_parser(filename: str = "131.0") -> NDArray:
+    """
+    Parse the gradient data from a gradient scratch file.
+
+    Args:
+        filename: Path to the gradient scratch file. Defaults to "131.0".
+
+    Returns:
+        NDArray: The gradient, in units of Hartree/Bohr.
+    """
+    # Read the gradient scratch file in 8 byte chunks
+    tmp_grad_data: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    grad = [
+        [
+            float(tmp_grad_data[ii * 3]),
+            float(tmp_grad_data[ii * 3 + 1]),
+            float(tmp_grad_data[ii * 3 + 2]),
+        ]
+        for ii in range(len(tmp_grad_data) // 3)
+    ]
+    return np.array(grad)
+
+
+def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
+    """
+    Parse the Hessian data from a Hessian scratch file.
+
+    Args:
+        filename: Path to the Hessian scratch file. Defaults to "132.0".
+        n_atoms: Number of atoms in the molecule. If None, no reshaping will be done.
+
+    Returns:
+        NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
+    """
+    hessian: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    hessian.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    if n_atoms:
+        return np.reshape(hessian, (n_atoms * 3, n_atoms * 3))
+    return np.array(hessian)
+
+
+def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
+    """
+    Parse the orbital coefficients from a scratch file.
+
+    Args:
+        filename: Path to the orbital coefficients file. Defaults to "53.0".
+
+    Returns:
+        NDArray: The orbital coefficients
+    """
+    orbital_coeffs: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    orbital_coeffs.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    return np.array(orbital_coeffs)

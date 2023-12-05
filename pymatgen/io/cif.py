@@ -1344,13 +1344,13 @@ class CifWriter:
         loops = []
         spacegroup = ("P 1", 1)
         if symprec is not None:
-            sf = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
-            spacegroup = (sf.get_space_group_symbol(), sf.get_space_group_number())
+            spg_analyzer = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
+            spacegroup = (spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number())
 
             if refine_struct:
                 # Needs the refined structure when using symprec. This converts
                 # primitive to conventional structures, the standard for CIF.
-                struct = sf.get_refined_structure()
+                struct = spg_analyzer.get_refined_structure()
 
         lattice = struct.lattice
         comp = struct.composition
@@ -1372,10 +1372,10 @@ class CifWriter:
             block["_symmetry_equiv_pos_site_id"] = ["1"]
             block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
         else:
-            sf = SpacegroupAnalyzer(struct, symprec)
+            spg_analyzer = SpacegroupAnalyzer(struct, symprec)
 
             symm_ops = []
-            for op in sf.get_symmetry_operations():
+            for op in spg_analyzer.get_symmetry_operations():
                 v = op.translation_vector
                 symm_ops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
 
@@ -1443,7 +1443,7 @@ class CifWriter:
                     sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
                     len(sites),
                 )
-                for sites in sf.get_symmetrized_structure().equivalent_sites
+                for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites
             ]
             for site, mult in sorted(
                 unique_sites,

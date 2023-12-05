@@ -47,7 +47,7 @@ class TestKPathSeek(PymatgenTest):
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
-            kpoints = kpath.get_kpoints()  # noqa: F841
+            _ = kpath.get_kpoints()
 
     @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_acentered(self):

@@ -126,8 +126,8 @@ class SymmetryModel(EnergyModel):
         Returns:
             Energy value
         """
-        f = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
-        return -f.get_space_group_number()
+        spg_analyzer = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
+        return -spg_analyzer.get_space_group_number()
 
     def as_dict(self):
         """MSONable dict"""

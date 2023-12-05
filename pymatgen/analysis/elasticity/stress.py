@@ -81,10 +81,7 @@ class Stress(SquareTensor):
             def_grad (3x3 array-like): deformation gradient tensor
         """
         if not self.is_symmetric:
-            raise ValueError(
-                "The stress tensor is not symmetric, \
-                             PK stress is based on a symmetric stress tensor."
-            )
+            raise ValueError("The stress tensor is not symmetric, PK stress is based on a symmetric stress tensor.")
         def_grad = SquareTensor(def_grad)
         return def_grad.det * np.dot(self, def_grad.inv.trans)
 
@@ -97,8 +94,5 @@ class Stress(SquareTensor):
         """
         def_grad = SquareTensor(def_grad)
         if not self.is_symmetric:
-            raise ValueError(
-                "The stress tensor is not symmetric, \
-                             PK stress is based on a symmetric stress tensor."
-            )
+            raise ValueError("The stress tensor is not symmetric, PK stress is based on a symmetric stress tensor.")
         return def_grad.det * np.dot(np.dot(def_grad.inv, self), def_grad.inv.trans)

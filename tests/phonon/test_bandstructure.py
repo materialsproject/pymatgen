@@ -13,11 +13,17 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.load(file)
-            self.bs = PhononBandStructureSymmLine.from_dict(dct)
+        self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
         with open(f"{TEST_FILES_DIR}/Si_phonon_bandstructure.json") as file:
             dct = json.load(file)
-            self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
+        self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
+
+    def test_repr(self):
+        assert repr(self.bs) == "PhononBandStructureSymmLine(bands=(6, 204), labels=['Gamma', 'X', 'Y', 'Z'])"
+        assert repr(self.bs2) == (
+            r"PhononBandStructureSymmLine(bands=(6, 130), labels=['$\\Gamma$', 'X', 'W', 'K', 'L', 'U'])"
+        )
 
     def test_basic(self):
         assert self.bs.bands[1][10] == approx(0.7753555184)

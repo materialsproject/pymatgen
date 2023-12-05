@@ -56,7 +56,7 @@ PRIMCOORD
 3     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
 
-    def test_xsf_symbolparse(self):
+    def test_xsf_symbol_parse(self):
         """
         Ensure that the same structure is parsed
         even if the atomic symbol / number convention

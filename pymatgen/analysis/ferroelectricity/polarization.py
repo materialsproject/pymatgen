@@ -47,6 +47,7 @@ determine the spontaneous polarization because it serves as a reference point.
 from __future__ import annotations
 
 import numpy as np
+from scipy.interpolate import UnivariateSpline
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -131,19 +132,16 @@ class PolarizationLattice(Structure):
 
 class Polarization:
     """
-    Class for recovering the same branch polarization for a set of
-    polarization calculations along the nonpolar - polar distortion
-    path of a ferroelectric.
+    Class for recovering the same branch polarization for a set of polarization
+    calculations along the nonpolar - polar distortion path of a ferroelectric.
 
     p_elecs, p_ions, and structures lists should be given in order
     of nonpolar to polar! For example, the structures returned from:
         nonpolar.interpolate(polar,interpolate_lattices=True)
     if nonpolar is the nonpolar Structure and polar is the polar structure.
 
-    It is assumed that the electronic and ionic dipole moment values
-    are given in electron Angstroms along the three lattice directions
-    (a,b,c).
-
+    It is assumed that the electronic and ionic dipole moment values are given in
+    electron Angstroms along the three lattice directions (a,b,c).
     """
 
     def __init__(
@@ -371,10 +369,8 @@ class Polarization:
     def same_branch_splines(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Fit splines to same branch polarization. This is used to assess any jumps
-        in the same branch polarizaiton.
+        in the same branch polarization.
         """
-        from scipy.interpolate import UnivariateSpline
-
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -430,8 +426,6 @@ class EnergyTrend:
 
     def spline(self):
         """Fit spline to energy trend data."""
-        from scipy.interpolate import UnivariateSpline
-
         return UnivariateSpline(range(len(self.energies)), self.energies, k=4)
 
     def smoothness(self):

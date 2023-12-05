@@ -160,8 +160,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         if "magmom" in structure.site_properties:
             warn(
-                "'magmom' entry found in site properties but will be ignored \
-                  for the Setyawan and Curtarolo convention."
+                "'magmom' entry found in site properties but will be ignored for the Setyawan and Curtarolo convention."
             )
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)

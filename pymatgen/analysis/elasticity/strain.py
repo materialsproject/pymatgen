@@ -17,6 +17,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.structure import Structure
@@ -79,20 +81,20 @@ class Deformation(SquareTensor):
         return def_struct
 
     @classmethod
-    def from_index_amount(cls, matrixpos, amt):
+    def from_index_amount(cls, matrix_pos, amt):
         """
         Factory method for constructing a Deformation object
         from a matrix position and amount.
 
         Args:
-            matrixpos (tuple): tuple corresponding the matrix position to
+            matrix_pos (tuple): tuple corresponding the matrix position to
                 have a perturbation added
             amt (float): amount to add to the identity matrix at position
-                matrixpos
+                matrix_pos
         """
-        f = np.identity(3)
-        f[matrixpos] += amt
-        return cls(f)
+        ident = np.identity(3)
+        ident[matrix_pos] += amt
+        return cls(ident)
 
 
 class DeformedStructureSet(collections.abc.Sequence):
@@ -101,7 +103,13 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response.
     """
 
-    def __init__(self, structure: Structure, norm_strains=None, shear_strains=None, symmetry=False):
+    def __init__(
+        self,
+        structure: Structure,
+        norm_strains: Sequence[float] = (-0.01, -0.005, 0.005, 0.01),
+        shear_strains: Sequence[float] = (-0.06, -0.03, 0.03, 0.06),
+        symmetry=False,
+    ) -> None:
         """
         Construct the deformed geometries of a structure. Generates m + n deformed structures
         according to the supplied parameters.
@@ -109,14 +117,11 @@ class DeformedStructureSet(collections.abc.Sequence):
         Args:
             structure (Structure): structure to undergo deformation
             norm_strains (list of floats): strain values to apply
-                to each normal mode.
+                to each normal mode. Defaults to (-0.01, -0.005, 0.005, 0.01).
             shear_strains (list of floats): strain values to apply
-                to each shear mode.
+                to each shear mode. Defaults to (-0.06, -0.03, 0.03, 0.06).
             symmetry (bool): whether or not to use symmetry reduction.
         """
-        norm_strains = norm_strains or [-0.01, -0.005, 0.005, 0.01]
-        shear_strains = shear_strains or [-0.06, -0.03, 0.03, 0.06]
-
         self.undeformed_structure = structure
         self.deformations: list[Deformation] = []
         self.def_structs: list[Structure] = []

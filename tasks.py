@@ -66,7 +66,6 @@ def make_doc(ctx):
         ctx.run("rm -r html", warn=True)
         ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
         # ctx.run("cp ../README.md index.md")
-        ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf doctrees", warn=True)
 
 
@@ -121,7 +120,7 @@ def release_github(ctx, version):
 
     :param ctx:
     """
-    with open("CHANGES.md") as file:
+    with open("docs/CHANGES.md") as file:
         contents = file.read()
     tokens = re.split(r"\-+", contents)
     desc = tokens[1].strip()
@@ -195,7 +194,7 @@ def update_changelog(ctx, version=None, dry_run=False):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
-    with open("CHANGES.md") as file:
+    with open("docs/CHANGES.md") as file:
         contents = file.read()
     delim = "##"
     tokens = contents.split(delim)
@@ -203,9 +202,9 @@ def update_changelog(ctx, version=None, dry_run=False):
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("CHANGES.md", "w") as file:
+        with open("docs/docs/CHANGES.md", "w") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
-        ctx.run("open CHANGES.md")
+        ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
     print("\n".join(ignored_commits))
 

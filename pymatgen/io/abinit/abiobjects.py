@@ -65,7 +65,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             and abs(ang_deg[0] - 90.0) + abs(ang_deg[1] - 90.0) + abs(ang_deg[2] - 90) > tol12
         ):
             # Treat the case of equal angles (except all right angles):
-            # generates trigonal symmetry wrt third axis
+            # generates trigonal symmetry w.r.t. third axis
             cos_ang = cos(pi * ang_deg[0] / 180.0)
             a2 = 2.0 / 3.0 * (1.0 - cos_ang)
             aa = sqrt(a2)
@@ -105,9 +105,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     Example:
         al_structure = structure_from_abivars(
             acell=3*[7.5],
-            rprim=[0.0, 0.5, 0.5,
-                   0.5, 0.0, 0.5,
-                   0.5, 0.5, 0.0],
+            rprim=[0.0, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.5, 0.0],
             typat=1,
             xred=[0.0, 0.0, 0.0],
             ntypat=1,
@@ -689,8 +687,8 @@ class KSampling(AbivarAble, MSONable):
                 Number of division for the sampling of the smallest segment if mode is "path".
                 Not used for the other modes
             kpts: Number of divisions. Even when only a single specification is
-                  required, e.g. in the automatic scheme, the kpts should still
-                  be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+                required, e.g. in the automatic scheme, the kpts should still
+                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
             kpt_shifts: Shifts for Kpoints.
             use_symmetries: False if spatial symmetries should not be used
                 to reduce the number of independent k-points.

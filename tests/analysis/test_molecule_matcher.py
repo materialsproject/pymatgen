@@ -18,6 +18,7 @@ from pymatgen.analysis.molecule_matcher import (
 )
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
@@ -72,8 +73,6 @@ def permute(mol, seed):
 
 
 def generate_Si_cluster():
-    from pymatgen.io.xyz import XYZ
-
     coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
 
@@ -108,8 +107,6 @@ def generate_Si_cluster():
 
 
 def generate_Si2O_cluster():
-    from pymatgen.io.xyz import XYZ
-
     coords = [
         [0.625, 0.625, 0.625],
         [0.625, 0.625, 0.125],
@@ -157,30 +154,30 @@ class TestMoleculeMatcher(unittest.TestCase):
         self.fit_with_mapper(InchiMolAtomMapper())
 
     def test_get_rmsd(self):
-        mm = MoleculeMatcher()
+        mol_matcher = MoleculeMatcher()
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
-        assert f"{mm.get_rmsd(mol1, mol2):7.3}" == "0.00488"
+        assert f"{mol_matcher.get_rmsd(mol1, mol2):7.3}" == "0.00488"
 
     def test_group_molecules(self):
-        mm = MoleculeMatcher(tolerance=0.001)
+        mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{test_dir}/mol_list.txt") as f:
             filename_list = [line.strip() for line in f.readlines()]
         mol_list = [Molecule.from_file(os.path.join(test_dir, f)) for f in filename_list]
-        mol_groups = mm.group_molecules(mol_list)
+        mol_groups = mol_matcher.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
         with open(f"{test_dir}/grouped_mol_list.txt") as f:
             grouped_text = f.read().strip()
         assert str(filename_groups) == grouped_text
 
     def test_to_and_from_dict(self):
-        mm = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
-        d = mm.as_dict()
+        mol_matcher = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
+        d = mol_matcher.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
         assert d == mm2.as_dict()
 
-        mm = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
-        d = mm.as_dict()
+        mol_matcher = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
+        d = mol_matcher.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
         assert d == mm2.as_dict()
 
@@ -196,73 +193,73 @@ class TestMoleculeMatcher(unittest.TestCase):
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
         rot_coords = [op.operate(c) for c in coords]
         mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
-        mm = MoleculeMatcher(mapper=mapper)
-        assert mm.fit(mol1, mol2)
+        mol_matcher = MoleculeMatcher(mapper=mapper)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/benzene2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t2.xyz")
-        assert not mm.fit(mol1, mol2)
+        assert not mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/c1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/c2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/j1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/j2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/ethene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/ethene2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/toluene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/toluene2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/cyclohexane1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/cyclohexane2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
         mol1 = Molecule.from_file(f"{test_dir}/oxygen1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/oxygen2.xyz")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
-        mm = MoleculeMatcher(tolerance=0.001, mapper=mapper)
+        mol_matcher = MoleculeMatcher(tolerance=0.001, mapper=mapper)
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
-        assert not mm.fit(mol1, mol2)
+        assert not mol_matcher.fit(mol1, mol2)
 
     def test_strange_inchi(self):
-        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{test_dir}/k1.sdf")
         mol2 = Molecule.from_file(f"{test_dir}/k2.sdf")
-        assert mm.fit(mol1, mol2)
+        assert mol_matcher.fit(mol1, mol2)
 
     def test_thiane(self):
-        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{test_dir}/thiane1.sdf")
         mol2 = Molecule.from_file(f"{test_dir}/thiane2.sdf")
-        assert not mm.fit(mol1, mol2)
+        assert not mol_matcher.fit(mol1, mol2)
 
     def test_thiane_ethynyl(self):
-        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{test_dir}/thiane_ethynyl1.sdf")
         mol2 = Molecule.from_file(f"{test_dir}/thiane_ethynyl2.sdf")
-        assert not mm.fit(mol1, mol2)
+        assert not mol_matcher.fit(mol1, mol2)
 
     def test_cdi_23(self):
-        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{test_dir}/cdi_23_1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/cdi_23_2.xyz")
-        assert not mm.fit(mol1, mol2)
+        assert not mol_matcher.fit(mol1, mol2)
 
 
 class TestKabschMatcher(unittest.TestCase):
@@ -270,8 +267,8 @@ class TestKabschMatcher(unittest.TestCase):
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
 
-        mm = KabschMatcher(mol1)
-        _, _, rmsd = mm.match(mol2)
+        mol_matcher = KabschMatcher(mol1)
+        _, _, rmsd = mol_matcher.match(mol2)
         assert rmsd == approx(0.0028172956033732936, abs=1e-6)
 
     def test_to_and_from_dict(self):
@@ -298,44 +295,44 @@ class TestKabschMatcher(unittest.TestCase):
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
 
-        mm = KabschMatcher(mol1)
-        _, rmsd = mm.fit(mol2)
+        mol_matcher = KabschMatcher(mol1)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_mismatched_atom_composition(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t2.xyz")
 
-        mm = KabschMatcher(mol1)
+        mol_matcher = KabschMatcher(mol1)
 
         with pytest.raises(ValueError, match="The order of the species aren't matching! Please try using "):
-            mm.fit(mol2)
+            mol_matcher.fit(mol2)
 
     def test_mismatched_atom_order(self):
         for mol_name in ("benzene", "c"):
             mol1 = Molecule.from_file(f"{test_dir}/{mol_name}1.xyz")
             mol2 = Molecule.from_file(f"{test_dir}/{mol_name}2.xyz")
 
-            mm = KabschMatcher(mol1)
+            mol_matcher = KabschMatcher(mol1)
 
             expected_msg = "The order of the species aren't matching! Please try using "
             with pytest.raises(ValueError, match=expected_msg):
-                mm.fit(mol2)
+                mol_matcher.fit(mol2)
 
     def test_fit(self):
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
 
-        mm = KabschMatcher(mol1)
+        mol_matcher = KabschMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0.0028172956033732936, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/oxygen1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/oxygen2.xyz")
-        mm = KabschMatcher(mol1)
+        mol_matcher = KabschMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
 
@@ -344,9 +341,9 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
 
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0.002825344731118855, abs=1e-6)
 
     def test_to_and_from_dict(self):
@@ -373,74 +370,74 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
 
-        mm = HungarianOrderMatcher(mol1)
-        _, rmsd = mm.fit(mol2)
+        mol_matcher = HungarianOrderMatcher(mol1)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_mismatched_atom_composition(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = mm.fit(mol2)
+            _, rmsd = mol_matcher.fit(mol2)
 
     def test_fit(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/benzene2.xyz")
 
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(1.4171601659148593e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/c1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/c2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(9.479012116064961e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0.002825344731118855, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/j1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/j2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(9.28245597473488e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/ethene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/ethene2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0.00021150729609276233, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/toluene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/toluene2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0.0001445787263551832, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/cyclohexane1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/cyclohexane2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0.00012447269440740117, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/oxygen1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/oxygen2.xyz")
-        mm = HungarianOrderMatcher(mol1)
+        mol_matcher = HungarianOrderMatcher(mol1)
 
-        _, rmsd = mm.fit(mol2)
+        _, rmsd = mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
 
@@ -449,9 +446,9 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
 
-        mm = GeneticOrderMatcher(mol1, threshold=0.3)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.3)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0.0028172956033734615, abs=1e-6)
 
     def test_to_and_from_dict(self):
@@ -478,74 +475,74 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         mol2 = Molecule(["C", "H", "H", "H", "H"], rot_coords)
 
-        mm = GeneticOrderMatcher(mol1, threshold=0.3)
-        _, rmsd = mm.fit(mol2)[0]
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.3)
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0, abs=6)
 
     def test_mismatched_atom_composition(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.3)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.3)
 
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = mm.fit(mol2)[0]
+            _, rmsd = mol_matcher.fit(mol2)[0]
 
     def test_fit(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/benzene2.xyz")
 
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(7.061017534055039e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/c1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/c2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(9.459575146593829e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/t3.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/t4.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0.0028172956033734615, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/j1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/j2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(9.28245597473488e-5, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/ethene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/ethene2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0.00019757961816426042, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/toluene1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/toluene2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.1)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.1)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0.0001398867874149986, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/cyclohexane1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/cyclohexane2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0.00012190586696474853, abs=1e-6)
 
         mol1 = Molecule.from_file(f"{test_dir}/oxygen1.xyz")
         mol2 = Molecule.from_file(f"{test_dir}/oxygen2.xyz")
-        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+        mol_matcher = GeneticOrderMatcher(mol1, threshold=0.01)
 
-        _, rmsd = mm.fit(mol2)[0]
+        _, rmsd = mol_matcher.fit(mol2)[0]
         assert rmsd == approx(0, abs=6)
 
 
@@ -553,35 +550,35 @@ class TestKabschMatcherSi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si_cluster.xyz")
-        cls.mm = KabschMatcher(cls.mol1)
+        cls.mol_matcher = KabschMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-        d = self.mm.as_dict()
-        mm = KabschMatcher.from_dict(d)
-        assert d == mm.as_dict()
+        d = self.mol_matcher.as_dict()
+        mol_matcher = KabschMatcher.from_dict(d)
+        assert d == mol_matcher.as_dict()
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
         with pytest.raises(
             ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
         ):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_perturbed.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.2232223954240079, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         # This test shows very poor rmsd result, because the `KabschMatcher`
         # is not capable to handle arbitrary atom's order
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_permuted.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(2.7962454578966454, abs=1e-6)
 
 
@@ -589,12 +586,12 @@ class TestBruteForceOrderMatcherSi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si_cluster.xyz")
-        cls.mm = BruteForceOrderMatcher(cls.mol1)
+        cls.mol_matcher = BruteForceOrderMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-        d = self.mm.as_dict()
-        mm = BruteForceOrderMatcher.from_dict(d)
-        assert d == mm.as_dict()
+        d = self.mol_matcher.as_dict()
+        mol_matcher = BruteForceOrderMatcher.from_dict(d)
+        assert d == mol_matcher.as_dict()
 
     def test_random_match(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_2.xyz")
@@ -603,45 +600,45 @@ class TestBruteForceOrderMatcherSi(unittest.TestCase):
             ValueError,
             match="The number of all possible permutations \\(20922789888000\\) is not feasible to run this method",
         ):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
 
 class TestHungarianOrderMatcherSi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si_cluster.xyz")
-        cls.mm = HungarianOrderMatcher(cls.mol1)
+        cls.mol_matcher = HungarianOrderMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-        d = self.mm.as_dict()
-        mm = HungarianOrderMatcher.from_dict(d)
-        assert d == mm.as_dict()
+        d = self.mol_matcher.as_dict()
+        mol_matcher = HungarianOrderMatcher.from_dict(d)
+        assert d == mol_matcher.as_dict()
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         # TODO: Checking the cause of the large deviation
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(1.025066171481399, abs=1e-6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_perturbed.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.2232223954240077, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_permuted.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_random_match(self):
         # TODO: Checking the cause of the large deviation
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_2.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(1.0177241485450828, abs=1e-6)
 
 
@@ -649,36 +646,36 @@ class TestGeneticOrderMatcherSi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si_cluster.xyz")
-        cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
+        cls.mol_matcher = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 
     def test_to_and_from_dict(self):
-        d = self.mm.as_dict()
-        mm = GeneticOrderMatcher.from_dict(d)
-        assert d == mm.as_dict()
+        d = self.mol_matcher.as_dict()
+        mol_matcher = GeneticOrderMatcher.from_dict(d)
+        assert d == mol_matcher.as_dict()
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            self.mm.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert res[0][-1] == approx(0, abs=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_perturbed.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert res[0][-1] == approx(0.2232223954240079, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_permuted.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert res[0][-1] == approx(0, abs=6)
 
     def test_random_match(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_2.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert res[0][-1] == approx(0.22163169511782, abs=1e-6)
 
 
@@ -686,23 +683,23 @@ class TestKabschMatcherSi2O(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
-        cls.mm = KabschMatcher(cls.mol1)
+        cls.mol_matcher = KabschMatcher(cls.mol1)
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
         with pytest.raises(
             ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
         ):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_perturbed.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.24340452336622473, abs=1e-6)
 
     def test_permuted_atoms_order(self):
@@ -712,38 +709,38 @@ class TestKabschMatcherSi2O(unittest.TestCase):
         with pytest.raises(
             ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
         ):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
 
 class TestBruteForceOrderMatcherSi2O(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
-        cls.mm = BruteForceOrderMatcher(cls.mol1)
+        cls.mol_matcher = BruteForceOrderMatcher(cls.mol1)
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_perturbed.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.2434045087608993, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_permuted.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_random_match(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_2.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.23051587697194997, abs=1e-6)
 
 
@@ -751,31 +748,31 @@ class TestHungarianOrderMatcherSi2O(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
-        cls.mm = HungarianOrderMatcher(cls.mol1)
+        cls.mol_matcher = HungarianOrderMatcher(cls.mol1)
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = self.mm.fit(mol2)
+            _, rmsd = self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_perturbed.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.24474957657894614, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_permuted.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0, abs=6)
 
     def test_random_match(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_2.xyz")
-        _, rmsd = self.mm.fit(mol2)
+        _, rmsd = self.mol_matcher.fit(mol2)
         assert rmsd == approx(0.23231038877573124, abs=1e-6)
 
 
@@ -783,33 +780,33 @@ class TestGeneticOrderMatcherSi2O(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
-        cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
+        cls.mol_matcher = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            self.mm.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert res[0][1] == approx(0, abs=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_perturbed.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert len(res) == 3
         assert res[0][1] == approx(0.24340452336622473, abs=1e-6)
 
     def test_permuted_atoms_order(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_permuted.xyz")
-        res = self.mm.fit(mol2)
+        res = self.mol_matcher.fit(mol2)
         assert len(res) == 3
         assert res[0][1] == approx(0, abs=6)
 
     def test_random_match(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_2.xyz")
-        res = self.mm.match(mol2)
+        res = self.mol_matcher.match(mol2)
         assert len(res) == 3
         assert res[0][0] == [5, 0, 4, 1, 3, 2]
         assert res[0][-1] == approx(0.2305159973457393, abs=1e-6)

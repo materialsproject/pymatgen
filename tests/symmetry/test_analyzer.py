@@ -143,16 +143,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert not all(species.spin is None for species in li2o.types_of_species)
         sga = SpacegroupAnalyzer(li2o)
         assert len(sga._cell) == 4  # magmoms should be added!
-        assert sga._cell[3] == tuple(
-            8
-            * [
-                0,
-            ]
-            + 4
-            * [
-                1,
-            ]
-        )
+        assert sga._cell[3] == tuple(8 * [0] + 4 * [1])
 
     def test_get_symmetry(self):
         # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
@@ -182,11 +173,11 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         self.sg._space_group_data["number"] = orig_spg
 
     def test_get_refined_structure(self):
-        for a in self.sg.get_refined_structure().lattice.angles:
-            assert a == 90
+        for pg_analyzer in self.sg.get_refined_structure().lattice.angles:
+            assert pg_analyzer == 90
         refined = self.disordered_sg.get_refined_structure()
-        for a in refined.lattice.angles:
-            assert a == 90
+        for pg_analyzer in refined.lattice.angles:
+            assert pg_analyzer == 90
         assert refined.lattice.a == refined.lattice.b
 
         structure = self.get_structure("Li2O")
@@ -224,7 +215,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert str(ss).startswith("SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: ")
 
     def test_find_primitive(self):
-        """F m -3 m Li2O testing of converting to primitive cell."""
+        """F mol -3 mol Li2O testing of converting to primitive cell."""
         structure = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive()
@@ -471,18 +462,18 @@ PF6 = Molecule(
 
 class TestPointGroupAnalyzer(PymatgenTest):
     def test_spherical(self):
-        a = PointGroupAnalyzer(CH4)
-        assert a.sch_symbol == "Td"
-        assert len(a.get_pointgroup()) == 24
-        assert a.get_rotational_symmetry_number() == 12
-        a = PointGroupAnalyzer(H2O)
-        assert a.get_rotational_symmetry_number() == 2
-        a = PointGroupAnalyzer(PF6)
-        assert a.sch_symbol == "Oh"
-        assert len(a.get_pointgroup()) == 48
-        m = Molecule.from_file(f"{test_dir_mol}/c60.xyz")
-        a = PointGroupAnalyzer(m)
-        assert a.sch_symbol == "Ih"
+        pg_analyzer = PointGroupAnalyzer(CH4)
+        assert pg_analyzer.sch_symbol == "Td"
+        assert len(pg_analyzer.get_pointgroup()) == 24
+        assert pg_analyzer.get_rotational_symmetry_number() == 12
+        pg_analyzer = PointGroupAnalyzer(H2O)
+        assert pg_analyzer.get_rotational_symmetry_number() == 2
+        pg_analyzer = PointGroupAnalyzer(PF6)
+        assert pg_analyzer.sch_symbol == "Oh"
+        assert len(pg_analyzer.get_pointgroup()) == 48
+        mol = Molecule.from_file(f"{test_dir_mol}/c60.xyz")
+        pg_analyzer = PointGroupAnalyzer(mol)
+        assert pg_analyzer.sch_symbol == "Ih"
 
         cube_species = ["C", "C", "C", "C", "C", "C", "C", "C"]
         cube_coords = [
@@ -496,14 +487,14 @@ class TestPointGroupAnalyzer(PymatgenTest):
             [1, 1, 1],
         ]
 
-        m = Molecule(cube_species, cube_coords)
-        a = PointGroupAnalyzer(m, 0.1)
-        assert a.sch_symbol == "Oh"
+        mol = Molecule(cube_species, cube_coords)
+        pg_analyzer = PointGroupAnalyzer(mol, 0.1)
+        assert pg_analyzer.sch_symbol == "Oh"
 
     def test_tricky(self):
-        m = Molecule.from_file(f"{test_dir_mol}/dh.xyz")
-        a = PointGroupAnalyzer(m, 0.1)
-        assert a.sch_symbol == "D*h"
+        mol = Molecule.from_file(f"{test_dir_mol}/dh.xyz")
+        pg_analyzer = PointGroupAnalyzer(mol, 0.1)
+        assert pg_analyzer.sch_symbol == "D*h"
 
     def test_linear(self):
         coords = [
@@ -512,11 +503,11 @@ class TestPointGroupAnalyzer(PymatgenTest):
             [0, 0.000000, -1.08],
         ]
         mol = Molecule(["C", "H", "H"], coords)
-        a = PointGroupAnalyzer(mol)
-        assert a.sch_symbol == "D*h"
+        pg_analyzer = PointGroupAnalyzer(mol)
+        assert pg_analyzer.sch_symbol == "D*h"
         mol = Molecule(["C", "H", "N"], coords)
-        a = PointGroupAnalyzer(mol)
-        assert a.sch_symbol == "C*v"
+        pg_analyzer = PointGroupAnalyzer(mol)
+        assert pg_analyzer.sch_symbol == "C*v"
 
     def test_asym_top(self):
         coords = [
@@ -527,10 +518,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         mol = Molecule(["C", "H", "F", "Br", "Cl"], coords)
-        a = PointGroupAnalyzer(mol)
+        pg_analyzer = PointGroupAnalyzer(mol)
 
-        assert a.sch_symbol == "C1"
-        assert len(a.get_pointgroup()) == 1
+        assert pg_analyzer.sch_symbol == "C1"
+        assert len(pg_analyzer.get_pointgroup()) == 1
         coords = [
             [0.000000, 0.000000, 1.08],
             [1.026719, 0.000000, -0.363000],
@@ -538,37 +529,37 @@ class TestPointGroupAnalyzer(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         cs_mol = Molecule(["H", "F", "Cl", "Cl"], coords)
-        a = PointGroupAnalyzer(cs_mol)
-        assert a.sch_symbol == "Cs"
-        assert len(a.get_pointgroup()) == 2
-        a = PointGroupAnalyzer(C2H2F2Br2)
-        assert a.sch_symbol == "Ci"
-        assert len(a.get_pointgroup()) == 2
+        pg_analyzer = PointGroupAnalyzer(cs_mol)
+        assert pg_analyzer.sch_symbol == "Cs"
+        assert len(pg_analyzer.get_pointgroup()) == 2
+        pg_analyzer = PointGroupAnalyzer(C2H2F2Br2)
+        assert pg_analyzer.sch_symbol == "Ci"
+        assert len(pg_analyzer.get_pointgroup()) == 2
 
     def test_cyclic(self):
-        a = PointGroupAnalyzer(H2O2)
-        assert a.sch_symbol == "C2"
-        assert len(a.get_pointgroup()) == 2
-        a = PointGroupAnalyzer(H2O)
-        assert a.sch_symbol == "C2v"
-        assert len(a.get_pointgroup()) == 4
-        a = PointGroupAnalyzer(NH3)
-        assert a.sch_symbol == "C3v"
-        assert len(a.get_pointgroup()) == 6
+        pg_analyzer = PointGroupAnalyzer(H2O2)
+        assert pg_analyzer.sch_symbol == "C2"
+        assert len(pg_analyzer.get_pointgroup()) == 2
+        pg_analyzer = PointGroupAnalyzer(H2O)
+        assert pg_analyzer.sch_symbol == "C2v"
+        assert len(pg_analyzer.get_pointgroup()) == 4
+        pg_analyzer = PointGroupAnalyzer(NH3)
+        assert pg_analyzer.sch_symbol == "C3v"
+        assert len(pg_analyzer.get_pointgroup()) == 6
         cs2 = Molecule.from_file(f"{test_dir_mol}/Carbon_Disulfide.xyz")
-        a = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
-        assert a.sch_symbol == "C2v"
+        pg_analyzer = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
+        assert pg_analyzer.sch_symbol == "C2v"
 
     def test_dihedral(self):
-        a = PointGroupAnalyzer(C2H4)
-        assert a.sch_symbol == "D2h"
-        assert len(a.get_pointgroup()) == 8
-        a = PointGroupAnalyzer(BF3)
-        assert a.sch_symbol == "D3h"
-        assert len(a.get_pointgroup()) == 12
-        m = Molecule.from_file(f"{test_dir_mol}/b12h12.xyz")
-        a = PointGroupAnalyzer(m)
-        assert a.sch_symbol == "Ih"
+        pg_analyzer = PointGroupAnalyzer(C2H4)
+        assert pg_analyzer.sch_symbol == "D2h"
+        assert len(pg_analyzer.get_pointgroup()) == 8
+        pg_analyzer = PointGroupAnalyzer(BF3)
+        assert pg_analyzer.sch_symbol == "D3h"
+        assert len(pg_analyzer.get_pointgroup()) == 12
+        mol = Molecule.from_file(f"{test_dir_mol}/b12h12.xyz")
+        pg_analyzer = PointGroupAnalyzer(mol)
+        assert pg_analyzer.sch_symbol == "Ih"
 
     def test_symmetrize_molecule1(self):
         np.random.seed(77)

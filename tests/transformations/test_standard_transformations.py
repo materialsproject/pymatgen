@@ -348,13 +348,7 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()
         coords = [[0.5, 0.5, 0.5]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, [{"X4+": 0.33, "O2-": 0.33, "P5+": 0.33}], coords)
         with pytest.raises(ValueError, match="Occupancy fractions not consistent with size of unit cell"):
             trafo.apply_transformation(struct)

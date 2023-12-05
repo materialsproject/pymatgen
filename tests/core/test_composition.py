@@ -712,6 +712,24 @@ class TestComposition(PymatgenTest):
         c_new_4 = Ca2NF_oxi.replace(example_sub_4)
         assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
 
+    def test_is_charge_balanced(self):
+        false_dct = dict.fromkeys("FeO FeO2 MgO Mg2O3 Mg2O4".split(), False)
+        true_dct = dict.fromkeys("Fe2O3 FeO CaTiO3 SrTiO3 MgO Mg2O2".split(), True)
+
+        for formula, expected in (false_dct | true_dct).items():
+            comp = Composition(formula)
+            # by default, compositions contain elements, not species and hence have no oxidation states
+            assert comp.charge is None
+
+            # convert elements to species with oxidation states
+            oxi_comp = comp.add_charges_from_oxi_state_guesses()
+            assert oxi_comp.charge_balanced is expected, f"Failed for {formula=}"
+
+            if expected is True:
+                assert abs(oxi_comp.charge) < Composition.charge_balanced_tolerance
+            else:
+                assert oxi_comp.charge is None
+
 
 class TestChemicalPotential(unittest.TestCase):
     def test_init(self):

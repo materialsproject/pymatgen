@@ -12,15 +12,15 @@ __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-test_dir = f"{TEST_FILES_DIR}/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/fragmenter_files"
 
 
 class TestFragmentMolecule(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.pc = Molecule.from_file(f"{test_dir}/PC.xyz")
-        cls.ec = Molecule.from_file(f"{test_dir}/EC.xyz")
-        cls.pos_pc = Molecule.from_file(f"{test_dir}/PC.xyz")
+        cls.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
+        cls.ec = Molecule.from_file(f"{TEST_DIR}/EC.xyz")
+        cls.pos_pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
         cls.pos_pc.set_charge_and_spin(charge=1)
         cls.pc_edges = [
             [5, 10],
@@ -37,9 +37,9 @@ class TestFragmentMolecule(PymatgenTest):
             [6, 0],
             [6, 2],
         ]
-        cls.pc_frag1 = Molecule.from_file(f"{test_dir}/PC_frag1.xyz")
+        cls.pc_frag1 = Molecule.from_file(f"{TEST_DIR}/PC_frag1.xyz")
         cls.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        cls.tfsi = Molecule.from_file(f"{test_dir}/TFSI.xyz")
+        cls.tfsi = Molecule.from_file(f"{TEST_DIR}/TFSI.xyz")
         cls.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -56,7 +56,7 @@ class TestFragmentMolecule(PymatgenTest):
             [6, 9],
             [6, 10],
         )
-        cls.LiEC = Molecule.from_file(f"{test_dir}/LiEC.xyz")
+        cls.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
 
     def test_edges_given_pc_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)

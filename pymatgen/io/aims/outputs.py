@@ -21,6 +21,11 @@ if TYPE_CHECKING:
 
     from pymatgen.core import Molecule, Structure
 
+__author__ = "Andrey Sobolev and Thomas A. R. Purcell"
+__version__ = "1.0"
+__email__ = "andrey.n.sobolev@gmail.com and purcellt@arizona.edu"
+__date__ = "November 2023"
+
 
 class AimsOutput(MSONable):
     """The main output file for FHI-aims."""

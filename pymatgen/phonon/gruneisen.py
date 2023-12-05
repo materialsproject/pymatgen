@@ -8,6 +8,7 @@ import numpy as np
 import scipy.constants as const
 from monty.dev import requires
 from monty.json import MSONable
+from scipy.interpolate import UnivariateSpline
 
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
@@ -194,8 +195,6 @@ class GruneisenParameter(MSONable):
     @property
     def debye_temp_limit(self) -> float:
         """Debye temperature in K. Adapted from apipy."""
-        from scipy.interpolate import UnivariateSpline
-
         f_mesh = self.tdos.frequency_points * const.tera
         dos = self.tdos.dos
 

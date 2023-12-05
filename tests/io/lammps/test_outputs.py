@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_allclose
 
 from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -31,18 +31,18 @@ class TestLammpsDump(unittest.TestCase):
         np.testing.assert_array_equal(self.rdx.data.columns, ["id", "type", "xs", "ys", "zs"])
         rdx_data = self.rdx.data.iloc[-1]
         rdx_data_target = [19, 2, 0.42369, 0.47347, 0.555425]
-        assert_array_almost_equal(rdx_data, rdx_data_target)
+        assert_allclose(rdx_data, rdx_data_target)
 
         assert self.tatb.timestep == 0
         assert self.tatb.natoms == 384
         bounds = [[0, 13.624], [0, 17.1149153805], [0, 15.1826391451]]
-        assert_array_almost_equal(self.tatb.box.bounds, bounds)
+        assert_allclose(self.tatb.box.bounds, bounds)
         tilt = [-5.75315630927, -6.325466, 7.4257288]
-        assert_array_almost_equal(self.tatb.box.tilt, tilt)
+        assert_allclose(self.tatb.box.tilt, tilt)
         np.testing.assert_array_equal(self.tatb.data.columns, ["id", "type", "q", "x", "y", "z"])
         tatb_data = self.tatb.data.iloc[-1]
         tatb_data_target = [356, 3, -0.482096, 2.58647, 12.9577, 14.3143]
-        assert_array_almost_equal(tatb_data, tatb_data_target)
+        assert_allclose(tatb_data, tatb_data_target)
 
     def test_json_dict(self):
         encoded = json.dumps(self.rdx.as_dict())
@@ -81,7 +81,7 @@ class TestFunc(unittest.TestCase):
             [0, 1, -4.6295947, -4.6297237, -4.6297237, 0],
             [5, 1, -4.6295965, -4.6297255, -4.6297255, 0],
         ]
-        assert_array_almost_equal(comb0.iloc[[0, -1]], comb0_data)
+        assert_allclose(comb0.iloc[[0, -1]], comb0_data)
         # final comb run
         comb_1 = comb[-1]
         np.testing.assert_array_equal(
@@ -104,7 +104,7 @@ class TestFunc(unittest.TestCase):
         )
         assert len(comb_1) == 11
         comb_1_data = [[36, 5.1293854e-06], [46, 2192.8256]]
-        assert_array_almost_equal(comb_1.iloc[[0, -1], [0, -3]], comb_1_data)
+        assert_allclose(comb_1.iloc[[0, -1], [0, -3]], comb_1_data)
 
         ehex_file = "log.13Oct16.ehex.g++.8.gz"
         ehex = parse_lammps_log(filename=os.path.join(test_dir, ehex_file))
@@ -117,7 +117,7 @@ class TestFunc(unittest.TestCase):
             [0, 1.35, -4.1241917, 0, -2.0994448, -3.1961612],
             [1000, 1.3732017, -3.7100044, 0, -1.6504594, 0.83982701],
         ]
-        assert_array_almost_equal(ehex0.iloc[[0, -1]], ehex0_data)
+        assert_allclose(ehex0.iloc[[0, -1]], ehex0_data)
         # ehex run #2
         np.testing.assert_array_equal(["Step", "Temp", "c_Thot", "c_Tcold"], ehex1.columns)
         assert len(ehex1) == 11
@@ -125,7 +125,7 @@ class TestFunc(unittest.TestCase):
             [1000, 1.35, 1.431295, 1.2955644],
             [11000, 1.3794051, 1.692299, 1.0515688],
         ]
-        assert_array_almost_equal(ehex1.iloc[[0, -1]], ehex1_data)
+        assert_allclose(ehex1.iloc[[0, -1]], ehex1_data)
         # ehex run #3
         np.testing.assert_array_equal(["Step", "Temp", "c_Thot", "c_Tcold", "v_tdiff", "f_ave"], ehex2.columns)
         assert len(ehex2) == 21
@@ -133,7 +133,7 @@ class TestFunc(unittest.TestCase):
             [11000, 1.3794051, 1.6903393, 1.0515688, 0, 0],
             [31000, 1.3822489, 1.8220413, 1.0322271, -0.7550338, -0.76999077],
         ]
-        assert_array_almost_equal(ehex2.iloc[[0, -1]], ehex2_data)
+        assert_allclose(ehex2.iloc[[0, -1]], ehex2_data)
 
         peptide_file = "log.5Oct16.peptide.g++.1.gz"
         peptide = parse_lammps_log(filename=os.path.join(test_dir, peptide_file))
@@ -159,4 +159,4 @@ class TestFunc(unittest.TestCase):
         assert len(peptide0) == 7
         peptide0_select = peptide0.loc[[0, 6], ["Step", "TotEng", "Press"]]
         peptide0_data = [[0, -5237.4580, -837.0112], [300, -5251.3637, -471.5505]]
-        assert_array_almost_equal(peptide0_select, peptide0_data)
+        assert_allclose(peptide0_select, peptide0_data)

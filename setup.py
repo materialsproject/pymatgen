@@ -25,7 +25,7 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
-    version="2023.10.11",
+    version="2023.11.12",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
@@ -102,7 +102,7 @@ setup(
         "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
         "pymatgen.core": ["*.json"],
         "pymatgen": ["py.typed"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz", "*.json.bz2"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],

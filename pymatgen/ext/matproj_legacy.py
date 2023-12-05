@@ -26,6 +26,7 @@ from tqdm import tqdm
 from pymatgen.core import SETTINGS, Composition, Element, Structure
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
+from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -557,8 +558,6 @@ class _MPResterLegacy:
                 )
             entries.append(e)
         if compatible_only:
-            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
-
             # suppress the warning about missing oxidation states
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")

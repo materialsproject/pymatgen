@@ -2,14 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 
-from pymatgen.core import Element
-
-if TYPE_CHECKING:
-    from pymatgen.core import Structure
+from pymatgen.core import Element, Structure
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -116,8 +111,6 @@ class XSF:
             raise ValueError("Invalid XSF data")
 
         if cls_ is None:
-            from pymatgen.core.structure import Structure
-
             cls_ = Structure
 
         s = cls_(lattice, species, coords, coords_are_cartesian=True)

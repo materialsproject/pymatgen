@@ -25,7 +25,8 @@ __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
 
 
 class LammpsInputSet(InputSet):
@@ -52,10 +53,10 @@ class LammpsInputSet(InputSet):
     ) -> None:
         """
         Args:
-            inputfile: The input file containing settings.
-                       It can be a LammpsInputFile object or a string representation.
+            inputfile: The input file containing settings. It can be a LammpsInputFile object
+                or a string representation.
             data: The data file containing structure and topology information.
-                  It can be a LammpsData or a CombinedData object.
+                It can be a LammpsData or a CombinedData object.
             calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
             template_file: Path (string) to the template file used to create the input file for LAMMPS.
             keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.

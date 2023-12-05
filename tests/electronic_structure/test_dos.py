@@ -163,7 +163,7 @@ class TestCompleteDos(unittest.TestCase):
         assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
 
     def test_str(self):
-        assert str(self.dos) is not None
+        assert str(self.dos).startswith("Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4")
 
     def test_as_dict(self):
         dos_dict = self.dos.as_dict()

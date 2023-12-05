@@ -213,7 +213,13 @@ class TestComputedEntry(unittest.TestCase):
         assert self.entry2.entry_id is None
 
     def test_str(self):
-        assert str(self.entry) is not None
+        assert str(self.entry).startswith(
+            "None ComputedEntry - Li1 Fe4 P4 O16 (LiFe4(PO4)4)\n"
+            "Energy (Uncorrected)     = -269.3832 eV (-10.7753 eV/atom)\n"
+            "Correction               = 0.0000    eV (0.0000   eV/atom)\n"
+            "Energy (Final)           = -269.3832 eV (-10.7753 eV/atom)\n"
+            "Energy Adjustments:"
+        )
 
     def test_sulfide_energy(self):
         self.entry = ComputedEntry("BaS", -10.21249155)
@@ -252,7 +258,11 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert entry.energy == approx(-269.38319884)
 
     def test_str(self):
-        assert str(self.entry) is not None
+        assert str(self.entry).startswith(
+            "None ComputedStructureEntry - Li1 Fe4 P4 O16 (LiFe4(PO4)4)\n"
+            "Energy (Uncorrected)     = -269.3832 eV (-10.7753 eV/atom)\n"
+            "Correction               = 0.0000    eV (0.0000   eV/atom)\nEnergy (Final)"
+        )
 
     def test_as_from_dict_structure_with_adjustment_3(self):
         """
@@ -474,12 +484,14 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
-        assert gibbs_entries is not None
+        assert isinstance(gibbs_entries, list)
+        assert isinstance(gibbs_entries[0], GibbsComputedStructureEntry)
 
     def test_from_pd(self):
         pd = PhaseDiagram(self.mp_entries)
         gibbs_entries = GibbsComputedStructureEntry.from_pd(pd)
-        assert gibbs_entries is not None
+        assert isinstance(gibbs_entries, list)
+        assert isinstance(gibbs_entries[0], GibbsComputedStructureEntry)
 
     def test_as_from_dict(self):
         test_entry = self.entries_with_temps[300]
@@ -489,7 +501,9 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
         assert entry.energy == approx(test_entry.energy)
 
     def test_str(self):
-        assert str(self.entries_with_temps[300]) is not None
+        assert str(self.entries_with_temps[300]).startswith(
+            "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"
+        )
 
     def test_normalize(self):
         for entry in self.entries_with_temps.values():

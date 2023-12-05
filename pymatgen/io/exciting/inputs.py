@@ -247,10 +247,7 @@ class ExcitingInput(MSONable):
                         symbol = "GAMMA"
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
         elif bandstr and celltype != "primitive":
-            raise ValueError(
-                "Bandstructure is only implemented for the \
-                              standard primitive unit cell!"
-            )
+            raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")
 
         # write extra parameters from kwargs if provided
         self._dicttoxml(kwargs, root)

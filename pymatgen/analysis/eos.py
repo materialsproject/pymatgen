@@ -42,7 +42,7 @@ class EOSBase(metaclass=ABCMeta):
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
         # minimum energy(e0), buk modulus(b0),
-        # derivative of bulk modulus wrt pressure(b1), minimum volume(v0)
+        # derivative of bulk modulus w.r.t. pressure(b1), minimum volume(v0)
         self._params = None
         # the eos function parameters. It is the same as _params except for
         # equation of states that uses polynomial fits(delta_factor and
@@ -147,7 +147,7 @@ class EOSBase(metaclass=ABCMeta):
 
     @property
     def b1(self):
-        """Returns the derivative of bulk modulus wrt pressure(dimensionless)."""
+        """Returns the derivative of bulk modulus w.r.t. pressure(dimensionless)."""
         return self._params[2]
 
     @property
@@ -191,7 +191,7 @@ class EOSBase(metaclass=ABCMeta):
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
+            f"Derivative of bulk modulus w.r.t. pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -239,7 +239,7 @@ class EOSBase(metaclass=ABCMeta):
             f"Minimum energy = {self.e0:1.2f} eV",
             f"Minimum or reference volume = {self.v0:1.2f} Ang^3",
             f"Bulk modulus = {self.b0:1.2f} eV/Ang^3 = {self.b0_GPa:1.2f} GPa",
-            f"Derivative of bulk modulus wrt pressure = {self.b1:1.2f}",
+            f"Derivative of bulk modulus w.r.t. pressure = {self.b1:1.2f}",
         ]
         text = "\n".join(lines)
         text = kwargs.get("text", text)
@@ -357,8 +357,7 @@ class PolynomialEOS(EOSBase):
         and set to the _params attribute.
         """
         fit_poly = np.poly1d(self.eos_params)
-        # the volume at min energy, used as the initial guess for the
-        # optimization wrt volume.
+        # the volume at min energy, used as the initial guess for the optimization w.r.t. volume.
         v_e_min = self.volumes[np.argmin(self.energies)]
         # evaluate e0, v0, b0 and b1
         min_wrt_v = minimize(fit_poly, v_e_min)

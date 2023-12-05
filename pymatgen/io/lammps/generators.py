@@ -27,7 +27,8 @@ __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
 
 
 @dataclass

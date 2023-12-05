@@ -5,6 +5,7 @@ import shutil
 import warnings
 
 import numpy as np
+from monty.os.path import zpath
 from monty.serialization import zopen
 
 from pymatgen.core import SETTINGS
@@ -51,7 +52,7 @@ class PotcarScrambler:
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
         input_str = input_str.strip()
 
-        if input_str.lower() in ["t", "f"] or input_str.lower() in ["true", "false"]:
+        if input_str.lower() in ("t", "f", "true", "false"):
             return bool(np.random.randint(2))
 
         if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
@@ -128,10 +129,8 @@ def generate_fake_potcar_libraries():
         for psp_name in psp_variants:
             rebase_dir = f"{output_dir}/{func_dir}/{psp_name}/"
             paths_to_try = [
-                f"{func_dir}/POTCAR.{psp_name}",
-                f"{func_dir}/POTCAR.{psp_name}.gz",
-                f"{func_dir}/{psp_name}/POTCAR",
-                f"{func_dir}/{psp_name}/POTCAR.gz",
+                zpath(f"{func_dir}/POTCAR.{psp_name}"),
+                zpath(f"{func_dir}/{psp_name}/POTCAR"),
             ]
             if not any(map(os.path.isfile, paths_to_try)):
                 warnings.warn(f"Could not find {psp_name} in {paths_to_try}")

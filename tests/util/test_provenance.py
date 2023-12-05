@@ -73,23 +73,23 @@ class StructureNLCase(unittest.TestCase):
         self.invalid_node = {"name": "DB 3", "url": "http://www.db3isnotavalidnode.com"}
 
     def test_authors(self):
-        a = StructureNL(self.struct, self.hulk, references=self.pmg)
-        assert a.authors[0].name == "Hulk"
-        assert a.authors[0].email == "hulk@avengers.com"
+        struct_nl = StructureNL(self.struct, self.hulk, references=self.pmg)
+        assert struct_nl.authors[0].name == "Hulk"
+        assert struct_nl.authors[0].email == "hulk@avengers.com"
 
-        a = StructureNL(self.struct, self.america, references=self.pmg)
-        assert a.authors[0].name == "Captain America"
-        assert a.authors[0].email == "captainamerica@avengers.com"
+        struct_nl = StructureNL(self.struct, self.america, references=self.pmg)
+        assert struct_nl.authors[0].name == "Captain America"
+        assert struct_nl.authors[0].email == "captainamerica@avengers.com"
 
-        a = StructureNL(self.struct, self.thor, references=self.pmg)
-        assert a.authors[0].name == "Thor"
-        assert a.authors[0].email == "thor@avengers.com"
+        struct_nl = StructureNL(self.struct, self.thor, references=self.pmg)
+        assert struct_nl.authors[0].name == "Thor"
+        assert struct_nl.authors[0].email == "thor@avengers.com"
 
-        a = StructureNL(self.struct, self.duo, references=self.pmg)
-        assert a.authors[0].name == "Iron Man"
-        assert a.authors[0].email == "ironman@avengers.com"
-        assert a.authors[1].name == "Black Widow"
-        assert a.authors[1].email == "blackwidow@avengers.com"
+        struct_nl = StructureNL(self.struct, self.duo, references=self.pmg)
+        assert struct_nl.authors[0].name == "Iron Man"
+        assert struct_nl.authors[0].email == "ironman@avengers.com"
+        assert struct_nl.authors[1].name == "Black Widow"
+        assert struct_nl.authors[1].email == "blackwidow@avengers.com"
         StructureNL(self.struct, self.hulk, references=self.pmg)
 
     def test_references(self):
@@ -121,15 +121,15 @@ class StructureNLCase(unittest.TestCase):
             StructureNL(self.struct, self.hulk, references=self.superlong)
 
     def test_history_nodes(self):
-        a = StructureNL(self.struct, self.hulk, history=[self.valid_node])
-        assert a.history[0].name == "DB 1"
-        assert a.history[0].url == "www.db1URLgoeshere.com"
-        assert a.history[0].description == {"db1_id": 12424}
+        struct_nl = StructureNL(self.struct, self.hulk, history=[self.valid_node])
+        assert struct_nl.history[0].name == "DB 1"
+        assert struct_nl.history[0].url == "www.db1URLgoeshere.com"
+        assert struct_nl.history[0].description == {"db1_id": 12424}
 
-        a = StructureNL(self.struct, self.hulk, history=[self.valid_node, self.valid_node2])
-        assert a.history[1].name == "DB 2"
-        assert a.history[1].url == "www.db2URLgoeshere.com"
-        assert a.history[1].description == {"db2_id": 12424}
+        struct_nl = StructureNL(self.struct, self.hulk, history=[self.valid_node, self.valid_node2])
+        assert struct_nl.history[1].name == "DB 2"
+        assert struct_nl.history[1].url == "www.db2URLgoeshere.com"
+        assert struct_nl.history[1].description == {"db2_id": 12424}
 
         # invalid nodes should not work
         with pytest.raises(KeyError, match="description"):
@@ -142,21 +142,21 @@ class StructureNLCase(unittest.TestCase):
 
     def test_data(self):
         # Structure data is OK due to PMGEncoder/Decoder
-        a = StructureNL(self.struct, self.hulk, data={"_structure": self.s2})
-        assert a.data["_structure"] == self.s2, "Data storage is broken"
+        struct_nl = StructureNL(self.struct, self.hulk, data={"_structure": self.s2})
+        assert struct_nl.data["_structure"] == self.s2, "Data storage is broken"
         with pytest.raises(ValueError, match="data must contain properly namespaced data with keys starting "):
             StructureNL(self.struct, self.hulk, data={"bad_key": 1})
 
     def test_remarks(self):
-        a = StructureNL(self.struct, self.hulk, remarks="string format")
-        assert a.remarks[0] == "string format"
+        struct_nl = StructureNL(self.struct, self.hulk, remarks="string format")
+        assert struct_nl.remarks[0] == "string format"
         with pytest.raises(ValueError, match="The remark exceeds the maximum size of 140 characters: 150"):
             StructureNL(self.struct, self.hulk, remarks=self.remark_fail)
 
     def test_eq(self):
         # test basic Equal()
         created_at = datetime.datetime.now()
-        a = StructureNL(
+        struct_nl = StructureNL(
             self.struct,
             self.hulk,
             ["test_project"],
@@ -166,7 +166,7 @@ class StructureNLCase(unittest.TestCase):
             [self.valid_node, self.valid_node2],
             created_at,
         )
-        b = StructureNL(
+        struct_nl2 = StructureNL(
             self.struct,
             self.hulk,
             ["test_project"],
@@ -176,7 +176,7 @@ class StructureNLCase(unittest.TestCase):
             [self.valid_node, self.valid_node2],
             created_at,
         )
-        assert a == b, "__eq__() method is broken! false negative"
+        assert struct_nl == struct_nl2
 
         # change the created at date, now they are no longer equal
         created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
@@ -190,7 +190,7 @@ class StructureNLCase(unittest.TestCase):
             [self.valid_node, self.valid_node2],
             created_at,
         )
-        assert a != c, "__eq__() method is broken! false positive"
+        assert struct_nl != c, "__eq__() method is broken! false positive"
 
         # or try a different structure, those should not be equal
         d = StructureNL(
@@ -203,11 +203,11 @@ class StructureNLCase(unittest.TestCase):
             [self.valid_node, self.valid_node2],
             created_at,
         )
-        assert a != d, "__eq__() method is broken! false positive"
+        assert struct_nl != d, "__eq__() method is broken! false positive"
 
     def test_as_from_dict(self):
         # no complicated objects in the 'data' or 'nodes' field
-        a = StructureNL(
+        struct_nl = StructureNL(
             self.struct,
             self.hulk,
             ["test_project"],
@@ -216,15 +216,15 @@ class StructureNLCase(unittest.TestCase):
             {"_my_data": "string"},
             [self.valid_node, self.valid_node2],
         )
-        b = StructureNL.from_dict(a.as_dict())
-        assert a == b
+        b = StructureNL.from_dict(struct_nl.as_dict())
+        assert struct_nl == b
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {
             "name": "complicated node",
             "url": "www.complicatednodegoeshere.com",
             "description": {"structure": self.s2},
         }
-        a = StructureNL(
+        struct_nl = StructureNL(
             self.struct,
             self.hulk,
             ["test_project"],
@@ -233,13 +233,15 @@ class StructureNLCase(unittest.TestCase):
             {"_my_data": {"structure": self.s2}},
             [complicated_node, self.valid_node],
         )
-        b = StructureNL.from_dict(a.as_dict())
-        assert a == b, "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
+        b = StructureNL.from_dict(struct_nl.as_dict())
+        assert (
+            struct_nl == b
+        ), "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
 
         # Test molecule
-        molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
-        b = StructureNL.from_dict(molnl.as_dict())
-        assert molnl == b
+        mol_nl = StructureNL(self.mol, self.hulk, references=self.pmg)
+        b = StructureNL.from_dict(mol_nl.as_dict())
+        assert mol_nl == b
 
     def test_from_structures(self):
         s1 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])

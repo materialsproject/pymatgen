@@ -256,8 +256,8 @@ class GrainBoundary(Structure):
 
         outs.extend(
             (
-                "abc   : " + " ".join(to_s(i) for i in self.lattice.abc),
-                "angles: " + " ".join(to_s(i) for i in self.lattice.angles),
+                f"abc   : {' '.join(to_s(i) for i in self.lattice.abc)}",
+                f"angles: {' '.join(to_s(i) for i in self.lattice.angles)}",
                 f"Sites ({len(self)})",
             )
         )

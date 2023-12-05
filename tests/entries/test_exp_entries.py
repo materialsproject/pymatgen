@@ -25,4 +25,4 @@ class TestExpEntry(unittest.TestCase):
         assert e.energy == approx(-825.5)
 
     def test_str(self):
-        assert str(self.entry) is not None
+        assert str(self.entry) == "ExpEntry Fe2 O3, Energy = -825.5000"

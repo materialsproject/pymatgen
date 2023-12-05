@@ -10,7 +10,7 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
@@ -59,10 +59,9 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = f"{TEST_FILES_DIR}/struct_predictor"
-    json_file = f"{data_dir}/test_lambda.json"
-    with open(json_file) as f:
-        return json.load(f)
+    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    with open(json_path) as file:
+        return json.load(file)
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -311,8 +310,8 @@ class TestMagOrderingTransformation(PymatgenTest):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
-        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
-        assert f.get_space_group_number() == 31
+        spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
+        assert spg_analyzer.get_space_group_number() == 31
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5}, energy_model=model)
@@ -339,8 +338,8 @@ class TestMagOrderingTransformation(PymatgenTest):
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
-        a = SpacegroupAnalyzer(struct, 0.1)
-        struct = a.get_refined_structure()
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 1
 
@@ -351,7 +350,6 @@ class TestMagOrderingTransformation(PymatgenTest):
         _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         assert trans.mag_species_spin == {"Fe": 5}
-        from pymatgen.analysis.energy_models import SymmetryModel
 
         assert isinstance(trans.energy_model, SymmetryModel)
 
