@@ -999,17 +999,15 @@ class Vasprun(MSONable):
             Potcar | None: The POTCAR from the specified path.
         """
 
-        if isinstance(path, bool) and not path:
+        if path is False:
             return None
 
         if isinstance(path, (str, Path)) and "POTCAR" in str(path):
             potcar_paths = [str(path)]
         else:
-            search_path = os.path.split(self.filename)[0] if (isinstance(path, bool) and path) else str(path)
+            search_path = os.path.split(self.filename)[0] if path is True else str(path)
             potcar_paths = [
-                os.path.join(search_path, fn)
-                for fn in os.listdir(os.path.abspath(search_path))
-                if fn.startswith("POTCAR") and ".spec" not in fn
+                f"{search_path}/{fn}" for fn in os.listdir(search_path) if fn.startswith("POTCAR") and ".spec" not in fn
             ]
 
         for potcar_path in potcar_paths:
