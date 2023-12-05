@@ -6,7 +6,6 @@ import os
 import pickle
 import re
 import unittest
-from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -35,29 +34,26 @@ from pymatgen.io.vasp.inputs import (
 )
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-"""
-Override POTCAR library to use fake scrambled POTCARs
-"""
-monkeypatch = MonkeyPatch()
-monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
-
-"""
-Generate their hashes on the fly
-"""
+# make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
-monkeypatch.setattr(PotcarSingle, "potcar_summary_stats", _summ_stats)
-# The fake POTCAR library is pretty big even with just a few sub-libraries
-# just copying over entries to work with PotcarSingle.is_valid
-for func in PotcarSingle.functional_dir:
-    if func in _summ_stats:
-        continue
-    if "pbe" in func.lower() or "pw91" in func.lower():
-        _summ_stats[func] = _summ_stats["PBE_54_W_HASH"].copy()
-    elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
-        _summ_stats[func] = _summ_stats["LDA_64"].copy()
+
+
+@pytest.fixture(autouse=True)
+def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+    # Override POTCAR library to use fake scrambled POTCARs
+    monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
+    monkeypatch.setattr(PotcarSingle, "potcar_summary_stats", _summ_stats)
+
+    # The fake POTCAR library is pretty big even with just a few sub-libraries
+    # just copying over entries to work with PotcarSingle.is_valid
+    for func in PotcarSingle.functional_dir:
+        if func in _summ_stats:
+            continue
+        if "pbe" in func.lower() or "pw91" in func.lower():
+            # Generate POTCAR hashes on the fly
+            _summ_stats[func] = _summ_stats["PBE_54_W_HASH"].copy()
+        elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
+            _summ_stats[func] = _summ_stats["LDA_64"].copy()
 
 
 class TestPoscar(PymatgenTest):
@@ -1195,8 +1191,8 @@ class TestPotcar(PymatgenTest):
         p = Potcar.from_file(tmp_file)
         assert p.symbols == self.potcar.symbols
 
-        with zopen(self.filepath) as f_ref, open(tmp_file) as f_new:
-            ref_potcar = [f_bytes.decode("utf-8") for f_bytes in f_ref.readlines()]
+        with zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref, open(tmp_file, encoding="utf-8") as f_new:
+            ref_potcar = f_ref.readlines()
             new_potcar = f_new.readlines()
 
         assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
@@ -1301,8 +1297,8 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
-    assert set(_summ_stats) == set(PotcarSingle.functional_dir.keys())
+def test_gen_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+    assert set(_summ_stats) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]
 
