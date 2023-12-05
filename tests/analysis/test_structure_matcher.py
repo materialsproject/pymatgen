@@ -401,6 +401,7 @@ class TestStructureMatcher(PymatgenTest):
         s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
+        assert s1_supercell is True
         match = sm._strict_match(s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
