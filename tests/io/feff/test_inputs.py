@@ -211,8 +211,9 @@ class TestFeffPot(unittest.TestCase):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/POTENTIALS"
         feff_pot = Potential.pot_string_from_file(filepath)
-        d, dr = Potential.pot_dict_from_string(feff_pot)
-        assert d["Co"] == 1, "Wrong symbols read in for Potential"
+        dct, dr = Potential.pot_dict_from_string(feff_pot)
+        assert dct["Co"] == 1, "Wrong symbols read in for Potential"
+        assert dr == {0: "O", 1: "Co", 2: "O"}
 
     def test_single_absorbing_atom(self):
         """

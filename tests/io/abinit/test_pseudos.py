@@ -27,19 +27,19 @@ class PseudoTestCase(PymatgenTest):
 
         self.nc_pseudos = collections.defaultdict(list)
 
-        for symbol, fnames in nc_pseudo_fnames.items():
-            for fname in fnames:
-                root, ext = os.path.splitext(fname)
-                pseudo = Pseudo.from_file(fname)
+        for symbol, file_names in nc_pseudo_fnames.items():
+            for file_name in file_names:
+                _root, ext = os.path.splitext(file_name)
+                pseudo = Pseudo.from_file(file_name)
                 self.nc_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name
                 # is constructed with the rule: symbol_ppformat
-                attr_name = symbol + "_" + ext[1:]
-                if hasattr(self, attr_name):
-                    raise RuntimeError(f"self has already the attribute {attr_name}")
+                attribute = f"{symbol}_{ext[1:]}"
+                if hasattr(self, attribute):
+                    raise RuntimeError(f"self has already {attribute=}")
 
-                setattr(self, attr_name, pseudo)
+                setattr(self, attribute, pseudo)
 
     def test_nc_pseudos(self):
         """Test norm-conserving pseudopotentials."""
