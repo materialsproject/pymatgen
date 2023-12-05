@@ -625,11 +625,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_species[Species(sym, oxidation_state=oxi_state, spin=spin)] = occu
             site.species = Composition(new_species)
 
-    def add_interstitial(self, atom) -> None:
-        """
-        Creates an interstitial defect in the structure by adding the atom to the available voids.
-        The structure is embedded in a 3D grid. For simplicity, the grid is defined based on fractional coordinates. Each lattice side is divided into 100 points.
-        Scans voids by adding densities (gaussians) and choosing the density minima.
+    def add_interstitial(self, atom:str) -> None:
+        """Creates an interstitial defect in the structure in-place by adding the atom to the available voids. The structure is embedded in a 3D grid. For simplicity, the grid is defined based on fractional coordinates. Each lattice side is divided into 100 points. Scans voids by adding densities (gaussians) and choosing the density minima.
+
+        Args:
+            atom (str): e.g. "H", "Li" etc.
         """
         def density(r,R):
             return np.exp(-np.dot(r - R,r - R))
