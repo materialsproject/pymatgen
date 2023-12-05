@@ -778,8 +778,10 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["SIGMA"] == 0.05
         assert incar["LMAXMIX"] == 6
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
+        # test POTCARs default to PBE_64
         assert input_set.potcar_functional == "PBE_64"
         assert input_set.kpoints is None
+        # only runs if POTCAR files to compare against are available
         if not NO_PSP_DIR:
             assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
