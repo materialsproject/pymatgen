@@ -12,7 +12,8 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.string import is_string, list_strings
+import pandas as pd
+from matplotlib.gridspec import GridSpec
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -107,7 +108,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         Return: list of successfully read files.
         """
-        filenames = list_strings(filenames)
+        if isinstance(filenames, str):
+            filenames = [filenames]
 
         read_ok = []
         for fname in filenames:
@@ -168,7 +170,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             elif line.startswith(self.END_TAG):
                 inside = 0
                 timer = AbinitTimer(sections, info, cpu_time, wall_time)
-                mpi_rank = info["mpi_rank"]  # pylint: disable=E1136
+                mpi_rank = info["mpi_rank"]
                 data[mpi_rank] = timer
 
             elif inside:
@@ -297,7 +299,6 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     def summarize(self, **kwargs):
         """Return pandas DataFrame with the most important results stored in the timers."""
-        import pandas as pd
 
         col_names = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
@@ -405,9 +406,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         n = len(timers)
 
         # Make square figures and axes
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         fig = plt.gcf()
         gspec = GridSpec(n, 1)
         for idx, timer in enumerate(timers):
@@ -667,16 +665,16 @@ class AbinitTimer:
 
     def to_csv(self, fileobj=sys.stdout):
         """Write data on file fileobj using CSV format."""
-        openclose = is_string(fileobj)
+        is_str = isinstance(fileobj, str)
 
-        if openclose:
+        if is_str:
             fileobj = open(fileobj, "w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
         fileobj.flush()
 
-        if openclose:
+        if is_str:
             fileobj.close()
 
     def to_table(self, sort_key="wall_time", stop=None):
@@ -698,7 +696,6 @@ class AbinitTimer:
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        import pandas as pd
 
         frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
 
@@ -718,7 +715,7 @@ class AbinitTimer:
 
     def get_values(self, keys):
         """Return a list of values associated to a particular list of keys."""
-        if is_string(keys):
+        if isinstance(keys, str):
             return [s.__dict__[keys] for s in self.sections]
         values = []
         for k in keys:

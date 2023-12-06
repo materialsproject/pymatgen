@@ -7,10 +7,7 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite, Site
+from pymatgen.core import Composition, Element, Lattice, PeriodicSite, Site, Species
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
@@ -67,8 +64,8 @@ class TestSite(PymatgenTest):
         assert ord_site.distance(self.disordered_site) == 0
 
     def test_pickle(self):
-        o = pickle.dumps(self.propertied_site)
-        assert pickle.loads(o) == self.propertied_site
+        dump = pickle.dumps(self.propertied_site)
+        assert pickle.loads(dump) == self.propertied_site
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
@@ -226,6 +223,12 @@ class TestPeriodicSite(PymatgenTest):
     def test_repr(self):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
         assert repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
+
+    def test_str(self):
+        assert str(self.site) == "[2.5 3.5 4.5] Fe"
+        assert str(self.site2) == "[0. 0. 0.] Si:0.500"
+        assert str(self.propertied_site) == "[2.5 3.5 4.5] Fe2+"
+        assert str(self.labeled_site) == "[2.5 3.5 4.5] Fe"
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):

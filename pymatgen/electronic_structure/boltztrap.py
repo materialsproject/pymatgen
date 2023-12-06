@@ -32,6 +32,7 @@ from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
 from scipy import constants
+from scipy.optimize import fsolve
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
@@ -545,18 +546,19 @@ class BoltztrapRunner(MSONable):
         if convergence and not write_input:
             raise ValueError("Convergence mode requires write_input to be true")
 
-        if self.run_type in ("BANDS", "DOS", "FERMI"):
+        run_type = self.run_type
+        if run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
             if self.lpfac > max_lpfac:
                 max_lpfac = self.lpfac
 
-        if self.run_type == "BANDS" and self.bs.is_spin_polarized:
+        if run_type == "BANDS" and self.bs.is_spin_polarized:
             print(
-                f"Reminder: for run_type {self.run_type}, spin component are not separated! "
+                f"Reminder: for {run_type=}, spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
 
-        if self.run_type in ("FERMI", "DOS") and self.spin is None:
+        if run_type in ("FERMI", "DOS") and self.spin is None:
             if self.bs.is_spin_polarized:
                 raise BoltztrapError("Spin parameter must be specified for spin polarized band structures!")
             self.spin = 1
@@ -568,9 +570,8 @@ class BoltztrapRunner(MSONable):
         else:
             path_dir = os.path.abspath(os.path.join(path_dir, dir_bz_name))
 
-        if not os.path.exists(path_dir):
-            os.mkdir(path_dir)
-        elif clear_dir:
+        os.mkdir(path_dir, exist_ok=True)
+        if clear_dir:
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
@@ -899,11 +900,10 @@ class BoltztrapAnalyzer:
         - "avg_corr": average of correlation coefficient over the 8 bands
         - "avg_dist": average of energy distance over the 8 bands
         - "nb_list": list of indexes of the 8 compared bands
-        - "acc_thr": list of two float corresponding to the two warning
-                     thresholds in input
+        - "acc_thr": list of two float corresponding to the two warning thresholds in input
         - "acc_err": list of two bools:
-                     True if the avg_corr > warn_thr[0], and
-                     True if the avg_dist > warn_thr[1]
+            True if the avg_corr > warn_thr[0], and
+            True if the avg_dist > warn_thr[1]
         See also compare_sym_bands function doc.
         """
         if not sbs_ref.is_metal() and not sbs_bz.is_metal():
@@ -1925,8 +1925,8 @@ class BoltztrapAnalyzer:
             carrier_conc,
         )
 
-    @staticmethod
-    def from_files(path_dir, dos_spin=1):
+    @classmethod
+    def from_files(cls, path_dir, dos_spin=1):
         """Get a BoltztrapAnalyzer object from a set of files.
 
         Args:
@@ -1936,29 +1936,29 @@ class BoltztrapAnalyzer:
         Returns:
             a BoltztrapAnalyzer object
         """
-        run_type, warning, efermi, gap, doping_levels = BoltztrapAnalyzer.parse_outputtrans(path_dir)
+        run_type, warning, efermi, gap, doping_levels = cls.parse_outputtrans(path_dir)
 
-        vol = BoltztrapAnalyzer.parse_struct(path_dir)
+        vol = cls.parse_struct(path_dir)
 
-        intrans = BoltztrapAnalyzer.parse_intrans(path_dir)
+        intrans = cls.parse_intrans(path_dir)
 
         if run_type == "BOLTZ":
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
+            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
-            *cond_and_hall, carrier_conc = BoltztrapAnalyzer.parse_cond_and_hall(path_dir, doping_levels)
+            *cond_and_hall, carrier_conc = cls.parse_cond_and_hall(path_dir, doping_levels)
 
-            return BoltztrapAnalyzer(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
+            return cls(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
 
         if run_type == "DOS":
             trim = intrans["dos_type"] == "HISTO"
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
+            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
 
-            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
+            return cls(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
 
         if run_type == "BANDS":
             bz_kpoints = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, -3:]
             bz_bands = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, 1:-6]
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
+            return cls(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
             if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
@@ -1967,7 +1967,7 @@ class BoltztrapAnalyzer:
                 fs_data = read_cube_file(f"{path_dir}/fort.30")
             else:
                 raise BoltztrapError("No data file found for fermi surface")
-            return BoltztrapAnalyzer(fermi_surface_data=fs_data)
+            return cls(fermi_surface_data=fs_data)
 
         raise ValueError(f"{run_type=} not recognized!")
 
@@ -2169,7 +2169,7 @@ def read_cube_file(filename):
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
         nlines_data = len(energy_data)
         last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
-        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)  # pylint: disable=E1121
+        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
 
@@ -2265,8 +2265,6 @@ def eta_from_seebeck(seeb, Lambda):
     Returns:
         float: eta where the two seebeck coefficients are equal (reduced chemical potential).
     """
-    from scipy.optimize import fsolve
-
     out = fsolve(lambda x: (seebeck_spb(x, Lambda) - abs(seeb)) ** 2, 1.0, full_output=True)
     return out[0][0]
 

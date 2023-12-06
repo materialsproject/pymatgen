@@ -7,11 +7,16 @@ from __future__ import annotations
 
 import abc
 import collections
+import hashlib
 import logging
 import os
+import shutil
 import sys
+import tempfile
+import traceback
 from collections import defaultdict, namedtuple
 from typing import TYPE_CHECKING
+from xml.etree import ElementTree as Et
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -19,10 +24,9 @@ from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
-from monty.string import is_string, list_strings
 from tabulate import tabulate
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -47,7 +51,6 @@ __maintainer__ = "Matteo Giantomassi"
 
 def straceback():
     """Returns a string with the traceback."""
-    import traceback
 
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -138,7 +141,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def to_str(self, verbose=0) -> str:
         """String representation."""
-        # pylint: disable=E1101
+
         lines: list[str] = []
         app = lines.append
         app(f"<{type(self).__name__}: {self.basename}>")
@@ -230,9 +233,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and return MD5 hash value."""
-        # pylint: disable=E1101
-        import hashlib
-
         with open(self.path) as fh:
             text = fh.read()
             # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
@@ -287,10 +287,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             tmpdir: If None, a new temporary directory is created and files are copied here
                 else tmpdir is used.
         """
-        # pylint: disable=E1101
-        import shutil
-        import tempfile
-
         tmpdir = tempfile.mkdtemp() if tmpdir is None else tmpdir
         new_path = os.path.join(tmpdir, self.basename)
         shutil.copy(self.filepath, new_path)
@@ -311,13 +307,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
-        # pylint: disable=E1101
+
         return hasattr(self, "dojo_report") and self.dojo_report
 
     @property
     def djrepo_path(self):
         """The path of the djrepo file. None if file does not exist."""
-        # pylint: disable=E1101
+
         root, ext = os.path.splitext(self.filepath)
         return root + ".djrepo"
         # if os.path.exists(path): return path
@@ -332,7 +328,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         Args:
             accuracy: ["low", "normal", "high"]
         """
-        # pylint: disable=E1101
+
         if not self.has_dojo_report:
             return Hint(ecut=0.0, pawecutdg=0.0)
 
@@ -490,28 +486,24 @@ class AbinitPseudo(Pseudo):
 
     @property
     def Z(self):
-        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
-        # pylint: disable=E1101
         return self._zion
 
     @property
     def l_max(self):
-        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
-        # pylint: disable=E1101
         return self._lloc
 
     @property
     def supports_soc(self):
         # Treat ONCVPSP pseudos
-        # pylint: disable=E1101
+
         if self._pspcod == 8:
             switch = self.header["extension_switch"]
             if switch in (0, 1):
@@ -535,28 +527,24 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
 
     @property
     def Z(self):
-        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
         """Number of valence electrons."""
-        # pylint: disable=E1101
+
         return self._zion
 
     @property
     def l_max(self):
-        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
-        # pylint: disable=E1101
         return self._lloc
 
     @property
     def nlcc_radius(self):
-        # pylint: disable=E1101
         return self._rchrg
 
 
@@ -565,7 +553,6 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     @property
     def paw_radius(self):
-        # pylint: disable=E1101
         return self._r_cut
 
     # def orbitals(self):
@@ -621,7 +608,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
     Raises:
         ValueError if parsing fails.
     """
-    if is_string(lines):
+    if isinstance(lines, str):
         lines = [lines]
 
     if not isinstance(key_nums, collections.abc.Iterable):
@@ -1200,7 +1187,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Args:
             filepath (str): Path to the XML file.
         """
-        # pylint: disable=E1101
+
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1271,7 +1258,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def root(self):
         """Root tree of XML."""
-        from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
         return tree.getroot()
@@ -1347,7 +1333,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_radfunc(self, func_name):
         """Parse the first occurrence of func_name in the XML file."""
-        # pylint: disable=E1101
+
         node = self.root.find(func_name)
         grid = node.attrib["grid"]
         values = np.array([float(s) for s in node.text.split()])
@@ -1356,7 +1342,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_all_radfuncs(self, func_name):
         """Parse all the nodes with tag func_name in the XML file."""
-        # pylint: disable=E1101
+
         for node in self.root.findall(func_name):
             grid = node.attrib["grid"]
             values = np.array([float(s) for s in node.text.split()])
@@ -1453,7 +1439,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Returns:
             plt.Figure: matplotlib figure
         """
-        # pylint: disable=E1101
+
         ax, fig = get_ax_fig(ax)
 
         ax.grid(visible=True)
@@ -1484,7 +1470,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Returns:
             plt.Figure: matplotlib figure
         """
-        # pylint: disable=E1101
+
         ax, fig = get_ax_fig(ax)
         ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
@@ -1517,8 +1503,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    title = kwargs.pop("title", "Potentials")
     #    show = kwargs.pop("show", True)
     #    savefig = kwargs.pop("savefig", None)
-
-    #    import matplotlib.pyplot as plt
 
     #    fig = plt.figure()
 
@@ -1620,8 +1604,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         if not isinstance(pseudos, collections.abc.Iterable):
             pseudos = [pseudos]
 
-        if len(pseudos) and is_string(pseudos[0]):
-            pseudos = list_strings(pseudos)
+        if isinstance(pseudos, str):
+            pseudos = [pseudos]
 
         self._pseudos_with_z = defaultdict(list)
 
@@ -1781,7 +1765,9 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                 Prepend the symbol string with "-", to exclude pseudos.
             ret_list: if True a list of pseudos is returned instead of a PseudoTable
         """
-        symbols = list_strings(symbols)
+        if isinstance(symbols, str):
+            symbols = [symbols]
+
         exclude = symbols[0].startswith("-")
 
         if exclude:

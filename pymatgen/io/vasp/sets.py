@@ -47,9 +47,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import SiteCollection, Structure
+from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
+from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -93,7 +92,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-        # pylint: disable=E1101
+
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -162,8 +161,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 same name as the InputSet (e.g., MPStaticSet.zip)
         """
         if potcar_spec:
-            if make_dir_if_not_present and not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+            if make_dir_if_not_present:
+                os.makedirs(output_dir, exist_ok=True)
 
             with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
                 file.write("\n".join(self.potcar_symbols))
@@ -974,13 +973,13 @@ class MPScanRelaxSet(DictSet):
 
         updates: dict[str, float] = {}
         # select the KSPACING and smearing parameters based on the bandgap
-        if self.bandgap < 1e-4:
+        if self.bandgap < bandgap_tol:
             updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
-            rmin = 25.22 - 2.87 * bandgap  # Eq. 25
+            rmin = max(1.5, 25.22 - 2.87 * bandgap)  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            updates.update(KSPACING=kspacing if 0.22 < kspacing < 0.44 else 0.44, SIGMA=0.05, ISMEAR=-5)
+            updates.update(KSPACING=np.clip(kspacing, 0.22, 0.44), SIGMA=0.05, ISMEAR=-5)
 
         # Don't overwrite things the user has supplied
         for key in self.user_incar_settings:
@@ -1271,9 +1270,12 @@ class MatPESStaticSet(DictSet):
             self._config_dict["INCAR"].pop("GGA", None)
         if xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
-        user_potcar_functional = kwargs.get("user_potcar_functional", "PBE_54")
-        if user_potcar_functional.upper() != "PBE_54":
-            warnings.warn(f"{user_potcar_functional=} is inconsistent with the recommended PBE_54.", UserWarning)
+        default_potcars = self.CONFIG["PARENT"].replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
+        user_potcar_functional = kwargs.get("user_potcar_functional", default_potcars)
+        if user_potcar_functional.upper() != default_potcars:
+            warnings.warn(
+                f"{user_potcar_functional=} is inconsistent with the recommended {default_potcars}.", UserWarning
+            )
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
@@ -1455,10 +1457,10 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
 
-        if not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings:
-            self.reciprocal_density = 50
-        else:
+        if reciprocal_density or "reciprocal_density" in self.user_kpoints_settings:
             self.reciprocal_density = reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+        else:
+            self.reciprocal_density = 50
 
         self.kpoints_line_density = kpoints_line_density
         self.copy_chgcar = copy_chgcar
@@ -2146,7 +2148,7 @@ class MVLGWSet(DictSet):
             The input set with the settings (structure, k-points, incar, etc)
             updated using the previous VASP run.
         """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+        vasprun, _outcar = get_vasprun_outcar(prev_calc_dir)
         self.prev_incar = vasprun.incar
         self.structure = vasprun.final_structure
 
@@ -2154,8 +2156,7 @@ class MVLGWSet(DictSet):
             warnings.warn(
                 "Use of standardize=True with from_prev_run is not "
                 "recommended as there is no guarantee the copied "
-                "files will be appropriate for the standardized "
-                "structure."
+                "files will be appropriate for the standardized structure."
             )
 
         self.nbands = int(vasprun.parameters["NBANDS"])
@@ -2166,15 +2167,15 @@ class MVLGWSet(DictSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
-                if w:
+                wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                if wavecar_files:
                     if fname == "WFULL":
-                        for f in w:
+                        for f in wavecar_files:
                             fname = Path(f).name
                             fname = fname.split(".")[0]
                             files_to_transfer[fname] = f
                     else:
-                        files_to_transfer[fname] = str(w[-1])
+                        files_to_transfer[fname] = str(wavecar_files[-1])
 
         self.files_to_transfer.update(files_to_transfer)
 
@@ -2525,7 +2526,7 @@ class MITNEBSet(DictSet):
         if write_path_cif:
             sites = set()
             lat = self.structures[0].lattice
-            for site in chain(*(s.sites for s in self.structures)):
+            for site in chain(*(struct for struct in self.structures)):
                 sites.add(PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / "path.cif"))
@@ -2894,8 +2895,6 @@ class LobsterSet(DictSet):
 
     @property
     def incar(self) -> Incar:
-        from pymatgen.io.lobster import Lobsterin
-
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:
             basis = Lobsterin.get_basis(structure=self.structure, potcar_symbols=self.potcar_symbols)
@@ -3076,16 +3075,16 @@ def batch_write_input(
             in addition to structure.
     """
     output_dir = Path(output_dir)
-    for i, s in enumerate(structures):
-        formula = re.sub(r"\s+", "", s.formula)
+    for idx, site in enumerate(structures):
+        formula = re.sub(r"\s+", "", site.formula)
         if subfolder is not None:
-            subdir = subfolder(s)
+            subdir = subfolder(site)
             d = output_dir / subdir
         else:
-            d = output_dir / f"{formula}_{i}"
+            d = output_dir / f"{formula}_{idx}"
         if sanitize:
-            s = s.copy(sanitize=True)
-        v = vasp_input_set(s, **kwargs)
+            site = site.copy(sanitize=True)
+        v = vasp_input_set(site, **kwargs)
         v.write_input(
             str(d),
             make_dir_if_not_present=make_dir_if_not_present,
@@ -3164,7 +3163,6 @@ class MPAbsorptionSet(MPRelaxSet):
     For all steps other than the first one (static), the
     recommendation is to use from_prev_calculation on the preceding run in
     the series. It is important to ensure Gamma centred kpoints for the RPA step.
-
     """
 
     # CONFIG = _load_yaml_config("MPAbsorptionSet")
@@ -3200,7 +3198,7 @@ class MPAbsorptionSet(MPRelaxSet):
                 Need to be tested for convergence.
             reciprocal_density: the k-points density
             nkred: the reduced number of kpoints to calculate, equal to the k-mesh. Only applies in "RPA" mode
-                  because of the q->0 limit.
+                because of the q->0 limit.
             nedos: the density of DOS, default: 2001.
             **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a commonly used option.
         """

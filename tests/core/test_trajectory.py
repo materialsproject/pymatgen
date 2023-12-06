@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import os
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -10,7 +9,6 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -418,8 +416,7 @@ class TestTrajectory(PymatgenTest):
         assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
-        structures = [poscar.structure]
+        structures = [Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
         for i in range(10):
@@ -450,12 +447,11 @@ class TestTrajectory(PymatgenTest):
         assert all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
 
         # Check if the file is written correctly when lattice is not constant.
-        traj.write_Xdatcar(filename="traj_test_XDATCAR")
+        traj.write_Xdatcar(filename=f"{self.tmp_path}/traj_test_XDATCAR")
 
-        # Load trajectory from written xdatcar and compare to original
-        written_traj = Trajectory.from_file("traj_test_XDATCAR", constant_lattice=False)
+        # Load trajectory from written XDATCAR and compare to original
+        written_traj = Trajectory.from_file(f"{self.tmp_path}/traj_test_XDATCAR", constant_lattice=False)
         self._check_traj_equality(traj, written_traj)
-        os.remove("traj_test_XDATCAR")
 
     def test_as_from_dict(self):
         d = self.traj.as_dict()
@@ -467,9 +463,8 @@ class TestTrajectory(PymatgenTest):
         assert isinstance(traj, Trajectory)
 
     def test_xdatcar_write(self):
-        self.traj.write_Xdatcar(filename="traj_test_XDATCAR")
+        self.traj.write_Xdatcar(filename=f"{self.tmp_path}/traj_test_XDATCAR")
 
-        # Load trajectory from written xdatcar and compare to original
-        written_traj = Trajectory.from_file("traj_test_XDATCAR")
+        # Load trajectory from written XDATCAR and compare to original
+        written_traj = Trajectory.from_file(f"{self.tmp_path}/traj_test_XDATCAR")
         self._check_traj_equality(self.traj, written_traj)
-        os.remove("traj_test_XDATCAR")

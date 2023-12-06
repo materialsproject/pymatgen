@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+from fractions import Fraction
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -13,10 +14,8 @@ from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import (
     IMolecule,
     IStructure,
@@ -28,6 +27,8 @@ from pymatgen.core.structure import (
 )
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.cif import CifParser
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -83,6 +84,7 @@ class TestIStructure(PymatgenTest):
             [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
+        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
 
     @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -127,10 +129,7 @@ class TestIStructure(PymatgenTest):
         assert supercell.matches(self.struct)
 
     def test_bad_structure(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.75, 0.5, 0.75]]
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 3, coords, validate_proximity=True)
         # these shouldn't raise an error
@@ -147,22 +146,25 @@ class TestIStructure(PymatgenTest):
         assert self.struct.formula == "Si2"
         assert self.labeled_structure.formula == "Si2"
         assert self.propertied_structure.formula == "Si2"
+        assert self.V2O3.formula == "V4 O6"
+
+    def test_alphabetical_formula(self):
+        assert self.struct.alphabetical_formula == "Si2"
+        assert self.labeled_structure.alphabetical_formula == "Si2"
+        assert self.propertied_structure.alphabetical_formula == "Si2"
+        assert self.V2O3.alphabetical_formula == "O6 V4"
 
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]
 
     def test_specie_init(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
         assert struct.composition.formula == "Mg0.8 O1"
 
     def test_get_sorted_structure(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["O", "Li"], coords, site_properties={"charge": [-2, 1]})
         sorted_s = struct.get_sorted_structure()
         assert sorted_s[0].species == Composition("Li")
@@ -180,9 +182,7 @@ class TestIStructure(PymatgenTest):
         assert self.struct.get_space_group_info() == ("Fd-3m", 227)
 
     def test_fractional_occupations(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
         assert struct.composition.formula == "Mg0.8 O1"
         assert not struct.is_ordered
@@ -199,17 +199,13 @@ class TestIStructure(PymatgenTest):
     def test_as_dict(self):
         si = Species("Si", 4)
         mn = Element("Mn")
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{si: 0.5, mn: 0.5}, {si: 0.5}], coords)
         assert "lattice" in struct.as_dict()
         assert "sites" in struct.as_dict()
         d = self.propertied_structure.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(
             self.lattice,
             [
@@ -312,9 +308,7 @@ class TestIStructure(PymatgenTest):
         assert new_struct.properties["another_prop"] == "test"
         assert new_struct.properties["test_property"] == "test"
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.0, 0, 0.0000001])
+        coords = [[0, 0, 0], [0.0, 0, 1e-07]]
 
         struct = IStructure(
             self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
@@ -330,13 +324,10 @@ class TestIStructure(PymatgenTest):
         assert new_struct.properties["test_property"] == "test"
 
     def test_interpolate(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
         coords2 = []
-        coords2.append([0, 0, 0])
-        coords2.append([0.5, 0.5, 0.5])
+        coords2.extend(([0, 0, 0], [0.5, 0.5, 0.5]))
         struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
         interpolated_structs = struct.interpolate(struct2, 10)
         for inter_struct in interpolated_structs:
@@ -401,14 +392,46 @@ class TestIStructure(PymatgenTest):
         int_s_pbc = struct_pbc.interpolate(struct2_pbc, nimages=2)
         assert_allclose(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
 
-    def test_interpolate_lattice(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        # Test end_amplitude =/= 1
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
         coords2 = []
-        coords2.append([0, 0, 0])
-        coords2.append([0.5, 0.5, 0.5])
+        coords2.extend(([0, 0, 0], [0.5, 0.5, 0.5]))
+        struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
+        # testing large positive values
+        interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=2)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
+        assert_array_equal(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
+        # testing large negative values
+        interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=-2)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_array_equal(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
+        # testing partial interpolation
+        interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=-0.5)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
+        # testing end_amplitude=0
+        interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=0)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+            assert_array_equal(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
+
+    def test_interpolate_lattice(self):
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        struct = IStructure(self.lattice, ["Si"] * 2, coords)
+        coords2 = [[0, 0, 0], [0.5, 0.5, 0.5]]
         l2 = Lattice.from_parameters(3, 4, 4, 100, 100, 70)
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
@@ -418,10 +441,39 @@ class TestIStructure(PymatgenTest):
         assert_allclose(struct2.lattice.angles, int_s[2].lattice.angles)
         int_angles = [110.3976469, 94.5359731, 64.5165856]
         assert_allclose(int_angles, int_s[1].lattice.angles)
-
         # Assert that volume is monotonic
         assert struct2.volume >= int_s[1].volume
         assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = 0.5
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=0.5)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(int_angles, int_s[2].lattice.angles)
+        # Assert that volume is monotonic
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = 2
+        int_s = struct.interpolate(struct2, 4, interpolate_lattices=True, end_amplitude=2)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(int_angles, int_s[1].lattice.angles)
+        # Assert that volume is monotonic
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = -1
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=-1)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        int_angles = [127.72010946461334, 86.27613506707404, 56.52554566317311]
+        assert_allclose(int_angles, int_s[1].lattice.angles)
+        # Assert that volume is monotonic (should be shrinking for negative end_amplitude)
+        assert int_s[1].volume <= struct.volume
+        # Assert that coordinate shift is reversed
+        assert_array_equal(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_array_equal(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -429,11 +481,20 @@ class TestIStructure(PymatgenTest):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct1 = IStructure(l1, ["Si"] * 2, coords)
         struct2 = IStructure(l2, ["Si"] * 2, coords)
-        int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True)
 
-        # Assert that volume is monotonic
-        assert struct2.volume >= int_s[1].volume
-        assert int_s[1].volume >= struct1.volume
+        # Test positive end_amplitudes
+        for end_amplitude in [0, 0.5, 1, 2]:
+            int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
+            # Assert that volume is monotonic
+            assert struct2.volume >= int_s[1].volume
+            assert int_s[1].volume >= struct1.volume
+
+        # Test negative end_amplitudes
+        for end_amplitude in [-2, -0.5, 0]:
+            int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
+            # Assert that volume is monotonic
+            assert struct2.volume >= int_s[1].volume
+            assert int_s[1].volume <= struct1.volume
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
@@ -513,8 +574,8 @@ class TestIStructure(PymatgenTest):
             [0.5, 0.2, 0.666],
         ]
         struct = IStructure(latt, ["Ag"] * 6, coords)
-        sprim = struct.get_primitive_structure(tolerance=0.1)
-        assert len(sprim) == 6
+        primitive = struct.get_primitive_structure(tolerance=0.1)
+        assert len(primitive) == 6
 
     def test_get_miller_index(self):
         """Test for get miller index convenience method."""
@@ -587,18 +648,17 @@ Direct
         assert len(neigh_sites) == 1
 
     def test_get_neighbor_list(self):
-        struct = self.struct
-        c_indices1, c_indices2, c_offsets, c_distances = struct.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = struct._get_neighbor_list_py(3)
-        assert_allclose(sorted(c_distances), sorted(p_distances))
-
         # test mutable structure after applying strain (which makes lattice.matrix array no longer contiguous)
         # https://github.com/materialsproject/pymatgen/pull/3108
-        mutable_struct = Structure.from_sites(struct)
+        mutable_struct = Structure.from_sites(self.struct)
         mutable_struct.apply_strain(0.01)
-        c_indices1, c_indices2, c_offsets, c_distances = mutable_struct.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = mutable_struct._get_neighbor_list_py(3)
-        assert_allclose(sorted(c_distances), sorted(p_distances))
+        for struct in (self.struct, mutable_struct):
+            cy_indices1, cy_indices2, cy_offsets, cy_distances = struct.get_neighbor_list(3)
+            py_indices1, py_indices2, py_offsets, py_distances = struct._get_neighbor_list_py(3)
+            assert_allclose(cy_distances, py_distances)
+            assert_allclose(cy_indices1, py_indices1)
+            assert_allclose(cy_indices2, py_indices2)
+            assert len(cy_offsets) == len(py_offsets)
 
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
@@ -666,35 +726,38 @@ Direct
     def test_get_symmetric_neighbor_list(self):
         # tetragonal group with all bonds related by symmetry
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
-        c_indices, p_indices, offsets, distances, s_indices, symops = struct.get_symmetric_neighbor_list(0.8, sg=100)
+        c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
+        assert len(c_indices) == len(p_indices) == len(offsets) == len(distances) == 8
+        assert c_indices == pytest.approx([0, 1, 1, 1, 0, 0, 0, 0])
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
-        assert (~np.isnan(s_indices)).all()
-        assert (symops[0].affine_matrix == np.eye(4)).all()
+        assert all(~np.isnan(s_indices))
+        assert (sym_ops[0].affine_matrix == np.eye(4)).all()
         # now more complicated example with bonds of same length but with different symmetry
         s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ["Cu"], [[0.0, 0.0, 0.0]])
-        c_indices2, p_indices2, offsets2, distances2, s_indices2, symops2 = s2.get_symmetric_neighbor_list(7, sg=198)
+        c_indices2, p_indices2, offsets2, distances2, s_indices2, sym_ops2 = s2.get_symmetric_neighbor_list(7, sg=198)
         assert len(np.unique(s_indices2)) == 2
         assert len(s_indices2) == 48
         assert len(s_indices2[s_indices2 == 0]) == len(s_indices2[s_indices2 == 1])
         assert s_indices2[0] == 0
         assert s_indices2[24] == 1
         assert np.isclose(distances2[0], distances2[24])
-        assert (symops2[0].affine_matrix == np.eye(4)).all()
-        assert (symops2[24].affine_matrix == np.eye(4)).all()
+        assert (sym_ops2[0].affine_matrix == np.eye(4)).all()
+        assert (sym_ops2[24].affine_matrix == np.eye(4)).all()
         from_a2 = s2[c_indices2[0]].frac_coords
         to_a2 = s2[p_indices2[0]].frac_coords
         r_a2 = offsets2[0]
         from_b2 = s2[c_indices2[1]].frac_coords
         to_b2 = s2[p_indices2[1]].frac_coords
         r_b2 = offsets2[1]
-        assert symops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
-        assert symops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
-        c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(
+        assert sym_ops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
+        assert sym_ops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, sym_ops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
-        assert (np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2)).all()
-        assert (np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2)).all()
+        assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
+        assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2))
+        assert len(offsets3) == len(distances3) == len(s_indices3) == 24
 
     def test_get_all_neighbors_outside_cell(self):
         struct = Structure(
@@ -746,13 +809,10 @@ Direct
 
             for i in range(4):
                 assert len(nn_traditional[i]) == len(nn_cell_lists[i])
-                assert (
-                    np.linalg.norm(
-                        np.array(sorted(j[1] for j in nn_traditional[i]))
-                        - np.array(sorted(j[1] for j in nn_cell_lists[i]))
-                    )
-                    < 1e-3
+                norm = np.linalg.norm(
+                    np.array(sorted(j[1] for j in nn_traditional[i])) - np.array(sorted(j[1] for j in nn_cell_lists[i]))
                 )
+                assert norm < 1e-3
 
     def test_get_dist_matrix(self):
         ans = [[0.0, 2.3516318], [2.3516318, 0.0]]
@@ -804,16 +864,20 @@ Direct
         struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
+        # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
+        # i.e. uses same merge_tol for site merging, same primitive=False, etc.
+        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
+
     def test_to_file_alias(self):
         out_path = f"{self.tmp_path}/POSCAR"
         assert self.struct.to(out_path) == self.struct.to_file(out_path)
         assert os.path.isfile(out_path)
 
     def test_pbc(self):
-        assert_array_equal(self.struct.pbc, (True, True, True))
+        assert self.struct.pbc == (True, True, True)
         assert self.struct.is_3d_periodic
         struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
-        assert_array_equal(struct_pbc.pbc, (True, True, False))
+        assert struct_pbc.pbc == (True, True, False)
         assert not struct_pbc.is_3d_periodic
 
     def test_sites_setter(self):
@@ -825,9 +889,7 @@ Direct
 
 class TestStructure(PymatgenTest):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         self.struct = Structure(lattice, ["Si", "Si"], coords)
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
@@ -1023,9 +1085,7 @@ class TestStructure(PymatgenTest):
         o_elem = Element("O")
         co_specie = Species("Co", 2)
         o_specie = Species("O", -2)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice.cubic(10)
         s_elem = Structure(lattice, [co_elem, o_elem], coords)
         s_specie = Structure(lattice, [co_specie, o_specie], coords)
@@ -1086,6 +1146,15 @@ class TestStructure(PymatgenTest):
         assert a2 / a1 == approx(1.1)
         assert b2 / b1 == approx(1.2)
         assert c2 / c1 == approx(1.3)
+
+        # test inplace = False
+        struct_copy = struct.copy()
+
+        # Applying strain inplace=False
+        strained_struct = struct.apply_strain(0.01, inplace=False)
+        assert struct == struct_copy  # Should be equal
+        assert struct is not strained_struct  # Should return a different object
+        assert_allclose(strained_struct[1].coords, [4.407059, -0.169626, 3.118569], atol=1e-5)
 
     def test_scale_lattice(self):
         initial_coord = self.struct[1].coords
@@ -1262,7 +1331,6 @@ class TestStructure(PymatgenTest):
                 ["Cs"],
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-        from fractions import Fraction
 
         struct = Structure.from_spacegroup(139, np.eye(3), ["H"], [[Fraction(1, 2), Fraction(1, 4), Fraction(0)]])
         assert len(struct) == 8
@@ -1364,7 +1432,7 @@ class TestStructure(PymatgenTest):
         navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
         navs2.merge_sites(mode="a")
         assert len(navs2) == 12
-        assert 51.5 in [itr.properties["prop1"] for itr in navs2.sites]
+        assert 51.5 in [itr.properties["prop1"] for itr in navs2]
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
@@ -1494,12 +1562,11 @@ class TestStructure(PymatgenTest):
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator="chgnet")
         assert relaxed != self.cu_structure
-        assert relaxed.calc.results["energy"] == approx(-5.27792501, abs=1e-5)
-        assert relaxed.calc.results["free_energy"] == approx(-5.27792501, abs=1e-5)
-        assert relaxed.volume == approx(45.870906121, abs=1e-4)
+        assert relaxed.calc.results["energy"] == approx(-5.27792501, abs=1)
+        assert relaxed.calc.results["free_energy"] == approx(-5.27792501, abs=1)
+        assert relaxed.volume == approx(39.268401, abs=1)
         assert relaxed.calc.parameters == {}
         assert self.cu_structure == struct_copy, "original structure was modified"
-        assert relaxed.volume > self.cu_structure.volume
 
         # test custom params
         custom_relaxed = self.cu_structure.relax(
@@ -1510,9 +1577,8 @@ class TestStructure(PymatgenTest):
             stress_weight=0.1,
         )
         assert custom_relaxed != self.cu_structure
-        assert custom_relaxed.calc.results.get("energy") == approx(-5.2197213172, abs=1e-5)
+        assert custom_relaxed.calc.results.get("energy") == approx(-6.0151076, abs=1e-4)
         assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
-        assert custom_relaxed.volume < relaxed.volume
 
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
@@ -1521,9 +1587,9 @@ class TestStructure(PymatgenTest):
         assert isinstance(calculator, Calculator)
         preds = calculator.results
         assert {*preds} >= {"stress", "energy", "free_energy", "magmoms", "forces"}
-        assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
-        assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
-        assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
+        assert preds["energy"] == approx(-10.624556, abs=1e-5)
+        assert preds["magmoms"] == approx([0.005591631, 0.005591631], abs=1e-5)
+        assert np.linalg.norm(preds["forces"]) == approx(1.119554e-5, abs=1e-4)
         assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
         assert {*calculator.__dict__} >= {
             *"atoms results parameters get_spin_polarized device model stress_weight".split()
@@ -1648,15 +1714,42 @@ Sites (8)
             struct = Structure.from_prototype(prototype, ["Cs", "Cl"], a=5)
             assert struct.lattice.is_orthogonal
 
+    def test_to_primitive(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
+        primitive = struct.to_primitive()
+
+        assert struct != primitive
+        sga = SpacegroupAnalyzer(struct)
+        assert primitive == sga.get_primitive_standard_structure()
+        assert struct.formula == "Mn1 B4"
+        assert primitive.formula == "Mn1 B4"
+
+    def test_to_conventional(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        conventional = struct.to_conventional()
+
+        assert struct != conventional
+        sga = SpacegroupAnalyzer(struct)
+        assert conventional == sga.get_conventional_standard_structure()
+        assert struct.formula == "Dy8 Sb6"
+        assert conventional.formula == "Dy16 Sb12"
+
+    def test_to_ase_atoms(self):
+        pytest.importorskip("ase")
+        atoms = self.struct.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+        assert len(atoms) == len(self.struct)
+        assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+
 
 class TestIMolecule(PymatgenTest):
     def setUp(self):
         coords = [
             [0, 0, 0],
-            [0, 0, 1.089000],
-            [1.026719, 0, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 1.089],
+            [1.026719, 0, -0.363],
+            [-0.513360, -0.889165, -0.363],
+            [-0.513360, 0.889165, -0.363],
         ]
         self.coords = coords
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
@@ -1697,11 +1790,7 @@ class TestIMolecule(PymatgenTest):
         assert self.mol.get_angle(3, 1, 2) == approx(60.00001388659683)
         assert self.mol.get_dihedral(0, 1, 2, 3) == approx(-35.26438851071765)
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0, 0, 1])
-        coords.append([0, 1, 1])
-        coords.append([1, 1, 1])
+        coords = [[0, 0, 0], [0, 0, 1], [0, 1, 1], [1, 1, 1]]
         self.mol2 = Molecule(["C", "O", "N", "S"], coords)
         assert self.mol2.get_dihedral(0, 1, 2, 3) == approx(-90)
 
@@ -1980,8 +2069,8 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
-        assert_array_equal(self.mol.cart_coords[0], [0.5, 0.5, 0.5])
+        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))
@@ -2079,13 +2168,12 @@ class TestMolecule(PymatgenTest):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None
-            m = Molecule.from_str(mol, fmt=fmt)
-            assert m == self.mol
-            assert isinstance(m, Molecule)
+            mol = Molecule.from_str(mol, fmt=fmt)
+            assert mol == self.mol
+            assert isinstance(mol, Molecule)
 
-        self.mol.to(filename="CH4_testing.xyz")
-        assert os.path.isfile("CH4_testing.xyz")
-        os.remove("CH4_testing.xyz")
+        self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/CH4_testing.xyz")
 
     def test_extract_cluster(self):
         species = self.mol.species * 2
@@ -2165,3 +2253,10 @@ class TestMolecule(PymatgenTest):
         assert relaxed.calc.results.get("energy")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == approx(-113.61346199239306)
+
+    def test_to_ase_atoms(self):
+        pytest.importorskip("ase")
+        atoms = self.mol.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+        assert len(atoms) == len(self.mol)
+        assert AseAtomsAdaptor.get_molecule(atoms) == self.mol

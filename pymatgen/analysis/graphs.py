@@ -597,9 +597,7 @@ class StructureGraph(MSONable):
         self.structure.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
 
-        mapping = {}
-        for correct, current in enumerate(sorted(self.graph.nodes)):
-            mapping[current] = correct
+        mapping = {val: idx for idx, val in enumerate(sorted(self.graph.nodes))}
 
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
@@ -1043,9 +1041,7 @@ class StructureGraph(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        As in pymatgen.core.Structure except
-        restoring graphs using `from_dict_of_dicts`
+        """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """
         struct = Structure.from_dict(d["structure"])
@@ -1090,13 +1086,13 @@ class StructureGraph(MSONable):
             raise NotImplementedError("Not tested with 3x3 scaling matrices yet.")
         new_lattice = Lattice(np.dot(scale_matrix, self.structure.lattice.matrix))
 
-        f_lat = lattice_points_in_supercell(scale_matrix)
-        c_lat = new_lattice.get_cartesian_coords(f_lat)
+        frac_lattice = lattice_points_in_supercell(scale_matrix)
+        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
 
         new_sites = []
         new_graphs = []
 
-        for v in c_lat:
+        for v in cart_lattice:
             # create a map of nodes from original graph to its image
             mapping = {n: n + len(new_sites) for n in range(len(self.structure))}
 
@@ -1922,9 +1918,7 @@ class MoleculeGraph(MSONable):
         self.molecule.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
 
-        mapping = {}
-        for correct, current in enumerate(sorted(self.graph.nodes)):
-            mapping[current] = correct
+        mapping = {val: idx for idx, val in enumerate(sorted(self.graph.nodes))}
 
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
@@ -1961,9 +1955,7 @@ class MoleculeGraph(MSONable):
             new_to_old_index += list(nodes)
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
-            mapping = {}
-            for idx, node in enumerate(nodes):
-                mapping[node] = idx
+            mapping = {val: idx for idx, val in enumerate(nodes)}
 
             # just give charge to whatever subgraph has node with index 0
             # TODO: actually figure out how to distribute charge
@@ -1988,7 +1980,7 @@ class MoleculeGraph(MSONable):
             # in order to be used for Molecule instantiation
             for k, v in properties.items():
                 if len(v) != len(species):
-                    del properties[k]  # pylint: disable=R1733
+                    del properties[k]
 
             new_mol = Molecule(species, coords, charge=charge, site_properties=properties)
             graph_data = json_graph.adjacency_data(new_graph)
@@ -2612,8 +2604,8 @@ class MoleculeGraph(MSONable):
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
-        m = Molecule.from_dict(dct["molecule"])
-        return cls(m, dct["graphs"])
+        mol = Molecule.from_dict(dct["molecule"])
+        return cls(mol, dct["graphs"])
 
     @classmethod
     def _edges_to_string(cls, g):

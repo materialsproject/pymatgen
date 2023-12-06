@@ -13,9 +13,9 @@ from monty.json import MontyDecoder
 from pytest import approx
 
 import pymatgen
+from pymatgen.core import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import (
     MU_H2O,
@@ -998,20 +998,48 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         MaterialsProject2020Compatibility(check_potcar=False).process_entries(entry)
 
     def test_process_entry_with_oxidation_state(self):
-        from pymatgen.core.periodic_table import Species
-
-        entry = ComputedEntry(
-            {Species("Fe2+"): 2, Species("O2-"): 3},
-            -1,
-            parameters={"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"},
-        )
+        params = {"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"}
+        entry = ComputedEntry({Species("Fe2+"): 2, Species("O2-"): 3}, -1, parameters=params)
 
         # Test that MaterialsProject2020Compatibility can process entries with oxidation states
         # https://github.com/materialsproject/pymatgen/issues/3154
         compat = MaterialsProject2020Compatibility(check_potcar=False)
-        [processed_entry] = compat.process_entries(entry, clean=True, inplace=False)
+        processed_entry = compat.process_entry(entry, clean=True, inplace=False)
 
         assert len(processed_entry.energy_adjustments) == 2
+        assert processed_entry.energy_adjustments[0].name == "MP2020 anion correction (oxide)"
+        assert processed_entry.energy_adjustments[1].name == "MP2020 GGA/GGA+U mixing correction (Fe)"
+        assert processed_entry.correction == approx(-6.572999)
+        assert processed_entry.energy == approx(-1 + -6.572999)
+
+        # for https://github.com/materialsproject/pymatgen/issues/3425
+        frac_coords = [
+            [0.5, 0.5, 0.3797505],
+            [0.0, 0.0, 0.6202495],
+            [0.5, 0.5, 0.8632525],
+            [0.0, 0.0, 0.1367475],
+            [0.5, 0.0, 0.3608245],
+            [0.0, 0.5, 0.0985135],
+            [0.5, 0.0, 0.9014865],
+            [0.0, 0.5, 0.6391755],
+        ]
+        lattice = [
+            [2.86877900, 0.00000000e00, 1.75662051e-16],
+            [-2.83779749e-16, 4.63447500e00, 2.83779749e-16],
+            [0.00000000e00, 0.00000000e00, 5.83250700e00],
+        ]
+        species = ["Li+", "Li+", "Mn3+", "Mn3+", "O2-", "O2-", "O2-", "O2-"]
+        li_mn_o = Structure(lattice, species, frac_coords)
+
+        params = {"hubbards": {"Mn": 3.9, "O": 0, "Li": 0}, "run_type": "GGA+U"}
+        cse = ComputedStructureEntry(li_mn_o, -58.97, parameters=params)
+        processed_entry = compat.process_entry(cse, clean=True, inplace=False)
+
+        assert len(processed_entry.energy_adjustments) == 2
+        assert processed_entry.energy_adjustments[0].name == "MP2020 anion correction (oxide)"
+        assert processed_entry.energy_adjustments[1].name == "MP2020 GGA/GGA+U mixing correction (Mn)"
+        assert processed_entry.correction == approx(-6.084)
+        assert processed_entry.energy == approx(-58.97 + -6.084)
 
 
 class TestMITCompatibility(unittest.TestCase):
@@ -1321,15 +1349,16 @@ class TestOxideTypeCorrection(unittest.TestCase):
         el_li = Element("Li")
         el_o = Element("O")
         latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
-        elts = [el_li, el_li, el_o, el_o, el_o, el_o]
-        coords = []
-        coords.append([0.500000, 0.500000, 0.500000])
-        coords.append([0.0, 0.0, 0.0])
-        coords.append([0.632568, 0.085090, 0.500000])
-        coords.append([0.367432, 0.914910, 0.500000])
-        coords.append([0.132568, 0.414910, 0.000000])
-        coords.append([0.867432, 0.585090, 0.000000])
-        struct = Structure(latt, elts, coords)
+        elems = [el_li, el_li, el_o, el_o, el_o, el_o]
+        coords = [
+            [0.5, 0.5, 0.5],
+            [0.0, 0.0, 0.0],
+            [0.632568, 0.08509, 0.5],
+            [0.367432, 0.91491, 0.5],
+            [0.132568, 0.41491, 0.0],
+            [0.867432, 0.58509, 0.0],
+        ]
+        struct = Structure(latt, elems, coords)
         lio2_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1351,7 +1380,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
+        elems = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
         coords = [
             [0.666656, 0.666705, 0.750001],
             [0.333342, 0.333378, 0.250001],
@@ -1362,7 +1391,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
             [0.666666, 0.666686, 0.350813],
             [0.666665, 0.666684, 0.149189],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         li2o2_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1383,7 +1412,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
     def test_process_entry_ozonide(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_o, el_o, el_o]
+        elems = [el_li, el_o, el_o, el_o]
         latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
         coords = [
             [0.513004, 0.513004, 1.000000],
@@ -1391,7 +1420,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
             [0.649993, 0.874790, 0.775203],
             [0.099587, 0.874790, 0.224797],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         lio3_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1412,10 +1441,10 @@ class TestOxideTypeCorrection(unittest.TestCase):
     def test_process_entry_oxide(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_o]
+        elems = [el_li, el_li, el_o]
         latt = Lattice.from_parameters(3.278, 3.278, 3.278, 60, 60, 60)
         coords = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75], [0.0, 0.0, 0.0]]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         li2o_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1443,7 +1472,6 @@ class TestSulfideTypeCorrection2020(unittest.TestCase):
         # that entry has a Structure attached to it.
 
         # Na2S2, entry mp-2400, with and without structure
-        from collections import defaultdict
 
         entry_struct_as_dict = {
             "@module": "pymatgen.entries.computed_entries",
@@ -1602,10 +1630,10 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
     def test_oxide_energy_corr(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_o]
+        elems = [el_li, el_li, el_o]
         latt = Lattice.from_parameters(3.278, 3.278, 3.278, 60, 60, 60)
         coords = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75], [0.0, 0.0, 0.0]]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         li2o_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1627,7 +1655,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
+        elems = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
         coords = [
             [0.666656, 0.666705, 0.750001],
             [0.333342, 0.333378, 0.250001],
@@ -1638,7 +1666,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
             [0.666666, 0.666686, 0.350813],
             [0.666665, 0.666684, 0.149189],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         cse_params = {
             "is_hubbard": False,
             "hubbards": None,
@@ -1656,7 +1684,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
     def test_ozonide(self):
         el_li = Element("Li")
         el_o = Element("O")
-        elts = [el_li, el_o, el_o, el_o]
+        elems = [el_li, el_o, el_o, el_o]
         latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
         coords = [
             [0.513004, 0.513004, 1.000000],
@@ -1664,7 +1692,7 @@ class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
             [0.649993, 0.874790, 0.775203],
             [0.099587, 0.874790, 0.224797],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         lio3_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1867,7 +1895,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         el_o = Element("O")
         el_h = Element("H")
         latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
-        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        elems = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [
             [0.000000, 0.500000, 0.413969],
             [0.500000, 0.000000, 0.586031],
@@ -1876,7 +1904,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
             [0.000000, 0.500000, 0.192672],
             [0.500000, 0.000000, 0.807328],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
         lioh_entry = ComputedStructureEntry(
             struct,
             -3,
@@ -1902,7 +1930,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         el_o = Element("O")
         el_h = Element("H")
         latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
-        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        elems = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [
             [0.000000, 0.500000, 0.413969],
             [0.500000, 0.000000, 0.586031],
@@ -1911,7 +1939,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
             [0.000000, 0.500000, 0.192672],
             [0.500000, 0.000000, 0.807328],
         ]
-        struct = Structure(latt, elts, coords)
+        struct = Structure(latt, elems, coords)
 
         lioh_entry = ComputedStructureEntry(
             struct,

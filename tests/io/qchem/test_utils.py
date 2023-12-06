@@ -40,11 +40,11 @@ class TestUtil(PymatgenTest):
             data_132 = [struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(int(len(binary) / 8))]
 
         with zopen(f"{test_dir}/parse_hess/HESS", mode="rt", encoding="ISO-8859-1") as f:
-            data_HESS = f.readlines()
+            data_hess = f.readlines()
 
-        processed_data_HESS = process_parsed_hess(data_HESS)
+        processed_data_hess = process_parsed_hess(data_hess)
 
-        assert len(data_132) == len(processed_data_HESS)
+        assert len(data_132) == len(processed_data_hess)
         for ii, val in enumerate(data_132):
-            diff = abs(val - processed_data_HESS[ii])
+            diff = abs(val - processed_data_hess[ii])
             assert diff < 1e-15

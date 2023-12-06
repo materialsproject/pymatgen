@@ -396,10 +396,7 @@ class Interface(Structure):
         site_props_in_both = set(substrate_slab.site_properties) & set(film_slab.site_properties)
 
         for key in site_props_in_both:
-            site_properties[key] = [
-                *substrate_slab.site_properties[key],
-                *film_slab.site_properties[key],
-            ]
+            site_properties[key] = [*substrate_slab.site_properties[key], *film_slab.site_properties[key]]
 
         site_properties["interface_label"] = ["substrate"] * len(substrate_slab) + ["film"] * len(film_slab)
 

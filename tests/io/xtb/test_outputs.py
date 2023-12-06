@@ -37,8 +37,8 @@ class TestCRESTOutput(PymatgenTest):
             if filepath.endswith("xyz") and "_r" in filepath:
                 n_conf = int(filepath.split("_")[0][-1])
                 n_rot = int(filepath.split("_")[1].split(".")[0][-1])
-                m = Molecule.from_file(os.path.join(expected_dir, filepath))
-                expected_sorted_structures[n_conf].insert(n_rot, m)
+                mol = Molecule.from_file(os.path.join(expected_dir, filepath))
+                expected_sorted_structures[n_conf].insert(n_rot, mol)
 
         crest_out = CRESTOutput(output_filename="crest_out.out", path=test_dir)
         exp_best = Molecule.from_file(f"{expected_dir}/expected_crest_best.xyz")

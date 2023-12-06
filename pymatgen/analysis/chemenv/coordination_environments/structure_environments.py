@@ -8,21 +8,19 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
+from matplotlib.colors import Normalize
+from matplotlib.gridspec import GridSpec
+from matplotlib.patches import Polygon
 from monty.json import MontyDecoder, MSONable, jsanitize
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import PeriodicNeighbor, Structure
-
-if TYPE_CHECKING:
-    import matplotlib.pyplot as plt
+from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -459,14 +457,14 @@ class StructureEnvironments(MSONable):
         distance_conditions = []
         for idp, dp_dict in enumerate(site_distance_parameters):
             distance_conditions.append([])
-            for inb, _ in enumerate(site_voronoi):
+            for inb in range(len(site_voronoi)):
                 cond = inb in dp_dict["nb_indices"]
                 distance_conditions[idp].append(cond)
         # Precompute angle conditions
         angle_conditions = []
         for iap, ap_dict in enumerate(site_angle_parameters):
             angle_conditions.append([])
-            for inb, _ in enumerate(site_voronoi):
+            for inb in range(len(site_voronoi)):
                 cond = inb in ap_dict["nb_indices"]
                 angle_conditions[iap].append(cond)
         # Precompute additional conditions
@@ -647,11 +645,6 @@ class StructureEnvironments(MSONable):
             isite: Index of the site for which the plot has to be done
             max_csm: Maximum continuous symmetry measure to be shown.
         """
-        try:
-            import matplotlib.pyplot as plt
-        except ImportError:
-            print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            return
         fig = self.get_csm_and_maps(isite=isite, max_csm=max_csm)
         if fig is None:
             return
@@ -675,13 +668,6 @@ class StructureEnvironments(MSONable):
         Returns:
             Matplotlib figure and axes representing the CSM and maps.
         """
-        try:
-            import matplotlib.pyplot as plt
-            from matplotlib.gridspec import GridSpec
-        except ImportError:
-            print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            return None
-
         if symmetry_measure_type is None:
             symmetry_measure_type = "csm_wcs_ctwcc"
         # Initializes the figure
@@ -828,15 +814,6 @@ class StructureEnvironments(MSONable):
         Returns:
             tuple[plt.Figure, plt.Axes]: matplotlib figure and axes representing the environments.
         """
-        try:
-            import matplotlib.pyplot as plt
-            from matplotlib import cm
-            from matplotlib.colors import Normalize
-            from matplotlib.patches import Polygon
-        except ImportError:
-            print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            return None
-
         # Initializes the figure
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111)
@@ -1073,19 +1050,16 @@ class StructureEnvironments(MSONable):
         """
         differences = []
         if self.structure != other.structure:
-            differences.append(
-                {
-                    "difference": "structure",
-                    "comparison": "__eq__",
-                    "self": self.structure,
-                    "other": other.structure,
-                }
-            )
-            differences.append(
-                {
-                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                    "comparison": "differences_wrt",
-                }
+            differences.extend(
+                (
+                    {
+                        "difference": "structure",
+                        "comparison": "__eq__",
+                        "self": self.structure,
+                        "other": other.structure,
+                    },
+                    {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                )
             )
             return differences
         if self.valences != other.valences:
@@ -1108,36 +1082,24 @@ class StructureEnvironments(MSONable):
             )
         if self.voronoi != other.voronoi:
             if self.voronoi.is_close_to(other.voronoi):
-                differences.append(
-                    {
-                        "difference": "voronoi",
-                        "comparison": "__eq__",
-                        "self": self.voronoi,
-                        "other": other.voronoi,
-                    }
-                )
-                differences.append(
-                    {
-                        "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                        "comparison": "differences_wrt",
-                    }
+                differences.extend(
+                    (
+                        {"difference": "voronoi", "comparison": "__eq__", "self": self.voronoi, "other": other.voronoi},
+                        {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                    )
                 )
                 return differences
 
-            differences.append(
-                {
-                    "difference": "voronoi",
-                    "comparison": "is_close_to",
-                    "self": self.voronoi,
-                    "other": other.voronoi,
-                }
-            )
-            # TODO: make it possible to have "close" voronoi's
-            differences.append(
-                {
-                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                    "comparison": "differences_wrt",
-                }
+            differences.extend(
+                (
+                    {
+                        "difference": "voronoi",
+                        "comparison": "is_close_to",
+                        "self": self.voronoi,
+                        "other": other.voronoi,
+                    },
+                    {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                )
             )
             return differences
         for isite, self_site_nb_sets in enumerate(self.neighbors_sets):

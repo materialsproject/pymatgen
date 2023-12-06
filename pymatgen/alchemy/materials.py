@@ -212,19 +212,18 @@ class TransformedStructure(MSONable):
 
     def __str__(self) -> str:
         output = ["Current structure", "------------", str(self.final_structure), "\nHistory", "------------"]
-        for h in self.history:
-            h.pop("input_structure", None)
-            output.append(str(h))
-        output.append("\nOther parameters")
-        output.append("------------")
-        output.append(str(self.other_parameters))
+        for hist in self.history:
+            hist.pop("input_structure", None)
+            output.append(str(hist))
+        output.extend(("\nOther parameters", "------------", str(self.other_parameters)))
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> None:
-        """Set a parameter.
+        """Sets a parameter.
 
-        :param key: The string key
-        :param value: The value.
+        Args:
+            key (str): The string key.
+            value (Any): The value.
         """
         self.other_parameters[key] = value
 
@@ -270,7 +269,7 @@ class TransformedStructure(MSONable):
                 extracted. Defaults to True. However, there are certain
                 instances where you might want to use a non-primitive cell,
                 e.g., if you are trying to generate all possible orderings of
-                partial removals or order a disordered structure.
+                partial removals or order a disordered structure. Defaults to True.
             occupancy_tolerance (float): If total occupancy of a site is
                 between 1 and occupancy_tolerance, the occupancies will be
                 scaled down to 1.
@@ -282,7 +281,7 @@ class TransformedStructure(MSONable):
         raw_string = re.sub(r"'", '"', cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict)
-        struct = parser.get_structures(primitive)[0]
+        struct = parser.parse_structures(primitive=primitive)[0]
         partial_cif = cif_dict[cif_keys[0]]
         if "_database_code_ICSD" in partial_cif:
             source = partial_cif["_database_code_ICSD"] + "-ICSD"

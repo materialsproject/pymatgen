@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
 SpeciesLike = Union[str, Element, Species, DummySpecies]
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 @total_ordering
@@ -70,6 +71,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     # 1e-8 is fairly tight, but should cut out most floating point arithmetic
     # errors.
     amount_tolerance = 1e-8
+    charge_balanced_tolerance = 1e-8
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
@@ -138,7 +140,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __getitem__(self, key: SpeciesLike) -> float:
         try:
             sp = get_el_sp(key)
-            return self._data.get(sp, 0)
+            if isinstance(sp, Species):
+                return self._data.get(sp, 0)
+            # sp is Element or str
+            return sum(
+                val for key, val in self._data.items() if getattr(key, "symbol", key) == getattr(sp, "symbol", sp)
+            )
         except ValueError as exc:
             raise KeyError(f"Invalid {key=}") from exc
 
@@ -153,7 +160,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             sp = get_el_sp(key)
             if isinstance(sp, Species):
                 return sp in self._data
-            # Element or str
+            # key is Element or str
             return any(sp.symbol == s.symbol for s in self._data)
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
@@ -280,7 +287,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
-        formula = [f"{s}{formula_double_format(sym_amt[s],ignore_ones= False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones= False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -302,7 +309,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
-        formula = [f"{s}{formula_double_format(sym_amt[s],ignore_ones= False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones= False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -356,7 +363,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
@@ -632,12 +639,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
+                {"Fe": 4.0, "O": 6.0}.
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[el.symbol] += amt
-        return dic
+            dct[el.symbol] += amt
+        return dict(dct)
 
     def as_dict(self) -> dict[str, float]:
         """Subtly different from get_el_amt_dict in that they keys here are str(Element)
@@ -645,12 +652,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+                {"Fe": 4.0, "O": 6.0} or {"Fe3+": 4.0, "O2-": 6.0}
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[str(el)] += amt
-        return dic
+            dct[str(el)] += amt
+        return dict(dct)
 
     @property
     def to_reduced_dict(self) -> dict[str, float]:
@@ -683,6 +690,40 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             "elements": list(map(str, self)),
             "nelements": len(self),
         }
+
+    @property
+    def charge(self) -> float | None:
+        """Total charge based on oxidation states. If any oxidation states
+        are None or they're all 0, returns None. Use add_charges_from_oxi_state_guesses to
+        assign oxidation states to elements based on charge balancing.
+        """
+        warnings.warn(
+            "Composition.charge is experimental and may produce incorrect results. Use with "
+            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+        )
+        oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
+        if {*oxi_states} <= {0, None}:
+            # all oxidation states are None or 0
+            return None
+        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values()))
+
+    @property
+    def charge_balanced(self) -> bool | None:
+        """True if composition is charge balanced, False otherwise. If any oxidation states
+        are None, returns None. Use add_charges_from_oxi_state_guesses to assign oxidation
+        states to elements.
+        """
+        warnings.warn(
+            "Composition.charge_balanced is experimental and may produce incorrect results. "
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+        )
+        if self.charge is None:
+            if {getattr(el, "oxi_state", None) for el in self} == {0}:
+                # all oxidation states are 0. this usually means no way of combining oxidation states
+                # to get a zero charge was found, so the composition is not charge balanced
+                return False
+            return None
+        return abs(self.charge) < Composition.charge_balanced_tolerance
 
     def oxi_state_guesses(
         self,
@@ -792,16 +833,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         routine.
 
         Args:
-            oxi_states_override (dict): dict of str->list to override an
-                element's common oxidation states, e.g. {"V": [2,3,4,5]}
-            target_charge (int): the desired total charge on the structure.
+            oxi_states_override (dict[str, list[float]]): Override an
+                element's common oxidation states, e.g. {"V": [2, 3, 4, 5]}
+            target_charge (float): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
-            all_oxi_states (bool): if True, an element defaults to
+            all_oxi_states (bool): If True, an element defaults to
                 all oxidation states in pymatgen Element.icsd_oxidation_states.
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
-            max_sites (int): if possible, will reduce Compositions to at most
+            max_sites (int): If possible, will reduce Compositions to at most
                 this many sites to speed up oxidation state guesses. If the
                 composition cannot be reduced to this many sites a ValueError
                 will be raised. Set to -1 to just reduce fully. If set to a
@@ -888,7 +929,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
-            module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
             all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
             Composition.oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
@@ -1171,27 +1211,26 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
     if all(int(i) == i for i in sym_amt.values()):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
-    polyanion = []
+    poly_anions = []
     # if the composition contains a poly anion
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
         poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
         (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
-            polyanion.append(f"({poly_form}){poly_factor}")
+            poly_anions.append(f"({poly_form}){poly_factor}")
 
-    syms = syms[: len(syms) - 2 if polyanion else len(syms)]
+    syms = syms[: len(syms) - 2 if poly_anions else len(syms)]
 
     if iupac_ordering:
         syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
-    reduced_form = []
+    reduced_form: list[str] = []
     for sym in syms:
         norm_amt = sym_amt[sym] * 1.0 / factor
-        reduced_form.append(sym)
-        reduced_form.append(str(formula_double_format(norm_amt)))
+        reduced_form.extend((sym, str(formula_double_format(norm_amt))))
 
-    return "".join([*reduced_form, *polyanion]), factor
+    return "".join([*reduced_form, *poly_anions]), factor
 
 
 class ChemicalPotential(dict, MSONable):

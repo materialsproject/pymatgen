@@ -15,6 +15,7 @@ from __future__ import annotations
 import collections
 import copy
 import math
+import tempfile
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -489,8 +490,6 @@ class LobsterNeighbors(NearNeighbors):
             isites=isites, onlycation_isites=onlycation_isites
         )
 
-        import tempfile
-
         with tempfile.TemporaryDirectory() as t:
             path = f"{t}/POSCAR.vasp"
 
@@ -685,7 +684,7 @@ class LobsterNeighbors(NearNeighbors):
         additional_condition=0,
         perc_strength_ICOHP=0.15,
         adapt_extremum_to_add_cond=False,
-    ):
+    ) -> None:
         """
         Args:
             lowerlimit: lower limit which determines the ICOHPs that are considered for the determination of the
@@ -698,8 +697,6 @@ class LobsterNeighbors(NearNeighbors):
             that are still considered for the evaluation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
             extremum.
-
-        Returns:
         """
         # get extremum
         if lowerlimit is None and upperlimit is None:
@@ -812,6 +809,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to (list): list of str, e.g. ["O"] that will ensure that only bonds to "O" will be considered
 
         Returns:
+            tuple: list of icohps, list of keys, list of lengths, list of neighisite, list of neighsite, list of coords
         """
         # run over structure
         list_neighsite = []
@@ -829,12 +827,8 @@ class LobsterNeighbors(NearNeighbors):
                 only_bonds_to=only_bonds_to,
             )
 
-            (
-                keys_from_ICOHPs,
-                lengths_from_ICOHPs,
-                neighbors_from_ICOHPs,
-                selected_ICOHPs,
-            ) = self._find_relevant_atoms_additional_condition(idx, icohps, additional_condition)
+            additional_conds = self._find_relevant_atoms_additional_condition(idx, icohps, additional_condition)
+            keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, selected_ICOHPs = additional_conds
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = self.structure[idx]
@@ -927,6 +921,7 @@ class LobsterNeighbors(NearNeighbors):
             additional_condition (int): additional condition
 
         Returns:
+            tuple: keys, lengths and neighbors from selected ICOHPs and selected ICOHPs
         """
         neighbors_from_ICOHPs = []
         lengths_from_ICOHPs = []
@@ -1048,17 +1043,11 @@ class LobsterNeighbors(NearNeighbors):
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
 
-        return (
-            keys_from_ICOHPs,
-            lengths_from_ICOHPs,
-            neighbors_from_ICOHPs,
-            icohps_from_ICOHPs,
-        )
+        return keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, icohps_from_ICOHPs
 
     @staticmethod
     def _get_icohps(icohpcollection, isite, lowerlimit, upperlimit, only_bonds_to):
-        """
-        Return icohp dict for certain site.
+        """Return icohp dict for certain site.
 
         Args:
             icohpcollection: Icohpcollection object
@@ -1068,6 +1057,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to (list): list of str, e.g. ["O"] that will ensure that only bonds to "O" will be considered
 
         Returns:
+            dict: of IcohpValues. The keys correspond to the values from the initial list_labels.
         """
         return icohpcollection.get_icohp_dict_of_site(
             site=isite,
@@ -1091,7 +1081,7 @@ class LobsterNeighbors(NearNeighbors):
         return int(LobsterNeighbors._split_string(atomstring)[1]) - 1
 
     @staticmethod
-    def _split_string(s):
+    def _split_string(s) -> tuple[str, str]:
         """
         Will split strings such as "Na1" in "Na" and "1" and return "1".
 
@@ -1140,7 +1130,7 @@ class LobsterNeighbors(NearNeighbors):
     ):
         """
         Return limits for the evaluation of the icohp values from an icohpcollection
-        Return -float('inf'), min(max_icohp*0.15,-0.1). Currently only works for ICOHPs.
+        Return -float("inf"), min(max_icohp*0.15,-0.1). Currently only works for ICOHPs.
 
         Args:
             icohpcollection: icohpcollection object
@@ -1281,7 +1271,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         all_nbs_sites_indices = []
         neighbors_sets = []
         counter = 0
-        for isite, _site in enumerate(structure):
+        for isite in range(len(structure)):
             # all_nbs_sites_here=[]
             all_nbs_sites_indices_here = []
             # Coordination environment
@@ -1390,12 +1380,10 @@ class ICOHPNeighborsInfo(NamedTuple):
         total_icohp (float): sum of icohp values of neighbors to the selected sites [given by the id in structure]
         list_icohps (list): list of summed icohp values for all identified interactions with neighbors
         n_bonds (int): number of identified bonds to the selected sites
-        labels (list(str)): labels (from ICOHPLIST) for all identified bonds
-        atoms (list(list(str)): list of list describing the species present in the identified interactions
-            (names from ICOHPLIST), e.g., ['Ag3', 'O5']
-        central_isites (list(int)): list of the central isite for each identified interaction.
-
-
+        labels (list[str]): labels (from ICOHPLIST) for all identified bonds
+        atoms (list[list[str]]): list of list describing the species present in the identified interactions
+            (names from ICOHPLIST), e.g., ["Ag3", "O5"]
+        central_isites (list[int]): list of the central isite for each identified interaction.
     """
 
     total_icohp: float

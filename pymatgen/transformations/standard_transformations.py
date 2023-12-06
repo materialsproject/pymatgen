@@ -17,9 +17,8 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, get_el_sp
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
@@ -198,7 +197,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
 
 
 class SupercellTransformation(AbstractTransformation):
-    """The SupercellTransformation replicates an unitcell to a supercell."""
+    """The SupercellTransformation replicates a unit cell to a supercell."""
 
     def __init__(self, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
         """
@@ -211,8 +210,8 @@ class SupercellTransformation(AbstractTransformation):
         """
         self.scaling_matrix = scaling_matrix
 
-    @staticmethod
-    def from_scaling_factors(scale_a=1, scale_b=1, scale_c=1):
+    @classmethod
+    def from_scaling_factors(cls, scale_a=1, scale_b=1, scale_c=1):
         """Convenience method to get a SupercellTransformation from a simple
         series of three numbers for scaling each lattice vector. Equivalent to
         calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
@@ -226,7 +225,7 @@ class SupercellTransformation(AbstractTransformation):
         Returns:
             SupercellTransformation.
         """
-        return SupercellTransformation([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
+        return cls([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
 
     @staticmethod
     def from_boundary_distance(

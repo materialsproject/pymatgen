@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -11,7 +9,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-test_dir = TEST_FILES_DIR / "molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/molecules"
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -23,7 +21,7 @@ converge e=0.001 grad=0.0003 rad=0.01 angle=0.5
 END
 """
 
-zlmfit_string = """ZLMFIT
+zlm_fit_string = """ZLMFIT
 AtomDepQuality
 10 good
 12 normal
@@ -38,14 +36,14 @@ H      -1.22338913        1.57085004        0.00000000
 END
 """
 
-h2oxyz = """3
+h2o_xyz = """3
 0.0
 O -0.90293455 0.66591421 0.0
 H  0.05706545 0.66591421 0.0
 H -1.22338913 1.57085004 0.0
 """
 
-rhb18xyz = """19
+rhb18_xyz = """19
 0.0
 Rh       -0.453396   -0.375115    0.000000
 B         0.168139    3.232791    0.000000
@@ -70,7 +68,7 @@ B         0.445855   -2.382027   -2.415013
 
 
 def readfile(file_object):
-    """
+    """`
     Return the content of the file as a string.
 
     Parameters
@@ -82,7 +80,6 @@ def readfile(file_object):
     -------
     content : str
         The content of the file.
-
     """
     if hasattr(file_object, "read"):
         return file_object.read()
@@ -123,8 +120,8 @@ class TestAdfKey:
     def test_subkeys_subkeys(self):
         atom_dep_quality = AdfKey("AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])])
         zlmfit = AdfKey("zlmfit", subkeys=[atom_dep_quality])
-        assert str(zlmfit) == zlmfit_string
-        assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlmfit_string
+        assert str(zlmfit) == zlm_fit_string
+        assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlm_fit_string
 
     def test_from_string(self):
         k1 = AdfKey.from_str("CHARGE -1 0")
@@ -170,7 +167,7 @@ class TestAdfKey:
 
     def test_atom_block_key(self):
         block = AdfKey("atoms")
-        o = Molecule.from_str(h2oxyz, "xyz")
+        o = Molecule.from_str(h2o_xyz, "xyz")
         for site in o:
             block.add_subkey(AdfKey(str(site.specie), list(site.coords)))
         assert str(block) == atoms_string
@@ -252,18 +249,18 @@ rhb18 = {
 class TestAdfInput(PymatgenTest):
     def test_main(self):
         tmp_file = f"{self.tmp_path}/adf.temp"
-        mol = Molecule.from_str(rhb18xyz, "xyz")
+        mol = Molecule.from_str(rhb18_xyz, "xyz")
         mol.set_charge_and_spin(-1, 3)
         task = AdfTask("optimize", **rhb18)
         inp = AdfInput(task)
         inp.write_file(mol, tmp_file)
-        s = readfile(test_dir / "adf" / "RhB18_adf.inp")
-        assert readfile(tmp_file) == s
+        expected = readfile(f"{TEST_DIR}/adf/RhB18_adf.inp")
+        assert readfile(tmp_file) == expected
 
 
 class TestAdfOutput:
     def test_analytical_freq(self):
-        filename = os.path.join(str(test_dir), "adf", "analytical_freq", "adf.out")
+        filename = f"{TEST_DIR}/adf/analytical_freq/adf.out"
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.54340325)
         assert len(o.energies) == 4
@@ -276,7 +273,7 @@ class TestAdfOutput:
         assert o.normal_modes[0][8] == approx(-0.562)
 
     def test_numerical_freq(self):
-        filename = os.path.join(str(test_dir), "adf", "numerical_freq", "adf.out")
+        filename = f"{TEST_DIR}/adf/numerical_freq/adf.out"
         o = AdfOutput(filename)
         assert o.freq_type == "Numerical"
         assert len(o.final_structure) == 4
@@ -292,7 +289,7 @@ class TestAdfOutput:
         assert o.normal_modes[1][9] == approx(-0.536)
 
     def test_single_point(self):
-        filename = os.path.join(str(test_dir), "adf", "sp", "adf.out")
+        filename = f"{TEST_DIR}/adf/sp/adf.out"
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.74399276)
         assert len(o.final_structure) == 4

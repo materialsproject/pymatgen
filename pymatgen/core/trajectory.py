@@ -431,8 +431,7 @@ class Trajectory(MSONable):
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')
 
-                lines.append(" ".join(site_symbols))
-                lines.append(" ".join(map(str, n_atoms)))
+                lines.extend((" ".join(site_symbols), " ".join(map(str, n_atoms))))
 
             lines.append(f"Direct configuration=     {si + 1}")
 
@@ -580,7 +579,7 @@ class Trajectory(MSONable):
         """
         # special cases
 
-        if prop1 is None and prop2 is None:
+        if prop1 is prop2 is None:
             return None
 
         if isinstance(prop1, dict) and prop1 == prop2:
@@ -609,7 +608,7 @@ class Trajectory(MSONable):
     @staticmethod
     def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
         """Combine frame properties."""
-        if prop1 is None and prop2 is None:
+        if prop1 is prop2 is None:
             return None
         if prop1 is None:
             return [None] * len1 + list(prop2)  # type: ignore

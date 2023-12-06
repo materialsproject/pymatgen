@@ -9,6 +9,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import EtsfReader
+from pymatgen.io.abinit.netcdf import AbinitHeader
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -88,8 +89,6 @@ class TestEtsfReader(PymatgenTest):
 
 class TestAbinitHeader(PymatgenTest):
     def test_api(self):
-        from pymatgen.io.abinit.netcdf import AbinitHeader
-
         head = AbinitHeader(foo=1, bar=2)
         assert head.foo == 1
         assert str(head)

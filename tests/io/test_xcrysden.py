@@ -8,9 +8,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class TestXSF(PymatgenTest):
     def test_xsf(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -58,7 +56,7 @@ PRIMCOORD
 3     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
 
-    def test_xsf_symbolparse(self):
+    def test_xsf_symbol_parse(self):
         """
         Ensure that the same structure is parsed
         even if the atomic symbol / number convention

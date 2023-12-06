@@ -15,10 +15,7 @@ from pymatgen.analysis.structure_matcher import (
     OrderDisorderElementComparator,
     StructureMatcher,
 )
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -404,6 +401,7 @@ class TestStructureMatcher(PymatgenTest):
         s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
+        assert s1_supercell is True
         match = sm._strict_match(s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)

@@ -18,21 +18,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff black mypy
+          pip install --upgrade ruff mypy
 
       - name: ruff
         run: |
           ruff --version
           ruff .
-
-      - name: black
-        run: |
-          black --version
-          black --check --diff --color ${{ github.event.repository.name }}
+          ruff format --check .
 
       - name: mypy
         run: |

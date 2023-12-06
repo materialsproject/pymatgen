@@ -62,7 +62,7 @@ MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 dec = MontyDecoder()
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
-skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
+skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
 
 dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -96,9 +96,10 @@ class TestSetChangeCheck(PymatgenTest):
     def test_sets_changed(self):
         msg = (
             "WARNING! These tests will fail when you change an input set. They are included "
-            "as a sanity check: if you want to change an input set, please make sure to "
+            "as a sanity check. When changing an input set, please make sure to "
             "notify the users for that set. For sets starting with 'MVL' this is @shyuep, for "
-            "sets starting with 'MP' this is @shyuep and @mkhorton. "
+            "sets starting with 'MP' this is @shyuep and @mkhorton. For sets starting with 'MatPES' "
+            "this is @shyuep and @janosh."
         )
 
         input_sets = glob(f"{MODULE_DIR}/*.yaml")
@@ -110,30 +111,29 @@ class TestSetChangeCheck(PymatgenTest):
                 hashes[name] = hashlib.sha1(text).hexdigest()
 
         known_hashes = {
+            "MatPESStaticSet.yaml": "8edecff2bbd1932c53159f56a8e6340e900aaa2f",
+            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
+            "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
+            "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
+            "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
+            "MPSCANRelaxSet.yaml": "2d31ee637cb5d4d96f2e0aba3772a52cbcceb348",
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
-            "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
-            "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
-            "MPSCANRelaxSet.yaml": "2d31ee637cb5d4d96f2e0aba3772a52cbcceb348",
-            "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
-            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
-            "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
-            "MatPESStaticSet.yaml": "3a7cfef8143dbe32d3856c6945eb9ac9bd8b85c6",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
+            "PBE64Base.yaml": "480c41c2448cb25706181de268090618e282b264",
+            "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
+            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
-        assert hashes == known_hashes, msg
         for input_set in hashes:
-            assert hashes[input_set] == known_hashes[input_set], msg
+            assert hashes[input_set] == known_hashes[input_set], f"{input_set=}\n{msg}"
 
 
 class TestDictSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        cls.structure = poscar.structure
+        cls.structure = Structure.from_file(filepath)
 
     def test_as_dict(self):
         # https://github.com/materialsproject/pymatgen/pull/3031
@@ -156,8 +156,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         cls.monkeypatch = MonkeyPatch()
 
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        cls.structure = poscar.structure
+        cls.structure = Structure.from_file(filepath)
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         cls.lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
 
@@ -196,10 +195,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert s_sorted[0].specie.symbol == "Mn"
 
     def test_potcar_symbols(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.75, 0.25, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.75, 0.25, 0.75]]
         lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
         mit_param_set = self.set(structure)
@@ -297,8 +293,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         si = 14
         coords = []
-        coords.append(np.array([0, 0, 0]))
-        coords.append(np.array([0.75, 0.5, 0.75]))
+        coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
 
         # Silicon structure for testing.
         lattice = Lattice(
@@ -308,9 +303,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = MPRelaxSet(struct).incar
         assert "LDAU" not in incar
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
@@ -363,11 +356,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert "ENCUT" not in no_encut_set.incar
 
         # sulfide vs sulfate test
-
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.25, 0.5, 0])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.25, 0.5, 0]]
 
         struct = Structure(lattice, ["Fe", "Fe", "S"], coords)
         incar = self.set(struct).incar
@@ -468,13 +457,13 @@ class TestMITMPRelaxSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_get_vasp_input(self):
-        d = self.mit_set.get_vasp_input()
-        assert d["INCAR"]["ISMEAR"] == -5
+        dct = self.mit_set.get_vasp_input()
+        assert dct["INCAR"]["ISMEAR"] == -5
         struct = self.structure.copy()
         struct.make_supercell(4)
-        paramset = MPRelaxSet(struct)
-        d = paramset.get_vasp_input()
-        assert d["INCAR"]["ISMEAR"] == 0
+        relax_set = MPRelaxSet(struct)
+        dct = relax_set.get_vasp_input()
+        assert dct["INCAR"]["ISMEAR"] == 0
 
     def test_mp_metal_relax_set(self):
         mp_metal_set = MPMetalRelaxSet(self.get_structure("Sn"))
@@ -785,17 +774,20 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        # test POTCAR files are default PBE_54 PSPs and functional
+        assert incar["LMAXMIX"] == 6
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert input_set.potcar.functional == "PBE_54"
+        assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert input_set.potcar_functional == "PBE_64"
         assert input_set.kpoints is None
-
-        assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
+        # test POTCAR files are default PBE_64 PSPs and functional
+        # only runs if POTCAR files to compare against are available
+        if os.path.isdir(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_64"):
+            assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
         incar = default_prev.incar
-        # test if prev_incar is used.
+        # check that prev_incar is used.
         assert incar["NPAR"] == 8
         assert incar["LMAXMIX"] == 4
         # test some incar parameters from prev_incar are not inherited
@@ -822,9 +814,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_prev.potcar.functional == "PBE_54"
+        assert default_prev.potcar_functional == "PBE_64"
         assert default_prev.kpoints is None
 
     def test_r2scan(self):
@@ -834,9 +826,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_scan.get("GGA") is None
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert scan.potcar.functional == "PBE_54"
+        assert scan.potcar_functional == "PBE_64"
         assert scan.kpoints is None
 
     def test_default_u(self):
@@ -845,10 +837,10 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_u["LDAU"] is True
         assert incar_u["GGA"] == "Pe"
         assert incar_u["ALGO"] == "Normal"
-        # test POTCAR files are default PBE_54 PSPs and functional
+        # test POTCAR files are default PBE_64 PSPs and functional
         assert incar_u["LDAUU"] == [5.3, 0, 0]
         assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.potcar_functional == "PBE_64"
         assert default_u.kpoints is None
 
     def test_functionals(self):
@@ -858,7 +850,7 @@ class TestMatPESStaticSet(PymatgenTest):
         ):
             MatPESStaticSet(self.struct, xc_functional=xc_functional)
 
-        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_54"):
+        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_64"):
             diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
             assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
@@ -922,7 +914,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/CHGCAR")
-        os.remove(f"{self.tmp_path}/CHGCAR")
+        os.remove(f"{self.tmp_path}/CHGCAR")  # needed for next assert
 
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, standardize=True, mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp_path)
@@ -965,7 +957,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/CHGCAR")
-        os.remove(f"{self.tmp_path}/CHGCAR")
+        os.remove(f"{self.tmp_path}/CHGCAR")  # needed for next assert
 
         vis = self.set(dummy_structure, standardize=True, mode="Line", copy_chgcar=True)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
@@ -1061,8 +1053,7 @@ class TestMITMDSet(PymatgenTest):
     def setUp(self):
         self.set = MITMDSet
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(filepath)
         self.mit_md_param = self.set(self.struct, 300, 1200, 10000)
 
     def test_params(self):
@@ -1088,8 +1079,7 @@ class TestMITMDSet(PymatgenTest):
 class TestMVLNPTMDSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
 
     def test_incar(self):
@@ -1116,19 +1106,17 @@ class TestMVLNPTMDSet(PymatgenTest):
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_as_from_dict(self):
-        d = self.mvl_npt_set.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, MVLNPTMDSet)
-        assert v._config_dict["INCAR"]["NSW"] == 1000
+        dct = self.mvl_npt_set.as_dict()
+        input_set = dec.process_decoded(dct)
+        assert isinstance(input_set, MVLNPTMDSet)
+        assert input_set._config_dict["INCAR"]["NSW"] == 1000
 
 
 class TestMPMDSet(PymatgenTest):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        poscar_with_h = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp", check_for_POTCAR=False)
-        self.struct = poscar.structure
-        self.struct_with_H = poscar_with_h.structure
+        self.struct = Structure.from_file(filepath)
+        self.struct_with_H = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp")
         self.mp_md_set_noTS = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
         self.mp_md_set_noTS_with_H = MPMDSet(self.struct_with_H, start_temp=0, end_temp=300, nsteps=1000)
         self.mp_md_set_TS1 = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000, time_step=1.0)
@@ -1435,6 +1423,16 @@ class TestMPHSEBS(PymatgenTest):
         assert vis.incar["ISYM"] == 3
         assert len(vis.kpoints.kpts) == 180
 
+        vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", reciprocal_density=50)
+        assert vis.reciprocal_density == 50
+
+        vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", reciprocal_density=100)
+        assert vis.reciprocal_density == 100
+
+        uks = {"reciprocal_density": 100}
+        vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", user_kpoints_settings=uks)
+        assert vis.reciprocal_density == 100
+
         with pytest.warns(BadInputSetWarning, match=r"Hybrid functionals"):
             vis = self.set(PymatgenTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
             vis.incar.items()
@@ -1464,8 +1462,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
     def setUp(self):
         self.set = MVLScanRelaxSet
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mvl_scan_set = self.set(self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500})
 
     def test_incar(self):
@@ -1516,8 +1513,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
 class TestMPScanRelaxSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mp_scan_set = MPScanRelaxSet(
             self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
         )
@@ -1555,21 +1551,21 @@ class TestMPScanRelaxSet(PymatgenTest):
     def test_bandgap_tol(self):
         # Test that the bandgap tolerance is applied correctly
         bandgap = 0.01
-        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.26681378884)):
+        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.22)):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
             assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
-            assert incar["ISMEAR"] == -5
-            assert incar["SIGMA"] == 0.05
+            assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
+            assert incar["SIGMA"] == 0.05 if bandgap > bandgap_tol else 0.2
 
     def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
-        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757)):
+        struct = Structure.from_file(file_path)
+        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757), (0.5, 0.2832948), (0, 0.22)):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
             assert incar["KSPACING"] == approx(expected, abs=1e-5)
-            assert incar["ISMEAR"] == -5
-            assert incar["SIGMA"] == 0.05
+            assert incar["ISMEAR"] == -5 if bandgap > 1e-4 else 2
+            assert incar["SIGMA"] == 0.05 if bandgap > 1e-4 else 0.2
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
@@ -1757,8 +1753,7 @@ class TestMVLRelax52Set(PymatgenTest):
     def setUp(self):
         self.set = MVLRelax52Set
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         self.mvl_rlx_set = self.set(self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500})
 
     def test_incar(self):
@@ -1791,8 +1786,7 @@ class TestLobsterSet(PymatgenTest):
     def setUp(self):
         self.set = LobsterSet
         file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(file_path)
         # test for different parameters!
         self.lobsterset1 = self.set(self.struct, isym=-1, ismear=-5)
         self.lobsterset2 = self.set(self.struct, isym=0, ismear=0)
@@ -1872,8 +1866,7 @@ class TestLobsterSet(PymatgenTest):
 class TestMPAbsorptionSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/absorption/static/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.structure = poscar.structure
+        self.structure = Structure.from_file(file_path)
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"

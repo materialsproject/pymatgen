@@ -162,9 +162,7 @@ class XAS(Spectrum):
             f_final = interp1d(np.asarray(wavenumber), np.asarray(mu), bounds_error=False, fill_value=0)
             wavenumber_final = np.linspace(min(wavenumber), max(wavenumber), num=num_samples)
             mu_final = f_final(wavenumber_final)
-            energy_final = [
-                3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final
-            ]
+            energy_final = [3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final]
 
             return XAS(
                 energy_final,

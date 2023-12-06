@@ -101,21 +101,14 @@ class JonesFaithfulTransformation:
             tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
-            a = np.array([1, 0, 0])
-            b = np.array([0, 1, 0])
-            c = np.array([0, 0, 1])
+            a, b, c = np.eye(3)
             b_change, o_shift = transformation_string.split(";")
             basis_change = b_change.split(",")
             origin_shift = o_shift.split(",")
             # add implicit multiplication symbols
             basis_change = [
-                re.sub(
-                    r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))",
-                    r"*",
-                    x,
-                    flags=re.X,
-                )
-                for x in basis_change
+                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.X)
+                for string in basis_change
             ]
             # should be fine to use eval here but be mindful for security
             # reasons
@@ -179,9 +172,8 @@ class JonesFaithfulTransformation:
         """Takes a list of coordinates and transforms them."""
         new_coords = []
         for x in coords:
-            x = np.array(x)
             Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (x - self.p))
+            x_ = np.matmul(Q, (np.array(x) - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 

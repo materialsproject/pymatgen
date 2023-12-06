@@ -6,7 +6,6 @@ from collections import namedtuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
-from monty.string import is_string
 
 from pymatgen.core.libxcfunc import LibxcFunc
 
@@ -122,7 +121,7 @@ class XcFunc(MSONable):
         """Convert object into Xcfunc."""
         if isinstance(obj, cls):
             return obj
-        if is_string(obj):
+        if isinstance(obj, str):
             return cls.from_name(obj)
         raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
 

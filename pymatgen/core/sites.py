@@ -182,7 +182,7 @@ class Site(collections.abc.Hashable, MSONable):
         occupancy 1.
         """
         total_occu = self.species.num_atoms
-        return total_occu == 1 and len(self.species) == 1
+        return total_occu == len(self.species) == 1
 
     def __getitem__(self, el):
         """Get the occupancy for element."""

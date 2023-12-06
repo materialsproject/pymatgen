@@ -14,7 +14,6 @@ import os
 import re
 import subprocess
 import webbrowser
-from glob import glob
 
 import requests
 from invoke import task
@@ -31,79 +30,43 @@ def make_doc(ctx):
     :param ctx:
     """
     with cd("docs"):
-        ctx.run("touch index.rst")
+        ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("rm pymatgen.*.md", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces -P -M -d 7 -o . -f ../pymatgen ../**/tests/*")
+        # ctx.run("rm pymatgen.*.md", warn=True)
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
+        ctx.run("sphinx-build -b html apidoc html")  # HTML building.
+        # ctx.run("sphinx-build -M markdown . .")
+        ctx.run("rm apidocs/*.rst", warn=True)
+        ctx.run("mv html/pymatgen*.html .")
+        ctx.run("mv html/modules.html .")
+
+        # ctx.run("cp markdown/pymatgen*.md .")
+        # ctx.run("rm pymatgen*tests*.md", warn=True)
         # ctx.run("rm pymatgen*.html", warn=True)
-        # ctx.run("sphinx-build -b html . ../docs")  # HTML building.
-        ctx.run("sphinx-build -M markdown . .")
-        ctx.run("rm *.rst", warn=True)
-        ctx.run("cp markdown/pymatgen*.md .")
-        ctx.run("rm pymatgen*tests*.md", warn=True)
-        for fn in glob("pymatgen*.md"):
-            with open(fn) as f:
-                lines = [line.rstrip() for line in f if "Submodules" not in line]
-            if fn == "pymatgen.md":
-                preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
-            else:
-                preamble = [
-                    "---",
-                    "layout: default",
-                    f"title: {fn}",
-                    "nav_exclude: true",
-                    "---",
-                    "",
-                    "1. TOC",
-                    "{:toc}",
-                    "",
-                ]
-            with open(fn, "w") as f:
-                f.write("\n".join(preamble + lines))
+        # for fn in glob("pymatgen*.md"):
+        #     with open(fn) as f:
+        #         lines = [line.rstrip() for line in f if "Submodules" not in line]
+        #     if fn == "pymatgen.md":
+        #         preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
+        #     else:
+        #         preamble = [
+        #             "---",
+        #             "layout: default",
+        #             f"title: {fn}",
+        #             "nav_exclude: true",
+        #             "---",
+        #             "",
+        #             "1. TOC",
+        #             "{:toc}",
+        #             "",
+        #         ]
+        #     with open(fn, "w") as f:
+        #         f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
+        ctx.run("rm -r html", warn=True)
+        ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
         # ctx.run("cp ../README.md index.md")
-        ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf doctrees", warn=True)
-
-
-@task
-def make_dash(ctx):
-    """Make customized doc version for Dash.
-
-    :param ctx:
-    """
-    ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
-    make_doc(ctx)
-    ctx.run("rm docs/_static/pymatgen.docset.tgz", warn=True)
-    ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.svg -u https://pymatgen.org/")
-    plist = "pymatgen.docset/Contents/Info.plist"
-    xml = []
-    with open(plist) as file:
-        for line in file:
-            xml.append(line.strip())
-            if line.strip() == "<dict>":
-                xml.append("<key>dashIndexFilePath</key>")
-                xml.append("<string>index.html</string>")
-    with open(plist, "w") as file:
-        file.write("\n".join(xml))
-    ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
-    ctx.run("rm -r pymatgen.docset")
-    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
-
-
-@task
-def contribute_dash(ctx, version):
-    make_dash(ctx)
-    ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
-    with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        with open("docset.json") as file:
-            data = json.load(file)
-            data["version"] = version
-        with open("docset.json", "w") as file:
-            json.dump(data, file, indent=4)
-        ctx.run(f'git commit --no-verify -a -m "Update to v{version}"')
-        ctx.run("git push")
-    ctx.run("rm pymatgen.tgz")
 
 
 @task
@@ -119,20 +82,6 @@ def submit_dash_pr(ctx, version):
             "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls", data=json.dumps(payload)
         )
         print(response.text)
-
-
-@task
-def update_doc(ctx):
-    """
-    Update the web documentation.
-
-    :param ctx:
-    """
-    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
-    make_doc(ctx)
-    ctx.run("git add .")
-    ctx.run('git commit -a -m "Update docs"')
-    ctx.run("git push")
 
 
 @task
@@ -171,7 +120,7 @@ def release_github(ctx, version):
 
     :param ctx:
     """
-    with open("CHANGES.md") as file:
+    with open("docs/CHANGES.md") as file:
         contents = file.read()
     tokens = re.split(r"\-+", contents)
     desc = tokens[1].strip()
@@ -245,7 +194,7 @@ def update_changelog(ctx, version=None, dry_run=False):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
-    with open("CHANGES.md") as file:
+    with open("docs/CHANGES.md") as file:
         contents = file.read()
     delim = "##"
     tokens = contents.split(delim)
@@ -253,9 +202,9 @@ def update_changelog(ctx, version=None, dry_run=False):
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("CHANGES.md", "w") as file:
+        with open("docs/docs/CHANGES.md", "w") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
-        ctx.run("open CHANGES.md")
+        ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
     print("\n".join(ignored_commits))
 
@@ -271,8 +220,6 @@ def release(ctx, version=None, nodoc=False):
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
-    ctx.run("black setup.py")
-    ctx.run("black pymatgen/core/__init__.py")
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
@@ -282,7 +229,6 @@ def release(ctx, version=None, nodoc=False):
 
     ctx.run("rm -f dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel", warn=True)
-    check_egg_sources_txt_for_completeness()
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
     ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
@@ -301,26 +247,5 @@ def open_doc(ctx):
 
 @task
 def lint(ctx):
-    for cmd in ["ruff", "mypy", "black", "pylint"]:
+    for cmd in ["ruff", "mypy", "ruff format"]:
         ctx.run(f"{cmd} pymatgen")
-
-
-def check_egg_sources_txt_for_completeness():
-    """Check that all source and data files in pymatgen/ are listed in pymatgen.egg-info/SOURCES.txt."""
-    src_txt = "pymatgen.egg-info/SOURCES.txt"
-    if not os.path.exists(src_txt):
-        raise FileNotFoundError(f"{src_txt} not found. Run `pip install .` to create")
-
-    with open(src_txt) as file:
-        sources = file.read()
-
-    for src_file in sources.splitlines():
-        if not os.path.exists(src_file):
-            raise ValueError(f"{src_file} does not exist!")
-
-    for ext in ("py", "json", "json.gz", "yaml", "csv"):
-        for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
-            if "/tests/" in filepath or "dao" in filepath:
-                continue
-            if filepath not in sources:
-                raise ValueError(f"{filepath} not found in {src_txt}")

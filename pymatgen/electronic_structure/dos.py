@@ -10,11 +10,11 @@ from typing import TYPE_CHECKING, NamedTuple
 import numpy as np
 from monty.json import MSONable
 from scipy.constants import value as _cd
+from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
 
-from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core import Structure, get_el_sp
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
@@ -146,20 +146,20 @@ class DOS(Spectrum):
         Returns:
             gap in eV
         """
-        (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
+        cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(stringarray)
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+        return "\n".join(str_arr)
 
 
 class Dos(MSONable):
@@ -221,13 +221,11 @@ class Dos(MSONable):
         Returns:
             Dict of Gaussian-smeared densities.
         """
-        from scipy.ndimage import gaussian_filter1d
-
         smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
-        avgdiff = sum(diff) / len(diff)
+        avg_diff = sum(diff) / len(diff)
         for spin, dens in self.densities.items():
-            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
+            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avg_diff)
         return smeared_dens
 
     def __add__(self, other):
@@ -268,8 +266,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (gap, cbm, vbm):
-                Tuple of floats in eV corresponding to the gap, cbm and vbm.
+            (gap, cbm, vbm): Tuple of floats in eV corresponding to the gap, cbm and vbm.
         """
         tdos = self.get_densities(spin)
         if not abs_tol:
@@ -345,14 +342,14 @@ class Dos(MSONable):
     def __str__(self):
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(stringarray)
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+        return "\n".join(str_arr)
 
     @classmethod
     def from_dict(cls, d) -> Dos:
@@ -707,7 +704,7 @@ class CompleteDos(Dos):
         """Get orbital projected Dos.
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
         """
         spd_dos = {}
         for atom_dos in self.pdos.values():
@@ -723,7 +720,7 @@ class CompleteDos(Dos):
         """Get element projected Dos.
 
         Returns:
-            dict of {Element: Dos}
+            dict[Element, Dos]
         """
         el_dos = {}
         for site, atom_dos in self.pdos.items():
@@ -742,7 +739,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}
@@ -760,15 +757,13 @@ class CompleteDos(Dos):
     @property
     def spin_polarization(self) -> float | None:
         """Calculates spin polarization at Fermi level. If the
-        calculation is not spin-polarized, None will be
-        returned.
+        calculation is not spin-polarized, None will be returned.
 
-        See Sanvito et al., doi: 10.1126/sciadv.1602241 for
-        an example usage.
+        See Sanvito et al., doi: 10.1126/sciadv.1602241 for an example usage.
 
-        :return (float): spin polarization in range [0, 1],
-        will also return NaN if spin polarization ill-defined
-        (e.g. for insulator)
+        Returns:
+            float: spin polarization in range [0, 1], will also return NaN if spin
+                polarization ill-defined (e.g. for insulator).
         """
         n_F = self.get_interpolated_value(self.efermi)
 
@@ -802,7 +797,7 @@ class CompleteDos(Dos):
             spin: Spin channel to use. By default, the spin channels will be combined.
 
         Returns:
-            band filling in eV, often denoted f_d for the d-band
+            float: band filling in eV, often denoted f_d for the d-band
         """
         # Get the projected DOS
         if elements and sites:
@@ -858,7 +853,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            band center in eV, often denoted epsilon_d for the d-band center
+            float: band center in eV, often denoted epsilon_d for the d-band center
         """
         return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
 
@@ -885,7 +880,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected band width in eV
+            float: Orbital-projected band width in eV
         """
         return np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
@@ -914,11 +909,10 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected skewness in eV
+            float: orbital-projected skewness (dimensionless)
         """
-        return self.get_n_moment(
-            3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
-        ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+        return self.get_n_moment(3, **kwds) / self.get_n_moment(2, **kwds) ** (3 / 2)
 
     def get_band_kurtosis(
         self,
@@ -945,12 +939,10 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected kurtosis in eV
+            float: orbital-projected kurtosis (dimensionless)
         """
-        return (
-            self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
-            / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
-        )
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+        return self.get_n_moment(4, **kwds) / self.get_n_moment(2, **kwds) ** 2
 
     def get_n_moment(
         self,
@@ -987,14 +979,14 @@ class CompleteDos(Dos):
 
         densities: Mapping[Spin, ArrayLike] = {}
         if elements:
-            for i, el in enumerate(elements):
+            for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            for i, site in enumerate(sites):
+            for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1105,7 +1097,10 @@ class CompleteDos(Dos):
         n_bins: int = 256,
         normalize: bool = True,
     ) -> NamedTuple:
-        """Generates the DOS fingerprint based on work of
+        """Generates the DOS fingerprint.
+
+        Based on work of:
+
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
         Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
@@ -1125,7 +1120,7 @@ class CompleteDos(Dos):
 
         Returns:
             Fingerprint(namedtuple) : The electronic density of states fingerprint
-            of format (energies, densities, type, n_bins)
+                of format (energies, densities, type, n_bins)
         """
         fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")
         energies = self.energies - self.efermi

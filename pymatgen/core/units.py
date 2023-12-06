@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import collections
 import numbers
+import re
 from functools import partial
 from typing import Any
 
@@ -128,7 +129,7 @@ DERIVED_UNITS: dict[str, dict] = {
     "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-ALL_UNITS: dict[str, dict] = {**BASE_UNITS, **DERIVED_UNITS}
+ALL_UNITS: dict[str, dict] = BASE_UNITS | DERIVED_UNITS
 SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
@@ -174,7 +175,6 @@ class Unit(collections.abc.Mapping):
         """
         if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
-            import re
 
             for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
@@ -193,7 +193,7 @@ class Unit(collections.abc.Mapping):
             new_units[k] += v
         return Unit(new_units)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         new_units = collections.defaultdict(int)
         for k, v in self.items():
             new_units[k] += v
@@ -201,19 +201,16 @@ class Unit(collections.abc.Mapping):
             new_units[k] -= v
         return Unit(new_units)
 
-    def __truediv__(self, other):
-        return self.__div__(other)
-
     def __pow__(self, i):
         return Unit({k: v * i for k, v in self.items()})
 
     def __iter__(self):
         return iter(self._unit)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i) -> int:
         return self._unit[i]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._unit)
 
     def __repr__(self):
@@ -257,16 +254,16 @@ class Unit(collections.abc.Mapping):
         Args:
             new_unit: The new unit.
         """
-        uo_base, ofactor = self.as_base_units
-        un_base, nfactor = Unit(new_unit).as_base_units
-        units_new = sorted(un_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
-        units_old = sorted(uo_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
-        factor = ofactor / nfactor
-        for uo, un in zip(units_old, units_new):
-            if uo[1] != un[1]:
-                raise UnitError(f"Units {uo} and {un} are not compatible!")
-            c = ALL_UNITS[_UNAME2UTYPE[uo[0]]]
-            factor *= (c[uo[0]] / c[un[0]]) ** uo[1]
+        old_base, old_factor = self.as_base_units
+        new_base, new_factor = Unit(new_unit).as_base_units
+        units_new = sorted(new_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
+        units_old = sorted(old_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
+        factor = old_factor / new_factor
+        for old, new in zip(units_old, units_new):
+            if old[1] != new[1]:
+                raise UnitError(f"Units {old} and {new} are not compatible!")
+            c = ALL_UNITS[_UNAME2UTYPE[old[0]]]
+            factor *= (c[old[0]] / c[new[0]]) ** old[1]
         return factor
 
 
@@ -512,7 +509,6 @@ class ArrayWithUnit(np.ndarray):
         return tuple(reduce)
 
     def __setstate__(self, state):
-        # pylint: disable=E1101
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
@@ -564,7 +560,6 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
 
     def __rmul__(self, other):
-        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(
                 np.array(self) * np.array(other),
@@ -573,18 +568,7 @@ class ArrayWithUnit(np.ndarray):
             )
         return self.__class__(np.array(self) * np.array(other), unit=self.unit * other.unit)
 
-    def __div__(self, other):
-        # pylint: disable=E1101
-        if not hasattr(other, "unit_type"):
-            return self.__class__(
-                np.array(self) / np.array(other),
-                unit_type=self._unit_type,
-                unit=self._unit,
-            )
-        return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)
-
     def __truediv__(self, other):
-        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
         return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)
@@ -751,12 +735,10 @@ def unitized(unit):
     Args:
         unit: Specific unit (eV, Ha, m, ang, etc.).
 
-    Example usage::
-
+    Example:
         @unitized(unit="kg")
         def get_mass():
             return 123.45
-
     """
 
     def wrap(func):

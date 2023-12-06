@@ -6,7 +6,6 @@ import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Shyue Ping Ong"
@@ -20,8 +19,7 @@ __date__ = "Jan 24, 2012"
 class TestCssr(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.cssr = Cssr(p.structure)
+        self.cssr = Cssr(Structure.from_file(filepath))
 
     def test_str(self):
         expected_string = """10.4118 6.0672 4.7595

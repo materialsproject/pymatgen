@@ -29,10 +29,7 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
@@ -209,7 +206,7 @@ class Slab(Structure):
                 the desired behavior).
 
         Returns:
-            ([Slab]) List of tasker 2 corrected slabs.
+            list[Slab]: tasker 2 corrected slabs.
         """
         sites = list(self.sites)
         slabs = []
@@ -225,32 +222,29 @@ class Slab(Structure):
         spga = SpacegroupAnalyzer(self)
         symm_structure = spga.get_symmetrized_structure()
 
-        def equi_index(site):
-            for i, equi_sites in enumerate(symm_structure.equivalent_sites):
+        def equi_index(site) -> int:
+            for idx, equi_sites in enumerate(symm_structure.equivalent_sites):
                 if site in equi_sites:
-                    return i
+                    return idx
             raise ValueError("Cannot determine equi index!")
 
-        for surface_site, shift in [
-            (sorted_csites[0], slab_ratio),
-            (sorted_csites[-1], -slab_ratio),
-        ]:
-            tomove = []
+        for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
+            to_move = []
             fixed = []
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
                     (not same_species_only) or site.species == surface_site.species
                 ):
-                    tomove.append(site)
+                    to_move.append(site)
                 else:
                     fixed.append(site)
 
             # Sort and group the sites by the species and symmetry equivalence
-            tomove = sorted(tomove, key=lambda s: equi_index(s))
+            to_move = sorted(to_move, key=equi_index)
 
-            grouped = [list(sites) for k, sites in itertools.groupby(tomove, key=lambda s: equi_index(s))]
+            grouped = [list(sites) for k, sites in itertools.groupby(to_move, key=equi_index)]
 
-            if len(tomove) == 0 or any(len(g) % 2 != 0 for g in grouped):
+            if len(to_move) == 0 or any(len(g) % 2 != 0 for g in grouped):
                 warnings.warn(
                     "Odd number of sites to divide! Try changing "
                     "the tolerance to ensure even division of "
@@ -266,7 +260,7 @@ class Slab(Structure):
                 species = [site.species for site in fixed]
                 fcoords = [site.frac_coords for site in fixed]
 
-                for s in tomove:
+                for s in to_move:
                     species.append(s.species)
                     for group in selection:
                         if s in group:
@@ -435,7 +429,7 @@ class Slab(Structure):
         slab structure from the Slab class(in [0, 0, 1]).
 
         Args:
-            indices ([int]): Indices of sites on which to put the absorbate.
+            indices ([int]): Indices of sites on which to put the adsorbate.
                 Absorbed atom will be displaced relative to the center of
                 these sites.
             specie (Species/Element/str): adsorbed atom species
@@ -450,20 +444,20 @@ class Slab(Structure):
         self.append(specie, coords, coords_are_cartesian=True)
 
     def __str__(self):
+        def to_s(x):
+            return f"{x:0.6f}"
+
         comp = self.composition
         outs = [
             f"Slab Summary ({comp.formula})",
             f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
+            "abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc),
+            "angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles),
+            f"Sites ({len(self)})",
         ]
 
-        def to_s(x):
-            return f"{x:0.6f}"
-
-        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
-        outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
                 " ".join(
@@ -638,7 +632,7 @@ class Slab(Structure):
             coords_are_cartesian (bool): Is the point in Cartesian coordinates
 
         Returns:
-            (Slab): The modified slab
+            Slab: The modified slab
         """
         # For now just use the species of the
         # surface atom as the element to add
@@ -775,7 +769,6 @@ class SlabGenerator:
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
         """
-        # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
         # identifying types of sites in the slab system
         if (
@@ -1031,13 +1024,11 @@ class SlabGenerator:
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
-                                c_ranges.append((c_range[0], 1))
-                                c_ranges.append((0, c_range[1] - 1))
+                                c_ranges.extend(((c_range[0], 1), (0, c_range[1] - 1)))
                             elif c_range[0] < 0:
                                 # Takes care of PBC when c coordinate of site
                                 # is below the lower boundary of the unit cell
-                                c_ranges.append((0, c_range[1]))
-                                c_ranges.append((c_range[0] + 1, 1))
+                                c_ranges.extend(((0, c_range[1]), (c_range[0] + 1, 1)))
                             elif c_range[0] != c_range[1]:
                                 c_ranges.append((c_range[0], c_range[1]))
         return c_ranges
@@ -1079,8 +1070,8 @@ class SlabGenerator:
                 lead to many possible slabs as oppose to just omitting them.
 
         Returns:
-            ([Slab]) List of all possible terminations of a particular surface.
-            Slabs are sorted by the # of bonds broken.
+            list[Slab]: all possible terminations of a particular surface.
+                Slabs are sorted by the # of bonds broken.
         """
         c_ranges = [] if bonds is None else self._get_c_ranges(bonds)
 
@@ -1134,23 +1125,23 @@ class SlabGenerator:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
         for pair in bonds:
-            blength = bonds[pair]
+            bond_len = bonds[pair]
 
             # First lets determine which element should be the
             # reference (center element) to determine broken bonds.
             # e.g. P for a PO4 bond. Find integer coordination
-            # numbers of the pair of elements wrt to each other
+            # numbers of the pair of elements w.r.t. to each other
             cn_dict = {}
             for i, el in enumerate(pair):
-                cnlist = []
+                cn_list = []
                 for site in self.oriented_unit_cell:
                     poly_coord = 0
                     if site.species_string == el:
-                        for nn in self.oriented_unit_cell.get_neighbors(site, blength):
+                        for nn in self.oriented_unit_cell.get_neighbors(site, bond_len):
                             if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1
-                    cnlist.append(poly_coord)
-                cn_dict[el] = cnlist
+                    cn_list.append(poly_coord)
+                cn_dict[el] = cn_list
 
             # We make the element with the higher coordination our reference
             if max(cn_dict[pair[0]]) > max(cn_dict[pair[1]]):
@@ -1162,7 +1153,7 @@ class SlabGenerator:
                 # Determine the coordination of our reference
                 if site.species_string == element1:
                     poly_coord = 0
-                    for neighbor in slab.get_neighbors(site, blength):
+                    for neighbor in slab.get_neighbors(site, bond_len):
                         poly_coord += 1 if neighbor.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
@@ -1173,12 +1164,12 @@ class SlabGenerator:
 
                         # find its NNs with the corresponding
                         # species it should be coordinated with
-                        neighbors = slab.get_neighbors(slab[i], blength, include_index=True)
-                        tomove = [nn[2] for nn in neighbors if nn[0].species_string == element2]
-                        tomove.append(i)
+                        neighbors = slab.get_neighbors(slab[i], bond_len, include_index=True)
+                        to_move = [nn[2] for nn in neighbors if nn[0].species_string == element2]
+                        to_move.append(i)
                         # and then move those NNs along with the central
                         # atom back to the other side of the slab again
-                        slab = self.move_to_other_side(slab, tomove)
+                        slab = self.move_to_other_side(slab, to_move)
 
         return slab
 
@@ -1246,7 +1237,7 @@ class SlabGenerator:
         if init_slab.is_symmetric():
             return [init_slab]
 
-        nonstoich_slabs = []
+        non_stoich_slabs = []
         # Build an equivalent surface slab for each of the different surfaces
         for top in [True, False]:
             asym = True
@@ -1270,12 +1261,12 @@ class SlabGenerator:
                 # Check if the altered surface is symmetric
                 if slab.is_symmetric():
                     asym = False
-                    nonstoich_slabs.append(slab)
+                    non_stoich_slabs.append(slab)
 
         if len(slab) <= len(self.parent):
             warnings.warn("Too many sites removed, please use a larger slab size.")
 
-        return nonstoich_slabs
+        return non_stoich_slabs
 
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1446,7 +1437,7 @@ class ReconstructionGenerator:
             (4) Add any specified sites to both surfaces.
 
         Returns:
-            (Slab): The reconstructed slab.
+            Slab: The reconstructed slab.
         """
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []

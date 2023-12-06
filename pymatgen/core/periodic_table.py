@@ -55,7 +55,7 @@ class ElementBase(Enum):
             symbol (str): Element symbol.
             long_name (str): Long name for element. E.g., "Hydrogen".
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
-                Data is obtained from http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+                Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
                 from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
                 data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
@@ -631,12 +631,7 @@ class ElementBase(Enum):
     @property
     def is_transition_metal(self) -> bool:
         """True if element is a transition metal."""
-        ns = list(range(21, 31))
-        ns.extend(list(range(39, 49)))
-        ns.append(57)
-        ns.extend(list(range(72, 81)))
-        ns.append(89)
-        ns.extend(list(range(104, 113)))
+        ns = (*range(21, 31), *range(39, 49), 57, *range(72, 81), 89, *range(104, 113))
         return self.Z in ns
 
     @property
@@ -943,9 +938,7 @@ class Species(MSONable, Stringify):
             return NotImplemented
 
         return (
-            self.symbol == other.symbol
-            and self.oxi_state == other.oxi_state
-            and (self.spin == other.spin)  # type: ignore
+            self.symbol == other.symbol and self.oxi_state == other.oxi_state and (self.spin == other.spin)  # type: ignore
         )
 
     def __hash__(self) -> int:
@@ -1003,12 +996,13 @@ class Species(MSONable, Stringify):
         if self._oxi_state:
             dct = self._el.data
             oxi_str = str(int(self._oxi_state))
-            if oxi_str in dct.get("Ionic radii hs", {}):
-                warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return dct["Ionic radii hs"][oxi_str]
-            if oxi_str in dct.get("Ionic radii ls", {}):
-                warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return dct["Ionic radii ls"][oxi_str]
+            warn_msg = f"No default ionic radius for {self}."
+            if ion_rad := dct.get("Ionic radii hs", {}).get(oxi_str):
+                warnings.warn(f"{warn_msg} Using hs data.")
+                return ion_rad
+            if ion_rad := dct.get("Ionic radii ls", {}).get(oxi_str):
+                warnings.warn(f"{warn_msg} Using ls data.")
+                return ion_rad
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
@@ -1018,8 +1012,8 @@ class Species(MSONable, Stringify):
         """Use from_str instead."""
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(species_string: str) -> Species:
+    @classmethod
+    def from_str(cls, species_string: str) -> Species:
         """Returns a Species from a string representation.
 
         Args:
@@ -1058,10 +1052,10 @@ class Species(MSONable, Stringify):
 
             # but we need either an oxidation state or a property
             if oxi is None and properties == {}:
-                raise ValueError("Invalid Species String")
+                raise ValueError("Invalid species string")
 
-            return Species(sym, 0 if oxi is None else oxi, **properties)
-        raise ValueError("Invalid Species String")
+            return cls(sym, 0 if oxi is None else oxi, **properties)
+        raise ValueError("Invalid species string")
 
     def __repr__(self):
         return f"Species {self}"
@@ -1069,7 +1063,10 @@ class Species(MSONable, Stringify):
     def __str__(self):
         output = self.symbol
         if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+            abs_charge = formula_double_format(abs(self.oxi_state))
+            if isinstance(abs_charge, float):
+                abs_charge = f"{abs_charge:.2f}"
+            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         if self._spin is not None:
             spin = self._spin
             output += f",{spin=}"
@@ -1079,7 +1076,10 @@ class Species(MSONable, Stringify):
         """String without properties."""
         output = self.symbol
         if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+            abs_charge = formula_double_format(abs(self.oxi_state))
+            if isinstance(abs_charge, float):
+                abs_charge = f"{abs_charge:.2f}"
+            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
@@ -1301,8 +1301,8 @@ class DummySpecies(Species):
     def __deepcopy__(self, memo):
         return DummySpecies(self.symbol, self._oxi_state)
 
-    @staticmethod
-    def from_str(species_string: str) -> DummySpecies:
+    @classmethod
+    def from_str(cls, species_string: str) -> DummySpecies:
         """Returns a Dummy from a string representation.
 
         Args:
@@ -1318,7 +1318,7 @@ class DummySpecies(Species):
         m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
-            if m.group(2) == "" and m.group(3) == "":
+            if m.group(2) == m.group(3) == "":
                 oxi = 0.0
             else:
                 oxi = 1.0 if m.group(2) == "" else float(m.group(2))
@@ -1327,7 +1327,7 @@ class DummySpecies(Species):
             if m.group(4):  # has Spin property
                 tokens = m.group(4).split("=")
                 properties = {tokens[0]: float(tokens[1])}
-            return DummySpecies(sym, oxi, **properties)
+            return cls(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self) -> dict:
