@@ -823,6 +823,9 @@ class TestCombinedData(unittest.TestCase):
         cls.ec_li = CombinedData.from_lammpsdata([cls.ec, cls.li], ["EC", "Li"], [1, 1], cls.small_coord_2)
         cls.li_2 = CombinedData.from_lammpsdata([cls.li], ["Li"], [2], cls.small_coord_3)
         cls.li_2_minimal = CombinedData.from_lammpsdata([cls.li_minimal], ["Li_minimal"], [2], cls.small_coord_3)
+        cls.ec_li_minimal = CombinedData.from_lammpsdata(
+            [cls.ec, cls.li_minimal], ["EC", "Li"], [1, 1], cls.small_coord_2
+        )
 
     def test_from_files(self):
         # general tests
@@ -979,6 +982,16 @@ class TestCombinedData(unittest.TestCase):
         li_2_minimal = self.li_2_minimal
         assert li_2_minimal.force_field is None, "Empty ff info should be none"
         assert li_2_minimal.topology is None, "Empty topo info should be none"
+
+        # tests for combining data with no ff info and existent ff info
+        ec_li_minimal = self.ec_li_minimal
+        for k in ["Bonds", "Angles", "Dihedrals", "Impropers"]:
+            pd.testing.assert_frame_equal(ec_li_minimal.topology[k], ec_li_minimal.topology[k])
+        pd.testing.assert_frame_equal(
+            ec_li_minimal.force_field["Pair Coeffs"], ec_li.force_field["Pair Coeffs"].loc[1:5]
+        )
+        for k in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
+            pd.testing.assert_frame_equal(ec_li_minimal.force_field[k], ec_li.force_field[k])
 
     def test_get_str(self):
         # general tests
