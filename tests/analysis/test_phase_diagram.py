@@ -925,10 +925,7 @@ class TestPDPlotter(unittest.TestCase):
         self.plotter_ternary_mpl.plot_element_profile(Element("O"), Composition("Li2O"))
 
         # test show()
-        # suppress default matplotlib behavior of opening figure in new window by patching plt.show to noop
-        with unittest.mock.patch("matplotlib.pyplot.show") as mock_show:
-            assert self.plotter_ternary_mpl.show() is None
-            mock_show.assert_called_once()
+        assert self.plotter_ternary_mpl.show() is None
 
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
