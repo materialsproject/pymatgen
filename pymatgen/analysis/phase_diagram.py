@@ -2276,7 +2276,11 @@ class PDPlotter:
             *args: Passed to get_plot.
             **kwargs: Passed to get_plot.
         """
-        self.get_plot(*args, **kwargs).show()
+        plot = self.get_plot(*args, **kwargs)
+        if self.backend == "matplotlib":
+            plot.get_figure().show()
+        else:
+            plot.show()
 
     def write_image(self, stream: str | StringIO, image_format: str = "svg", **kwargs) -> None:
         """
