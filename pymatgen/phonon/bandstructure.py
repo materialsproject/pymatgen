@@ -348,6 +348,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         )
         self._reuse_init(eigendisplacements, frequencies, has_nac, qpoints)
 
+    def __repr__(self) -> str:
+        bands, labels = self.bands.shape, list(self.labels_dict)
+        return f"{type(self).__name__}({bands=}, {labels=})"
+
     def _reuse_init(
         self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: list[Kpoint]
     ) -> None:
@@ -377,12 +381,12 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             one_group.append(i)
         if len(one_group) != 0:
             branches_tmp.append(one_group)
-        for b in branches_tmp:
+        for branch in branches_tmp:
             self.branches.append(
                 {
-                    "start_index": b[0],
-                    "end_index": b[-1],
-                    "name": f"{self.qpoints[b[0]].label}-{self.qpoints[b[-1]].label}",
+                    "start_index": branch[0],
+                    "end_index": branch[-1],
+                    "name": f"{self.qpoints[branch[0]].label}-{self.qpoints[branch[-1]].label}",
                 }
             )
         # extract the frequencies with non-analytical contribution at gamma
@@ -466,8 +470,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """Write a json file for the phononwebsite:
         http://henriquemiranda.github.io/phononwebsite.
         """
-        with open(filename, "w") as f:
-            json.dump(self.as_phononwebsite(), f)
+        with open(filename, "w") as file:
+            json.dump(self.as_phononwebsite(), file)
 
     def as_phononwebsite(self) -> dict:
         """Return a dictionary with the phononwebsite format:
@@ -513,7 +517,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
         # get distances
         dist = 0
-        nqstart = 0
+        nq_start = 0
         distances = [dist]
         line_breaks = []
         for nq in range(1, len(qpoints)):
@@ -524,12 +528,12 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 if hsq_dict[nq] != hsq_dict[nq - 1]:
                     hsq_dict[nq - 1] += "|" + hsq_dict[nq]
                 del hsq_dict[nq]
-                line_breaks.append((nqstart, nq))
-                nqstart = nq
+                line_breaks.append((nq_start, nq))
+                nq_start = nq
             else:
                 dist += np.linalg.norm(q1 - q2)
             distances.append(dist)
-        line_breaks.append((nqstart, len(qpoints)))
+        line_breaks.append((nq_start, len(qpoints)))
         dct["distances"] = distances
         dct["line_breaks"] = line_breaks
         dct["highsym_qpts"] = list(hsq_dict.items())
@@ -554,26 +558,26 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eiv = self.eigendisplacements
         eig = self.bands
 
-        nphonons, nqpoints = self.bands.shape
-        order = np.zeros([nqpoints, nphonons], dtype=int)
-        order[0] = np.array(range(nphonons))
+        n_phonons, n_qpoints = self.bands.shape
+        order = np.zeros([n_qpoints, n_phonons], dtype=int)
+        order[0] = np.array(range(n_phonons))
 
         # get the atomic masses
         assert self.structure is not None, "Structure is required for band_reorder"
         atomic_masses = [site.specie.atomic_mass for site in self.structure]
 
         # get order
-        for nq in range(1, nqpoints):
+        for nq in range(1, n_qpoints):
             old_eiv = eigenvectors_from_displacements(eiv[:, nq - 1], atomic_masses)
             new_eiv = eigenvectors_from_displacements(eiv[:, nq], atomic_masses)
             order[nq] = estimate_band_connection(
-                old_eiv.reshape([nphonons, nphonons]).T,
-                new_eiv.reshape([nphonons, nphonons]).T,
+                old_eiv.reshape([n_phonons, n_phonons]).T,
+                new_eiv.reshape([n_phonons, n_phonons]).T,
                 order[nq - 1],
             )
 
         # reorder
-        for nq in range(1, nqpoints):
+        for nq in range(1, n_qpoints):
             eivq = eiv[:, nq]
             eigq = eig[:, nq]
             eiv[:, nq] = eivq[order[nq]]

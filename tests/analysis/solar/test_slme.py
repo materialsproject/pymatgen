@@ -14,3 +14,4 @@ class TestSolar(PymatgenTest):
         abz = abz * 100.0
         eff = slme(en, abz, indir_gap, indir_gap, plot_current_voltage=False)
         assert eff == approx(27.729, abs=1e-2)
+        assert dir_gap == approx(0.85389999, abs=1e-6)

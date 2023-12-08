@@ -84,6 +84,7 @@ class TestIStructure(PymatgenTest):
             [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
+        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
 
     @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -145,6 +146,13 @@ class TestIStructure(PymatgenTest):
         assert self.struct.formula == "Si2"
         assert self.labeled_structure.formula == "Si2"
         assert self.propertied_structure.formula == "Si2"
+        assert self.V2O3.formula == "V4 O6"
+
+    def test_alphabetical_formula(self):
+        assert self.struct.alphabetical_formula == "Si2"
+        assert self.labeled_structure.alphabetical_formula == "Si2"
+        assert self.propertied_structure.alphabetical_formula == "Si2"
+        assert self.V2O3.alphabetical_formula == "O6 V4"
 
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
@@ -384,6 +392,42 @@ class TestIStructure(PymatgenTest):
         int_s_pbc = struct_pbc.interpolate(struct2_pbc, nimages=2)
         assert_allclose(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
 
+        # Test end_amplitude =/= 1
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        struct = IStructure(self.lattice, ["Si"] * 2, coords)
+        coords2 = []
+        coords2.extend(([0, 0, 0], [0.5, 0.5, 0.5]))
+        struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
+        # testing large positive values
+        interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=2)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
+        assert_array_equal(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
+        # testing large negative values
+        interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=-2)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_array_equal(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
+        # testing partial interpolation
+        interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=-0.5)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_array_equal(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
+        # testing end_amplitude=0
+        interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=0)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+            assert_array_equal(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
+
     def test_interpolate_lattice(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
@@ -397,10 +441,39 @@ class TestIStructure(PymatgenTest):
         assert_allclose(struct2.lattice.angles, int_s[2].lattice.angles)
         int_angles = [110.3976469, 94.5359731, 64.5165856]
         assert_allclose(int_angles, int_s[1].lattice.angles)
-
         # Assert that volume is monotonic
         assert struct2.volume >= int_s[1].volume
         assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = 0.5
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=0.5)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(int_angles, int_s[2].lattice.angles)
+        # Assert that volume is monotonic
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = 2
+        int_s = struct.interpolate(struct2, 4, interpolate_lattices=True, end_amplitude=2)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(int_angles, int_s[1].lattice.angles)
+        # Assert that volume is monotonic
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
+
+        # Repeat for end_amplitude = -1
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=-1)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        int_angles = [127.72010946461334, 86.27613506707404, 56.52554566317311]
+        assert_allclose(int_angles, int_s[1].lattice.angles)
+        # Assert that volume is monotonic (should be shrinking for negative end_amplitude)
+        assert int_s[1].volume <= struct.volume
+        # Assert that coordinate shift is reversed
+        assert_array_equal(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_array_equal(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -408,11 +481,20 @@ class TestIStructure(PymatgenTest):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct1 = IStructure(l1, ["Si"] * 2, coords)
         struct2 = IStructure(l2, ["Si"] * 2, coords)
-        int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True)
 
-        # Assert that volume is monotonic
-        assert struct2.volume >= int_s[1].volume
-        assert int_s[1].volume >= struct1.volume
+        # Test positive end_amplitudes
+        for end_amplitude in [0, 0.5, 1, 2]:
+            int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
+            # Assert that volume is monotonic
+            assert struct2.volume >= int_s[1].volume
+            assert int_s[1].volume >= struct1.volume
+
+        # Test negative end_amplitudes
+        for end_amplitude in [-2, -0.5, 0]:
+            int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True, end_amplitude=end_amplitude)
+            # Assert that volume is monotonic
+            assert struct2.volume >= int_s[1].volume
+            assert int_s[1].volume <= struct1.volume
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
@@ -566,18 +648,17 @@ Direct
         assert len(neigh_sites) == 1
 
     def test_get_neighbor_list(self):
-        struct = self.struct
-        c_indices1, c_indices2, c_offsets, c_distances = struct.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = struct._get_neighbor_list_py(3)
-        assert_allclose(sorted(c_distances), sorted(p_distances))
-
         # test mutable structure after applying strain (which makes lattice.matrix array no longer contiguous)
         # https://github.com/materialsproject/pymatgen/pull/3108
-        mutable_struct = Structure.from_sites(struct)
+        mutable_struct = Structure.from_sites(self.struct)
         mutable_struct.apply_strain(0.01)
-        c_indices1, c_indices2, c_offsets, c_distances = mutable_struct.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = mutable_struct._get_neighbor_list_py(3)
-        assert_allclose(sorted(c_distances), sorted(p_distances))
+        for struct in (self.struct, mutable_struct):
+            cy_indices1, cy_indices2, cy_offsets, cy_distances = struct.get_neighbor_list(3)
+            py_indices1, py_indices2, py_offsets, py_distances = struct._get_neighbor_list_py(3)
+            assert_allclose(cy_distances, py_distances)
+            assert_allclose(cy_indices1, py_indices1)
+            assert_allclose(cy_indices2, py_indices2)
+            assert len(cy_offsets) == len(py_offsets)
 
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
@@ -646,6 +727,8 @@ Direct
         # tetragonal group with all bonds related by symmetry
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
         c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
+        assert len(c_indices) == len(p_indices) == len(offsets) == len(distances) == 8
+        assert c_indices == pytest.approx([0, 1, 1, 1, 0, 0, 0, 0])
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
         assert all(~np.isnan(s_indices))
@@ -674,6 +757,7 @@ Direct
         )
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2))
+        assert len(offsets3) == len(distances3) == len(s_indices3) == 24
 
     def test_get_all_neighbors_outside_cell(self):
         struct = Structure(

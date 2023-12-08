@@ -20,22 +20,8 @@ BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Bolt
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
-def coth(x):
-    """Coth function.
-
-    Args:
-        x (): value
-
-    Returns:
-        coth(x)
-    """
-    return 1.0 / np.tanh(x)
-
-
 class PhononDos(MSONable):
-    """Basic DOS object. All other DOS objects are extended versions of this
-    object.
-    """
+    """Basic DOS object. All other DOS objects are extended versions of this object."""
 
     def __init__(self, frequencies: Sequence, densities: Sequence) -> None:
         """
@@ -56,7 +42,7 @@ class PhononDos(MSONable):
         Returns:
             Gaussian-smeared densities.
         """
-        diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
+        diff = [self.frequencies[idx + 1] - self.frequencies[idx] for idx in range(len(self.frequencies) - 1)]
         avg_diff = sum(diff) / len(diff)
 
         return gaussian_filter1d(self.densities, sigma / avg_diff)
@@ -86,6 +72,11 @@ class PhononDos(MSONable):
             Sum of the two DOSs.
         """
         return self.__add__(other)
+
+    def __repr__(self) -> str:
+        frequencies, densities = self.frequencies.shape, self.densities.shape
+        n_positive_freqs = len(self._positive_frequencies)
+        return f"{type(self).__name__}({frequencies=}, {densities=}, {n_positive_freqs=})"
 
     def get_interpolated_value(self, frequency) -> float:
         """Returns interpolated density for a particular frequency.
@@ -192,7 +183,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        s = np.trapz((wd2kt * coth(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
+        s = np.trapz((wd2kt * 1 / np.tanh(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
 
         s *= const.Boltzmann * const.Avogadro
 
@@ -225,7 +216,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        e = np.trapz(freqs * coth(wd2kt) * dens, x=freqs) / 2
+        e = np.trapz(freqs * 1 / np.tanh(wd2kt) * dens, x=freqs) / 2
 
         e *= THZ_TO_J * const.Avogadro
 

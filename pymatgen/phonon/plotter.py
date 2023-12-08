@@ -87,9 +87,15 @@ class PhononDosPlotter:
             sigma: A float specifying a standard deviation for Gaussian smearing
                 the DOS for nicer looking plots. Defaults to None for no smearing.
         """
+        # a likely user mistake is to try to pass a DOS as the first argument (similar to PhononBSPlotter) but
+        # without the isinstance check, this would not raise an error and just silently cause a blank plot
+        if not isinstance(stack, bool):
+            raise ValueError(
+                "The first argument stack expects a boolean. If you are trying to add a DOS, use the add_dos() method."
+            )
         self.stack = stack
         self.sigma = sigma
-        self._doses: dict = {}
+        self._doses: dict[str, dict[Literal["frequencies", "densities"], np.ndarray]] = {}
 
     def add_dos(self, label: str, dos: PhononDos) -> None:
         """Adds a dos for plotting.
@@ -131,6 +137,8 @@ class PhononDosPlotter:
         xlim: float | None = None,
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        legend: dict | None = None,
+        ax: Axes | None = None,
     ) -> Axes:
         """Get a matplotlib plot showing the DOS.
 
@@ -139,7 +147,13 @@ class PhononDosPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            legend: dict with legend options. For example, {"loc": "upper right"}
+                will place the legend in the upper right corner. Defaults to
+                {"fontsize": 30}.
+            ax (Axes): An existing axes object onto which the plot will be
+                added. If None, a new figure will be created.
         """
+        legend = legend or {"fontsize": 30}
         unit = freq_units(units)
 
         n_colors = max(3, len(self._doses))
@@ -150,7 +164,7 @@ class PhononDosPlotter:
         y = None
         all_densities = []
         all_frequencies = []
-        ax = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8, ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
@@ -171,15 +185,15 @@ class PhononDosPlotter:
         all_densities.reverse()
         all_frequencies.reverse()
         all_pts = []
-        for i, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
             all_pts.extend(list(zip(frequencies, densities)))
             if self.stack:
-                ax.fill(frequencies, densities, color=colors[i % n_colors], label=str(key))
+                ax.fill(frequencies, densities, color=colors[idx % n_colors], label=str(key))
             else:
                 ax.plot(
                     frequencies,
                     densities,
-                    color=colors[i % n_colors],
+                    color=colors[idx % n_colors],
                     label=str(key),
                     linewidth=3,
                 )
@@ -189,19 +203,18 @@ class PhononDosPlotter:
         if ylim:
             ax.set_ylim(ylim)
         else:
-            _xlim = ax.set_xlim()
-            relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]]
+            _xlim = ax.get_xlim()
+            relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
             ax.set_ylim((min(relevant_y), max(relevant_y)))
 
-        ylim = ax.set_ylim()
-        ax.plot([0, 0], ylim, "k--", linewidth=2)
+        ax.axvline(0, linewidth=2, color="black", linestyle="--")
 
-        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$")
-        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$")
+        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
 
         ax.legend()
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
-        plt.setp(legend_text, fontsize=30)
+        plt.setp(legend_text, **legend)
         plt.tight_layout()
         return ax
 
@@ -273,15 +286,10 @@ class PhononBSPlotter:
             if i == 0:
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
-                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
-            elif tt[1] == temp_ticks[i - 1][1]:
-                logger.debug(f"Skipping label {tt[1]}")
             else:
-                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
 
-        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
@@ -289,13 +297,8 @@ class PhononBSPlotter:
             if ticks["label"][i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
-                    else:
-                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        ax.axvline(ticks["distance"][i], color="k")
+                    ax.axvline(ticks["distance"][i], color="k")
                 else:
-                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
                     ax.axvline(ticks["distance"][i], color="k")
         return ax
 
@@ -516,9 +519,8 @@ class PhononBSPlotter:
         """Show the plot using matplotlib.
 
         Args:
-            ylim: Specify the y-axis (frequency) limits; by default None let
-                the code choose.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
         self.get_plot(ylim, units=units)
         plt.show()
@@ -526,20 +528,18 @@ class PhononBSPlotter:
     def save_plot(
         self,
         filename: str | PathLike,
-        img_format: str = "eps",
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
-            ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            filename (str | Path): Filename to write to.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
         self.get_plot(ylim=ylim, units=units)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
         plt.close()
 
     def show_proj(
@@ -577,29 +577,31 @@ class PhononBSPlotter:
         tick_labels: list[str] = []
         previous_label = self._bs.qpoints[0].label
         previous_branch = self._bs.branches[0]["name"]
-        for i, c in enumerate(self._bs.qpoints):
-            if c.label is not None:
-                tick_distance.append(self._bs.distance[i])
+        for idx, point in enumerate(self._bs.qpoints):
+            if point.label is not None:
+                tick_distance.append(self._bs.distance[idx])
                 this_branch = None
                 for b in self._bs.branches:
-                    if b["start_index"] <= i <= b["end_index"]:
+                    if b["start_index"] <= idx <= b["end_index"]:
                         this_branch = b["name"]
                         break
-                if c.label != previous_label and previous_branch != this_branch:
-                    label1 = c.label
+                if point.label != previous_label and previous_branch != this_branch:
+                    label1 = point.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
-                    label0 = previous_label
+                        label1 = f"${label1}$"
+                    label0 = previous_label or ""
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\\mid$" + label1)
-                elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"{label0}$\\mid${label1}")
+                elif point.label.startswith("\\") or point.label.find("_") != -1:
+                    tick_labels.append(f"${point.label}$")
                 else:
-                    tick_labels.append(c.label)
-                previous_label = c.label
+                    # map atomate2 all-upper-case point.labels to pretty LaTeX
+                    label = dict(GAMMA=r"$\Gamma$", DELTA=r"$\Delta$").get(point.label, point.label)
+                    tick_labels.append(label)
+                previous_label = point.label
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}
 

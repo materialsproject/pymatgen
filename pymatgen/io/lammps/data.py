@@ -1277,7 +1277,7 @@ class CombinedData(LammpsData):
         self.force_field = {}
         for kw in ff_kws:
             self.force_field[kw] = pd.concat(
-                [mol.force_field[kw].copy() for mol in self.mols if kw in mol.force_field],
+                [mol.force_field[kw].copy() for mol in self.mols if kw in (mol.force_field or [])],
                 ignore_index=True,
             )
             self.force_field[kw].index += 1

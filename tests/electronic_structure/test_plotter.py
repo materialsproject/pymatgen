@@ -181,9 +181,9 @@ class TestBSPlotter(PymatgenTest):
 
 class TestBSPlotterProjected(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as f:
-            d = json.load(f)
-            self.bs = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
+            dct = json.load(file)
+            self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotterProjected(self.bs)
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that

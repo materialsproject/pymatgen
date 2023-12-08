@@ -1457,10 +1457,10 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
 
-        if not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings:
-            self.reciprocal_density = 50
-        else:
+        if reciprocal_density or "reciprocal_density" in self.user_kpoints_settings:
             self.reciprocal_density = reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+        else:
+            self.reciprocal_density = 50
 
         self.kpoints_line_density = kpoints_line_density
         self.copy_chgcar = copy_chgcar

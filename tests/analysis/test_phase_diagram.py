@@ -3,9 +3,12 @@ from __future__ import annotations
 import collections
 import os
 import unittest
+import unittest.mock
 from numbers import Number
 
+import matplotlib.pyplot as plt
 import numpy as np
+import plotly.graph_objects as go
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
@@ -892,7 +895,9 @@ class TestPDPlotter(unittest.TestCase):
         pd_entries = [PDEntry(comp, 0) for comp in ["Li", "Co", "O"]]
         pd = PhaseDiagram(pd_entries)
         plotter = PDPlotter(pd, backend="plotly", show_unstable=False)
-        plotter.get_plot()
+        ax = plotter.get_plot()
+        assert isinstance(ax, go.Figure)
+        assert len(ax.data) == 4
 
     def test_pd_plot_data(self):
         lines, labels, unstable_entries = self.plotter_ternary_mpl.pd_plot_data
@@ -909,22 +914,36 @@ class TestPDPlotter(unittest.TestCase):
         assert len(lines) == 3
         assert len(labels) == len(self.pd_binary.stable_entries)
 
-    def test_mpl_plots(self):
+    def test_matplotlib_plots(self):
         # Some very basic ("non")-tests. Just to make sure the methods are callable.
-        self.plotter_binary_mpl.get_plot()
-        self.plotter_ternary_mpl.get_plot()
-        self.plotter_quaternary_mpl.get_plot()
+        for plotter in (self.plotter_binary_mpl, self.plotter_ternary_mpl, self.plotter_quaternary_mpl):
+            ax = plotter.get_plot()
+            assert isinstance(ax, plt.Axes)
+
         self.plotter_ternary_mpl.get_contour_pd_plot()
         self.plotter_ternary_mpl.get_chempot_range_map_plot([Element("Li"), Element("O")])
         self.plotter_ternary_mpl.plot_element_profile(Element("O"), Composition("Li2O"))
 
+        # test show()
+        assert self.plotter_ternary_mpl.show() is None
+
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
-        self.plotter_unary_plotly.get_plot()
-        self.plotter_binary_plotly.get_plot()
-        self.plotter_ternary_plotly_2d.get_plot()
-        self.plotter_ternary_plotly_3d.get_plot()
-        self.plotter_quaternary_plotly.get_plot()
+        for plotter in (
+            self.plotter_unary_plotly,
+            self.plotter_binary_plotly,
+            self.plotter_ternary_plotly_2d,
+            self.plotter_ternary_plotly_3d,
+            self.plotter_quaternary_plotly,
+        ):
+            fig = plotter.get_plot()
+            assert isinstance(fig, go.Figure)
+
+        # test show()
+        # suppress default plotly behavior of opening figure in browser by patching plotly.io.show to noop
+        with unittest.mock.patch("plotly.io.show") as mock_show:
+            assert self.plotter_ternary_plotly_2d.show() is None
+            mock_show.assert_called_once()
 
 
 class TestUtilityFunction(unittest.TestCase):

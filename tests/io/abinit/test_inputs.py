@@ -281,9 +281,11 @@ class TestFactory(PymatgenTest):
     def test_ebands_input(self):
         """Testing ebands_input factory."""
         multi = ebands_input(self.si_structure, self.si_pseudo, kppa=10, ecut=2)
-        str(multi)
+        assert str(multi).startswith("ndtset 2\n############")
 
         scf_inp, nscf_inp = multi.split_datasets()
+        assert isinstance(scf_inp, BasicAbinitInput)
+        assert isinstance(nscf_inp, BasicAbinitInput)
 
         # Test dos_kppa and other options.
         multi_dos = ebands_input(
@@ -311,7 +313,7 @@ class TestFactory(PymatgenTest):
             spin_mode="unpolarized",
             smearing=None,
             charge=2.0,
-            dos_kppa=[50, 100],
+            dos_kppa=(50, 100),
         )
         assert len(multi_dos) == 4
         assert multi_dos.get("iscf") == [None, -2, -2, -2]
