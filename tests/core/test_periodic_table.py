@@ -383,6 +383,9 @@ class SpeciesTestCase(PymatgenTest):
         assert self.specie4 != self.specie3
         assert self.specie1 != Element("Fe")
         assert Element("Fe") != self.specie1
+        assert Element("Fe") == Element("Fe")
+        assert Species("Fe", 0) != Element("Fe")
+        assert Element("Fe") != Species("Fe", 0)
 
     def test_cmp(self):
         assert self.specie1 < self.specie2, "Fe2+ should be < Fe3+"
@@ -423,7 +426,10 @@ class SpeciesTestCase(PymatgenTest):
 
         for elem in ("Li+", "Ge4+", "H+"):
             symbol = Species(elem).symbol
-            with pytest.raises(AttributeError, match=f"Invalid element {symbol} for crystal field calculation"):
+            with pytest.raises(
+                AttributeError,
+                match=f"Invalid element {symbol} for crystal field calculation",
+            ):
                 Species(elem).get_crystal_field_spin()
         with pytest.raises(AttributeError, match="Invalid oxidation state 10 for element Fe"):
             Species("Fe", 10).get_crystal_field_spin()
