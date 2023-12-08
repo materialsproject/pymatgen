@@ -105,7 +105,8 @@ Pymatgen is released under the MIT License. The terms of the license are as foll
 
 ## About the Pymatgen Development Team
 
-Shyue Ping Ong of the [Materials Virtual Lab] started Pymatgen in 2011 and is still the project lead.
+Shyue Ping Ong (@shyuep) of the [Materials Virtual Lab] started Pymatgen in 2011 and is still the project lead.
+Janosh Riebesell (@janosh) and Matthew Horton (@mkhorton) are co-maintainers.
 
 The [`pymatgen` development team] is the set of all contributors to the `pymatgen` project, including all subprojects.
 
