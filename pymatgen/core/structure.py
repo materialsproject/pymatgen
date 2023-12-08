@@ -1177,11 +1177,9 @@ class IStructure(SiteCollection, MSONable):
                 f"{msg.sg_symbol}!"
             )
 
-        if len(species) != len(coords):
-            raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
-
-        if len(species) != len(magmoms):
-            raise ValueError(f"Supplied species and magmom lengths ({len(species)} vs {len(magmoms)}) are different!")
+        for name, var in (("coords", coords), ("magmoms", magmoms)):
+            if len(var) != len(species):
+                raise ValueError(f"Length mismatch: len({name})={len(var)} != {len(species)=}")
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
@@ -2143,13 +2141,16 @@ class IStructure(SiteCollection, MSONable):
         interpolate_lattices: bool = False,
         pbc: bool = True,
         autosort_tol: float = 0,
+        end_amplitude: float = 1,
     ) -> list[IStructure | Structure]:
         """Interpolate between this structure and end_structure. Useful for
-        construction of NEB inputs.
+        construction of NEB inputs. To obtain useful results, the cell setting
+        and order of sites must consistent across the start and end structures.
 
         Args:
             end_structure (Structure): structure to interpolate between this
-                structure and end.
+                structure and end. Must be in the same setting and have the
+                same site ordering to yield useful results.
             nimages (int,list): No. of interpolation images or a list of
                 interpolation images. Defaults to 10 images.
             interpolate_lattices (bool): Whether to interpolate the lattices.
@@ -2162,6 +2163,13 @@ class IStructure(SiteCollection, MSONable):
                 closest points in this particular structure. This is usually
                 what you want in a NEB calculation. 0 implies no sorting.
                 Otherwise, a 0.5 value usually works pretty well.
+            end_amplitude (float): The fractional amplitude of the endpoint
+                of the interpolation, or a cofactor of the distortion vector
+                connecting structure to end_structure. Thus, 0 implies no
+                distortion, 1 implies full distortion to end_structure
+                (default), 0.5 implies distortion to a point halfway
+                between structure and end_structure, and -1 implies full
+                distortion in the opposite direction to end_structure.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -2217,7 +2225,7 @@ class IStructure(SiteCollection, MSONable):
 
             end_coords = sorted_end_coords
 
-        vec = end_coords - start_coords
+        vec = end_amplitude * (end_coords - start_coords)
         if pbc:
             vec[:, self.pbc] -= np.round(vec[:, self.pbc])
         sp = self.species_and_occu
@@ -2227,7 +2235,7 @@ class IStructure(SiteCollection, MSONable):
             # interpolate lattice matrices using polar decomposition
             # u is a unitary rotation, p is stretch
             u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
-            lvec = p - np.identity(3)
+            lvec = end_amplitude * (p - np.identity(3))
             lstart = self.lattice.matrix.T
 
         for x in images:

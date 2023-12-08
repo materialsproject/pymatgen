@@ -1155,7 +1155,7 @@ class PointGroupAnalyzer:
             return np.linalg.norm(v) > self.tol
 
         valid_sets = []
-        origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
+        _origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
         for test_set in dist_el_sites.values():
             valid_set = list(filter(not_on_axis, test_set))
             if len(valid_set) > 0:

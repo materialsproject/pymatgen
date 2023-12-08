@@ -1576,6 +1576,9 @@ class MPHSEBSSet(DictSet):
         """Ensure mode is set correctly."""
         super().__post_init__()
 
+        if "reciprocal_density" in self.user_kpoints_settings:
+            self.reciprocal_density = self.user_kpoints_settings["reciprocal_density"]
+
         self.mode = self.mode.lower()
         supported_modes = ("line", "uniform", "gap", "uniform_dense")
         if self.mode not in supported_modes:
