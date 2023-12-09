@@ -728,7 +728,7 @@ class TestVasprun(PymatgenTest):
     
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/si_two_bandstructures/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/si_two_bandstructures/KPOINTS_OPT", use_kpoints_opt=True)
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/si_two_bandstructures/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
