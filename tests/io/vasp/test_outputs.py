@@ -704,6 +704,20 @@ class TestVasprun(PymatgenTest):
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0]
         assert props[3][1]
+    
+    def test_kpoints_opt(self):
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/si_two_bandstructures/vasprun.xml.gz")
+        # This calculation was run using KPOINTS_OPT
+        # Check the k-points were read correctly.
+        assert len(vasp_run.actual_kpoints) == 10
+        assert len(vasp_run.actual_kpoints_weights) == 10
+        assert len(vasp_run.actual_kpoints_opt) == 100
+        assert len(vasp_run.actual_kpoints_weights_opt) == 100
+        # Check the eigenvalues were read correctly.
+        assert vasp_run.eigenvalues[Spin.up].shape == (10, 24, 2)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 24, 1)
+        assert vasp_run.eigenvalues[Spin.up][0,0,0] == approx(-6.1458)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0,0,0] == approx(-6.1532)
 
 
 class TestOutcar(PymatgenTest):
