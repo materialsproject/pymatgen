@@ -192,6 +192,17 @@ class Vasprun(MSONable):
             0.04166667, ....].
         atomic_symbols (list): List of atomic symbols, e.g., ["Li", "Fe", "Fe", "P", "P", "P"].
         potcar_symbols (list): List of POTCAR symbols. e.g., ["PAW_PBE Li 17Jan2003", "PAW_PBE Fe 06Sep2000", ..].
+        tdos_opt (Dos): As tdos but obtained from KPOINTS_OPT.
+        idos_opt (Dos): As idos but obtained from KPOINTS_OPT.
+        pdos_opt (list): List of list of PDos objects. As pdos but obtained from KPOINTS_OPT.
+        efermi_opt (float): As efermi but obtained from DOS calculated by KPOINTS_OPT.
+        eigenvalues_kpoints_opt (dict): As eigenvalues but obtained from KPOINTS_OPT.
+        projected_eigenvalues_kpoints_opt (dict): As projected_eigenvalues but obtained from KPOINTS_OPT.
+        projected_magnetisation_kpoints_opt (numpy.ndarray): As projected_magnetisation but obtained from KPOINTS_OPT.
+        kpoints_opt (Kpoints): As kpoints but obtained from KPOINTS_OPT.
+        actual_kpoints_opt (list): As actual_kpoints but obtained from KPOINTS_OPT.
+        actual_kpoints_weights_opt (list): As actual_kpoints_weights but obtained from KPOINTS_OPT.
+        
 
     Author: Shyue Ping Ong
     """
@@ -308,7 +319,7 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         self.incar = {}
         # Initialise kpoints_opt attributes
-        self.eigenvalues_kpoints_opt = self.projected_eigenvalues_kpoints_opt = self.projected_magnetism_kpoints_opt = None
+        self.eigenvalues_kpoints_opt = self.projected_eigenvalues_kpoints_opt = self.projected_magnetisation_kpoints_opt = None
         self.kpoints_opt = self.actual_kpoints_opt = self.actual_kpoints_weights_opt = None
         self.tdos_opt = self.idos_opt = self.pdos_opt = None
         self.efermi_opt = self.dos_has_errors_opt = None
@@ -381,7 +392,7 @@ class Vasprun(MSONable):
                         if tag == "eigenvalues_kpoints_opt":
                             self.kpoints_opt, self.actual_kpoints_opt, self.actual_kpoints_weights_opt = self._parse_kpoints(elem.find("kpoints"))
                         elif parse_projected_eigen: # and tag == "projected_kpoints_opt": (implied)
-                            self.projected_eigenvalues_kpoints_opt, self.projected_magnetism_kpoints_opt = self._parse_projected_eigen(elem)
+                            self.projected_eigenvalues_kpoints_opt, self.projected_magnetisation_kpoints_opt = self._parse_projected_eigen(elem)
                     elif tag == "dielectricfunction":
                         if (
                             "comment" not in elem.attrib
