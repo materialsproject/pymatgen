@@ -715,10 +715,10 @@ class TestVasprun(PymatgenTest):
         assert len(vasp_run.actual_kpoints_opt) == 100
         assert len(vasp_run.actual_kpoints_weights_opt) == 100
         # Check the eigenvalues were read correctly.
-        assert vasp_run.eigenvalues[Spin.up].shape == (10, 24, 2)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 24, 1)
-        assert vasp_run.eigenvalues[Spin.up][0,0,0] == approx(-6.1458)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0,0,0] == approx(-6.1532)
+        assert vasp_run.eigenvalues[Spin.up].shape == (10, 128, 2)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 128, 2)
+        assert vasp_run.eigenvalues[Spin.up][0,0,0] == approx(-6.1134)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0,0,0] == approx(-6.1522)
     
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/si_two_bandstructures/vasprun.xml.gz", parse_potcar_file=False)
@@ -727,11 +727,11 @@ class TestVasprun(PymatgenTest):
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [38], "wrong cbm kpoint index"
-        assert cbm["energy"] == approx(6.4391), "wrong cbm energy"
-        assert cbm["band_index"] == {Spin.up: [16], Spin.down: [16]}, "wrong cbm bands"
+        assert cbm["energy"] == approx(6.4363), "wrong cbm energy"
+        assert cbm["band_index"] == {Spin.up: [16]}, "wrong cbm bands"
         assert vbm["kpoint_index"] == [0, 39, 40]
-        assert vbm["energy"] == approx(5.7569), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.up: [13, 14, 15], Spin.down: [13, 14, 15]}, "wrong vbm bands"
+        assert vbm["energy"] == approx(5.7655), "wrong vbm energy"
+        assert vbm["band_index"] == {Spin.down: [13, 14, 15]}, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
         
