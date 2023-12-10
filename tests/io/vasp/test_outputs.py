@@ -705,7 +705,7 @@ class TestVasprun(PymatgenTest):
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0]
         assert props[3][1]
-    
+
     def test_kpoints_opt(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
@@ -717,17 +717,19 @@ class TestVasprun(PymatgenTest):
         # Check the eigenvalues were read correctly.
         assert vasp_run.eigenvalues[Spin.up].shape == (10, 128, 2)
         assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 128, 2)
-        assert vasp_run.eigenvalues[Spin.up][0,0,0] == approx(-6.1134)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0,0,0] == approx(-6.1522)
+        assert vasp_run.eigenvalues[Spin.up][0, 0, 0] == approx(-6.1134)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0, 0, 0] == approx(-6.1522)
         # Check the projected eigenvalues were read correctly
         assert vasp_run.projected_eigenvalues[Spin.up].shape == (10, 128, 8, 9)
         assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up].shape == (100, 128, 8, 9)
-        assert vasp_run.projected_eigenvalues[Spin.up][0,1,0,0] == approx(0.0704)
-        assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up][0,1,0,0] == approx(0.0000)
+        assert vasp_run.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0704)
+        assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
-    
+
     def test_kpoints_opt_band_structure(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True)
+        vasp_run = Vasprun(
+            f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True
+        )
         bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
@@ -746,7 +748,6 @@ class TestVasprun(PymatgenTest):
         # Test projection
         projected = bs.get_projection_on_elements()
         assert projected[Spin.up][0][0]["Si"] == approx(0.2126)
-        
 
 
 class TestOutcar(PymatgenTest):
