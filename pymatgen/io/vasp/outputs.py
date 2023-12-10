@@ -202,7 +202,7 @@ class Vasprun(MSONable):
         kpoints_opt (Kpoints): As kpoints but obtained from KPOINTS_OPT.
         actual_kpoints_opt (list): As actual_kpoints but obtained from KPOINTS_OPT.
         actual_kpoints_weights_opt (list): As actual_kpoints_weights but obtained from KPOINTS_OPT.
-        
+
 
     Author: Shyue Ping Ong
     """
@@ -319,18 +319,19 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         self.incar = {}
         # Initialise kpoints_opt attributes
-        self.eigenvalues_kpoints_opt = self.projected_eigenvalues_kpoints_opt = self.projected_magnetisation_kpoints_opt = None
+        self.eigenvalues_kpoints_opt = self.projected_eigenvalues_kpoints_opt = None
+        self.projected_magnetisation_kpoints_opt = None
         self.kpoints_opt = self.actual_kpoints_opt = self.actual_kpoints_weights_opt = None
         self.tdos_opt = self.idos_opt = self.pdos_opt = None
         self.efermi_opt = self.dos_has_errors_opt = None
-        
+
         ionic_steps = []
 
         md_data = []
         parsed_header = False
         in_kpoints_opt = False
         try:
-            for event, elem in ET.iterparse(stream, events=["start","end"]):
+            for event, elem in ET.iterparse(stream, events=["start", "end"]):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks
@@ -338,7 +339,7 @@ class Vasprun(MSONable):
                         parsed_header = True
                     elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
                         in_kpoints_opt = True
-                else: # event == "end":
+                else:  # event == "end":
                     # The end event happens when we have read a block, so have
                     # its data.
                     if not parsed_header:
@@ -348,7 +349,9 @@ class Vasprun(MSONable):
                             self.incar = self._parse_params(elem)
                         elif tag == "kpoints":
                             if not hasattr(self, "kpoints"):
-                                self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
+                                self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(
+                                    elem
+                                )
                         elif tag == "parameters":
                             self.parameters = self._parse_params(elem)
                         elif tag == "structure" and elem.attrib.get("name") == "initialpos":
@@ -384,15 +387,23 @@ class Vasprun(MSONable):
                         self.eigenvalues = self._parse_eigen(elem)
                     elif parse_projected_eigen and tag == "projected" and not in_kpoints_opt:
                         self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
-                    elif (tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt"):
+                    elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
                         in_kpoints_opt = False
                         if parse_eigen:
-                            # projected_kpoints_opt includes occupation information where eigenvalues_kpoints_opt doesn't.
+                            # projected_kpoints_opt includes occupation information whereas
+                            # eigenvalues_kpoints_opt doesn't.
                             self.eigenvalues_kpoints_opt = self._parse_eigen(elem.find("eigenvalues"))
                         if tag == "eigenvalues_kpoints_opt":
-                            self.kpoints_opt, self.actual_kpoints_opt, self.actual_kpoints_weights_opt = self._parse_kpoints(elem.find("kpoints"))
-                        elif parse_projected_eigen: # and tag == "projected_kpoints_opt": (implied)
-                            self.projected_eigenvalues_kpoints_opt, self.projected_magnetisation_kpoints_opt = self._parse_projected_eigen(elem)
+                            (
+                                self.kpoints_opt,
+                                self.actual_kpoints_opt,
+                                self.actual_kpoints_weights_opt,
+                            ) = self._parse_kpoints(elem.find("kpoints"))
+                        elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
+                            (
+                                self.projected_eigenvalues_kpoints_opt,
+                                self.projected_magnetisation_kpoints_opt,
+                            ) = self._parse_projected_eigen(elem)
                     elif tag == "dielectricfunction":
                         if (
                             "comment" not in elem.attrib
@@ -417,7 +428,7 @@ class Vasprun(MSONable):
                                 self.dielectric_data["velocity"] = self._parse_diel(elem)
                             else:
                                 self.other_dielectric[comment] = self._parse_diel(elem)
-    
+
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
                         self.optical_transition = np.array(_parse_vasp_array(elem))
                     elif tag == "structure" and elem.attrib.get("name") == "finalpos":
@@ -840,11 +851,13 @@ class Vasprun(MSONable):
             file) (it's not possible to run a non-sc band structure with hybrid
             functionals). The explicit KPOINTS file needs to have data on the
             kpoint label as commentary.
-            
+
             If VASP was rum with KPOINTS_OPT, it reads the data from that
             file unless told otherwise. This overrides hybrid mode.
         """
-        use_kpoints_opt = (not ignore_kpoints_opt) and (hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt is not None)
+        use_kpoints_opt = (not ignore_kpoints_opt) and (
+            hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt is not None
+        )
         logger.debug("Detected KPOINTS_OPT data when getting band structure.")
         if not kpoints_filename:
             if use_kpoints_opt:
@@ -875,14 +888,14 @@ class Vasprun(MSONable):
         eigenvals: defaultdict[Spin, list] = defaultdict(list)
 
         nkpts = len(kpoints)
-        
+
         if use_kpoints_opt:
             eigenvalues = self.eigenvalues_kpoints_opt
             projected_eigenvalues = self.projected_eigenvalues_kpoints_opt
         else:
             eigenvalues = self.eigenvalues
             projected_eigenvalues = self.projected_eigenvalues
-        
+
         for spin, v in eigenvalues.items():
             v = np.swapaxes(v, 0, 1)
             eigenvals[spin] = v[:, :, 0]
@@ -1504,6 +1517,7 @@ class BSVasprun(Vasprun):
     bandstructures. All other properties like structures, parameters,
     etc. are ignored.
     """
+
     # TODO extend for KPOINTS_OPT
 
     def __init__(
