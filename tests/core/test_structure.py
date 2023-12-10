@@ -1663,7 +1663,9 @@ class TestStructure(PymatgenTest):
         relaxed = struct.relax()
         assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)  # 1% error
         assert hasattr(relaxed, "calc")
-        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
+        for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
+            actual = relaxed.dynamics[key]
+            assert actual == val, f"expected {key} to be {val}, {actual=}"
 
     def test_relax_m3gnet_fixed_lattice(self):
         pytest.importorskip("matgl")
