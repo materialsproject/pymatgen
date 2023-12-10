@@ -707,7 +707,7 @@ class TestVasprun(PymatgenTest):
         assert props[3][1]
     
     def test_kpoints_opt(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/si_two_bandstructures/vasprun.xml.gz", parse_projected_eigen=True)
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
         # Check the k-points were read correctly.
         assert len(vasp_run.actual_kpoints) == 10
@@ -727,8 +727,8 @@ class TestVasprun(PymatgenTest):
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
     
     def test_kpoints_opt_band_structure(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/si_two_bandstructures/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/si_two_bandstructures/KPOINTS_OPT")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True)
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
