@@ -282,8 +282,8 @@ class PhononBSPlotter:
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i, tt in enumerate(temp_ticks):
-            if i == 0:
+        for idx, tt in enumerate(temp_ticks):
+            if idx == 0:
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
             else:
@@ -293,13 +293,13 @@ class PhononBSPlotter:
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(ticks["label"])):
-            if ticks["label"][i] is not None:
+        for idx in range(len(ticks["label"])):
+            if ticks["label"][idx] is not None:
                 # don't print the same label twice
-                if i != 0:
-                    ax.axvline(ticks["distance"][i], color="k")
+                if idx != 0:
+                    ax.axvline(ticks["distance"][idx], color="k")
                 else:
-                    ax.axvline(ticks["distance"][i], color="k")
+                    ax.axvline(ticks["distance"][idx], color="k")
         return ax
 
     def bs_plot_data(self) -> dict[str, Any]:
@@ -319,12 +319,14 @@ class PhononBSPlotter:
 
         ticks = self.get_ticks()
 
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             frequency.append([])
-            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
+            distance.append([self._bs.distance[j] for j in range(branch["start_index"], branch["end_index"] + 1)])
 
-            for i in range(self._nb_bands):
-                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+            for idx in range(self._nb_bands):
+                frequency[-1].append(
+                    [self._bs.bands[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
 
         return {
             "ticks": ticks,
@@ -334,7 +336,7 @@ class PhononBSPlotter:
         }
 
     def get_plot(
-        self, ylim: float | None = None, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz"
+        self, ylim: float | None = None, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz", **kwargs
     ) -> Axes:
         """Get a matplotlib object for the bandstructure plot.
 
@@ -342,21 +344,21 @@ class PhononBSPlotter:
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+                Defaults to "thz".
+            **kwargs: passed to ax.plot function.
         """
         u = freq_units(units)
 
         ax = pretty_plot(12, 8)
 
-        band_linewidth = 1
-
         data = self.bs_plot_data()
         for d in range(len(data["distances"])):
-            for i in range(self._nb_bands):
+            for idx in range(self._nb_bands):
                 ax.plot(
                     data["distances"][d],
-                    [data["frequency"][d][i][j] * u.factor for j in range(len(data["distances"][d]))],
+                    [data["frequency"][d][idx][j] * u.factor for j in range(len(data["distances"][d]))],
                     "b-",
-                    linewidth=band_linewidth,
+                    **kwargs,
                 )
 
         self._make_ticks(ax)
@@ -387,8 +389,8 @@ class PhononBSPlotter:
         """
         num_atom = int(self._nb_bands / 3)
         new_vec = np.zeros(num_atom)
-        for i in range(num_atom):
-            new_vec[i] = np.linalg.norm(vec[i * 3 : i * 3 + 3])
+        for idx in range(num_atom):
+            new_vec[idx] = np.linalg.norm(vec[idx * 3 : idx * 3 + 3])
         # get the projectors for each group
         gw = []
         norm_f = 0
@@ -445,10 +447,10 @@ class PhononBSPlotter:
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices: list[list[int]] = [[] for _ in range(len(elements))]
-            for i, ele in enumerate(self._bs.structure.species):
+            for idx, elem in enumerate(self._bs.structure.species):
                 for j, unique_species in enumerate(self._bs.structure.elements):
-                    if ele == unique_species:
-                        indices[j].append(i)
+                    if elem == unique_species:
+                        indices[j].append(idx)
         else:
             assert isinstance(site_comb, list)
             assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
@@ -503,7 +505,7 @@ class PhononBSPlotter:
         elif site_comb == "element":
             labels = [e.symbol for e in self._bs.structure.elements]
         else:
-            labels = [f"{i}" for i in range(len(site_comb))]
+            labels = [f"{idx}" for idx in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -649,18 +651,13 @@ class PhononBSPlotter:
         """Plot the Brillouin zone."""
         # get labels and lines
         labels = {}
-        for q in self._bs.qpoints:
-            if q.label:
-                labels[q.label] = q.frac_coords
+        for q_pt in self._bs.qpoints:
+            if q_pt.label:
+                labels[q_pt.label] = q_pt.frac_coords
 
         lines = []
         for b in self._bs.branches:
-            lines.append(
-                [
-                    self._bs.qpoints[b["start_index"]].frac_coords,
-                    self._bs.qpoints[b["end_index"]].frac_coords,
-                ]
-            )
+            lines.append([self._bs.qpoints[b["start_index"]].frac_coords, self._bs.qpoints[b["end_index"]].frac_coords])
 
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
@@ -979,14 +976,18 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
         ticks = self.get_ticks()
 
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             frequency.append([])
             gruneisen.append([])
-            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
+            distance.append([self._bs.distance[j] for j in range(branch["start_index"], branch["end_index"] + 1)])
 
-            for i in range(self._nb_bands):
-                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
-                gruneisen[-1].append([self._bs.gruneisen[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+            for idx in range(self._nb_bands):
+                frequency[-1].append(
+                    [self._bs.bands[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
+                gruneisen[-1].append(
+                    [self._bs.gruneisen[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
 
         return {
             "ticks": ticks,
