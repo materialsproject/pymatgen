@@ -153,7 +153,8 @@ class PhononDosPlotter:
             ax (Axes): An existing axes object onto which the plot will be
                 added. If None, a new figure will be created.
         """
-        legend = legend or {"fontsize": 30}
+        legend = legend or {}
+        legend.setdefault("fontsize", 30)
         unit = freq_units(units)
 
         n_colors = max(3, len(self._doses))
@@ -212,9 +213,9 @@ class PhononDosPlotter:
         ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
         ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
 
-        ax.legend()
+        ax.legend(**legend)
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
-        plt.setp(legend_text, **legend)
+        plt.setp(legend_text)
         plt.tight_layout()
         return ax
 
