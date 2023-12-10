@@ -261,10 +261,12 @@ class PhononDosPlotter:
 class PhononBSPlotter:
     """Class to plot or get data to facilitate the plot of band structure objects."""
 
-    def __init__(self, bs: PhononBandStructureSymmLine) -> None:
+    def __init__(self, bs: PhononBandStructureSymmLine, label: str | None = None) -> None:
         """
         Args:
             bs: A PhononBandStructureSymmLine object.
+            label: A label for the plot. Defaults to None for no label. Esp. useful with
+                the plot_compare method to distinguish the two band structures.
         """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
@@ -273,7 +275,8 @@ class PhononBSPlotter:
                 "not along symmetry lines won't work)"
             )
         self._bs = bs
-        self._nb_bands = self._bs.nb_bands
+        self._nb_bands = bs.nb_bands
+        self._label = label
 
     def _make_ticks(self, ax: Axes) -> Axes:
         """Utility private method to add ticks to a band structure."""
@@ -608,7 +611,12 @@ class PhononBSPlotter:
         return {"distance": tick_distance, "label": tick_labels}
 
     def plot_compare(
-        self, other_plotter: PhononBSPlotter, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz"
+        self,
+        other_plotter: PhononBSPlotter,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        labels: tuple[str, str] | None = None,
+        legend_kwargs: dict | None = None,
+        **kwargs,
     ) -> Axes:
         """Plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
@@ -619,11 +627,17 @@ class PhononBSPlotter:
             other_plotter: another PhononBSPlotter object defined along the same symmetry lines
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
+            labels: labels for the two band structures. Defaults to None, which will use the
+                legend of the two PhononBSPlotter objects.
+            legend_kwargs: kwargs passed to ax.legend().
+            **kwargs: passed to ax.plot().
 
         Returns:
             a matplotlib object with both band structures
         """
-        u = freq_units(units)
+        unit = freq_units(units)
+        legend_kwargs = legend_kwargs or {}
+        legend_kwargs.setdefault("fontsize", 22)
 
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -631,19 +645,28 @@ class PhononBSPlotter:
         if len(data_orig["distances"]) != len(data["distances"]):
             raise ValueError("The two objects are not compatible.")
 
-        ax = self.get_plot(units=units)
-        band_linewidth = 1
+        line_width = kwargs.setdefault("linewidth", 1)
+
+        ax = self.get_plot(units=units, **kwargs)
         for band_idx in range(other_plotter._nb_bands):
             for dist_idx in range(len(data_orig["distances"])):
                 ax.plot(
                     data_orig["distances"][dist_idx],
                     [
-                        data["frequency"][dist_idx][band_idx][j] * u.factor
+                        data["frequency"][dist_idx][band_idx][j] * unit.factor
                         for j in range(len(data_orig["distances"][dist_idx]))
                     ],
                     "r-",
-                    linewidth=band_linewidth,
+                    **kwargs,
                 )
+
+        # add legend showing which color correspond to which band structure
+        if labels is None and self._label and other_plotter._label:
+            labels = (self._label, other_plotter._label)
+        if labels:
+            ax.plot([], [], "r-", label=labels[0], linewidth=3 * line_width)
+            ax.plot([], [], "b-", label=labels[1], linewidth=3 * line_width)
+            ax.legend(**legend_kwargs)
 
         return ax
 
