@@ -1348,6 +1348,29 @@ class TestBSVasprun(PymatgenTest):
         d = vasprun.as_dict()
         assert "eigenvalues" in d["output"]
 
+    def test_kpoints_opt(self):
+        vasp_run = BSVasprun(
+            f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True
+        )
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
+        assert isinstance(bs, BandStructureSymmLine)
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        assert cbm["kpoint_index"] == [38], "wrong cbm kpoint index"
+        assert cbm["energy"] == approx(6.4363), "wrong cbm energy"
+        assert cbm["band_index"] == {Spin.up: [16], Spin.down: []}, "wrong cbm bands"
+        # Strangely, when I call with parse_projected_eigen, it gives empty Spin.down,
+        # but without parse_projected_eigen it does not give it.
+        # So at one point it called the empty key.
+        assert vbm["kpoint_index"] == [0, 39, 40]
+        assert vbm["energy"] == approx(5.7655), "wrong vbm energy"
+        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: []}, "wrong vbm bands"
+        assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
+        assert cbm["kpoint"].label is None, "wrong cbm label"
+        # Test projection
+        projected = bs.get_projection_on_elements()
+        assert projected[Spin.up][0][0]["Si"] == approx(0.2126)
+
 
 class TestOszicar(PymatgenTest):
     def test_init(self):
