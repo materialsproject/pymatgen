@@ -318,7 +318,7 @@ class AimsInputGenerator(InputGenerator):
 
     @staticmethod
     def _read_previous(
-        prev_dir: str | Path | None = None
+        prev_dir: str | Path | None = None,
     ) -> tuple[Structure | Molecule | None, dict[str, Any], dict[str, Any]]:
         """Read in previous results.
 
