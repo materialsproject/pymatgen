@@ -255,17 +255,27 @@ def test_input_set():
         coords=[[0.0] * 3, [0.25] * 3],
     )
     parameters_json_str = json.dumps(
-        {"xc": "pbe", "species_dir": f'{species_dir / "light"}', "k_grid": [2, 2, 2]}, indent=2, cls=MontyEncoder
+        {
+            "xc": "pbe",
+            "species_dir": f'{species_dir / "light"}',
+            "k_grid": [2, 2, 2],
+        },
+        indent=2,
+        cls=MontyEncoder,
     )
     parameters_json_str_rel = json.dumps(
-        {"xc": "pbe", "species_dir": f'{species_dir / "light"}', "k_grid": [2, 2, 2], "relax_geometry": "trm 1e-3"},
+        {
+            "xc": "pbe",
+            "species_dir": f'{species_dir / "light"}',
+            "k_grid": [2, 2, 2],
+            "relax_geometry": "trm 1e-3",
+        },
         indent=2,
         cls=MontyEncoder,
     )
 
     parameters = {
         "xc": "pbe",
-        "species_dir": f'{species_dir / "light"}',
         "k_grid": [2, 2, 2],
     }
     properties = ("energy", "free_energy", "forces")
