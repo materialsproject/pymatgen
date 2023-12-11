@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
+from monty.json import MontyEncoder
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.aims.sets import AimsInputSet
@@ -252,17 +254,13 @@ def test_input_set():
         species=["Si", "Si"],
         coords=[[0.0] * 3, [0.25] * 3],
     )
-    parameters_json_str = (
-        "{"
-        f'\n  "xc": "pbe",\n  "species_dir": "{species_dir / "light"}",\n  '
-        '"k_grid": [\n    2,\n    2,\n    2\n  ]\n'
-        "}"
+    parameters_json_str = json.dumps(
+        {"xc": "pbe", "species_dir": f'{species_dir / "light"}', "k_grid": [2, 2, 2]}, indent=2, cls=MontyEncoder
     )
-    parameters_json_str_rel = (
-        "{"
-        f'\n  "xc": "pbe",\n  "species_dir": "{species_dir / "light"}",\n  '
-        '"k_grid": [\n    2,\n    2,\n    2\n  ],\n  "relax_geometry": "trm 1e-3"\n'
-        "}"
+    parameters_json_str_rel = json.dumps(
+        {"xc": "pbe", "species_dir": f'{species_dir / "light"}', "k_grid": [2, 2, 2], "relax_geometry": "trm 1e-3"},
+        indent=2,
+        cls=MontyEncoder,
     )
 
     parameters = {
