@@ -725,6 +725,11 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0704)
         assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
+        # Test as_dict
+        d = vasp_run.as_dict()
+        assert d["input"]["nkpoints_opt"] == 100
+        assert d["input"]["nkpoints"] == 10
+        assert d["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1522)
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(
@@ -1370,6 +1375,9 @@ class TestBSVasprun(PymatgenTest):
         # Test projection
         projected = bs.get_projection_on_elements()
         assert projected[Spin.up][0][0]["Si"] == approx(0.2126)
+        d = vasp_run.as_dict()
+        assert "eigenvalues" in d["output"]
+        assert "eigenvalues_kpoints_opt" in d["output"]
 
 
 class TestOszicar(PymatgenTest):

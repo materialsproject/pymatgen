@@ -1201,6 +1201,17 @@ class Vasprun(MSONable):
         ]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["nkpoints"] = len(actual_kpts)
+        if hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt:
+            vin["kpoints_opt"] = self.kpoints_opt.as_dict()
+            actual_kpts = [
+                {
+                    "abc": list(self.actual_kpoints_opt[i]),
+                    "weight": self.actual_kpoints_weights_opt[i],
+                }
+                for i in range(len(self.actual_kpoints_opt))
+            ]
+            vin["kpoints_opt"]["actual_kpoints"] = actual_kpts
+            vin["nkpoints_opt"] = len(actual_kpts)
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
@@ -1240,6 +1251,21 @@ class Vasprun(MSONable):
 
             if self.projected_magnetisation is not None:
                 vout["projected_magnetisation"] = self.projected_magnetisation.tolist()
+
+        if self.eigenvalues_kpoints_opt:
+            eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues_kpoints_opt.items()}
+            vout["eigenvalues_kpoints_opt"] = eigen
+            # TODO implement kpoints_opt eigenvalue_band_proprties.
+            # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
+
+            if self.projected_eigenvalues_kpoints_opt:
+                vout["projected_eigenvalues_kpoints_opt"] = {
+                    str(spin): v.tolist() for spin, v in self.projected_eigenvalues_kpoints_opt.items()
+                }
+
+            if self.projected_magnetisation_kpoints_opt is not None:
+                vout["projected_magnetisation_kpoints_opt"] = self.projected_magnetisation_kpoints_opt.tolist()
 
         vout["epsilon_static"] = self.epsilon_static
         vout["epsilon_static_wolfe"] = self.epsilon_static_wolfe
@@ -1654,6 +1680,17 @@ class BSVasprun(Vasprun):
             for i in range(len(self.actual_kpoints))
         ]
         vin["kpoints"]["actual_points"] = actual_kpts
+        if hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt:
+            vin["kpoints_opt"] = self.kpoints_opt.as_dict()
+            actual_kpts = [
+                {
+                    "abc": list(self.actual_kpoints_opt[i]),
+                    "weight": self.actual_kpoints_weights_opt[i],
+                }
+                for i in range(len(self.actual_kpoints_opt))
+            ]
+            vin["kpoints_opt"]["actual_kpoints"] = actual_kpts
+            vin["nkpoints_opt"] = len(actual_kpts)
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
@@ -1679,6 +1716,18 @@ class BSVasprun(Vasprun):
                         if str(spin) not in peigen[kpoint_index]:
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen
+
+        if self.eigenvalues_kpoints_opt:
+            eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues_kpoints_opt.items()}
+            vout["eigenvalues_kpoints_opt"] = eigen
+            # TODO implement kpoints_opt eigenvalue_band_proprties.
+            # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
+
+            if self.projected_eigenvalues_kpoints_opt:
+                vout["projected_eigenvalues_kpoints_opt"] = {
+                    str(spin): v.tolist() for spin, v in self.projected_eigenvalues_kpoints_opt.items()
+                }
 
         dct["output"] = vout
         return jsanitize(dct, strict=True)
