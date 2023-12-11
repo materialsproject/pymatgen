@@ -1,14 +1,23 @@
 from __future__ import annotations
 
+import gzip
 import os
+import shutil
 import unittest
 
+import numpy as np
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
+from pymatgen.io.qchem.outputs import (
+    QCOutput,
+    check_for_structure_changes,
+    gradient_parser,
+    hessian_parser,
+    orbital_coeffs_parser,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -139,6 +148,7 @@ property_list = {
     "norm_of_stepsize",
     "version",
     "dipoles",
+    "multipoles",
     "gap_info",
 }
 
@@ -300,6 +310,27 @@ class TestQCOutput(PymatgenTest):
 
         for key in property_list:
             self._test_property(key, single_outs, multi_outs)
+
+    def test_multipole_parsing(self):
+        sp = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo.qout")
+
+        mpoles = sp.data["multipoles"]
+        assert len(mpoles["quadrupole"]) == 6
+        assert len(mpoles["octopole"]) == 10
+        assert len(mpoles["hexadecapole"]) == 15
+        assert mpoles["quadrupole"]["XX"] == -51.3957
+        assert mpoles["quadrupole"]["YZ"] == 3.5356
+        assert mpoles["octopole"]["XYY"] == -15.0294
+        assert mpoles["octopole"]["XZZ"] == -14.9756
+        assert mpoles["hexadecapole"]["YYYY"] == -326.317
+        assert mpoles["hexadecapole"]["XYZZ"] == 58.0584
+
+        opt = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
+        mpoles = opt.data["multipoles"]
+
+        assert len(mpoles["quadrupole"]) == 5
+        assert len(mpoles["octopole"]) == 5
+        assert len(mpoles["hexadecapole"]) == 5
 
     @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
     def test_structural_change(self):
@@ -490,6 +521,34 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["donor atom 2 number"][2593] == "info_is_from_3C"
         assert perturb_ene[0]["acceptor type"][723] == "3C*"
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
+
+
+def test_gradient(tmp_path):
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    gradient = gradient_parser(tmp_path / "131.0")
+    assert np.shape(gradient) == (14, 3)
+    assert gradient.all()
+
+
+def test_hessian(tmp_path):
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    hessian = hessian_parser(tmp_path / "132.0", n_atoms=14)
+    assert np.shape(hessian) == (42, 42)
+    assert hessian.all()
+
+    hessian = hessian_parser(tmp_path / "132.0")
+    assert np.shape(hessian) == (42 * 42,)
+    assert hessian.all()
+
+
+def test_prev_orbital_coeffs(tmp_path):
+    with gzip.open(f"{TEST_FILES_DIR}/qchem/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    orbital_coeffs = orbital_coeffs_parser(tmp_path / "53.0")
+    assert len(orbital_coeffs) == 360400
+    assert orbital_coeffs.all()
 
 
 if __name__ == "__main__":

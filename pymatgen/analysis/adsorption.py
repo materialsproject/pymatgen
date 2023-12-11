@@ -576,12 +576,12 @@ class AdsorbateSiteFinder:
         # surface atoms, i.e. search for sites above (below) the bottom (top) surface
         sorted_sites = sorted(sym_slab, key=lambda site: site.frac_coords[2])
         if sorted_sites[0].surface_properties == "surface":
-            d = sorted_sites[0].frac_coords[2] + dist_from_surf
+            dist = sorted_sites[0].frac_coords[2] + dist_from_surf
         else:
-            d = sorted_sites[-1].frac_coords[2] - dist_from_surf
+            dist = sorted_sites[-1].frac_coords[2] - dist_from_surf
 
         for idx, site in enumerate(sym_slab):
-            if d - range_tol < site.frac_coords[2] < d + range_tol and (
+            if dist - range_tol < site.frac_coords[2] < dist + range_tol and (
                 target_species and site.species_string in target_species or not target_species
             ):
                 substituted_slabs.append(substitute(site, idx))

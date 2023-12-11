@@ -2181,7 +2181,7 @@ class KPathLatimerMunro(KPathBase):
         max_cosine_orbits_copy = max_cosine_orbits_orig.copy()
         max_cosine_label_inds = np.zeros(len(max_cosine_orbits_copy))
         initial_max_cosine_label_inds = [max_cos_orb[0][0] for max_cos_orb in max_cosine_orbits_copy]
-        u, inds, counts = np.unique(initial_max_cosine_label_inds, return_index=True, return_counts=True)
+        _uniq_vals, inds, counts = np.unique(initial_max_cosine_label_inds, return_index=True, return_counts=True)
         grouped_inds = [
             [
                 i

@@ -50,13 +50,26 @@ except ImportError:
 
 class TestVasprun(PymatgenTest):
     def test_vasprun_ml(self):
+        # Test for ML MD simulation
+        # The trajectory data is stored in md_data
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")
         assert len(vasp_run.md_data) == 100
-        for d in vasp_run.md_data:
-            assert "structure" in d
-            assert "forces" in d
-            assert "energy" in d
+        for frame in vasp_run.md_data:
+            assert "structure" in frame
+            assert "forces" in frame
+            assert "energy" in frame
         assert vasp_run.md_data[-1]["energy"]["total"] == approx(-491.51831988)
+        assert vasp_run.md_n_steps == 100
+        assert vasp_run.converged_ionic
+
+    def test_vasprun_md(self):
+        # Test for simple MD simulation (no ML).
+        # Does not generate the `md_data` attribute in Vasprun. Data based on `ionic_steps`
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.md.gz")
+        assert len(vasp_run.ionic_steps) == 10
+        assert vasp_run.final_energy == approx(-327.73014059)
+        assert vasp_run.md_n_steps == 10
+        assert vasp_run.converged_ionic
 
     def test_bad_random_seed(self):
         _ = Vasprun(f"{TEST_FILES_DIR}/vasprun.bad_random_seed.xml")

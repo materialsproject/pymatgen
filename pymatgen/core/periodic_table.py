@@ -454,7 +454,7 @@ class ElementBase(Enum):
         return J_sorted_terms[-1][0]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Element) and self.Z == other.Z
+        return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z
 
     def __hash__(self) -> int:
         return self.Z
@@ -895,7 +895,12 @@ class Species(MSONable, Stringify):
 
     STRING_MODE = "SUPERSCRIPT"
 
-    def __init__(self, symbol: SpeciesLike, oxidation_state: float | None = None, spin: float | None = None) -> None:
+    def __init__(
+        self,
+        symbol: SpeciesLike,
+        oxidation_state: float | None = None,
+        spin: float | None = None,
+    ) -> None:
         """
         Args:
             symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
@@ -1138,7 +1143,9 @@ class Species(MSONable, Stringify):
         return data[f"{radius_type}_radius"]
 
     def get_crystal_field_spin(
-        self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"
+        self,
+        coordination: Literal["oct", "tet"] = "oct",
+        spin_config: Literal["low", "high"] = "high",
     ) -> float:
         """Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.

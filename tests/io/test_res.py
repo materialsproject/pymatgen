@@ -54,13 +54,14 @@ class TestAirssProvider:
         assert date.day == 16
 
         castep_v = provider.get_castep_version()
-        assert castep_v is not None
         assert castep_v == "19.11"
 
         frd = provider.get_func_rel_disp()
         assert frd is not None
-        f, r, d = frd
-        assert f == "Perdew Burke Ernzerhof"
+        functional, rel, disp = frd
+        assert functional == "Perdew Burke Ernzerhof"
+        assert rel == "Koelling-Harmon"
+        assert disp == "off"
 
         airss_v = provider.get_airss_version()
         assert airss_v is not None
