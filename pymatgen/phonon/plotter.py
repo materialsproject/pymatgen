@@ -629,7 +629,9 @@ class PhononBSPlotter:
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
             labels: labels for the two band structures. Defaults to None, which will use the
-                legend of the two PhononBSPlotter objects.
+                label of the two PhononBSPlotter objects if present.
+                Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
+                on which plot_compare() is called must come first.
             legend_kwargs: kwargs passed to ax.legend().
             **kwargs: passed to ax.plot().
 
@@ -665,8 +667,8 @@ class PhononBSPlotter:
         if labels is None and self._label and other_plotter._label:
             labels = (self._label, other_plotter._label)
         if labels:
-            ax.plot([], [], "r-", label=labels[0], linewidth=3 * line_width)
-            ax.plot([], [], "b-", label=labels[1], linewidth=3 * line_width)
+            ax.plot([], [], "b-", label=labels[0], linewidth=3 * line_width)
+            ax.plot([], [], "r-", label=labels[1], linewidth=3 * line_width)
             ax.legend(**legend_kwargs)
 
         return ax
