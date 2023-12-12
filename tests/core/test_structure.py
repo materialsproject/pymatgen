@@ -1661,7 +1661,7 @@ class TestStructure(PymatgenTest):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)  # 1% error
+        assert relaxed.lattice.a == approx(3.867626620642243, rel=0.01)  # allow 1% error
         assert hasattr(relaxed, "calc")
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
             actual = relaxed.dynamics[key]
