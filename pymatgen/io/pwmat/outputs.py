@@ -13,7 +13,10 @@ from pymatgen.util.typing import PathLike
 
 class Movement(MSONable):
     def __init__(
-        self, filename: PathLike, ionic_step_skip: Union[int, None] = None, ionic_step_offset: Union[int, None] = None
+        self, 
+        filename: PathLike, 
+        ionic_step_skip: int | None = None, 
+        ionic_step_offset: int | None = None
     ):
         """
         Description:
@@ -84,17 +87,19 @@ class Movement(MSONable):
         Returns:
             eatoms: np.ndarray
         """
-        try:
+        if ("eatoms" not in self.ionic_steps[0].keys()):
             return [step["eatoms"] for _, step in enumerate(self.ionic_steps)]
-        except KeyError as e:
-            print(e)
+        else:
+            print("Energy decomposition is trun down in {0}.".format(self.filename))
+
 
     @property
     def virials(self):
-        try:
-            return [step["virial"] for _, step in enumerate(self.ionic_steps)]
-        except KeyError as e:
-            print(e)
+        if ("virial" not in self.ionic_steps[0].keys()):
+            return [step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" not in step.keys())]
+        else:
+            print("No virial information in {0}.".format(self.filename))
+
 
     def _parse_sefv(self):
         ionic_steps: list[dict] = []
@@ -102,18 +107,20 @@ class Movement(MSONable):
             tmp_step: dict = {}
             for ii in range(self.nionic_steps):
                 tmp_chunk: str = ""
-                for jj in range(self.chunksizes[ii]):
+                for _ in range(self.chunksizes[ii]):
                     tmp_chunk += mvt.readline()
                 tmp_step.update({"atom_config": AtomConfig.from_str(tmp_chunk)})
                 tmp_step.update({"etot": ACstrExtractor(tmp_chunk).get_etot()[0]})
                 tmp_step.update({"fatoms": ACstrExtractor(tmp_chunk).get_fatoms().reshape(-1, 3)})
-                try:
+                eatoms: np.ndarray | None = ACstrExtractor(tmp_chunk).get_fatoms()
+                if (eatoms is not None):
                     tmp_step.update({"eatoms": ACstrExtractor(tmp_chunk).get_eatoms()})
-                except AttributeError():
+                else:
                     print(f"Ionic step #{ii} : Energy deposition is turn down.")
-                try:
-                    tmp_step.update({"virial": ACstrExtractor(tmp_chunk).get_virial().reshape(3, 3)})
-                except:
+                virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
+                if (virial is not None):
+                    tmp_step.update({"virial": virial.reshape(3, 3)})
+                else:
                     print(f"Ionic step #{ii} : No virial infomation.")
                 ionic_steps.append(tmp_step)
         return ionic_steps

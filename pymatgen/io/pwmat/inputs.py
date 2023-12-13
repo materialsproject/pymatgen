@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import linecache
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractstaticmethod
 from collections import Counter
 from typing import Optional
 
@@ -14,7 +14,7 @@ from pymatgen.util.typing import PathLike
 
 
 class LocatorBase(ABC):
-    @staticmethod
+    @abstractstaticmethod
     def locate_all_lines(file_path: PathLike, content: str):
         pass
 
@@ -87,24 +87,6 @@ class ACExtractorBase(ABC):
     def get_magmoms(self):
         pass
 
-    def get_eatoms(self):
-        """
-        Description:
-            Implement for trajectory file -- MOVEMENT
-        """
-
-    def get_etot(self):
-        """
-        Description:
-            Implement for trajectory file -- MOVEMENT
-        """
-
-    def get_fatoms(self):
-        """
-        Description:
-            Implement for trajectory file -- MOVEMENT
-        """
-
 
 class ACExtractor(ACExtractorBase):
     """
@@ -134,8 +116,7 @@ class ACExtractor(ACExtractorBase):
             num_atoms: int
         """
         first_row = linecache.getline(self.atom_config_path, 1)
-        num_atoms = int(first_row.split()[0])
-        return num_atoms
+        return int(first_row.split()[0])
 
     def get_lattice(self):
         """
@@ -286,11 +267,14 @@ class ACstrExtractor(ACExtractorBase):
 
     def get_etot(self):
         """
-        [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01', ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02', ' SCF =     7']
+        [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01', 
+        ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02', 
+        ' SCF =     7']
         """
         strs_lst = self.strs_lst[0].split(",")
         aim_index = ListLocator.locate_all_lines(strs_lst=strs_lst, content="EK (EV) =")[0]
-        # strs_lst[aim_index].split() = ['Ek', '(eV)', '=', '-0.2831881714E+05', '-0.2836665392E+05', '0.4783678177E+02']
+        # strs_lst[aim_index].split() :
+        #   ['Ek', '(eV)', '=', '-0.2831881714E+05', '-0.2836665392E+05', '0.4783678177E+02']
         return np.array([float(strs_lst[aim_index].split()[3].strip())])
 
     def get_eatoms(self):
@@ -298,53 +282,45 @@ class ACstrExtractor(ACExtractorBase):
         Description:
             When turn on `ENERGY DEPOSITION`, PWmat will output energy per atom.
         Returns:
-            eatoms: np.ndarray
+            eatoms: np.ndarray | None
         """
-        try:
-            eatoms_lst = []
-            aim_content = "Atomic-Energy, ".upper()
-            aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
+        eatoms_lst = []
+        aim_content = "Atomic-Energy, ".upper()
+        aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
+        if (len(aim_idxs) == 0):
+            return None
+        else:
+            aim_idx = aim_idxs[0]
+        for tmp_str in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
+            """
+            Atomic-Energy, Etot(eV),E_nonloc(eV),Q_atom:dE(eV)=  -0.1281163115E+06
+            14   0.6022241483E+03    0.2413350871E+02    0.3710442365E+01
+            """
+            eatoms_lst.append(float(tmp_str.split()[1]))
+        return np.array(eatoms_lst)
 
-            for tmp_str in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
-                """
-                Atomic-Energy, Etot(eV),E_nonloc(eV),Q_atom:dE(eV)=  -0.1281163115E+06
-                14   0.6022241483E+03    0.2413350871E+02    0.3710442365E+01
-                """
-                eatoms_lst.append(float(tmp_str.split()[1]))
-            return np.array(eatoms_lst)
-
-        except:
-            raise AttributeError("ACExtractorError: No atomic energy info in MOVMENT.")
 
     def get_fatoms(self):
         """
-        Description
-        -----------
-            1. 得到体系内所有原子的受力
+        Returns:
+            fatoms: np.ndarray
         """
-        try:
-            forces_lst = []
-            aim_content = "Force".upper()
-            aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
+        forces_lst = []
+        aim_content = "Force".upper()
+        aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
 
-            for tmp_str in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
-                # ['14', '0.089910342901203', '0.077164252174742', '0.254144099204679']
-                tmp_str_lst = tmp_str.split()
-                tmp_forces = [float(value) for value in tmp_str_lst[1:4]]
-                forces_lst.append(tmp_forces)
-            return -np.array(forces_lst).reshape(-1)
-        except:  # atom_config_str 中没有关于原子受力的信息
-            return np.zeros((self.num_atoms * 3,))
+        for tmp_str in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
+            # ['14', '0.089910342901203', '0.077164252174742', '0.254144099204679']
+            tmp_str_lst = tmp_str.split()
+            tmp_forces = [float(value) for value in tmp_str_lst[1:4]]
+            forces_lst.append(tmp_forces)
+        return -np.array(forces_lst).reshape(-1)
+    
 
     def get_virial(self):
         """
-        Description
-        -----------
-            1. 得到材料的维里张量 (virial tensor)
-
-        Return
-        ------
-            1. virial_tensor: np.array, 是一个二维 np.ndarray
+        Returns:
+            1. virial_tensor: np.ndarray | None
         """
         virial_tensor = []
 
@@ -353,11 +329,13 @@ class ACstrExtractor(ACExtractorBase):
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
 
         for tmp_idx in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
-            # tmp_strs_lst = ['0.8759519000E+01', '0.0000000000E+00', '0.0000000000E+00', 'stress', '(eV):', '0.115558E+02', '0.488108E+01', '0.238778E+01']
+            # tmp_strs_lst = 
+            # ['0.8759519000E+01', '0.0000000000E+00', '0.0000000000E+00', 
+            # 'stress', '(eV):', '0.115558E+02', '0.488108E+01', '0.238778E+01']
             tmp_strs_lst = self.strs_lst[tmp_idx].split()
             tmp_aim_row_lst = ListLocator.locate_all_lines(strs_lst=tmp_strs_lst, content="STRESS")
             if len(tmp_aim_row_lst) == 0:
-                raise AttributeError("ACstrExtractorError: No virial info in MOVEMENT.")
+                return None
 
         ### Step 2. 获取维里张量
         for tmp_idx in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
