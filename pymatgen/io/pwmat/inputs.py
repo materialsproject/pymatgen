@@ -255,15 +255,16 @@ class ACstrExtractor(ACExtractorBase):
             magmoms: np.ndarray
         """
         magnetic_moments_lst = []
-        try:
-            aim_content = "MAGNETIC"
-            aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
+        aim_content = "MAGNETIC"
+        aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
+        if (len(aim_idxs) == 0):
+            magnetic_moments_lst = [0 for _ in range(self.num_atoms)]
+        else:
+            aim_idx = aim_idxs[0]
             magnetic_moments_content = self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]
             magnetic_moments_lst = [
                 float(tmp_magnetic_moment.split()[-1]) for tmp_magnetic_moment in magnetic_moments_content
             ]
-        except:
-            magnetic_moments_lst = [0 for _ in range(self.num_atoms)]
         return np.array(magnetic_moments_lst)
 
     def get_etot(self):
@@ -290,8 +291,7 @@ class ACstrExtractor(ACExtractorBase):
         aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
         if len(aim_idxs) == 0:
             return None
-        else:
-            aim_idx = aim_idxs[0]
+        aim_idx = aim_idxs[0]
         for tmp_str in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
             """
             Atomic-Energy, Etot(eV),E_nonloc(eV),Q_atom:dE(eV)=  -0.1281163115E+06
@@ -439,16 +439,11 @@ class AtomConfig(MSONable):
         lines.append("Position, move_x, move_y, move_z\n")
         for ii in range(self.structure.num_sites):
             lines.append(
-                "{0:>4d}{1:>15f}{2:>15f}{3:>15f}{4:>4d}{5:>4d}{6:>4d}\n".format(
-                    int(self.structure.species[ii].Z),
-                    self.structure.frac_coords[ii][0],
-                    self.structure.frac_coords[ii][1],
-                    self.structure.frac_coords[ii][2],
-                    1, 1, 1)
+                f"{int(self.structure.species[ii].Z):>4d}{self.structure.frac_coords[ii][0]:>15f}{self.structure.frac_coords[ii][1]:>15f}{self.structure.frac_coords[ii][2]:>15f}   1   1   1\n"
             )
         if "magmom" in self.structure.sites[0].properties:
             lines.append("MAGNETIC\n")
-            for ii, tmp_site in enumerate(self.structure.sites):
+            for _, tmp_site in enumerate(self.structure.sites):
                 lines.append("{0:>4d}{1:>15f}\n".format(int(tmp_site.specie.Z), tmp_site.properties["magmom"]))
         return "".join(lines)
 
