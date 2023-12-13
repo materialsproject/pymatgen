@@ -582,15 +582,15 @@ class PhononBSPlotter:
                         label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(f"{label0}$\\mid${label1}")
+                    tick_labels.append(f"{label0}|{label1}")
                 elif point.label.startswith("\\") or point.label.find("_") != -1:
                     tick_labels.append(f"${point.label}$")
                 else:
-                    # map atomate2 all-upper-case point.labels to pretty LaTeX
-                    label = dict(GAMMA=r"$\Gamma$", DELTA=r"$\Delta$").get(point.label, point.label)
-                    tick_labels.append(label)
+                    tick_labels.append(point.label)
                 previous_label = point.label
                 previous_branch = this_branch
+        # map atomate2 all-upper-case labels like GAMMA/DELTA to pretty symbols
+        tick_labels = [label.replace("GAMMA", "Γ").replace("DELTA", "Δ") for label in tick_labels]
         return {"distance": tick_distance, "label": tick_labels}
 
     def plot_compare(
