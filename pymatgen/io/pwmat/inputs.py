@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import linecache
-from abc import ABC, abstractmethod, abstractstaticmethod
+from abc import ABC, abstractmethod
 from collections import Counter
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -13,7 +13,6 @@ from pymatgen.core import Lattice, Structure
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
-
 
 
 class LineLocator(MSONable):
@@ -383,7 +382,7 @@ class AtomConfig(MSONable):
             AtomConfig object
         """
         acextractor = ACstrExtractor(atom_config_str=data)
-        properties:Dict[str, float] = {}
+        properties: dict[str, float] = {}
         structure = Structure(
             lattice=acextractor.get_lattice(),
             species=acextractor.get_types(),
