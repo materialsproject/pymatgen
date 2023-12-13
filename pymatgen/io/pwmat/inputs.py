@@ -258,7 +258,7 @@ class ACstrExtractor(ACExtractorBase):
         magnetic_moments_lst = []
         aim_content = "MAGNETIC"
         aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
-        if (len(aim_idxs) == 0):
+        if len(aim_idxs) == 0:
             magnetic_moments_lst = [0 for _ in range(self.num_atoms)]
         else:
             aim_idx = aim_idxs[0]
@@ -439,11 +439,11 @@ class AtomConfig(MSONable):
             lines.append(f"{latt.matrix[ii][0]:>15f}{latt.matrix[ii][1]:>15f}{latt.matrix[ii][2]:>15f}\n")
         lines.append("Position, move_x, move_y, move_z\n")
         for ii in range(self.structure.num_sites):
-            lines.append( f"{int(self.structure.species[ii].Z):>4d}" )
-            lines.append( f"{self.structure.frac_coords[ii][0]:>15f}" )
-            lines.append( f"{self.structure.frac_coords[ii][1]:>15f}" )
-            lines.append( f"{self.structure.frac_coords[ii][2]:>15f}" )
-            lines.append( f"   1   1   1\n" )
+            lines.append(f"{int(self.structure.species[ii].Z):>4d}")
+            lines.append(f"{self.structure.frac_coords[ii][0]:>15f}")
+            lines.append(f"{self.structure.frac_coords[ii][1]:>15f}")
+            lines.append(f"{self.structure.frac_coords[ii][2]:>15f}")
+            lines.append("   1   1   1\n")
         if "magmom" in self.structure.sites[0].properties:
             lines.append("MAGNETIC\n")
             for _, tmp_site in enumerate(self.structure.sites):
