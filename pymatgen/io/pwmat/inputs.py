@@ -3,7 +3,7 @@ from __future__ import annotations
 import linecache
 from abc import ABC, abstractmethod, abstractstaticmethod
 from collections import Counter
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 from monty.io import zopen
@@ -15,13 +15,8 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 
-class LocatorBase(ABC):
-    @abstractstaticmethod
-    def locate_all_lines(file_path: PathLike, content: str):
-        pass
 
-
-class LineLocator(LocatorBase):
+class LineLocator(MSONable):
     @staticmethod
     def locate_all_lines(file_path: PathLike, content: str):
         """
@@ -44,7 +39,7 @@ class LineLocator(LocatorBase):
         return row_idxs_lst
 
 
-class ListLocator(LocatorBase):
+class ListLocator(MSONable):
     @staticmethod
     def locate_all_lines(strs_lst: list[str], content: str):
         """
@@ -388,7 +383,7 @@ class AtomConfig(MSONable):
             AtomConfig object
         """
         acextractor = ACstrExtractor(atom_config_str=data)
-        properties = {}
+        properties:Dict[str, float] = {}
         structure = Structure(
             lattice=acextractor.get_lattice(),
             species=acextractor.get_types(),
