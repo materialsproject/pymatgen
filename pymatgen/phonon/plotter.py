@@ -617,6 +617,7 @@ class PhononBSPlotter:
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         labels: tuple[str, str] | None = None,
         legend_kwargs: dict | None = None,
+        on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
         **kwargs,
     ) -> Axes:
         """Plot two band structure for comparison. One is in red the other in blue.
@@ -625,14 +626,16 @@ class PhononBSPlotter:
         used to build the PhononBSPlotter.
 
         Args:
-            other_plotter: another PhononBSPlotter object defined along the same symmetry lines
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            other_plotter (PhononBSPlotter): another PhononBSPlotter object defined along the same symmetry lines
+            units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
-            labels: labels for the two band structures. Defaults to None, which will use the
+            labels (tuple[str, str] | None): labels for the two band structures. Defaults to None, which will use the
                 label of the two PhononBSPlotter objects if present.
                 Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
                 on which plot_compare() is called must come first.
-            legend_kwargs: kwargs passed to ax.legend().
+            legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
+            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures are not compatible.
+                Defaults to 'raise'.
             **kwargs: passed to ax.plot().
 
         Returns:
@@ -646,7 +649,11 @@ class PhononBSPlotter:
         data = other_plotter.bs_plot_data()
 
         if len(data_orig["distances"]) != len(data["distances"]):
-            raise ValueError("The two objects are not compatible.")
+            if on_incompatible == "raise":
+                raise ValueError("The two band structures are not compatible.")
+            if on_incompatible == "warn":
+                logger.warning("The two band structures are not compatible.")
+            return None  # ignore/warn
 
         line_width = kwargs.setdefault("linewidth", 1)
 
