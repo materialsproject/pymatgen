@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import copy
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
-from pymatgen.util.typing import PathLike
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import PathLike
 
 
 class Movement(MSONable):
@@ -79,7 +80,8 @@ class Movement(MSONable):
         Returns:
             fatoms: np.ndarray
         """
-        return [step["fatoms"] for _, step in enumerate(self.ionic_steps)]
+        return np.array( [step["fatoms"] for _, step in enumerate(self.ionic_steps)] )
+
 
     @property
     def eatoms(self):
@@ -87,18 +89,12 @@ class Movement(MSONable):
         Returns:
             eatoms: np.ndarray
         """
-        if ("eatoms" not in self.ionic_steps[0].keys()):
-            return [step["eatoms"] for _, step in enumerate(self.ionic_steps)]
-        else:
-            print("Energy decomposition is trun down in {0}.".format(self.filename))
+        return np.array( [step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)] )
 
 
     @property
     def virials(self):
-        if ("virial" not in self.ionic_steps[0].keys()):
-            return [step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" not in step.keys())]
-        else:
-            print("No virial information in {0}.".format(self.filename))
+        return np.array( [step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" in step)] )
 
 
     def _parse_sefv(self):

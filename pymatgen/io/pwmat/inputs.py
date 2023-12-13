@@ -3,14 +3,15 @@ from __future__ import annotations
 import linecache
 from abc import ABC, abstractmethod, abstractstaticmethod
 from collections import Counter
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.core import Lattice, Structure
-from pymatgen.util.typing import PathLike
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import PathLike
 
 
 class LocatorBase(ABC):
@@ -350,7 +351,7 @@ class ACstrExtractor(ACExtractorBase):
 
 
 class AtomConfig(MSONable):
-    def __init__(self, structure: Structure, sort_structure: Optional[bool] = False):
+    def __init__(self, structure: Structure, sort_structure: bool = False):
         """
         Args:
             structure (Structure): Structure object
@@ -377,7 +378,7 @@ class AtomConfig(MSONable):
         return self.get_str()
 
     @classmethod
-    def from_str(cls, data: str, mag: Optional[bool] = True):
+    def from_str(cls, data: str, mag: bool = True):
         """
         Reads a atom.config from a string
 
@@ -406,7 +407,7 @@ class AtomConfig(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename: str, mag: Optional[bool] = True):
+    def from_file(cls, filename: str, mag: bool = True):
         with zopen(filename, "rt") as f:
             return cls.from_str(data=f.read(), mag=mag)
 
@@ -445,10 +446,7 @@ class AtomConfig(MSONable):
                     self.structure.frac_coords[ii][0],
                     self.structure.frac_coords[ii][1],
                     self.structure.frac_coords[ii][2],
-                    1,
-                    1,
-                    1,
-                )
+                    1, 1, 1)
             )
         if "magmom" in self.structure.sites[0].properties:
             lines.append("MAGNETIC\n")
