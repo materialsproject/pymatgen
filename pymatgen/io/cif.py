@@ -1367,7 +1367,7 @@ class CifWriter:
         block["_chemical_formula_sum"] = no_oxi_comp.formula
         block["_cell_volume"] = format_str.format(lattice.volume)
 
-        reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
+        _reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
 
         if symprec is None:

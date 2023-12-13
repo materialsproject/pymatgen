@@ -159,7 +159,7 @@ class VoronoiAnalyzer:
         arr /= np.sum(arr)
         pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         ax.barh(pos, arr, align="center", alpha=0.5)
         ax.set_yticks(pos)
         ax.set_yticklabels(labels)

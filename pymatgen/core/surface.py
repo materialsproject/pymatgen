@@ -804,7 +804,7 @@ class SlabGenerator:
         # We want the vector that has maximum magnitude in the
         # direction of the surface normal as the c-direction.
         # Results in a more "orthogonal" unit cell.
-        c_index, dist = max(non_orth_ind, key=lambda t: t[1])
+        c_index, _dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
             lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
@@ -868,7 +868,7 @@ class SlabGenerator:
         self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self._normal = normal
-        a, b, c = self.oriented_unit_cell.lattice.matrix
+        _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
         self.reorient_lattice = reorient_lattice
 

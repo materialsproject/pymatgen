@@ -468,7 +468,7 @@ class PhononBSPlotter:
         assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
 
         u = freq_units(units)
-        fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
+        _fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
         self._make_ticks(ax)
 
         data = self.bs_plot_data()

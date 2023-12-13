@@ -519,7 +519,7 @@ class BztInterpolator:
             kpoints_lbls_dict = kpath.kpath["kpoints"]
 
         lattvec = self.data.get_lattvec()
-        egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
+        egrid, _vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
         if self.data.is_spin_polarized:
             h = sum(np.array_split(self.accepted, 2)[0])
             egrid = np.array_split(egrid, [h], axis=0)
@@ -563,7 +563,7 @@ class BztInterpolator:
             spins = [Spin.up]
 
         for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
-            energies, densities, vvdos, cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
+            energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
             if T:
                 densities = BL.smoothen_DOS(energies, densities, T)
@@ -609,7 +609,7 @@ class BztInterpolator:
 
                     self.data.ebands = self.data.proj[spin][:, :, idx, iorb].T
                     coeffs = fite.fitde3D(self.data, self.equivalences)
-                    proj, vvproj, cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
+                    proj, _vvproj, _cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
 
                     edos, pdos = BL.DOS(eb, npts=npts_mu, weights=np.abs(proj.real), erange=enr)
 

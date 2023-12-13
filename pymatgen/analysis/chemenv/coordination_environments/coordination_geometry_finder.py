@@ -313,7 +313,7 @@ def find_rotation(points_distorted, points_perfect):
         The rotation matrix.
     """
     H = np.matmul(points_distorted.T, points_perfect)
-    U, S, Vt = svd(H)
+    U, _S, Vt = svd(H)
     return np.matmul(Vt.T, U.T)
 
 

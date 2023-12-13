@@ -33,7 +33,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         c = Circle(pos[n], radius=0.02, alpha=0.5)
         ax.add_patch(c)
         env_graph.node[n]["patch"] = c
-        x, y = pos[n]
+        _x, _y = pos[n]
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None

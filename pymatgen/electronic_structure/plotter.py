@@ -4354,7 +4354,7 @@ def plot_ellipsoid(
 
     # calculate the ellipsoid
     # find the rotation matrix and radii of the axes
-    U, s, rotation = np.linalg.svd(hessian)
+    _U, s, rotation = np.linalg.svd(hessian)
     radii = 1.0 / np.sqrt(s)
 
     # from polar coordinates

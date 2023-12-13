@@ -2234,7 +2234,7 @@ class IStructure(SiteCollection, MSONable):
         if interpolate_lattices:
             # interpolate lattice matrices using polar decomposition
             # u is a unitary rotation, p is stretch
-            u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
+            _u, p = polar(np.dot(end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)))
             lvec = end_amplitude * (p - np.identity(3))
             lstart = self.lattice.matrix.T
 
