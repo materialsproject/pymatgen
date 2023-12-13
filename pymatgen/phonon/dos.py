@@ -48,8 +48,7 @@ class PhononDos(MSONable):
         return gaussian_filter1d(self.densities, sigma / avg_diff)
 
     def __add__(self, other: PhononDos) -> PhononDos:
-        """Adds two DOS together. Checks that frequency scales are the same.
-        Otherwise, a ValueError is thrown.
+        """Adds two DOS together. Pads densities with zeros to make frequencies matching.
 
         Args:
             other: Another DOS object.
@@ -57,21 +56,58 @@ class PhononDos(MSONable):
         Returns:
             Sum of the two DOSs.
         """
+        if isinstance(other, (int, float)):
+            return PhononDos(self.frequencies, self.densities + other)
         if not all(np.equal(self.frequencies, other.frequencies)):
             raise ValueError("Frequencies of both DOS are not compatible!")
         densities = self.densities + other.densities
         return PhononDos(self.frequencies, densities)
 
-    def __radd__(self, other: PhononDos) -> PhononDos:
-        """Reflected addition of two DOS objects.
+    def __sub__(self, other: PhononDos) -> PhononDos:
+        """Subtracts two DOS together. Pads densities with zeros to make frequencies matching.
 
         Args:
             other: Another DOS object.
 
         Returns:
-            Sum of the two DOSs.
+            Difference of the two DOSs.
         """
-        return self.__add__(other)
+        return self + (-other)
+
+    def __mul__(self, scalar: float) -> PhononDos:
+        """Multiplies the DOS by a scalar.
+
+        Args:
+            scalar: A scalar to multiply by.
+
+        Returns:
+            A new DOS multiplied by a scalar.
+        """
+        return PhononDos(self.frequencies, self.densities * scalar)
+
+    def __neg__(self) -> PhononDos:
+        """Inverts the DOS.
+
+        Returns:
+            A new DOS with densities inverted. Useful for subtracting from a total DOS.
+        """
+        return PhononDos(self.frequencies, -self.densities)
+
+    __radd__ = __add__
+    __rmul__ = __mul__
+
+    def __eq__(self, other: object) -> bool:
+        """Two DOS are equal if their densities are equal.
+
+        Args:
+            other: Another DOS object.
+
+        Returns:
+            True if densities are equal.
+        """
+        if not isinstance(other, PhononDos):
+            return NotImplemented
+        return np.allclose(self.densities, other.densities)
 
     def __repr__(self) -> str:
         frequencies, densities = self.frequencies.shape, self.densities.shape

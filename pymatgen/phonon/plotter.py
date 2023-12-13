@@ -383,8 +383,6 @@ class PhononBSPlotter:
         if ylim is not None:
             ax.set_ylim(ylim)
 
-        plt.tight_layout()
-
         return ax
 
     def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
