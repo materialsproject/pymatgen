@@ -89,14 +89,14 @@ class PhononDos(MSONable):
     def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
         str_arr = [f"#{'Frequency':30s} {'Density':30s}"]
-        for i, frequency in enumerate(self.frequencies):
-            str_arr.append(f"{frequency:.5f} {self.densities[i]:.5f}")
+        for idx, freq in enumerate(self.frequencies):
+            str_arr.append(f"{freq:.5f} {self.densities[idx]:.5f}")
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Sequence]) -> PhononDos:
+    def from_dict(cls, dct: dict[str, Sequence]) -> PhononDos:
         """Returns PhononDos object from dict representation of PhononDos."""
-        return cls(d["frequencies"], d["densities"])
+        return cls(dct["frequencies"], dct["densities"])
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of PhononDos."""
@@ -109,7 +109,7 @@ class PhononDos(MSONable):
 
     @lazy_property
     def ind_zero_freq(self) -> int:
-        """Index of the first point for which the frequencies are equal or greater than zero."""
+        """Index of the first point for which the frequencies are >= 0."""
         ind = np.searchsorted(self.frequencies, 0)
         if ind >= len(self.frequencies):
             raise ValueError("No positive frequencies found")
@@ -125,7 +125,7 @@ class PhononDos(MSONable):
         """Numpy array containing the list of densities corresponding to positive frequencies."""
         return self.densities[self.ind_zero_freq :]
 
-    def cv(self, t: float, structure: Structure | None = None) -> float:
+    def cv(self, temp: float, structure: Structure | None = None) -> float:
         """Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -134,14 +134,14 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/(K*mol).
 
         Args:
-            t: a temperature in K
+            temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
 
         Returns:
-            Constant volume specific heat C_v
+            float: Constant volume specific heat C_v
         """
-        if t == 0:
+        if temp == 0:
             return 0
 
         freqs = self._positive_frequencies
@@ -150,7 +150,7 @@ class PhononDos(MSONable):
         def csch2(x):
             return 1.0 / (np.sinh(x) ** 2)
 
-        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
         cv = np.trapz(wd2kt**2 * csch2(wd2kt) * dens, x=freqs)
         cv *= const.Boltzmann * const.Avogadro
 
@@ -160,7 +160,7 @@ class PhononDos(MSONable):
 
         return cv
 
-    def entropy(self, t: float, structure: Structure | None = None) -> float:
+    def entropy(self, temp: float, structure: Structure | None = None) -> float:
         """Vibrational entropy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -169,31 +169,31 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/(K*mol).
 
         Args:
-            t: a temperature in K
+            temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
 
         Returns:
-            Vibrational entropy
+            float: Vibrational entropy
         """
-        if t == 0:
+        if temp == 0:
             return 0
 
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
-        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        s = np.trapz((wd2kt * 1 / np.tanh(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
+        entropy = np.trapz((wd2kt * 1 / np.tanh(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
 
-        s *= const.Boltzmann * const.Avogadro
+        entropy *= const.Boltzmann * const.Avogadro
 
         if structure:
             formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
-            s /= formula_units
+            entropy /= formula_units
 
-        return s
+        return entropy
 
-    def internal_energy(self, t: float, structure: Structure | None = None) -> float:
+    def internal_energy(self, temp: float, structure: Structure | None = None) -> float:
         """Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -202,31 +202,31 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/mol.
 
         Args:
-            t: a temperature in K
+            temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
 
         Returns:
             Phonon contribution to the internal energy
         """
-        if t == 0:
+        if temp == 0:
             return self.zero_point_energy(structure=structure)
 
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
-        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        e = np.trapz(freqs * 1 / np.tanh(wd2kt) * dens, x=freqs) / 2
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
+        e_phonon = np.trapz(freqs * 1 / np.tanh(wd2kt) * dens, x=freqs) / 2
 
-        e *= THZ_TO_J * const.Avogadro
+        e_phonon *= THZ_TO_J * const.Avogadro
 
         if structure:
             formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
-            e /= formula_units
+            e_phonon /= formula_units
 
-        return e
+        return e_phonon
 
-    def helmholtz_free_energy(self, t: float, structure: Structure | None = None) -> float:
+    def helmholtz_free_energy(self, temp: float, structure: Structure | None = None) -> float:
         """Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -235,29 +235,29 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/mol.
 
         Args:
-            t: a temperature in K
+            temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
 
         Returns:
             Phonon contribution to the Helmholtz free energy
         """
-        if t == 0:
+        if temp == 0:
             return self.zero_point_energy(structure=structure)
 
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
-        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
-        f = np.trapz(np.log(2 * np.sinh(wd2kt)) * dens, x=freqs)
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
+        e_free = np.trapz(np.log(2 * np.sinh(wd2kt)) * dens, x=freqs)
 
-        f *= const.Boltzmann * const.Avogadro * t
+        e_free *= const.Boltzmann * const.Avogadro * temp
 
         if structure:
             formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
-            f /= formula_units
+            e_free /= formula_units
 
-        return f
+        return e_free
 
     def zero_point_energy(self, structure: Structure | None = None) -> float:
         """Zero point energy of the system. Only positive frequencies will be used.
