@@ -110,6 +110,6 @@ class Movement(MSONable):
                 if virial is not None:
                     tmp_step.update({"virial": virial.reshape(3, 3)})
                 else:
-                    print(f"Ionic step #{ii} : No virial infomation.")
+                    print(f"Ionic step #{ii} : No virial information.")
                 ionic_steps.append(tmp_step)
         return ionic_steps

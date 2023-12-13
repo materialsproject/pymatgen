@@ -30,7 +30,7 @@ class LineLocator(LocatorBase):
 
         Args:
             file_path: str
-                Abosulte path of file.
+                Absolute path of file.
             2. content: str
                 Contents that needs to be located.
         """
@@ -93,7 +93,7 @@ class ACExtractorBase(ABC):
 class ACExtractor(ACExtractorBase):
     """
     Description:
-        Extract infomation contained in atom.config : number of atoms, lattice, types, frac_coords, magmoms
+        Extract information contained in atom.config : number of atoms, lattice, types, frac_coords, magmoms
 
     @Author: Hanyu Liu
     @email:  domainofbuaa@gmail.com
