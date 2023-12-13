@@ -2757,7 +2757,7 @@ class IStructure(SiteCollection, MSONable):
     def from_str(
         cls,
         input_string: str,
-        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs", "res"],
+        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs", "res", "pwmat"],
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
@@ -2824,6 +2824,9 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.res import ResIO
 
             struct = ResIO.structure_from_str(input_string, **kwargs)
+        elif fmt == "pwmat":
+            from pymatgen.io.pwmat import AtomConfig
+            struct = AtomConfig.from_str(input_string, **kwargs).structure
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
@@ -2902,6 +2905,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.res import ResIO
 
             struct = ResIO.structure_from_file(filename, **kwargs)
+        elif fnmatch(fname, "*.config") or fnmatch(fname, "*.CONFIG"):
+            from pymatgen.io.pwmat import AtomConfig
+            
+            struct = AtomConfig.from_file(filename, **kwargs).structure
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
