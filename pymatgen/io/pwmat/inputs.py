@@ -267,8 +267,8 @@ class ACstrExtractor(ACExtractorBase):
 
     def get_etot(self):
         """
-        [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01', 
-        ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02', 
+        [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01',
+        ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02',
         ' SCF =     7']
         """
         strs_lst = self.strs_lst[0].split(",")
@@ -287,7 +287,7 @@ class ACstrExtractor(ACExtractorBase):
         eatoms_lst = []
         aim_content = "Atomic-Energy, ".upper()
         aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
-        if (len(aim_idxs) == 0):
+        if len(aim_idxs) == 0:
             return None
         else:
             aim_idx = aim_idxs[0]
@@ -298,7 +298,6 @@ class ACstrExtractor(ACExtractorBase):
             """
             eatoms_lst.append(float(tmp_str.split()[1]))
         return np.array(eatoms_lst)
-
 
     def get_fatoms(self):
         """
@@ -315,7 +314,6 @@ class ACstrExtractor(ACExtractorBase):
             tmp_forces = [float(value) for value in tmp_str_lst[1:4]]
             forces_lst.append(tmp_forces)
         return -np.array(forces_lst).reshape(-1)
-    
 
     def get_virial(self):
         """
@@ -329,8 +327,8 @@ class ACstrExtractor(ACExtractorBase):
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
 
         for tmp_idx in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
-            # tmp_strs_lst = 
-            # ['0.8759519000E+01', '0.0000000000E+00', '0.0000000000E+00', 
+            # tmp_strs_lst =
+            # ['0.8759519000E+01', '0.0000000000E+00', '0.0000000000E+00',
             # 'stress', '(eV):', '0.115558E+02', '0.488108E+01', '0.238778E+01']
             tmp_strs_lst = self.strs_lst[tmp_idx].split()
             tmp_aim_row_lst = ListLocator.locate_all_lines(strs_lst=tmp_strs_lst, content="STRESS")
