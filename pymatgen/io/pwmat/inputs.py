@@ -447,7 +447,7 @@ class AtomConfig(MSONable):
         if "magmom" in self.structure.sites[0].properties:
             lines.append("MAGNETIC\n")
             for _, tmp_site in enumerate(self.structure.sites):
-                lines.append("{0:>4d}{1:>15f}\n".format(int(tmp_site.specie.Z), tmp_site.properties["magmom"]))
+                lines.append(f"{int(tmp_site.specie.Z):>4d}{tmp_site.properties['magmom']:>15f}\n")
         return "".join(lines)
 
     def write_file(self, filename: PathLike, **kwargs):
