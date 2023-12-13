@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 from pytest import approx
 
@@ -18,6 +19,11 @@ class TestPhononDos(PymatgenTest):
 
     def test_repr(self):
         assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
+
+    def test_str(self):
+        assert re.match(
+            r"#Frequency\s+Density\s+\n-0.66954\s+0.00000\n-0.63158\s+0.00000\n-0.59363\s+0.00000", str(self.dos)
+        )
 
     def test_properties(self):
         assert self.dos.densities[15] == approx(0.0001665998)
@@ -43,6 +49,41 @@ class TestPhononDos(PymatgenTest):
         assert self.dos.helmholtz_free_energy(300, structure=self.structure) == approx(-6998.034212172695, abs=1e-4)
         assert self.dos.entropy(300, structure=self.structure) == approx(75.08543723748751, abs=1e-4)
         assert self.dos.zero_point_energy(structure=self.structure) == approx(4847.462485708741, abs=1e-4)
+
+    def test_add(self):
+        dos_2x = self.dos + self.dos
+        assert dos_2x.frequencies == approx(self.dos.frequencies)
+        assert dos_2x.densities == approx(2 * self.dos.densities)
+
+        dos_3x = self.dos + dos_2x
+        assert dos_3x.frequencies == approx(self.dos.frequencies)
+        assert dos_3x.densities == approx(3 * self.dos.densities)
+
+        # test commutativity
+        assert dos_2x + 42 == 42 + dos_2x
+
+    def test_sub(self):
+        dos_0 = self.dos - self.dos
+        assert dos_0.frequencies == approx(self.dos.frequencies)
+        assert dos_0.densities == approx(self.dos.densities * 0)
+
+        dos_1 = self.dos - dos_0
+        assert dos_1.frequencies == approx(self.dos.frequencies)
+        assert dos_1.densities == approx(self.dos.densities)
+
+    def test_mul(self):
+        dos_2x = self.dos * 2
+        assert dos_2x.frequencies == approx(self.dos.frequencies)
+        assert dos_2x.densities == approx(2 * self.dos.densities)
+
+        # test commutativity
+        assert dos_2x * 1.234 == 1.234 * dos_2x
+
+    def test_eq(self):
+        assert self.dos == self.dos
+        assert self.dos != 42
+        assert self.dos != 2 * self.dos
+        assert 2 * self.dos == self.dos + self.dos
 
 
 class TestCompletePhononDos(PymatgenTest):
