@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-import palettable
 import scipy.constants as const
 from matplotlib.collections import LineCollection
 from monty.json import jsanitize
@@ -159,8 +158,6 @@ class PhononDosPlotter:
         n_colors = max(3, len(self._doses))
         n_colors = min(9, n_colors)
 
-        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
-
         y = None
         all_densities = []
         all_frequencies = []
@@ -186,17 +183,12 @@ class PhononDosPlotter:
         all_frequencies.reverse()
         all_pts = []
         for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+            color = self._doses[key].get("color", plt.cm.tab10.colors[idx % n_colors])
             all_pts.extend(list(zip(frequencies, densities)))
             if self.stack:
-                ax.fill(frequencies, densities, color=colors[idx % n_colors], label=str(key))
+                ax.fill(frequencies, densities, color=color, label=str(key))
             else:
-                ax.plot(
-                    frequencies,
-                    densities,
-                    color=colors[idx % n_colors],
-                    label=str(key),
-                    linewidth=3,
-                )
+                ax.plot(frequencies, densities, color=color, label=str(key), linewidth=3)
 
         if xlim:
             ax.set_xlim(xlim)
@@ -296,13 +288,9 @@ class PhononBSPlotter:
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for idx in range(len(ticks["label"])):
-            if ticks["label"][idx] is not None:
-                # don't print the same label twice
-                if idx != 0:
-                    ax.axvline(ticks["distance"][idx], color="k")
-                else:
-                    ax.axvline(ticks["distance"][idx], color="k")
+        for idx, label in enumerate(ticks["label"]):
+            if label is not None:
+                ax.axvline(ticks["distance"][idx], color="k")
         return ax
 
     def bs_plot_data(self) -> dict[str, Any]:
@@ -355,14 +343,11 @@ class PhononBSPlotter:
         ax = pretty_plot(12, 8)
 
         data = self.bs_plot_data()
-        for d in range(len(data["distances"])):
+        kwargs.setdefault("color", "tab:blue")
+        for dists, freqs in zip(data["distances"], data["frequency"]):
             for idx in range(self._nb_bands):
-                ax.plot(
-                    data["distances"][d],
-                    [data["frequency"][d][idx][j] * u.factor for j in range(len(data["distances"][d]))],
-                    "b-",
-                    **kwargs,
-                )
+                ys = [freqs[idx][j] * u.factor for j in range(len(dists))]
+                ax.plot(dists, ys, **kwargs)
 
         self._make_ticks(ax)
 
@@ -655,24 +640,21 @@ class PhononBSPlotter:
         line_width = kwargs.setdefault("linewidth", 1)
 
         ax = self.get_plot(units=units, **kwargs)
-        for band_idx in range(other_plotter._nb_bands):
-            for dist_idx in range(len(data_orig["distances"])):
-                ax.plot(
-                    data_orig["distances"][dist_idx],
-                    [
-                        data["frequency"][dist_idx][band_idx][j] * unit.factor
-                        for j in range(len(data_orig["distances"][dist_idx]))
-                    ],
-                    "r-",
-                    **kwargs,
-                )
 
-        # add legend showing which color correspond to which band structure
-        if labels is None and self._label and other_plotter._label:
-            labels = (self._label, other_plotter._label)
-        if labels:
-            ax.plot([], [], "b-", label=labels[0], linewidth=3 * line_width)
-            ax.plot([], [], "r-", label=labels[1], linewidth=3 * line_width)
+        kwargs.setdefault("color", "tab:orange")  # don't move this line up! it would mess up self.get_plot color
+
+        for band_idx in range(other_plotter._nb_bands):
+            for dist_idx, dists in enumerate(data_orig["distances"]):
+                xs = dists
+                ys = [data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
+                ax.plot(xs, ys, **kwargs)
+
+        # add legend showing which color corresponds to which band structure
+        if labels or (self._label and other_plotter._label):
+            color_self, color_other = ax.lines[0].get_color(), ax.lines[-1].get_color()
+            label_self, label_other = labels or (self._label, other_plotter._label)
+            ax.plot([], [], label=label_self, linewidth=3 * line_width, color=color_self)
+            ax.plot([], [], label=label_other, linewidth=3 * line_width, color=color_other)
             ax.legend(**legend_kwargs)
 
         return ax
