@@ -161,7 +161,7 @@ class PhononDos(MSONable):
         """Numpy array containing the list of densities corresponding to positive frequencies."""
         return self.densities[self.ind_zero_freq :]
 
-    def cv(self, temp: float, structure: Structure | None = None) -> float:
+    def cv(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
         """Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -173,10 +173,12 @@ class PhononDos(MSONable):
             temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+            **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
             float: Constant volume specific heat C_v
         """
+        temp = kwargs.get("t", temp)
         if temp == 0:
             return 0
 
@@ -196,7 +198,7 @@ class PhononDos(MSONable):
 
         return cv
 
-    def entropy(self, temp: float, structure: Structure | None = None) -> float:
+    def entropy(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
         """Vibrational entropy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -208,10 +210,12 @@ class PhononDos(MSONable):
             temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+            **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
             float: Vibrational entropy
         """
+        temp = kwargs.get("t", temp)
         if temp == 0:
             return 0
 
@@ -229,7 +233,7 @@ class PhononDos(MSONable):
 
         return entropy
 
-    def internal_energy(self, temp: float, structure: Structure | None = None) -> float:
+    def internal_energy(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
         """Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -241,10 +245,12 @@ class PhononDos(MSONable):
             temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+            **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
             Phonon contribution to the internal energy
         """
+        temp = kwargs.get("t", temp)
         if temp == 0:
             return self.zero_point_energy(structure=structure)
 
@@ -262,7 +268,7 @@ class PhononDos(MSONable):
 
         return e_phonon
 
-    def helmholtz_free_energy(self, temp: float, structure: Structure | None = None) -> float:
+    def helmholtz_free_energy(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
         """Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -274,10 +280,12 @@ class PhononDos(MSONable):
             temp: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+            **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
             Phonon contribution to the Helmholtz free energy
         """
+        temp = kwargs.get("t", temp)
         if temp == 0:
             return self.zero_point_energy(structure=structure)
 
