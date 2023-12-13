@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
 
 if TYPE_CHECKING:
@@ -75,8 +76,7 @@ class Movement(MSONable):
         Returns:
             fatoms: np.ndarray
         """
-        return np.array( [step["fatoms"] for _, step in enumerate(self.ionic_steps)] )
-
+        return np.array([step["fatoms"] for _, step in enumerate(self.ionic_steps)])
 
     @property
     def eatoms(self):
@@ -84,13 +84,11 @@ class Movement(MSONable):
         Returns:
             eatoms: np.ndarray
         """
-        return np.array( [step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)] )
-
+        return np.array([step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)])
 
     @property
     def virials(self):
-        return np.array( [step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" in step)] )
-
+        return np.array([step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" in step)])
 
     def _parse_sefv(self):
         ionic_steps: list[dict] = []

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import Lattice, Structure
 
 if TYPE_CHECKING:
@@ -444,7 +445,10 @@ class AtomConfig(MSONable):
                     self.structure.frac_coords[ii][0],
                     self.structure.frac_coords[ii][1],
                     self.structure.frac_coords[ii][2],
-                    1, 1, 1)
+                    1,
+                    1,
+                    1,
+                )
             )
         if "magmom" in self.structure.sites[0].properties:
             lines.append("MAGNETIC\n")
