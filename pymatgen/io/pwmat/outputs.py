@@ -13,12 +13,7 @@ if TYPE_CHECKING:
 
 
 class Movement(MSONable):
-    def __init__(
-        self, 
-        filename: PathLike, 
-        ionic_step_skip: int | None = None, 
-        ionic_step_offset: int | None = None
-    ):
+    def __init__(self, filename: PathLike, ionic_step_skip: int | None = None, ionic_step_offset: int | None = None):
         """
         Description:
             Extract information from MOVEMENT file which records trajectory during MD.
@@ -109,12 +104,12 @@ class Movement(MSONable):
                 tmp_step.update({"etot": ACstrExtractor(tmp_chunk).get_etot()[0]})
                 tmp_step.update({"fatoms": ACstrExtractor(tmp_chunk).get_fatoms().reshape(-1, 3)})
                 eatoms: np.ndarray | None = ACstrExtractor(tmp_chunk).get_fatoms()
-                if (eatoms is not None):
+                if eatoms is not None:
                     tmp_step.update({"eatoms": ACstrExtractor(tmp_chunk).get_eatoms()})
                 else:
                     print(f"Ionic step #{ii} : Energy deposition is turn down.")
                 virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
-                if (virial is not None):
+                if virial is not None:
                     tmp_step.update({"virial": virial.reshape(3, 3)})
                 else:
                     print(f"Ionic step #{ii} : No virial infomation.")
