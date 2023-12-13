@@ -1,8 +1,5 @@
 """This package implements modules for input and output to and from PWmat."""
-from .inputs import (
-    AtomConfig
-)
+from __future__ import annotations
 
-from .outputs import (
-    Movement
-)
+from .inputs import AtomConfig
+from .outputs import Movement
