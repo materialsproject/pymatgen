@@ -161,7 +161,7 @@ class PhononDos(MSONable):
         """Numpy array containing the list of densities corresponding to positive frequencies."""
         return self.densities[self.ind_zero_freq :]
 
-    def cv(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
+    def cv(self, temp: float | None = None, structure: Structure | None = None, **kwargs) -> float:
         """Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -198,7 +198,7 @@ class PhononDos(MSONable):
 
         return cv
 
-    def entropy(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
+    def entropy(self, temp: float | None = None, structure: Structure | None = None, **kwargs) -> float:
         """Vibrational entropy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -233,7 +233,7 @@ class PhononDos(MSONable):
 
         return entropy
 
-    def internal_energy(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
+    def internal_energy(self, temp: float | None = None, structure: Structure | None = None, **kwargs) -> float:
         """Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -268,7 +268,7 @@ class PhononDos(MSONable):
 
         return e_phonon
 
-    def helmholtz_free_energy(self, temp: float, structure: Structure | None = None, **kwargs) -> float:
+    def helmholtz_free_energy(self, temp: float | None = None, structure: Structure | None = None, **kwargs) -> float:
         """Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
