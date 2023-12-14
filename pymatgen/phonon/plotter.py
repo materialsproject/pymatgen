@@ -591,7 +591,7 @@ class PhononBSPlotter:
                 previous_label = point.label
                 previous_branch = this_branch
         # map atomate2 all-upper-case labels like GAMMA/DELTA to pretty symbols
-        tick_labels = [label.replace("GAMMA", "Γ").replace("DELTA", "Δ") for label in tick_labels]
+        tick_labels = [label.replace("GAMMA", "Γ").replace("DELTA", "Δ").replace("SIGMA", "Σ") for label in tick_labels]
         return {"distance": tick_distance, "label": tick_labels}
 
     def plot_compare(
@@ -601,6 +601,7 @@ class PhononBSPlotter:
         labels: tuple[str, str] | None = None,
         legend_kwargs: dict | None = None,
         on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
+        other_kwargs: dict | None = None,
         **kwargs,
     ) -> Axes:
         """Plot two band structure for comparison. One is in red the other in blue.
@@ -619,6 +620,7 @@ class PhononBSPlotter:
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
             on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures are not compatible.
                 Defaults to 'raise'.
+            other_kwargs: dict[str, Any]: kwargs passed to other_plotter ax.plot().
             **kwargs: passed to ax.plot().
 
         Returns:
@@ -626,7 +628,8 @@ class PhononBSPlotter:
         """
         unit = freq_units(units)
         legend_kwargs = legend_kwargs or {}
-        legend_kwargs.setdefault("fontsize", 22)
+        other_kwargs = other_kwargs or {}
+        legend_kwargs.setdefault("fontsize", 20)
 
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -648,14 +651,15 @@ class PhononBSPlotter:
             for dist_idx, dists in enumerate(data_orig["distances"]):
                 xs = dists
                 ys = [data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
-                ax.plot(xs, ys, **kwargs)
+                ax.plot(xs, ys, **(kwargs | other_kwargs))
 
         # add legend showing which color corresponds to which band structure
         if labels or (self._label and other_plotter._label):
             color_self, color_other = ax.lines[0].get_color(), ax.lines[-1].get_color()
             label_self, label_other = labels or (self._label, other_plotter._label)
-            ax.plot([], [], label=label_self, linewidth=3 * line_width, color=color_self)
-            ax.plot([], [], label=label_other, linewidth=3 * line_width, color=color_other)
+            ax.plot([], [], label=label_self, linewidth=2 * line_width, color=color_self)
+            linestyle = other_kwargs.get("linestyle", "-")
+            ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 
         return ax
