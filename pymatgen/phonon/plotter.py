@@ -182,8 +182,9 @@ class PhononDosPlotter:
         all_densities.reverse()
         all_frequencies.reverse()
         all_pts = []
+        colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
-            color = self._doses[key].get("color", plt.cm.tab10.colors[idx % n_colors])
+            color = self._doses[key].get("color", colors[idx % n_colors])
             all_pts.extend(list(zip(frequencies, densities)))
             if self.stack:
                 ax.fill(frequencies, densities, color=color, label=str(key))
@@ -343,7 +344,7 @@ class PhononBSPlotter:
         ax = pretty_plot(12, 8)
 
         data = self.bs_plot_data()
-        kwargs.setdefault("color", "tab:blue")
+        kwargs.setdefault("color", "blue")
         for dists, freqs in zip(data["distances"], data["frequency"]):
             for idx in range(self._nb_bands):
                 ys = [freqs[idx][j] * u.factor for j in range(len(dists))]
@@ -641,7 +642,7 @@ class PhononBSPlotter:
 
         ax = self.get_plot(units=units, **kwargs)
 
-        kwargs.setdefault("color", "tab:orange")  # don't move this line up! it would mess up self.get_plot color
+        kwargs.setdefault("color", "red")  # don't move this line up! it would mess up self.get_plot color
 
         for band_idx in range(other_plotter._nb_bands):
             for dist_idx, dists in enumerate(data_orig["distances"]):
