@@ -2306,7 +2306,7 @@
     "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_average_gruneisen": 7.851578625966795,
     "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_debye_temp_phonopy": 7.661829167045653,
     "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_frequencies": 7.70038720802404,
-    "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_fromdict_asdict": 7.64449966698885,
+    "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_as_from_dict": 7.64449966698885,
     "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_gruneisen": 7.717112623970024,
     "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_multi": 6.107562876015436,
     "tests/phonon/test_gruneisen.py::TestGruneisenParameter::test_phdos": 7.646594374033157,
