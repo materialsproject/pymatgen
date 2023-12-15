@@ -522,10 +522,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return any(category[0] in el.block for el in self.elements)
         return any(getattr(el, f"is_{category}") for el in self.elements)
 
-    def _parse_formula(self, formula: str) -> dict[str, float]:
+    def _parse_formula(self, formula: str, strict: bool = True) -> dict[str, float]:
         """
         Args:
             formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
+            strict (bool): Whether to throw an error if formula string is invalid (e.g. empty).
+                Defaults to True.
 
         Returns:
             Composition with that formula.
@@ -534,6 +536,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             In the case of Metallofullerene formula (e.g. Y3N@C80),
             the @ mark will be dropped and passed to parser.
         """
+        # throw if formula contains special characters or only spaces and/or numbers
+        if strict and re.match(r"[\s\d.*/]*$", formula):
+            raise ValueError(f"Invalid {formula=}")
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
 
