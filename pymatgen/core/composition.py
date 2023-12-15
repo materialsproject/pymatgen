@@ -11,6 +11,7 @@ import string
 import warnings
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
+from math import isnan
 from typing import TYPE_CHECKING, Union, cast
 
 from monty.fractions import gcd, gcd_float
@@ -119,10 +120,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         self.allow_negative = kwargs.pop("allow_negative", False)
         # it's much faster to recognize a composition and use the el_map than
         # to pass the composition to {}
-        if len(args) == 1 and isinstance(args[0], Composition):
-            elem_map = args[0]
-        elif len(args) == 1 and isinstance(args[0], str):
-            elem_map = self._parse_formula(args[0])  # type: ignore
+        if len(args) == 1:
+            if isinstance(args[0], Composition):
+                elem_map = args[0]
+            elif isinstance(args[0], str):
+                elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
+            elif isinstance(args[0], float) and isnan(args[0]):
+                raise ValueError("float('NaN') is not a valid Composition, did you mean str('NaN')?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore
         elem_amt = {}
