@@ -537,7 +537,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             the @ mark will be dropped and passed to parser.
         """
         # throw if formula contains special characters or only spaces and/or numbers
-        if strict and re.match(r"[\s\d]*$", formula):
+        if strict and re.match(r"[\s\d.*/]*$", formula):
             raise ValueError(f"Invalid {formula=}")
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
