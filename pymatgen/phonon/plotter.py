@@ -280,9 +280,10 @@ class PhononBSPlotter:
         ticks = self.get_ticks()
 
         # zip to sanitize, only plot the uniq values
-        xs, labels = zip(*zip(ticks["distance"], ticks["label"]))
-        ax.set_xticks(xs)
-        ax.set_xticklabels(labels)
+        ticks_labels = list(zip(*zip(ticks["distance"], ticks["label"])))
+        if ticks_labels:
+            ax.set_xticks(ticks_labels[0])
+            ax.set_xticklabels(ticks_labels[1])
 
         for idx, label in enumerate(ticks["label"]):
             if label is not None:
