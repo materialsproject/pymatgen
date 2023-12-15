@@ -140,17 +140,17 @@ class PhononBandStructure(MSONable):
         self.nac_frequencies = []
         self.nac_eigendisplacements = []
         if nac_frequencies is not None:
-            for t in nac_frequencies:
-                self.nac_frequencies.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
+            for freq in nac_frequencies:
+                self.nac_frequencies.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
         if nac_eigendisplacements is not None:
-            for t in nac_eigendisplacements:
-                self.nac_eigendisplacements.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
+            for freq in nac_eigendisplacements:
+                self.nac_eigendisplacements.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
 
     def min_freq(self) -> tuple[Kpoint, float]:
         """Returns the point where the minimum frequency is reached and its value."""
-        i = np.unravel_index(np.argmin(self.bands), self.bands.shape)
+        idx = np.unravel_index(np.argmin(self.bands), self.bands.shape)
 
-        return self.qpoints[i[1]], self.bands[i]
+        return self.qpoints[idx[1]], self.bands[idx]
 
     def has_imaginary_freq(self, tol: float = 1e-5) -> bool:
         """True if imaginary frequencies are present in the BS."""
