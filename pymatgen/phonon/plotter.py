@@ -274,24 +274,15 @@ class PhononBSPlotter:
     def _make_ticks(self, ax: Axes) -> Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
-        # Sanitize only plot the uniq values
-        uniq_d = []
-        uniq_l = []
-        temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for idx, tt in enumerate(temp_ticks):
-            if idx == 0:
-                uniq_d.append(tt[0])
-                uniq_l.append(tt[1])
-            else:
-                uniq_d.append(tt[0])
-                uniq_l.append(tt[1])
 
-        ax.set_xticks(uniq_d)
-        ax.set_xticklabels(uniq_l)
+        # zip to sanitize, only plot the uniq values
+        xs, labels = zip(*zip(ticks["distance"], ticks["label"]))
+        ax.set_xticks(xs)
+        ax.set_xticklabels(labels)
 
         for idx, label in enumerate(ticks["label"]):
             if label is not None:
-                ax.axvline(ticks["distance"][idx], color="k")
+                ax.axvline(ticks["distance"][idx], color="black")
         return ax
 
     def bs_plot_data(self) -> dict[str, Any]:
