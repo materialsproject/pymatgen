@@ -285,6 +285,7 @@ class PhononBSPlotter:
             ax.set_xticks(ticks_labels[0])
             ax.set_xticklabels(ticks_labels[1])
 
+        # plot vertical lines at each of the ticks
         for idx, label in enumerate(ticks["label"]):
             if label is not None:
                 ax.axvline(ticks["distance"][idx], color="black")

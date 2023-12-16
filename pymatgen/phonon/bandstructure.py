@@ -24,13 +24,13 @@ def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
     according to the number of atoms in the system.
     """
     if n_atoms < 4:
-        return (3, 3, 3)
+        return 3, 3, 3
     if 4 <= n_atoms < 15:
-        return (2, 2, 2)
+        return 2, 2, 2
     if 15 <= n_atoms < 50:
-        return (2, 2, 1)
+        return 2, 2, 1
 
-    return (1, 1, 1)
+    return 1, 1, 1
 
 
 def eigenvectors_from_displacements(disp, masses) -> np.ndarray:
@@ -137,8 +137,8 @@ class PhononBandStructure(MSONable):
         self.nb_qpoints = len(self.qpoints)
 
         # normalize directions for nac_frequencies and nac_eigendisplacements
-        self.nac_frequencies = []
-        self.nac_eigendisplacements = []
+        self.nac_frequencies: list[tuple[list[float], np.ndarray]] = []
+        self.nac_eigendisplacements: list[tuple[list[float], np.ndarray]] = []
         if nac_frequencies is not None:
             for freq in nac_frequencies:
                 self.nac_frequencies.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
@@ -152,13 +152,29 @@ class PhononBandStructure(MSONable):
 
         return self.qpoints[idx[1]], self.bands[idx]
 
-    def has_imaginary_freq(self, tol: float = 1e-5) -> bool:
-        """True if imaginary frequencies are present in the BS."""
+    def has_imaginary_freq(self, tol: float = 1e-3) -> bool:
+        """True if imaginary frequencies are present anywhere in the band structure. Always True if
+        has_imaginary_gamma_freq is True.
+
+        Args:
+            tol: Tolerance for determining if a frequency is imaginary. Defaults to 1e-3.
+        """
         return self.min_freq()[1] + tol < 0
+
+    def has_imaginary_gamma_freq(self, tol: float = 1e-3) -> bool:
+        """Checks if there are imaginary modes at the gamma point.
+
+        Args:
+            tol: Tolerance for determining if a frequency is imaginary. Defaults to 1e-3.
+        """
+        gamma_freqs = self.bands[:, 0]  # frequencies at the Gamma point
+        return any(freq < -tol for freq in gamma_freqs)
 
     @property
     def has_nac(self) -> bool:
-        """True if nac_frequencies are present."""
+        """True if nac_frequencies are present (i.e. the band structure has been
+        calculated taking into account Born-charge-derived non-analytical corrections at Gamma).
+        """
         return len(self.nac_frequencies) > 0
 
     @property
@@ -177,10 +193,10 @@ class PhononBandStructure(MSONable):
             the frequencies as a numpy array o(3*len(structure), len(qpoints)).
             None if not found.
         """
-        versor = [i / np.linalg.norm(direction) for i in direction]
-        for d, f in self.nac_frequencies:
-            if np.allclose(versor, d):
-                return f
+        versor = [idx / np.linalg.norm(direction) for idx in direction]
+        for dist, freq in self.nac_frequencies:
+            if np.allclose(versor, dist):
+                return freq
 
         return None
 
@@ -195,10 +211,10 @@ class PhononBandStructure(MSONable):
             the eigendisplacements as a numpy array of complex numbers with shape
             (3*len(structure), len(structure), 3). None if not found.
         """
-        versor = [i / np.linalg.norm(direction) for i in direction]
-        for d, e in self.nac_eigendisplacements:
-            if np.allclose(versor, d):
-                return e
+        versor = [idx / np.linalg.norm(direction) for idx in direction]
+        for dist, eigen_disp in self.nac_eigendisplacements:
+            if np.allclose(versor, dist):
+                return eigen_disp
 
         return None
 
@@ -426,45 +442,40 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         TODO: now it uses the label we might want to use coordinates instead
         (in case there was a mislabel)
         """
-        # if the qpoint has no label it can"t have a repetition along the band
+        # if the qpoint has no label it can't have a repetition along the band
         # structure line object
 
         if self.qpoints[index].label is None:
             return [index]
 
         list_index_qpoints = []
-        for i in range(self.nb_qpoints):
-            if self.qpoints[i].label == self.qpoints[index].label:
-                list_index_qpoints.append(i)
+        for idx in range(self.nb_qpoints):
+            if self.qpoints[idx].label == self.qpoints[index].label:
+                list_index_qpoints.append(idx)
 
         return list_index_qpoints
 
-    def get_branch(self, index: int) -> list[dict]:
-        r"""Returns in what branch(es) is the qpoint. There can be several
-        branches.
+    def get_branch(self, index: int) -> list[dict[str, str | int]]:
+        r"""Returns in what branch(es) is the qpoint. There can be several branches.
 
         Args:
-            index: the qpoint index
+            index (int): the qpoint index
 
         Returns:
-            A list of dictionaries [{"name","start_index","end_index","index"}]
-            indicating all branches in which the qpoint is. It takes into
-            account the fact that one qpoint (e.g., \\Gamma) can be in several
-            branches
+            list[dict[str, str | int]]: [{"name","start_index","end_index","index"}]
+                indicating all branches in which the qpoint is. It takes into
+                account the fact that one qpoint (e.g., \\Gamma) can be in several
+                branches
         """
-        to_return = []
-        for i in self.get_equivalent_qpoints(index):
-            for b in self.branches:
-                if b["start_index"] <= i <= b["end_index"]:
-                    to_return.append(
-                        {
-                            "name": b["name"],
-                            "start_index": b["start_index"],
-                            "end_index": b["end_index"],
-                            "index": i,
-                        }
+        lst = []
+        for pt_idx in self.get_equivalent_qpoints(index):
+            for branch in self.branches:
+                start_idx, end_idx = branch["start_index"], branch["end_index"]
+                if start_idx <= pt_idx <= end_idx:
+                    lst.append(
+                        {"name": branch["name"], "start_index": start_idx, "end_index": end_idx, "index": pt_idx}
                     )
-        return to_return
+        return lst
 
     def write_phononwebsite(self, filename: str | PathLike) -> None:
         """Write a json file for the phononwebsite:
@@ -606,7 +617,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eigendisplacements = (
             np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
         )
-        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
+        struct = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
             dct["qpoints"],
             np.array(dct["bands"]),
@@ -614,5 +625,5 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             dct["has_nac"],
             eigendisplacements,
             dct["labels_dict"],
-            structure=structure,
+            structure=struct,
         )
