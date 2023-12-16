@@ -33,6 +33,13 @@ class OptimadeRester:
 
     This class is ready to use but considered in-development and subject to change.
 
+    Please also consider using the client in "OPTIMADE Python tools":
+
+    https://www.optimade.org/optimade-python-tools/latest/getting_started/client/
+
+    The "OPTIMADE Python tools" client is less integrated with pymatgen, but
+    more actively developed for the latest OPTIMADE features.
+
     [1] Andersen, C.W., *et al*.
         OPTIMADE, an API for exchanging materials data.
         Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
