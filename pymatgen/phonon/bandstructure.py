@@ -156,6 +156,18 @@ class PhononBandStructure(MSONable):
         """True if imaginary frequencies are present in the BS."""
         return self.min_freq()[1] + tol < 0
 
+    def has_imaginary_gamma_freq(self, tol: float = 1e-5) -> bool:
+        """Checks if there are imaginary modes specifically at the gamma point.
+
+        Args:
+            tol: Tolerance for determining if a frequency is imaginary.
+
+        Returns:
+            True if there are imaginary modes at the gamma point, False otherwise.
+        """
+        gamma_freqs = self.bands[:, 0]  # frequencies at the Gamma point
+        return any(freq < -tol for freq in gamma_freqs)
+
     @property
     def has_nac(self) -> bool:
         """True if nac_frequencies are present (i.e. the band structure has been
