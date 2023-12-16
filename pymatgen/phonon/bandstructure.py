@@ -158,7 +158,9 @@ class PhononBandStructure(MSONable):
 
     @property
     def has_nac(self) -> bool:
-        """True if nac_frequencies are present."""
+        """True if nac_frequencies are present (i.e. the band structure has been
+        calculated taking into account Born-charge-derived non-analytical corrections at Gamma).
+        """
         return len(self.nac_frequencies) > 0
 
     @property
