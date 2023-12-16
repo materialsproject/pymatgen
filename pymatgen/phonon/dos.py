@@ -329,6 +329,28 @@ class PhononDos(MSONable):
 
         return zpe
 
+    def mae(self, other: PhononDos, two_sided: bool = True) -> float:
+        """Mean absolute error between two DOSs.
+
+        Args:
+            other: Another DOS object.
+            two_sided: Whether to calculate the two-sided MAE meaning interpolate each DOS to the
+                other's frequencies and averaging the two MAEs. Defaults to True.
+
+        Returns:
+            float: Mean absolute error.
+        """
+        # Interpolate other.densities to align with self.frequencies
+        self_interpolated = np.interp(self.frequencies, other.frequencies, other.densities)
+        self_mae = np.abs(self.densities - self_interpolated).mean()
+
+        if two_sided:
+            other_interpolated = np.interp(other.frequencies, self.frequencies, self.densities)
+            other_mae = np.abs(other.densities - other_interpolated).mean()
+            return (self_mae + other_mae) / 2
+
+        return self_mae
+
 
 class CompletePhononDos(PhononDos):
     """This wrapper class defines a total dos, and also provides a list of PDos.
