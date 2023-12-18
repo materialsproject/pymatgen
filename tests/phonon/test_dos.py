@@ -39,6 +39,9 @@ class TestPhononDos(PymatgenTest):
         dens = self.dos.densities
         assert sum(dens) == approx(sum(smeared))
 
+        # test 0 smearing returns original DOS
+        assert self.dos.get_smeared_densities(0) is self.dos.densities
+
     def test_dict_methods(self):
         json_str = json.dumps(self.dos.as_dict())
         assert json_str is not None
