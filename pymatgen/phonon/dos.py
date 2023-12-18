@@ -37,11 +37,14 @@ class PhononDos(MSONable):
         std dev sigma applied.
 
         Args:
-            sigma: Std dev of Gaussian smearing function.
+            sigma: Std dev of Gaussian smearing function. In units of
+                THz. Common values are 0.01 - 0.1 THz.
 
         Returns:
-            Gaussian-smeared densities.
+            np.array: Gaussian-smeared DOS densities.
         """
+        if sigma == 0:
+            return self.densities
         diff = [self.frequencies[idx + 1] - self.frequencies[idx] for idx in range(len(self.frequencies) - 1)]
         avg_diff = sum(diff) / len(diff)
 
