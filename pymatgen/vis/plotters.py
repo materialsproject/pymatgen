@@ -68,11 +68,11 @@ class SpectrumPlotter:
 
     def add_spectra(self, spectra_dict, key_sort_func=None):
         """
-        Add a dictionary of doses, with an optional sorting function for the
+        Add a dictionary of Spectrum, with an optional sorting function for the
         keys.
 
         Args:
-            dos_dict: dict of {label: Dos}
+            dos_dict: dict of {label: Spectrum}
             key_sort_func: function used to sort the dos_dict keys.
         """
         keys = sorted(spectra_dict, key=key_sort_func) if key_sort_func else list(spectra_dict)
