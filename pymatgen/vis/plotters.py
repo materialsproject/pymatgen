@@ -72,7 +72,7 @@ class SpectrumPlotter:
         keys.
 
         Args:
-            dos_dict: dict of {label: Spectrum}
+            spectra_dict: dict of {label: Spectrum}
             key_sort_func: function used to sort the dos_dict keys.
         """
         keys = sorted(spectra_dict, key=key_sort_func) if key_sort_func else list(spectra_dict)
