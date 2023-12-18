@@ -77,7 +77,7 @@ class SpectrumPlotter:
         """
         keys = sorted(spectra_dict, key=key_sort_func) if key_sort_func else list(spectra_dict)
         for label in keys:
-            self.add_spectra(label, spectra_dict[label])
+            self.add_spectrum(label, spectra_dict[label])
 
     def get_plot(self, xlim=None, ylim=None):
         """
