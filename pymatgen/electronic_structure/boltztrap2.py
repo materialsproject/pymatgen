@@ -61,7 +61,7 @@ __date__ = "August 2018"
 class VasprunBSLoader:
     """Loader for Bandstructure and Vasprun pmg objects."""
 
-    def __init__(self, obj, structure=None, nelect=None):
+    def __init__(self, obj, structure=None, nelect=None) -> None:
         """
         Args:
             obj: Either a pmg Vasprun or a BandStructure object.
@@ -183,7 +183,7 @@ class VasprunBSLoader:
 class BandstructureLoader:
     """Loader for Bandstructure object."""
 
-    def __init__(self, bs_obj, structure=None, nelect=None, mommat=None, magmom=None):
+    def __init__(self, bs_obj, structure=None, nelect=None, mommat=None, magmom=None) -> None:
         """
         Args:
             bs_obj: BandStructure object.
@@ -277,7 +277,7 @@ class BandstructureLoader:
 
         return accepted
 
-    def set_upper_lower_bands(self, e_lower, e_upper):
+    def set_upper_lower_bands(self, e_lower, e_upper) -> None:
         """Set fake upper/lower bands, useful to set the same energy
         range in the spin up/down bands when calculating the DOS.
         """
@@ -308,7 +308,7 @@ class BandstructureLoader:
 class VasprunLoader:
     """Loader for Vasprun object."""
 
-    def __init__(self, vrun_obj=None):
+    def __init__(self, vrun_obj=None) -> None:
         """vrun_obj: Vasprun object."""
         warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
@@ -407,7 +407,7 @@ class BztInterpolator:
         load_bztInterp=False,
         save_bands=False,
         fname="bztInterp.json.gz",
-    ):
+    ) -> None:
         """
         Args:
             data: A loader
@@ -473,7 +473,7 @@ class BztInterpolator:
         self.coeffs = coeffs[0] + coeffs[1] * 1j
         return bands_loaded
 
-    def save(self, fname="bztInterp.json.gz", bands=False):
+    def save(self, fname="bztInterp.json.gz", bands=False) -> None:
         """Save the coefficient, equivalences to fname.
         If bands is True, also interpolated bands are stored.
         """
@@ -519,7 +519,7 @@ class BztInterpolator:
             kpoints_lbls_dict = kpath.kpath["kpoints"]
 
         lattvec = self.data.get_lattvec()
-        egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
+        egrid, _vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
         if self.data.is_spin_polarized:
             h = sum(np.array_split(self.accepted, 2)[0])
             egrid = np.array_split(egrid, [h], axis=0)
@@ -563,7 +563,7 @@ class BztInterpolator:
             spins = [Spin.up]
 
         for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
-            energies, densities, vvdos, cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
+            energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
             if T:
                 densities = BL.smoothen_DOS(energies, densities, T)
@@ -609,7 +609,7 @@ class BztInterpolator:
 
                     self.data.ebands = self.data.proj[spin][:, :, idx, iorb].T
                     coeffs = fite.fitde3D(self.data, self.equivalences)
-                    proj, vvproj, cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
+                    proj, _vvproj, _cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
 
                     edos, pdos = BL.DOS(eb, npts=npts_mu, weights=np.abs(proj.real), erange=enr)
 
@@ -641,7 +641,7 @@ class BztTransportProperties:
         save_bztTranspProps=False,
         load_bztTranspProps=False,
         fname="bztTranspProps.json.gz",
-    ):
+    ) -> None:
         """
         Args:
             BztInterpolator: a BztInterpolator previously generated
@@ -761,7 +761,7 @@ class BztTransportProperties:
             if save_bztTranspProps:
                 self.save(fname)
 
-    def compute_properties_doping(self, doping, temp_r=None):
+    def compute_properties_doping(self, doping, temp_r=None) -> None:
         """Calculate all the properties w.r.t. the doping levels in input.
 
         Args:
@@ -867,7 +867,7 @@ class BztTransportProperties:
     #     pos = np.abs(delta).argmin()
     #     return epsilon[pos]
 
-    def save(self, fname="bztTranspProps.json.gz"):
+    def save(self, fname="bztTranspProps.json.gz") -> None:
         """Save the transport properties to fname file."""
         lst_props = [
             self.temp_r,
@@ -902,7 +902,7 @@ class BztTransportProperties:
             lst_props.extend(props)
         dumpfn(lst_props, fname)
 
-    def load(self, fname="bztTranspProps.json.gz"):
+    def load(self, fname="bztTranspProps.json.gz") -> bool:
         """Load the transport properties from fname file."""
         lst = loadfn(fname)
         (
@@ -949,7 +949,7 @@ class BztPlotter:
         fig.show()
     """
 
-    def __init__(self, bzt_transP=None, bzt_interp=None):
+    def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
         """:param bzt_transP:
         :param bzt_interp:
         """

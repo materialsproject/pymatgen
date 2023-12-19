@@ -87,7 +87,7 @@ class Slab(Structure):
         site_properties=None,
         energy=None,
         properties=None,
-    ):
+    ) -> None:
         """Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
 
@@ -424,7 +424,7 @@ class Slab(Structure):
         weights = [s.species.weight for s in self]
         return np.average(self.frac_coords, weights=weights, axis=0)
 
-    def add_adsorbate_atom(self, indices, specie, distance):
+    def add_adsorbate_atom(self, indices, specie, distance) -> None:
         """Gets the structure of single atom adsorption.
         slab structure from the Slab class(in [0, 0, 1]).
 
@@ -443,8 +443,8 @@ class Slab(Structure):
 
         self.append(specie, coords, coords_are_cartesian=True)
 
-    def __str__(self):
-        def to_s(x):
+    def __str__(self) -> str:
+        def to_s(x) -> str:
             return f"{x:0.6f}"
 
         comp = self.composition
@@ -621,7 +621,7 @@ class Slab(Structure):
 
         return site2
 
-    def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
+    def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False) -> None:
         """Class method for adding a site at a specified point in a slab.
             Will add the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
@@ -643,7 +643,7 @@ class Slab(Structure):
         self.append(specie, point, coords_are_cartesian=coords_are_cartesian)
         self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
 
-    def symmetrically_remove_atoms(self, indices):
+    def symmetrically_remove_atoms(self, indices) -> None:
         """Class method for removing sites corresponding to a list of indices.
             Will remove the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
@@ -719,7 +719,7 @@ class SlabGenerator:
         primitive=True,
         max_normal_search=None,
         reorient_lattice=True,
-    ):
+    ) -> None:
         """Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
         Also stores the initial information needed later on to generate a slab.
@@ -804,7 +804,7 @@ class SlabGenerator:
         # We want the vector that has maximum magnitude in the
         # direction of the surface normal as the c-direction.
         # Results in a more "orthogonal" unit cell.
-        c_index, dist = max(non_orth_ind, key=lambda t: t[1])
+        c_index, _dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
             lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
@@ -868,7 +868,7 @@ class SlabGenerator:
         self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self._normal = normal
-        a, b, c = self.oriented_unit_cell.lattice.matrix
+        _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
         self.reorient_lattice = reorient_lattice
 
@@ -890,29 +890,29 @@ class SlabGenerator:
         h = self._proj_height
         p = round(h / self.parent.lattice.d_hkl(self.miller_index), 8)
         if self.in_unit_planes:
-            nlayers_slab = int(math.ceil(self.min_slab_size / p))
-            nlayers_vac = int(math.ceil(self.min_vac_size / p))
+            n_layers_slab = int(math.ceil(self.min_slab_size / p))
+            n_layers_vac = int(math.ceil(self.min_vac_size / p))
         else:
-            nlayers_slab = int(math.ceil(self.min_slab_size / h))
-            nlayers_vac = int(math.ceil(self.min_vac_size / h))
-        nlayers = nlayers_slab + nlayers_vac
+            n_layers_slab = int(math.ceil(self.min_slab_size / h))
+            n_layers_vac = int(math.ceil(self.min_vac_size / h))
+        n_layers = n_layers_slab + n_layers_vac
 
         species = self.oriented_unit_cell.species_and_occu
         props = self.oriented_unit_cell.site_properties
-        props = {k: v * nlayers_slab for k, v in props.items()}
+        props = {k: v * n_layers_slab for k, v in props.items()}  # type: ignore[operator, misc]
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
-        new_lattice = [a, b, nlayers * c]
-        frac_coords[:, 2] = frac_coords[:, 2] / nlayers
+        new_lattice = [a, b, n_layers * c]
+        frac_coords[:, 2] = frac_coords[:, 2] / n_layers
         all_coords = []
-        for i in range(nlayers_slab):
+        for i in range(n_layers_slab):
             fcoords = frac_coords.copy()
-            fcoords[:, 2] += i / nlayers
+            fcoords[:, 2] += i / n_layers
             all_coords.extend(fcoords)
 
-        slab = Structure(new_lattice, species * nlayers_slab, all_coords, site_properties=props)
+        slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
@@ -1294,7 +1294,7 @@ class ReconstructionGenerator:
         - Right now there is no way to specify what atom is being added. In the future, use basis sets?
     """
 
-    def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name):
+    def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name) -> None:
         """Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
 

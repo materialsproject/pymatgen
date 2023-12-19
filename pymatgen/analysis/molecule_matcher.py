@@ -825,7 +825,7 @@ class KabschMatcher(MSONable):
 
         # Computation of the optimal rotation matrix
         # using singular value decomposition (SVD).
-        V, S, WT = np.linalg.svd(C)
+        V, _S, WT = np.linalg.svd(C)
 
         # Getting the sign of the det(V*Wt) to decide whether
         d = np.linalg.det(np.dot(V, WT))
@@ -1064,7 +1064,7 @@ class HungarianOrderMatcher(KabschMatcher):
             # Perform Hungarian analysis on distance matrix between atoms of 1st
             # structure and trial structure
             distances = cdist(A, B, "euclidean")
-            a_inds, b_inds = linear_sum_assignment(distances)
+            _a_inds, b_inds = linear_sum_assignment(distances)
 
             perm_inds[q_atom_inds] = p_atom_inds[b_inds]
 
@@ -1089,7 +1089,7 @@ class HungarianOrderMatcher(KabschMatcher):
             # Perform Hungarian analysis on distance matrix between atoms of 1st
             # structure and trial structure
             distances = cdist(A, B, "euclidean")
-            a_inds, b_inds = linear_sum_assignment(distances)
+            _a_inds, b_inds = linear_sum_assignment(distances)
 
             perm_inds[q_atom_inds] = p_atom_inds[b_inds]
 
@@ -1119,7 +1119,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
         inertia_tensor = np.array([[Ixx, Ixy, Ixz], [Ixy, Iyy, Iyz], [Ixz, Iyz, Izz]])
 
-        eigvals, eigvecs = np.linalg.eigh(inertia_tensor)
+        _eigvals, eigvecs = np.linalg.eigh(inertia_tensor)
 
         return eigvecs[:, 0]
 

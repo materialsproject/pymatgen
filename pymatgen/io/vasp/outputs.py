@@ -1362,7 +1362,7 @@ class Vasprun(MSONable):
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
                     data = np.array(_parse_vasp_array(ss))
-                    nrow, ncol = data.shape
+                    _nrow, ncol = data.shape
                     for j in range(1, ncol):
                         orb = Orbital(j - 1) if lm else OrbitalType(j - 1)
                         pdos[orb][spin] = data[:, j]
@@ -3451,7 +3451,7 @@ class Locpot(VolumetricData):
         Returns:
             Locpot
         """
-        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        (poscar, data, _data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data, **kwargs)
 
 
@@ -3540,7 +3540,7 @@ class Elfcar(VolumetricData):
         Returns:
             Elfcar
         """
-        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        (poscar, data, _data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data)
 
     def get_alpha(self):

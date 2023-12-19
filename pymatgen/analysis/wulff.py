@@ -500,7 +500,7 @@ class WulffShape:
             (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+        color_list, _color_proxy, _color_proxy_on_wulff, _miller_on_wulff, e_surf_on_wulff = self._get_colors(
             color_set, alpha, off_color, custom_colors=custom_colors or {}
         )
 

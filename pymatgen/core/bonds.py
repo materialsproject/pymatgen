@@ -33,7 +33,7 @@ bond_lengths = _load_bond_length_data()
 class CovalentBond:
     """Defines a covalent bond between two sites."""
 
-    def __init__(self, site1: Site, site2: Site):
+    def __init__(self, site1: Site, site2: Site) -> None:
         """Initializes a covalent bond between two sites.
 
         Args:
@@ -103,7 +103,7 @@ class CovalentBond:
             return dist < (1 + tol) * default_bl
         raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Covalent bond between {self.site1} and {self.site2}"
 
 

@@ -186,6 +186,15 @@ class TestComposition(PymatgenTest):
 
         assert Composition("Na 3 Zr (PO 4) 3").reduced_formula == "Na3Zr(PO4)3"
 
+        assert Composition("NaN").reduced_formula == "NaN"
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?"):
+            Composition(float("NaN"))
+
+        # test bad formulas raise ValueError
+        for bad_formula in ("", " ", "  2", "4 2", "6123", "1.2", "1/2", "1.2.3"):
+            with pytest.raises(ValueError, match=f"Invalid formula={bad_formula!r}"):
+                Composition(bad_formula)
+
     def test_to_latex_html_unicode(self):
         assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
         assert self.comps[0].to_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"

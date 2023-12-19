@@ -606,7 +606,7 @@ class ElasticTensorExpansion(TensorCollection):
         num, denom, c = np.zeros((3, 3)), 0, 1
         for p, w in zip(points, weights):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
-            rho_wsquareds, us = np.linalg.eigh(gk)
+            _rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
             for u in us:
                 # TODO: this should be benchmarked
@@ -876,7 +876,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
             coef = get_diff_coeff(hvec, i)
             dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
-    m, absent = generate_pseudo(list(strain_state_dict), order)
+    m, _absent = generate_pseudo(list(strain_state_dict), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i + 1)
         svec = np.ravel(dei_dsi[i - 1].T)
