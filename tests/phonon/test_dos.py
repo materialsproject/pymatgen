@@ -102,6 +102,15 @@ class TestPhononDos(PymatgenTest):
         assert self.dos.mae(dos2 - 1, two_sided=False) == pytest.approx(1.00000000000031)
         assert self.dos.mae(2 * dos2, two_sided=False) == pytest.approx(0.786546967)
 
+    def test_get_last_peak(self):
+        peak_freq = self.dos.get_last_peak()
+        assert peak_freq == approx(5.9909763191)
+        assert self.dos.get_interpolated_value(peak_freq) == approx(1.1700016497)
+
+        # try different threshold
+        peak_freq = self.dos.get_last_peak(threshold=0.5)
+        assert peak_freq == approx(4.9662820761)
+
 
 class TestCompletePhononDos(PymatgenTest):
     def setUp(self):
