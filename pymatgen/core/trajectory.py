@@ -48,7 +48,7 @@ class Trajectory(MSONable):
         time_step: float | None = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] | np.ndarray | None = None,
-    ):
+    ) -> None:
         """In below, `N` denotes the number of sites in the structure, and `M` denotes the
         number of frames in the trajectory.
 
@@ -392,7 +392,7 @@ class Trajectory(MSONable):
         filename: str | Path = "XDATCAR",
         system: str | None = None,
         significant_figures: int = 6,
-    ):
+    ) -> None:
         """Writes to Xdatcar file.
 
         The supported kwargs are the same as those for the

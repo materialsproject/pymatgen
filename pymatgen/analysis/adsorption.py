@@ -601,7 +601,7 @@ def get_mi_vec(slab):
 def get_rot(slab):
     """Gets the transformation to rotate the z axis into the miller index."""
     new_z = get_mi_vec(slab)
-    a, b, c = slab.lattice.matrix
+    a, _b, _c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)

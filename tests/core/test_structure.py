@@ -1307,8 +1307,10 @@ class TestStructure(PymatgenTest):
             ["Li", "O"],
             [[0.25, 0.25, 0.25], [0, 0, 0]],
             site_properties={"charge": [1, -2]},
+            labels=["A", "B"],
         )
         assert sum(s2.site_properties["charge"]) == 0
+        assert s2.labels == ["A", "A", "A", "A", "A", "A", "A", "A", "B", "B", "B", "B"]
 
         struct = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         assert struct.formula == "Cs1 Cl1"
@@ -1661,7 +1663,7 @@ class TestStructure(PymatgenTest):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)  # 1% error
+        assert relaxed.lattice.a == approx(3.867626620642243, rel=0.01)  # allow 1% error
         assert hasattr(relaxed, "calc")
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
             actual = relaxed.dynamics[key]

@@ -41,7 +41,7 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
-    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
+    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)) -> None:
         """Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
         lattice vector.
@@ -801,7 +801,7 @@ class Lattice(MSONable):
 
         return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         outs = [
             "Lattice",
             f"    abc : {' '.join(map(repr, self.lengths))}",
@@ -830,7 +830,7 @@ class Lattice(MSONable):
     def __hash__(self) -> int:
         return 7
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(" ".join([f"{i:.6f}" for i in row]) for row in self._matrix)
 
     def as_dict(self, verbosity: int = 0) -> dict:
@@ -1538,7 +1538,7 @@ class Lattice(MSONable):
             2d array of Cartesian distances. E.g the distance between
             fcoords1[i] and fcoords2[j] is distances[i,j]
         """
-        v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
+        _v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
         return np.sqrt(d2)
 
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:

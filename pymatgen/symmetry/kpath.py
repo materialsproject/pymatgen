@@ -1217,7 +1217,7 @@ class KPathLatimerMunro(KPathBase):
         # than just the identity or identity * TR in the little group).
         # This function can be edited to alter high-symmetry criteria for choosing points and lines
 
-        point_orbits_in_path, line_orbits_in_path = self._choose_path(
+        _point_orbits_in_path, line_orbits_in_path = self._choose_path(
             key_points=key_points,
             key_points_inds_orbits=key_points_inds_orbits,
             key_lines_inds_orbits=key_lines_inds_orbits,

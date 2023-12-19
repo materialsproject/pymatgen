@@ -11,7 +11,7 @@ from pymatgen.analysis.chemenv.utils.scripts_utils import compute_environments
 __author__ = "David Waroquiers"
 
 
-def main():
+def main() -> int:
     """Main function for get_environment CLI."""
     parser = ArgumentParser(description="Welcome to the Chemical Environment Package.")
     setup_help = "Used to setup the configuration of the package "
@@ -42,6 +42,8 @@ def main():
     compute_environments(chemenv_config)
 
     print("Thank you for using the ChemEnv package")
+
+    return 0
 
 
 if __name__ == "__main__":

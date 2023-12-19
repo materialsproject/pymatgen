@@ -3293,7 +3293,7 @@ class MPAbsorptionSet(MPRelaxSet):
             The input set with the settings (structure, k-points, incar, etc)
             updated using the previous VASP run.
         """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+        vasprun, _outcar = get_vasprun_outcar(prev_calc_dir)
         self.prev_incar = vasprun.incar
         self.structure = vasprun.final_structure
 

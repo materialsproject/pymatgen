@@ -403,7 +403,7 @@ class LibxcFunc(Enum):
 
     # end_include_dont_touch
 
-    def __init__(self, _num):
+    def __init__(self, _num) -> None:
         """
         Args:
             num: Number for the xc.
@@ -412,7 +412,7 @@ class LibxcFunc(Enum):
         self.kind = info["Kind"]  # type: ignore
         self.family = info["Family"]  # type: ignore
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name, kind, family = self.name, self.kind, self.family
         return f"{type(self).__name__}({name=}, {kind=}, {family=})"
 

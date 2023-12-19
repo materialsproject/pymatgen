@@ -145,8 +145,8 @@ class AbinitTimerParser(collections.abc.Iterable):
             try:
                 ctime, cfract, wtime, wfract, ncalls, gflops = vals
             except ValueError:
-                # v8.3 Added two columns at the end [Speedup, Efficacity]
-                ctime, cfract, wtime, wfract, ncalls, gflops, speedup, eff = vals
+                # v8.3 Added two columns at the end [Speedup, Efficacy]
+                ctime, cfract, wtime, wfract, ncalls, gflops, _speedup, _eff = vals
 
             return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 

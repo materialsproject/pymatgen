@@ -225,7 +225,7 @@ class SimpleGraphCycle(MSONable):
             self.ordered = False
             return
 
-        min_index, min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
+        min_index, _min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
         reverse = self.nodes[(min_index - 1) % len(self.nodes)] < self.nodes[(min_index + 1) % len(self.nodes)]
         if reverse:
             self.nodes = self.nodes[min_index::-1] + self.nodes[:min_index:-1]
@@ -413,7 +413,7 @@ class MultiGraphCycle(MSONable):
             self.ordered = False
             return
 
-        min_index, min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
+        min_index, _min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
 
         # Special case when number of nodes is 2 because the two
         # edge_indices refer to the same pair of nodes

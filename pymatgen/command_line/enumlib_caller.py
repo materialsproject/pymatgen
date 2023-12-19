@@ -317,7 +317,7 @@ class EnumlibAdaptor:
             stdin=subprocess.PIPE,
             close_fds=True,
         ) as rs:
-            stdout, stderr = rs.communicate()
+            _stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
 
