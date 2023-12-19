@@ -313,7 +313,7 @@ class Dosspin(MSONable):
         Returns:
             partial_dos: np.array
         """
-        part:str = part.upper()
+        part_upper:str = part.upper()
         labels_upper:list[str] = [tmp_label.upper() for tmp_label in self._labels]
-        idx_dos = labels_upper.index(part) 
+        idx_dos = labels_upper.index(part_upper) 
         return self._dos[:, idx_dos]
