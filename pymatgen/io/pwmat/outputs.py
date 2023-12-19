@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import copy
 import linecache
-from typing import TYPE_CHECKING
 from io import StringIO
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -140,7 +140,7 @@ class Report(MSONable):
     """
     Description:
         Extract information of spin, kpoints, bands, eigenvalues from REPORT file.
-        
+
     @Author: Hanyu Liu
     @Email: domainofbuaa@gmail.com
     """
@@ -263,53 +263,50 @@ class Dosspin(MSONable):
     @Author: Hanyu Liu
     @Email: domainofbuaa@gmail.com
     """
-    def __init__(self, filename:str):
+
+    def __init__(self, filename: str):
         self.filename = filename
         self._labels, self._dos = self._parse()
-    
-    
+
     def _parse(self):
         """
         Returns:
             labels: list[str], The label of DOS, e.g. Total, Cr-3S, ...
             dos: np.array
         """
-        labels:list[str] = []
+        labels: list[str] = []
         labels = linecache.getline(self.filename, 1).split()[1:]
-        dos_str:str = ""
+        dos_str: str = ""
         with zopen(self.filename) as f:
             f.readline()
             dos_str = f.read()
-        dos:np.array = np.loadtxt(StringIO(dos_str))
+        dos: np.array = np.loadtxt(StringIO(dos_str))
         return labels, dos
-    
-    
+
     @property
     def labels(self):
         return self._labels
-    
-    
+
     @property
     def dos(self):
         return self._dos
-    
-    
-    def get_partial_dos(self, part:str):
+
+    def get_partial_dos(self, part: str):
         """
         Description:
             Get partial dos for give element or orbital.
-        
+
         Args:
-            part: str, 
-                e.g. 'Energy', 'Total', 'Cr-3S', 'Cr-3P', 
+            part: str,
+                e.g. 'Energy', 'Total', 'Cr-3S', 'Cr-3P',
                      'Cr-4S', 'Cr-3D', 'I-4D', 'I-5S', 'I-5P'
-                e.g. 'Energy', 'Total', 'Cr-3S', 'Cr-3Pz', 
-                     'Cr-3Px', 'Cr-3Py', 'Cr-4S', 'Cr-3Dz2', 
-                     'Cr-3Dxz', 'Cr-3Dyz', 'Cr-3D(x^2-y^2)', 
-                     'Cr-3Dxy', 'I-4Dz2', 'I-4Dxz', 'I-4Dyz', 
-                     'I-4D(x^2-y^2)', 'I-4Dxy', 'I-5S', 'I-5Pz', 
+                e.g. 'Energy', 'Total', 'Cr-3S', 'Cr-3Pz',
+                     'Cr-3Px', 'Cr-3Py', 'Cr-4S', 'Cr-3Dz2',
+                     'Cr-3Dxz', 'Cr-3Dyz', 'Cr-3D(x^2-y^2)',
+                     'Cr-3Dxy', 'I-4Dz2', 'I-4Dxz', 'I-4Dyz',
+                     'I-4D(x^2-y^2)', 'I-4Dxy', 'I-5S', 'I-5Pz',
                      'I-5Px', 'I-5Py'
-        
+
         Returns:
             partial_dos: np.array
         """
