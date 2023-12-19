@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import copy
+import linecache
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
+from pymatgen.io.pwmat.inputs import (
+    ACstrExtractor, 
+    AtomConfig, 
+    LineLocator
+)
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
@@ -113,3 +118,144 @@ class Movement(MSONable):
                     print(f"Ionic step #{ii} : No virial information.")
                 ionic_steps.append(tmp_step)
         return ionic_steps
+
+
+
+class OutFermi(MSONable):
+    """
+    @Author: Hanyu Liu
+    @Email: domainofbuaa@gmail.com
+    """
+    def __init__(self, filename:str):
+        self.filename:str = filename
+        with zopen(self.filename, "rt") as f:
+            self._efermi:float = np.round(
+                float(f.readline().split()[-2].strip()), 3)
+    
+    @property
+    def efermi(self):
+        return self._efermi
+
+
+
+class Report(MSONable):
+    """
+    @Author: Hanyu Liu
+    @Email: domainofbuaa@gmail.com
+    """
+    def __init__(self, filename:str):
+        self.filename = filename
+        self._spin, self._num_kpts, self._num_bands = self._parse_band()
+        self._eigenvalues = self._parse_eigen()
+        self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
+    
+    
+    def _parse_band(self):
+        """_summary_
+        
+
+        Returns:
+            spin: int, Whether turn on spin or not.
+                1 : turn down the spin
+                2 : turn on the spin
+            num_kpts: int, The number of kpoints.
+            num_bands: int, The number of bands.
+        """
+        content = "SPIN"
+        row_idx:int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
+        spin = int( linecache.getline(self.filename, row_idx).split()[-1].strip() )
+        
+        content:str = "NUM_KPT"
+        row_idx:int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
+        num_kpts = int( linecache.getline(self.filename, row_idx).split()[-1].strip() )
+        
+        content:str = "NUM_BAND"
+        row_idx:int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
+        num_bands = int( linecache.getline(self.filename, row_idx).split()[-1].strip() )
+        return spin, num_kpts, num_bands
+    
+    
+    def _parse_eigen(self):
+        """
+        Return:
+            eigenvales: np.array
+                shape = (1 or 2, self.num_kpts, self.num_bands)
+        """
+        num_rows:int = int( np.ceil(self._num_bands / 5) )
+        content:str = "eigen energies, in eV"
+        rows_lst:list[int] = LineLocator.locate_all_lines(file_path=self.filename, content=content)
+        rows_array:np.array = np.array(rows_lst).reshape(self._spin, -1)
+        eigenvalues:np.array = np.zeros((self._spin, self._num_kpts, self._num_bands))
+        
+        for ii in range(self._spin):
+            for jj in range(self._num_kpts):
+                tmp_eigenvalues_str = ""
+                for kk in range(num_rows):
+                    tmp_eigenvalues_str += linecache.getline(self.filename, rows_array[ii][jj]+kk+1)
+                tmp_eigenvalues_array = np.array( 
+                    [float(eigen_value) for eigen_value in tmp_eigenvalues_str.split()] )        
+                for kk in range(self._num_bands):
+                    eigenvalues[ii][jj][kk] = tmp_eigenvalues_array[kk]
+        return eigenvalues
+
+    
+    def _parse_kpt(self):
+        """
+        Returns:
+            kpts: np.array, The fractional coordinates of KPoints
+            kpts_weight: np.array, The weight of KPoints
+            hsps: dict[str, np.array], The name and coordinates of high symmetric points
+        """
+        num_rows:int = int( self._num_kpts )
+        content:str = "total number of K-point:"
+        row_idx:int = LineLocator.locate_all_lines(self.filename, content)[0]
+        kpts:np.array = np.zeros((self._num_kpts, 3))
+        kpts_weight:np.array = np.zeros((self._num_kpts))
+        hsps:dict[str, np.array] = {}
+        for ii in range(num_rows):
+            #  0.00000     0.00000    0.00000     0.03704           G
+            tmp_row_lst:list[str] = linecache.getline(self.filename, row_idx+ii+1).split();
+            for jj in range(3):
+                kpts[ii][jj] = float( tmp_row_lst[jj].strip() )
+            kpts_weight[ii] = float( tmp_row_lst[3].strip() )
+            
+            if len(tmp_row_lst) == 5:
+                hsps.update(
+                    {   tmp_row_lst[4]: np.array([
+                            float(tmp_row_lst[0]), 
+                            float(tmp_row_lst[1]), 
+                            float(tmp_row_lst[2])]
+                        )
+                    }
+                )
+        return kpts, kpts_weight, hsps
+    
+    
+    @property
+    def spin(self):
+        return self._spin
+    
+    @property
+    def num_kpts(self):
+        return self._num_kpts
+    
+    @property
+    def num_bands(self):
+        return self._num_bands
+    
+    @property
+    def eigenvalues(self):
+        return self._eigenvalues
+    
+    @property
+    def kpts(self):
+        return self._kpts
+    
+    @property
+    def kpts_weight(self):
+        return self._kpts_weight
+    
+    @property
+    def hsps(self):
+        return self._hsps
+    
