@@ -385,22 +385,22 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         previous_qpoint = self.qpoints[0]
         previous_distance = 0.0
         previous_label = self.qpoints[0].label
-        for i in range(self.nb_qpoints):
-            label = self.qpoints[i].label
+        for idx in range(self.nb_qpoints):
+            label = self.qpoints[idx].label
             if label is not None and previous_label is not None:
                 self.distance.append(previous_distance)
             else:
                 self.distance.append(
-                    np.linalg.norm(self.qpoints[i].cart_coords - previous_qpoint.cart_coords) + previous_distance
+                    np.linalg.norm(self.qpoints[idx].cart_coords - previous_qpoint.cart_coords) + previous_distance
                 )
-            previous_qpoint = self.qpoints[i]
-            previous_distance = self.distance[i]
+            previous_qpoint = self.qpoints[idx]
+            previous_distance = self.distance[idx]
             if label and previous_label:
                 if len(one_group) != 0:
                     branches_tmp.append(one_group)
                 one_group = []
             previous_label = label
-            one_group.append(i)
+            one_group.append(idx)
         if len(one_group) != 0:
             branches_tmp.append(one_group)
         for branch in branches_tmp:
@@ -415,22 +415,22 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         if has_nac:
             naf = []
             nac_eigendisplacements = []
-            for i in range(self.nb_qpoints):
+            for idx in range(self.nb_qpoints):
                 # get directions with nac irrespectively of the label_dict. NB: with labels
                 # the gamma point is expected to appear twice consecutively.
-                if np.allclose(qpoints[i], (0, 0, 0)):
-                    if i > 0 and not np.allclose(qpoints[i - 1], (0, 0, 0)):
-                        q_dir = self.qpoints[i - 1]
+                if np.allclose(qpoints[idx], (0, 0, 0)):
+                    if idx > 0 and not np.allclose(qpoints[idx - 1], (0, 0, 0)):
+                        q_dir = self.qpoints[idx - 1]
                         direction = q_dir.frac_coords / np.linalg.norm(q_dir.frac_coords)
-                        naf.append((direction, frequencies[:, i]))
+                        naf.append((direction, frequencies[:, idx]))
                         if self.has_eigendisplacements:
-                            nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
-                    if i < len(qpoints) - 1 and not np.allclose(qpoints[i + 1], (0, 0, 0)):
-                        q_dir = self.qpoints[i + 1]
+                            nac_eigendisplacements.append((direction, eigendisplacements[:, idx]))
+                    if idx < len(qpoints) - 1 and not np.allclose(qpoints[idx + 1], (0, 0, 0)):
+                        q_dir = self.qpoints[idx + 1]
                         direction = q_dir.frac_coords / np.linalg.norm(q_dir.frac_coords)
-                        naf.append((direction, frequencies[:, i]))
+                        naf.append((direction, frequencies[:, idx]))
                         if self.has_eigendisplacements:
-                            nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
+                            nac_eigendisplacements.append((direction, eigendisplacements[:, idx]))
 
             self.nac_frequencies = np.array(naf, dtype=object)
             self.nac_eigendisplacements = np.array(nac_eigendisplacements, dtype=object)
