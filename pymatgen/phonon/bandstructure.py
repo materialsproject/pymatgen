@@ -147,8 +147,14 @@ class PhononBandStructure(MSONable):
                 self.nac_eigendisplacements.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
 
     def min_freq(self) -> tuple[Kpoint, float]:
-        """Returns the point where the minimum frequency is reached and its value."""
+        """Returns the q-point where the minimum frequency is reached and its value."""
         idx = np.unravel_index(np.argmin(self.bands), self.bands.shape)
+
+        return self.qpoints[idx[1]], self.bands[idx]
+
+    def max_freq(self) -> tuple[Kpoint, float]:
+        """Returns the q-point where the maximum frequency is reached and its value."""
+        idx = np.unravel_index(np.argmax(self.bands), self.bands.shape)
 
         return self.qpoints[idx[1]], self.bands[idx]
 
