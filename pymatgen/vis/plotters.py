@@ -63,7 +63,8 @@ class SpectrumPlotter:
                 a dashed black line. If None, a color will be chosen based on
                 the default color cycle.
         """
-        assert hasattr(spectrum, 'x') and hasattr(spectrum, 'y'), f"{type(spectrum)} has no attribute x and y, please check!"
+        assert hasattr(spectrum, 'x'), f"{type(spectrum)} has no attribute x, please check!"
+        assert hasattr(spectrum, 'y'), f"{type(spectrum)} has no attribute y, please check!"
         self._spectra[label] = spectrum
         self.colors.append(color or self.colors_cycle[len(self._spectra) % len(self.colors_cycle)])
 
