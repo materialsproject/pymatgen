@@ -162,6 +162,16 @@ class PhononBandStructure(MSONable):
 
         return self.qpoints[idx[1]], self.bands[idx]
 
+    def width(self, with_imaginary: bool = False) -> float:
+        """Returns the difference between the maximum and minimum frequencies anywhere in the
+        band structure, not necessarily at identical same q-points. If with_imaginary is False,
+        only positive frequencies are considered.
+        """
+        if with_imaginary:
+            return np.max(self.bands) - np.min(self.bands)
+        mask_pos = self.bands >= 0
+        return self.bands[mask_pos].max() - self.bands[mask_pos].min()
+
     def has_imaginary_freq(self, tol: float = 1e-3) -> bool:
         """True if imaginary frequencies are present anywhere in the band structure. Always True if
         has_imaginary_gamma_freq is True.
