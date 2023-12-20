@@ -1,6 +1,5 @@
 name: Request a Feature
 description: Use this template to request a new feature
-title: "[Feature Request]: "
 body:
   - type: textarea
     id: feature
