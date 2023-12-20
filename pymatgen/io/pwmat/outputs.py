@@ -180,6 +180,7 @@ class Report(MSONable):
         Return:
             eigenvales: np.array
                 shape = (1 or 2, self.num_kpts, self.num_bands)
+                Note : first index is kpoints, second index is band.
         """
         num_rows: int = int(np.ceil(self._num_bands / 5))
         content: str = "eigen energies, in eV"
