@@ -127,16 +127,15 @@ class SpectrumPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", **kwargs):
+    def save_plot(self, filename: str, **kwargs):
         """
         Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
         """
         self.get_plot(**kwargs)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
     def show(self, **kwargs):
         """Show the plot using matplotlib."""

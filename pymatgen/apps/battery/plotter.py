@@ -194,13 +194,12 @@ class VoltageProfilePlotter:
         """
         self.get_plot(width, height).show()
 
-    def save(self, filename, image_format="eps", width=8, height=6):
+    def save(self, filename: str, width: float = 8, height: float = 6) -> None:
         """Save the plot to an image file.
 
         Args:
-            filename: Filename to save to.
-            image_format: Format to save to. Defaults to eps.
+            filename (str): Filename to save to. Must include extension to specify image format.
             width: Width of the plot. Defaults to 8 in.
             height: Height of the plot. Defaults to 6 in.
         """
-        self.get_plot(width, height).savefig(filename, format=image_format)
+        self.get_plot(width, height).savefig(filename)
