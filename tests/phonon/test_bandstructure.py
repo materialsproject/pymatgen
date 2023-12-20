@@ -112,3 +112,10 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         max_qpoint2, max_freq2 = self.bs2.max_freq()
         assert list(max_qpoint2.frac_coords) == [0, 0, 0]
         assert max_freq2 == approx(15.2873634264)
+
+    def test_get_gamma_point(self):
+        for bs in (self.bs, self.bs2):
+            g_point = bs.get_gamma_point()
+            assert isinstance(g_point, Kpoint)
+            assert list(g_point.frac_coords) == [0, 0, 0]
+            assert g_point.label in ("Gamma", "$\\Gamma$")
