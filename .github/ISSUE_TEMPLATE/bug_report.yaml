@@ -32,7 +32,6 @@ body:
     attributes:
       label: Current output
       description: What current terminal output or log shows?
-      value:
       render: shell
     validations:
       required: true
@@ -43,7 +42,6 @@ body:
       label: Expected Behavior
       description: What did you expect to see?
       placeholder: e.g., an atomic structure should be generated.
-      value:
     validations:
       required: true
 
@@ -53,7 +51,6 @@ body:
       label: Minimal code snippet to reproduce this bug
       description: Please provide a minimal code snippet that could reproduce this bug.
       placeholder: Show us your code please.
-      value:
       render: python
     validations:
       required: false
@@ -64,6 +61,5 @@ body:
       label: Relevant files to reproduce this bug
       description: Please upload relevant files to help reproduce this bug, or logs if necessary.
       placeholder: Show us your file please.
-      value:
     validations:
       required: false
