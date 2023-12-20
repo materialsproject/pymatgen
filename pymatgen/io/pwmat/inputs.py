@@ -518,11 +518,11 @@ class GenKpt(MSONable):
             kpts: dict[str, np.array] = kpts_2d
             path: list[list[str]] = path_2d
         else:
-            kpts:dict[str, np.array] = kpath_set.kpath["kpoints"]
-            path:list[list[str]] = kpath_set.kpath["path"]
-        
-        rec_lattice:np.array = structure.lattice.reciprocal_lattice.matrix   # with 2*pi
-        
+            kpts: dict[str, np.array] = kpath_set.kpath["kpoints"]
+            path: list[list[str]] = kpath_set.kpath["path"]
+
+        rec_lattice: np.array = structure.lattice.reciprocal_lattice.matrix  # with 2*pi
+
         return GenKpt(rec_lattice, kpts, path, density)
 
     def get_str(self):
@@ -555,8 +555,7 @@ class GenKpt(MSONable):
                     genkpt_str += f"{self._kpath['kpoints'][flatten_paths[ii+1]][2]:>12.6f}\t"
                     genkpt_str += f"{flatten_paths[ii+1]}\n"
         return genkpt_str
-    
-    
-    def write_file(self, filename:str):
+
+    def write_file(self, filename: str):
         with zopen(filename, "wt") as f:
             f.write(self.get_str())
