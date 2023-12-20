@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 
+import pytest
 from pytest import approx
 
 from pymatgen.core import Element
@@ -37,6 +38,9 @@ class TestPhononDos(PymatgenTest):
         assert smeared[20] == approx(0.00084171007635058825)
         dens = self.dos.densities
         assert sum(dens) == approx(sum(smeared))
+
+        # test 0 smearing returns original DOS
+        assert self.dos.get_smeared_densities(0) is self.dos.densities
 
     def test_dict_methods(self):
         json_str = json.dumps(self.dos.as_dict())
@@ -84,6 +88,28 @@ class TestPhononDos(PymatgenTest):
         assert self.dos != 42
         assert self.dos != 2 * self.dos
         assert 2 * self.dos == self.dos + self.dos
+
+    def test_mae(self):
+        assert self.dos.mae(self.dos) == 0
+        assert self.dos.mae(self.dos + 1) == 1
+        assert self.dos.mae(self.dos - 1) == 1
+        assert self.dos.mae(2 * self.dos) == pytest.approx(0.786546967)
+        assert (2 * self.dos).mae(self.dos) == pytest.approx(0.786546967)
+
+        # test two_sided=False after shifting DOS freqs so MAE requires interpolation
+        dos2 = PhononDos(self.dos.frequencies + 0.01, self.dos.densities)
+        assert self.dos.mae(dos2 + 1, two_sided=False) == pytest.approx(0.999999999)
+        assert self.dos.mae(dos2 - 1, two_sided=False) == pytest.approx(1.00000000000031)
+        assert self.dos.mae(2 * dos2, two_sided=False) == pytest.approx(0.786546967)
+
+    def test_get_last_peak(self):
+        peak_freq = self.dos.get_last_peak()
+        assert peak_freq == approx(5.9909763191)
+        assert self.dos.get_interpolated_value(peak_freq) == approx(1.1700016497)
+
+        # try different threshold
+        peak_freq = self.dos.get_last_peak(threshold=0.5)
+        assert peak_freq == approx(4.9662820761)
 
 
 class TestCompletePhononDos(PymatgenTest):

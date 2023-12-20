@@ -349,20 +349,20 @@ class GulpIO:
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = "GULP_LIB" in os.environ
+        gulp_lib_set = "GULP_LIB" in os.environ
 
         def readable(f):
             return os.path.isfile(f) and os.access(f, os.R_OK)
 
         gin = ""
-        dirpath, fname = os.path.split(file_name)
+        dirpath, _fname = os.path.split(file_name)
         if dirpath and readable(file_name):  # Full path specified
             gin = "library " + file_name
         else:
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = "library " + fpath
-            elif gulplib_set:  # Check the GULP_LIB path
+            elif gulp_lib_set:  # Check the GULP_LIB path
                 fpath = os.path.join(os.environ["GULP_LIB"], file_name)
                 if readable(fpath):
                     gin = "library " + file_name
@@ -637,7 +637,7 @@ class GulpCaller:
         def is_exe(f) -> bool:
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
-        fpath, fname = os.path.split(cmd)
+        fpath, _fname = os.path.split(cmd)
         if fpath:
             if is_exe(cmd):
                 self._gulp_cmd = cmd

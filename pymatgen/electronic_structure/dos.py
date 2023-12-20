@@ -40,7 +40,7 @@ class DOS(Spectrum):
     XLABEL = "Energy"
     YLABEL = "Density"
 
-    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float):
+    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float) -> None:
         """
         Args:
             energies: A sequence of energies
@@ -149,7 +149,7 @@ class DOS(Spectrum):
         cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
@@ -339,7 +339,7 @@ class Dos(MSONable):
         (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
@@ -385,7 +385,7 @@ class FermiDos(Dos, MSONable):
         structure: Structure | None = None,
         nelecs: float | None = None,
         bandgap: float | None = None,
-    ):
+    ) -> None:
         """
         Args:
             dos: Pymatgen Dos object.
@@ -1282,7 +1282,7 @@ class CompleteDos(Dos):
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
         return dct
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Complete DOS for {self.structure}"
 
 

@@ -38,14 +38,26 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
 
         assert list(self.bs.min_freq()[0].frac_coords) == [0, 0, 0]
         assert self.bs.min_freq()[1] == approx(-0.03700895020)
-        assert self.bs.has_imaginary_freq()
-        assert not self.bs.has_imaginary_freq(tol=0.5)
         assert_allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
         assert self.bs.nb_bands == 6
         assert self.bs.nb_qpoints == 204
 
         assert_allclose(self.bs.qpoints[1].frac_coords, [0.01, 0, 0])
+
+    def test_has_imaginary_freq(self):
+        for tol in (0, 0.01, 0.02, 0.03, 0.04, 0.05):
+            assert self.bs.has_imaginary_freq(tol=tol) == (tol < 0.04)
+
+        for tol in (0, 0.01, 0.02, 0.03, 0.04, 0.05):
+            assert self.bs2.has_imaginary_freq(tol=tol) == (tol < 0.01)
+
+        # test Gamma point imaginary frequency detection
+        for tol in (0, 0.01, 0.02, 0.03, 0.04, 0.05):
+            assert self.bs.has_imaginary_gamma_freq(tol=tol) == (tol < 0.04)
+
+        for tol in (0, 0.01, 0.02, 0.03, 0.04, 0.05):
+            assert self.bs2.has_imaginary_gamma_freq(tol=tol) == (tol < 0.01)
 
     def test_nac(self):
         assert self.bs.has_nac

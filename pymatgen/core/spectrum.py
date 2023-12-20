@@ -43,7 +43,7 @@ class Spectrum(MSONable):
     XLABEL = "x"
     YLABEL = "y"
 
-    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs):
+    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs) -> None:
         """
         Args:
             x (ndarray): A ndarray of N values.
@@ -70,10 +70,10 @@ class Spectrum(MSONable):
             return self.y
         raise AttributeError(f"Invalid attribute {name=}")
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.ydim[0]
 
-    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
+    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0) -> None:
         """Normalize the spectrum with respect to the sum of intensity.
 
         Args:
@@ -91,7 +91,7 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian"):
+    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian") -> None:
         """Apply Gaussian/Lorentzian smearing to spectrum y value.
 
         Args:
@@ -204,12 +204,12 @@ class Spectrum(MSONable):
 
     __div__ = __truediv__
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string containing values and labels of spectrum object for
         plotting.
         """
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Returns a printable representation of the class."""
         return str(self)

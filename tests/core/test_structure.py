@@ -1307,8 +1307,10 @@ class TestStructure(PymatgenTest):
             ["Li", "O"],
             [[0.25, 0.25, 0.25], [0, 0, 0]],
             site_properties={"charge": [1, -2]},
+            labels=["A", "B"],
         )
         assert sum(s2.site_properties["charge"]) == 0
+        assert s2.labels == ["A", "A", "A", "A", "A", "A", "A", "A", "B", "B", "B", "B"]
 
         struct = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         assert struct.formula == "Cs1 Cl1"

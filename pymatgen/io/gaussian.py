@@ -1288,7 +1288,7 @@ class GaussianOutput:
             sigma: Full width at half maximum in eV for normal functions.
             step: bin interval in eV
         """
-        d, plt = self.get_spectre_plot(sigma, step)
+        _d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
     def to_input(

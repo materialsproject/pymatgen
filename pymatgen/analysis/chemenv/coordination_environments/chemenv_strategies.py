@@ -596,7 +596,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         if isite is None:
             isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
 
-        ce, cn_map = self.get_site_coordination_environment(
+        _ce, cn_map = self.get_site_coordination_environment(
             site=site,
             isite=isite,
             dequivsite=dequivsite,
