@@ -1,0 +1,70 @@
+name: Report a Bug
+description: Use this template to report a Pymatgen-related bug
+title: "[BUG]: "
+body:
+  - type: input
+    id: Python
+    attributes:
+      label: Python version
+      description: Use `python -V` to get Python version
+      placeholder: ex. Python 3.11.5
+    validations:
+      required: true
+
+  - type: input
+    id: pmgversion
+    attributes:
+      label: Pymatgen version
+      description: Use `pip show pymatgen | grep Version` to get Pymatgen version
+      placeholder: ex. 2023.12.18
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system version
+      placeholder: ex. Ubuntu 22.04 LTS
+    validations:
+      required: false
+
+  - type: textarea
+    id: current-output
+    attributes:
+      label: Current output
+      description: What current terminal output or log shows?
+      value:
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to see?
+      placeholder: e.g., an atomic structure should be generated.
+      value:
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-snippet
+    attributes:
+      label: Minimal code snippet to reproduce this bug
+      description: Please provide a minimal code snippet that could reproduce this bug.
+      placeholder: Show us your code please.
+      value:
+      render: python
+    validations:
+      required: false
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Relevant files to reproduce this bug
+      description: Please upload relevant files to help reproduce this bug, or logs if necessary.
+      placeholder: Show us your file please.
+      value:
+    validations:
+      required: false

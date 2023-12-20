@@ -1,0 +1,34 @@
+name: Request a Feature
+description: Use this template to request a new feature
+title: "[Feature Request]: "
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Requested
+      description: Tell us what you want to achieve with Pymatgen. Provide specific examples or use cases.
+      placeholder: e.g., I would like to generate atomic structures with specific symmetry constraints...
+      value:
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Do you already have any proposed solution in mind? Share your thoughts on how this feature could be implemented.
+      placeholder: e.g., I would like to achieve this through a new method in the Structure class...
+      value:
+      value:
+    validations:
+      required: true
+
+  - type: textarea
+    id: relevant
+    attributes:
+      label: Relevant Information
+      description: Do you have any other relevant information that might be helpful for understanding or implementing this feature?
+      placeholder: e.g., Additional context about specific use cases, related discussions, or links to relevant literature...
+      value:
+    validations:
+      required: false
