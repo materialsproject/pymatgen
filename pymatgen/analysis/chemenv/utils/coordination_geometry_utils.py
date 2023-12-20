@@ -1037,7 +1037,7 @@ class Plane:
         for ii, pp in enumerate(points):
             for jj in range(3):
                 AA[ii, jj] = pp[jj] - mean_point[jj]
-        [UU, SS, Vt] = np.linalg.svd(AA)
+        _UU, SS, Vt = np.linalg.svd(AA)
         imin = np.argmin(SS)
         normal_vector = Vt[imin]
         non_zeros = np.argwhere(normal_vector != 0.0)

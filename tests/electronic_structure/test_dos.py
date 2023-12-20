@@ -22,21 +22,21 @@ class TestDos(unittest.TestCase):
             self.dos = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
-        dos = self.dos
-        assert dos.get_gap() == approx(2.0589, abs=1e-4)
-        assert len(dos.energies) == 301
-        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
-        assert dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
+        assert self.dos.get_gap() == approx(2.0589, abs=1e-4)
+        assert len(self.dos.energies) == 301
+        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
+            2.16815942458015, abs=1e-7
+        )
+        assert self.dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
 
-        assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
-        assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError, match="x is out of range of provided x_values"):
-            dos.get_interpolated_value(1000)
+            self.dos.get_interpolated_value(1000)
 
     def test_get_smeared_densities(self):
-        dos = self.dos
-        smeared = dos.get_smeared_densities(0.2)
-        dens = dos.densities
+        smeared = self.dos.get_smeared_densities(0.2)
+        dens = self.dos.densities
         for spin in Spin:
             assert sum(dens[spin]) == approx(sum(smeared[spin]))
 
@@ -106,13 +106,14 @@ class TestCompleteDos(unittest.TestCase):
             self.dos_pdag3 = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
-        dos = self.dos
-        assert dos.get_gap() == approx(2.0589, abs=1e-4), "Wrong gap from dos!"
-        assert len(dos.energies) == 301
-        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
-        spd_dos = dos.get_spd_dos()
+        assert self.dos.get_gap() == approx(2.0589, abs=1e-4), "Wrong gap from dos!"
+        assert len(self.dos.energies) == 301
+        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
+            2.16815942458015, abs=1e-7
+        )
+        spd_dos = self.dos.get_spd_dos()
         assert len(spd_dos) == 3
-        el_dos = dos.get_element_dos()
+        el_dos = self.dos.get_element_dos()
         assert len(el_dos) == 4
         sum_spd = spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
         sum_element = None
@@ -127,23 +128,23 @@ class TestCompleteDos(unittest.TestCase):
         assert (abs(sum_spd.densities[Spin.up] - sum_element.densities[Spin.up]) < 0.0001).all()
         assert (abs(sum_spd.densities[Spin.down] - sum_element.densities[Spin.down]) < 0.0001).all()
 
-        site = dos.structure[0]
-        assert dos.get_site_dos(site) is not None
-        assert sum(dos.get_site_dos(site).get_densities(Spin.up)) == approx(2.0391)
-        assert sum(dos.get_site_dos(site).get_densities(Spin.down)) == approx(2.0331999999999995)
-        assert dos.get_site_orbital_dos(site, Orbital.s) is not None
-        egt2g = dos.get_site_t2g_eg_resolved_dos(site)
+        site = self.dos.structure[0]
+        assert self.dos.get_site_dos(site) is not None
+        assert sum(self.dos.get_site_dos(site).get_densities(Spin.up)) == approx(2.0391)
+        assert sum(self.dos.get_site_dos(site).get_densities(Spin.down)) == approx(2.0331999999999995)
+        assert self.dos.get_site_orbital_dos(site, Orbital.s) is not None
+        egt2g = self.dos.get_site_t2g_eg_resolved_dos(site)
         assert sum(egt2g["e_g"].get_densities(Spin.up)) == approx(0.0)
         assert sum(egt2g["t2g"].get_densities(Spin.up)) == approx(0.0)
-        egt2g = dos.get_site_t2g_eg_resolved_dos(dos.structure[4])
+        egt2g = self.dos.get_site_t2g_eg_resolved_dos(self.dos.structure[4])
         assert sum(egt2g["e_g"].get_densities(Spin.up)) == approx(15.004399999999997)
         assert sum(egt2g["t2g"].get_densities(Spin.up)) == approx(22.910399999999999)
-        assert dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
+        assert self.dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
 
-        assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
-        assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError, match="x is out of range of provided x_values"):
-            dos.get_interpolated_value(1000)
+            self.dos.get_interpolated_value(1000)
 
     def test_as_from_dict(self):
         d = self.dos.as_dict()
@@ -296,24 +297,25 @@ class TestDOS(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
             dct = json.load(file)
-            y = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
-            self.dos = DOS(dct["energies"], y, dct["efermi"])
+            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
+            self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
     def test_get_gap(self):
-        dos = self.dos
-        assert dos.get_gap() == approx(2.0589, abs=1e-4)
-        assert len(dos.x) == 301
-        assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
-        assert_allclose(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        assert self.dos.get_gap() == approx(2.0589, abs=1e-4)
+        assert len(self.dos.x) == 301
+        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
+            2.16815942458015, abs=1e-7
+        )
+        assert_allclose(self.dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
-        assert dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
-        assert dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError, match="x is out of range of provided x_values"):
-            dos.get_interpolated_value(1000)
+            self.dos.get_interpolated_value(1000)
 
-        assert_allclose(dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
+        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
 
-        assert_allclose(dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
+        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
 
 class TestSpinPolarization(unittest.TestCase):

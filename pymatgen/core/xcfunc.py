@@ -189,7 +189,7 @@ class XcFunc(MSONable):
             dct["xc"] = self.xc.as_dict()
         return dct
 
-    def __init__(self, xc=None, x=None, c=None):
+    def __init__(self, xc=None, x=None, c=None) -> None:
         """
         Args:
             xc: LibxcFunc for XC functional.

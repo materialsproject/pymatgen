@@ -82,7 +82,7 @@ class BornEffectiveCharge:
         relations = []
         for site, val in enumerate(bec):
             unique = 1
-            eig1, vecs1 = np.linalg.eig(val)
+            eig1, _vecs1 = np.linalg.eig(val)
             index = np.argsort(eig1)
             new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
             for index, p in enumerate(passed):
@@ -670,7 +670,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     n_sites = len(BEC)
     temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (n_sites * 3, n_sites * 3))
 
-    eigs, vecs = np.linalg.eig(temp_fcm)
+    eigs, _vecs = np.linalg.eig(temp_fcm)
     K = np.linalg.pinv(
         -temp_fcm,
         rcond=np.abs(eigs[np.argsort(np.abs(eigs))[2]]) / np.abs(eigs[np.argsort(np.abs(eigs))[-1]]) + rcond,
