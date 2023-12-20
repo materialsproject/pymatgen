@@ -1,4 +1,4 @@
-name: Request a Feature
+name: Feature Reqest
 description: Use this template to request a new feature
 body:
   - type: textarea
