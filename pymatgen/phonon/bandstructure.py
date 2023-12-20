@@ -142,6 +142,14 @@ class PhononBandStructure(MSONable):
             for freq in nac_eigendisplacements:
                 self.nac_eigendisplacements.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
 
+    def get_gamma_point(self) -> Kpoint | None:
+        """Returns the Gamma q-point as a Kpoint object (or None if not found)."""
+        for q_point in self.qpoints:
+            if np.allclose(q_point.frac_coords, (0, 0, 0)):
+                return q_point
+
+        return None
+
     def min_freq(self) -> tuple[Kpoint, float]:
         """Returns the q-point where the minimum frequency is reached and its value."""
         idx = np.unravel_index(np.argmin(self.bands), self.bands.shape)
