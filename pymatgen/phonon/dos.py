@@ -354,7 +354,7 @@ class PhononDos(MSONable):
 
         return self_mae
 
-    def get_last_peak(self, threshold: float = 0.1) -> float:
+    def get_last_peak(self, threshold: float = 0.05) -> float:
         """Find the last peak in the phonon DOS defined as the highest frequency with a DOS
         value at least threshold * height of the overall highest DOS peak.
         A peak is any local maximum of the DOS as a function of frequency.
@@ -365,7 +365,7 @@ class PhononDos(MSONable):
 
         Args:
             threshold (float, optional): Minimum ratio of the height of the last peak
-                to the height of the highest peak. Defaults to 0.1 = 10%. In case no peaks
+                to the height of the highest peak. Defaults to 0.05 = 5%. In case no peaks
                 are high enough to match, the threshold is reset to half the height of the
                 second-highest peak.
 
