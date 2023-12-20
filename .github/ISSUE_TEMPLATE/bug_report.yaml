@@ -48,7 +48,7 @@ body:
     id: code-snippet
     attributes:
       label: Minimal example
-      description: Please provide a minimal code snippet that could reproduce this bug.
+      description: Please provide a minimal code snippet to reproduce this bug.
       render: python
     validations:
       required: false
@@ -57,7 +57,6 @@ body:
     id: files
     attributes:
       label: Relevant files to reproduce this bug
-      description: Please upload relevant files to help reproduce this bug, or logs if necessary.
-      placeholder: Show us your file please.
+      description: Please upload relevant files to help reproduce this bug, or logs if helpful.
     validations:
       required: false

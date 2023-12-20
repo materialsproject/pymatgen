@@ -6,7 +6,6 @@ body:
     attributes:
       label: Feature Requested
       description: Specify the feature and provide examples or use cases.
-      placeholder: e.g., Generate atomic structures with specific symmetry constraints ...
     validations:
       required: true
 
@@ -15,7 +14,7 @@ body:
     attributes:
       label: Proposed Solution
       description: Share your thoughts on how the feature could be implemented.
-      placeholder: e.g., Implement through a new method ...
+      placeholder: Implement a new method that ...
     validations:
       required: true
 
@@ -23,7 +22,7 @@ body:
     id: relevant
     attributes:
       label: Relevant Information
-      description: Include additional context or links helpful for understanding or implementing the feature.
-      placeholder: e.g., Context about use cases, related discussions, or relevant literature ...
+      description: Additional context or links for understanding or implementing the feature.
+      placeholder: Use cases, related discussions, relevant literature, ...
     validations:
       required: false
