@@ -726,10 +726,10 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
         # Test as_dict
-        d = vasp_run.as_dict()
-        assert d["input"]["nkpoints_opt"] == 100
-        assert d["input"]["nkpoints"] == 10
-        assert d["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1522)
+        vasp_run_dct = vasp_run.as_dict()
+        assert vasp_run_dct["input"]["nkpoints_opt"] == 100
+        assert vasp_run_dct["input"]["nkpoints"] == 10
+        assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1522)
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(
@@ -742,14 +742,16 @@ class TestVasprun(PymatgenTest):
         assert cbm["kpoint_index"] == [38], "wrong cbm kpoint index"
         assert cbm["energy"] == approx(6.4363), "wrong cbm energy"
         assert cbm["band_index"] == {Spin.up: [16], Spin.down: []}, "wrong cbm bands"
-        # Strangely, when I call with parse_projected_eigen, it gives empty Spin.down,
+        # Strangely, when called with parse_projected_eigen, it gives empty Spin.down,
         # but without parse_projected_eigen it does not give it.
         # So at one point it called the empty key.
         assert vbm["kpoint_index"] == [0, 39, 40]
         assert vbm["energy"] == approx(5.7655), "wrong vbm energy"
         assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: []}, "wrong vbm bands"
-        assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
-        assert cbm["kpoint"].label is None, "wrong cbm label"
+        vbm_kp_label = vbm["kpoint"].label
+        assert vbm["kpoint"].label == "\\Gamma", f"Unpexpected {vbm_kp_label=}"
+        cmb_kp_label = cbm["kpoint"].label
+        assert cmb_kp_label is None, f"Unpexpected {cmb_kp_label=}"
         # Test projection
         projected = bs.get_projection_on_elements()
         assert projected[Spin.up][0][0]["Si"] == approx(0.2126)

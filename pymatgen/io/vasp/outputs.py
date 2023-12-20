@@ -162,7 +162,7 @@ class Vasprun(MSONable):
             To access a particular value, you need to do
             Vasprun.projected_eigenvalues[spin][kpoint index][band index][atom index][orbital_index].
             The kpoint, band and atom indices are 0-based (unlike the 1-based indexing in VASP).
-        projected_magnetisation (numpy.ndarray): Final projected magnetization as a numpy array with the
+        projected_magnetisation (np.array): Final projected magnetization as a numpy array with the
             shape (nkpoints, nbands, natoms, norbitals, 3). Where the last axis is the contribution in the
             3 Cartesian directions. This attribute is only set if spin-orbit coupling (LSORBIT = True) or
             non-collinear magnetism (LNONCOLLINEAR = True) is turned on in the INCAR.
@@ -174,10 +174,10 @@ class Vasprun(MSONable):
             real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,imag_partxy, imag_partyz, imag_partxz]]).
         nionic_steps (int): The total number of ionic steps. This number is always equal to the total number
             of steps in the actual run even if ionic_step_skip is used.
-        force_constants (numpy.ndarray): Force constants computed in phonon DFPT run(IBRION = 8).
+        force_constants (np.array): Force constants computed in phonon DFPT run(IBRION = 8).
             The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
-        normalmode_eigenvals (numpy.ndarray): Normal mode frequencies. 1D numpy array of size 3*natoms.
-        normalmode_eigenvecs (numpy.ndarray): Normal mode eigen vectors. 3D numpy array of shape (3*natoms, natoms, 3).
+        normalmode_eigenvals (np.array): Normal mode frequencies. 1D numpy array of size 3*natoms.
+        normalmode_eigenvecs (np.array): Normal mode eigen vectors. 3D numpy array of shape (3*natoms, natoms, 3).
         md_data (list): Available only for ML MD runs, i.e., INCAR with ML_LMLFF = .TRUE. md_data is a list of
             dict with the following format: [{'energy': {'e_0_energy': -525.07195568, 'e_fr_energy': -525.07195568,
             'e_wo_entrp': -525.07195568, 'kinetic': 3.17809233, 'lattice kinetic': 0.0, 'nosekinetic': 1.323e-5,
@@ -192,17 +192,22 @@ class Vasprun(MSONable):
             0.04166667, ....].
         atomic_symbols (list): List of atomic symbols, e.g., ["Li", "Fe", "Fe", "P", "P", "P"].
         potcar_symbols (list): List of POTCAR symbols. e.g., ["PAW_PBE Li 17Jan2003", "PAW_PBE Fe 06Sep2000", ..].
-        tdos_opt (Dos): As tdos but obtained from KPOINTS_OPT.
-        idos_opt (Dos): As idos but obtained from KPOINTS_OPT.
-        pdos_opt (list): List of list of PDos objects. As pdos but obtained from KPOINTS_OPT.
-        efermi_opt (float): As efermi but obtained from DOS calculated by KPOINTS_OPT.
-        eigenvalues_kpoints_opt (dict): As eigenvalues but obtained from KPOINTS_OPT.
-        projected_eigenvalues_kpoints_opt (dict): As projected_eigenvalues but obtained from KPOINTS_OPT.
-        projected_magnetisation_kpoints_opt (numpy.ndarray): As projected_magnetisation but obtained from KPOINTS_OPT.
-        kpoints_opt (Kpoints): As kpoints but obtained from KPOINTS_OPT.
-        actual_kpoints_opt (list): As actual_kpoints but obtained from KPOINTS_OPT.
-        actual_kpoints_weights_opt (list): As actual_kpoints_weights but obtained from KPOINTS_OPT.
-
+        tdos_opt (Dos): Same as tdos but obtained from KPOINTS_OPT (if present, else None).
+        idos_opt (Dos): Same as idos but obtained from KPOINTS_OPT (if present, else None).
+        pdos_opt (list): List of list of PDos objects. As pdos but obtained from KPOINTS_OPT (if present,
+            else None).
+        efermi_opt (float): Same as efermi but obtained from DOS calculated by KPOINTS_OPT.
+        eigenvalues_kpoints_opt (dict): Same as eigenvalues but obtained from KPOINTS_OPT (if present,
+            else None).
+        projected_eigenvalues_kpoints_opt (dict): Same as projected_eigenvalues but obtained from
+            KPOINTS_OPT (if present, else None).
+        projected_magnetisation_kpoints_opt (np.array): Same as projected_magnetisation but obtained
+            from KPOINTS_OPT (if present, else None).
+        kpoints_opt (Kpoints): Same as kpoints but obtained from KPOINTS_OPT (if present, else None).
+        actual_kpoints_opt (list): Same as actual_kpoints but obtained from KPOINTS_OPT (if present,
+            else None).
+        actual_kpoints_weights_opt (list): Same as actual_kpoints_weights but obtained from KPOINTS_OPT (if
+            present, else None).
 
     Author: Shyue Ping Ong
     """
@@ -1194,21 +1199,21 @@ class Vasprun(MSONable):
         }
         actual_kpts = [
             {
-                "abc": list(self.actual_kpoints[i]),
-                "weight": self.actual_kpoints_weights[i],
+                "abc": list(self.actual_kpoints[idx]),
+                "weight": self.actual_kpoints_weights[idx],
             }
-            for i in range(len(self.actual_kpoints))
+            for idx in range(len(self.actual_kpoints))
         ]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["nkpoints"] = len(actual_kpts)
-        if hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt:
+        if actual_kpoints_opt := getattr(self, "actual_kpoints_opt", None):
             vin["kpoints_opt"] = self.kpoints_opt.as_dict()
             actual_kpts = [
                 {
-                    "abc": list(self.actual_kpoints_opt[i]),
-                    "weight": self.actual_kpoints_weights_opt[i],
+                    "abc": list(actual_kpoints_opt[idx]),
+                    "weight": self.actual_kpoints_weights_opt[idx],
                 }
-                for i in range(len(self.actual_kpoints_opt))
+                for idx in range(len(actual_kpoints_opt))
             ]
             vin["kpoints_opt"]["actual_kpoints"] = actual_kpts
             vin["nkpoints_opt"] = len(actual_kpts)
@@ -1750,7 +1755,7 @@ class Outcar:
         chemical_shielding (dict): Chemical shielding on each ion as a dictionary with core and valence contributions.
         unsym_cs_tensor (list): Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
             e.g., [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], ...]
-        cs_g0_contribution (numpy.ndarray): G=0 contribution to chemical shielding. 2D rank 3 matrix.
+        cs_g0_contribution (np.array): G=0 contribution to chemical shielding. 2D rank 3 matrix.
         cs_core_contribution (dict): Core contribution to chemical shielding. dict. e.g.,
             {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
         efg (tuple): Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
@@ -1761,12 +1766,12 @@ class Outcar:
         is_stopped (bool): True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
         run_stats (dict): Various useful run stats as a dict including "System time (sec)", "Total CPU time used (sec)",
             "Elapsed time (sec)", "Maximum memory used (kb)", "Average memory used (kb)", "User time (sec)", "cores".
-        elastic_tensor (numpy.ndarray): Total elastic moduli (Kbar) is given in a 6x6 array matrix.
-        drift (numpy.ndarray): Total drift for each step in eV/Atom.
+        elastic_tensor (np.array): Total elastic moduli (Kbar) is given in a 6x6 array matrix.
+        drift (np.array): Total drift for each step in eV/Atom.
         ngf (tuple): Dimensions for the Augmentation grid.
-        sampling_radii (numpy.ndarray): Size of the sampling radii in VASP for the test charges for the electrostatic
+        sampling_radii (np.array): Size of the sampling radii in VASP for the test charges for the electrostatic
             potential at each atom. Total array size is the number of elements present in the calculation.
-        electrostatic_potential (numpy.ndarray): Average electrostatic potential at each atomic position in order of
+        electrostatic_potential (np.array): Average electrostatic potential at each atomic position in order of
             the atoms in POSCAR.
         final_energy_contribs (dict): Individual contributions to the total final energy as a dictionary.
             Include contributions from keys, e.g.:
@@ -3723,7 +3728,7 @@ class Procar:
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
             but all indices are converted to 0-based here.
             { spin: nd.array accessed with (k-point index, band index, ion index, orbital index) }
-        weights (numpy.ndarray): The weights associated with each k-point as an nd.array of length nkpoints.
+        weights (np.array): The weights associated with each k-point as an nd.array of length nkpoints.
         phase_factors (dict): Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
             { spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index) }
         nbands (int): Number of bands.
@@ -4357,10 +4362,10 @@ class Wavecar:
         nb (int): Number of bands per k-point.
         encut (float): Energy cutoff (used to define G_{cut}).
         efermi (float): Fermi energy.
-        a (numpy.ndarray): Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :]).
-        b (numpy.ndarray): Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :]).
+        a (np.array): Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :]).
+        b (np.array): Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :]).
         vol (float): The volume of the unit cell in real space.
-        kpoints (numpy.ndarray): The list of k-points read from the WAVECAR file.
+        kpoints (np.array): The list of k-points read from the WAVECAR file.
         band_energy (list): The list of band eigenenergies (and corresponding occupancies) for each kpoint,
             where the first index corresponds to the index of the k-point (e.g. self.band_energy[kp]).
         Gpoints (list): The list of generated G-points for each k-point (a double list), which
