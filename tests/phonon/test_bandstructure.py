@@ -5,6 +5,7 @@ import json
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
+from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -36,8 +37,6 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         )
         assert self.bs.has_eigendisplacements, True
 
-        assert list(self.bs.min_freq()[0].frac_coords) == [0, 0, 0]
-        assert self.bs.min_freq()[1] == approx(-0.03700895020)
         assert_allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
         assert self.bs.nb_bands == 6
@@ -94,3 +93,22 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
 
     def test_write_methods(self):
         self.bs2.write_phononwebsite(f"{self.tmp_path}/test.json")
+
+    def test_min_max_freq(self):
+        min_qpoint, min_freq = self.bs.min_freq()
+        assert isinstance(min_qpoint, Kpoint)
+        assert list(min_qpoint.frac_coords) == [0, 0, 0]
+        assert min_freq == approx(-0.03700895020)
+
+        max_qpoint, max_freq = self.bs.max_freq()
+        assert isinstance(max_qpoint, Kpoint)
+        assert list(max_qpoint.frac_coords) == [0, 0, 0]
+        assert max_freq == approx(7.391425798)
+
+        min_qpoint2, min_freq2 = self.bs2.min_freq()
+        assert list(min_qpoint2.frac_coords) == [0, 0, 0]
+        assert min_freq2 == approx(-0.0072257889)
+
+        max_qpoint2, max_freq2 = self.bs2.max_freq()
+        assert list(max_qpoint2.frac_coords) == [0, 0, 0]
+        assert max_freq2 == approx(15.2873634264)
