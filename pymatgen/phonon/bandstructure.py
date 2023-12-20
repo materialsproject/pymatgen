@@ -120,16 +120,12 @@ class PhononBandStructure(MSONable):
             labels_dict = {}
 
         for q_pt in qpoints:
-            # let see if this qpoint has been assigned a label
-            label = None
-            for c in labels_dict:
-                if np.linalg.norm(q_pt - np.array(labels_dict[c])) < 0.0001:
-                    label = c
+            label = None  # check below if this qpoint has an assigned label
+            for key in labels_dict:
+                if np.linalg.norm(q_pt - np.array(labels_dict[key])) < 0.0001:
+                    label = key
                     self.labels_dict[label] = Kpoint(
-                        q_pt,
-                        lattice,
-                        label=label,
-                        coords_are_cartesian=coords_are_cartesian,
+                        q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian
                     )
             self.qpoints.append(Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
         self.bands = frequencies
