@@ -518,7 +518,7 @@ class GenKpt(MSONable):
             kpts: dict[str, np.array] = kpts_2d
             path: list[list[str]] = path_2d
         else:
-            kpts  = kpath_set.kpath["kpoints"]
+            kpts = kpath_set.kpath["kpoints"]
             path = kpath_set.kpath["path"]
 
         rec_lattice: np.array = structure.lattice.reciprocal_lattice.matrix  # with 2*pi
