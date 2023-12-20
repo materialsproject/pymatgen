@@ -172,13 +172,21 @@ class PhononBandStructure(MSONable):
         return self.min_freq()[1] + tol < 0
 
     def has_imaginary_gamma_freq(self, tol: float = 1e-3) -> bool:
-        """Checks if there are imaginary modes at the gamma point.
+        """Checks if there are imaginary modes at the gamma point and all close points.
 
         Args:
             tol: Tolerance for determining if a frequency is imaginary. Defaults to 1e-3.
         """
-        gamma_freqs = self.bands[:, 0]  # frequencies at the Gamma point
-        return any(freq < -tol for freq in gamma_freqs)
+        # Calculate the radial distance from the gamma point for each q-point
+        close_points = [q_pt for q_pt in self.qpoints if np.linalg.norm(q_pt.frac_coords) < tol]
+
+        # check for negative frequencies at all q-points close to the gamma point
+        for qpoint in close_points:
+            idx = self.qpoints.index(qpoint)
+            if any(freq < -tol for freq in self.bands[:, idx]):
+                return True
+
+        return False
 
     @property
     def has_nac(self) -> bool:
