@@ -37,11 +37,14 @@ class PhononDos(MSONable):
         std dev sigma applied.
 
         Args:
-            sigma: Std dev of Gaussian smearing function.
+            sigma: Std dev of Gaussian smearing function. In units of
+                THz. Common values are 0.01 - 0.1 THz.
 
         Returns:
-            Gaussian-smeared densities.
+            np.array: Gaussian-smeared DOS densities.
         """
+        if sigma == 0:
+            return self.densities
         diff = [self.frequencies[idx + 1] - self.frequencies[idx] for idx in range(len(self.frequencies) - 1)]
         avg_diff = sum(diff) / len(diff)
 
@@ -328,6 +331,69 @@ class PhononDos(MSONable):
             zpe /= formula_units
 
         return zpe
+
+    def mae(self, other: PhononDos, two_sided: bool = True) -> float:
+        """Mean absolute error between two DOSs.
+
+        Args:
+            other: Another DOS object.
+            two_sided: Whether to calculate the two-sided MAE meaning interpolate each DOS to the
+                other's frequencies and averaging the two MAEs. Defaults to True.
+
+        Returns:
+            float: Mean absolute error.
+        """
+        # Interpolate other.densities to align with self.frequencies
+        self_interpolated = np.interp(self.frequencies, other.frequencies, other.densities)
+        self_mae = np.abs(self.densities - self_interpolated).mean()
+
+        if two_sided:
+            other_interpolated = np.interp(other.frequencies, self.frequencies, self.densities)
+            other_mae = np.abs(other.densities - other_interpolated).mean()
+            return (self_mae + other_mae) / 2
+
+        return self_mae
+
+    def get_last_peak(self, threshold: float = 0.1) -> float:
+        """Find the last peak in the phonon DOS defined as the highest frequency with a DOS
+        value at least threshold * height of the overall highest DOS peak.
+        A peak is any local maximum of the DOS as a function of frequency.
+        Use dos.get_interpolated_value(peak_freq) to get density at peak_freq.
+
+        TODO method added by @janosh on 2023-12-18. seems to work well in most cases but
+        was not extensively tested. PRs with improvements welcome!
+
+        Args:
+            threshold (float, optional): Minimum ratio of the height of the last peak
+                to the height of the highest peak. Defaults to 0.1 = 10%. In case no peaks
+                are high enough to match, the threshold is reset to half the height of the
+                second-highest peak.
+
+        Returns:
+            float: last DOS peak frequency (in THz)
+        """
+        first_deriv = np.gradient(self.densities, self.frequencies)
+        second_deriv = np.gradient(first_deriv, self.frequencies)
+
+        maxima = (  # maxima indices of the first DOS derivative w.r.t. frequency
+            (first_deriv[:-1] > 0) & (first_deriv[1:] < 0) & (second_deriv[:-1] < 0)
+        )
+        # get mean of the two nearest frequencies around the maximum as better estimate
+        maxima_freqs = (self.frequencies[:-1][maxima] + self.frequencies[1:][maxima]) / 2
+
+        # filter maxima based on the threshold
+        max_dos = max(self.densities)
+        threshold = threshold * max_dos
+        filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
+
+        if len(filtered_maxima_freqs) == 0:
+            # if no maxima reach the threshold (i.e. 1 super high peak and all other peaks
+            # tiny), use half the height of second highest peak as threshold
+            second_highest_peak = sorted(self.densities)[-2]
+            threshold = second_highest_peak / 2
+            filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
+
+        return max(filtered_maxima_freqs)
 
 
 class CompletePhononDos(PhononDos):
