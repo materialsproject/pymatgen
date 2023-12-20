@@ -5,8 +5,8 @@ body:
     id: feature
     attributes:
       label: Feature Requested
-      description: Tell us what you want to achieve with Pymatgen. Provide specific examples or use cases.
-      placeholder: e.g., I would like to generate atomic structures with specific symmetry constraints...
+      description: Specify the feature and provide examples or use cases.
+      placeholder: e.g., Generate atomic structures with specific symmetry constraints ...
       value:
     validations:
       required: true
@@ -15,9 +15,8 @@ body:
     id: solution
     attributes:
       label: Proposed Solution
-      description: Do you already have any proposed solution in mind? Share your thoughts on how this feature could be implemented.
-      placeholder: e.g., I would like to achieve this through a new method in the Structure class...
-      value:
+      description: Share your thoughts on how the feature could be implemented.
+      placeholder: e.g., Implement through a new method ...
       value:
     validations:
       required: true
@@ -26,8 +25,8 @@ body:
     id: relevant
     attributes:
       label: Relevant Information
-      description: Do you have any other relevant information that might be helpful for understanding or implementing this feature?
-      placeholder: e.g., Additional context about specific use cases, related discussions, or links to relevant literature...
+      description: Include additional context or links helpful for understanding or implementing the feature.
+      placeholder: e.g., Context about use cases, related discussions, or relevant literature ...
       value:
     validations:
       required: false
