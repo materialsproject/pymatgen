@@ -45,7 +45,6 @@ class TestSpectrumPlotter(PymatgenTest):
         assert len(ax.lines) == 0
 
     def test_get_plot_with_add_spectrum(self):
-        
         # create spectra_dict
         spectra_dict = dict()
         spectra_dict["LiCoO2"] = self.xanes
