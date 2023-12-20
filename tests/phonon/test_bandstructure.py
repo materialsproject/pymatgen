@@ -121,8 +121,8 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
             assert g_point.label in ("Gamma", "$\\Gamma$")
 
     def test_width(self):
-        assert self.bs.width() == approx(7.4284347482)
-        assert self.bs2.width() == approx(15.2945892153)
+        assert self.bs.width() == approx(7.3227137833)
+        assert self.bs2.width() == approx(14.7108925878)
 
-        assert self.bs.width(with_imaginary=False) == approx(7.3227137833)
-        assert self.bs2.width(with_imaginary=False) == approx(14.7108925878)
+        assert self.bs.width(with_imaginary=True) == approx(7.4284347482)
+        assert self.bs2.width(with_imaginary=True) == approx(15.2945892153)
