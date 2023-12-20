@@ -43,3 +43,21 @@ class TestSpectrumPlotter(PymatgenTest):
         ax = self.plotter.get_plot()
         assert isinstance(ax, plt.Axes)
         assert len(ax.lines) == 0
+
+    def test_get_plot_with_add_spectrum(self):
+        
+        # create spectra_dict
+        spectra_dict = dict()
+        spectra_dict["LiCoO2"] = self.xanes
+        xanes = self.xanes.copy()
+        xanes.y += np.random.randn(len(xanes.y)) * 0.005
+        spectra_dict["LiCoO2 + noise"] = xanes
+        spectra_dict["LiCoO2 - replot"] = xanes
+
+        self.plotter = SpectrumPlotter(yshift=0.2)
+        self.plotter.add_spectra(spectra_dict)
+        ax = self.plotter.get_plot()
+        assert len(ax.lines) == 3
+        img_path = f"{self.tmp_path}/spectrum_plotter_test2.png"
+        self.plotter.save_plot(img_path)
+        assert os.path.isfile(img_path)
