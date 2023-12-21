@@ -1,6 +1,6 @@
 name: Feature Request
 description: Use this template to request a new feature
-labels: "enhancement"
+labels: enhancement
 body:
   - type: textarea
     id: feature
