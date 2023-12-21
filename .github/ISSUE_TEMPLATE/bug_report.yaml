@@ -1,5 +1,6 @@
 name: Report a Bug
 description: Use this template to report a Pymatgen-related bug
+labels: bug
 body:
   - type: input
     id: python-version
