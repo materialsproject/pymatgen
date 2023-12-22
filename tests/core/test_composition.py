@@ -186,6 +186,15 @@ class TestComposition(PymatgenTest):
 
         assert Composition("Na 3 Zr (PO 4) 3").reduced_formula == "Na3Zr(PO4)3"
 
+        assert Composition("NaN").reduced_formula == "NaN"
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?"):
+            Composition(float("NaN"))
+
+        # test bad formulas raise ValueError
+        for bad_formula in ("", " ", "  2", "4 2", "6123", "1.2", "1/2", "1.2.3"):
+            with pytest.raises(ValueError, match=f"Invalid formula={bad_formula!r}"):
+                Composition(bad_formula)
+
     def test_to_latex_html_unicode(self):
         assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
         assert self.comps[0].to_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
@@ -711,6 +720,24 @@ class TestComposition(PymatgenTest):
         example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
         c_new_4 = Ca2NF_oxi.replace(example_sub_4)
         assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
+
+    def test_is_charge_balanced(self):
+        false_dct = dict.fromkeys("FeO FeO2 MgO Mg2O3 Mg2O4".split(), False)
+        true_dct = dict.fromkeys("Fe2O3 FeO CaTiO3 SrTiO3 MgO Mg2O2".split(), True)
+
+        for formula, expected in (false_dct | true_dct).items():
+            comp = Composition(formula)
+            # by default, compositions contain elements, not species and hence have no oxidation states
+            assert comp.charge is None
+
+            # convert elements to species with oxidation states
+            oxi_comp = comp.add_charges_from_oxi_state_guesses()
+            assert oxi_comp.charge_balanced is expected, f"Failed for {formula=}"
+
+            if expected is True:
+                assert abs(oxi_comp.charge) < Composition.charge_balanced_tolerance
+            else:
+                assert oxi_comp.charge is None
 
 
 class TestChemicalPotential(unittest.TestCase):

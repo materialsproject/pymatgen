@@ -219,9 +219,9 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(f"{TEST_FILES_DIR}/bs_ZnS_old.json") as f:
-            d = json.load(f)
-            bs_old = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/bs_ZnS_old.json") as file:
+            dct = json.load(file)
+            bs_old = BandStructureSymmLine.from_dict(dct)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
 
     def test_apply_scissor_insulator(self):

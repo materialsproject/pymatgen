@@ -7,6 +7,7 @@ import itertools
 import math
 import re
 import warnings
+from typing import Any
 
 import numpy as np
 from monty.json import MSONable
@@ -33,12 +34,12 @@ class Kpoint(MSONable):
 
     def __init__(
         self,
-        coords,
-        lattice,
-        to_unit_cell=False,
-        coords_are_cartesian=False,
-        label=None,
-    ):
+        coords: np.ndarray,
+        lattice: Lattice,
+        to_unit_cell: bool = False,
+        coords_are_cartesian: bool = False,
+        label: str | None = None,
+    ) -> None:
         """
         Args:
             coords: coordinate of the kpoint as a numpy array
@@ -62,47 +63,52 @@ class Kpoint(MSONable):
         self._cart_coords = lattice.get_cartesian_coords(self._frac_coords)
 
     @property
-    def lattice(self):
+    def lattice(self) -> Lattice:
         """The lattice associated with the kpoint. It's a
         pymatgen.core.Lattice object.
         """
         return self._lattice
 
     @property
-    def label(self):
+    def label(self) -> str | None:
         """The label associated with the kpoint."""
         return self._label
 
+    @label.setter
+    def label(self, label: str | None) -> None:
+        """Set the label of the kpoint."""
+        self._label = label
+
     @property
-    def frac_coords(self):
+    def frac_coords(self) -> np.ndarray:
         """The fractional coordinates of the kpoint as a numpy array."""
         return np.copy(self._frac_coords)
 
     @property
-    def cart_coords(self):
+    def cart_coords(self) -> np.ndarray:
         """The Cartesian coordinates of the kpoint as a numpy array."""
         return np.copy(self._cart_coords)
 
     @property
-    def a(self):
+    def a(self) -> float:
         """Fractional a coordinate of the kpoint."""
         return self._frac_coords[0]
 
     @property
-    def b(self):
+    def b(self) -> float:
         """Fractional b coordinate of the kpoint."""
         return self._frac_coords[1]
 
     @property
-    def c(self):
+    def c(self) -> float:
         """Fractional c coordinate of the kpoint."""
         return self._frac_coords[2]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string with fractional, Cartesian coordinates and label."""
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of a kpoint."""
         return {
             "lattice": self.lattice.as_dict(),
@@ -114,21 +120,17 @@ class Kpoint(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct) -> Kpoint:
         """Create from dict.
 
         Args:
             dct (dict): A dict with all data for a kpoint object.
 
         Returns:
-            A Kpoint object
+            Kpoint
         """
-        return cls(
-            coords=dct["fcoords"],
-            lattice=Lattice.from_dict(dct["lattice"]),
-            coords_are_cartesian=False,
-            label=dct["label"],
-        )
+        lattice = Lattice.from_dict(dct["lattice"])
+        return cls(coords=dct["fcoords"], lattice=lattice, coords_are_cartesian=False, label=dct["label"])
 
 
 class BandStructure:
@@ -689,7 +691,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         coords_are_cartesian=False,
         structure=None,
         projections=None,
-    ):
+    ) -> None:
         """
         Args:
             kpoints: list of kpoint as numpy arrays, in frac_coords of the
@@ -727,7 +729,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         )
         self.distance = []
         self.branches = []
-        one_group = []
+        one_group: list = []
         branches_tmp = []
         # get labels and distance for each kpoint
         previous_kpoint = self.kpoints[0]
@@ -777,7 +779,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         TODO: now it uses the label we might want to use coordinates instead
         (in case there was a mislabel)
         """
-        # if the kpoint has no label it can"t have a repetition along the band
+        # if the kpoint has no label it can't have a repetition along the band
         # structure line object
 
         if self.kpoints[index].label is None:

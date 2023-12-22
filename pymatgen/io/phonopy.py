@@ -61,7 +61,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
     )
 
 
-def get_structure_from_dict(d):
+def get_structure_from_dict(dct):
     """
     Extracts a structure from the dictionary extracted from the output
     files of phonopy like phonopy.yaml or band.yaml.
@@ -71,20 +71,20 @@ def get_structure_from_dict(d):
     species = []
     frac_coords = []
     masses = []
-    if "points" in d:
-        for p in d["points"]:
+    if "points" in dct:
+        for p in dct["points"]:
             species.append(p["symbol"])
             frac_coords.append(p["coordinates"])
             masses.append(p["mass"])
-    elif "atoms" in d:
-        for p in d["atoms"]:
+    elif "atoms" in dct:
+        for p in dct["atoms"]:
             species.append(p["symbol"])
             frac_coords.append(p["position"])
             masses.append(p["mass"])
     else:
         raise ValueError("The dict does not contain structural information")
 
-    return Structure(d["lattice"], species, frac_coords, site_properties={"phonopy_masses": masses})
+    return Structure(dct["lattice"], species, frac_coords, site_properties={"phonopy_masses": masses})
 
 
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
@@ -129,13 +129,13 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
     """
     structure = get_structure_from_dict(bands_dict)
 
-    qpts = []
+    q_pts = []
     frequencies = []
-    eigendisplacements = []
+    eigen_displacements = []
     phonopy_labels_dict = {}
     for p in bands_dict["phonon"]:
         q = p["q-position"]
-        qpts.append(q)
+        q_pts.append(q)
         bands = []
         eig_q = []
         for b in p["band"]:
@@ -159,26 +159,26 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
         if "label" in p:
             phonopy_labels_dict[p["label"]] = p["q-position"]
         if eig_q:
-            eigendisplacements.append(eig_q)
+            eigen_displacements.append(eig_q)
 
-    qpts = np.array(qpts)
+    q_pts = np.array(q_pts)
     # transpose to match the convention in PhononBandStructure
     frequencies = np.transpose(frequencies)
-    if eigendisplacements:
-        eigendisplacements = np.transpose(eigendisplacements, (1, 0, 2, 3))
+    if eigen_displacements:
+        eigen_displacements = np.transpose(eigen_displacements, (1, 0, 2, 3))
 
-    rec_latt = Lattice(bands_dict["reciprocal_lattice"])
+    rec_lattice = Lattice(bands_dict["reciprocal_lattice"])
 
     labels_dict = labels_dict or phonopy_labels_dict
 
     return PhononBandStructureSymmLine(
-        qpts,
+        q_pts,
         frequencies,
-        rec_latt,
+        rec_lattice,
         has_nac=has_nac,
         labels_dict=labels_dict,
         structure=structure,
-        eigendisplacements=eigendisplacements,
+        eigendisplacements=eigen_displacements,
     )
 
 
@@ -195,7 +195,7 @@ def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
         bands_path: path to the band.yaml file
         has_nac: True if the data have been obtained with the option
             --nac option. Default False.
-        labels_dict: dict that links a qpoint in frac coords to a label.
+        labels_dict: dict that links a q-point in frac coords to a label.
     """
     return get_ph_bs_symm_line_from_dict(loadfn(bands_path), has_nac, labels_dict)
 
@@ -229,11 +229,11 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
 
     total_dos = PhononDos(a[0], a[1:].sum(axis=0))
 
-    pdoss = {}
-    for site, pdos in zip(structure, a[1:]):
-        pdoss[site] = pdos.tolist()
+    partial_doses = {}
+    for site, p_dos in zip(structure, a[1:]):
+        partial_doses[site] = p_dos.tolist()
 
-    return CompletePhononDos(structure, total_dos, pdoss)
+    return CompletePhononDos(structure, total_dos, partial_doses)
 
 
 @requires(Phonopy, "phonopy not installed!")
@@ -254,7 +254,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
         A list of symmetrically inequivalent structures with displacements, in
         which the first element is the perfect supercell structure.
     """
-    is_plusminus = kwargs.get("is_plusminus", "auto")
+    is_plus_minus = kwargs.get("is_plusminus", "auto")
     is_diagonal = kwargs.get("is_diagonal", True)
     is_trigonal = kwargs.get("is_trigonal", False)
 
@@ -266,7 +266,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
     phonon = Phonopy(unitcell=ph_structure, supercell_matrix=supercell_matrix)
     phonon.generate_displacements(
         distance=atom_disp,
-        is_plusminus=is_plusminus,
+        is_plusminus=is_plus_minus,
         is_diagonal=is_diagonal,
         is_trigonal=is_trigonal,
     )
@@ -286,9 +286,9 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
     # Structure list to be returned
     structure_list = [get_pmg_structure(init_supercell)]
 
-    for c in disp_supercells:
-        if c is not None:
-            structure_list.append(get_pmg_structure(c))
+    for cell in disp_supercells:
+        if cell is not None:
+            structure_list.append(get_pmg_structure(cell))
 
     return structure_list
 
@@ -337,10 +337,10 @@ def get_phonon_dos_from_fc(
     phonon.run_projected_dos(freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch)
 
     dos_raw = phonon.projected_dos.get_partial_dos()
-    pdoss = dict(zip(structure, dos_raw[1]))
+    p_doses = dict(zip(structure, dos_raw[1]))
 
     total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
-    return CompletePhononDos(structure, total_dos, pdoss)
+    return CompletePhononDos(structure, total_dos, p_doses)
 
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
@@ -405,9 +405,9 @@ def get_phonon_band_structure_symm_line_from_fc(
     phonon = Phonopy(structure_phonopy, supercell_matrix=supercell_matrix, symprec=symprec, **kwargs)
     phonon.set_force_constants(force_constants)
 
-    kpath = HighSymmKpath(structure, symprec=symprec)
+    k_path = HighSymmKpath(structure, symprec=symprec)
 
-    kpoints, labels = kpath.get_kpoints(line_density=line_density, coords_are_cartesian=False)
+    kpoints, labels = k_path.get_kpoints(line_density=line_density, coords_are_cartesian=False)
 
     phonon.run_qpoints(kpoints)
     frequencies = phonon.qpoints.get_frequencies().T
@@ -442,12 +442,12 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
         except ValueError as exc:
             raise ValueError("Please provide a structure or structure path") from exc
 
-    qpts, multiplicities, frequencies, gruneisen = ([] for _ in range(4))
+    q_pts, multiplicities, frequencies, gruneisen = ([] for _ in range(4))
     phonopy_labels_dict = {}
 
     for p in gruneisen_dict["phonon"]:
         q = p["q-position"]
-        qpts.append(q)
+        q_pts.append(q)
         m = p.get("multiplicity", 1)
         multiplicities.append(m)
         bands, gruneisenband = [], []
@@ -460,7 +460,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
         if "label" in p:
             phonopy_labels_dict[p["label"]] = p["q-position"]
 
-    qpts_np = np.array(qpts)
+    q_pts_np = np.array(q_pts)
     multiplicities_np = np.array(multiplicities)
     # transpose to match the convention in PhononBandStructure
     frequencies_np = np.transpose(frequencies)
@@ -468,7 +468,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
 
     return GruneisenParameter(
         gruneisen=gruneisen_np,
-        qpoints=qpts_np,
+        qpoints=q_pts_np,
         multiplicities=multiplicities_np,
         frequencies=frequencies_np,
         structure=structure,
@@ -521,7 +521,7 @@ def get_gs_ph_bs_symm_line_from_dict(
             end = pa["phonon"][-1]
 
             if start["q-position"] == [0, 0, 0]:  # Gamma at start of band
-                qpts_temp, frequencies_temp = [], []
+                q_pts_temp, frequencies_temp = [], []
                 gruneisen_temp: list[list[float]] = []
                 distance: list[float] = []
                 for i in range(pa["nqpoint"]):
@@ -533,7 +533,7 @@ def get_gs_ph_bs_symm_line_from_dict(
                         gruen = _extrapolate_grun(b, distance, gruneisen_temp, gruneisen_band, i, pa)
                         gruneisen_band.append(gruen)
                     q = phonon[pa["nqpoint"] - i - 1]["q-position"]
-                    qpts_temp.append(q)
+                    q_pts_temp.append(q)
                     d = phonon[pa["nqpoint"] - i - 1]["distance"]
                     distance.append(d)
                     frequencies_temp.append(bands)
@@ -543,7 +543,7 @@ def get_gs_ph_bs_symm_line_from_dict(
                             "q-position"
                         ]
 
-                q_points.extend(list(reversed(qpts_temp)))
+                q_points.extend(list(reversed(q_pts_temp)))
                 frequencies.extend(list(reversed(frequencies_temp)))
                 gruneisen_params.extend(list(reversed(gruneisen_temp)))
 
@@ -594,14 +594,14 @@ def get_gs_ph_bs_symm_line_from_dict(
                 if "label" in p:
                     phonopy_labels_dict[p["label"]] = p["q-position"]
 
-    rec_latt = structure.lattice.reciprocal_lattice
+    rec_lattice = structure.lattice.reciprocal_lattice
     labels_dict = labels_dict or phonopy_labels_dict
     return GruneisenPhononBandStructureSymmLine(
         qpoints=np.array(q_points),
         # transpose to match the convention in PhononBandStructure
         frequencies=np.transpose(frequencies),
         gruneisenparameters=np.transpose(gruneisen_params),
-        lattice=rec_latt,
+        lattice=rec_lattice,
         labels_dict=labels_dict,
         structure=structure,
         eigendisplacements=None,
@@ -666,8 +666,6 @@ def get_thermal_displacement_matrices(
     """
     thermal_displacements_dict = loadfn(thermal_displacements_yaml)
 
-    if not structure_path:
-        raise ValueError("Please provide a structure_path")
     structure = Structure.from_file(structure_path)
 
     thermal_displacement_objects_list = []

@@ -291,11 +291,11 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         new_path = os.path.join(tmpdir, self.basename)
         shutil.copy(self.filepath, new_path)
 
-        # Copy dojoreport file if present.
-        root, ext = os.path.splitext(self.filepath)
-        djrepo = root + ".djrepo"
-        if os.path.exists(djrepo):
-            shutil.copy(djrepo, os.path.join(tmpdir, os.path.basename(djrepo)))
+        # Copy dojo report file if present.
+        root, _ext = os.path.splitext(self.filepath)
+        dj_report = root + ".djrepo"
+        if os.path.exists(dj_report):
+            shutil.copy(dj_report, os.path.join(tmpdir, os.path.basename(dj_report)))
 
         # Build new object and copy dojo_report if present.
         new = type(self).from_file(new_path)
@@ -314,7 +314,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def djrepo_path(self):
         """The path of the djrepo file. None if file does not exist."""
 
-        root, ext = os.path.splitext(self.filepath)
+        root, _ext = os.path.splitext(self.filepath)
         return root + ".djrepo"
         # if os.path.exists(path): return path
         # return None
@@ -836,8 +836,8 @@ class NcAbinitHeader(AbinitHeader):
             if lineno == 2:
                 # Read lmax.
                 tokens = line.split()
-                pspcod, pspxc, lmax, lloc = map(int, tokens[:4])
-                mmax, r2well = map(float, tokens[4:6])
+                _pspcod, _pspxc, lmax, _lloc = map(int, tokens[:4])
+                _mmax, _r2well = map(float, tokens[4:6])
                 # if tokens[-1].strip() != "pspcod,pspxc,lmax,lloc,mmax,r2well":
                 #    raise RuntimeError("%s: Invalid line\n %s"  % (filename, line))
 
@@ -1061,7 +1061,7 @@ class PseudoParser:
         # Exclude files depending on the extension.
         paths = []
         for fname in os.listdir(dirname):
-            root, ext = os.path.splitext(fname)
+            _root, ext = os.path.splitext(fname)
             path = os.path.join(dirname, fname)
             if ext in exclude_exts or fname in exclude_fnames or fname.startswith(".") or not os.path.isfile(path):
                 continue
@@ -1103,7 +1103,7 @@ class PseudoParser:
             if lineno == 2:
                 try:
                     tokens = line.split()
-                    pspcod, pspxc = map(int, tokens[:2])
+                    pspcod, _pspxc = map(int, tokens[:2])
                 except Exception:
                     msg = f"{filename}: Cannot parse pspcod, pspxc in line\n {line}"
                     logger.critical(msg)
@@ -1117,7 +1117,7 @@ class PseudoParser:
                 if pspcod == 7:
                     # PAW -> need to know the format pspfmt
                     tokens = lines[lineno + 1].split()
-                    pspfmt, creatorID = tokens[:2]
+                    pspfmt, _creatorID = tokens[:2]
 
                     ppdesc = ppdesc._replace(format=pspfmt)
 
@@ -1352,13 +1352,13 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def ae_core_density(self):
         """The all-electron radial density."""
-        mesh, values, attrib = self._parse_radfunc("ae_core_density")
+        mesh, values, _attrib = self._parse_radfunc("ae_core_density")
         return RadialFunction(mesh, values)
 
     @lazy_property
     def pseudo_core_density(self):
         """The pseudized radial density."""
-        mesh, values, attrib = self._parse_radfunc("pseudo_core_density")
+        mesh, values, _attrib = self._parse_radfunc("pseudo_core_density")
         return RadialFunction(mesh, values)
 
     @lazy_property

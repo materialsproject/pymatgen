@@ -39,7 +39,7 @@ class ElementBase(Enum):
     only when they were top level. See https://github.com/materialsproject/pymatgen/issues/2999.
     """
 
-    def __init__(self, symbol: SpeciesLike):
+    def __init__(self, symbol: SpeciesLike) -> None:
         """Basic immutable element object with all relevant properties.
 
         Only one instance of Element for each symbol is stored after creation,
@@ -454,15 +454,15 @@ class ElementBase(Enum):
         return J_sorted_terms[-1][0]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Element) and self.Z == other.Z
+        return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z
 
     def __hash__(self) -> int:
         return self.Z
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Element " + self.symbol
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.symbol
 
     def __lt__(self, other):
@@ -733,7 +733,7 @@ class ElementBase(Enum):
         }
 
     @staticmethod
-    def print_periodic_table(filter_function: Callable | None = None):
+    def print_periodic_table(filter_function: Callable | None = None) -> None:
         """A pretty ASCII printer for the periodic table, based on some
         filter_function.
 
@@ -895,7 +895,12 @@ class Species(MSONable, Stringify):
 
     STRING_MODE = "SUPERSCRIPT"
 
-    def __init__(self, symbol: SpeciesLike, oxidation_state: float | None = None, spin: float | None = None) -> None:
+    def __init__(
+        self,
+        symbol: SpeciesLike,
+        oxidation_state: float | None = None,
+        spin: float | None = None,
+    ) -> None:
         """
         Args:
             symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
@@ -996,12 +1001,13 @@ class Species(MSONable, Stringify):
         if self._oxi_state:
             dct = self._el.data
             oxi_str = str(int(self._oxi_state))
-            if oxi_str in dct.get("Ionic radii hs", {}):
-                warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return dct["Ionic radii hs"][oxi_str]
-            if oxi_str in dct.get("Ionic radii ls", {}):
-                warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return dct["Ionic radii ls"][oxi_str]
+            warn_msg = f"No default ionic radius for {self}."
+            if ion_rad := dct.get("Ionic radii hs", {}).get(oxi_str):
+                warnings.warn(f"{warn_msg} Using hs data.")
+                return ion_rad
+            if ion_rad := dct.get("Ionic radii ls", {}).get(oxi_str):
+                warnings.warn(f"{warn_msg} Using ls data.")
+                return ion_rad
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
@@ -1056,13 +1062,16 @@ class Species(MSONable, Stringify):
             return cls(sym, 0 if oxi is None else oxi, **properties)
         raise ValueError("Invalid species string")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Species {self}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = self.symbol
         if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+            abs_charge = formula_double_format(abs(self.oxi_state))
+            if isinstance(abs_charge, float):
+                abs_charge = f"{abs_charge:.2f}"
+            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         if self._spin is not None:
             spin = self._spin
             output += f",{spin=}"
@@ -1072,7 +1081,10 @@ class Species(MSONable, Stringify):
         """String without properties."""
         output = self.symbol
         if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+            abs_charge = formula_double_format(abs(self.oxi_state))
+            if isinstance(abs_charge, float):
+                abs_charge = f"{abs_charge:.2f}"
+            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
@@ -1131,7 +1143,9 @@ class Species(MSONable, Stringify):
         return data[f"{radius_type}_radius"]
 
     def get_crystal_field_spin(
-        self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"
+        self,
+        coordination: Literal["oct", "tet"] = "oct",
+        spin_config: Literal["low", "high"] = "high",
     ) -> float:
         """Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
@@ -1342,10 +1356,10 @@ class DummySpecies(Species):
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"DummySpecies {self}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"

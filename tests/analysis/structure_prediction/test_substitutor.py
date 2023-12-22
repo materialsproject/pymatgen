@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core import Composition, Species
@@ -14,13 +13,9 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = os.path.join(
-        TEST_FILES_DIR,
-        "struct_predictor",
-    )
-    json_file = f"{data_dir}/test_lambda.json"
-    with open(json_file) as f:
-        return json.load(f)
+    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    with open(json_path) as file:
+        return json.load(file)
 
 
 class TestSubstitutor(PymatgenTest):

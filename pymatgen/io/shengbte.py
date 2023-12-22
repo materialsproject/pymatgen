@@ -90,13 +90,11 @@ class Control(MSONable, dict):
                 for ShengBTE to run - we have listed these parameters below:
                 - nelements (int): number of different elements in the compound
                 - natoms (int): number of atoms in the unit cell
-                - lattvec (size 3x3 array): real-space lattice vectors, in units
-                  of lfactor
+                - lattvec (size 3x3 array): real-space lattice vectors, in units of lfactor
                 - lfactor (float): unit of measurement for lattice vectors (nm).
                     I.e., set to 0.1 if lattvec given in Angstrom.
                 - types (size natom list): a vector of natom integers, ranging
-                  from 1 to nelements, assigning an element to each atom in the
-                  system
+                  from 1 to nelements, assigning an element to each atom in the system
                 - elements (size natom list): a vector of element names
                 - positions (size natomx3 array): atomic positions in lattice
                   coordinates

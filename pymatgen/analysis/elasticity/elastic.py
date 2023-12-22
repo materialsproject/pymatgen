@@ -9,7 +9,7 @@ from __future__ import annotations
 import itertools
 import math
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import sympy as sp
@@ -23,6 +23,8 @@ from pymatgen.core.tensors import DEFAULT_QUAD, SquareTensor, Tensor, TensorColl
 from pymatgen.core.units import Unit
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.core import Structure
 
 
@@ -75,7 +77,7 @@ class NthOrderElasticTensor(Tensor):
         strain = np.array(strain)
         if strain.shape == (6,):
             strain = Strain.from_voigt(strain)
-        assert strain.shape == (3, 3), "Strain must be 3x3 or voigt-notation"
+        assert strain.shape == (3, 3), "Strain must be 3x3 or Voigt notation"
         stress_matrix = self.einsum_sequence([strain] * (self.order - 1)) / factorial(self.order - 1)
         return Stress(stress_matrix)
 
@@ -121,24 +123,22 @@ def raise_if_unphysical(func):
 
 class ElasticTensor(NthOrderElasticTensor):
     """
-    This class extends Tensor to describe the 3x3x3x3
-    second-order elastic tensor, C_{ijkl}, with various
-    methods for estimating other properties derived from
-    the second order elastic tensor.
+    This class extends Tensor to describe the 3x3x3x3 second-order elastic tensor,
+    C_{ijkl}, with various methods for estimating other properties derived from the second
+    order elastic tensor (e. g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
+    in units of eV/A^3.
     """
 
     def __new__(cls, input_array, tol: float = 1e-4):
         """
-        Create an ElasticTensor object. The constructor throws an error if
-        the shape of the input_matrix argument is not 3x3x3x3, i. e. in true
-        tensor notation. Issues a warning if the input_matrix argument does
-        not satisfy standard symmetries. Note that the constructor uses
-        __new__ rather than __init__ according to the standard method of
-        subclassing numpy ndarrays.
+        Create an ElasticTensor object. The constructor throws an error if the shape of
+        the input_matrix argument is not 3x3x3x3, i. e. in true tensor notation. Issues a
+        warning if the input_matrix argument does not satisfy standard symmetries. Note
+        that the constructor uses __new__ rather than __init__ according to the standard
+        method of subclassing numpy ndarrays.
 
         Args:
-            input_array (3x3x3x3 array-like): the 3x3x3x3 array-like
-                representing the elastic tensor
+            input_array (3x3x3x3 array-like): the 3x3x3x3 array-like representing the elastic tensor
 
             tol (float): tolerance for initial symmetry test of tensor
         """
@@ -148,33 +148,32 @@ class ElasticTensor(NthOrderElasticTensor):
     @property
     def compliance_tensor(self):
         """
-        Returns the Voigt-notation compliance tensor,
-        which is the matrix inverse of the
-        Voigt-notation elastic tensor.
+        Returns the Voigt notation compliance tensor, which is the matrix
+        inverse of the Voigt notation elastic tensor.
         """
         s_voigt = np.linalg.inv(self.voigt)
         return ComplianceTensor.from_voigt(s_voigt)
 
     @property
     def k_voigt(self) -> float:
-        """Returns the K_v bulk modulus."""
+        """Returns the K_v bulk modulus (in eV/A^3)."""
         return self.voigt[:3, :3].mean()
 
     @property
     def g_voigt(self) -> float:
-        """Returns the G_v shear modulus."""
+        """Returns the G_v shear modulus (in eV/A^3)."""
         return (
             2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
     def k_reuss(self) -> float:
-        """Returns the K_r bulk modulus."""
+        """Returns the K_r bulk modulus (in eV/A^3)."""
         return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
     def g_reuss(self) -> float:
-        """Returns the G_r shear modulus."""
+        """Returns the G_r shear modulus (in eV/A^3)."""
         return 15 / (
             8 * self.compliance_tensor.voigt[:3, :3].trace()
             - 4 * np.triu(self.compliance_tensor.voigt[:3, :3]).sum()
@@ -183,12 +182,12 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_vrh(self) -> float:
-        """Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus."""
+        """Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
     def g_vrh(self) -> float:
-        """Returns the G_vrh (Voigt-Reuss-Hill) average shear modulus."""
+        """Returns the G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
@@ -452,7 +451,7 @@ class ElasticTensor(NthOrderElasticTensor):
             stresses (Nx3x3 array-like): list or array of stresses
             strains (Nx3x3 array-like): list or array of strains
         """
-        # convert the stress/strain to Nx6 arrays of voigt-notation
+        # convert the stress/strain to Nx6 arrays of voigt notation
         warnings.warn(
             "Pseudo-inverse fitting of Strain/Stress lists may yield "
             "questionable results from vasp data, use with caution."
@@ -486,11 +485,11 @@ class ElasticTensor(NthOrderElasticTensor):
         if len(set(ss_dict) - set(strain_states)) > 0:
             warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
         c_ij = np.zeros((6, 6))
-        for i in range(6):
-            istrains = ss_dict[strain_states[i]]["strains"]
-            istresses = ss_dict[strain_states[i]]["stresses"]
-            for j in range(6):
-                c_ij[i, j] = np.polyfit(istrains[:, i], istresses[:, j], 1)[0]
+        for ii in range(6):
+            strains = ss_dict[strain_states[ii]]["strains"]
+            stresses = ss_dict[strain_states[ii]]["stresses"]
+            for jj in range(6):
+                c_ij[ii, jj] = np.polyfit(strains[:, ii], stresses[:, jj], 1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
         c = cls.from_voigt(c_ij)
@@ -525,16 +524,15 @@ class ElasticTensorExpansion(TensorCollection):
     (e. g. symmetrization, voigt conversion, etc.).
     """
 
-    def __init__(self, c_list):
+    def __init__(self, c_list: Sequence) -> None:
         """
         Initialization method for ElasticTensorExpansion.
 
         Args:
-            c_list (list or tuple): sequence of Tensor inputs
-                or tensors from which the elastic tensor
-                expansion is constructed.
+            c_list (list or tuple): sequence of Tensor inputs or tensors from which
+                the elastic tensor expansion is constructed.
         """
-        c_list = [NthOrderElasticTensor(c, check_rank=4 + i * 2) for i, c in enumerate(c_list)]
+        c_list = [NthOrderElasticTensor(c, check_rank=4 + idx * 2) for idx, c in enumerate(c_list)]
         super().__init__(c_list)
 
     @classmethod
@@ -547,14 +545,14 @@ class ElasticTensorExpansion(TensorCollection):
         return cls(c_list)
 
     @property
-    def order(self):
+    def order(self) -> int:
         """
         Order of the elastic tensor expansion, i. e. the order of the
         highest included set of elastic constants.
         """
         return self[-1].order
 
-    def calculate_stress(self, strain):
+    def calculate_stress(self, strain) -> float:
         """
         Calculate's a given elastic tensor's contribution to the
         stress using Einstein summation.
@@ -562,7 +560,7 @@ class ElasticTensorExpansion(TensorCollection):
         return sum(c.calculate_stress(strain) for c in self)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
-        """Calculates the elastic energy density due to a strain."""
+        """Calculates the elastic energy density due to a strain in eV/A^3 or GPa."""
         return sum(c.energy_density(strain, convert_GPa_to_eV) for c in self)
 
     def get_ggt(self, n, u):
@@ -579,7 +577,7 @@ class ElasticTensorExpansion(TensorCollection):
             2 * gk
         )
 
-    def get_tgt(self, temperature=None, structure=None, quad=None):
+    def get_tgt(self, temperature: float | None = None, structure: Structure = None, quad=None):
         """
         Gets the thermodynamic Gruneisen tensor (TGT) by via an
         integration of the GGT weighted by the directional heat
@@ -592,7 +590,7 @@ class ElasticTensorExpansion(TensorCollection):
         Args:
             temperature (float): Temperature in kelvin, if not specified
                 will return non-cv-normalized value
-            structure (float): Structure to be used in directional heat
+            structure (Structure): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
             quad (dict): quadrature for integration, should be
@@ -608,11 +606,11 @@ class ElasticTensorExpansion(TensorCollection):
         num, denom, c = np.zeros((3, 3)), 0, 1
         for p, w in zip(points, weights):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
-            rho_wsquareds, us = np.linalg.eigh(gk)
+            _rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
             for u in us:
                 # TODO: this should be benchmarked
-                if temperature:
+                if temperature and structure:
                     c = self.get_heat_capacity(temperature, structure, p, u)
                 num += c * self.get_ggt(p, u) * w
                 denom += c * w
@@ -677,7 +675,9 @@ class ElasticTensorExpansion(TensorCollection):
         vel = (1e9 * self[0].einsum_sequence([n, u, n, u]) / (weight / vol)) ** 0.5
         return vel / l0
 
-    def thermal_expansion_coeff(self, structure: Structure, temperature, mode="debye"):
+    def thermal_expansion_coeff(
+        self, structure: Structure, temperature: float, mode: Literal["dulong - petit", "debye"] = "debye"
+    ):
         """
         Gets thermal expansion coefficient from third-order constants.
 
@@ -876,7 +876,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
             coef = get_diff_coeff(hvec, i)
             dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
-    m, absent = generate_pseudo(list(strain_state_dict), order)
+    m, _absent = generate_pseudo(list(strain_state_dict), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i + 1)
         svec = np.ravel(dei_dsi[i - 1].T)
@@ -915,7 +915,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
 
 def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10, add_eq=True, sort=True):
     """
-    Creates a dictionary of voigt-notation stress-strain sets
+    Creates a dictionary of voigt notation stress-strain sets
     keyed by "strain state", i. e. a tuple corresponding to
     the non-zero entries in ratios to the lowest nonzero value,
     e.g. [0, 0.1, 0, 0.2, 0, 0] -> (0,1,0,2,0,0)
@@ -973,9 +973,9 @@ def generate_pseudo(strain_states, order=3):
     """Generates the pseudo-inverse for a given set of strains.
 
     Args:
-        strain_states (6xN array like): a list of voigt-notation
-            "strain-states", i. e. perturbed indices of the strain
-            as a function of the smallest strain e. g. (0, 1, 0, 0, 1, 0)
+        strain_states (6xN array like): a list of Voigt-notation strain-states,
+            i. e. perturbed indices of the strain as a function of the smallest
+            strain e. g. (0, 1, 0, 0, 1, 0)
         order (int): order of pseudo-inverse to calculate
 
     Returns:
@@ -1009,7 +1009,7 @@ def generate_pseudo(strain_states, order=3):
 
 def get_symbol_list(rank, dim=6):
     """
-    Returns a symbolic representation of the voigt-notation
+    Returns a symbolic representation of the Voigt-notation
     tensor that places identical symbols for entries related
     by index transposition, i. e. C_1121 = C_1211 etc.
 

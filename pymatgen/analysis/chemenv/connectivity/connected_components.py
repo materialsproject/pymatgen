@@ -33,7 +33,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         c = Circle(pos[n], radius=0.02, alpha=0.5)
         ax.add_patch(c)
         env_graph.node[n]["patch"] = c
-        x, y = pos[n]
+        _x, _y = pos[n]
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None
@@ -155,14 +155,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print(
-                        "delta not equal to periodicity nor 0 ... : ",
-                        n1,
-                        n2,
-                        key,
-                        data["delta"],
-                        data,
-                    )
+                    print("delta not equal to periodicity nor 0 ... : ", n1, n2, key, data["delta"], data)
                     input("Are we ok with this ?")
                 other_edges.append((n1, n2, key, data))
 
@@ -574,32 +567,28 @@ class ConnectedComponent(MSONable):
         """Whether this connected component is 0-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 0
+        return len(self._periodicity_vectors) == 0  # type: ignore[arg-type]
 
     @property
     def is_1d(self) -> bool:
         """Whether this connected component is 1-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 1
+        return len(self._periodicity_vectors) == 1  # type: ignore[arg-type]
 
     @property
     def is_2d(self) -> bool:
         """Whether this connected component is 2-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 2
+        return len(self._periodicity_vectors) == 2  # type: ignore[arg-type]
 
     @property
     def is_3d(self) -> bool:
         """Whether this connected component is 3-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 3
+        return len(self._periodicity_vectors) == 3  # type: ignore[arg-type]
 
     @staticmethod
     def _order_vectors(vectors):
@@ -654,10 +643,10 @@ class ConnectedComponent(MSONable):
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
-        ntest_nodes = 0
+        n_test_nodes = 0
         start_node = next(iter(self.graph.nodes()))
 
-        ntest_nodes += 1
+        n_test_nodes += 1
         centered_connected_subgraph = nx.MultiGraph()
         centered_connected_subgraph.add_nodes_from(self.graph.nodes())
         centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
@@ -754,7 +743,7 @@ class ConnectedComponent(MSONable):
         return centered_connected_subgraph
 
     @staticmethod
-    def _edgekey_to_edgedictkey(key):
+    def _edge_key_to_edge_dict_key(key):
         if isinstance(key, int):
             return str(key)
         if isinstance(key, str):
@@ -782,12 +771,21 @@ class ConnectedComponent(MSONable):
         """
         Private method used to cast back lists to tuples where applicable in an edge data.
 
-        The format of the edge data is :
-        {'start': STARTINDEX, 'end': ENDINDEX, 'delta': TUPLE(DELTAX, DELTAY, DELTAZ),
-         'ligands': [TUPLE(LIGAND_1_INDEX, TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
-                                           TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1)),
-                     TUPLE(LIGAND_2_INDEX, ...),
-                     ... ]}
+        The format of the edge data is:
+        {
+            "start": STARTINDEX,
+            "end": ENDINDEX,
+            "delta": TUPLE(DELTAX, DELTAY, DELTAZ),
+            "ligands": [
+                TUPLE(
+                    LIGAND_1_INDEX,
+                    TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
+                    TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1),
+                ),
+                TUPLE(LIGAND_2_INDEX, ...),
+                ...,
+            ],
+        }
         When serializing to json/bson, these tuples are transformed into lists. This method transforms these lists
         back to tuples.
 
@@ -819,7 +817,7 @@ class ConnectedComponent(MSONable):
                 in2 = node2stringindex[n2]
                 new_dict_of_dicts[in1][in2] = {}
                 for ie, edge_data in edges_dict.items():
-                    ied = self._edgekey_to_edgedictkey(ie)
+                    ied = self._edge_key_to_edge_dict_key(ie)
                     new_dict_of_dicts[in1][in2][ied] = jsanitize(edge_data)
         return {
             "@module": type(self).__module__,

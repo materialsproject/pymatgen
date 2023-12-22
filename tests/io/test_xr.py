@@ -16,7 +16,7 @@ __date__ = "June 23, 2016"
 
 class TestXr(unittest.TestCase):
     def setUp(self):
-        struct = Structure.from_file(TEST_FILES_DIR / "POSCAR")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         self.xr = Xr(struct)
 
     def test_str(self):

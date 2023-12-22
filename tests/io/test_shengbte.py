@@ -44,7 +44,7 @@ class TestShengBTE(PymatgenTest):
         io = Control.from_file(self.filename)
         assert io["nelements"] == 1
         assert io["natoms"] == 2
-        assert_array_equal(io["ngrid"], [25, 25, 25])
+        assert tuple(io["ngrid"]) == (25, 25, 25)
         assert io["norientations"] == 0
         assert io["lfactor"] == 0.1
         assert io["lattvec"][0] == [0.0, 2.734363999, 2.734363999]
@@ -59,7 +59,7 @@ class TestShengBTE(PymatgenTest):
             all_ints = all(isinstance(item, int) for item in io["types"])
             assert all_ints
         assert_array_equal(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
-        assert_array_equal(io["scell"], [5, 5, 5])
+        assert tuple(io["scell"]) == (5, 5, 5)
         assert io["t"] == 500
         assert io["scalebroad"] == 0.5
         assert not io["isotopes"]

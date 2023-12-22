@@ -13,7 +13,6 @@ from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_potcar import generate_potcar
-from pymatgen.cli.pmg_query import do_query
 from pymatgen.cli.pmg_structure import analyze_structures
 from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
@@ -244,7 +243,6 @@ def main():
         "By default, the Materials Project id, formula, spacegroup, "
         "energy per atom, energy above hull are shown.",
     )
-    parser_query.set_defaults(func=do_query)
 
     parser_plot = subparsers.add_parser("plot", help="Plotting tool for DOS, CHGCAR, XRD, etc.")
     group = parser_plot.add_mutually_exclusive_group(required=True)

@@ -596,7 +596,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         if isite is None:
             isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
 
-        ce, cn_map = self.get_site_coordination_environment(
+        _ce, cn_map = self.get_site_coordination_environment(
             site=site,
             isite=isite,
             dequivsite=dequivsite,
@@ -1129,22 +1129,22 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         target_cns = [cg.coordination_number for cg in target_cgs]
         for ii in range(min([len(maps_and_surfaces), self.max_nabundant])):
             my_map_and_surface = maps_and_surfaces[order[ii]]
-            mymap = my_map_and_surface["map"]
-            cn = mymap[0]
+            my_map = my_map_and_surface["map"]
+            cn = my_map[0]
             if cn not in target_cns or cn > 12 or cn == 0:
                 continue
             all_conditions = [params[2] for params in my_map_and_surface["parameters_indices"]]
             if self._additional_condition not in all_conditions:
                 continue
-            cg, cgdict = self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][mymap[0]][
-                mymap[1]
+            cg, cgdict = self.structure_environments.ce_list[self.structure_environments.sites_map[isite]][my_map[0]][
+                my_map[1]
             ].minimum_geometry(symmetry_measure_type=self._symmetry_measure_type)
             if (
                 cg in self.target_environments
                 and cgdict["symmetry_measure"] <= self.max_csm
                 and cgdict["symmetry_measure"] < current_target_env_csm
             ):
-                current_map = mymap
+                current_map = my_map
                 current_target_env_csm = cgdict["symmetry_measure"]
         if current_map is not None:
             return current_map

@@ -59,15 +59,15 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
             [0.5, 0.5, 0.5],
         ]
         self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
-        self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
+        self._mgo_val_rad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
 
     def test_valences_ionic_structure(self):
-        valence_dict = self._mgo_valrad_evaluator.valences
+        valence_dict = self._mgo_val_rad_evaluator.valences
         for val in list(valence_dict.values()):
             assert val in {2, -2}
 
     def test_radii_ionic_structure(self):
-        radii_dict = self._mgo_valrad_evaluator.radii
+        radii_dict = self._mgo_val_rad_evaluator.radii
         for rad in list(radii_dict.values()):
             assert rad in {0.86, 1.26}
 

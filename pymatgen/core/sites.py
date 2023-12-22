@@ -208,10 +208,10 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return sum(el.Z for el in self.species)
 
-    def __contains__(self, el):
+    def __contains__(self, el) -> bool:
         return el in self.species
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name = self.species_string
 
         if self.label != name:
@@ -234,7 +234,7 @@ class Site(collections.abc.Hashable, MSONable):
             return False
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.coords} {self.species_string}"
 
     def as_dict(self) -> dict:
@@ -296,7 +296,7 @@ class PeriodicSite(Site, MSONable):
         properties: dict | None = None,
         label: str | None = None,
         skip_checks: bool = False,
-    ):
+    ) -> None:
         """Create a periodic site.
 
         :param species: Species on the site. Can be:
@@ -546,7 +546,7 @@ class PeriodicSite(Site, MSONable):
         """
         return self.distance_and_image(other, jimage)[0]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name = self.species_string
 
         if self.label != name:

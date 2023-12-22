@@ -11,6 +11,7 @@ import string
 import warnings
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
+from math import isnan
 from typing import TYPE_CHECKING, Union, cast
 
 from monty.fractions import gcd, gcd_float
@@ -25,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
 SpeciesLike = Union[str, Element, Species, DummySpecies]
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 @total_ordering
@@ -70,6 +72,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     # 1e-8 is fairly tight, but should cut out most floating point arithmetic
     # errors.
     amount_tolerance = 1e-8
+    charge_balanced_tolerance = 1e-8
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
@@ -120,17 +123,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if len(args) == 1 and isinstance(args[0], Composition):
             elem_map = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
-            elem_map = self._parse_formula(args[0])  # type: ignore
+            elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
+        elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
+            raise ValueError("float('NaN') is not a valid Composition, did you mean str('NaN')?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore
         elem_amt = {}
-        self._natoms = 0
+        self._n_atoms = 0
         for key, val in elem_map.items():
             if val < -Composition.amount_tolerance and not self.allow_negative:
                 raise ValueError("Amounts in Composition cannot be negative!")
             if abs(val) >= Composition.amount_tolerance:
                 elem_amt[get_el_sp(key)] = val
-                self._natoms += abs(val)
+                self._n_atoms += abs(val)
         self._data = elem_amt
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
@@ -199,8 +204,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         new_el_map: dict[SpeciesLike, float] = collections.defaultdict(float)
         new_el_map.update(self)
-        for k, v in other.items():
-            new_el_map[get_el_sp(k)] += v
+        for key, val in other.items():
+            new_el_map[get_el_sp(key)] += val
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __sub__(self, other: object) -> Composition:
@@ -217,8 +222,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         new_el_map: dict[SpeciesLike, float] = collections.defaultdict(float)
         new_el_map.update(self)
-        for k, v in other.items():
-            new_el_map[get_el_sp(k)] -= v
+        for key, val in other.items():
+            new_el_map[get_el_sp(key)] -= val
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __mul__(self, other: object) -> Composition:
@@ -321,7 +326,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         1.
         E.g. "Fe2 O3".fractional_composition = "Fe0.4 O0.6".
         """
-        return self / self._natoms
+        return self / self._n_atoms
 
     @property
     def reduced_composition(self) -> Composition:
@@ -360,8 +365,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        d = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
+        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
@@ -393,7 +398,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         el_amt = self.get_el_amt_dict()
         gcd = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
-        dct = {k: round(v / gcd) for k, v in el_amt.items()}
+        dct = {key: round(val / gcd) for key, val in el_amt.items()}
         formula, factor = reduce_formula(dct, iupac_ordering=iupac_ordering)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
@@ -436,8 +441,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Returns list of elements in Composition."""
         return list(self)
 
-    def __str__(self):
-        return " ".join(f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items())
+    def __str__(self) -> str:
+        return " ".join(f"{key}{formula_double_format(val, ignore_ones=False)}" for key, val in self.as_dict().items())
 
     def to_pretty_string(self) -> str:
         """
@@ -451,7 +456,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Total number of atoms in Composition. For negative amounts, sum
         of absolute values.
         """
-        return self._natoms
+        return self._n_atoms
 
     @property
     def weight(self) -> float:
@@ -467,7 +472,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             Atomic fraction for element el in Composition
         """
-        return abs(self[el]) / self._natoms
+        return abs(self[el]) / self._n_atoms
 
     def get_wt_fraction(self, el: SpeciesLike) -> float:
         """Calculate weight fraction of an Element or Species.
@@ -520,10 +525,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return any(category[0] in el.block for el in self.elements)
         return any(getattr(el, f"is_{category}") for el in self.elements)
 
-    def _parse_formula(self, formula: str) -> dict[str, float]:
+    def _parse_formula(self, formula: str, strict: bool = True) -> dict[str, float]:
         """
         Args:
             formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
+            strict (bool): Whether to throw an error if formula string is invalid (e.g. empty).
+                Defaults to True.
 
         Returns:
             Composition with that formula.
@@ -532,6 +539,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             In the case of Metallofullerene formula (e.g. Y3N@C80),
             the @ mark will be dropped and passed to parser.
         """
+        # throw if formula contains special characters or only spaces and/or numbers
+        if strict and re.match(r"[\s\d.*/]*$", formula):
+            raise ValueError(f"Invalid {formula=}")
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
 
@@ -597,8 +607,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return not any(isinstance(el, DummySpecies) for el in self.elements)
 
-    def __repr__(self):
-        formula = " ".join(f"{k}{':' if hasattr(k, 'oxi_state') else ''}{v:g}" for k, v in self.items())
+    def __repr__(self) -> str:
+        formula = " ".join(f"{key}{':' if hasattr(key, 'oxi_state') else ''}{val:g}" for key, val in self.items())
         cls_name = type(self).__name__
         return f"{cls_name}({formula!r})"
 
@@ -688,6 +698,40 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             "elements": list(map(str, self)),
             "nelements": len(self),
         }
+
+    @property
+    def charge(self) -> float | None:
+        """Total charge based on oxidation states. If any oxidation states
+        are None or they're all 0, returns None. Use add_charges_from_oxi_state_guesses to
+        assign oxidation states to elements based on charge balancing.
+        """
+        warnings.warn(
+            "Composition.charge is experimental and may produce incorrect results. Use with "
+            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+        )
+        oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
+        if {*oxi_states} <= {0, None}:
+            # all oxidation states are None or 0
+            return None
+        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values()))
+
+    @property
+    def charge_balanced(self) -> bool | None:
+        """True if composition is charge balanced, False otherwise. If any oxidation states
+        are None, returns None. Use add_charges_from_oxi_state_guesses to assign oxidation
+        states to elements.
+        """
+        warnings.warn(
+            "Composition.charge_balanced is experimental and may produce incorrect results. "
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+        )
+        if self.charge is None:
+            if {getattr(el, "oxi_state", None) for el in self} == {0}:
+                # all oxidation states are 0. this usually means no way of combining oxidation states
+                # to get a zero charge was found, so the composition is not charge balanced
+                return False
+            return None
+        return abs(self.charge) < Composition.charge_balanced_tolerance
 
     def oxi_state_guesses(
         self,
@@ -797,16 +841,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         routine.
 
         Args:
-            oxi_states_override (dict): dict of str->list to override an
-                element's common oxidation states, e.g. {"V": [2,3,4,5]}
-            target_charge (int): the desired total charge on the structure.
+            oxi_states_override (dict[str, list[float]]): Override an
+                element's common oxidation states, e.g. {"V": [2, 3, 4, 5]}
+            target_charge (float): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
-            all_oxi_states (bool): if True, an element defaults to
+            all_oxi_states (bool): If True, an element defaults to
                 all oxidation states in pymatgen Element.icsd_oxidation_states.
                 Otherwise, default is Element.common_oxidation_states. Note
                 that the full oxidation state list is *very* inclusive and
                 can produce nonsensical results.
-            max_sites (int): if possible, will reduce Compositions to at most
+            max_sites (int): If possible, will reduce Compositions to at most
                 this many sites to speed up oxidation state guesses. If the
                 composition cannot be reduced to this many sites a ValueError
                 will be raised. Set to -1 to just reduce fully. If set to a
@@ -893,7 +937,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
-            module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
             all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
             Composition.oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
@@ -1203,27 +1246,27 @@ class ChemicalPotential(dict, MSONable):
     multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
         Args:
             *args: any valid dict init arguments
             **kwargs: any valid dict init arguments.
         """
         dct = dict(*args, **kwargs)
-        super().__init__((get_el_sp(k), v) for k, v in dct.items())
+        super().__init__((get_el_sp(key), val) for key, val in dct.items())
         if len(dct) != len(self):
             raise ValueError("Duplicate potential specified")
 
     def __mul__(self, other: object) -> ChemicalPotential:
         if isinstance(other, (int, float)):
-            return ChemicalPotential({k: v * other for k, v in self.items()})
+            return ChemicalPotential({key: val * other for key, val in self.items()})
         return NotImplemented
 
     __rmul__ = __mul__
 
     def __truediv__(self, other: object) -> ChemicalPotential:
         if isinstance(other, (int, float)):
-            return ChemicalPotential({k: v / other for k, v in self.items()})
+            return ChemicalPotential({key: val / other for key, val in self.items()})
         return NotImplemented
 
     __div__ = __truediv__
@@ -1250,9 +1293,9 @@ class ChemicalPotential(dict, MSONable):
         if strict and set(composition) > set(self):
             s = set(composition) - set(self)
             raise ValueError(f"Potentials not specified for {s}")
-        return sum(self.get(k, 0) * v for k, v in composition.items())
+        return sum(self.get(key, 0) * val for key, val in composition.items())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ChemPots: {super()!r}"
 
 

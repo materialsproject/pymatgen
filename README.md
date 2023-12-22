@@ -33,7 +33,6 @@ Pymatgen is free to use. However, we also welcome your help to improve this libr
 - Code contributions via [pull request] are welcome.
 - For questions that are not bugs or feature requests, please use the `pymatgen` [MatSci forum](https://matsci.org/pymatgen) or open a [GitHub discussion].
 - [`matgenb`](https://github.com/materialsvirtuallab/matgenb#introduction) provides some example Jupyter notebooks that demonstrate how to use `pymatgen` functionality.
-- Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 [pull request]: https://github.com/materialsproject/pymatgen/pulls
 [github issue]: https://github.com/materialsproject/pymatgen/issues
@@ -68,7 +67,7 @@ The minimum Python version is 3.9. Some extra functionality (e.g., generation of
 
 ## Change Log
 
-Please check [GitHub releases](https://github.com/materialsproject/pymatgen/releases) and [commit history](https://github.com/materialsproject/pymatgen/commits/master) for the latest changes. A legacy changelog is still up at <https://pymatgen.org/change_log>.
+See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`docs/CHANGES.md`](docs/CHANGES.md) or [commit history](https://github.com/materialsproject/pymatgen/commits/master) in increasing order of details.
 
 ## Using pymatgen
 
@@ -106,7 +105,8 @@ Pymatgen is released under the MIT License. The terms of the license are as foll
 
 ## About the Pymatgen Development Team
 
-Shyue Ping Ong of the [Materials Virtual Lab] started Pymatgen in 2011 and is still the project lead.
+Shyue Ping Ong (@shyuep) of the [Materials Virtual Lab] started Pymatgen in 2011 and is still the project lead.
+Janosh Riebesell (@janosh) and Matthew Horton (@mkhorton) are co-maintainers.
 
 The [`pymatgen` development team] is the set of all contributors to the `pymatgen` project, including all subprojects.
 

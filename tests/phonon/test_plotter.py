@@ -76,7 +76,13 @@ class TestPhononBSPlotter(unittest.TestCase):
         self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2], [3, 4]])
 
     def test_plot_compare(self):
-        self.plotter.plot_compare(self.plotter, units="mev")
+        labels = ("NaCl", "NaCl 2")
+        ax = self.plotter.plot_compare(self.plotter, units="mev", labels=labels)
+        assert isinstance(ax, axes.Axes)
+        assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
+        assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
+        assert ax.get_title() == ""
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
 
 
 class TestThermoPlotter(unittest.TestCase):

@@ -145,7 +145,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
     return chg_str
 
 
-def latexify(formula):
+def latexify(formula: str, bold: bool = False):
     """Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
@@ -154,11 +154,12 @@ def latexify(formula):
 
     Args:
         formula (str): Input formula.
+        bold (bool): Whether to make the subscripts bold. Defaults to False.
 
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
     """
-    return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\2}$", formula)
+    return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\\mathbf{\2}}$" if bold else r"\1$_{\2}$", formula)
 
 
 def htmlify(formula):

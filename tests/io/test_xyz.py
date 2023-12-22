@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import unittest
 
-import numpy as np
 import pandas as pd
 import pytest
 from pytest import approx
@@ -189,12 +188,8 @@ O 9.960184 1.516793 1.393875"""
         test_df2.index += 1
         mol_df = self.xyz.as_dataframe()
 
-        # body tests
+        # body tests (also tests index and columns)
         pd.testing.assert_frame_equal(mol_df, test_df)
-
-        # index tests
-        np.testing.assert_array_equal(mol_df.columns, test_df.columns)
-        np.testing.assert_array_equal(mol_df.index, test_df.index)
 
     def test_invalid_coord_precision(self):
         with pytest.raises(ValueError, match="Format specifier missing precision"):

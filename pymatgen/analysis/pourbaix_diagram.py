@@ -251,15 +251,15 @@ class PourbaixEntry(MSONable, Stringify):
     def to_pretty_string(self) -> str:
         """A pretty string representation."""
         if self.phase_type == "Solid":
-            return self.entry.composition.reduced_formula + "(s)"
+            return f"{self.entry.composition.reduced_formula}(s)"
 
         return self.entry.name
 
     def __repr__(self):
         energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
         return (
-            f"{type(self).__name__}({self.entry.composition} with {energy = :.4f}, {npH = }, "
-            f"{nPhi = }, {nH2O = }, {entry_id = })"
+            f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, "
+            f"{nPhi=}, {nH2O=}, {entry_id=})"
         )
 
 
@@ -473,7 +473,7 @@ class PourbaixDiagram(MSONable):
             for entry in ion_entries:
                 ion_elts = list(set(entry.elements) - ELEMENTS_HO)
                 # TODO: the logic here for ion concentration setting is in two
-                #       places, in PourbaixEntry and here, should be consolidated
+                # places, in PourbaixEntry and here, should be consolidated
                 if len(ion_elts) == 1:
                     entry.concentration = conc_dict[ion_elts[0].symbol] * entry.normalization_factor
                 elif len(ion_elts) > 1 and not entry.concentration:
@@ -481,7 +481,7 @@ class PourbaixDiagram(MSONable):
 
             self._unprocessed_entries = solid_entries + ion_entries
 
-            if not len(solid_entries + ion_entries) == len(entries):
+            if len(solid_entries + ion_entries) != len(entries):
                 raise ValueError('All supplied entries must have a phase type of either "Solid" or "Ion"')
 
             if self.filter_solids:
@@ -1010,9 +1010,9 @@ class PourbaixPlotter:
     def plot_entry_stability(
         self,
         entry: Any,
-        pH_range: tuple[float, float] | None = None,
+        pH_range: tuple[float, float] = (-2, 16),
         pH_resolution: int = 100,
-        V_range: tuple[float, float] | None = None,
+        V_range: tuple[float, float] = (-3, 3),
         V_resolution: int = 100,
         e_hull_max: float = 1,
         cmap: str = "RdYlBu_r",
@@ -1024,9 +1024,9 @@ class PourbaixPlotter:
 
         Args:
             entry (Any): The entry to plot stability for.
-            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
+            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to (-2, 16).
             pH_resolution (int, optional): pH resolution. Defaults to 100.
-            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
+            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to (-3, 3).
             V_resolution (int, optional): Voltage resolution. Defaults to 100.
             e_hull_max (float, optional): Maximum energy above the hull. Defaults to 1.
             cmap (str, optional): Colormap for the plot. Defaults to "RdYlBu_r".
@@ -1036,11 +1036,6 @@ class PourbaixPlotter:
         Returns:
             plt.Axes: Matplotlib Axes object with the plotted stability.
         """
-        if pH_range is None:
-            pH_range = [-2, 16]
-        if V_range is None:
-            V_range = [-3, 3]
-
         # Plot the Pourbaix diagram
         ax = self.get_pourbaix_plot(ax=ax, **kwargs)
         pH, V = np.mgrid[
