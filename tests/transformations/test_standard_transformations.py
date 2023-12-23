@@ -292,6 +292,15 @@ class TestRandomStructureTransformation(unittest.TestCase):
         assert len(output) == 5
         assert isinstance(output[0], Structure)
 
+    def test_random_assign(self):
+        trans = RandomStructureTransformation()
+
+        sequence = list(range(10))
+        lengths = [1, 2, 3, 4]
+        assignments = random_assign(sequence, lengths)
+
+        assert sum([len(sublist) for sublist in assignments]) == 10
+
 
 class TestOrderDisorderedStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
