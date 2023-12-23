@@ -384,19 +384,19 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return all(site.is_ordered for site in self)
 
     @property
-    def sublattices(self) -> dict[Composition, list]:
+    def sub_lattices(self) -> dict[Composition, list]:
         """
         Returns dict of lists of atom indices belonging to every unique
         sublattice.
         """
         unique_species_and_occu = set(self.species_and_occu)
 
-        sublattices_dict = dict()
+        sub_lattices = dict()
 
-        for usp in unique_species_and_occu:
-            sublattices_dict[usp] = [i for i, sp in enumerate(self.species_and_occu) if sp == usp]
+        for uniq_sp in unique_species_and_occu:
+            sub_lattices[uniq_sp] = [idx for idx, sp in enumerate(self.species_and_occu) if sp == uniq_sp]
 
-        return sublattices_dict
+        return sub_lattices
 
     def get_angle(self, i: int, j: int, k: int) -> float:
         """Returns angle specified by three sites.
@@ -2360,11 +2360,14 @@ class IStructure(SiteCollection, MSONable):
                 for a in factors(det):
                     for e in factors(det // a):
                         g = det // a // e
-                        yield det, np.array(
-                            [
-                                [[a, b, c], [0, e, f], [0, 0, g]]
-                                for b, c, f in itertools.product(range(a), range(a), range(e))
-                            ]
+                        yield (
+                            det,
+                            np.array(
+                                [
+                                    [[a, b, c], [0, e, f], [0, 0, g]]
+                                    for b, c, f in itertools.product(range(a), range(a), range(e))
+                                ]
+                            ),
                         )
 
         # we can't let sites match to their neighbors in the supercell
@@ -3403,7 +3406,9 @@ class IMolecule(SiteCollection, MSONable):
         centered_coords = self.cart_coords - self.center_of_mass + offset
 
         for i, j, k in itertools.product(
-            list(range(images[0])), list(range(images[1])), list(range(images[2]))  # type: ignore
+            list(range(images[0])),
+            list(range(images[1])),
+            list(range(images[2])),  # type: ignore
         ):
             box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:

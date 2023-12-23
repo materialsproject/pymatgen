@@ -471,10 +471,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 class RandomStructureTransformation(AbstractTransformation):
     """Transform a disordered structure into a given number of ordered random structures."""
 
-    def __init__(self):
-        """Default __init__ method."""
-
-    def apply_transformation(self, structure: Structure, n_copies: int) -> list[Structure]:
+    def apply_transformation(self, structure: Structure, n_copies: int) -> list[Structure]:  # type: ignore[override]
         """
         For this transformation, the apply_transformation method will return
         ordered random structure(s) from the given disordered structure.
@@ -486,15 +483,15 @@ class RandomStructureTransformation(AbstractTransformation):
         Returns:
             A list of ordered random structures based on the input disordered structure.
         """
-        subl = structure.sublattices
+        sub_lattice = structure.sub_lattices
 
         # fill the sublattice sites with pure-element atoms
-        self.all_structures = []
+        all_structures: list[Structure] = []
 
         for _ in range(n_copies):
             new_structure = structure.copy()
 
-            for subl_comp, subl_indices in subl.items():
+            for subl_comp, subl_indices in sub_lattice.items():
                 # convert composition into a dictionary
                 subl_comp_dict = subl_comp.as_dict()
 
@@ -504,14 +501,14 @@ class RandomStructureTransformation(AbstractTransformation):
 
                 # randomly choose site indices for each element present in the sublattice
 
-                el_indices = self.random_assign(sequence=subl_indices, lengths=lengths)
+                elem_indices = self.random_assign(sequence=subl_indices, lengths=lengths)
 
-                for i_el, el in enumerate(el_list):
-                    new_structure[el_indices[i_el]] = el
+                for idx_el, el in enumerate(el_list):
+                    new_structure[elem_indices[idx_el]] = el
 
-            self.all_structures.append(new_structure)
+            all_structures += [new_structure]
 
-        return self.all_structures
+        return all_structures
 
     @property
     def inverse(self):
@@ -525,12 +522,12 @@ class RandomStructureTransformation(AbstractTransformation):
 
     def random_assign(self, sequence: list[int], lengths: list[int]):
         """
-        Randomly assign sublists in sequence with given lengths.
+        Randomly assign lists in sequence with given lengths.
 
         Args:
             sequence (list): a list of integers, representing the atom indices on the sublattice
             lengths (list):  a list of integers, representing the numbers of sites for
-                             each element in the sublattice
+                each element in the sublattice
 
         Returns:
             if np.sum(lengths) == len(sequence):
