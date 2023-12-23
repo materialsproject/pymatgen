@@ -537,18 +537,18 @@ class Trajectory(MSONable):
         Returns:
             Trajectory: containing the structures or molecules in the file.
         """
-        fname = Path(filename).expanduser().resolve().name
+        filename = str(Path(filename).expanduser().resolve())
         is_mol = False
 
-        if fnmatch(fname, "*XDATCAR*"):
+        if fnmatch(filename, "*XDATCAR*"):
             structures = Xdatcar(filename).structures
-        elif fnmatch(fname, "vasprun*.xml*"):
+        elif fnmatch(filename, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
-        elif fnmatch(fname, "*.traj"):
+        elif fnmatch(filename, "*.traj"):
             try:
                 from ase.io.trajectory import Trajectory as AseTrajectory
 
-                ase_traj = AseTrajectory(fname)
+                ase_traj = AseTrajectory(filename)
                 # periodic boundary conditions should be the same for all frames so just check the first
                 pbc = ase_traj[0].pbc
                 if any(pbc):
