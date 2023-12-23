@@ -194,7 +194,7 @@ class HeisenbergMapper:
             all_dists += [0] * (3 - len(all_dists))
 
         all_dists = all_dists[:3]
-        labels = ["nn", "nnn", "nnnn"]
+        labels = ("nn", "nnn", "nnnn")
         dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
