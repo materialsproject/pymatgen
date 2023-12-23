@@ -520,20 +520,19 @@ class RandomStructureTransformation(AbstractTransformation):
         """Returns: True."""
         return True
 
-    def random_assign(self, sequence: list[int], lengths: list[int]):
+    def random_assign(self, sequence: list[int], lengths: list[int]) -> list[list[int]]:
         """
         Randomly assign lists in sequence with given lengths.
 
         Args:
-            sequence (list): a list of integers, representing the atom indices on the sublattice
-            lengths (list):  a list of integers, representing the numbers of sites for
-                each element in the sublattice
+            sequence (list[int]): Atom indices on the sublattice.
+            lengths (list[int]): Numbers of sites for each element in the sublattice.
+
+        Raises:
+            Exception: Sum of lengths is not equal to the length of the sequence.
 
         Returns:
-            if np.sum(lengths) == len(sequence):
-                returns a list of lists, where each sublist contains randomly assigned indices
-            else:
-                raise an error message
+            list[list[int]]: Each sublist contains randomly assigned indices.
 
         Example:
             sequence = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -542,10 +541,12 @@ class RandomStructureTransformation(AbstractTransformation):
             output: [[0, 2, 3, 5, 7], [1, 4, 6]]
         """
         random.shuffle(sequence)
-
-        assignments = []
-
+        assignments: list[list[int]] = []
         start_pos = 0
+
+        # check sublist length sum is equal to the length of the sequence
+        if sum(lengths) != len(sequence):
+            raise ValueError(f"{sum(lengths)=} != {len(sequence)=}, must be equal")
 
         for length in lengths:
             end_pos = min(start_pos + length, len(sequence))
@@ -554,12 +555,6 @@ class RandomStructureTransformation(AbstractTransformation):
             if end_pos > start_pos:
                 assignments.append(sequence[start_pos:end_pos])
                 start_pos = end_pos
-
-            else:
-                raise Exception("Sum of lengths greater than the length of the sequence; should be equal!")
-
-        if start_pos < len(sequence):
-            raise Exception("Sum of lengths less than the length of the sequence; should be equal!")
 
         return assignments
 
