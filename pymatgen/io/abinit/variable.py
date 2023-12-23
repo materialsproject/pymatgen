@@ -164,9 +164,9 @@ class InputVariable:
 
         # Determine the format
         width = max(len(str(s)) for s in flattened_list)
-        if type_all is int:
+        if type_all == int:
             fmt_spec = f">{width}d"
-        elif type_all is str:
+        elif type_all == str:
             fmt_spec = f">{width}"
         else:
             # Number of decimal

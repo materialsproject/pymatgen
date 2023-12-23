@@ -7,10 +7,10 @@ All transformations should inherit the AbstractTransformation ABC.
 from __future__ import annotations
 
 import logging
+import random
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
-import numpy as np
 from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -464,6 +464,102 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     def inverse(self):
         """Returns: None."""
         return
+
+
+class RandomStructureTransformation(AbstractTransformation):
+    """Transform a disordered structure into a given number of ordered random structures."""
+
+    def apply_transformation(self, structure: Structure, n_copies: int) -> list[Structure]:  # type: ignore[override]
+        """
+        For this transformation, the apply_transformation method will return
+        ordered random structure(s) from the given disordered structure.
+
+        Args:
+            structure: input structure
+            n_copies (int): number of copies of ordered random structures to be returned
+
+        Returns:
+            A list of ordered random structures based on the input disordered structure.
+        """
+        sub_lattice = structure.sub_lattices
+
+        # fill the sublattice sites with pure-element atoms
+        all_structures: list[Structure] = []
+
+        for _ in range(n_copies):
+            new_structure = structure.copy()
+
+            for subl_comp, subl_indices in sub_lattice.items():
+                # convert composition into a dictionary
+                subl_comp_dict = subl_comp.as_dict()
+
+                el_list = list(subl_comp_dict.keys())
+                el_concs = list(subl_comp_dict.values())
+                lengths = [round(el_conc * len(subl_indices)) for el_conc in el_concs]
+
+                # randomly choose site indices for each element present in the sublattice
+
+                elem_indices = self.random_assign(sequence=subl_indices, lengths=lengths)
+
+                for idx_el, el in enumerate(el_list):
+                    new_structure[elem_indices[idx_el]] = el
+
+            all_structures += [new_structure]
+
+        return all_structures
+
+    @property
+    def inverse(self):
+        """Returns: None."""
+        return
+
+    @property
+    def is_one_to_many(self) -> bool:
+        """Returns: True."""
+        return True
+
+    def random_assign(self, sequence: list[int], lengths: list[int]):
+        """
+        Randomly assign lists in sequence with given lengths.
+
+        Args:
+            sequence (list): a list of integers, representing the atom indices on the sublattice
+            lengths (list):  a list of integers, representing the numbers of sites for
+                each element in the sublattice
+
+        Returns:
+            if np.sum(lengths) == len(sequence):
+                returns a list of lists, where each sublist contains randomly assigned indices
+            else:
+                raise an error message
+
+        Example:
+            sequence = [0, 1, 2, 3, 4, 5, 6, 7]
+            lengths = [5, 3]
+
+            output: [[0, 2, 3, 5, 7], [1, 4, 6]]
+        """
+        random.shuffle(sequence)
+
+        assignments = []
+
+        start_pos = 0
+
+        for length in lengths:
+            end_pos = min(start_pos + length, len(sequence))
+
+            ## check if end_pos is greater than start_pos
+            if end_pos > start_pos:
+                assignments.append(sequence[start_pos:end_pos])
+                start_pos = end_pos
+
+            else:
+                raise Exception("Sum of lengths greater than the length of the sequence; should be equal!")
+
+        if start_pos < len(sequence):
+            raise Exception("Sum of lengths less than the length of the sequence; should be equal!")
+
+        return assignments
 
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
