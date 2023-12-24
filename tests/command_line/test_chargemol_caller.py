@@ -109,7 +109,7 @@ def fake_download(self, version: str = "latest", verbose: bool = True) -> None:
     with zipfile.ZipFile(fake_zip_path, "w") as fake_zip:
         fake_zip.write(fake_file_path, arcname="atomic_densities/fake_file.txt")
 
-    self._atomic_densities_path = os.path.abspath(extraction_path)
+    self._atomic_densities_path = os.path.expanduser(extraction_path)
 
 
 def test_fake_download_and_modify_path(monkeypatch):

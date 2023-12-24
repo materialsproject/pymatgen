@@ -110,7 +110,12 @@ class ChargemolAnalysis:
             try:
                 self._download_and_unzip_atomic_densities()
             except Exception as exc:
-                raise FileNotFoundError("Atomic densities not found and auto-download failed") from exc
+                raise FileNotFoundError(
+                    "Atomic densities not found and auto-download failed. "
+                    "Please set the DDEC6_ATOMIC_DENSITIES_DIR environment variable to the "
+                    "directory containing the atomic densities from Chargemol at "
+                    "https://sourceforge.net/projects/ddec/files"
+                ) from exc
 
         self._chgcar_path = self._get_filepath(path, "CHGCAR")
         self._potcar_path = self._get_filepath(path, "POTCAR")
