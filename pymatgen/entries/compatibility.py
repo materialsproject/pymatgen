@@ -5,21 +5,21 @@ functionals.
 from __future__ import annotations
 
 import abc
+from collections import defaultdict
 import copy
 import os
+from typing import Literal, TYPE_CHECKING, Union
 import warnings
-from collections import defaultdict
-from typing import TYPE_CHECKING, Literal, Union
 
-import numpy as np
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
+import numpy as np
 from tqdm import tqdm
 from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.core import SETTINGS, Element
+from pymatgen.core import Element, SETTINGS
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
