@@ -5,31 +5,36 @@ functionals.
 from __future__ import annotations
 
 import abc
+from collections import defaultdict
 import copy
 import os
+from typing import Literal
+from typing import TYPE_CHECKING
+from typing import Union
 import warnings
-from collections import defaultdict
-from typing import TYPE_CHECKING, Literal, Union
 
-import numpy as np
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
+import numpy as np
 from tqdm import tqdm
 from uncertainties import ufloat
 
-from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.core import SETTINGS, Element
-from pymatgen.entries.computed_entries import (
-    CompositionEnergyAdjustment,
-    ComputedEntry,
-    ComputedStructureEntry,
-    ConstantEnergyAdjustment,
-    EnergyAdjustment,
-    TemperatureEnergyAdjustment,
-)
-from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet, VaspInputSet
-from pymatgen.util.due import Doi, due
+from pymatgen.analysis.structure_analyzer import oxide_type
+from pymatgen.analysis.structure_analyzer import sulfide_type
+from pymatgen.core import Element
+from pymatgen.core import SETTINGS
+from pymatgen.entries.computed_entries import CompositionEnergyAdjustment
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.computed_entries import ConstantEnergyAdjustment
+from pymatgen.entries.computed_entries import EnergyAdjustment
+from pymatgen.entries.computed_entries import TemperatureEnergyAdjustment
+from pymatgen.io.vasp.sets import MITRelaxSet
+from pymatgen.io.vasp.sets import MPRelaxSet
+from pymatgen.io.vasp.sets import VaspInputSet
+from pymatgen.util.due import Doi
+from pymatgen.util.due import due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
