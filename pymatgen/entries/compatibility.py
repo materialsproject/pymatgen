@@ -465,10 +465,10 @@ class UCorrection(Correction):
         Returns:
             Correction, Uncertainty.
         """
+        # Only correct GGA or GGA+U entries
         if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            raise CompatibilityError(
-                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
-            )
+            warnings.warn(f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding.")
+            return ufloat(0.0, 0.0)
 
         calc_u = entry.parameters.get("hubbards") or defaultdict(int)
         comp = entry.composition
@@ -476,10 +476,6 @@ class UCorrection(Correction):
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})
         u_settings = self.u_settings.get(most_electroneg, {})
