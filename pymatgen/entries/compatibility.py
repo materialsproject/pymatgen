@@ -463,12 +463,13 @@ class UCorrection(Correction):
         """:param entry: A ComputedEntry/ComputedStructureEntry
 
         Returns:
-            Correction, Uncertainty.
+            ufloat: Energy correction in eV and uncertainty of the correction in eV.
         """
         # Only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
+        run_type = entry.parameters.get("run_type")
+        if run_type not in ("GGA", "GGA+U"):
             warnings.warn(
-                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
+                f"Entry {entry.entry_id} has invalid {run_type=}. Applying no corrections."
             )
             return ufloat(0.0, 0.0)
 
