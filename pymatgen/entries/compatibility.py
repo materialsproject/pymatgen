@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 from collections import defaultdict
-from collections import defaultdict
 import copy
 import os
 from typing import Literal, TYPE_CHECKING, Union
@@ -15,7 +14,6 @@ import warnings
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
-import numpy as np
 import numpy as np
 from tqdm import tqdm
 from uncertainties import ufloat
