@@ -616,14 +616,11 @@ class HighSymmetryPoint(MSONable):
             discontinue_pairs.append([self._kpath["path"][ii][-1], self._kpath["path"][ii + 1][0]])
         flatten_paths: list[str] = [tmp_hsp for tmp_path in self._kpath["path"] for tmp_hsp in tmp_path]
         # flatten_paths = [hsp.replace("GAMMA", "G") for hsp in flatten_paths]
-        print(self._kpath["path"])
-        print(flatten_paths)
 
         index: int = 1
         coordinate: float = 0.0
         hsp_str: str = "Label       Index       Coordinate\n"
         hsp_str += get_hsp_row_str(flatten_paths[0], index, coordinate)
-        print(hsp_str)
         for ii in range(1, len(flatten_paths)):
             if [flatten_paths[ii - 1], flatten_paths[ii]] not in discontinue_pairs:
                 coordinate += calc_distance(flatten_paths[ii - 1], flatten_paths[ii]) / (2 * np.pi)
