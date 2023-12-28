@@ -1,19 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from pymatgen.io.pwmat.outputs import(
-    Movement,
-    OutFermi,
-    Report,
-    Dosspin
-)
+from pymatgen.io.pwmat.outputs import Dosspin, Movement, OutFermi, Report
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-if TYPE_CHECKING:
-    from pathlib import Path
-    
-    
+
 class TestMovement(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/MOVEMENT"
@@ -25,14 +15,14 @@ class TestMovement(PymatgenTest):
         assert hasattr(movement.nionic_steps[0], "atom_configs")
         assert hasattr(movement.nionic_steps[0], "etot")
         assert hasattr(movement.nionic_steps[0], "fatoms")
-        #assert hasattr(movement.nionic_steps[0], "virial")
-        #assert hasattr(movement.nionic_steps[0], "eatoms")
+        # assert hasattr(movement.nionic_steps[0], "virial")
+        # assert hasattr(movement.nionic_steps[0], "eatoms")
         assert hasattr(movement, "atom_configs")
         assert hasattr(movement, "etots")
         assert hasattr(movement, "fatoms")
-        #assert hasattr(movement, "eatoms")
-        #assert hasattr(movement, "virials")
-    
+        # assert hasattr(movement, "eatoms")
+        # assert hasattr(movement, "virials")
+
 
 class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
@@ -59,6 +49,5 @@ class TestDosspin(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected"
         dosspin = Dosspin(filepath)
         assert hasattr(dosspin, "dos")
-        #assert type(dosspin.dos) == np.ndarray
+        # assert type(dosspin.dos) == np.ndarray
         assert hasattr(dosspin, "label")
-        
