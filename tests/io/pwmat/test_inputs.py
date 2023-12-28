@@ -22,7 +22,7 @@ class TestACstrExtractor(PymatgenTest):
             assert ac_extractor.coords[ii * 3 + 0] == ac_str_extractor.get_coords()[ii * 3 + 0]
             assert ac_extractor.coords[ii * 3 + 1] == ac_str_extractor.get_coords()[ii * 3 + 1]
             assert ac_extractor.coords[ii * 3 + 2] == ac_str_extractor.get_coords()[ii * 3 + 2]
-            assert (ac_extractor.magmoms[ii] == ac_str_extractor.get_magmoms()[ii])
+            assert ac_extractor.magmoms[ii] == ac_str_extractor.get_magmoms()[ii]
 
 
 class TestAtomConfig(PymatgenTest):
