@@ -336,8 +336,8 @@ class PhononDos(MSONable):
         """Mean absolute error between two DOSs.
 
         Args:
-            other: Another DOS object.
-            two_sided: Whether to calculate the two-sided MAE meaning interpolate each DOS to the
+            other (PhononDos): Another phonon DOS
+            two_sided (bool): Whether to calculate the two-sided MAE meaning interpolate each DOS to the
                 other's frequencies and averaging the two MAEs. Defaults to True.
 
         Returns:
@@ -353,6 +353,21 @@ class PhononDos(MSONable):
             return (self_mae + other_mae) / 2
 
         return self_mae
+
+    def r2_score(self, other: PhononDos) -> float:
+        """R^2 score between two DOSs.
+
+        Args:
+            other (PhononDos): Another phonon DOS
+
+        Returns:
+            float: R^2 score
+        """
+        var = self.densities.var()
+        if var == 0:
+            return 0
+        mse = ((self.densities - other.densities) ** 2).mean()
+        return (var - mse) / var
 
     def get_last_peak(self, threshold: float = 0.05) -> float:
         """Find the last peak in the phonon DOS defined as the highest frequency with a DOS
