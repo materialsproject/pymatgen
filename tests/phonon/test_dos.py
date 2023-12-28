@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 
+import numpy as np
 import pytest
 from pytest import approx
 
@@ -101,6 +102,19 @@ class TestPhononDos(PymatgenTest):
         assert self.dos.mae(dos2 + 1, two_sided=False) == pytest.approx(0.999999999)
         assert self.dos.mae(dos2 - 1, two_sided=False) == pytest.approx(1.00000000000031)
         assert self.dos.mae(2 * dos2, two_sided=False) == pytest.approx(0.786546967)
+
+    def test_r2_score(self):
+        assert self.dos.r2_score(self.dos) == 1
+        assert self.dos.r2_score(self.dos + 1) == pytest.approx(-0.45647319)
+        assert self.dos.r2_score(self.dos - 1) == pytest.approx(-0.45647319)
+        assert self.dos.r2_score(2 * self.dos) == pytest.approx(-0.901056070)
+
+        # check that r2_score is 0 for DOS with same mean as self.dos
+        densities = self.dos.densities
+        mean_dos = PhononDos(self.dos.frequencies, np.full_like(densities, densities.mean()))
+        assert self.dos.r2_score(mean_dos) == pytest.approx(0)
+        # moving away from the mean should decrease r2_score
+        assert self.dos.r2_score(-mean_dos) == pytest.approx(-3.604224283)
 
     def test_get_last_peak(self):
         peak_freq = self.dos.get_last_peak()
