@@ -607,8 +607,7 @@ class HighSymmetryPoint(MSONable):
         def get_hsp_row_str(label: str, index: int, coordinate:float):
             if label == "GAMMA":
                 return f"G            {index:>4d}         {coordinate:>.6f}\n"
-            else:
-                return f"{label}            {index:>4d}         {coordinate:>.6f}\n"
+            return f"{label}            {index:>4d}         {coordinate:>.6f}\n"
         
         discontinue_pairs: list[list[str]] = []
         for ii in range(len(self._kpath["path"])-1):

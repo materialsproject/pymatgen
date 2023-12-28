@@ -33,6 +33,8 @@ class Movement(MSONable):
         self.nionic_steps: int = len(self.chunksizes)
 
         self.ionic_steps: list[dict] = self._parse_sefv()
+        if self.ionic_step_offset and self.ionic_step_skip:
+            self.ionic_steps = self.ionic_steps[self.ionic_step_offset::self.ionic_step_skip]
 
     def _get_chunkinfo(self):
         """
