@@ -2,4 +2,4 @@
 from __future__ import annotations
 
 from .inputs import AtomConfig
-from .outputs import Dosspin, Movement, OutFermi, Report
+from .outputs import DosSpin, Movement, OutFermi, Report

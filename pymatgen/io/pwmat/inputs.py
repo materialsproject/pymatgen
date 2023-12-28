@@ -15,54 +15,51 @@ from pymatgen.symmetry.kpath import KPathSeek
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
+__author__ = "Hanyu Liu"
+__email__ = "domainofbuaa@gmail.com"
+__date__ = "2023-12-28"
+
 
 class LineLocator(MSONable):
     @staticmethod
-    def locate_all_lines(file_path: PathLike, content: str):
-        """
-        Description:
-            Locate the line where a certain paragraph of text is located (return all lines)
+    def locate_all_lines(file_path: PathLike, content: str) -> list[int]:
+        """Locate the line where a certain paragraph of text is located (return all lines)
 
         Args:
-            file_path: str
-                Absolute path of file.
-            2. content: str
-                Contents that needs to be located.
+            file_path (str): Absolute path to file.
+            content (str): Contents that needs to be located.
         """
-        row_idxs_lst: list[int] = []  # starts from 1, be compatible to linecache package
+        row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
         with zopen(file_path, "rt") as f:
             for row_content in f:
                 row_no += 1
                 if content.upper() in row_content.upper():
-                    row_idxs_lst.append(row_no)
-        return row_idxs_lst
+                    row_idxs.append(row_no)
+        return row_idxs
 
 
 class ListLocator(MSONable):
     @staticmethod
-    def locate_all_lines(strs_lst: list[str], content: str):
-        """
-        Description:
-            Locate the indices in list where a certain paragraph of text is located (return all indices)
+    def locate_all_lines(strs_lst: list[str], content: str) -> list[int]:
+        """Locate the indices in list where a certain paragraph of text is located (return all indices)
 
         Args:
-            strs_lst: List[str]
-            content: str
-                Contents that needs to be located.
+            strs_lst (list[str]): List of strings.
+            content (str): Contents that needs to be located.
         """
-        str_idxs_lst: list[int] = []  # starts from 0, be compatible to list in python
+        str_idxs: list[int] = []  # starts from 0 to be compatible with list
         str_no = -1
         for tmp_str in strs_lst:
             str_no += 1
             if content.upper() in tmp_str.upper():
-                str_idxs_lst.append(str_no)
-        return str_idxs_lst
+                str_idxs.append(str_no)
+        return str_idxs
 
 
 class ACExtractorBase(ABC):
     @abstractmethod
-    def get_num_atoms(self):
+    def get_n_atoms(self):
         pass
 
     @abstractmethod
@@ -74,11 +71,8 @@ class ACExtractorBase(ABC):
         pass
 
     @abstractmethod
-    def get_coords(self):
-        """
-        Returns:
-            Fractional coordinates
-        """
+    def get_coords(self) -> np.ndarray:  # fractional coordinates
+        pass
 
     @abstractmethod
     def get_magmoms(self):
@@ -86,33 +80,27 @@ class ACExtractorBase(ABC):
 
 
 class ACExtractor(ACExtractorBase):
-    """
-    Description:
-        Extract information contained in atom.config : number of atoms, lattice, types, frac_coords, magmoms
-
-    @Author: Hanyu Liu
-    @email:  domainofbuaa@gmail.com
-    """
+    """Extract information contained in atom.config : number of atoms, lattice, types, frac_coords, magmoms"""
 
     def __init__(self, file_path: PathLike):
         """
         Args
             file_path: str
-                The absolute path of `atom.config` file
+                The absolute path of atom.config file
         """
         self.atom_config_path = file_path
-        self.num_atoms = self.get_num_atoms()
+        self.n_atoms = self.get_n_atoms()
         self.lattice = self.get_lattice()
         self.types = self.get_types()
         self.coords = self.get_coords()
         self.magmoms = self.get_magmoms()
 
-    def get_num_atoms(self):
+    def get_n_atoms(self) -> int:
         """
         Returns:
-            num_atoms: int
+            int: number of atoms
         """
-        first_row = linecache.getline(self.atom_config_path, 1)
+        first_row = linecache.getline(str(self.atom_config_path), 1)
         return int(first_row.split()[0])
 
     def get_lattice(self):
@@ -140,7 +128,7 @@ class ACExtractor(ACExtractorBase):
         idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
         with open(self.atom_config_path) as f:
             atom_config_content = f.readlines()
-        atomic_numbers_content = atom_config_content[idx_row : idx_row + self.num_atoms]
+        atomic_numbers_content = atom_config_content[idx_row : idx_row + self.n_atoms]
         atomic_numbers_lst = [int(row.split()[0]) for row in atomic_numbers_content]  # convert str to int
         return np.array(atomic_numbers_lst)
 
@@ -160,7 +148,7 @@ class ACExtractor(ACExtractorBase):
         -----------
             '29         0.377262291145329         0.128590184800933         0.257759805813488     1  1  1'
         """
-        for row_content in atom_config_content[idx_row : idx_row + self.num_atoms]:
+        for row_content in atom_config_content[idx_row : idx_row + self.n_atoms]:
             row_content_lst = row_content.split()
             coord_tmp = [float(value) for value in row_content_lst[1:4]]  # convert str to float.
             coords_lst.append(np.array(coord_tmp))
@@ -175,7 +163,7 @@ class ACExtractor(ACExtractorBase):
             with open(self.atom_config_path) as f:
                 atom_config_content = f.readlines()
 
-            magnetic_moments_content = atom_config_content[idx_row : idx_row + self.num_atoms]
+            magnetic_moments_content = atom_config_content[idx_row : idx_row + self.n_atoms]
             # MAGNETIC
             # 3 0.0 # atomic_number magmom
             # ...
@@ -183,25 +171,19 @@ class ACExtractor(ACExtractorBase):
                 float(tmp_magnetic_moment.split()[-1]) for tmp_magnetic_moment in magnetic_moments_content
             ]
         except Exception:
-            magnetic_moments_lst = [0 for _ in range(self.num_atoms)]
+            magnetic_moments_lst = [0 for _ in range(self.n_atoms)]
         return magnetic_moments_lst
 
 
 class ACstrExtractor(ACExtractorBase):
-    """
-    Description:
-        Extract information from atom.config file. You can get str by slicing the MOVEMENT.
-
-    @Author: Hanyu Liu
-    @email:  domainofbuaa@gmail.com
-    """
+    """Extract information from atom.config file. You can get str by slicing the MOVEMENT."""
 
     def __init__(self, atom_config_str: str):
         self.atom_config_str = atom_config_str
         self.strs_lst = self.atom_config_str.split("\n")
-        self.num_atoms = self.get_num_atoms()
+        self.num_atoms = self.get_n_atoms()
 
-    def get_num_atoms(self):
+    def get_n_atoms(self):
         return int(self.strs_lst[0].split()[0].strip())
 
     def get_lattice(self):
@@ -296,10 +278,10 @@ class ACstrExtractor(ACExtractorBase):
             eatoms_lst.append(float(tmp_str.split()[1]))
         return np.array(eatoms_lst)
 
-    def get_fatoms(self):
+    def get_fatoms(self) -> np.ndarray:
         """
         Returns:
-            fatoms: np.ndarray
+            np.ndarray: shape=(num_atoms*3,)
         """
         forces_lst = []
         aim_content = "Force".upper()
@@ -315,11 +297,10 @@ class ACstrExtractor(ACExtractorBase):
     def get_virial(self):
         """
         Returns:
-            1. virial_tensor: np.ndarray | None
+            np.ndarray | None: Virial tensor of shape=(9,)
         """
         virial_tensor = []
 
-        ### Step 1. 得到所有原子的原子序数、坐标
         aim_content = "LATTICE"
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
 
@@ -332,7 +313,6 @@ class ACstrExtractor(ACExtractorBase):
             if len(tmp_aim_row_lst) == 0:
                 return None
 
-        ### Step 2. 获取维里张量
         for tmp_idx in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
             # tmp_str_lst = ['0.120972E+02', '0.483925E+01', '0.242063E+01']
             tmp_str_lst = self.strs_lst[tmp_idx].split()[-3:]
@@ -351,12 +331,6 @@ class AtomConfig(MSONable):
             structure (Structure): Structure object
             sort_structure (Optional[bool]): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
-
-        Returns:
-            void
-
-        @Author: Hanyu Liu
-        @email:  domainofbuaa@gmail.com
         """
         self.structure: Structure = structure
         if sort_structure:
@@ -382,38 +356,34 @@ class AtomConfig(MSONable):
         Returns:
             AtomConfig object
         """
-        acextractor = ACstrExtractor(atom_config_str=data)
+        ac_extractor = ACstrExtractor(atom_config_str=data)
         properties: dict[str, float] = {}
         structure = Structure(
-            lattice=acextractor.get_lattice(),
-            species=acextractor.get_types(),
-            coords=acextractor.get_coords().reshape(-1, 3),
+            lattice=ac_extractor.get_lattice(),
+            species=ac_extractor.get_types(),
+            coords=ac_extractor.get_coords().reshape(-1, 3),
             coords_are_cartesian=False,
             properties=properties,
         )
         if mag:
-            magmoms = acextractor.get_magmoms()
-            for ii, tmp_site in enumerate(structure.sites):
-                tmp_site.properties.update({"magmom": magmoms[ii]})
+            magmoms = ac_extractor.get_magmoms()
+            for idx, tmp_site in enumerate(structure):
+                tmp_site.properties.update({"magmom": magmoms[idx]})
 
-        return cls(
-            structure,
-        )
+        return cls(structure)
 
     @classmethod
-    def from_file(cls, filename: str, mag: bool = True):
-        with zopen(filename, "rt") as f:
-            return cls.from_str(data=f.read(), mag=mag)
+    def from_file(cls, filename: str, mag: bool = True) -> AtomConfig:
+        with zopen(filename, "rt") as file:
+            return cls.from_str(data=file.read(), mag=mag)
 
     @classmethod
-    def from_dict(cls, d: dict):
+    def from_dict(cls, dct: dict) -> AtomConfig:
         """
         Args:
-            d: dict
+            dct: dict containing atom.config data
         """
-        return cls(
-            Structure.from_dict(d["structure"]),
-        )
+        return cls(Structure.from_dict(dct["structure"]))
 
     def get_str(self):
         """

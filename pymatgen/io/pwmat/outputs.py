@@ -15,28 +15,30 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 
+__author__ = "Hanyu Liu"
+__email__ = "domainofbuaa@gmail.com"
+__date__ = "2023-12-28"
+
+
 class Movement(MSONable):
     def __init__(self, filename: PathLike, ionic_step_skip: int | None = None, ionic_step_offset: int | None = None):
         """
         Description:
             Extract information from MOVEMENT file which records trajectory during MD.
-
-        @Author: Hanyu Liu
-        @email:  domainofbuaa@gmail.com
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
         self.split_mark = "--------------------------------------"
 
-        self.chunksizes, self.chunkstarts = self._get_chunkinfo()
-        self.nionic_steps: int = len(self.chunksizes)
+        self.chunk_sizes, self.chunk_starts = self._get_chunk_info()
+        self.n_ionic_steps = len(self.chunk_sizes)
 
         self.ionic_steps: list[dict] = self._parse_sefv()
         if self.ionic_step_offset and self.ionic_step_skip:
             self.ionic_steps = self.ionic_steps[self.ionic_step_offset :: self.ionic_step_skip]
 
-    def _get_chunkinfo(self):
+    def _get_chunk_info(self):
         """
         Description:
             Split MOVEMENT into many chunks, so that process it chunk by chunk.
@@ -47,16 +49,16 @@ class Movement(MSONable):
                 chunksizes: List[int]
                 chunkstarts: List[int]
         """
-        chunksizes: list[int] = []
+        chunk_sizes: list[int] = []
         row_idxs: list[int] = LineLocator.locate_all_lines(self.filename, self.split_mark)
-        chunksizes.append(row_idxs[0])
+        chunk_sizes.append(row_idxs[0])
         for ii in range(1, len(row_idxs)):
-            chunksizes.append(row_idxs[ii] - row_idxs[ii - 1])
-        chunksizes_bak: list[int] = copy.deepcopy(chunksizes)
-        chunksizes_bak.insert(0, 0)
-        chunkstarts: list[int] = np.cumsum(chunksizes_bak).tolist()
-        chunkstarts.pop(-1)
-        return chunksizes, chunkstarts
+            chunk_sizes.append(row_idxs[ii] - row_idxs[ii - 1])
+        chunk_sizes_bak: list[int] = copy.deepcopy(chunk_sizes)
+        chunk_sizes_bak.insert(0, 0)
+        chunk_starts: list[int] = np.cumsum(chunk_sizes_bak).tolist()
+        chunk_starts.pop(-1)
+        return chunk_sizes, chunk_starts
 
     @property
     def atom_configs(self):
@@ -98,9 +100,9 @@ class Movement(MSONable):
         ionic_steps: list[dict] = []
         with zopen(self.filename, "rt") as mvt:
             tmp_step: dict = {}
-            for ii in range(self.nionic_steps):
+            for ii in range(self.n_ionic_steps):
                 tmp_chunk: str = ""
-                for _ in range(self.chunksizes[ii]):
+                for _ in range(self.chunk_sizes[ii]):
                     tmp_chunk += mvt.readline()
                 tmp_step.update({"atom_config": AtomConfig.from_str(tmp_chunk)})
                 tmp_step.update({"etot": ACstrExtractor(tmp_chunk).get_etot()[0]})
@@ -120,13 +122,7 @@ class Movement(MSONable):
 
 
 class OutFermi(MSONable):
-    """
-    Description:
-        Extract fermi energy (eV) from OUT.FERMI
-
-    @Author: Hanyu Liu
-    @Email: domainofbuaa@gmail.com
-    """
+    """Extract fermi energy (eV) from OUT.FERMI"""
 
     def __init__(self, filename: str):
         self.filename: str = filename
@@ -134,18 +130,12 @@ class OutFermi(MSONable):
             self._efermi: float = np.round(float(f.readline().split()[-2].strip()), 3)
 
     @property
-    def efermi(self):
+    def efermi(self) -> float:
         return self._efermi
 
 
 class Report(MSONable):
-    """
-    Description:
-        Extract information of spin, kpoints, bands, eigenvalues from REPORT file.
-
-    @Author: Hanyu Liu
-    @Email: domainofbuaa@gmail.com
-    """
+    """Extract information of spin, kpoints, bands, eigenvalues from REPORT file."""
 
     def __init__(self, filename: str):
         self.filename = filename
@@ -255,16 +245,11 @@ class Report(MSONable):
         return self._hsps
 
 
-class Dosspin(MSONable):
-    """_summary_
-    Description:
-        Extract information of DOS from :
-            - DOS.totalspin, DOS.totalspin_projected
-            - DOS.spinup, DOS.spinup_projected
-            - DOS.spindown, DOS.spindown_projected
-
-    @Author: Hanyu Liu
-    @Email: domainofbuaa@gmail.com
+class DosSpin(MSONable):
+    """Extract information of DOS from DOS_SPIN file:
+    - DOS.totalspin, DOS.totalspin_projected
+    - DOS.spinup, DOS.spinup_projected
+    - DOS.spindown, DOS.spindown_projected
     """
 
     def __init__(self, filename: str):

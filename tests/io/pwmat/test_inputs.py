@@ -14,10 +14,10 @@ class TestACstrExtractor(PymatgenTest):
         ac_extractor = ACExtractor(file_path=filepath)
         with zopen(filepath, "rt") as f:
             ac_str_extractor = ACstrExtractor(atom_config_str="".join(f.readlines()))
-        assert ac_extractor.num_atoms == ac_str_extractor.get_num_atoms()
+        assert ac_extractor.n_atoms == ac_str_extractor.get_n_atoms()
         for ii in range(9):
             assert ac_extractor.lattice[ii] == ac_str_extractor.get_lattice()[ii]
-        for ii in range(ac_extractor.num_atoms):
+        for ii in range(ac_extractor.n_atoms):
             assert ac_extractor.types[ii] == ac_str_extractor.get_types()[ii]
             assert ac_extractor.coords[ii * 3 + 0] == ac_str_extractor.get_coords()[ii * 3 + 0]
             assert ac_extractor.coords[ii * 3 + 1] == ac_str_extractor.get_coords()[ii * 3 + 1]
