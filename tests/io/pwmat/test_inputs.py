@@ -19,12 +19,12 @@ class TestACstrExtractor(PymatgenTest):
             assert (ac_extractor.lattice[ii], ac_str_extractor.get_lattice()[ii])
         for ii in range(ac_extractor.num_atoms):
             assert (ac_extractor.types[ii], ac_str_extractor.get_types()[ii])
-            assert (ac_extractor.coords[ii*3 + 0], ac_str_extractor.get_coords()[ii*3 + 0])
-            assert (ac_extractor.coords[ii*3 + 1], ac_str_extractor.get_coords()[ii*3 + 1])
-            assert (ac_extractor.coords[ii*3 + 2], ac_str_extractor.get_coords()[ii*3 + 2])
+            assert (ac_extractor.coords[ii * 3 + 0], ac_str_extractor.get_coords()[ii * 3 + 0])
+            assert (ac_extractor.coords[ii * 3 + 1], ac_str_extractor.get_coords()[ii * 3 + 1])
+            assert (ac_extractor.coords[ii * 3 + 2], ac_str_extractor.get_coords()[ii * 3 + 2])
             assert (ac_extractor.magmoms[ii], ac_str_extractor.get_magmoms()[ii])
-    
-    
+
+
 class TestAtomConfig(PymatgenTest):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
