@@ -14,14 +14,14 @@ class TestACstrExtractor(PymatgenTest):
         ac_extractor = ACExtractor(file_path=filepath)
         with zopen(filepath, "rt") as f:
             ac_str_extractor = ACstrExtractor(atom_config_str="".join(f.readlines()))
-        assert (ac_extractor.num_atoms == ac_str_extractor.get_num_atoms())
+        assert ac_extractor.num_atoms == ac_str_extractor.get_num_atoms()
         for ii in range(9):
-            assert (ac_extractor.lattice[ii] == ac_str_extractor.get_lattice()[ii])
+            assert ac_extractor.lattice[ii] == ac_str_extractor.get_lattice()[ii]
         for ii in range(ac_extractor.num_atoms):
-            assert (ac_extractor.types[ii] == ac_str_extractor.get_types()[ii])
-            assert (ac_extractor.coords[ii*3 + 0] == ac_str_extractor.get_coords()[ii*3 + 0])
-            assert (ac_extractor.coords[ii*3 + 1] == ac_str_extractor.get_coords()[ii*3 + 1])
-            assert (ac_extractor.coords[ii*3 + 2] == ac_str_extractor.get_coords()[ii*3 + 2])
+            assert ac_extractor.types[ii] == ac_str_extractor.get_types()[ii]
+            assert ac_extractor.coords[ii * 3 + 0] == ac_str_extractor.get_coords()[ii * 3 + 0]
+            assert ac_extractor.coords[ii * 3 + 1] == ac_str_extractor.get_coords()[ii * 3 + 1]
+            assert ac_extractor.coords[ii * 3 + 2] == ac_str_extractor.get_coords()[ii * 3 + 2]
             assert (ac_extractor.magmoms[ii] == ac_str_extractor.get_magmoms()[ii])
 
 
@@ -35,7 +35,7 @@ class TestAtomConfig(PymatgenTest):
     def test_from_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         atom_config = AtomConfig.from_file(filename=filepath, mag=True)
-        assert (Composition("Cr2I6").formula == atom_config.true_names)
+        assert Composition("Cr2I6").formula == atom_config.true_names
         for ii in range(8):
             assert "magmom" in atom_config.structure.sites[ii].properties
 
