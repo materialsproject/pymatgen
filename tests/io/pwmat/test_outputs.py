@@ -38,7 +38,7 @@ class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/OUT.FERMI"
         out_fermi = OutFermi(filepath)
-        assert type(out_fermi.efermi) == float
+        assert isinstance(out_fermi.efermi, float)
 
 
 class TestReport(PymatgenTest):
