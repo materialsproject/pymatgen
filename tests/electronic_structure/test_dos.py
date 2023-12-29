@@ -31,7 +31,7 @@ class TestDos(unittest.TestCase):
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
+        with pytest.raises(ValueError, match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)"):
             self.dos.get_interpolated_value(1000)
 
     def test_get_smeared_densities(self):
@@ -143,7 +143,7 @@ class TestCompleteDos(unittest.TestCase):
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
+        with pytest.raises(ValueError, match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)"):
             self.dos.get_interpolated_value(1000)
 
     def test_as_from_dict(self):
@@ -310,7 +310,7 @@ class TestDOS(PymatgenTest):
 
         assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
+        with pytest.raises(ValueError, match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)"):
             self.dos.get_interpolated_value(1000)
 
         assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
