@@ -375,7 +375,7 @@ class PhononDos(MSONable):
         A peak is any local maximum of the DOS as a function of frequency.
         Use dos.get_interpolated_value(peak_freq) to get density at peak_freq.
 
-        TODO method added by @janosh on 2023-12-18. seems to work well in most cases but
+        TODO method added by @janosh on 2023-12-18. seems to work in most cases but
         was not extensively tested. PRs with improvements welcome!
 
         Args:
@@ -420,15 +420,15 @@ class CompletePhononDos(PhononDos):
             Site is a pymatgen.core.sites.Site object.
     """
 
-    def __init__(self, structure: Structure, total_dos, pdoses: dict) -> None:
+    def __init__(self, structure: Structure, total_dos, ph_doses: dict) -> None:
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoses: The pdoses are supplied as a dict of {Site: Densities}.
+            ph_doses: The phonon DOSes are supplied as a dict of {Site: Densities}.
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = {site: np.array(dens) for site, dens in pdoses.items()}
+        self.pdos = {site: np.array(dens) for site, dens in ph_doses.items()}
         self.structure = structure
 
     def get_site_dos(self, site) -> PhononDos:
@@ -460,11 +460,11 @@ class CompletePhononDos(PhononDos):
     @classmethod
     def from_dict(cls, dct: dict) -> CompletePhononDos:
         """Returns CompleteDos object from dict representation."""
-        tdos = PhononDos.from_dict(dct)
+        total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        pdoss = dict(zip(struct, dct["pdos"]))
+        ph_doses = dict(zip(struct, dct["pdos"]))
 
-        return cls(struct, tdos, pdoss)
+        return cls(struct, total_dos, ph_doses)
 
     def as_dict(self):
         """JSON-serializable dict representation of CompletePhononDos."""
@@ -477,8 +477,8 @@ class CompletePhononDos(PhononDos):
             "pdos": [],
         }
         if len(self.pdos) > 0:
-            for at in self.structure:
-                dct["pdos"].append(list(self.pdos[at]))
+            for site in self.structure:
+                dct["pdos"].append(list(self.pdos[site]))
         return dct
 
     def __str__(self) -> str:
