@@ -1,0 +1,20 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "waitFor": "onCreateCommand",
+    "updateContentCommand": "python3 -m pip install -r requirements.txt",
+    "postCreateCommand": "python3 -m pip install pymatgen",
+    "customizations": {
+      "codespaces": {
+        "openFiles": [
+          ".devcontainer/repro_template.ipynb",
+          ".devcontainer/README.md"
+        ]
+      },
+      "vscode": {
+        "extensions": [
+          "ms-toolsai.jupyter",
+          "ms-python.python"
+        ]
+      }
+    }
+  }
