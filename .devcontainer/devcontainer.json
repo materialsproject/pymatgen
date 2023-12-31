@@ -1,0 +1,24 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "hostRequirements": {
+      "cpus": 4  // configurable up to 16 cores
+    },
+    "waitFor": "onCreateCommand",
+    "updateContentCommand": "python3 -m pip install -r requirements.txt",
+    "postCreateCommand": "python3 -m pip install pymatgen",
+    "customizations": {
+      "codespaces": {
+        "openFiles": [".devcontainer/repro_template.ipynb"]
+      },
+      "vscode": {
+        "extensions": [
+          "ms-toolsai.jupyter",
+          "ms-python.python"
+        ],
+        "settings": {
+          "jupyter.notebookFileRoot": "${workspaceFolder}",
+          "jupyter.defaultKernel": "python3" 
+        }
+      }
+    }
+  }
