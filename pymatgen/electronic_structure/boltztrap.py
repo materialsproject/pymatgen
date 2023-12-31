@@ -1567,7 +1567,7 @@ class BoltztrapAnalyzer:
             analyzer_for_second_spin: must be specified to have a CompleteDos with both Spin components
 
         Returns:
-            a CompleteDos object
+            CompleteDos: from the interpolated projected band structure
 
         Example of use in case of spin polarized case:
 
@@ -1601,18 +1601,15 @@ class BoltztrapAnalyzer:
                 if analyzer_for_second_spin:
                     pdoss[structure[idx]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
         if analyzer_for_second_spin:
-            tdos = Dos(
+            total_dos = Dos(
                 self.dos.efermi,
                 self.dos.energies,
-                {
-                    spin_1: self.dos.densities[spin_1],
-                    spin_2: analyzer_for_second_spin.dos.densities[spin_2],
-                },
+                {spin_1: self.dos.densities[spin_1], spin_2: analyzer_for_second_spin.dos.densities[spin_2]},
             )
         else:
-            tdos = self.dos
+            total_dos = self.dos
 
-        return CompleteDos(structure, total_dos=tdos, pdoss=pdoss)
+        return CompleteDos(structure, total_dos=total_dos, pdoss=pdoss)
 
     def get_mu_bounds(self, temp=300):
         """:param temp: Temperature.
