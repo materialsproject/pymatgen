@@ -14,7 +14,11 @@
         "extensions": [
           "ms-toolsai.jupyter",
           "ms-python.python"
-        ]
+        ],
+        "settings": {
+          "jupyter.notebookFileRoot": "${workspaceFolder}",
+          "jupyter.defaultKernel": "python3"
+        }
       }
     }
   }
