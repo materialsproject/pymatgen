@@ -1,7 +1,7 @@
 {
     "image": "mcr.microsoft.com/devcontainers/universal:2",
     "hostRequirements": {
-      "cpus": 4
+      "cpus": 4  // configurable up to 16 cores
     },
     "waitFor": "onCreateCommand",
     "updateContentCommand": "python3 -m pip install -r requirements.txt",
@@ -17,7 +17,7 @@
         ],
         "settings": {
           "jupyter.notebookFileRoot": "${workspaceFolder}",
-          "jupyter.defaultKernel": "python3"
+          "jupyter.defaultKernel": "python3" 
         }
       }
     }
