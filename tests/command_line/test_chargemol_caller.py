@@ -81,8 +81,9 @@ O       1.20000       0.00000       0.00000      -0.8432"""
 
 def test_parse_chargemol(monkeypatch, mock_xyz):
     monkeypatch.setattr(
-        "pymatgen.command_line.chargemol_caller._download_and_unzip_atomic_densities",
-        fake_download,
+        ChargemolAnalysis,
+        "_download_and_unzip_atomic_densities",
+        lambda self, version, verbose: fake_download(self),
     )
 
     ca = ChargemolAnalysis(path=str(mock_xyz), run_chargemol=False)
@@ -133,8 +134,13 @@ def test_fake_download_and_modify_path(monkeypatch):
 
     # Create an instance of ChargemolAnalysis
     test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
-    ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
+    ca = ChargemolAnalysis(
+        path=test_dir,
+        # atomic_densities_path=os.path.expanduser("~/.cache/pymatgen/ddec"),
+        run_chargemol=False,
+    )
 
     # Your assertions
-    assert ca._atomic_densities_path == "~/.cache/pymatgen/ddec"
+    assert ca._atomic_densities_path == os.getcwd()
+    # assert ca._atomic_densities_path == os.path.expanduser("~/.cache/pymatgen/ddec")
     # TODO: Add more tests to ensure Chargemol was run correctly
