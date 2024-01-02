@@ -25,8 +25,10 @@ class TestTrajectory(PymatgenTest):
         coords = out.data["geometries"]
 
         self.molecules = []
-        for c in coords:
-            mol = Molecule(species, c, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity))
+        for coord in coords:
+            mol = Molecule(
+                species, coord, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity)
+            )
             self.molecules.append(mol)
 
         self.traj_mols = Trajectory(
@@ -468,3 +470,13 @@ class TestTrajectory(PymatgenTest):
         # Load trajectory from written XDATCAR and compare to original
         written_traj = Trajectory.from_file(f"{self.tmp_path}/traj_test_XDATCAR")
         self._check_traj_equality(self.traj, written_traj)
+
+    def test_from_file(self):
+        traj = Trajectory.from_file(f"{TEST_FILES_DIR}/LiMnO2_chgnet_relax.traj")
+        assert isinstance(traj, Trajectory)
+
+        # Check length of the trajectory
+        assert len(traj) == 2
+
+        # Check composition of the first frame of the trajectory
+        assert traj[0].formula == "Li2 Mn2 O4"

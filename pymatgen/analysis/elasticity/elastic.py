@@ -927,8 +927,8 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
         stresses (Nx3x3 array-like): stress matrices
         eq_stress (Nx3x3 array-like): equilibrium stress
         tol (float): tolerance for sorting strain states
-        add_eq (bool): flag for whether to add eq_strain
-            to stress-strain sets for each strain state
+        add_eq (bool): Whether to add eq_strain to stress-strain sets for each strain state.
+            Defaults to True.
         sort (bool): flag for whether to sort strain states
 
     Returns:

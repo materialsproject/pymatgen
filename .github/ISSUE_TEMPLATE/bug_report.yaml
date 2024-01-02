@@ -1,5 +1,6 @@
 name: Report a Bug
 description: Use this template to report a Pymatgen-related bug
+labels: bug
 body:
   - type: input
     id: python-version
@@ -32,7 +33,7 @@ body:
     attributes:
       label: Current behavior
       description: What bad behavior do you see?
-      render: python
+      render: Python
     validations:
       required: true
 
@@ -49,7 +50,7 @@ body:
     attributes:
       label: Minimal example
       description: Please provide a minimal code snippet to reproduce this bug.
-      render: python
+      render: Python
     validations:
       required: false
 
