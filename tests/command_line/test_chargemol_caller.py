@@ -93,6 +93,7 @@ def test_parse_chargemol(monkeypatch, mock_xyz):
 
 
 def fake_download(self, version: str = "latest", verbose: bool = True) -> None:
+    print("fake download")
     extraction_path = "~/.cache/pymatgen/ddec"
     os.makedirs(os.path.expanduser(extraction_path), exist_ok=True)
 
@@ -129,18 +130,17 @@ def test_fake_download_and_modify_path(monkeypatch):
     monkeypatch.setattr(
         ChargemolAnalysis,
         "_download_and_unzip_atomic_densities",
-        lambda self, version, verbose: fake_download(self),
+        lambda self: fake_download(self),
     )
 
     # Create an instance of ChargemolAnalysis
     test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
+
     ca = ChargemolAnalysis(
         path=test_dir,
-        # atomic_densities_path=os.path.expanduser("~/.cache/pymatgen/ddec"),
+        atomic_densities_path="fake_path",  # force _download_and_unzip_atomic_densities to be called
         run_chargemol=False,
     )
 
     # Your assertions
-    assert ca._atomic_densities_path == os.getcwd()
-    # assert ca._atomic_densities_path == os.path.expanduser("~/.cache/pymatgen/ddec")
-    # TODO: Add more tests to ensure Chargemol was run correctly
+    assert ca._atomic_densities_path == os.path.expanduser("~/.cache/pymatgen/ddec")
