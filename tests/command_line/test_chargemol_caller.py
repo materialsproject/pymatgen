@@ -93,7 +93,6 @@ def test_parse_chargemol(monkeypatch, mock_xyz):
 
 
 def fake_download(self, version: str = "latest", verbose: bool = True) -> None:
-    print("fake download")
     extraction_path = "~/.cache/pymatgen/ddec"
     os.makedirs(os.path.expanduser(extraction_path), exist_ok=True)
 
