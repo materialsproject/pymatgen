@@ -12,11 +12,11 @@ class TestMovement(PymatgenTest):
         assert movement.n_ionic_steps == len(movement.chunk_starts)
         assert movement.n_ionic_steps == len(movement.atom_configs)
         assert movement.atom_configs[0].structure.num_sites == movement.atom_configs[0].structure.num_sites
-        assert hasattr(movement.n_ionic_steps[0], "atom_configs")
-        assert hasattr(movement.n_ionic_steps[0], "etot")
-        assert hasattr(movement.n_ionic_steps[0], "fatoms")
-        # assert hasattr(movement.nionic_steps[0], "virial")
-        # assert hasattr(movement.nionic_steps[0], "eatoms")
+        assert "atom_config" in movement.ionic_steps[0]
+        assert "etot" in movement.ionic_steps[0]
+        assert "fatoms" in movement.ionic_steps[0]
+        # assert "virial" in movement.ionic_steps
+        # assert "eatoms" in movement.ionic_steps
         assert hasattr(movement, "atom_configs")
         assert hasattr(movement, "etots")
         assert hasattr(movement, "fatoms")
@@ -50,4 +50,4 @@ class TestDosspin(PymatgenTest):
         dosspin = DosSpin(filepath)
         assert hasattr(dosspin, "dos")
         # assert type(dosspin.dos) == np.ndarray
-        assert hasattr(dosspin, "label")
+        assert hasattr(dosspin, "labels")
