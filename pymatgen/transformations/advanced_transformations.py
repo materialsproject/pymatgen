@@ -2103,7 +2103,8 @@ class SQSTransformation(AbstractTransformation):
             if reduction_algo:
                 dct["structure"] = dct["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
-        if isinstance(return_ranked_list, int):
+        # because bools are subclasses of ints, cannot just check that `returned_ranked_list` is int
+        if isinstance(return_ranked_list, int) and not isinstance(return_ranked_list, bool):
             return to_return[:return_ranked_list]
         return to_return
 

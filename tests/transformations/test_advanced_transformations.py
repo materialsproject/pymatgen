@@ -621,12 +621,30 @@ class TestSQSTransformation(PymatgenTest):
     def test_return_ranked_list(self):
         # list of structures
         pzt_structs2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs2.json")
-        trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struct = self.get_structure("Pb2TiZrO6").copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-        matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
-        assert any(matches)
+
+        # NB: @pytest.mark.parametrize not working here because of unittest dectorator
+        for all_structs in [True, False]:
+            SQS_kwargs = {
+                "scaling": 2,
+                "search_time": 0.01,
+                "instances": 8,
+                "wd": 0,
+            }
+            expected_num_structs = 1
+
+            if all_structs:
+                # when we don't remove structures from the search, should get
+                # return one structure for each instance run
+                SQS_kwargs.update({"best_only": False, "remove_duplicate_structures": False})
+                expected_num_structs = SQS_kwargs["instances"]
+
+            trans = SQSTransformation(**SQS_kwargs)
+            struct = self.get_structure("Pb2TiZrO6").copy()
+            struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+            ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
+            matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
+            assert any(matches)
+            assert len(ranked_list_out) == expected_num_structs
 
     def test_spin(self):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -637,8 +655,8 @@ class TestSQSTransformation(PymatgenTest):
 
         struct_out = trans.apply_transformation(struct)
         struct_out_specie_strings = [site.species_string for site in struct_out]
-        assert "Ti,spin=-5" in struct_out_specie_strings
-        assert "Ti,spin=5" in struct_out_specie_strings
+        assert "Ti0+,spin=-5" in struct_out_specie_strings
+        assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
 class TestCubicSupercellTransformation(PymatgenTest):
