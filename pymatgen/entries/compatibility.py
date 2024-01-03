@@ -206,7 +206,7 @@ class GasCorrection(Correction):
         # set error to 0 because old MPCompatibility doesn't have errors
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
+        if entry.parameters.get("run_type") not in {"GGA", "PBE", "GGA+U", "PBE+U"}:
             return ufloat(0.0, 0.0)
 
         rform = entry.composition.reduced_formula
@@ -253,7 +253,7 @@ class AnionCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
+        if entry.parameters.get("run_type") not in {"GGA", "PBE", "GGA+U", "PBE+U"}:
             return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
@@ -352,7 +352,7 @@ class AqueousCorrection(Correction):
         cpd_energies = self.cpd_energies
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
+        if entry.parameters.get("run_type") not in {"GGA", "PBE", "GGA+U", "PBE+U"}:
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
@@ -465,11 +465,10 @@ class UCorrection(Correction):
         Returns:
             ufloat: Energy correction in eV and uncertainty of the correction in eV.
         """
-        # Only correct GGA or GGA+U entries
-        run_type = entry.parameters.get("run_type")
-        if run_type not in ("GGA", "GGA+U"):
-            warnings.warn(f"Entry {entry.entry_id} has invalid {run_type=}. Applying no corrections.")
-            return ufloat(0.0, 0.0)
+        if entry.parameters.get("run_type") not in {"GGA", "PBE", "GGA+U", "PBE+U"}:
+            raise CompatibilityError(
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
+            )
 
         calc_u = entry.parameters.get("hubbards") or defaultdict(int)
         comp = entry.composition
@@ -477,6 +476,10 @@ class UCorrection(Correction):
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type") not in {"GGA", "PBE", "GGA+U", "PBE+U"}:
+            return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})
         u_settings = self.u_settings.get(most_electroneg, {})
@@ -800,16 +803,13 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
-"""
-Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
-instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
-When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
-require CorrectionsList.
-
-This was particularly helpful for the AqueousCorrection class. The new system gives complete
-flexibility to process entries however needed inside the get_adjustments() method, rather than
-having to create a list of separate correction classes.
-"""
+# Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
+# instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
+# When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
+# require CorrectionsList.
+# This was particularly helpful for the AqueousCorrection class. The new system gives complete
+# flexibility to process entries however needed inside the get_adjustments() method, rather than
+# having to create a list of separate correction classes.
 
 
 @cached_class
@@ -928,7 +928,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         Raises:
             CompatibilityError if the entry is not compatible
         """
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
+        if entry.parameters.get("run_type") not in {"GGA", "PBE", "GGA+U", "PBE+U"}:
             raise CompatibilityError(
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
                 f"Must be GGA or GGA+U. Discarding."
