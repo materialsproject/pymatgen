@@ -2015,7 +2015,7 @@ class SQSTransformation(AbstractTransformation):
             and isinstance(self.instances, int)
             and return_ranked_list > self.instances
         ):
-            raise ValueError("return_ranked_list cannot be less that number of instances")
+            raise ValueError("return_ranked_list cannot be greater than the number of instances")
 
         clusters = self._sqs_cluster_estimate(structure, self.cluster_size_and_shell)
 
