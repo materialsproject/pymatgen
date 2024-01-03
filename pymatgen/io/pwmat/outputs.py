@@ -9,6 +9,7 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
+from pymatgen.core import Structure
 from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
 
 if TYPE_CHECKING:
@@ -68,15 +69,15 @@ class Movement(MSONable):
         return chunk_sizes, chunk_starts
 
     @property
-    def atom_configs(self):
+    def atom_configs(self) -> list[Structure]:
         """
         Returns:
-            atom_configs (List[Structure]): List of Structure objects for the structure at each ionic step.
+            list[Structure]: List of Structure objects for the structure at each ionic step.
         """
         return [step["atom_config"] for _, step in enumerate(self.ionic_steps)]
 
     @property
-    def etots(self):
+    def etots(self) -> np.ndarray:
         """
         Returns:
             np.ndarray: Total energy of structure at each ionic step of shape=(n_ionic_steps,)
@@ -92,7 +93,7 @@ class Movement(MSONable):
         return np.array([step["fatoms"] for _, step in enumerate(self.ionic_steps)])
 
     @property
-    def eatoms(self):
+    def eatoms(self) -> np.ndarray:
         """
         Returns:
             np.ndarray: The individual atomic energy of structure at each ionic step of
@@ -101,7 +102,7 @@ class Movement(MSONable):
         return np.array([step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)])
 
     @property
-    def virials(self):
+    def virials(self) -> np.ndarray:
         """
         Returns:
             np.ndarray: The virial tensor of structure at each ionic step of
@@ -146,7 +147,7 @@ class OutFermi(MSONable):
     def efermi(self) -> float:
         """
         Returns:
-            efermi (float): Fermi energy level.
+            float: Fermi energy level.
         """
         return self._efermi
 
@@ -233,7 +234,7 @@ class Report(MSONable):
         return kpts, kpts_weight, hsps
 
     @property
-    def spin(self):
+    def spin(self) -> int:
         """
         Returns:
             int: 1 represents turn on spin, 2 represents turn down spin.
@@ -241,17 +242,17 @@ class Report(MSONable):
         return self._spin
 
     @property
-    def nkpoints(self):
+    def nkpoints(self) -> int:
         """Returns the number of k-points."""
         return self._num_kpts
 
     @property
-    def nbands(self):
+    def nbands(self) -> int:
         """Returns the number of bands."""
         return self._num_bands
 
     @property
-    def eigenvalues(self):
+    def eigenvalues(self) -> np.ndarray:
         """
         Returns:
             np.ndarray: The first index represents spin, the second index
@@ -260,7 +261,7 @@ class Report(MSONable):
         return self._eigenvalues
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> np.ndarray:
         """
         Returns:
             np.ndarray: The fractional coordinates of kpoints.
@@ -268,7 +269,7 @@ class Report(MSONable):
         return self._kpts
 
     @property
-    def kpoints_weight(self):
+    def kpoints_weight(self) -> np.ndarray:
         """
         Returns:
             np.ndarray: The weight of kpoints.
@@ -276,7 +277,7 @@ class Report(MSONable):
         return self._kpts_weight
 
     @property
-    def hsps(self):
+    def hsps(self) -> dict[str, np.ndarray]:
         """
         Returns:
             dict[str, np.ndarray]: The label and fractional coordinate of
