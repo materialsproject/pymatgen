@@ -49,7 +49,7 @@ class ListLocator(MSONable):
             content (str): Contents that needs to be located.
         """
         str_idxs: list[int] = []  # starts from 0 to be compatible with list
-        str_no = -1
+        str_no: int = -1
         for tmp_str in strs_lst:
             str_no += 1
             if content.upper() in tmp_str.upper():
@@ -118,11 +118,10 @@ class ACExtractor(ACExtractorBase):
 
         return np.array(basis_vectors)
 
-    def get_types(self):
+    def get_types(self) -> np.ndarray:
         """
         Returns:
-            atomic_numbers : np.ndarray
-                Atomic numbers in order corresponding to sites
+            np.ndarray: Atomic numbers in order corresponding to sites
         """
         content = "POSITION"
         idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
@@ -132,11 +131,10 @@ class ACExtractor(ACExtractorBase):
         atomic_numbers_lst = [int(row.split()[0]) for row in atomic_numbers_content]  # convert str to int
         return np.array(atomic_numbers_lst)
 
-    def get_coords(self):
+    def get_coords(self) -> np.ndarray:
         """
         Returns:
-            coords: np.ndarray
-                Fractional coordinates.
+            np.ndarray: Fractional coordinates.
         """
         coords_lst: list[float] = []
         content: str = "POSITION"
@@ -154,7 +152,11 @@ class ACExtractor(ACExtractorBase):
             coords_lst.append(np.array(coord_tmp))
         return np.array(coords_lst).reshape(-1)
 
-    def get_magmoms(self):
+    def get_magmoms(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: The magnetic moments of individual atoms.
+        """
         content = "MAGNETIC"
         magnetic_moments_lst = []
         try:  # Error: not containing magmoms info.
@@ -183,13 +185,17 @@ class ACstrExtractor(ACExtractorBase):
         self.strs_lst = self.atom_config_str.split("\n")
         self.num_atoms = self.get_n_atoms()
 
-    def get_n_atoms(self):
+    def get_n_atoms(self) -> int:
+        """
+        Returns:
+            int: The number of atoms
+        """
         return int(self.strs_lst[0].split()[0].strip())
 
     def get_lattice(self):
         """
         Returns:
-            lattice: np.ndarray, shape=(9,)
+            np.ndarray: Lattice basis vectors of shape=(9,)
         """
         basis_vectors_lst = []
         aim_content = "LATTICE"
@@ -201,10 +207,10 @@ class ACstrExtractor(ACExtractorBase):
                 basis_vectors_lst.append(float(tmp_str))  # convert str to float
         return np.array(basis_vectors_lst)
 
-    def get_types(self):
+    def get_types(self) -> np.ndarray:
         """
         Returns:
-            types: np.ndarray
+            np.ndarray: Types of elements.
         """
         aim_content = "POSITION"
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
@@ -212,10 +218,10 @@ class ACstrExtractor(ACExtractorBase):
         atomic_numbers_lst = [int(entry.split()[0]) for entry in strs_lst]
         return np.array(atomic_numbers_lst)
 
-    def get_coords(self):
+    def get_coords(self) -> np.ndarray:
         """
         Returns:
-            coords: np.ndarray, shape=(num_atoms*3, )
+            np.ndarray: Fractional coordinates of atoms of shape=(num_atoms*3,)
         """
         coords_lst = []
         aim_content = "POSITION"
@@ -227,10 +233,10 @@ class ACstrExtractor(ACExtractorBase):
             coords_lst.append(tmp_coord)
         return np.array(coords_lst).reshape(-1)
 
-    def get_magmoms(self):
+    def get_magmoms(self) -> np.ndarray:
         """
         Returns:
-            magmoms: np.ndarray
+            np.ndarray: Atomic magnetic moments.
         """
         magnetic_moments_lst = []
         aim_content = "MAGNETIC"
@@ -245,24 +251,28 @@ class ACstrExtractor(ACExtractorBase):
             ]
         return np.array(magnetic_moments_lst)
 
-    def get_etot(self):
+    def get_etot(self) -> np.ndarray:
         """
-        [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01',
-        ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02',
-        ' SCF =     7']
+        Returns:
+            np.ndarray: The total energy of the material system.
         """
+        # strs_lst:
+        #   [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01',
+        #    ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02',
+        #    ' SCF =     7']
         strs_lst = self.strs_lst[0].split(",")
         aim_index = ListLocator.locate_all_lines(strs_lst=strs_lst, content="EK (EV) =")[0]
         # strs_lst[aim_index].split() :
         #   ['Ek', '(eV)', '=', '-0.2831881714E+05', '-0.2836665392E+05', '0.4783678177E+02']
         return np.array([float(strs_lst[aim_index].split()[3].strip())])
 
-    def get_eatoms(self):
+    def get_eatoms(self) -> np.ndarray | None:
         """
+        Returns:
+            np.ndarray | None : The energies of individual atoms within the system.
+            
         Description:
             When turn on `ENERGY DEPOSITION`, PWmat will output energy per atom.
-        Returns:
-            eatoms: np.ndarray | None
         """
         eatoms_lst = []
         aim_content = "Atomic-Energy, ".upper()
@@ -281,7 +291,7 @@ class ACstrExtractor(ACExtractorBase):
     def get_fatoms(self) -> np.ndarray:
         """
         Returns:
-            np.ndarray: shape=(num_atoms*3,)
+            np.ndarray: Forces acting on individual atoms of shape=(num_atoms*3,)
         """
         forces_lst = []
         aim_content = "Force".upper()
@@ -325,16 +335,17 @@ class ACstrExtractor(ACExtractorBase):
 
 
 class AtomConfig(MSONable):
+    """Object for representing the data in a atom.config or final.config file."""
     def __init__(self, structure: Structure, sort_structure: bool = False):
         """
         Args:
             structure (Structure): Structure object
-            sort_structure (Optional[bool]): Whether to sort the structure. Useful if species
+            sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
         self.structure: Structure = structure
         if sort_structure:
-            pass
+            self.structure = self.structure.get_sorted_structure()
         elements_counter = dict(sorted(Counter(self.structure.species).items()))
         true_names = [f"{tmp_key}{tmp_value}" for (tmp_key, tmp_value) in elements_counter.items()]
         self.true_names = "".join(true_names)
@@ -347,8 +358,7 @@ class AtomConfig(MSONable):
 
     @classmethod
     def from_str(cls, data: str, mag: bool = True):
-        """
-        Reads a atom.config from a string
+        """Reads a atom.config from a string
 
         Args:
             data: string containing atom.config data
@@ -374,6 +384,15 @@ class AtomConfig(MSONable):
 
     @classmethod
     def from_file(cls, filename: str, mag: bool = True) -> AtomConfig:
+        """Reads a AtomConfig from a file
+
+        Args:
+            filename (str): File name containing AtomConfig data
+            mag (bool, optional): Whether to read magnetic moments. Defaults to True.
+
+        Returns:
+            AtomConfig object.
+        """
         with zopen(filename, "rt") as file:
             return cls.from_str(data=file.read(), mag=mag)
 
@@ -385,7 +404,7 @@ class AtomConfig(MSONable):
         """
         return cls(Structure.from_dict(dct["structure"]))
 
-    def get_str(self):
+    def get_str(self) -> str:
         """
         Returns:
             String representation of atom.config
@@ -416,6 +435,7 @@ class AtomConfig(MSONable):
         return "".join(lines)
 
     def write_file(self, filename: PathLike, **kwargs):
+        """Writes AtomConfig to a file."""
         with zopen(filename, "wt") as f:
             f.write(self.get_str(**kwargs))
 
@@ -433,30 +453,18 @@ class AtomConfig(MSONable):
 
 
 class GenKpt(MSONable):
-    """_summary_
-    Descriptions:
-        gen.kpt reader/writer. This file just generate line-mode kpoints.
-
-    Args:
-        reciprocal_lattice: np.array
-            With factor of 2*pi
-        kpoints (dict[str, np.array]) :
-            e.g. {'\\Gamma': array([0., 0., 0.]), 'A': array([0. , 0. , 0.5]),
-                  'H': array([0.33333333, 0.33333333, 0.5       ]),
-                  'K': array([0.33333333, 0.33333333, 0.        ]),
-                  'L': array([0.5, 0. , 0.5]), 'M': array([0.5, 0. , 0. ])}
-        kpath (list[list[str]]) :
-            e.g. [['\\Gamma', 'M', 'K', '\\Gamma', 'A', 'L', 'H', 'A'],
-                  ['L', 'M'], ['K', 'H']]
-        density (float). With factor of 2*pi.
-
-    Author: Hanyu Liu
-    Email: domainofbuaa@gmail.com
-    """
+    """GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints."""
 
     def __init__(
         self, reciprocal_lattice: np.array, kpoints: dict[str, np.array], path: list[list[str]], density: float = 0.01
     ):
+        """
+        Args:
+            reciprocal_lattice (np.array): Reciprocal lattice with factor of 2*pi
+            kpoints (dict[str, np.array]): Kpoints and their corresponding fractional coordinates.
+            kpath (list[list[str]]): All kpaths, with each list representing one kpath.
+            density (float): The density of kpoints mesh with factor of 2*pi.
+        """
         self._reciprocal_lattice: np.array = reciprocal_lattice
         self._kpath: dict = {}
         self._kpath.update({"kpoints": kpoints})
@@ -467,9 +475,10 @@ class GenKpt(MSONable):
     def from_structure(structure: Structure, dim: int, density: float = 0.01):
         """
         Args:
-            strutcure (Structure):
+            strutcure (Structure)
             dim (int): The dimension of material (2 or 3).
-            density: without factor with 2*pi. program will automatically convert it with 2*pi.
+            density (float): Kpoints mesh without factor with 2*pi. Program will 
+                automatically convert it with 2*pi.
         """
         kpath_set = KPathSeek(structure)
         if dim == 2:
@@ -495,6 +504,7 @@ class GenKpt(MSONable):
         return GenKpt(rec_lattice, kpts, path, density * 2 * np.pi)
 
     def get_str(self):
+        """Returns a string to be written as a gen.kpt file."""
         def calc_distance(hsp1: str, hsp2: str):
             """_summary_
             Returns:
@@ -529,25 +539,22 @@ class GenKpt(MSONable):
         return genkpt_str
 
     def write_file(self, filename: str):
+        """Writes gen.kpt to a file."""
         with zopen(filename, "wt") as f:
             f.write(self.get_str())
 
 
 class HighSymmetryPoint(MSONable):
-    """
-    Descriptions:
-        HIGH_SYMMETRY_POINTS file reader/writer. This file just generate line-mode kpoints.
-
-    Args:
-        kpts (dict[str, list[float]])
-        path (list[list[str]])
-
-
-    Author: Hanyu Liu
-    Email: domainofbuaa@gmail.com
-    """
+    """HighSymmetryPoint object for reading and writing HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
 
     def __init__(self, reciprocal_lattice: np.array, kpts: dict[str, list], path: list[list[str]], density: float):
+        """
+        Args:
+            reciprocal_lattice (np.array): Reciprocal lattice.
+            kpts (dict[str, list[float]]): Kpoints and their corresponding fractional coordinates.
+            path (list[list[str]]): All k-paths, with each list representing one k-path.
+            density (float): Density of kpoints mesh with factor of 2*pi.
+        """
         self._reciprocal_lattice: np.array = reciprocal_lattice
         self._kpath: dict = {}
         self._kpath.update({"kpoints": kpts})
@@ -556,6 +563,13 @@ class HighSymmetryPoint(MSONable):
 
     @staticmethod
     def from_structure(structure: Structure, dim: int, density: float = 0.01):
+        """_summary_
+
+        Args:
+            structure (Structure)
+            dim (int): Dimension of material, 2 or 3.
+            density (float, optional): Density of kpoints mesh without factor of 2*pi.. Defaults to 0.01.
+        """
         reciprocal_lattice: np.array = structure.lattice.reciprocal_lattice.matrix
         gen_kpt = GenKpt.from_structure(structure=structure, dim=dim, density=density)
         return HighSymmetryPoint(
@@ -563,6 +577,7 @@ class HighSymmetryPoint(MSONable):
         )
 
     def get_str(self):
+        """Returns a string representation of the HIGH_SYMMETRY_POINTS."""
         def calc_distance(hsp1: str, hsp2: str):
             """
             Returns:
@@ -602,5 +617,6 @@ class HighSymmetryPoint(MSONable):
         return hsp_str
 
     def write_file(self, filename: str):
+        """Write HighSymmetryPoint to a file."""
         with zopen(filename, "wt") as f:
             f.write(self.get_str())

@@ -21,10 +21,19 @@ __date__ = "2023-12-28"
 
 
 class Movement(MSONable):
+    """Parser for data in MOVEMENT which records trajectory during MD."""
     def __init__(self, filename: PathLike, ionic_step_skip: int | None = None, ionic_step_offset: int | None = None):
         """
-        Description:
-            Extract information from MOVEMENT file which records trajectory during MD.
+
+        Args:
+            filename (PathLike): The path of MOVEMENT
+            ionic_step_skip (int | None, optional): If ionic_step_skip is a number > 1,
+                only every ionic_step_skip ionic steps will be read for
+                structure and energies. This is very useful if you are parsing
+                very large MOVEMENT files. Defaults to None.
+            ionic_step_offset (int | None, optional): Used together with ionic_step_skip. 
+                If set, the first ionic step read will be offset by the amount of
+                ionic_step_offset. Defaults to None.
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
@@ -39,15 +48,12 @@ class Movement(MSONable):
             self.ionic_steps = self.ionic_steps[self.ionic_step_offset :: self.ionic_step_skip]
 
     def _get_chunk_info(self):
-        """
-        Description:
-            Split MOVEMENT into many chunks, so that process it chunk by chunk.
-            Chunk contains the row of "--------------------------------------" .
-
+        """Split MOVEMENT into many chunks, so that program process it chunk by chunk.
+        
         Returns:
             Tuple[List[int], List[int]]
-                chunksizes: List[int]
-                chunkstarts: List[int]
+                chunk_sizes (List[int]): The number of lines occupied by structural information in each step.
+                chunk_starts (List[int]): The starting line number for structural information in each step.
         """
         chunk_sizes: list[int] = []
         row_idxs: list[int] = LineLocator.locate_all_lines(self.filename, self.split_mark)
@@ -64,7 +70,7 @@ class Movement(MSONable):
     def atom_configs(self):
         """
         Returns:
-            atom_configs: List[Structure]
+            atom_configs (List[Structure]): List of Structure objects for the structure at each ionic step.
         """
         return [step["atom_config"] for _, step in enumerate(self.ionic_steps)]
 
@@ -72,7 +78,7 @@ class Movement(MSONable):
     def etots(self):
         """
         Returns:
-            etots: np.ndarray
+            np.ndarray: Total energy of structure at each ionic step of shape=(n_ionic_steps,)
         """
         return np.array([step["etot"] for _, step in enumerate(self.ionic_steps)])
 
@@ -80,7 +86,7 @@ class Movement(MSONable):
     def fatoms(self):
         """
         Returns:
-            fatoms: np.ndarray
+            np.ndarray: The atomic forces of structure at each ionic step of shape=(n_ionic_steps, n_atoms, 3)
         """
         return np.array([step["fatoms"] for _, step in enumerate(self.ionic_steps)])
 
@@ -88,15 +94,21 @@ class Movement(MSONable):
     def eatoms(self):
         """
         Returns:
-            eatoms: np.ndarray
+            np.ndarray: The individual atomic energy of structure at each ionic step of 
+                shape=(n_ionic_steps, n_atoms)
         """
         return np.array([step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)])
 
     @property
     def virials(self):
+        """
+        Returns:
+            np.ndarray: The virial tensor of structure at each ionic step of 
+                shape=(n_ionic_steps, 3, 3)
+        """
         return np.array([step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" in step)])
 
-    def _parse_sefv(self):
+    def _parse_sefv(self) -> list[dict]:
         ionic_steps: list[dict] = []
         with zopen(self.filename, "rt") as mvt:
             tmp_step: dict = {}
@@ -131,6 +143,10 @@ class OutFermi(MSONable):
 
     @property
     def efermi(self) -> float:
+        """
+        Returns:
+            efermi (float): Fermi energy level.
+        """
         return self._efermi
 
 
@@ -144,15 +160,14 @@ class Report(MSONable):
         self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
 
     def _parse_band(self):
-        """_summary_
-
-
+        """
+        
         Returns:
-            spin: int, Whether turn on spin or not.
-                1 : turn down the spin
-                2 : turn on the spin
-            num_kpts: int, The number of kpoints.
-            num_bands: int, The number of bands.
+            spin (int): Whether turn on spin or not.
+                1: turn down the spin
+                2: turn on the spin
+            num_kpts (int): The number of kpoints.
+            num_bands (int): The number of bands.
         """
         content = "SPIN"
         row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
@@ -167,12 +182,12 @@ class Report(MSONable):
         num_bands = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
         return spin, num_kpts, num_bands
 
-    def _parse_eigen(self):
+    def _parse_eigen(self) -> np.ndarray:
         """
+        
         Return:
-            eigenvales: np.array
-                shape = (1 or 2, self.num_kpts, self.num_bands)
-                Note : first index is kpoints, second index is band.
+            np.array: Eignvalues. The first index represents spin, the second index 
+                represents kpoints, the third index represents band.
         """
         num_rows: int = int(np.ceil(self._num_bands / 5))
         content: str = "eigen energies, in eV"
@@ -193,9 +208,9 @@ class Report(MSONable):
     def _parse_kpt(self):
         """
         Returns:
-            kpts: np.array, The fractional coordinates of KPoints
-            kpts_weight: np.array, The weight of KPoints
-            hsps: dict[str, np.array], The name and coordinates of high symmetric points
+            kpts (np.array):  The fractional coordinates of KPoints
+            kpts_weight (np.array): The weight of KPoints
+            hsps (dict[str, np.array]): The name and coordinates of high symmetric points
         """
         num_rows: int = int(self._num_kpts)
         content: str = "total number of K-point:"
@@ -218,30 +233,55 @@ class Report(MSONable):
 
     @property
     def spin(self):
+        """
+        Returns:
+            int: 1 represents turn on spin, 2 represents turn down spin.
+        """
         return self._spin
 
     @property
-    def num_kpts(self):
+    def nkpoints(self):
+        """Returns the number of k-points."""
         return self._num_kpts
 
     @property
-    def num_bands(self):
+    def nbands(self):
+        """Returns the number of bands."""
         return self._num_bands
 
     @property
     def eigenvalues(self):
+        """
+        Returns:
+            np.ndarray: The first index represents spin, the second index 
+                represents kpoint, the third index represents band.
+        """
         return self._eigenvalues
 
     @property
-    def kpts(self):
+    def kpoints(self):
+        """
+        Returns:
+            np.ndarray: The fractional coordinates of kpoints.
+        """
         return self._kpts
 
     @property
-    def kpts_weight(self):
+    def kpoints_weight(self):
+        """
+        Returns:
+            np.ndarray: The weight of kpoints.
+        """
         return self._kpts_weight
 
     @property
     def hsps(self):
+        """
+        Returns:
+            dict[str, np.ndarray]: The label and fractional coordinate of 
+                high symmetry points. Return empty dict when task is not 
+                line-mode kpath.
+        """
         return self._hsps
 
 
@@ -259,8 +299,8 @@ class DosSpin(MSONable):
     def _parse(self):
         """
         Returns:
-            labels: list[str], The label of DOS, e.g. Total, Cr-3S, ...
-            dos: np.array
+            labels (list[str]): The label of DOS, e.g. Total, Cr-3S, ...
+            dos (np.array): Value of density of state.
         """
         labels: list[str] = []
         labels = linecache.getline(self.filename, 1).split()[1:]
@@ -272,23 +312,23 @@ class DosSpin(MSONable):
         return labels, dos
 
     @property
-    def labels(self):
+    def labels(self) -> list[str]:
+        """Returns the name of the partial density of states"""
         return self._labels
 
     @property
-    def dos(self):
+    def dos(self) -> np.ndarray:
+        """Returns value of density of state."""
         return self._dos
 
-    def get_partial_dos(self, part: str):
-        """
-        Description:
-            Get partial dos for give element or orbital.
+    def get_partial_dos(self, part: str) -> np.ndarray:
+        """Get partial dos for give element or orbital.
 
         Args:
-            part: str,
+            part (str): The name of partial dos.
                 e.g. 'Energy', 'Total', 'Cr-3S', 'Cr-3P',
-                     'Cr-4S', 'Cr-3D', 'I-4D', 'I-5S', 'I-5P'
-                e.g. 'Energy', 'Total', 'Cr-3S', 'Cr-3Pz',
+                     'Cr-4S', 'Cr-3D', 'I-4D', 'I-5S', 'I-5P',
+                     'Cr-3S', 'Cr-3Pz',
                      'Cr-3Px', 'Cr-3Py', 'Cr-4S', 'Cr-3Dz2',
                      'Cr-3Dxz', 'Cr-3Dyz', 'Cr-3D(x^2-y^2)',
                      'Cr-3Dxy', 'I-4Dz2', 'I-4Dxz', 'I-4Dyz',
