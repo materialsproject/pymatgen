@@ -270,7 +270,7 @@ class ACstrExtractor(ACExtractorBase):
         """
         Returns:
             np.ndarray | None : The energies of individual atoms within the system.
-            
+
         Description:
             When turn on `ENERGY DEPOSITION`, PWmat will output energy per atom.
         """
@@ -336,6 +336,7 @@ class ACstrExtractor(ACExtractorBase):
 
 class AtomConfig(MSONable):
     """Object for representing the data in a atom.config or final.config file."""
+
     def __init__(self, structure: Structure, sort_structure: bool = False):
         """
         Args:
@@ -477,7 +478,7 @@ class GenKpt(MSONable):
         Args:
             strutcure (Structure)
             dim (int): The dimension of material (2 or 3).
-            density (float): Kpoints mesh without factor with 2*pi. Program will 
+            density (float): Kpoints mesh without factor with 2*pi. Program will
                 automatically convert it with 2*pi.
         """
         kpath_set = KPathSeek(structure)
@@ -505,6 +506,7 @@ class GenKpt(MSONable):
 
     def get_str(self):
         """Returns a string to be written as a gen.kpt file."""
+
         def calc_distance(hsp1: str, hsp2: str):
             """_summary_
             Returns:
@@ -578,6 +580,7 @@ class HighSymmetryPoint(MSONable):
 
     def get_str(self):
         """Returns a string representation of the HIGH_SYMMETRY_POINTS."""
+
         def calc_distance(hsp1: str, hsp2: str):
             """
             Returns:

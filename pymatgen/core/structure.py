@@ -2746,7 +2746,7 @@ class IStructure(SiteCollection, MSONable):
             return res_str
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
             from pymatgen.io.pwmat import AtomConfig
-            
+
             writer = AtomConfig(self, **kwargs)
         else:
             if fmt == "":
