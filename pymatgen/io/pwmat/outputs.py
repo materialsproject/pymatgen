@@ -22,6 +22,7 @@ __date__ = "2023-12-28"
 
 class Movement(MSONable):
     """Parser for data in MOVEMENT which records trajectory during MD."""
+
     def __init__(self, filename: PathLike, ionic_step_skip: int | None = None, ionic_step_offset: int | None = None):
         """
 
@@ -31,7 +32,7 @@ class Movement(MSONable):
                 only every ionic_step_skip ionic steps will be read for
                 structure and energies. This is very useful if you are parsing
                 very large MOVEMENT files. Defaults to None.
-            ionic_step_offset (int | None, optional): Used together with ionic_step_skip. 
+            ionic_step_offset (int | None, optional): Used together with ionic_step_skip.
                 If set, the first ionic step read will be offset by the amount of
                 ionic_step_offset. Defaults to None.
         """
@@ -49,7 +50,7 @@ class Movement(MSONable):
 
     def _get_chunk_info(self):
         """Split MOVEMENT into many chunks, so that program process it chunk by chunk.
-        
+
         Returns:
             Tuple[List[int], List[int]]
                 chunk_sizes (List[int]): The number of lines occupied by structural information in each step.
@@ -94,7 +95,7 @@ class Movement(MSONable):
     def eatoms(self):
         """
         Returns:
-            np.ndarray: The individual atomic energy of structure at each ionic step of 
+            np.ndarray: The individual atomic energy of structure at each ionic step of
                 shape=(n_ionic_steps, n_atoms)
         """
         return np.array([step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)])
@@ -103,7 +104,7 @@ class Movement(MSONable):
     def virials(self):
         """
         Returns:
-            np.ndarray: The virial tensor of structure at each ionic step of 
+            np.ndarray: The virial tensor of structure at each ionic step of
                 shape=(n_ionic_steps, 3, 3)
         """
         return np.array([step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" in step)])
@@ -161,7 +162,7 @@ class Report(MSONable):
 
     def _parse_band(self):
         """
-        
+
         Returns:
             spin (int): Whether turn on spin or not.
                 1: turn down the spin
@@ -184,9 +185,9 @@ class Report(MSONable):
 
     def _parse_eigen(self) -> np.ndarray:
         """
-        
+
         Return:
-            np.array: Eignvalues. The first index represents spin, the second index 
+            np.array: Eignvalues. The first index represents spin, the second index
                 represents kpoints, the third index represents band.
         """
         num_rows: int = int(np.ceil(self._num_bands / 5))
@@ -253,7 +254,7 @@ class Report(MSONable):
     def eigenvalues(self):
         """
         Returns:
-            np.ndarray: The first index represents spin, the second index 
+            np.ndarray: The first index represents spin, the second index
                 represents kpoint, the third index represents band.
         """
         return self._eigenvalues
@@ -278,8 +279,8 @@ class Report(MSONable):
     def hsps(self):
         """
         Returns:
-            dict[str, np.ndarray]: The label and fractional coordinate of 
-                high symmetry points. Return empty dict when task is not 
+            dict[str, np.ndarray]: The label and fractional coordinate of
+                high symmetry points. Return empty dict when task is not
                 line-mode kpath.
         """
         return self._hsps
