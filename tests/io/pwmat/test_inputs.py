@@ -35,7 +35,7 @@ class TestAtomConfig(PymatgenTest):
     def test_from_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         atom_config = AtomConfig.from_file(filename=filepath, mag=True)
-        #assert Composition("Cr2I6").formula == atom_config.true_names
+        # assert Composition("Cr2I6").formula == atom_config.true_names
         for ii in range(8):
             assert "magmom" in atom_config.structure.sites[ii].properties
 
