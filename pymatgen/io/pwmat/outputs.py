@@ -9,10 +9,10 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core import Structure
 from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
 
 if TYPE_CHECKING:
+    from pymatgen.core import Structure
     from pymatgen.util.typing import PathLike
 
 
