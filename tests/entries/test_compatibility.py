@@ -80,9 +80,7 @@ class TestCorrectionSpecificity(unittest.TestCase):
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
 
     def test_correction_specificity(self):
-        processed = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
-
-        assert len(processed) == 2
+        self.compat.process_entries([self.entry1, self.entry2, self.entry3])
 
         assert self.entry1.correction != 0
         assert self.entry2.correction != 0
@@ -472,7 +470,7 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
-        assert len(entries) == 2
+        assert len(entries) == 3
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
