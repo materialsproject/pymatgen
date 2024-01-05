@@ -2015,7 +2015,7 @@ class SQSTransformation(AbstractTransformation):
             and isinstance(self.instances, int)
             and return_ranked_list > self.instances
         ):
-            raise ValueError("return_ranked_list cannot be greater than the number of instances")
+            raise ValueError(f"{return_ranked_list=} cannot be greater than {self.instances=}")
 
         clusters = self._sqs_cluster_estimate(structure, self.cluster_size_and_shell)
 
@@ -2103,7 +2103,7 @@ class SQSTransformation(AbstractTransformation):
             if reduction_algo:
                 dct["structure"] = dct["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
-        # because bools are subclasses of ints, cannot just check that `returned_ranked_list` is int
+        # because bools are subclasses of ints, cannot just check that returned_ranked_list is int
         if isinstance(return_ranked_list, int) and not isinstance(return_ranked_list, bool):
             return to_return[:return_ranked_list]
         return to_return
