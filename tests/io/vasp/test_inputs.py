@@ -427,6 +427,19 @@ direct
             [False, False, False],
         ]
 
+    def test_new_format(self):
+        # As of vasp 6.4.2, when using POTCARs with SHAs, there can
+        # be a slash in the element names
+        # Test that Poscar works for these too
+        poscar_str = ""
+        with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as f:
+            for iline, line in enumerate(f):
+                if iline == 5:
+                    line = " ".join([x + "/" for x in line.split()]) + "\n"
+                poscar_str += line
+        poscar = Poscar.from_str(poscar_str)
+        assert {x.name for x in poscar.structure.composition} == {"Li", "Fe", "P", "O"}
+
 
 class TestIncar(PymatgenTest):
     def setUp(self):

@@ -18,7 +18,7 @@ class ElementTestCase(PymatgenTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
-        fictional_symbols = ["D", "T", "Zebra"]
+        fictional_symbols = ["Dolphin", "Tyrannosaurus", "Zebra"]
 
         for sym in fictional_symbols:
             with pytest.raises(ValueError, match=f"{sym!r} is not a valid Element"):
@@ -357,6 +357,13 @@ class ElementTestCase(PymatgenTest):
 
     def test_is(self):
         assert Element("Bi").is_post_transition_metal, True
+
+    def test_isotope(self):
+        elements = [Element(x) for x in ("H", "D", "T")]
+        assert all(x.symbol == "H" for x in elements)
+        assert all(str(x) == "H" for x in elements)
+        assert [x.A for x in elements] == [1, 2, 3]
+        assert all(abs(x.atomic_mass - i - 1) < 0.1 for i, x in enumerate(elements))
 
 
 class SpeciesTestCase(PymatgenTest):

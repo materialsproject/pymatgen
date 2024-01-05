@@ -343,7 +343,7 @@ class Poscar(MSONable):
             ipos = 6
         except ValueError:
             vasp5_symbols = True
-            symbols = lines[5].split()
+            symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
 
             """
             Atoms and number of atoms in POSCAR written with vasp appear on

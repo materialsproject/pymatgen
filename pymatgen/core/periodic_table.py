@@ -54,6 +54,7 @@ class ElementBase(Enum):
             Z (int): Atomic number.
             symbol (str): Element symbol.
             long_name (str): Long name for element. E.g., "Hydrogen".
+            A (int) : Atomic mass number (number of protons plus number of neutrons).
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
                 Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
@@ -101,12 +102,26 @@ class ElementBase(Enum):
         # Store key variables for quick access
         self.Z = data["Atomic no"]
 
+        self._is_named_isotope = data.get("Is named isotope", False)
+        if self._is_named_isotope:
+            for sym in _pt_data:
+                if _pt_data[sym]["Atomic no"] == self.Z and not _pt_data[sym].get("Is named isotope", False):
+                    self.symbol = sym
+                    break
+
         at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, "ang")
         self._atomic_mass = Mass(data["Atomic mass"], "amu")
+
+        self._atomic_mass_number = None
+        self.A = None
+        if data.get("Atomic mass no"):
+            self.A = data.get("Atomic mass no")
+            self._atomic_mass_number = Mass(data["Atomic mass no"], "amu")
+
         self.long_name = data["Name"]
         self._data = data
 
@@ -139,6 +154,14 @@ class ElementBase(Enum):
             float: The atomic mass of the element in amu.
         """
         return self._atomic_mass
+
+    @property
+    def atomic_mass_number(self) -> FloatWithUnit | None:
+        """
+        Returns:
+            float: The atomic mass of the element in amu.
+        """
+        return self._atomic_mass_number
 
     def __getattr__(self, item: str) -> Any:
         """Key access to available element data.
@@ -454,7 +477,7 @@ class ElementBase(Enum):
         return J_sorted_terms[-1][0]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z
+        return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
 
     def __hash__(self) -> int:
         return self.Z
@@ -482,17 +505,19 @@ class ElementBase(Enum):
         return self.symbol < other.symbol
 
     @staticmethod
-    def from_Z(Z: int) -> Element:
+    def from_Z(Z: int, A: int | None = None) -> Element:
         """Get an element from an atomic number.
 
         Args:
-            Z (int): Atomic number
+            Z (int): Atomic number (number of protons)
+            A (int or None) : Atomic mass number (number of protons + neutrons)
 
         Returns:
             Element with atomic number Z.
         """
         for sym, data in _pt_data.items():
-            if data["Atomic no"] == Z:
+            amn = data.get("Atomic mass no") if A else None
+            if data["Atomic no"] == Z and amn == A:
                 return Element(sym)
         raise ValueError(f"Unexpected atomic number {Z=}")
 
@@ -506,6 +531,9 @@ class ElementBase(Enum):
         Returns:
             Element with the name 'name'
         """
+        # to accommodate the British Enlgish speaking world
+        GBE_to_AmE = {"aluminium": "aluminum", "caesium": "cesium"}
+        name = GBE_to_AmE.get(name.lower(), name)
         for sym, data in _pt_data.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
@@ -765,6 +793,8 @@ class Element(ElementBase):
     # necessary to preserve backwards compatibility with a time when Element is
     # a regular object that is constructed with Element(symbol).
     H = "H"
+    D = "D"
+    T = "T"
     He = "He"
     Li = "Li"
     Be = "Be"
@@ -1407,6 +1437,8 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             that can be determined.
     """
     if isinstance(obj, (Element, Species, DummySpecies)):
+        if hasattr(obj, "_is_named_isotope") and obj._is_named_isotope:
+            return Element(obj.name) if isinstance(obj, Element) else Species(obj.name)
         return obj
 
     try:

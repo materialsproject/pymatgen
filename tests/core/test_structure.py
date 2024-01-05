@@ -1745,6 +1745,28 @@ Sites (8)
         assert len(atoms) == len(self.struct)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
 
+    def test_struct_with_isotope(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = struct.replace_species({"Li": "H"})
+
+        # generate copy of structure with Deuterium replacing Hydrogen
+        # can't simply do Structure.replace_species
+        # because Deuterium maps onto Hydrogen, yields no replacement
+        struct_d = struct.as_dict()
+        for isite, site in enumerate(struct_d["sites"]):
+            struct_d["sites"][isite]["species"][0]["element"] = site["species"][0]["element"].replace("H", "D")
+            struct_d["sites"][isite]["label"] = site["label"].replace("H", "D")
+        struct_deuter = Structure.from_dict(struct_d)
+
+        assert "Deuterium" not in [x.long_name for x in struct.composition.elements]
+        assert "Deuterium" in [x.long_name for x in struct_deuter.composition.elements]
+        assert struct_deuter == struct
+
+        # test to make sure no Deuteriums are written to POSCAR
+        struct_deuter.to(f"{self.tmp_path}/POSCAR_deuter")
+        struct = Structure.from_file(f"{self.tmp_path}/POSCAR_deuter")
+        assert "Deuterium" not in [x.long_name for x in struct.composition.elements]
+
 
 class TestIMolecule(PymatgenTest):
     def setUp(self):
