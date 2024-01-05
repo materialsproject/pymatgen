@@ -303,6 +303,8 @@ class TestLammpsData(PymatgenTest):
             ("C9", 12.01115),
             ("O3", 15.9994),
         ]
+        print(c_ff.mass_info)
+        print(mass_info)
         assert c_ff.mass_info == mass_info
         np.testing.assert_array_equal(c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values)
         base_kws = ["Bond", "Angle", "Dihedral", "Improper"]
