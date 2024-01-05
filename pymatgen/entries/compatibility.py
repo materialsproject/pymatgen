@@ -641,6 +641,7 @@ class CorrectionsList(Compatibility):
     def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
         """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
+        # only correct GGA or GGA+U entries
         if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
             raise CompatibilityError(
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
