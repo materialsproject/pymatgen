@@ -2599,18 +2599,11 @@ class BSDOSPlotter:
         inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(
-            0.70, -0.2, m_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="left"
-        )
-        inset_ax.text(
-            0.325, 0.70, c_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="center"
-        )
-        inset_ax.text(
-            -0.05, -0.2, y_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="right"
-        )
-        inset_ax.text(
-            0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
-        )
+        common = dict(fontsize=13, family="Times New Roman")
+        inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
+        inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
+        inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")
+        inset_ax.text(0.325, 0.22, k_label, **common, color=(1, 1, 1), horizontalalignment="center")
 
         inset_ax.axis("off")
 
