@@ -1776,8 +1776,8 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             matches = np.absolute(zero_col) == np.amax(np.absolute(zero_col))
             row_idx_to_fix = np.where(matches)[0]
 
-            for i in row_idx_to_fix:
-                arr_rounded[i, zero_col_idx] = round_away_from_zero(arr[i, zero_col_idx])
+            for idx in row_idx_to_fix:
+                arr_rounded[idx, zero_col_idx] = round_away_from_zero(arr[idx, zero_col_idx])
     return arr_rounded.astype(int)
 
 
@@ -1918,8 +1918,7 @@ class SQSTransformation(AbstractTransformation):
             best_only (bool): only return structures with lowest objective function
             remove_duplicate_structures (bool): only return unique structures
             reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
-                "False" does not reduce structure.
+                One of "niggli" or "LLL". Passing False does not reduce structure.
         """
         self.scaling = scaling
         self.search_time = search_time
@@ -2058,9 +2057,8 @@ class SQSTransformation(AbstractTransformation):
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
             remove_duplicate_structures (bool): only return unique structures.
-            reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
-                "False" does not reduce structure.
+            reduction_algo (str): The lattice reduction algorithm to use. One of "niggli" or "LLL".
+                reduction_algo=False does not reduce structure.
 
         Returns:
             list of dicts of the form {'structure': Structure, 'objective_function': ...}, unless run in serial
