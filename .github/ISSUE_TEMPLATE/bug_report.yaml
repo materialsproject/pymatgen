@@ -5,8 +5,15 @@ body:
   - type: markdown
     attributes:
       value: |
-        ### Try the new Codespaces to setup env and collect info, with one single click.
-        Please check this [guide](/materialsproject/pymatgen/blob/master/.devcontainer/README.md) for more information.
+        ### Try the new Codespaces, setup env and collect info made easy.
+        <details>
+          <summary>🚀 Click to Show the Codespaces Guide</summary>
+          <img width="300" alt="Create codespace" src="https://github.com/materialsproject/pymatgen/assets/80093591/482181f8-d7e1-49b4-8382-2d948ed4e550">
+
+          * Open up the [pymatgen repo](https://github.com/materialsproject/pymatgen) in your web browser.
+          * Click the green `Code` button at the top-right corner of the repo, and switch to the `Codespaces` panel.
+          * Click `Create code space on master` to create a new codespace, or to return to an existing codespace.
+        </details>
 
   - type: input
     id: python-version
