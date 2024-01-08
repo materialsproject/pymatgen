@@ -11,10 +11,8 @@ import pytest
 from monty.json import MontyDecoder
 from pytest import approx
 
+from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -44,9 +42,7 @@ enumlib_present = which("enum.x") and which("makestr.x")
 
 class TestRotationTransformations(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -71,11 +67,7 @@ class TestRotationTransformations(unittest.TestCase):
 class TestRemoveSpeciesTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = RemoveSpeciesTransformation(["Li+"])
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -94,11 +86,7 @@ class TestRemoveSpeciesTransformation(unittest.TestCase):
 class TestSubstitutionTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": "S2-"})
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -114,11 +102,7 @@ class TestSubstitutionTransformation(unittest.TestCase):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": {"S2-": 0.5, "Se2-": 0.5}})
         # test the to and from dict on the nested dictionary
         trafo = SubstitutionTransformation.from_dict(trafo.as_dict())
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -133,11 +117,7 @@ class TestSubstitutionTransformation(unittest.TestCase):
 
 class TestSupercellTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -199,11 +179,7 @@ class TestSupercellTransformation(unittest.TestCase):
 class TestOxidationStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OxidationStateDecorationTransformation({"Li": 1, "O": -2})
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -221,9 +197,8 @@ class TestOxidationStateDecorationTransformation(unittest.TestCase):
 
 class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         trafo = AutoOxiStateDecorationTransformation()
-        struct = trafo.apply_transformation(p.structure)
+        struct = trafo.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
         expected_oxi = {"Li": 1, "P": 5, "O": -2, "Fe": 2}
         for site in struct:
             assert site.specie.oxi_state == expected_oxi[site.specie.symbol]
@@ -238,11 +213,7 @@ class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
 class TestOxidationStateRemovalTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OxidationStateRemovalTransformation()
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -263,11 +234,7 @@ class TestOxidationStateRemovalTransformation(unittest.TestCase):
 class TestPartialRemoveSpecieTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -283,13 +250,7 @@ class TestPartialRemoveSpecieTransformation(unittest.TestCase):
 
     def test_apply_transformation_fast(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.1, 0.1, 0.1])
-        coords.append([0.3, 0.75, 0.3])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25], [0.1, 0.1, 0.1], [0.3, 0.75, 0.3]]
         lattice = Lattice([[10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = trafo.apply_transformation(struct)
@@ -299,16 +260,14 @@ class TestPartialRemoveSpecieTransformation(unittest.TestCase):
         assert fast_opt_s == slow_opt_s
 
     def test_apply_transformations_complete_ranking(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        struct = t1.apply_transformation(p.structure)
+        struct = t1.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         assert len(trafo.apply_transformation(struct, 10)) == 6
 
     def test_apply_transformations_best_first(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        struct = t1.apply_transformation(p.structure)
+        struct = t1.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         assert len(trafo.apply_transformation(struct)) == 26
 
@@ -316,11 +275,7 @@ class TestPartialRemoveSpecieTransformation(unittest.TestCase):
 class TestOrderDisorderedStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OrderDisorderedStructureTransformation()
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -382,47 +337,25 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
 
     def test_symmetrized_structure(self):
         trafo = OrderDisorderedStructureTransformation(symmetrized_structures=True)
-        c = []
-        sp = []
-        c.append([0.5, 0.5, 0.5])
-        sp.append("Si4+")
-        c.append([0.45, 0.45, 0.45])
-        sp.append({"Si4+": 0.5})
-        c.append([0.56, 0.56, 0.56])
-        sp.append({"Si4+": 0.5})
-        c.append([0.25, 0.75, 0.75])
-        sp.append({"Si4+": 0.5})
-        c.append([0.75, 0.25, 0.25])
-        sp.append({"Si4+": 0.5})
         latt = Lattice.cubic(5)
-        struct = Structure(latt, sp, c)
-        test_site = PeriodicSite("Si4+", c[2], latt)
+        coords = [[0.5, 0.5, 0.5], [0.45, 0.45, 0.45], [0.56, 0.56, 0.56], [0.25, 0.75, 0.75], [0.75, 0.25, 0.25]]
+        struct = Structure(latt, [{"Si4+": 1}, *[{"Si4+": 0.5}] * 4], coords)
+        test_site = PeriodicSite("Si4+", coords[2], latt)
         struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
         output = trafo.apply_transformation(struct)
-        assert test_site in output.sites
+        assert test_site in output
 
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()
-        coords = []
-        coords.append([0.5, 0.5, 0.5])
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        coords = [[0.5, 0.5, 0.5]]
+        lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, [{"X4+": 0.33, "O2-": 0.33, "P5+": 0.33}], coords)
         with pytest.raises(ValueError, match="Occupancy fractions not consistent with size of unit cell"):
             trafo.apply_transformation(struct)
 
     def test_best_first(self):
         trafo = OrderDisorderedStructureTransformation(algo=2)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -448,15 +381,16 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
 class TestPrimitiveCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PrimitiveCellTransformation()
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -481,11 +415,7 @@ class TestPrimitiveCellTransformation(unittest.TestCase):
 class TestConventionalCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = ConventionalCellTransformation()
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -501,15 +431,16 @@ class TestConventionalCellTransformation(unittest.TestCase):
 class TestPerturbStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PerturbStructureTransformation(0.05)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = [
             [3.8401979337, 0.00, 0.00],
@@ -537,15 +468,16 @@ class TestPerturbStructureTransformation(unittest.TestCase):
 class TestDeformStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = DeformStructureTransformation([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.05, 1.0]])
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = [
             [3.8401979337, 0.00, 0.00],

@@ -10,8 +10,7 @@ from scipy.constants import N_A
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.reaction_calculator import BalancedReaction
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
 
 if TYPE_CHECKING:
@@ -73,10 +72,7 @@ class ConversionElectrode(AbstractElectrode):
         if len(profile) < 2:
             return None
         working_ion = working_ion_entry.elements[0].symbol
-        normalization_els = {}
-        for el, amt in comp.items():
-            if el != Element(working_ion):
-                normalization_els[el] = amt
+        normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion)}
         framework = comp.as_dict()
         if working_ion in framework:
             framework.pop(working_ion)
@@ -92,7 +88,7 @@ class ConversionElectrode(AbstractElectrode):
             for i in range(len(profile) - 1)
         ]
 
-        return ConversionElectrode(  # pylint: disable=E1123
+        return ConversionElectrode(
             voltage_pairs=v_pairs,
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
@@ -137,7 +133,7 @@ class ConversionElectrode(AbstractElectrode):
         # _initial_comp_formula = comp.reduced_formula, framework_formula = framework.reduced_formula
         if adjacent_only:
             return [
-                ConversionElectrode(  # pylint: disable=E1123
+                ConversionElectrode(
                     voltage_pairs=self.voltage_pairs[i : i + 1],
                     working_ion_entry=self.working_ion_entry,
                     initial_comp_formula=self.initial_comp_formula,
@@ -149,7 +145,7 @@ class ConversionElectrode(AbstractElectrode):
         for i in range(len(self.voltage_pairs)):
             for j in range(i, len(self.voltage_pairs)):
                 sub_electrodes.append(
-                    ConversionElectrode(  # pylint: disable=E1123
+                    ConversionElectrode(
                         voltage_pairs=self.voltage_pairs[i : j + 1],
                         working_ion_entry=self.working_ion_entry,
                         initial_comp_formula=self.initial_comp_formula,
@@ -236,11 +232,10 @@ class ConversionElectrode(AbstractElectrode):
         dct["reactions"] = []
         dct["reactant_compositions"] = []
         comps = []
-        frac = []
+        frac: list[float] = []
         for pair in self.voltage_pairs:
             rxn = pair.rxn
-            frac.append(pair.frac_charge)
-            frac.append(pair.frac_discharge)
+            frac.extend((pair.frac_charge, pair.frac_discharge))
             dct["reactions"].append(str(rxn))
             for i, v in enumerate(rxn.coeffs):
                 if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
@@ -355,7 +350,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 
-        return ConversionVoltagePair(  # pylint: disable=E1123
+        return ConversionVoltagePair(
             rxn=rxn,
             voltage=voltage,
             mAh=mAh,

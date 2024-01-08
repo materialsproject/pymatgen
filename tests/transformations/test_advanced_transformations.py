@@ -10,14 +10,10 @@ from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io.cif import CifParser
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -63,10 +59,9 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = f"{TEST_FILES_DIR}/struct_predictor"
-    json_file = f"{data_dir}/test_lambda.json"
-    with open(json_file) as f:
-        return json.load(f)
+    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    with open(json_path) as file:
+        return json.load(file)
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -80,15 +75,16 @@ class TestSuperTransformation(unittest.TestCase):
         trafo = SuperTransformation(
             [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
         )
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -127,11 +123,7 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -146,15 +138,16 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
 class TestChargeBalanceTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = ChargeBalanceTransformation("Li+")
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -174,8 +167,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
@@ -205,8 +197,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -232,8 +223,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -267,10 +257,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
 class TestSubstitutionPredictorTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -311,23 +298,20 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(latt, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
-        self.Fe3O4 = parser.get_structures()[0]
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8 = parser.get_structures()[0]
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
         self.Li8Fe2NiCoO8.remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
-        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
-        assert f.get_space_group_number() == 31
+        spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
+        assert spg_analyzer.get_space_group_number() == 31
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5}, energy_model=model)
@@ -353,10 +337,9 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
-        struct = p.structure
-        a = SpacegroupAnalyzer(struct, 0.1)
-        struct = a.get_refined_structure()
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 1
 
@@ -367,7 +350,6 @@ class TestMagOrderingTransformation(PymatgenTest):
         _ = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         assert trans.mag_species_spin == {"Fe": 5}
-        from pymatgen.analysis.energy_models import SymmetryModel
 
         assert isinstance(trans.energy_model, SymmetryModel)
 
@@ -380,13 +362,13 @@ class TestMagOrderingTransformation(PymatgenTest):
         # Ensure s does not have a spin property
         assert struct[Li_site].specie.spin is None
         # ensure sites are assigned a spin property in alls
-        # assert "spin" in alls.sites[Li_site].specie.properties
+        # assert "spin" in alls[Li_site].specie.properties
         assert alls.sites[Li_site].specie.spin == 0
 
     def test_advanced_usage(self):
         # test spin on just one oxidation state
-        magtypes = {"Fe2+": 5}
-        trans = MagOrderingTransformation(magtypes)
+        mag_types = {"Fe2+": 5}
+        trans = MagOrderingTransformation(mag_types)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         assert isinstance(alls, Structure)
         assert str(alls[0].specie) == "Fe2+,spin=5"
@@ -394,12 +376,12 @@ class TestMagOrderingTransformation(PymatgenTest):
 
         # test multiple order parameters
         # this should only order on Fe3+ site, but assign spin to both
-        magtypes = {"Fe2+": 5, "Fe3+": 5}
+        mag_types = {"Fe2+": 5, "Fe3+": 5}
         order_parameters = [
             MagOrderParameterConstraint(1, species_constraints="Fe2+"),
             MagOrderParameterConstraint(0.5, species_constraints="Fe3+"),
         ]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         # using this 'sorted' syntax because exact order of sites in first
         # returned structure varies between machines: we just want to ensure
@@ -412,12 +394,12 @@ class TestMagOrderingTransformation(PymatgenTest):
 
         # this should give same results as previously
         # but with opposite sign on Fe2+ site
-        magtypes = {"Fe2+": -5, "Fe3+": 5}
+        mag_types = {"Fe2+": -5, "Fe3+": 5}
         order_parameters = [
             MagOrderParameterConstraint(1, species_constraints="Fe2+"),
             MagOrderParameterConstraint(0.5, species_constraints="Fe3+"),
         ]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         assert sorted(str(alls[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=-5", "Fe2+,spin=-5"])
         assert sorted(str(alls[idx].specie) for idx in range(2, 6)) == sorted(
@@ -425,12 +407,12 @@ class TestMagOrderingTransformation(PymatgenTest):
         )
 
         # while this should order on both sites
-        magtypes = {"Fe2+": 5, "Fe3+": 5}
+        mag_types = {"Fe2+": 5, "Fe3+": 5}
         order_parameters = [
             MagOrderParameterConstraint(0.5, species_constraints="Fe2+"),
             MagOrderParameterConstraint(0.25, species_constraints="Fe3+"),
         ]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         assert sorted(str(alls[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
         assert sorted(str(alls[idx].specie) for idx in range(2, 6)) == sorted(
@@ -443,7 +425,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.Fe3O4.add_site_property("cn", cns)
 
         # this should give FM ordering on cn=4 sites, and AFM ordering on cn=6 sites
-        magtypes = {"Fe": 5}
+        mag_types = {"Fe": 5}
         order_parameters = [
             MagOrderParameterConstraint(
                 0.5,
@@ -458,7 +440,7 @@ class TestMagOrderingTransformation(PymatgenTest):
                 site_constraints=4,
             ),
         ]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4)
         alls.sort(key=lambda x: x.properties["cn"], reverse=True)
         assert sorted(str(alls[idx].specie) for idx in range(4)) == sorted(
@@ -467,12 +449,12 @@ class TestMagOrderingTransformation(PymatgenTest):
         assert sorted(str(alls[idx].specie) for idx in range(4, 6)) == sorted(["Fe,spin=5", "Fe,spin=5"])
 
         # now ordering on both sites, equivalent to order_parameter = 0.5
-        magtypes = {"Fe2+": 5, "Fe3+": 5}
+        mag_types = {"Fe2+": 5, "Fe3+": 5}
         order_parameters = [
             MagOrderParameterConstraint(0.5, species_constraints="Fe2+"),
             MagOrderParameterConstraint(0.5, species_constraints="Fe3+"),
         ]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
         assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
@@ -482,12 +464,12 @@ class TestMagOrderingTransformation(PymatgenTest):
         assert len(alls) == 4
 
         # now mixed orderings where neither are equal or 1
-        magtypes = {"Fe2+": 5, "Fe3+": 5}
+        mag_types = {"Fe2+": 5, "Fe3+": 5}
         order_parameters = [
             MagOrderParameterConstraint(0.5, species_constraints="Fe2+"),
             MagOrderParameterConstraint(0.25, species_constraints="Fe3+"),
         ]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=100)
         struct = alls[0]["structure"]
         assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
@@ -497,9 +479,9 @@ class TestMagOrderingTransformation(PymatgenTest):
         assert len(alls) == 2
 
         # now order on multiple species
-        magtypes = {"Fe2+": 5, "Fe3+": 5}
+        mag_types = {"Fe2+": 5, "Fe3+": 5}
         order_parameters = [MagOrderParameterConstraint(0.5, species_constraints=["Fe2+", "Fe3+"])]
-        trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
+        trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
         assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
@@ -627,7 +609,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
-        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs.json")
+        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -638,13 +620,24 @@ class TestSQSTransformation(PymatgenTest):
 
     def test_return_ranked_list(self):
         # list of structures
-        pzt_structs2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs2.json")
-        trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struct = self.get_structure("Pb2TiZrO6").copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-        matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
-        assert any(matches)
+        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs-2.json")
+
+        n_structs_expected = 1
+        sqs_kwargs = {"scaling": 2, "search_time": 0.01, "instances": 8, "wd": 0}
+        for all_structs in (True, False):
+            if all_structs:
+                # when we don't remove structures from the search, should get
+                # return one structure for each instance run
+                sqs_kwargs |= {"best_only": False, "remove_duplicate_structures": False}
+                n_structs_expected = sqs_kwargs["instances"]
+
+            trans = SQSTransformation(**sqs_kwargs)
+            struct = self.get_structure("Pb2TiZrO6").copy()
+            struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+            ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
+            matches = [ranked_list_out[0]["structure"].matches(struct) for struct in pzt_structs_2]
+            assert any(matches)
+            assert len(ranked_list_out) == n_structs_expected
 
     def test_spin(self):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -655,8 +648,8 @@ class TestSQSTransformation(PymatgenTest):
 
         struct_out = trans.apply_transformation(struct)
         struct_out_specie_strings = [site.species_string for site in struct_out]
-        assert "Ti,spin=-5" in struct_out_specie_strings
-        assert "Ti,spin=5" in struct_out_specie_strings
+        assert "Ti0+,spin=-5" in struct_out_specie_strings
+        assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
 class TestCubicSupercellTransformation(PymatgenTest):

@@ -43,7 +43,7 @@ due.cite(
 class Cohp(MSONable):
     """Basic COHP object."""
 
-    def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, icohp=None):
+    def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, icohp=None) -> None:
         """
         Args:
             are_coops: Indicates whether this object describes COOPs.
@@ -60,31 +60,31 @@ class Cohp(MSONable):
         self.cohp = cohp
         self.icohp = icohp
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
-            cohpstring = "COOP"
+            cohp_str = "COOP"
         elif self.are_cobis:
-            cohpstring = "COBI"
+            cohp_str = "COBI"
         else:
-            cohpstring = "COHP"
-        header = ["Energy", cohpstring + "Up"]
+            cohp_str = "COHP"
+        header = ["Energy", cohp_str + "Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
-            header.append(cohpstring + "Down")
+            header.append(cohp_str + "Down")
             data.append(self.cohp[Spin.down])
         if self.icohp:
-            header.append("I" + cohpstring + "Up")
+            header.append("I" + cohp_str + "Up")
             data.append(self.icohp[Spin.up])
             if Spin.down in self.cohp:
-                header.append("I" + cohpstring + "Down")
+                header.append("I" + cohp_str + "Down")
                 data.append(self.icohp[Spin.down])
-        formatheader = "#" + " ".join("{:15s}" for __ in header)
-        formatdata = " ".join("{:.5f}" for __ in header)
-        stringarray = [formatheader.format(*header)]
-        for i, __ in enumerate(self.energies):
-            stringarray.append(formatdata.format(*(d[i] for d in data)))
-        return "\n".join(stringarray)
+        format_header = "#" + " ".join("{:15s}" for __ in header)
+        format_data = " ".join("{:.5f}" for __ in header)
+        str_arr = [format_header.format(*header)]
+        for idx in range(len(self.energies)):
+            str_arr.append(format_data.format(*(d[idx] for d in data)))
+        return "\n".join(str_arr)
 
     def as_dict(self):
         """JSON-serializable dict representation of COHP."""
@@ -152,8 +152,6 @@ class Cohp(MSONable):
         spin: Spin
         limit: -COHP smaller -limit will be considered.
         """
-        warnings.warn("This method has not been tested on many examples. Check the parameter limit, pls!")
-
         populations = self.cohp
         number_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
 
@@ -184,7 +182,7 @@ class Cohp(MSONable):
     def from_dict(cls, dct):
         """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
-        are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
+        are_cobis = dct.get("are_cobis", False)
         return Cohp(
             dct["efermi"],
             dct["energies"],
@@ -219,7 +217,7 @@ class CompleteCohp(Cohp):
         are_coops=False,
         are_cobis=False,
         orb_res_cohp=None,
-    ):
+    ) -> None:
         """
         Args:
             structure: Structure associated with this COHP.
@@ -252,12 +250,9 @@ class CompleteCohp(Cohp):
         self.are_cobis = are_cobis
         self.all_cohps = cohp_dict
         self.orb_res_cohp = orb_res_cohp
-        if bonds is None:
-            self.bonds = {label: {} for label in self.all_cohps}
-        else:
-            self.bonds = bonds
+        self.bonds = bonds or {label: {} for label in self.all_cohps}
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.are_coops:
             return f"Complete COOPs for {self.structure}"
         if self.are_cobis:
@@ -624,7 +619,7 @@ class CompleteCohp(Cohp):
                 icohp = None
             avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp)
 
-        are_cobis = False if "are_cobis" not in d else d["are_cobis"]
+        are_cobis = d.get("are_cobis", False)
 
         return CompleteCohp(
             structure,
@@ -707,7 +702,7 @@ class CompleteCohp(Cohp):
             # may not be present when the cohpgenerator keyword is used
             # in LOBSTER versions 2.2.0 and earlier.
             # TODO: Test this more extensively
-            # pylint: disable=E1133,E1136
+
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
                     cohp_data[label]["COHP"] = {
@@ -730,7 +725,7 @@ class CompleteCohp(Cohp):
             # Calculate the average COHP for the LMTO file to be
             # consistent with LOBSTER output.
             avg_data = {"COHP": {}, "ICOHP": {}}
-            for i in avg_data:  # pylint: disable=C0206
+            for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])
                     avg = np.average(rows, axis=0)
@@ -788,7 +783,7 @@ class IcohpValue(MSONable):
 
     def __init__(
         self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False, orbitals=None
-    ):
+    ) -> None:
         """
         Args:
             label: label for the icohp
@@ -975,7 +970,7 @@ class IcohpCollection(MSONable):
         list_orb_icohp=None,
         are_coops=False,
         are_cobis=False,
-    ):
+    ) -> None:
         """
         Args:
             list_labels: list of labels for ICOHP/ICOOP values
@@ -1021,7 +1016,7 @@ class IcohpCollection(MSONable):
                 orbitals=None if list_orb_icohp is None else list_orb_icohp[ilist],
             )
 
-    def __str__(self):
+    def __str__(self) -> str:
         joinstr = []
         for value in self._icohplist.values():
             joinstr.append(str(value))

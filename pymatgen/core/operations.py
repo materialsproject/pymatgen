@@ -7,7 +7,7 @@ import string
 import typing
 import warnings
 from math import cos, pi, sin, sqrt
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -17,6 +17,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
@@ -25,7 +27,7 @@ __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 class SymmOp(MSONable):
     """A symmetry operation in Cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
-    for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation.
+    for efficiency. Read: http://wikipedia.org/wiki/Affine_transformation.
 
     Attributes:
         affine_matrix (np.ndarray): A 4x4 array representing the symmetry operation.
@@ -474,7 +476,7 @@ class MagSymmOp(SymmOp):
     moment.
     """
 
-    def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01) -> None:
         """Initializes the MagSymmOp from a 4x4 affine transformation matrix and time reversal
         operator. In general, this constructor should not be used unless you are transferring
         rotations. Use the static constructors instead to generate a SymmOp from proper rotations
@@ -498,10 +500,10 @@ class MagSymmOp(SymmOp):
             self.time_reversal == other.time_reversal
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.as_xyzt_string()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         output = [
             "Rot:",
             str(self.affine_matrix[0:3][:, 0:3]),

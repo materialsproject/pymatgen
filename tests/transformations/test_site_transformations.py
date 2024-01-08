@@ -27,15 +27,16 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class TestTranslateSitesTransformation(PymatgenTest):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -82,15 +83,16 @@ class TestTranslateSitesTransformation(PymatgenTest):
 
 class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -115,15 +117,16 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
 
 class TestRemoveSitesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -148,15 +151,16 @@ class TestRemoveSitesTransformation(unittest.TestCase):
 
 class TestInsertSitesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -186,15 +190,16 @@ class TestInsertSitesTransformation(unittest.TestCase):
 
 class TestPartialRemoveSitesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -250,14 +255,17 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
         assert s.formula == "Li2 O2"
 
     def test_as_from_dict(self):
-        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        trafo = PartialRemoveSitesTransformation.from_dict(d)
+        dct = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
+        assert {*dct} == {"@module", "@class", "@version", "algo", "indices", "fractions"}
+        trafo = PartialRemoveSitesTransformation.from_dict(dct)
         s = trafo.apply_transformation(self.struct)
         assert s.formula == "Li2 O4"
 
     def test_str(self):
-        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        assert str(d) is not None
+        trafo = PartialRemoveSitesTransformation([tuple(range(4))], [0.5])
+        assert (
+            str(trafo) == "PartialRemoveSitesTransformation : Indices and fraction to remove = [(0, 1, 2, 3)], ALGO = 1"
+        )
 
 
 class TestAddSitePropertyTransformation(PymatgenTest):

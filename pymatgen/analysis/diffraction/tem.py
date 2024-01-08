@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 import scipy.constants as sc
 
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
@@ -195,7 +195,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
             for plane in bragg_angles:
                 scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(
-                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None  # type: ignore
+                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]),
+                    axis=None,  # type: ignore
                 )
                 scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom
@@ -584,7 +585,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showlegend=False,
             ),
         ]
-        layout = go.Layout(
+        layout = dict(
             title="2D Diffraction Pattern<br>Beam Direction: " + "".join(str(e) for e in self.beam_direction),
             font={"size": 14, "color": "#7f7f7f"},
             hovermode="closest",
@@ -654,7 +655,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showlegend=False,
             )
         ]
-        layout = go.Layout(
+        layout = dict(
             xaxis={
                 "range": [-4, 4],
                 "showgrid": False,

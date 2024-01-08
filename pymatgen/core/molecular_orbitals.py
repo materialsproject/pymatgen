@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from itertools import chain, combinations
 
+from pymatgen.core import Element
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
 
 
 class MolecularOrbitals:
@@ -28,7 +28,7 @@ class MolecularOrbitals:
     # gives {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
     """
 
-    def __init__(self, formula):
+    def __init__(self, formula) -> None:
         """
         Args:
             formula (str): Chemical formula. Must have integer subscripts. Ex: 'SrTiO3'.
@@ -49,10 +49,7 @@ class MolecularOrbitals:
                 raise ValueError("composition subscripts must be integers")
 
         self.elec_neg = self.max_electronegativity()
-        self.aos = {
-            str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()]  # pylint: disable=E1101
-            for el in self.elements
-        }
+        self.aos = {str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()] for el in self.elements}
         self.band_edges = self.obtain_band_edges()
 
     def max_electronegativity(self):

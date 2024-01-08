@@ -81,9 +81,9 @@ def divisors(n):
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
-    listfactors = _cartesian_product(listexponents)
-    for f in listfactors:
+    exponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
+    factors = _cartesian_product(exponents)
+    for f in factors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))
     _divisors.sort()
     return _divisors
@@ -292,7 +292,7 @@ def power2_tangent_decreasing(xx, edges=None, prefactor=None):
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
-        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)  # pylint: disable=E1130
+        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_tangent_decreasing(xx_scaled_and_clamped, prefactor=prefactor)

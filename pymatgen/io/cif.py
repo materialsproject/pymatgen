@@ -8,6 +8,7 @@ import re
 import textwrap
 import warnings
 from collections import deque
+from datetime import datetime
 from functools import partial
 from inspect import getfullargspec as getargspec
 from io import StringIO
@@ -18,14 +19,9 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.string import remove_non_ascii
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
+from pymatgen.core import Composition, DummySpecies, Element, Lattice, PeriodicSite, Species, Structure, get_el_sp
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
 from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
@@ -53,7 +49,7 @@ class CifBlock:
     attribute.
     """
 
-    maxlen = 70  # not quite 80 so we can deal with semicolons and things
+    max_len = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
         """
@@ -65,7 +61,7 @@ class CifBlock:
         """
         self.loops = loops
         self.data = data
-        # AJ says: CIF Block names cannot be more than 75 characters or you
+        # AJ (@computron) says: CIF Block names cannot be more than 75 characters or you
         # get an Exception
         self.header = header[:74]
 
@@ -94,7 +90,7 @@ class CifBlock:
             if key not in written:
                 # k didn't belong to a loop
                 v = self._format_field(self.data[key])
-                if len(key) + len(v) + 3 < self.maxlen:
+                if len(key) + len(v) + 3 < self.max_len:
                     out.append(f"{key}   {v}")
                 else:
                     out.extend([key, v])
@@ -110,7 +106,7 @@ class CifBlock:
                 if val[0] == ";":
                     out += line + "\n" + val
                     line = "\n"
-                elif len(line) + len(val) + 2 < self.maxlen:
+                elif len(line) + len(val) + 2 < self.max_len:
                     line += "  " + val
                 else:
                     out += line
@@ -120,8 +116,8 @@ class CifBlock:
 
     def _format_field(self, v):
         v = str(v).strip()
-        if len(v) > self.maxlen:
-            return ";\n" + textwrap.fill(v, self.maxlen) + "\n;"
+        if len(v) > self.max_len:
+            return ";\n" + textwrap.fill(v, self.max_len) + "\n;"
         # add quotes if necessary
         if v == "":
             return '""'
@@ -137,7 +133,7 @@ class CifBlock:
         # remove empty lines
         string = re.sub(r"^\s*\n", "", string, flags=re.MULTILINE)
         # remove non_ascii
-        string = remove_non_ascii(string)
+        string = string.encode("ascii", "ignore").decode("ascii")
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
@@ -246,9 +242,8 @@ class CifFile:
         return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_str(cls, string):
-        """
-        Reads CifFile from a string.
+    def from_str(cls, string) -> CifFile:
+        """Reads CifFile from a string.
 
         :param string: String representation.
 
@@ -256,16 +251,20 @@ class CifFile:
             CifFile
         """
         dct = {}
-        for x in re.split(r"^\s*data_", f"x\n{string}", flags=re.MULTILINE | re.DOTALL)[1:]:
+
+        for block_str in re.split(r"^\s*data_", f"x\n{string}", flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
             # Springer materials/Pauling file DBs.
-            # This block anyway does not contain any structure information, and
+            # This block does not contain any structure information anyway, and
             # CifParser was also not parsing it.
-            if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
+            if "powder_pattern" in re.split(r"\n", block_str, maxsplit=1)[0]:
                 continue
-            c = CifBlock.from_str("data_" + x)
-            dct[c.header] = c
+            block = CifBlock.from_str("data_" + block_str)
+            # TODO (@janosh, 2023-10-11) multiple CIF blocks with equal header will overwrite each other,
+            # latest taking precedence. maybe something to fix and test e.g. in test_cif_writer_write_file
+            dct[block.header] = block
+
         return cls(dct, string)
 
     @classmethod
@@ -354,17 +353,17 @@ class CifParser:
 
         self.feature_flags["magcif_incommensurate"] = is_magcif_incommensurate()
 
-        for k in self._cif.data:
+        for key in self._cif.data:
             # pass individual CifBlocks to _sanitize_data
-            self._cif.data[k] = self._sanitize_data(self._cif.data[k])
+            self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(cif_string: str, **kwargs) -> CifParser:
+    @classmethod
+    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
         """
         Creates a CifParser from a string.
 
@@ -376,7 +375,7 @@ class CifParser:
             CifParser
         """
         stream = StringIO(cif_string)
-        return CifParser(stream, **kwargs)
+        return cls(stream, **kwargs)
 
     def _sanitize_data(self, data):
         """
@@ -487,11 +486,8 @@ class CifParser:
                 data.data["_atom_site_fract_x"] += new_fract_x
                 data.data["_atom_site_fract_y"] += new_fract_y
                 data.data["_atom_site_fract_z"] += new_fract_z
-        """
-        This fixes inconsistencies in naming of several magCIF tags
-        as a result of magCIF being in widespread use prior to
-        specification being finalized (on advice of Branton Campbell).
-        """
+        # This fixes inconsistencies in naming of several magCIF tags as a result of magCIF
+        # being in widespread use prior to specification being finalized (on advice of Branton Campbell).
         if self.feature_flags["magcif"]:
             # CIF-1 style has all underscores, interim standard
             # had period before magn instead of before the final
@@ -557,7 +553,8 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
+                f"{len(fracs_to_change)} fractional coordinates rounded to ideal values to avoid issues with "
+                "finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
@@ -677,7 +674,7 @@ class CifParser:
         operations are parsed. If the symops are not present, the space
         group symbol is parsed, and symops are generated.
         """
-        symops = []
+        sym_ops = []
         for symmetry_label in [
             "_symmetry_equiv_pos_as_xyz",
             "_symmetry_equiv_pos_as_xyz_",
@@ -692,11 +689,11 @@ class CifParser:
                     self.warnings.append(msg)
                     xyz = [xyz]
                 try:
-                    symops = [SymmOp.from_xyz_str(s) for s in xyz]
+                    sym_ops = [SymmOp.from_xyz_str(s) for s in xyz]
                     break
                 except ValueError:
                     continue
-        if not symops:
+        if not sym_ops:
             # Try to parse symbol
             for symmetry_label in [
                 "_symmetry_space_group_name_H-M",
@@ -720,7 +717,7 @@ class CifParser:
                     try:
                         spg = space_groups.get(sg)
                         if spg:
-                            symops = SpaceGroup(spg).symmetry_ops
+                            sym_ops = SpaceGroup(spg).symmetry_ops
                             msg = msg_template.format(symmetry_label)
                             warnings.warn(msg)
                             self.warnings.append(msg)
@@ -736,7 +733,7 @@ class CifParser:
                         for d in cod_data:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
-                                symops = [SymmOp.from_xyz_str(s) for s in xyz]
+                                sym_ops = [SymmOp.from_xyz_str(s) for s in xyz]
                                 msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
@@ -744,9 +741,9 @@ class CifParser:
                     except Exception:
                         continue
 
-                    if symops:
+                    if sym_ops:
                         break
-        if not symops:
+        if not sym_ops:
             # Try to parse International number
             for symmetry_label in [
                 "_space_group_IT_number",
@@ -757,18 +754,18 @@ class CifParser:
                 if data.data.get(symmetry_label):
                     try:
                         i = int(str2float(data.data.get(symmetry_label)))
-                        symops = SpaceGroup.from_int_number(i).symmetry_ops
+                        sym_ops = SpaceGroup.from_int_number(i).symmetry_ops
                         break
                     except ValueError:
                         continue
 
-        if not symops:
+        if not sym_ops:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg)
             self.warnings.append(msg)
-            symops = [SymmOp.from_xyz_str(s) for s in ["x", "y", "z"]]
+            sym_ops = [SymmOp.from_xyz_str(s) for s in ["x", "y", "z"]]
 
-        return symops
+        return sym_ops
 
     def get_magsymops(self, data):
         """
@@ -1080,7 +1077,7 @@ class CifParser:
                 all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
-            all_species_noedit = all_species[:]  # save copy before scaling in case of check_occu=False, used below
+            all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
@@ -1136,9 +1133,26 @@ class CifParser:
             return struct
         return None
 
-    def get_structures(
+    @np.deprecate(
+        message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
+        "The only difference is that primitive defaults to False in the new parse_structures method."
+        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
+    )
+    def get_structures(self, *args, **kwargs) -> list[Structure]:
+        """
+        Deprecated. Use parse_structures instead. Only difference between the two methods is the
+        default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
+        """
+        if len(args) > 0:  # extract primitive if passed as arg
+            kwargs["primitive"] = args[0]
+            args = args[1:]
+        kwargs.setdefault("primitive", True)
+        return self.parse_structures(*args, **kwargs)
+
+    def parse_structures(
         self,
-        primitive: bool = True,
+        primitive: bool | None = None,
         symmetrized: bool = False,
         check_occu: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "warn",
@@ -1146,8 +1160,8 @@ class CifParser:
         """Return list of structures in CIF file.
 
         Args:
-            primitive (bool): Set to False to return conventional unit cells.
-                Defaults to True. With magnetic CIF files, will return primitive
+            primitive (bool): Set to True to return primitive unit cells.
+                Defaults to False. With magnetic CIF files, True will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
             symmetrized (bool): If True, return a SymmetrizedStructure which will
                 include the equivalent indices and symmetry operations used to
@@ -1167,6 +1181,16 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
+        if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
+            raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
+        if primitive is None:
+            primitive = False
+            warnings.warn(
+                "The default value of primitive was changed from True to False in "
+                "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
+                "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
+                UserWarning,
+            )
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
@@ -1322,42 +1346,42 @@ class CifWriter:
         loops = []
         spacegroup = ("P 1", 1)
         if symprec is not None:
-            sf = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
-            spacegroup = (sf.get_space_group_symbol(), sf.get_space_group_number())
+            spg_analyzer = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
+            spacegroup = (spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number())
 
             if refine_struct:
                 # Needs the refined structure when using symprec. This converts
                 # primitive to conventional structures, the standard for CIF.
-                struct = sf.get_refined_structure()
+                struct = spg_analyzer.get_refined_structure()
 
-        latt = struct.lattice
+        lattice = struct.lattice
         comp = struct.composition
         no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ["a", "b", "c"]:
-            block["_cell_length_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_length_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
         for cell_attr in ["alpha", "beta", "gamma"]:
-            block["_cell_angle_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_angle_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
-        block["_cell_volume"] = format_str.format(latt.volume)
+        block["_cell_volume"] = format_str.format(lattice.volume)
 
-        reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
+        _reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
 
         if symprec is None:
             block["_symmetry_equiv_pos_site_id"] = ["1"]
             block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
         else:
-            sf = SpacegroupAnalyzer(struct, symprec)
+            spg_analyzer = SpacegroupAnalyzer(struct, symprec)
 
-            symmops = []
-            for op in sf.get_symmetry_operations():
+            symm_ops = []
+            for op in spg_analyzer.get_symmetry_operations():
                 v = op.translation_vector
-                symmops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
+                symm_ops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
 
-            ops = [op.as_xyz_string() for op in symmops]
+            ops = [op.as_xyz_string() for op in symm_ops]
             block["_symmetry_equiv_pos_site_id"] = [f"{i}" for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
 
@@ -1407,7 +1431,7 @@ class CifWriter:
 
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
-                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
+                        moment = Magmom.get_moment_relative_to_crystal_axes(magmom, lattice)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")
                         atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
                         atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
@@ -1421,7 +1445,7 @@ class CifWriter:
                     sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
                     len(sites),
                 )
-                for sites in sf.get_symmetrized_structure().equivalent_sites
+                for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites
             ]
             for site, mult in sorted(
                 unique_sites,
@@ -1480,18 +1504,18 @@ class CifWriter:
         self._cf = CifFile(dct)
 
     @property
-    def ciffile(self):
+    def cif_file(self):
         """Returns: CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """Returns the cif as a string."""
+        """Returns the CIF as a string."""
         return str(self._cf)
 
-    def write_file(self, filename):
-        """Write the cif file."""
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+    def write_file(self, filename: str | Path, mode: Literal["w", "a", "wt", "at"] = "w") -> None:
+        """Write the CIF file."""
+        with zopen(filename, mode=mode) as file:
+            file.write(str(self))
 
 
 def str2float(text):

@@ -15,8 +15,11 @@ from typing import TYPE_CHECKING, Any, Literal, no_type_check
 
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from matplotlib import cm
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib.font_manager import FontProperties
 from monty.json import MontyDecoder, MSONable
 from scipy import interpolate
 from scipy.optimize import minimize
@@ -24,8 +27,8 @@ from scipy.spatial import ConvexHull
 from tqdm import tqdm
 
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.due import Doi, due
@@ -505,7 +508,7 @@ class PhaseDiagram(MSONable):
             The coordinates for a given composition in the PhaseDiagram's basis
         """
         if set(comp.elements) - set(self.elements):
-            raise ValueError(f"{comp} has elements not in the phase diagram {', '.join(map(str,self.elements))}")
+            raise ValueError(f"{comp} has elements not in the phase diagram {', '.join(map(str, self.elements))}")
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
@@ -894,7 +897,8 @@ class PhaseDiagram(MSONable):
         same_comp_mem_ids = [
             id(c)
             for c in compare_entries
-            if (  # NOTE use this construction to avoid calls to fractional_composition
+            # NOTE use this construction to avoid calls to fractional_composition
+            if (
                 len(entry_frac) == len(c.composition)
                 and all(
                     abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
@@ -1108,7 +1112,7 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Evolution data as a list of dictionaries of the following format:
-            [ {'chempot': -10.487582010000001, 'evolution': -2.0,
+            [ {'chempot': -10.487582, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
         element = get_el_sp(element)
@@ -1294,10 +1298,10 @@ class PhaseDiagram(MSONable):
                             min_open = test_open
                             min_mus = v
 
-        elts = [e for e in self.elements if e != open_elt]
+        elems = [e for e in self.elements if e != open_elt]
         res = {}
 
-        for i, el in enumerate(elts):
+        for i, el in enumerate(elems):
             res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
 
         res[open_elt] = (min_open, max_open)
@@ -1774,7 +1778,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             return pd.get_decomposition(comp)
         except ValueError as e:
             # NOTE warn when stitching across pds is being used
-            warnings.warn(str(e) + " Using SLSQP to find decomposition")
+            warnings.warn(f"{e} Using SLSQP to find decomposition")
             competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 
@@ -1943,7 +1947,7 @@ class ReactionDiagram:
                     coeffs = np.linalg.solve(matrix, comp_vec2)
 
                     x = coeffs[-1]
-                    # pylint: disable=R1716
+
                     if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -2027,8 +2031,7 @@ class PhaseDiagramError(Exception):
 
 
 def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
-    """
-    Get the simplex facets for the Convex hull.
+    """Get the simplex facets for the Convex hull.
 
     Args:
         qhull_data (np.ndarray): The data from which to construct the convex
@@ -2038,7 +2041,7 @@ def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
             errors.
 
     Returns:
-        List of simplices of the Convex Hull.
+        scipy.spatial.ConvexHull: with list of simplices of the convex hull.
     """
     if joggle:
         return ConvexHull(qhull_data, qhull_options="QJ i").simplices
@@ -2082,7 +2085,7 @@ def _get_slsqp_decomp(
     for j, comp_entry in enumerate(competing_entries):
         amts = comp_entry.composition.get_el_amt_dict()
         for i, el in enumerate(chemical_space):
-            A_transpose[i, j] = amts[el]
+            A_transpose[i, j] = amts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
     b = b / np.sum(b)
@@ -2273,7 +2276,11 @@ class PDPlotter:
             *args: Passed to get_plot.
             **kwargs: Passed to get_plot.
         """
-        self.get_plot(*args, **kwargs).show()
+        plot = self.get_plot(*args, **kwargs)
+        if self.backend == "matplotlib":
+            plot.get_figure().show()
+        else:
+            plot.show()
 
     def write_image(self, stream: str | StringIO, image_format: str = "svg", **kwargs) -> None:
         """
@@ -2371,7 +2378,7 @@ class PDPlotter:
         Args:
             elements: Sequence of elements to be considered as independent
                 variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to uLi and uO, you will supply
+                all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
                         energy of the elemental phase. If False, gives absolute values.
@@ -2389,7 +2396,7 @@ class PDPlotter:
         Args:
             elements: Sequence of elements to be considered as independent
                 variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to uLi and uO, you will supply
+                all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
                 energy of the elemental phase. If False, gives absolute values.
@@ -3433,7 +3440,7 @@ class PDPlotter:
             error = stable_marker_plot.error_y["array"]
 
             points = np.append(x, [y, error]).reshape(3, -1).T
-            points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
+            points = points[points[:, 0].argsort()]  # sort by composition
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
@@ -3515,7 +3522,6 @@ class PDPlotter:
         Imports are done within the function as matplotlib is no longer the default.
         """
         ax = ax or pretty_plot(8, 6)
-        from matplotlib.font_manager import FontProperties
 
         if ordering is None:
             lines, labels, unstable = self.pd_plot_data
@@ -3540,9 +3546,6 @@ class PDPlotter:
                 for x, y in lines:
                     plt.plot(x, y, "ko-", **self.plotkwargs)
         else:
-            from matplotlib.cm import ScalarMappable
-            from matplotlib.colors import LinearSegmentedColormap, Normalize
-
             for x, y in lines:
                 plt.plot(x, y, "k-", markeredgecolor="k")
             vmin = vmin_mev / 1000.0
@@ -3558,7 +3561,7 @@ class PDPlotter:
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
             _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
-            energies = [en if en < 0 else -0.00000001 for en in _energies]
+            energies = [en if en < 0 else -0.000_000_01 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
@@ -3706,8 +3709,6 @@ class PDPlotter:
         Returns:
             plt.Axes: The axes object with the plot.
         """
-        from matplotlib.font_manager import FontProperties
-
         ax = ax or plt.figure().add_subplot(111, projection="3d")
 
         font = FontProperties(weight="bold", size=13)
@@ -3847,7 +3848,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             f"{nameup!r}, {nameleft!r} and {nameright!r} should be in ordering : {ordering}"
         )
 
-    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)
+    cc = np.array([0.5, np.sqrt(3.0) / 6.0], float)
 
     if nameup == ordering[0]:
         if nameleft == ordering[1]:

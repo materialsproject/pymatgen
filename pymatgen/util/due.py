@@ -14,6 +14,8 @@ License:    BSD-2
 
 from __future__ import annotations
 
+import logging
+
 __version__ = "0.0.9"
 
 
@@ -49,8 +51,6 @@ try:
         raise RuntimeError("Imported due lacks .cite. DueCredit is now disabled")
 except Exception as e:
     if not isinstance(e, ImportError):
-        import logging
-
         logging.getLogger("duecredit").error("Failed to import duecredit due to %s" % str(e))
     # Initiate due stub
     due = InactiveDueCreditCollector()

@@ -32,7 +32,7 @@ class TestVoronoiContainer(PymatgenTest):
             (6, [5, 5, 6.05]),
         ]
         random.shuffle(order_and_coords)
-        sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
+        arr_sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
         coords.extend([oc[1] for oc in order_and_coords])
         fake_structure = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
 
@@ -63,19 +63,19 @@ class TestVoronoiContainer(PymatgenTest):
         assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
         neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5)
         assert len(neighbors) == 1
-        assert neighbors[0]["site"] == fake_structure[sorted[0]]
+        assert neighbors[0]["site"] == fake_structure[arr_sorted[0]]
         neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
-        assert fake_structure[sorted[0]] in nbs
-        assert fake_structure[sorted[1]] in nbs
-        assert fake_structure[sorted[2]] in nbs
+        assert fake_structure[arr_sorted[0]] in nbs
+        assert fake_structure[arr_sorted[1]] in nbs
+        assert fake_structure[arr_sorted[2]] in nbs
         neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
-        assert fake_structure[sorted[0]] in nbs
-        assert fake_structure[sorted[1]] in nbs
-        assert fake_structure[sorted[2]] in nbs
+        assert fake_structure[arr_sorted[0]] in nbs
+        assert fake_structure[arr_sorted[1]] in nbs
+        assert fake_structure[arr_sorted[2]] in nbs
         neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5)
         assert len(neighbors) == 6
 
@@ -90,7 +90,7 @@ class TestVoronoiContainer(PymatgenTest):
             (6, [5, 5, 6.09]),
         ]
         random.shuffle(order_and_coords)
-        sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
+        arr_sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
         coords2.extend([oc[1] for oc in order_and_coords])
         fake_structure2 = Structure(cubic_lattice, species, coords2, coords_are_cartesian=True)
 
@@ -105,21 +105,21 @@ class TestVoronoiContainer(PymatgenTest):
         neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
-        assert fake_structure2[sorted[0]] in nbs
-        assert fake_structure2[sorted[1]] in nbs
-        assert fake_structure2[sorted[2]] in nbs
+        assert fake_structure2[arr_sorted[0]] in nbs
+        assert fake_structure2[arr_sorted[1]] in nbs
+        assert fake_structure2[arr_sorted[2]] in nbs
         neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
-        assert fake_structure2[sorted[0]] in nbs
-        assert fake_structure2[sorted[1]] in nbs
-        assert fake_structure2[sorted[2]] in nbs
+        assert fake_structure2[arr_sorted[0]] in nbs
+        assert fake_structure2[arr_sorted[1]] in nbs
+        assert fake_structure2[arr_sorted[2]] in nbs
         neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
-        assert fake_structure2[sorted[0]] in nbs
-        assert fake_structure2[sorted[1]] in nbs
-        assert fake_structure2[sorted[2]] in nbs
+        assert fake_structure2[arr_sorted[0]] in nbs
+        assert fake_structure2[arr_sorted[1]] in nbs
+        assert fake_structure2[arr_sorted[2]] in nbs
         neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5)
         assert len(neighbors) == 6
 

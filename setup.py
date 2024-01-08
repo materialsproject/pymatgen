@@ -24,11 +24,8 @@ long_description = (
 
 setup(
     name="pymatgen",
-    packages=find_namespace_packages(
-        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
-        exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
-    ),
-    version="2023.10.4",
+    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
+    version="2023.12.18",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
@@ -57,7 +54,6 @@ setup(
         "relaxation": ["matgl", "chgnet"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
-            "black",
             "mypy",
             "pre-commit",
             "pytest-cov",
@@ -72,8 +68,10 @@ setup(
         ],
         "optional": [
             "ase>=3.22.1",
-            # https://peps.python.org/pep-0508/#environment-markers
-            "BoltzTraP2>=22.3.2; platform_system!='Windows'",
+            # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
+            # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
+            # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
+            # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
             "chgnet",
             "f90nml>=1.1.2",
@@ -106,7 +104,7 @@ setup(
         "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
         "pymatgen.core": ["*.json"],
         "pymatgen": ["py.typed"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz", "*.json.bz2"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],

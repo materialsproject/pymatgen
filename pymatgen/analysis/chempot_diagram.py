@@ -281,14 +281,14 @@ class ChemicalPotentialDiagram(MSONable):
                     pts_2d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
 
             entry = self.entry_dict[formula]
-            ann_formula = formula
+            anno_formula = formula
             if hasattr(entry, "original_entry"):
-                ann_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.composition.reduced_formula
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
             ann_loc = center + 0.25 * normal  # offset annotation location by arb. amount
-            annotation = self._get_annotation(ann_loc, ann_formula)
+            annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
 
             draw_domains[formula] = pts_2d
@@ -353,11 +353,11 @@ class ChemicalPotentialDiagram(MSONable):
 
             simplexes, ann_loc = self._get_3d_domain_simplexes_and_ann_loc(pts_3d)
 
-            ann_formula = formula
+            anno_formula = formula
             if hasattr(entry, "original_entry"):
-                ann_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.composition.reduced_formula
 
-            annotation = self._get_annotation(ann_loc, ann_formula)
+            annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
 
             domain_simplexes[formula] = simplexes
@@ -466,7 +466,7 @@ class ChemicalPotentialDiagram(MSONable):
         into 2-dimensional space so that ConvexHull can be used to identify the
         bounding polygon.
         """
-        points_2d, v, w = simple_pca(points_3d, k=2)
+        points_2d, _v, w = simple_pca(points_3d, k=2)
         domain = ConvexHull(points_2d)
         centroid_2d = get_centroid_2d(points_2d[domain.vertices])
         ann_loc = centroid_2d @ w.T + np.mean(points_3d.T, axis=1)
@@ -648,7 +648,7 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
         k: Number of principal components returned
 
     Returns:
-        Tuple of projected data, eigenvalues, eigenvectors
+        tuple: projected data, eigenvalues, eigenvectors
     """
     data = data - np.mean(data.T, axis=1)  # centering the data
     cov = np.cov(data.T)  # calculating covariance matrix

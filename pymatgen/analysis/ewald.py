@@ -496,12 +496,9 @@ class EwaldMinimizer:
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
-
-    """
-    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
-    accuracy) as the minimizer runs. Attempts to limit the run time to
-    approximately 30 minutes.
-    """
+    # ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
+    # accuracy) as the minimizer runs. Attempts to limit the run time to
+    # approximately 30 minutes.
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
@@ -638,7 +635,7 @@ class EwaldMinimizer:
         Returns an index that should have the most negative effect on the
         matrix sum.
         """
-        # pylint: disable=E1126
+
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
         sums = np.sum(matrix[indices], axis=1)

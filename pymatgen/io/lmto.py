@@ -190,7 +190,7 @@ class LMTOCtrl:
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
         for cat in ["STRUC", "CLASS", "SITE"]:
-            fields = struct_lines[cat].split("=")  # pylint: disable=E1101
+            fields = struct_lines[cat].split("=")
             for f, field in enumerate(fields):
                 token = field.split()[-1]
                 if token == "ALAT":

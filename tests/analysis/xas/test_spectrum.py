@@ -64,7 +64,7 @@ class TestXAS(PymatgenTest):
         assert_array_equal(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
-        assert str(self.k_xanes) is not None
+        assert str(self.k_xanes) == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"
 
     def test_validate(self):
         y_zeros = np.zeros(len(self.k_xanes.x))

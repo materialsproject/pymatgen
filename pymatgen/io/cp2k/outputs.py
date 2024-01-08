@@ -314,8 +314,8 @@ class Cp2kOutput:
                     self.structures.append(
                         Structure(
                             lattice=latt,
-                            coords=[s.coords for s in mol.sites],
-                            species=[s.specie for s in mol.sites],
+                            coords=[s.coords for s in mol],
+                            species=[s.specie for s in mol],
                             coords_are_cartesian=True,
                             site_properties={"ghost": gs} if gs else {},
                             charge=self.charge,
@@ -1721,7 +1721,6 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
             (2) energy levels of this dos file
             (3) fermi energy (in eV).
         DOS object is not created here
-
     """
     spin = Spin(spin_channel) if spin_channel else Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 

@@ -303,8 +303,8 @@ class BaderAnalysis:
         Returns:
             Structure: with bader-analysis-based oxidation states.
         """
-        charges = [self.get_partial_charge(i, None if not nelects else nelects[i]) for i in range(len(self.structure))]
         struct = self.structure.copy()
+        charges = [self.get_partial_charge(idx, None if not nelects else nelects[idx]) for idx in range(len(struct))]
         struct.add_oxidation_state_by_site(charges)
         return struct
 
@@ -371,8 +371,7 @@ class BaderAnalysis:
         to perform Bader analysis.
 
         Args:
-            path (str): Name of directory where VASP output files are
-                stored.
+            path (str): Name of directory where VASP output files are stored.
             suffix (str): specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz').
 
         Returns:
@@ -380,7 +379,7 @@ class BaderAnalysis:
         """
 
         def _get_filepath(filename):
-            name_pattern = filename + suffix + "*" if filename != "POTCAR" else filename + "*"
+            name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
             paths = glob(f"{path}/{name_pattern}")
             fpath = ""
             if len(paths) >= 1:
@@ -394,10 +393,10 @@ class BaderAnalysis:
                 fpath = paths[0]
             else:
                 msg = f"Could not find {filename!r}"
-                if filename in ["AECCAR0", "AECCAR2"]:
-                    msg += ", cannot calculate charge transfer."
+                if filename in ("AECCAR0", "AECCAR2"):
+                    msg += ", interpret Bader results with severe caution."
                 elif filename == "POTCAR":
-                    msg += ", interpret Bader results with caution."
+                    msg += ", cannot calculate charge transfer."
                 warnings.warn(msg)
             return fpath
 
@@ -440,10 +439,9 @@ def bader_analysis_from_path(path, suffix=""):
         summary dict
     """
 
-    def _get_filepath(filename, warning, path=path, suffix=suffix):
+    def _get_filepath(filename, path=path, suffix=suffix):
         paths = glob(f"{path}/{filename}{suffix}*")
-        if not paths:
-            warnings.warn(warning)
+        if len(paths) == 0:
             return None
         if len(paths) > 1:
             # using reverse=True because, if multiple files are present,
@@ -457,13 +455,19 @@ def bader_analysis_from_path(path, suffix=""):
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
     chgcar = Chgcar.from_file(chgcar_path)
 
-    aeccar0_path = _get_filepath("AECCAR0", "Could not find AECCAR0, interpret Bader results with caution.")
+    aeccar0_path = _get_filepath("AECCAR0")
+    if not aeccar0_path:
+        warnings.warn("Could not find AECCAR0, interpret Bader results with severe caution!")
     aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
-    aeccar2_path = _get_filepath("AECCAR2", "Could not find AECCAR2, interpret Bader results with caution.")
+    aeccar2_path = _get_filepath("AECCAR2")
+    if not aeccar2_path:
+        warnings.warn("Could not find AECCAR2, interpret Bader results with severe caution!")
     aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
-    potcar_path = _get_filepath("POTCAR", "Could not find POTCAR, cannot calculate charge transfer.")
+    potcar_path = _get_filepath("POTCAR")
+    if not potcar_path:
+        warnings.warn("Could not find POTCAR, cannot calculate charge transfer.")
     potcar = Potcar.from_file(potcar_path) if potcar_path else None
 
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)

@@ -15,7 +15,6 @@ from pymatgen.analysis.magnetism import (
     magnetic_deformation,
 )
 from pymatgen.core import Element, Lattice, Species, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import TEST_FILES_DIR
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -25,45 +24,40 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
     def setUp(self):
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe.cif")
-        self.Fe = parser.get_structures()[0]
+        self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        self.LiFePO4 = parser.get_structures()[0]
+        self.LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
-        self.Fe3O4 = parser.get_structures()[0]
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif")
-        self.GdB4 = parser.get_structures()[0]
+        self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
-        self.NiO_expt = parser.get_structures()[0]
+        self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif", primitive=True)
 
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords)
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords)
 
-        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
-        self.NiO_AFM_111 = Structure(latt, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
+        self.NiO_AFM_111 = Structure(lattice, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_AFM_001 = Structure(latt, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
+        self.NiO_AFM_001 = Structure(lattice, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_AFM_001_opposite = Structure(latt, species, coords, site_properties={"magmom": [5, -5, 0, 0]})
+        self.NiO_AFM_001_opposite = Structure(lattice, species, coords, site_properties={"magmom": [5, -5, 0, 0]})
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_unphysical = Structure(latt, species, coords, site_properties={"magmom": [-3, 0, 0, 0]})
+        self.NiO_unphysical = Structure(lattice, species, coords, site_properties={"magmom": [-3, 0, 0, 0]})
 
     def test_get_representations(self):
         # tests to convert between storing magnetic moment information

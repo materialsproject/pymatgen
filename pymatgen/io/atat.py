@@ -5,9 +5,7 @@ from __future__ import annotations
 import numpy as np
 from monty.dev import deprecated
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Structure, get_el_sp
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -44,9 +42,7 @@ class Mcsqs:
         output = [f"{vec[0]:6f} {vec[1]:6f} {vec[2]:6f}" for vec in mat]
 
         # define coord system, use Cartesian
-        output.append("1.0 0.0 0.0")
-        output.append("0.0 1.0 0.0")
-        output.append("0.0 0.0 1.0")
+        output.extend(("1.0 0.0 0.0", "0.0 1.0 0.0", "0.0 0.0 1.0"))
 
         # add species
         for site in self.structure:

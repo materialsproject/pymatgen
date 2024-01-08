@@ -33,7 +33,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
         # Place the origin of the cell at each atomic site
         point_ops.append([])
 
-        for idx2, site2 in enumerate(struct):  # pylint: disable=C0200
+        for idx2, site2 in enumerate(struct):
             temp_struct.replace(
                 idx2,
                 site2.specie,

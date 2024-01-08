@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
-from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core import Element, Species
 
 
 def get_dopants_from_substitution_probabilities(structure, num_dopants=5, threshold=0.001, match_oxi_sign=False):

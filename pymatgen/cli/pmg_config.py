@@ -11,9 +11,13 @@ from glob import glob
 from typing import TYPE_CHECKING, Literal
 from urllib.request import urlretrieve
 
+from monty.json import jsanitize
 from monty.serialization import dumpfn, loadfn
+from ruamel import yaml
 
-from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE
+from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE, Element
+from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
+from pymatgen.io.cp2k.utils import chunk
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -30,13 +34,6 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
             print("Exiting ...")
             raise SystemExit(0)
     print("Generating pymatgen resource directory for CP2K...")
-
-    from monty.json import jsanitize
-    from ruamel import yaml
-
-    from pymatgen.core import Element
-    from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
-    from pymatgen.io.cp2k.utils import chunk
 
     basis_files = glob(f"{data_dir}/*BASIS*")
     potential_files = glob(f"{data_dir}/*POTENTIAL*")
@@ -143,8 +140,7 @@ def setup_potcars(potcar_dirs: list[str]):
             if len(filenames) > 0:
                 try:
                     base_dir = os.path.join(target_dir, basename)
-                    if not os.path.exists(base_dir):
-                        os.makedirs(base_dir)
+                    os.makedirs(base_dir, exist_ok=True)
                     fname = filenames[0]
                     dest = os.path.join(base_dir, os.path.basename(fname))
                     shutil.copy(fname, dest)

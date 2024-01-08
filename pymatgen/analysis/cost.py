@@ -16,11 +16,9 @@ from collections import defaultdict
 
 import scipy.constants as const
 from monty.design_patterns import singleton
-from monty.string import unicode2str
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 from pymatgen.util.provenance import is_valid_bibtex
 
 __author__ = "Anubhav Jain"
@@ -94,7 +92,7 @@ class CostDBCSV(CostDB):
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
         with open(filename) as f:
-            reader = csv.reader(f, quotechar=unicode2str("|"))
+            reader = csv.reader(f, quotechar="|")
             for row in reader:
                 comp = Composition(row[0])
                 cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A

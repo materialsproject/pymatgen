@@ -125,13 +125,13 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
     #     for _ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_dir}/{json_file}") as f:
-    #                 dd = json.load(f)
+    #             with open(f"{json_dir}/{json_file}") as file:
+    #                 dct = json.load(file)
 
-    #             atom_indices = dd["atom_indices"]
-    #             expected_geoms = dd["expected_geoms"]
+    #             atom_indices = dct["atom_indices"]
+    #             expected_geoms = dct["expected_geoms"]
 
-    #             struct = Structure.from_dict(dd["structure"])
+    #             struct = Structure.from_dict(dct["structure"])
 
     #             struct = self.lgf.setup_structure(struct)
     #             se = self.lgf.compute_structure_environments_detailed_voronoi(

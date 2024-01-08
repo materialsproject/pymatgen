@@ -33,6 +33,6 @@ def make_symmetric_matrix_from_upper_tri(val):
     mask = ~np.tri(3, k=-1, dtype=bool)
     out = np.zeros((3, 3), dtype=val.dtype)
     out[mask] = val
-    # pylint: disable=E1137
+
     out.T[mask] = val
     return out

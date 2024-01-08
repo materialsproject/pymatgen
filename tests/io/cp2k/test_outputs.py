@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-from pathlib import Path
 
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -12,8 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestSet(unittest.TestCase):
     def setUp(self):
-        test_dir = Path.joinpath(TEST_FILES_DIR, "cp2k")
-        self.out = Cp2kOutput(Path.joinpath(test_dir, "cp2k.out"), auto_load=True)
+        self.out = Cp2kOutput(f"{TEST_FILES_DIR}/cp2k/cp2k.out", auto_load=True)
 
     def test_files(self):
         """Can find files successfully."""

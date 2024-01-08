@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from scipy.spatial import ConvexHull
 
 from pymatgen.core.structure import Structure
@@ -200,10 +200,10 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
+        recp_symm_ops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
-            for op in recp_symmops:
+            for op in recp_symm_ops:
                 miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
                     all_hkl.append(miller)
@@ -332,8 +332,7 @@ class WulffShape:
                         break
             # make sure the lines are connected one by one.
             # find the way covering all pts and facets
-            pt.append(self.wulff_pt_list[line[0]].tolist())
-            pt.append(self.wulff_pt_list[line[1]].tolist())
+            pt.extend((self.wulff_pt_list[line[0]].tolist(), self.wulff_pt_list[line[1]].tolist()))
             prev = line[1]
 
         return pt
@@ -421,7 +420,7 @@ class WulffShape:
         r_range = max(np.linalg.norm(x) for x in wulff_pt_list)
         ax_3d.set_xlim([-r_range * 1.1, r_range * 1.1])
         ax_3d.set_ylim([-r_range * 1.1, r_range * 1.1])
-        ax_3d.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
+        ax_3d.set_zlim([-r_range * 1.1, r_range * 1.1])
         # add legend
         if legend_on:
             if show_area:
@@ -498,10 +497,10 @@ class WulffShape:
                 Joules per square meter (True)
 
         Return:
-            (plotly.graph_objs.Figure)
+            (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+        color_list, _color_proxy, _color_proxy_on_wulff, _miller_on_wulff, e_surf_on_wulff = self._get_colors(
             color_set, alpha, off_color, custom_colors=custom_colors or {}
         )
 
@@ -523,7 +522,7 @@ class WulffShape:
 
             # remove duplicate x y z pts to save time
             all_xyz = []
-            # pylint: disable=E1133,E1136
+
             [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T if list(coord) not in all_xyz]
             all_xyz = np.array(all_xyz).T
             x_pts, y_pts, z_pts = all_xyz[0], all_xyz[1], all_xyz[2]
@@ -655,7 +654,7 @@ class WulffShape:
     def area_fraction_dict(self):
         """
         Returns:
-            (dict): {hkl: area_hkl/total area on wulff}.
+            dict: {hkl: area_hkl/total area on wulff}.
         """
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
@@ -732,7 +731,7 @@ class WulffShape:
             pt = self.get_line_in_facet(facet)
 
             lines = []
-            for idx, _ in enumerate(pt):
+            for idx in range(len(pt)):
                 if idx == len(pt) / 2:
                     break
                 lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))

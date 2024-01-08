@@ -13,8 +13,8 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.composition import ChemicalPotential, Composition
-from pymatgen.core.periodic_table import DummySpecies, Element, Species
+from pymatgen.core import Composition, DummySpecies, Element, Species
+from pymatgen.core.composition import ChemicalPotential
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -105,6 +105,15 @@ class TestComposition(PymatgenTest):
         assert Element("Fe") not in comp
         assert Species("Fe2+") not in comp
 
+    def test_getitem(self):
+        comp = Composition({"Li+": 1, "Mn3+": 2, "O2-": 4, "Li": 1})
+        assert comp["Li"] == 2
+        assert comp["Li+"] == 1
+        assert comp["Mn3+"] == 2
+        assert comp["Mn"] == 2
+        assert comp["O2-"] == 4
+        assert comp["O"] == 4
+
     def test_hill_formula(self):
         c = Composition("CaCO3")
         assert c.hill_formula == "C Ca O3"
@@ -176,6 +185,15 @@ class TestComposition(PymatgenTest):
         assert Composition("K3 Na 2").reduced_formula == "K3Na2"
 
         assert Composition("Na 3 Zr (PO 4) 3").reduced_formula == "Na3Zr(PO4)3"
+
+        assert Composition("NaN").reduced_formula == "NaN"
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?"):
+            Composition(float("NaN"))
+
+        # test bad formulas raise ValueError
+        for bad_formula in ("", " ", "  2", "4 2", "6123", "1.2", "1/2", "1.2.3"):
+            with pytest.raises(ValueError, match=f"Invalid formula={bad_formula!r}"):
+                Composition(bad_formula)
 
     def test_to_latex_html_unicode(self):
         assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
@@ -269,8 +287,8 @@ class TestComposition(PymatgenTest):
         assert Composition("H6CN").get_integer_formula_and_factor(iupac_ordering=True)[0] == "CNH6"
 
         # test rounding
-        c = Composition({"Na": 2 - Composition.amount_tolerance / 2, "Cl": 2})
-        assert c.reduced_formula == "NaCl"
+        comp = Composition({"Na": 2 - Composition.amount_tolerance / 2, "Cl": 2})
+        assert comp.reduced_formula == "NaCl"
 
     def test_integer_formula(self):
         correct_reduced_formulas = [
@@ -299,8 +317,8 @@ class TestComposition(PymatgenTest):
     def test_num_atoms(self):
         correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
 
-        all_natoms = [c.num_atoms for c in self.comps]
-        assert all_natoms == correct_num_atoms
+        all_n_atoms = [c.num_atoms for c in self.comps]
+        assert all_n_atoms == correct_num_atoms
 
     def test_weight(self):
         correct_weights = [
@@ -360,22 +378,22 @@ class TestComposition(PymatgenTest):
             for el in c1.elements:
                 assert c1[el] == approx(c2[el], abs=1e-3)
 
-    def test_tofrom_weight_dict(self):
-        for c in self.comps:
-            c2 = Composition().from_weight_dict(c.to_weight_dict)
-            c.almost_equals(c2)
+    def test_to_from_weight_dict(self):
+        for comp in self.comps:
+            c2 = Composition().from_weight_dict(comp.to_weight_dict)
+            comp.almost_equals(c2)
 
     def test_as_dict(self):
-        c = Composition.from_dict({"Fe": 4, "O": 6})
-        d = c.as_dict()
+        comp = Composition.from_dict({"Fe": 4, "O": 6})
+        dct = comp.as_dict()
         correct_dict = {"Fe": 4.0, "O": 6.0}
-        assert d["Fe"] == correct_dict["Fe"]
-        assert d["O"] == correct_dict["O"]
+        assert dct["Fe"] == correct_dict["Fe"]
+        assert dct["O"] == correct_dict["O"]
         correct_dict = {"Fe": 2.0, "O": 3.0}
-        d = c.to_reduced_dict
-        assert isinstance(d, dict)
-        assert d["Fe"] == correct_dict["Fe"]
-        assert d["O"] == correct_dict["O"]
+        dct = comp.to_reduced_dict
+        assert isinstance(dct, dict)
+        assert dct["Fe"] == correct_dict["Fe"]
+        assert dct["O"] == correct_dict["O"]
 
     def test_pickle(self):
         for comp in self.comps:
@@ -392,7 +410,7 @@ class TestComposition(PymatgenTest):
         assert (self.comps[3] + {"Fe": 4, "O": 4}).formula == "Li4 Fe4 O8", "Incorrect composition after addition!"
 
         Fe = Element("Fe")
-        assert self.comps[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
+        assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_sub(self):
         assert (
@@ -409,7 +427,7 @@ class TestComposition(PymatgenTest):
         assert len((c1 - c2).elements) == 1
 
         Fe = Element("Fe")
-        assert self.comps[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
+        assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_mul(self):
         assert (self.comps[0] * 4).formula == "Li12 Fe8 P12 O48"
@@ -439,9 +457,9 @@ class TestComposition(PymatgenTest):
         assert c1 != c2
 
     def test_hash_robustness(self):
-        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
-        c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*1.01}")
-        c3 = Composition(f"O{0.2}Fe{0.8+Composition.amount_tolerance*0.99}")
+        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance * 0.99}")
+        c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance * 1.01}")
+        c3 = Composition(f"O{0.2}Fe{0.8 + Composition.amount_tolerance * 0.99}")
 
         assert c1 == c3, "__eq__ not robust"
         assert (c1 == c3) == (hash(c1) == hash(c3)), "Hash doesn't match eq when true"
@@ -520,8 +538,8 @@ class TestComposition(PymatgenTest):
         # test species
         c1 = Composition({"Mg": 1, "Mg2+": -1}, allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.element_composition == Composition()
-        assert c1.average_electroneg == 1.31
+        assert c1.element_composition == Composition("Mg-1", allow_negative=True)
+        assert c1.average_electroneg == 0.655
 
     def test_special_formulas(self):
         special_formulas = {
@@ -702,6 +720,24 @@ class TestComposition(PymatgenTest):
         example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
         c_new_4 = Ca2NF_oxi.replace(example_sub_4)
         assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
+
+    def test_is_charge_balanced(self):
+        false_dct = dict.fromkeys("FeO FeO2 MgO Mg2O3 Mg2O4".split(), False)
+        true_dct = dict.fromkeys("Fe2O3 FeO CaTiO3 SrTiO3 MgO Mg2O2".split(), True)
+
+        for formula, expected in (false_dct | true_dct).items():
+            comp = Composition(formula)
+            # by default, compositions contain elements, not species and hence have no oxidation states
+            assert comp.charge is None
+
+            # convert elements to species with oxidation states
+            oxi_comp = comp.add_charges_from_oxi_state_guesses()
+            assert oxi_comp.charge_balanced is expected, f"Failed for {formula=}"
+
+            if expected is True:
+                assert abs(oxi_comp.charge) < Composition.charge_balanced_tolerance
+            else:
+                assert oxi_comp.charge is None
 
 
 class TestChemicalPotential(unittest.TestCase):

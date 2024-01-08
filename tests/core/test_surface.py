@@ -376,7 +376,7 @@ class TestSlabGenerator(PymatgenTest):
         assert len(slab_non_prim) == len(slab) * 4
 
         # Some randomized testing of cell vectors
-        for i in range(1, 231):
+        for _ in range(1, 231):
             i = random.randint(1, 230)
             sg = SpaceGroup.from_int_number(i)
             if sg.crystal_system == "hexagonal" or (
@@ -511,9 +511,9 @@ class TestSlabGenerator(PymatgenTest):
         TeI_slabs = triclinic_TeI.get_slabs()
         slab = TeI_slabs[0]
         # Add site property to slab
-        sd_list = [[True, True, True] for site in slab.sites]
+        selective_dynamics = [[True, True, True] for _ in slab]
         new_sp = slab.site_properties
-        new_sp["selective_dynamics"] = sd_list
+        new_sp["selective_dynamics"] = selective_dynamics
         slab_with_site_props = slab.copy(site_properties=new_sp)
 
         # Get orthogonal slab

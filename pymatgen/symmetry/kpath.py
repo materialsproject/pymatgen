@@ -160,8 +160,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         if "magmom" in structure.site_properties:
             warn(
-                "'magmom' entry found in site properties but will be ignored \
-                  for the Setyawan and Curtarolo convention."
+                "'magmom' entry found in site properties but will be ignored for the Setyawan and Curtarolo convention."
             )
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
@@ -1218,7 +1217,7 @@ class KPathLatimerMunro(KPathBase):
         # than just the identity or identity * TR in the little group).
         # This function can be edited to alter high-symmetry criteria for choosing points and lines
 
-        point_orbits_in_path, line_orbits_in_path = self._choose_path(
+        _point_orbits_in_path, line_orbits_in_path = self._choose_path(
             key_points=key_points,
             key_points_inds_orbits=key_points_inds_orbits,
             key_lines_inds_orbits=key_lines_inds_orbits,
@@ -1333,7 +1332,7 @@ class KPathLatimerMunro(KPathBase):
 
         line_orbits_in_path = []
         point_orbits_in_path = []
-        for i, little_group in enumerate(little_groups_lines):
+        for idx, little_group in enumerate(little_groups_lines):
             add_rep = False
             nC2 = 0
             nC3 = 0
@@ -1355,8 +1354,8 @@ class KPathLatimerMunro(KPathBase):
                 add_rep = True
 
             if add_rep:
-                line_orbits_in_path.append(i)
-                line = key_lines_inds_orbits[i][0]
+                line_orbits_in_path.append(idx)
+                line = key_lines_inds_orbits[idx][0]
                 ind0 = line[0]
                 ind1 = line[1]
                 found0 = False
@@ -1377,9 +1376,9 @@ class KPathLatimerMunro(KPathBase):
 
         unconnected = []
 
-        for i in range(len(key_points_inds_orbits)):
-            if i not in point_orbits_in_path:
-                unconnected.append(i)
+        for idx in range(len(key_points_inds_orbits)):
+            if idx not in point_orbits_in_path:
+                unconnected.append(idx)
 
         for ind in unconnected:
             connect = False
@@ -1420,22 +1419,22 @@ class KPathLatimerMunro(KPathBase):
 
         # pymatgen gives BZ in Cartesian coordinates; convert to fractional in
         # the primitive basis for reciprocal space
-        for i, facet in enumerate(bz):
+        for idx, facet in enumerate(bz):
             for j, vert in enumerate(facet):
                 vert = self._rec_lattice.get_fractional_coords(vert)
-                bz[i][j] = vert
+                bz[idx][j] = vert
         pop = []
-        for i, facet in enumerate(bz):
+        for idx, facet in enumerate(bz):
             rounded_facet = np.around(facet, decimals=decimals)
             u, indices = np.unique(rounded_facet, axis=0, return_index=True)
             if len(u) in [1, 2]:
-                pop.append(i)
+                pop.append(idx)
             else:
-                bz[i] = [facet[j] for j in np.sort(indices)]
+                bz[idx] = [facet[j] for j in np.sort(indices)]
         bz = [bz[i] for i in range(len(bz)) if i not in pop]
 
         # use vertex points to calculate edge- and face- centers
-        for i, facet in enumerate(bz):
+        for idx, facet in enumerate(bz):
             bz_as_key_point_inds.append([])
             for j, vert in enumerate(facet):
                 edge_center = (vert + facet[j + 1]) / 2 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
@@ -1443,30 +1442,30 @@ class KPathLatimerMunro(KPathBase):
                 duplicateedge = False
                 for k, point in enumerate(key_points):
                     if np.allclose(vert, point, atol=self._atol):
-                        bz_as_key_point_inds[i].append(k)
+                        bz_as_key_point_inds[idx].append(k)
                         duplicatevert = True
                         break
                 for k, point in enumerate(key_points):
                     if np.allclose(edge_center, point, atol=self._atol):
-                        bz_as_key_point_inds[i].append(k)
+                        bz_as_key_point_inds[idx].append(k)
                         duplicateedge = True
                         break
                 if not duplicatevert:
                     key_points.append(vert)
-                    bz_as_key_point_inds[i].append(len(key_points) - 1)
+                    bz_as_key_point_inds[idx].append(len(key_points) - 1)
                 if not duplicateedge:
                     key_points.append(edge_center)
-                    bz_as_key_point_inds[i].append(len(key_points) - 1)
+                    bz_as_key_point_inds[idx].append(len(key_points) - 1)
             if len(facet) == 4:  # parallelogram facet
                 face_center = (facet[0] + facet[1] + facet[2] + facet[3]) / 4.0
                 key_points.append(face_center)
                 face_center_inds.append(len(key_points) - 1)
-                bz_as_key_point_inds[i].append(len(key_points) - 1)
+                bz_as_key_point_inds[idx].append(len(key_points) - 1)
             else:  # hexagonal facet
                 face_center = (facet[0] + facet[1] + facet[2] + facet[3] + facet[4] + facet[5]) / 6.0
                 key_points.append(face_center)
                 face_center_inds.append(len(key_points) - 1)
-                bz_as_key_point_inds[i].append(len(key_points) - 1)
+                bz_as_key_point_inds[idx].append(len(key_points) - 1)
 
         # add gamma point
         key_points.append(np.array([0, 0, 0]))
@@ -1734,23 +1733,23 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def _get_reciprocal_point_group(ops, R, A):
-        Ainv = np.linalg.inv(A)
+        A_inv = np.linalg.inv(A)
         # convert to reciprocal primitive basis
-        recip_point_group = [np.around(np.dot(A, np.dot(R, Ainv)), decimals=2)]
+        recip_point_group = [np.around(np.dot(A, np.dot(R, A_inv)), decimals=2)]
         for op in ops:
-            op = np.around(np.dot(A, np.dot(op, Ainv)), decimals=2)
+            recip = np.around(np.dot(A, np.dot(op, A_inv)), decimals=2)
             new = True
             new_coset = True
             for thing in recip_point_group:
-                if (thing == op).all():
+                if (thing == recip).all():
                     new = False
-                if (thing == np.dot(R, op)).all():
+                if (thing == np.dot(R, recip)).all():
                     new_coset = False
 
             if new:
-                recip_point_group.append(op)
+                recip_point_group.append(recip)
             if new_coset:
-                recip_point_group.append(np.dot(R, op))
+                recip_point_group.append(np.dot(R, recip))
 
         return recip_point_group
 
@@ -2182,7 +2181,7 @@ class KPathLatimerMunro(KPathBase):
         max_cosine_orbits_copy = max_cosine_orbits_orig.copy()
         max_cosine_label_inds = np.zeros(len(max_cosine_orbits_copy))
         initial_max_cosine_label_inds = [max_cos_orb[0][0] for max_cos_orb in max_cosine_orbits_copy]
-        u, inds, counts = np.unique(initial_max_cosine_label_inds, return_index=True, return_counts=True)
+        _uniq_vals, inds, counts = np.unique(initial_max_cosine_label_inds, return_index=True, return_counts=True)
         grouped_inds = [
             [
                 i

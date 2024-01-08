@@ -83,19 +83,19 @@ class TestConnectedComponent(PymatgenTest):
         assert len(cc2.graph) == 6
 
     def test_serialization(self):
-        lat = Lattice.hexagonal(a=2.0, c=2.5)
+        lattice = Lattice.hexagonal(a=2.0, c=2.5)
         en1 = EnvironmentNode(
-            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
+            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lattice),
             i_central_site=3,
             ce_symbol="T:4",
         )
         en2 = EnvironmentNode(
-            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.0, 0.5]), lattice=lat),
+            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.0, 0.5]), lattice=lattice),
             i_central_site=5,
             ce_symbol="T:4",
         )
         en3 = EnvironmentNode(
-            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.5, 0.5]), lattice=lat),
+            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.5, 0.5]), lattice=lattice),
             i_central_site=8,
             ce_symbol="O:6",
         )
@@ -125,13 +125,13 @@ class TestConnectedComponent(PymatgenTest):
         sorted_edges = sorted(sorted(e) for e in cc.graph.edges())
         assert sorted_edges == ref_sorted_edges
 
-        ccfromdict = ConnectedComponent.from_dict(cc.as_dict())
-        ccfromjson = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
-        loaded_cc_list = [ccfromdict, ccfromjson]
+        cc_from_dict = ConnectedComponent.from_dict(cc.as_dict())
+        cc_from_json = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
+        loaded_cc_list = [cc_from_dict, cc_from_json]
         if bson is not None:
             bson_data = bson.BSON.encode(cc.as_dict())
-            ccfrombson = ConnectedComponent.from_dict(bson_data.decode())
-            loaded_cc_list.append(ccfrombson)
+            cc_from_bson = ConnectedComponent.from_dict(bson_data.decode())
+            loaded_cc_list.append(cc_from_bson)
         for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
@@ -145,18 +145,18 @@ class TestConnectedComponent(PymatgenTest):
                 assert isinstance(node.central_site, PeriodicSite)
 
     def test_serialization_private_methods(self):
-        # Testing _edgekey_to_edgedictkey
-        key = ConnectedComponent._edgekey_to_edgedictkey(3)
+        # Testing _edge_key_to_edge_dict_key
+        key = ConnectedComponent._edge_key_to_edge_dict_key(3)
         assert key == "3"
         with pytest.raises(
             RuntimeError,
             match=r"Cannot pass an edge key which is a str representation of an int\x2E",
         ):
-            key = ConnectedComponent._edgekey_to_edgedictkey("5")
-        key = ConnectedComponent._edgekey_to_edgedictkey("some-key")
+            key = ConnectedComponent._edge_key_to_edge_dict_key("5")
+        key = ConnectedComponent._edge_key_to_edge_dict_key("some-key")
         assert key == "some-key"
         with pytest.raises(ValueError, match=r"Edge key should be either a str or an int\x2E"):
-            key = ConnectedComponent._edgekey_to_edgedictkey(0.2)
+            key = ConnectedComponent._edge_key_to_edge_dict_key(0.2)
 
     def test_periodicity(self):
         env_node1 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")
