@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from shutil import which
 
 from pytest import approx
 
@@ -16,7 +17,7 @@ __status__ = "Production"
 __date__ = "July 2017"
 
 
-# @unittest.skipIf(not which("critic2"), "critic2 executable not present")
+@unittest.skipIf(not which("critic2"), "critic2 executable not present")
 class TestCritic2Caller(unittest.TestCase):
     def test_from_path(self):
         # uses CHGCARs
