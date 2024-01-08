@@ -2,6 +2,13 @@ name: Report a Bug
 description: Use this template to report a Pymatgen-related bug
 labels: bug
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Try GitHub Codespaces for auto environment setup and streamlined info collection:
+
+        [![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/materialsproject/pymatgen?quickstart=1)
+
   - type: input
     id: python-version
     attributes:
