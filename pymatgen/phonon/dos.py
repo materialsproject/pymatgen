@@ -1,4 +1,4 @@
-"""This module defines classes to represent the phonon density of states, etc."""
+"""This module defines classes to represent the phonon density of states."""
 
 from __future__ import annotations
 
@@ -251,7 +251,7 @@ class PhononDos(MSONable):
             **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
-            Phonon contribution to the internal energy
+            float: Phonon contribution to the internal energy
         """
         temp = kwargs.get("t", temp)
         if temp == 0:
@@ -286,7 +286,7 @@ class PhononDos(MSONable):
             **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
-            Phonon contribution to the Helmholtz free energy
+            float: Phonon contribution to the Helmholtz free energy
         """
         temp = kwargs.get("t", temp)
         if temp == 0:
@@ -367,7 +367,7 @@ class PhononDos(MSONable):
         if var == 0:
             return 0
         mse = ((self.densities - other.densities) ** 2).mean()
-        return (var - mse) / var
+        return 1 - mse / var
 
     def get_last_peak(self, threshold: float = 0.05) -> float:
         """Find the last peak in the phonon DOS defined as the highest frequency with a DOS
@@ -438,7 +438,7 @@ class CompletePhononDos(PhononDos):
             site: Site in Structure associated with CompletePhononDos.
 
         Returns:
-            PhononDos containing summed orbital densities for site.
+            PhononDos: containing summed orbital densities for site.
         """
         return PhononDos(self.frequencies, self.pdos[site])
 
