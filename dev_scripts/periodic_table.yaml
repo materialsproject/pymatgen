@@ -14522,8 +14522,14 @@ D:
   Atomic no: 1
   Atomic mass: 2.013553212712
   Atomic mass no: 2
+  Common oxidation states:
+  - -1
+  - 1
   Is named isotope: true
   Name: Deuterium
+  Oxidation states:
+  - -1
+  - 1
   Shannon radii:
     1:
       II:
@@ -14535,6 +14541,12 @@ T:
   Atomic no: 1
   Atomic mass: 3.0155007134
   Atomic mass no: 3
+  Common oxidation states:
+  - -1
+  - 1
   Is named isotope: true
   Name: Tritium
+  Oxidation states:
+  - -1
+  - 1
   Electron affinity:

@@ -9,7 +9,7 @@ from pytest import approx
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.io.cif import CifAssessor, CifBlock, CifParser, CifWriter
+from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -1000,13 +1000,12 @@ Gd1 5.05 5.05 0.0"""
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
 
 
-class TestCifAssessor(PymatgenTest):
+class TestCifParserAssess(PymatgenTest):
     def test_valid_cif(self):
         cif = CifParser(f"{TEST_FILES_DIR}/CsI3Pb.cif")
         structure = Structure.from_file(f"{TEST_FILES_DIR}/CsI3Pb.cif")
-        assessment = CifAssessor(structure, cif.as_dict())
-        assert assessment.passed
-        assert len(assessment.reasons) == 0
+        failure_reason = cif.assess(structure)
+        assert failure_reason is None
 
     def test_missing_elements(self):
         cif_str = ""
@@ -1023,9 +1022,8 @@ class TestCifAssessor(PymatgenTest):
 
         cif = CifParser.from_str(cif_str)
         structure = Structure.from_str(cif_str, "cif")
-        assessment = CifAssessor(structure, cif.as_dict())
-        assert "Missing elements H from PMG structure composition" in assessment.reasons
-        assert not assessment.passed
+        failure_reason = cif.assess(structure)
+        assert failure_reason == "Missing elements H from PMG structure composition"
 
     def test_incorrect_stoichiometry(self):
         cif_str = ""
@@ -1037,27 +1035,31 @@ class TestCifAssessor(PymatgenTest):
 
         cif = CifParser.from_str(cif_str)
         structure = Structure.from_str(cif_str, "cif")
-        assessment = CifAssessor(structure, cif.as_dict())
-        assert any("Incorrect stoichiometry" in reason for reason in assessment.reasons)
-        assert not assessment.passed
+        failure_reason = cif.assess(structure)
+        assert "Incorrect stoichiometry" in failure_reason
 
     def test_missing_cif_composition(self):
-        cif = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        cifd = cif.as_dict()
-        # remove only key that would give info about CIF composition
-        cifd[next(iter(cifd))].pop("_atom_site_type_symbol")
-        assessment = CifAssessor(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"), cifd)
-        assert "Cannot determine chemical composition from CIF!" in assessment.reasons
-        assert not assessment.passed
+        with open(f"{TEST_FILES_DIR}/LiFePO4.cif") as file:
+            cif_str = file.read()
+        # remove only key that gives info about CIF composition in this file
+        cif_str = "\n".join([line for line in cif_str.split("\n") if "_atom_site_type_symbol" not in line])
+        test_cif_file = f"{self.tmp_path}/test_broken.cif"
+        with open(test_cif_file, "w+") as file:
+            file.write(cif_str)
+
+        cif = CifParser(test_cif_file)
+        failure_reason = cif.assess(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        assert failure_reason == "Cannot determine chemical composition from CIF!"
 
     def test_invalid_cif_composition(self):
-        cif = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        cifd = cif.as_dict()
+        with open(f"{TEST_FILES_DIR}/LiFePO4.cif") as file:
+            cif_str = file.read()
 
-        # replace Li with dummy atom X
-        cifd[next(iter(cifd))]["_atom_site_type_symbol"] = [
-            x if x != "Li" else "X" for x in cifd[next(iter(cifd))]["_atom_site_type_symbol"]
-        ]
-        assessment = CifAssessor(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"), cifd)
-        assert "Exception: 'X' is not a valid Element" in assessment.reasons
-        assert not assessment.passed
+        test_cif_file = f"{self.tmp_path}/test_broken.cif"
+        with open(test_cif_file, "w+") as file:
+            # replace Li with dummy atom X
+            file.write(cif_str.replace("Li", "X"))
+
+        cif = CifParser(test_cif_file)
+        failure_reason = cif.assess(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        assert failure_reason == "Exception: 'X' is not a valid Element"

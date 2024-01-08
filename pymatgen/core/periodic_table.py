@@ -531,7 +531,7 @@ class ElementBase(Enum):
         Returns:
             Element with the name 'name'
         """
-        # to accommodate the British Enlgish speaking world
+        # to accommodate the British English speaking world
         GBE_to_AmE = {"aluminium": "aluminum", "caesium": "cesium"}
         name = GBE_to_AmE.get(name.lower(), name)
         for sym, data in _pt_data.items():
@@ -969,11 +969,14 @@ class Species(MSONable, Stringify):
 
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
-        if not hasattr(other, "oxi_state") or not hasattr(other, "symbol") or not hasattr(other, "spin"):
+        if any(not hasattr(other, attribute) for attribute in ("oxi_state", "symbol", "spin", "A")):
             return NotImplemented
 
         return (
-            self.symbol == other.symbol and self.oxi_state == other.oxi_state and (self.spin == other.spin)  # type: ignore
+            self.symbol == other.symbol  # type: ignore
+            and self.oxi_state == other.oxi_state  # type: ignore
+            and (self.spin == other.spin)  # type: ignore
+            and self.A == other.A  # type: ignore
         )
 
     def __hash__(self) -> int:

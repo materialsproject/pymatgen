@@ -1141,10 +1141,9 @@ class CifParser:
                 struct = struct.get_reduced_structure()
 
             if self.check_cif:
-                cif_sanity_check = CifAssessor(structure=struct, cif_as_dict=self.as_dict(), tol=self.cif_assessor_tol)
-                if not cif_sanity_check.passed:
-                    for reason in cif_sanity_check.reasons:
-                        warnings.warn(reason)
+                cif_failure_reason = self.assess(struct)
+                if cif_failure_reason is not None:
+                    warnings.warn(cif_failure_reason)
 
             return struct
         return None
@@ -1322,6 +1321,86 @@ class CifParser:
     def has_errors(self):
         """Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
+
+    def assess(self, structure: Structure) -> str | None:
+        """
+        Check whether PMG structure constructed from CIF passes sanity checks.
+
+        args:
+            structure (Structure) : structure created from CIF
+
+        returns:
+            str | None
+
+        Checks:
+            - Composition from CIF is valid
+            - CIF composition contains only valid elements
+            - CIF and structure contain the same elements (often hydrogens
+                are omitted from CIFs, as their positions cannot be determined)
+            -  CIF and structure have same relative stoichiometry. Thus
+                if CIF reports stoichiometry LiFeO, and the structure has
+                composition (LiFeO)4, this check passes.
+
+        If any check fails, on output, returns a human-readable str for the
+        reason why (e.g., which elements are missing).
+
+        If all checks pass, returns None.
+        """
+        failure_reason = None
+
+        cif_as_dict = self.as_dict()
+        head_key = next(iter(cif_as_dict))
+
+        cif_formula = None
+        for key in ["_chemical_formula_sum", "_chemical_formula_structural"]:
+            if cif_as_dict[head_key].get(key):
+                cif_formula = cif_as_dict[head_key][key]
+                break
+
+        if cif_formula is None and cif_as_dict[head_key].get("_atom_site_type_symbol"):
+            cif_formula = " ".join(cif_as_dict[head_key]["_atom_site_type_symbol"])
+
+        try:
+            cif_composition = Composition(cif_formula)
+        except Exception:
+            return "Cannot determine chemical composition from CIF!"
+
+        try:
+            orig_comp = cif_composition.remove_charges().as_dict()
+            struct_comp = structure.composition.remove_charges().as_dict()
+        except Exception as exc:
+            return f"Exception: {exc}"
+
+        orig_comp_elts = {str(elt) for elt in orig_comp}
+        struct_comp_elts = {str(elt) for elt in struct_comp}
+
+        if orig_comp_elts != struct_comp_elts:
+            # hard failure - missing elements
+
+            missing = set(orig_comp_elts).difference(set(struct_comp_elts))
+            addendum = "from PMG structure composition"
+            if len(missing) == 0:
+                addendum = "from CIF reported composition"
+                missing = set(struct_comp_elts).difference(set(orig_comp_elts))
+            missing_str = ", ".join([str(x) for x in missing])
+            failure_reason = f"Missing elements {missing_str} {addendum}"
+
+        elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
+            """
+            Check that stoichiometry is same, i.e., same relative ratios of elements
+            """
+            ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
+
+            same_stoich = all(
+                abs(ratios[elt_a] - ratios[elt_b]) < self.cif_assessor_tol
+                for elt_a in orig_comp_elts
+                for elt_b in orig_comp_elts
+            )
+
+            if not same_stoich:
+                failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
+
+        return failure_reason
 
 
 class CifWriter:
@@ -1548,114 +1627,3 @@ def str2float(text):
             return 0
         raise exc
     raise ValueError(f"{text} cannot be converted to float")
-
-
-class CifAssessor:
-    """
-    Check whether PMG structure constructed from CIF matches CIF stoichiometry.
-
-    args:
-        structure (Structure) : structure created from CIF
-        cif_as_dict (dict): CifParser.as_dict()
-        tol (float) : tolerance for evaluating how closely stoichiometries match
-
-    If a CIF passes all checks, CifAssessor.passed = True on init
-
-    If a CIF fails at least one check, CifAssessor.reasons contains a list of
-    reasons why a CIF may be invalid.
-    """
-
-    def __init__(
-        self,
-        structure: Structure,
-        cif_as_dict: dict,
-        tol: float = 1.0e-2,
-    ) -> None:
-        self.tol = tol
-        self.structure = structure
-        self.cif = cif_as_dict
-
-        self.assess()
-
-    @property
-    def cif_composition(self) -> Composition | None:
-        # Composition reported in CIF file
-        head_key = next(iter(self.cif))
-
-        cif_formula = None
-        for key in ["_chemical_formula_sum", "_chemical_formula_structural"]:
-            if self.cif[head_key].get(key):
-                cif_formula = self.cif[head_key][key]
-                break
-
-        if cif_formula is None and self.cif[head_key].get("_atom_site_type_symbol"):
-            cif_formula = " ".join(self.cif[head_key]["_atom_site_type_symbol"])
-
-        try:
-            return Composition(cif_formula)
-        except Exception:
-            return None
-
-    def stoichiometry_reason(self, cif_comp, pmg_comp, ratios) -> str:
-        # reason returned when relative stoichiometries differ
-        return f"Incorrect stoichiometry:\n  CIF={cif_comp}\n  PMG={pmg_comp}\n  {ratios=}"
-
-    def missing_elements_reason(self, cif_elts, pmg_elts) -> str:
-        # reason returned when the chemical spaces of the CIF and structure differ
-        missing = set(cif_elts).difference(set(pmg_elts))
-        addendum = "from PMG structure composition"
-        if len(missing) == 0:
-            addendum = "from CIF reported composition"
-            missing = set(pmg_elts).difference(set(cif_elts))
-        missing_str = ", ".join([str(x) for x in missing])
-        return f"Missing elements {missing_str} {addendum}"
-
-    def assess(self) -> None:
-        """
-        Check CIF for valid composition and stoichiometry.
-
-        Checks:
-            - Composition from CIF is valid
-            - CIF composition contains only valid elements
-            - CIF and structure contain the same elements (often hydrogens
-                are omitted from CIFs, as their positions cannot be determined)
-            -  CIF and structure have same relative stoichiometry. Thus
-                if CIF reports stoichiometry LiFeO, and the structure has
-                composition (LiFeO)4, this check passes.
-        """
-        self.passed = True
-        self.reasons = []
-
-        if self.cif_composition is None:
-            self.passed = False
-            self.reasons.append("Cannot determine chemical composition from CIF!")
-            return
-
-        try:
-            orig_comp = self.cif_composition.remove_charges().as_dict()
-            struct_comp = self.structure.composition.remove_charges().as_dict()
-        except Exception as exc:
-            self.passed = False
-            self.reasons.append(f"Exception: {exc}")
-            return
-
-        orig_comp_elts = {str(elt) for elt in orig_comp}
-        struct_comp_elts = {str(elt) for elt in struct_comp}
-        if orig_comp_elts != struct_comp_elts:
-            # hard failure - missing elements
-            self.passed = False
-            self.reasons.append(self.missing_elements_reason(orig_comp_elts, struct_comp_elts))
-
-        elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
-            """
-            Check that stoichiometry is same, i.e., same relative ratios of elements
-            """
-            ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
-
-            same_stoich = all(
-                abs(ratios[elt_a] - ratios[elt_b]) < self.tol for elt_a in orig_comp_elts for elt_b in orig_comp_elts
-            )
-
-            if not same_stoich:
-                self.passed = False
-                self.reasons.append(self.stoichiometry_reason(orig_comp, struct_comp, ratios))
