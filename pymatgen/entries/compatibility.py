@@ -630,18 +630,25 @@ class CorrectionsList(Compatibility):
     MITCompatibility subclasses instead.
     """
 
-    def __init__(self, corrections: Sequence[Correction]):
+    def __init__(self, corrections: Sequence[Correction], run_types: list[str] | None = None):
         """
         Args:
             corrections (list[Correction]): Correction objects to apply.
+            run_types: Valid DFT run_types for this correction scheme. Entries with run_type
+                other than those in this list will be excluded from the list returned
+                by process_entries. The default value captures both GGA and GGA+U run types
+                historically used by the Materials Project, for example in.
         """
+        if run_types is None:
+            run_types = ["GGA", "GGA+U", "PBE", "PBE+U"]
         self.corrections = corrections
+        self.run_types = run_types
         super().__init__()
 
     def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
         """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
+        if entry.parameters.get("run_type") not in self.run_types:
             raise CompatibilityError(
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
                 f"Must be GGA or GGA+U. Discarding."
