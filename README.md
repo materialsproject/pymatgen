@@ -67,7 +67,7 @@ The minimum Python version is 3.9. Some extra functionality (e.g., generation of
 
 ## Change Log
 
-Please check [GitHub releases](https://github.com/materialsproject/pymatgen/releases) and [commit history](https://github.com/materialsproject/pymatgen/commits/master) for the latest changes. A legacy changelog is still up at <https://pymatgen.org/change_log>.
+See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`docs/CHANGES.md`](docs/CHANGES.md) or [commit history](https://github.com/materialsproject/pymatgen/commits/master) in increasing order of details.
 
 ## Using pymatgen
 

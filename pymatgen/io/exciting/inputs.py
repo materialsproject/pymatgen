@@ -243,8 +243,8 @@ class ExcitingInput(MSONable):
                     symbol = kpath.kpath["path"][idx][j]
                     coords = kpath.kpath["kpoints"][symbol]
                     coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
-                    if symbol == "\\Gamma":
-                        symbol = "GAMMA"
+                    symbol_map = {"\\Gamma": "GAMMA", "\\Sigma": "SIGMA", "\\Delta": "DELTA", "\\Lambda": "LAMBDA"}
+                    symbol = symbol_map.get(symbol, symbol)
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
         elif bandstr and celltype != "primitive":
             raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")

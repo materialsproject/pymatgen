@@ -1,4 +1,4 @@
-"""This module defines classes to represent the phonon density of states, etc."""
+"""This module defines classes to represent the phonon density of states."""
 
 from __future__ import annotations
 
@@ -37,11 +37,14 @@ class PhononDos(MSONable):
         std dev sigma applied.
 
         Args:
-            sigma: Std dev of Gaussian smearing function.
+            sigma: Std dev of Gaussian smearing function. In units of
+                THz. Common values are 0.01 - 0.1 THz.
 
         Returns:
-            Gaussian-smeared densities.
+            np.array: Gaussian-smeared DOS densities.
         """
+        if sigma == 0:
+            return self.densities
         diff = [self.frequencies[idx + 1] - self.frequencies[idx] for idx in range(len(self.frequencies) - 1)]
         avg_diff = sum(diff) / len(diff)
 
@@ -248,7 +251,7 @@ class PhononDos(MSONable):
             **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
-            Phonon contribution to the internal energy
+            float: Phonon contribution to the internal energy
         """
         temp = kwargs.get("t", temp)
         if temp == 0:
@@ -283,7 +286,7 @@ class PhononDos(MSONable):
             **kwargs: allows passing in deprecated t parameter for temp
 
         Returns:
-            Phonon contribution to the Helmholtz free energy
+            float: Phonon contribution to the Helmholtz free energy
         """
         temp = kwargs.get("t", temp)
         if temp == 0:
@@ -329,6 +332,84 @@ class PhononDos(MSONable):
 
         return zpe
 
+    def mae(self, other: PhononDos, two_sided: bool = True) -> float:
+        """Mean absolute error between two DOSs.
+
+        Args:
+            other (PhononDos): Another phonon DOS
+            two_sided (bool): Whether to calculate the two-sided MAE meaning interpolate each DOS to the
+                other's frequencies and averaging the two MAEs. Defaults to True.
+
+        Returns:
+            float: Mean absolute error.
+        """
+        # Interpolate other.densities to align with self.frequencies
+        self_interpolated = np.interp(self.frequencies, other.frequencies, other.densities)
+        self_mae = np.abs(self.densities - self_interpolated).mean()
+
+        if two_sided:
+            other_interpolated = np.interp(other.frequencies, self.frequencies, self.densities)
+            other_mae = np.abs(other.densities - other_interpolated).mean()
+            return (self_mae + other_mae) / 2
+
+        return self_mae
+
+    def r2_score(self, other: PhononDos) -> float:
+        """R^2 score between two DOSs.
+
+        Args:
+            other (PhononDos): Another phonon DOS
+
+        Returns:
+            float: R^2 score
+        """
+        var = self.densities.var()
+        if var == 0:
+            return 0
+        mse = ((self.densities - other.densities) ** 2).mean()
+        return 1 - mse / var
+
+    def get_last_peak(self, threshold: float = 0.05) -> float:
+        """Find the last peak in the phonon DOS defined as the highest frequency with a DOS
+        value at least threshold * height of the overall highest DOS peak.
+        A peak is any local maximum of the DOS as a function of frequency.
+        Use dos.get_interpolated_value(peak_freq) to get density at peak_freq.
+
+        TODO method added by @janosh on 2023-12-18. seems to work in most cases but
+        was not extensively tested. PRs with improvements welcome!
+
+        Args:
+            threshold (float, optional): Minimum ratio of the height of the last peak
+                to the height of the highest peak. Defaults to 0.05 = 5%. In case no peaks
+                are high enough to match, the threshold is reset to half the height of the
+                second-highest peak.
+
+        Returns:
+            float: last DOS peak frequency (in THz)
+        """
+        first_deriv = np.gradient(self.densities, self.frequencies)
+        second_deriv = np.gradient(first_deriv, self.frequencies)
+
+        maxima = (  # maxima indices of the first DOS derivative w.r.t. frequency
+            (first_deriv[:-1] > 0) & (first_deriv[1:] < 0) & (second_deriv[:-1] < 0)
+        )
+        # get mean of the two nearest frequencies around the maximum as better estimate
+        maxima_freqs = (self.frequencies[:-1][maxima] + self.frequencies[1:][maxima]) / 2
+
+        # filter maxima based on the threshold
+        max_dos = max(self.densities)
+        threshold = threshold * max_dos
+        filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
+
+        if len(filtered_maxima_freqs) == 0:
+            # if no maxima reach the threshold (i.e. 1 super high peak and all other peaks
+            # tiny), use half the height of second highest peak as threshold
+            second_highest_peak = sorted(self.densities)[-2]
+            threshold = second_highest_peak / 2
+            filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
+
+        return max(filtered_maxima_freqs)
+
 
 class CompletePhononDos(PhononDos):
     """This wrapper class defines a total dos, and also provides a list of PDos.
@@ -339,15 +420,15 @@ class CompletePhononDos(PhononDos):
             Site is a pymatgen.core.sites.Site object.
     """
 
-    def __init__(self, structure: Structure, total_dos, pdoses: dict) -> None:
+    def __init__(self, structure: Structure, total_dos, ph_doses: dict) -> None:
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoses: The pdoses are supplied as a dict of {Site: Densities}.
+            ph_doses: The phonon DOSes are supplied as a dict of {Site: Densities}.
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = {site: np.array(dens) for site, dens in pdoses.items()}
+        self.pdos = {site: np.array(dens) for site, dens in ph_doses.items()}
         self.structure = structure
 
     def get_site_dos(self, site) -> PhononDos:
@@ -357,7 +438,7 @@ class CompletePhononDos(PhononDos):
             site: Site in Structure associated with CompletePhononDos.
 
         Returns:
-            PhononDos containing summed orbital densities for site.
+            PhononDos: containing summed orbital densities for site.
         """
         return PhononDos(self.frequencies, self.pdos[site])
 
@@ -379,11 +460,11 @@ class CompletePhononDos(PhononDos):
     @classmethod
     def from_dict(cls, dct: dict) -> CompletePhononDos:
         """Returns CompleteDos object from dict representation."""
-        tdos = PhononDos.from_dict(dct)
+        total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        pdoss = dict(zip(struct, dct["pdos"]))
+        ph_doses = dict(zip(struct, dct["pdos"]))
 
-        return cls(struct, tdos, pdoss)
+        return cls(struct, total_dos, ph_doses)
 
     def as_dict(self):
         """JSON-serializable dict representation of CompletePhononDos."""
@@ -396,8 +477,8 @@ class CompletePhononDos(PhononDos):
             "pdos": [],
         }
         if len(self.pdos) > 0:
-            for at in self.structure:
-                dct["pdos"].append(list(self.pdos[at]))
+            for site in self.structure:
+                dct["pdos"].append(list(self.pdos[site]))
         return dct
 
     def __str__(self) -> str:
