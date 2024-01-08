@@ -5,7 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        **🚀 Try the new Codespaces, setup env and collect info made easy, click the below button:**
+        Try GitHub Codespaces for auto environment setup and streamlined info collection:
+
         [![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/materialsproject/pymatgen?quickstart=1)
 
   - type: input
