@@ -200,14 +200,8 @@ class GasCorrection(Correction):
             Correction.
         """
         comp = entry.composition
-
-        correction = ufloat(0.0, 0.0)
-
         # set error to 0 because old MPCompatibility doesn't have errors
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            return ufloat(0.0, 0.0)
+        correction = ufloat(0.0, 0.0)
 
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
@@ -251,10 +245,6 @@ class AnionCorrection(Correction):
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -350,10 +340,6 @@ class AqueousCorrection(Correction):
         comp = entry.composition
         rform = comp.reduced_formula
         cpd_energies = self.cpd_energies
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
 
@@ -465,21 +451,12 @@ class UCorrection(Correction):
         Returns:
             Correction, Uncertainty.
         """
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            raise CompatibilityError(
-                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
-            )
-
         calc_u = entry.parameters.get("hubbards") or defaultdict(int)
         comp = entry.composition
 
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
-            return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})
         u_settings = self.u_settings.get(most_electroneg, {})
@@ -653,17 +630,30 @@ class CorrectionsList(Compatibility):
     MITCompatibility subclasses instead.
     """
 
-    def __init__(self, corrections: Sequence[Correction]):
+    def __init__(self, corrections: Sequence[Correction], run_types: list[str] | None = None):
         """
         Args:
             corrections (list[Correction]): Correction objects to apply.
+            run_types: Valid DFT run_types for this correction scheme. Entries with run_type
+                other than those in this list will be excluded from the list returned
+                by process_entries. The default value captures both GGA and GGA+U run types
+                historically used by the Materials Project, for example in.
         """
+        if run_types is None:
+            run_types = ["GGA", "GGA+U", "PBE", "PBE+U"]
         self.corrections = corrections
+        self.run_types = run_types
         super().__init__()
 
     def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
         """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
+        if entry.parameters.get("run_type") not in self.run_types:
+            raise CompatibilityError(
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
+                f"Must be GGA or GGA+U. Discarding."
+            )
+
         corrections, uncertainties = self.get_corrections_dict(entry)
 
         for k, v in corrections.items():
