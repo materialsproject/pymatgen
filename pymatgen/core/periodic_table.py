@@ -108,6 +108,10 @@ class ElementBase(Enum):
                 if _pt_data[sym]["Atomic no"] == self.Z and not _pt_data[sym].get("Is named isotope", False):
                     self.symbol = sym
                     break
+            # For specified/named isotopes, treat as same as named element
+            # (the most common isotope). Then we pad the data block with the
+            # entries for the named element.
+            data = {**_pt_data[self.symbol], **data}
 
         at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
@@ -975,7 +979,7 @@ class Species(MSONable, Stringify):
         return (
             self.symbol == other.symbol  # type: ignore
             and self.oxi_state == other.oxi_state  # type: ignore
-            and (self.spin == other.spin)  # type: ignore
+            and self.spin == other.spin  # type: ignore
             and self.A == other.A  # type: ignore
         )
 
@@ -1262,6 +1266,8 @@ class DummySpecies(Species):
             the atomic number of a Dummy specie for anything scientific. The purpose
             of this is to ensure that for most use cases, a DummySpecies behaves no
             differently from an Element or Species.
+        A (int): Just as for Z, to get a DummySpecies to behave like an Element,
+            need atomic mass number. Here it is set arbitrarily to twice Z.
         X (float): DummySpecies is always assigned a Pauling electronegativity of 0.
     """
 
@@ -1320,6 +1326,14 @@ class DummySpecies(Species):
         to use atomic numbers for a Dummy specie.
         """
         return hash(self.symbol)
+
+    @property
+    def A(self) -> int:
+        """
+        DummySpecies is always assigned an atomic mass number equal to
+        twice its Z value.
+        """
+        return 2 * hash(self.symbol)
 
     @property
     def oxi_state(self) -> float | None:

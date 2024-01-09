@@ -128,7 +128,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise ValueError("float('NaN') is not a valid Composition, did you mean str('NaN')?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore
-
         elem_amt = {}
         self._n_atoms = 0
         for key, val in elem_map.items():
