@@ -22,7 +22,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     POTCAR_STATS_PATH,
-    BadIncarWarning,
     Incar,
     Kpoints,
     KpointsSupportedModes,
@@ -721,51 +720,31 @@ SIGMA = 0.1"""
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
 
     def test_check_params(self):
-        # Triggers warnings when running into nonsensical parameters
-        with pytest.warns(BadIncarWarning) as record:
+        # Triggers warnings when running into invalid parameters
+        with pytest.warns() as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
                     "ALGO": "Normal",
                     "AMIN": 0.01,
-                    "AMIX": 0.2,
-                    "BMIX": 0.001,
-                    "EDIFF": 5 + 1j,  # EDIFF needs to be real
-                    "EDIFFG": -0.01,
-                    "ENCUT": 520,
-                    "IBRION": 2,
                     "ICHARG": 1,
-                    "ISIF": 9,
-                    "ISMEAR": 1,
-                    "ISPIN": 2,
-                    "LASPH": 5,  # Should be a bool
-                    "LORBIT": 11,
-                    "LREAL": "Auto",
-                    "LWAVE": False,
                     "MAGMOM": [1, 2, 4, 5],
-                    "METAGGA": "SCAM",  # spelling mistake
-                    "NELM": 200,
-                    "NPAR": 4,
-                    "NSW": 99,
-                    "PREC": "Accurate",
-                    "SIGMA": 0.2,
-                    "NBAND": 250,  # spelling mistake
-                    "PHON_TLIST": "is_a_str",  # this parameter should be a list
-                    "LATTICE_CONSTRAINTS": [
-                        True,
-                        False,
-                        "f",
-                    ],  # Should be a list of bools
-                    "M_CONSTR": [True, 1, "string"],  # Should be a list of real numbers
+                    "NBAND": 250,  # typo in tag
+                    "METAGGA": "SCAM",  # typo in value
+                    "EDIFF": 5 + 1j,  # value should be a float
+                    "ISIF": 9,  # value out of range
+                    "LASPH": 5,  # value should be bool
+                    "PHON_TLIST": "is_a_str",  # value should be a list
                 }
             )
             incar.check_params()
 
-        assert "ISIF: Cannot find 9 in the list of parameters" in record[0].message.args
-        assert "LASPH: 5 is not a bool" in record[1].message.args
-        assert "METAGGA: Cannot find SCAM in the list of parameters" in record[2].message.args
-        assert "Cannot find NBAND in the list of INCAR flags" in record[3].message.args
-        assert "PHON_TLIST: is_a_str is not a list" in record[4].message.args
+        assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
+        assert record[1].message.args[0] == "METAGGA: Cannot find SCAM in the list of values"
+        assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
+        assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
+        assert record[4].message.args[0] == "LASPH: 5 is not a bool"
+        assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
 
 
 class TestKpointsSupportedModes:
