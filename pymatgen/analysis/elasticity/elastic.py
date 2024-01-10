@@ -358,6 +358,27 @@ class ElasticTensor(NthOrderElasticTensor):
         return 1.3806e-23 / 2.48 * num_density ** (2 / 3) * (self.long_v(structure) + 2 * self.trans_v(structure))
 
     @raise_if_unphysical
+    def agne_diffusive_thermalcond(self, structure: Structure):
+        """
+        Calculates Agne's diffusive thermal conductivity (in SI units).
+
+        Args:
+            structure: pymatgen structure object
+
+        Returns:
+            float: Agne's diffusive thermal conductivity (in SI units)
+        """
+        n_sites = len(structure)
+        volume = structure.volume
+        num_density = 1e30 * n_sites / volume
+        return (
+            0.76
+            * (num_density ** (2.0 / 3.0))
+            * 1.3806e-23
+            * ((1 / 3) * (2 * self.trans_v(structure) + self.long_v(structure)))
+        )
+
+    @raise_if_unphysical
     def debye_temperature(self, structure: Structure):
         """
         Estimates the Debye temperature from longitudinal and
