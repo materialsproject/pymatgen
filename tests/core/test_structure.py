@@ -1749,14 +1749,8 @@ Sites (8)
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
         struct = struct.replace_species({"Li": "H"})
 
-        # generate copy of structure with Deuterium replacing Hydrogen
-        # can't simply do Structure.replace_species
-        # because Deuterium maps onto Hydrogen, yields no replacement
-        struct_d = struct.as_dict()
-        for isite, site in enumerate(struct_d["sites"]):
-            struct_d["sites"][isite]["species"][0]["element"] = site["species"][0]["element"].replace("H", "D")
-            struct_d["sites"][isite]["label"] = site["label"].replace("H", "D")
-        struct_deuter = Structure.from_dict(struct_d)
+        struct_deuter = struct.copy()
+        struct_deuter.replace_species({"H": "D"})
 
         assert "Deuterium" not in [x.long_name for x in struct.composition.elements]
         assert "Deuterium" in [x.long_name for x in struct_deuter.composition.elements]

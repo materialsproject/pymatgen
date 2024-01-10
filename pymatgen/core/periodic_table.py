@@ -108,7 +108,7 @@ class ElementBase(Enum):
                 if _pt_data[sym]["Atomic no"] == self.Z and not _pt_data[sym].get("Is named isotope", False):
                     self.symbol = sym
                     break
-            # For specified/named isotopes, treat as same as named element
+            # For specified/named isotopes, treat the same as named element
             # (the most common isotope). Then we pad the data block with the
             # entries for the named element.
             data = {**_pt_data[self.symbol], **data}
@@ -484,7 +484,7 @@ class ElementBase(Enum):
         return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
 
     def __hash__(self) -> int:
-        return self.Z
+        return self.Z * 1000 + (self.A if self.A else 0)
 
     def __repr__(self) -> str:
         return "Element " + self.symbol
@@ -1103,7 +1103,7 @@ class Species(MSONable, Stringify):
         return f"Species {self}"
 
     def __str__(self) -> str:
-        output = self.symbol
+        output = self.name if hasattr(self, "name") else self.symbol
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
@@ -1455,7 +1455,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     """
     if isinstance(obj, (Element, Species, DummySpecies)):
         if hasattr(obj, "_is_named_isotope") and obj._is_named_isotope:
-            return Element(obj.name) if isinstance(obj, Element) else Species(obj.name)
+            return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
     try:
