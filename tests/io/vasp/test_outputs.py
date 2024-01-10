@@ -715,21 +715,21 @@ class TestVasprun(PymatgenTest):
         assert len(vasp_run.actual_kpoints_opt) == 100
         assert len(vasp_run.actual_kpoints_weights_opt) == 100
         # Check the eigenvalues were read correctly.
-        assert vasp_run.eigenvalues[Spin.up].shape == (10, 128, 2)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 128, 2)
-        assert vasp_run.eigenvalues[Spin.up][0, 0, 0] == approx(-6.1134)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0, 0, 0] == approx(-6.1522)
+        assert vasp_run.eigenvalues[Spin.up].shape == (10, 24, 2)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 24, 2)
+        assert vasp_run.eigenvalues[Spin.up][0, 0, 0] == approx(-6.1471)
+        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0, 0, 0] == approx(-6.1536)
         # Check the projected eigenvalues were read correctly
-        assert vasp_run.projected_eigenvalues[Spin.up].shape == (10, 128, 8, 9)
-        assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up].shape == (100, 128, 8, 9)
-        assert vasp_run.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0704)
+        assert vasp_run.projected_eigenvalues[Spin.up].shape == (10, 24, 8, 9)
+        assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up].shape == (100, 24, 8, 9)
+        assert vasp_run.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0492)
         assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
         # Test as_dict
         vasp_run_dct = vasp_run.as_dict()
         assert vasp_run_dct["input"]["nkpoints_opt"] == 100
         assert vasp_run_dct["input"]["nkpoints"] == 10
-        assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1522)
+        assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1536)
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(
@@ -740,21 +740,24 @@ class TestVasprun(PymatgenTest):
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [38], "wrong cbm kpoint index"
-        assert cbm["energy"] == approx(6.4363), "wrong cbm energy"
-        assert cbm["band_index"] == {Spin.up: [16], Spin.down: []}, "wrong cbm bands"
-        # Strangely, when called with parse_projected_eigen, it gives empty Spin.down,
-        # but without parse_projected_eigen it does not give it.
-        # So at one point it called the empty key.
+        assert cbm["energy"] == approx(6.4394), "wrong cbm energy"
+        assert cbm["band_index"] == {Spin.up: [16], Spin.down: [16]}, "wrong cbm bands"
         assert vbm["kpoint_index"] == [0, 39, 40]
-        assert vbm["energy"] == approx(5.7655), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: []}, "wrong vbm bands"
+        assert vbm["energy"] == approx(5.7562), "wrong vbm energy"
+        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: [13, 14, 15]}, "wrong vbm bands"
         vbm_kp_label = vbm["kpoint"].label
         assert vbm["kpoint"].label == "\\Gamma", f"Unpexpected {vbm_kp_label=}"
         cmb_kp_label = cbm["kpoint"].label
         assert cmb_kp_label is None, f"Unpexpected {cmb_kp_label=}"
         # Test projection
         projected = bs.get_projection_on_elements()
-        assert projected[Spin.up][0][0]["Si"] == approx(0.2126)
+        assert np.isnan(projected[Spin.up][0][0]["Si"])
+        # Due to some error in my VASP, the transcription of PROCAR_OPT into
+        # vasprun.xml is filled to the brim with errors in the projections.
+        # At some point we might get a healthier vasprun.xml, but the point here
+        # is to test the parser, not VASP.
+        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
 
 
 class TestOutcar(PymatgenTest):
@@ -1364,19 +1367,25 @@ class TestBSVasprun(PymatgenTest):
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [38], "wrong cbm kpoint index"
-        assert cbm["energy"] == approx(6.4363), "wrong cbm energy"
-        assert cbm["band_index"] == {Spin.up: [16], Spin.down: []}, "wrong cbm bands"
+        assert cbm["energy"] == approx(6.4394), "wrong cbm energy"
+        assert cbm["band_index"] == {Spin.up: [16], Spin.down: [16]}, "wrong cbm bands"
         # Strangely, when I call with parse_projected_eigen, it gives empty Spin.down,
         # but without parse_projected_eigen it does not give it.
         # So at one point it called the empty key.
         assert vbm["kpoint_index"] == [0, 39, 40]
-        assert vbm["energy"] == approx(5.7655), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: []}, "wrong vbm bands"
+        assert vbm["energy"] == approx(5.7562), "wrong vbm energy"
+        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: [13, 14, 15]}, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
         # Test projection
         projected = bs.get_projection_on_elements()
-        assert projected[Spin.up][0][0]["Si"] == approx(0.2126)
+        assert np.isnan(projected[Spin.up][0][0]["Si"])
+        # Due to some error in my VASP, the transcription of PROCAR_OPT into
+        # vasprun.xml is filled to the brim with errors in the projections.
+        # At some point we might get a healthier vasprun.xml, but the point here
+        # is to test the parser, not VASP.
+        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
         d = vasp_run.as_dict()
         assert "eigenvalues" in d["output"]
         assert "eigenvalues_kpoints_opt" in d["output"]
