@@ -860,16 +860,11 @@ class Vasprun(MSONable):
             If VASP was rum with KPOINTS_OPT, it reads the data from that
             file unless told otherwise. This overrides hybrid mode.
         """
-        use_kpoints_opt = (not ignore_kpoints_opt) and (
-            hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt is not None
-        )
-        logger.debug("Detected KPOINTS_OPT data when getting band structure.")
+        use_kpoints_opt = not ignore_kpoints_opt and (getattr(self, "actual_kpoints_opt", None) is not None)
         if not kpoints_filename:
-            if use_kpoints_opt:
-                kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS_OPT"))
-            else:
-                kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
-        if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
+            kpts_path = os.path.join(os.path.dirname(self.filename), "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS")
+            kpoints_filename = zpath(kpts_path)
+        if kpoints_filename and not os.path.isfile(kpoints_filename) and line_mode is True:
             raise VaspParseError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
@@ -889,35 +884,30 @@ class Vasprun(MSONable):
         else:
             kpoints = [np.array(kpt) for kpt in self.actual_kpoints]
 
-        p_eigenvals: defaultdict[Spin, list] = defaultdict(list)
+        p_eig_vals: defaultdict[Spin, list] = defaultdict(list)
         eigenvals: defaultdict[Spin, list] = defaultdict(list)
 
         nkpts = len(kpoints)
 
         if use_kpoints_opt:
-            eigenvalues = self.eigenvalues_kpoints_opt
-            projected_eigenvalues = self.projected_eigenvalues_kpoints_opt
+            eig_vals = self.eigenvalues_kpoints_opt
+            projected_eig_vals = self.projected_eigenvalues_kpoints_opt
         else:
-            eigenvalues = self.eigenvalues
-            projected_eigenvalues = self.projected_eigenvalues
+            eig_vals = self.eigenvalues
+            projected_eig_vals = self.projected_eigenvalues
 
-        for spin, v in eigenvalues.items():
-            v = np.swapaxes(v, 0, 1)
-            eigenvals[spin] = v[:, :, 0]
+        for spin, val in eig_vals.items():
+            val = np.swapaxes(val, 0, 1)
+            eigenvals[spin] = val[:, :, 0]
 
-            if projected_eigenvalues:
-                peigen = projected_eigenvalues[spin]
-                # Original axes for self.projected_eigenvalues are kpoints,
-                # band, ion, orb.
+            if projected_eig_vals:
+                proj_eig_vals = projected_eig_vals[spin]
+                # Original axes for self.projected_eigenvalues are kpoints, band, ion, orb.
                 # For BS input, we need band, kpoints, orb, ion.
-                peigen = np.swapaxes(peigen, 0, 1)  # Swap kpoint and band axes
-                peigen = np.swapaxes(peigen, 2, 3)  # Swap ion and orb axes
+                proj_eig_vals = np.swapaxes(proj_eig_vals, 0, 1)  # Swap kpoint and band axes
+                proj_eig_vals = np.swapaxes(proj_eig_vals, 2, 3)  # Swap ion and orb axes
 
-                p_eigenvals[spin] = peigen
-                # for b in range(min_eigenvalues):
-                #     p_eigenvals[spin].append(
-                #         [{Orbital(orb): v for orb, v in enumerate(peigen[b, k])}
-                #          for k in range(nkpts)])
+                p_eig_vals[spin] = proj_eig_vals
 
         # check if we have an hybrid band structure computation
         # for this we look at the presence of the LHFCALC tag
@@ -946,15 +936,13 @@ class Vasprun(MSONable):
                 kpoints = kpoints[start_bs_index:nkpts]
                 up_eigen = [eigenvals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
                 if self.projected_eigenvalues:
-                    p_eigenvals[Spin.up] = [p_eigenvals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
+                    p_eig_vals[Spin.up] = [p_eig_vals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
                 if self.is_spin:
                     down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)]
                     eigenvals[Spin.up] = up_eigen
                     eigenvals[Spin.down] = down_eigen
                     if self.projected_eigenvalues:
-                        p_eigenvals[Spin.down] = [
-                            p_eigenvals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)
-                        ]
+                        p_eig_vals[Spin.down] = [p_eig_vals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)]
                 else:
                     eigenvals[Spin.up] = up_eigen
             else:
@@ -973,7 +961,7 @@ class Vasprun(MSONable):
                 e_fermi,
                 labels_dict,
                 structure=self.final_structure,
-                projections=p_eigenvals,
+                projections=p_eig_vals,
             )
         return BandStructure(
             kpoints,  # type: ignore[arg-type]
@@ -981,7 +969,7 @@ class Vasprun(MSONable):
             lattice_new,
             e_fermi,
             structure=self.final_structure,
-            projections=p_eigenvals,  # type: ignore[arg-type]
+            projections=p_eig_vals,  # type: ignore[arg-type]
         )
 
     @property
@@ -1689,10 +1677,10 @@ class BSVasprun(Vasprun):
             vin["kpoints_opt"] = self.kpoints_opt.as_dict()
             actual_kpts = [
                 {
-                    "abc": list(self.actual_kpoints_opt[i]),
-                    "weight": self.actual_kpoints_weights_opt[i],
+                    "abc": list(self.actual_kpoints_opt[idx]),
+                    "weight": self.actual_kpoints_weights_opt[idx],
                 }
-                for i in range(len(self.actual_kpoints_opt))
+                for idx in range(len(self.actual_kpoints_opt))
             ]
             vin["kpoints_opt"]["actual_kpoints"] = actual_kpts
             vin["nkpoints_opt"] = len(actual_kpts)

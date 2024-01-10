@@ -48,6 +48,8 @@ try:
 except ImportError:
     h5py = None
 
+kpts_opt_vrun_path = f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz"
+
 
 class TestVasprun(PymatgenTest):
     def test_vasprun_ml(self):
@@ -73,7 +75,9 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged_ionic
 
     def test_bad_random_seed(self):
-        _ = Vasprun(f"{TEST_FILES_DIR}/vasprun.bad_random_seed.xml")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.bad_random_seed.xml")
+        assert vasp_run.incar["ISMEAR"] == 0
+        assert vasp_run.incar["RANDOM_SEED"] is None
 
     def test_multiple_dielectric(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.GW0.xml")
@@ -707,7 +711,7 @@ class TestVasprun(PymatgenTest):
         assert props[3][1]
 
     def test_kpoints_opt(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_projected_eigen=True)
+        vasp_run = Vasprun(kpts_opt_vrun_path, parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
         # Check the k-points were read correctly.
         assert len(vasp_run.actual_kpoints) == 10
@@ -732,9 +736,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1536)
 
     def test_kpoints_opt_band_structure(self):
-        vasp_run = Vasprun(
-            f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True
-        )
+        vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
         bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
@@ -1359,9 +1361,7 @@ class TestBSVasprun(PymatgenTest):
         assert "eigenvalues" in d["output"]
 
     def test_kpoints_opt(self):
-        vasp_run = BSVasprun(
-            f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True
-        )
+        vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
         bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
