@@ -21,6 +21,7 @@ from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.core.tensors import DEFAULT_QUAD, SquareTensor, Tensor, TensorCollection, get_uvec
 from pymatgen.core.units import Unit
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -368,6 +369,11 @@ class ElasticTensor(NthOrderElasticTensor):
         Returns:
             float: Agne's diffusive thermal conductivity (in SI units)
         """
+        due.cite(
+            Doi("10.1039/C7EE03256K"),
+            description="Minimum thermal conductivity in the context of diffuson-mediated thermal transport",
+        )
+
         n_sites = len(structure)
         volume = structure.volume
         num_density = 1e30 * n_sites / volume

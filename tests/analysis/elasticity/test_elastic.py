@@ -128,6 +128,12 @@ class TestElasticTensor(PymatgenTest):
         assert self.elastic_tensor_1.clarke_thermalcond(self.structure) == approx(0.3450307)
         # Cahill
         assert self.elastic_tensor_1.cahill_thermalcond(self.structure) == approx(0.37896275)
+        # Agne
+        assert self.elastic_tensor_1.agne_diffusive_thermalcond(self.structure) == approx(0.23808966)
+        # Test Agne / Cahill factor
+        assert self.elastic_tensor_1.agne_diffusive_thermalcond(
+            self.structure
+        ) / self.elastic_tensor_1.cahill_thermalcond(self.structure) == approx(0.6282666)
         # Debye
         assert self.elastic_tensor_1.debye_temperature(self.structure) == approx(198.8037985019)
 
