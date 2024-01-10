@@ -868,6 +868,7 @@ class Incar(dict, MSONable):
             "ISPIND",
             "LDAUTYPE",
             "IVDW",
+            "IWAVPR",
         )
 
         def smart_int_or_float(num_str):

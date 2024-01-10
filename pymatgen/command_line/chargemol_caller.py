@@ -42,12 +42,13 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 
 from __future__ import annotations
 
+import multiprocessing
 import os
 import subprocess
 import warnings
 from glob import glob
+from pathlib import Path
 from shutil import which
-from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -55,9 +56,6 @@ from monty.tempfile import ScratchDir
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
@@ -76,13 +74,22 @@ class ChargemolAnalysis:
     bond orders, and related properties.
     """
 
+    CHARGEMOLEXE = (
+        which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
+    )
+
     def __init__(
         self,
-        path: str | Path | None = None,
-        atomic_densities_path: str | Path | None = None,
+        path: str | None = None,
+        atomic_densities_path=None,
         run_chargemol: bool = True,
-    ) -> None:
-        """Initializes the Chargemol Analysis.
+        mpi: bool = False,
+        ncores: str | None = None,
+        save: bool = False,
+    ):
+        """
+        Initializes the Chargemol Analysis.
+
 
         Args:
             path (str): Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.
@@ -92,7 +99,16 @@ class ChargemolAnalysis:
                 defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Only used if run_chargemol is True. Default: None.
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
-                the existing Chargemol output files will be read from path. Default: True.
+            the existing Chargemol output files will be read from path.
+                Default: True.
+            mpi (bool): Whether to run the Chargemol in a parallel way.
+            ncores (str): Use how many cores to run the Chargemol!
+                          Default is "os.environ.get('SLURM_JOB_CPUS_PER_NODE'),
+                          or os.environ.get('SLURM_CPUS_ON_NODE')", or "multiprocessing.cpu_count()".
+                          Take your own risk! This default value might not suit you!
+                          You'd better set your own number!!!
+            save: save (bool): Whether to save the Chargemol output files. Default is False.
+                  the existing Chargemol output files will be read from path. Default: True.
         """
         path = path or os.getcwd()
         if run_chargemol and not CHARGEMOL_EXE:
@@ -104,11 +120,13 @@ class ChargemolAnalysis:
         if atomic_densities_path == "":
             atomic_densities_path = os.getcwd()
         self._atomic_densities_path = atomic_densities_path
+        self.save = save
 
         self._chgcar_path = self._get_filepath(path, "CHGCAR")
         self._potcar_path = self._get_filepath(path, "POTCAR")
         self._aeccar0_path = self._get_filepath(path, "AECCAR0")
         self._aeccar2_path = self._get_filepath(path, "AECCAR2")
+
         if run_chargemol and not (
             self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
         ):
@@ -128,7 +146,7 @@ class ChargemolAnalysis:
         self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
 
         if run_chargemol:
-            self._execute_chargemol()
+            self._execute_chargemol(mpi=mpi, ncores=ncores)
         else:
             self._from_data_dir(chargemol_output_path=path)
 
@@ -154,51 +172,127 @@ class ChargemolAnalysis:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            if len(paths) > 1:
-                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}")
+            # warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
+            # warnings.warn(warning_msg)
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, **job_control_kwargs):
-        """Internal function to run Chargemol.
+    def _execute_chargemol(self, mpi=False, ncores: str | None = None, **jobcontrol_kwargs):
+        """
+        Internal function to run Chargemol.
+
 
         Args:
             atomic_densities_path (str): Path to the atomic densities directory
             required by Chargemol. If None, Pymatgen assumes that this is
             defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Default: None.
-            job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
-        """
-        with ScratchDir("."):
-            try:
-                os.symlink(self._chgcar_path, "./CHGCAR")
-                os.symlink(self._potcar_path, "./POTCAR")
-                os.symlink(self._aeccar0_path, "./AECCAR0")
-                os.symlink(self._aeccar2_path, "./AECCAR2")
-            except OSError as exc:
-                print(f"Error creating symbolic link: {exc}")
 
+            mpi(bool): Whether run the Chargemol in a parallel way. Default is False.
+            ncores (str): The number of cores you want to use.
+                          Default is os.getenv('SLURM_CPUS_ON_NODE') or os.getenv('SLURM_NTASKS')
+                          or multiprocessing.cpu_count().
+            jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
+        """
+        if mpi:
+            if ncores:
+                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]  # type: ignore
+            else:
+                ncores = os.getenv("SLURM_CPUS_ON_NODE") or os.getenv("SLURM_NTASKS")
+                if not ncores:
+                    ncores = str(multiprocessing.cpu_count())
+                CHARGEMOLEXE = ["mpirun", "-n", str(ncores), ChargemolAnalysis.CHARGEMOLEXE]  # type: ignore
+        else:
+            CHARGEMOLEXE = ChargemolAnalysis.CHARGEMOLEXE  # type: ignore
+
+        if self.save:
+            save_path = Path(Path.cwd(), "charge")
+            save_path.mkdir(parents=True, exist_ok=True)
+            source = [
+                Path(self._chgcar_path),
+                Path(self._potcar_path),
+                Path(self._aeccar0_path),
+                Path(self._aeccar2_path),
+            ]
+
+            links = [
+                Path(save_path, "CHGCAR"),
+                Path(save_path, "POTCAR"),
+                Path(save_path, "AECCAR0"),
+                Path(save_path, "AECCAR2"),
+            ]
+            for link, src in zip(links, source):
+                link.symlink_to(src)
             # write job_script file:
-            self._write_jobscript_for_chargemol(**job_control_kwargs)
+            write_path = str(save_path) + "/job_control.txt"
+            self._write_jobscript_for_chargemol(write_path=write_path, **jobcontrol_kwargs)
 
             # Run Chargemol
-            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                _stdout, stderr = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError(
-                    f"{CHARGEMOL_EXE} exit code: {rs.returncode}, error message: {stderr!s}. "
-                    "Please check your Chargemol installation."
-                )
+            if CHARGEMOLEXE:
+                if isinstance(CHARGEMOLEXE, list):
+                    CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
+                    popen_args: list[str] = CHARGEMOLEXE  # type: ignore
+                if not CHARGEMOLEXE:
+                    raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+                popen_args = CHARGEMOLEXE  # type: ignore
+                with subprocess.Popen(
+                    popen_args,  # type: ignore
+                    stdout=subprocess.PIPE,
+                    stdin=subprocess.PIPE,
+                    close_fds=True,
+                    cwd=save_path,
+                ) as rs:
+                    rs.communicate()
+                self._from_data_dir(chargemol_output_path=str(save_path))
+            else:
+                raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+        else:
+            with ScratchDir("."):
+                cwd = Path.cwd()
+                source = [
+                    Path(self._chgcar_path),
+                    Path(self._potcar_path),
+                    Path(self._aeccar0_path),
+                    Path(self._aeccar2_path),
+                ]
+                links = [Path(cwd, "CHGCAR"), Path(cwd, "POTCAR"), Path(cwd, "AECCAR0"), Path(cwd, "AECCAR2")]
+                for link, src in zip(links, source):
+                    link.symlink_to(src)
+                # write job_script file:
+                self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
 
-            self._from_data_dir()
+                # Run Chargemol
+                if CHARGEMOLEXE:
+                    if isinstance(CHARGEMOLEXE, list):
+                        CHARGEMOLEXE = [x for x in CHARGEMOLEXE if x is not None]
+                        # CHARGEMOLEXE = cast(list[str], CHARGEMOLEXE)
+                    if not CHARGEMOLEXE:
+                        raise RuntimeError("Make sure compiled chargemol executable being available in the path")
+                    popen_args = CHARGEMOLEXE  # type: ignore
+                    with subprocess.Popen(
+                        popen_args,  # type: ignore
+                        stdout=subprocess.PIPE,
+                        stdin=subprocess.PIPE,
+                        close_fds=True,
+                    ) as rs:
+                        rs.communicate()
+                    if rs.returncode != 0:
+                        raise RuntimeError(
+                            f"Chargemol exited with return code {int(rs.returncode)}. "
+                            "Please check your Chargemol installation."
+                        )
+                    self._from_data_dir()
+                else:
+                    raise RuntimeError("Make sure compiled chargemol executable being available in the path")
 
-    def _from_data_dir(self, chargemol_output_path=None):
-        """Internal command to parse Chargemol files from a directory.
+    def _from_data_dir(self, chargemol_output_path: str | None = None):
+        """
+        Internal command to parse Chargemol files from a directory.
 
         Args:
-            chargemol_output_path (str): Path to the folder containing the
-            Chargemol output files.
-                Default: None (current working directory).
+            chargemol_output_path (str): Path to the folder containing
+            the Chargemol output files.
+            Default: None (current working directory).
         """
         if chargemol_output_path is None:
             chargemol_output_path = "."
@@ -266,7 +360,7 @@ class ChargemolAnalysis:
             charge_transfer = -self.cm5_charges[atom_index]
         return charge_transfer
 
-    def get_charge(self, atom_index, nelect=None, charge_type="ddec"):
+    def get_charge(self, atom_index, nelect: int | None = None, charge_type="ddec"):
         """Convenience method to get the charge on a particular atom using the same
         sign convention as the BaderAnalysis. Note that this is *not* the partial
         atomic charge. This value is nelect (e.g. ZVAL from the POTCAR) + the
@@ -334,6 +428,7 @@ class ChargemolAnalysis:
         periodicity=(True, True, True),
         method="ddec6",
         compute_bond_orders=True,
+        write_path: str = "job_control.txt",
     ):
         """Writes job_script.txt for Chargemol execution.
 
@@ -345,6 +440,7 @@ class ChargemolAnalysis:
             method (str): Method to use for the analysis. Options include "ddec6"
                 and "ddec3". Default: "ddec6"
             compute_bond_orders (bool): Whether to compute bond orders. Default: True.
+            write_path (str): The path of output files of chargemol if you want to save them.
         """
         self.net_charge = net_charge
         self.periodicity = periodicity
@@ -395,7 +491,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", "w") as fh:
+        with open(write_path, "w") as fh:
             fh.write(lines)
 
     @staticmethod
