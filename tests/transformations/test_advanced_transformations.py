@@ -609,7 +609,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
-        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs.json")
+        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -620,13 +620,24 @@ class TestSQSTransformation(PymatgenTest):
 
     def test_return_ranked_list(self):
         # list of structures
-        pzt_structs2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs2.json")
-        trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struct = self.get_structure("Pb2TiZrO6").copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-        matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
-        assert any(matches)
+        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs-2.json")
+
+        n_structs_expected = 1
+        sqs_kwargs = {"scaling": 2, "search_time": 0.01, "instances": 8, "wd": 0}
+        for all_structs in (True, False):
+            if all_structs:
+                # when we don't remove structures from the search, should get
+                # return one structure for each instance run
+                sqs_kwargs |= {"best_only": False, "remove_duplicate_structures": False}
+                n_structs_expected = sqs_kwargs["instances"]
+
+            trans = SQSTransformation(**sqs_kwargs)
+            struct = self.get_structure("Pb2TiZrO6").copy()
+            struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+            ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
+            matches = [ranked_list_out[0]["structure"].matches(struct) for struct in pzt_structs_2]
+            assert any(matches)
+            assert len(ranked_list_out) == n_structs_expected
 
     def test_spin(self):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -637,8 +648,8 @@ class TestSQSTransformation(PymatgenTest):
 
         struct_out = trans.apply_transformation(struct)
         struct_out_specie_strings = [site.species_string for site in struct_out]
-        assert "Ti,spin=-5" in struct_out_specie_strings
-        assert "Ti,spin=5" in struct_out_specie_strings
+        assert "Ti0+,spin=-5" in struct_out_specie_strings
+        assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
 class TestCubicSupercellTransformation(PymatgenTest):

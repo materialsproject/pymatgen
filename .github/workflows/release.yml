@@ -72,7 +72,7 @@ jobs:
           # TODO remove next line installing ase from main branch until FrechetCellFilter is released
           pip install git+https://gitlab.com/ase/ase
 
-          python -m pip install numpy cython packaging
+          python -m pip install numpy cython
           python -m pip install -e '.[dev,optional]'
       - name: pytest
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
