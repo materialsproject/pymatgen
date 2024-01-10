@@ -484,7 +484,7 @@ class ElementBase(Enum):
         return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
 
     def __hash__(self) -> int:
-        return self.Z * 1000 + (self.A if self.A else 0)
+        return self.Z * 1000 + self.A if self._is_named_isotope else self.Z
 
     def __repr__(self) -> str:
         return "Element " + self.symbol
