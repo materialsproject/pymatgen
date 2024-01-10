@@ -117,52 +117,59 @@ class TestElasticTensor(PymatgenTest):
 
     def test_structure_based_methods(self):
         # trans_velocity
-        assert self.elastic_tensor_1.trans_v(self.structure) == approx(1996.35019877)
+        struct = self.structure
+        assert self.elastic_tensor_1.trans_v(struct) == approx(1996.35019877)
         # long_velocity
-        assert self.elastic_tensor_1.long_v(self.structure) == approx(3534.68123832)
+        assert self.elastic_tensor_1.long_v(struct) == approx(3534.68123832)
         # Snyder properties
-        assert self.elastic_tensor_1.snyder_ac(self.structure) == approx(18.06127074)
-        assert self.elastic_tensor_1.snyder_opt(self.structure) == approx(0.18937465)
-        assert self.elastic_tensor_1.snyder_total(self.structure) == approx(18.25064540)
+        assert self.elastic_tensor_1.snyder_ac(struct) == approx(18.06127074)
+        assert self.elastic_tensor_1.snyder_opt(struct) == approx(0.18937465)
+        assert self.elastic_tensor_1.snyder_total(struct) == approx(18.25064540)
         # Clarke
-        assert self.elastic_tensor_1.clarke_thermalcond(self.structure) == approx(0.3450307)
+        assert self.elastic_tensor_1.clarke_thermalcond(struct) == approx(0.3450307)
         # Cahill
-        assert self.elastic_tensor_1.cahill_thermalcond(self.structure) == approx(0.37896275)
+        cahill_thermal_cond = self.elastic_tensor_1.cahill_thermalcond(struct)
+        assert cahill_thermal_cond == approx(0.37896275)
+        # Agne
+        agne_thermal_cond = self.elastic_tensor_1.agne_diffusive_thermalcond(struct)
+        assert agne_thermal_cond == approx(0.23808966)
+        # Test Agne / Cahill factor
+        assert agne_thermal_cond / cahill_thermal_cond == approx(0.6282666)
         # Debye
-        assert self.elastic_tensor_1.debye_temperature(self.structure) == approx(198.8037985019)
+        assert self.elastic_tensor_1.debye_temperature(struct) == approx(198.8037985019)
 
         # structure-property dict
-        sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
-        assert sprop_dict["long_v"] == approx(3534.68123832)
-        for val in sprop_dict.values():
+        struct_prop_dict = self.elastic_tensor_1.get_structure_property_dict(struct)
+        assert struct_prop_dict["long_v"] == approx(3534.68123832)
+        for val in struct_prop_dict.values():
             assert not isinstance(val, FloatWithUnit)
-        for k, v in sprop_dict.items():
-            if k == "structure":
-                assert v == self.structure
+        for key, val in struct_prop_dict.items():
+            if key == "structure":
+                assert val == struct
             else:
-                f = getattr(self.elastic_tensor_1, k)
-                if callable(f):
-                    assert getattr(self.elastic_tensor_1, k)(self.structure) == approx(v)
+                attr = getattr(self.elastic_tensor_1, key)
+                if callable(attr):
+                    assert getattr(self.elastic_tensor_1, key)(struct) == approx(val)
                 else:
-                    assert getattr(self.elastic_tensor_1, k) == approx(v)
+                    assert getattr(self.elastic_tensor_1, key) == approx(val)
 
         # Test other sprop dict modes
-        sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure, include_base_props=False)
-        assert "k_vrh" not in sprop_dict
+        struct_prop_dict = self.elastic_tensor_1.get_structure_property_dict(struct, include_base_props=False)
+        assert "k_vrh" not in struct_prop_dict
 
         # Test ValueError being raised for structure properties
         test_et = deepcopy(self.elastic_tensor_1)
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
-        for attr_name in sprop_dict:
+        for attr_name in struct_prop_dict:
             if attr_name not in ([*prop_dict, "structure"]):
                 with pytest.raises(
                     ValueError, match="Bulk or shear modulus is negative, property cannot be determined"
                 ):
-                    getattr(test_et, attr_name)(self.structure)
+                    getattr(test_et, attr_name)(struct)
         with pytest.raises(ValueError, match="Bulk or shear modulus is negative, property cannot be determined"):
-            test_et.get_structure_property_dict(self.structure)
-        noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
+            test_et.get_structure_property_dict(struct)
+        noval_sprop_dict = test_et.get_structure_property_dict(struct, ignore_errors=True)
         assert noval_sprop_dict["snyder_ac"] is None
 
     def test_new(self):
