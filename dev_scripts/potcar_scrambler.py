@@ -12,7 +12,6 @@ from monty.serialization import zopen
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config
-from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class PotcarScrambler:
@@ -70,33 +69,46 @@ class PotcarScrambler:
             return input_str
 
     def scramble_single_potcar(self, potcar: PotcarSingle):
+        """
+        Scramble the body of a POTCAR, retain the PSCTR header information.
+
+        To the best of my (ADK) knowledge, in the OUTCAR file,
+        almost all information from the POTCAR in the "PSCTR" block
+            ```
+            parameters from PSCTR are:
+            ....
+            END of PSCTR-controll parameters
+            ```
+        is printed to OUTCAR. Specifically, all information above the line
+            `Error from kinetic energy argument (eV)`
+        is included. This information is not scrambled below.
+        """
         scrambled_potcar_str = ""
         needs_sha256 = False
+        scramble_values = False
         og_sha_str = "SHA256 = None\n"
         for line in potcar.data.split("\n")[:-1]:
             single_line_rows = line.split(";")
-            if "COPYR" in line:
-                # files not copyrighted, remove copyright statement
-                continue
 
             if "SHA256" in line:
                 scrambled_potcar_str += og_sha_str
                 needs_sha256 = True
                 continue
 
+            if ("Error from kinetic energy argument (eV)" in line) or ("END of PSCTR-controll parameters" in line):
+                # start to scramble values, logic described above
+                scramble_values = True
+
             cline = ""
             for idx, row in enumerate(single_line_rows):
-                split_row = row.split()
-                for itmp, tmp in enumerate(split_row):
-                    if (
-                        "zval" in row.lower()
-                        and all(char.isnumeric() for char in tmp if char != ".")
-                        and abs(int(float(tmp)) - float(tmp)) < 1.0e-15
-                    ):
-                        tmp = f"{int(float(tmp))}"
-                    cline += f"{self._read_fortran_str_and_scramble(tmp)}"
-                    if itmp < len(split_row) - 1:
-                        cline += " "
+                if scramble_values:
+                    split_row = row.split()
+                    for itmp, tmp in enumerate(split_row):
+                        cline += f"{self._read_fortran_str_and_scramble(tmp)}"
+                        if itmp < len(split_row) - 1:
+                            cline += " "
+                else:
+                    cline += row
                 if len(single_line_rows) > 1 and idx == 0:
                     cline += "; "
 
@@ -167,15 +179,18 @@ def potcar_cleanser():
     with dummy POTCARs.
     """
 
-    potcar_dirs = list(PotcarSingle.functional_dir.values())
-    for potcar_dir in potcar_dirs:
-        if os.path.isdir(f"{TEST_FILES_DIR}/{potcar_dir}"):
-            rebase_dir = f"{TEST_FILES_DIR}/fake_potcar_library/{potcar_dir}"
-            os.makedirs(rebase_dir, exist_ok=True)
-            potcars_to_cleanse = glob(f"{TEST_FILES_DIR}/{potcar_dir}/POTCAR*")
-            for potcar in potcars_to_cleanse:
-                potcar_name = potcar.split("/")[-1]
-                PotcarScrambler.from_file(input_filename=potcar, output_filename=f"{rebase_dir}/{potcar_name}")
+    search_dir = "../tests/files/fake_potcars/real_potcars/"
+    rebase_dir = search_dir.replace("real", "fake")
+    potcars_to_cleanse = glob(f"{search_dir}/**/POTCAR*", recursive=True)
+
+    for potcar in potcars_to_cleanse:
+        path_to_potcar, potcar_name = potcar.split("POTCAR")
+        rebased = path_to_potcar.replace(search_dir, rebase_dir)
+        new_path = f"{rebased}POTCAR{potcar_name}"
+        if new_path[-3:] != ".gz":
+            new_path += ".gz"
+        os.makedirs(rebased, exist_ok=True)
+        PotcarScrambler.from_file(input_filename=potcar, output_filename=new_path)
 
 
 if __name__ == "__main__":

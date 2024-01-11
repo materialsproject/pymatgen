@@ -241,13 +241,13 @@ class TestMITMPRelaxSet(PymatgenTest):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
-        assert self.set(struct).nelect == 18.758
-        assert MPRelaxSet(struct).nelect == 27.166
+        assert self.set(struct).nelect == 16
+        assert MPRelaxSet(struct).nelect == 22
 
         # Expect same answer when oxidation states are present. Was a bug previously.
         oxi_struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
-        assert self.set(oxi_struct).nelect == 18.758
-        assert MPRelaxSet(oxi_struct).nelect == 27.166
+        assert self.set(oxi_struct).nelect == 16
+        assert MPRelaxSet(oxi_struct).nelect == 22
 
         # disordered structure are not supported
         disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
@@ -264,13 +264,13 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # pure Si
         struct = Structure(lattice, ["Si", "Si", "Si"], coords)
-        assert self.set(struct).estimate_nbands() == 13
-        assert MPRelaxSet(struct).estimate_nbands() == 13
+        assert self.set(struct).estimate_nbands() == 11
+        assert MPRelaxSet(struct).estimate_nbands() == 11
 
         # Si + Fe
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
-        assert self.set(struct).estimate_nbands() == 16
-        assert MPRelaxSet(struct).estimate_nbands() == 20
+        assert self.set(struct).estimate_nbands() == 15
+        assert MPRelaxSet(struct).estimate_nbands() == 18
 
         # Si + Fe with NPAR = 4
         uis = {"NPAR": 4}
@@ -279,8 +279,8 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # Si + Fe with noncollinear magnetism turned on
         uis = {"LNONCOLLINEAR": True}
-        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == approx(32)
-        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(40)
+        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == approx(30)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(36)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
@@ -415,7 +415,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         )
         struct = Structure(lattice, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct, use_structure_charge=True)
-        assert mpr.incar["NELECT"] == 9.758, "NELECT not properly set for nonzero charge"
+        assert mpr.incar["NELECT"] == 7, "NELECT not properly set for nonzero charge"
 
         # test that NELECT does not get set when use_structure_charge = False
         mpr = MPRelaxSet(struct, use_structure_charge=False)

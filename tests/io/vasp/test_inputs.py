@@ -979,31 +979,31 @@ class TestPotcarSingle(unittest.TestCase):
         self.psingle_Fe_54 = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
 
         self.Mn_pv_attrs = {
-            "DEXC": 0.897,
-            "EATOM": 1362.7795,
-            "EAUG": 158.662,
-            "ENMAX": 109.946,
-            "ENMIN": 148.5,
-            "IUNSCR": 0,
-            "LCOR": False,
+            "DEXC": -0.003,
+            "EATOM": 2024.8347,
+            "EAUG": 569.085,
+            "ENMAX": 269.865,
+            "ENMIN": 202.399,
+            "IUNSCR": 1,
+            "LCOR": True,
             "LEXCH": "PE",
-            "LPAW": False,
-            "LULTRA": True,
-            "NDATA": 48,
-            "POMASS": 25.236,
-            "QCUT": 5.621,
-            "QGAM": 4.963,
-            "RAUG": 0.49,
-            "RCLOC": 2.492,
-            "RCORE": 2.805,
-            "RDEP": 1.652,
-            "RMAX": 2.019,
-            "RPACOR": 0.947,
-            "RWIGS": 1.389,
-            "STEP": [20.627, 1.458],
+            "LPAW": True,
+            "LULTRA": False,
+            "NDATA": 70,
+            "POMASS": 54.938,
+            "QCUT": -4.454,
+            "QGAM": 8.907,
+            "RAUG": 1.3,
+            "RCLOC": 1.725,
+            "RCORE": 2.3,
+            "RDEP": 2.338,
+            "RMAX": 2.807,
+            "RPACOR": 2.08,
+            "RWIGS": 1.323,
+            "STEP": [25.286, 0.183],
             "TITEL": "PAW_PBE Mn_pv 07Sep2000 FAKE",
             "VRHFIN": "Mn: 3p4s3d",
-            "ZVAL": 10.0,
+            "ZVAL": 13.0,
         }
 
     def test_keywords(self):
@@ -1012,33 +1012,34 @@ class TestPotcarSingle(unittest.TestCase):
 
         psingle = self.psingle_Fe_54
         data = {
-            "nentries": 1,
+            "nentries": 9,
             "Orbitals": (
-                (0, 0, 0.96, 4462.1645, 1.5262),
-                (1, 0, 0.05, 968.6002, 0.2602),
-                (2, 1, 1.0, 909.5708, 0.3704),
-                (1, 0, 0.13, 82.337, 1.1175),
-                (1, 0, 0.64, 16.2199, 8.5379),
-                (1, 2, 2.2, 1.3026, 7.7108),
-                (3, 0, 0.98, 1.742, 1.3616),
-                (0, 0, 1.26, 3.273, 0.4313),
-                (5, 1, 3.6, 0.4123, 0.3137),
+                (1, 0, 0.5, -6993.844, 2.0),
+                (2, 0, 0.5, -814.6047, 2.0),
+                (2, 1, 1.5, -693.3689, 6.0),
+                (3, 0, 0.5, -89.4732, 2.0),
+                (3, 1, 1.5, -55.6373, 6.0),
+                (3, 2, 2.5, -3.8151, 7.0),
+                (4, 0, 0.5, -4.2551, 1.0),
+                (4, 1, 1.5, -3.4015, 0.0),
+                (4, 3, 2.5, -1.3606, 0.0),
             ),
             "OrbitalDescriptions": (
-                (2, 2.4551763, 22, 2.788, None, None),
-                (0, 3.451114, 11, 0.517, None, None),
-                (0, 5.2750747, 15, 2.44, None, None),
-                (0, 2.1804234, 26, 3.431, None, None),
-                (0, 1.5776058, 29, 0.741, None, None),
-                (0, 3.5967169, 22, 1.036, None, None),
+                (2, -3.8151135, 23, 2.3, None, None),
+                (2, -5.1756961, 23, 2.3, None, None),
+                (0, -4.2550963, 23, 2.3, None, None),
+                (0, 7.2035603, 23, 2.3, None, None),
+                (1, -2.7211652, 23, 2.3, None, None),
+                (1, 18.4316424, 23, 2.3, None, None),
             ),
         }
+
         for key, val in data.items():
             assert psingle.keywords[key] == val
 
     def test_nelectrons(self):
-        assert self.psingle_Mn_pv.nelectrons == 10.0
-        assert self.psingle_Fe.nelectrons == 8.0
+        assert self.psingle_Mn_pv.nelectrons == 13
+        assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
         assert self.psingle_Mn_pv.electron_configuration == [(4, "s", 2), (3, "d", 5), (3, "p", 6)]
@@ -1060,7 +1061,7 @@ class TestPotcarSingle(unittest.TestCase):
     def test_functional_types(self):
         assert self.psingle_Mn_pv.functional == "PBE"
         assert self.psingle_Mn_pv.functional_class == "GGA"
-        assert self.psingle_Mn_pv.potential_type == "US"
+        assert self.psingle_Mn_pv.potential_type == "PAW"
 
         psingle = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_LDA_PAW/POTCAR.Fe.gz")
         assert psingle.functional == "Perdew-Zunger81"
@@ -1075,7 +1076,7 @@ class TestPotcarSingle(unittest.TestCase):
 
         # corrupt the file
         psingle = copy.deepcopy(self.psingle_Fe_54)
-        assert psingle.keywords["RCORE"] == 1.878
+        assert psingle.keywords["RCORE"] == 2.3
         psingle.keywords["RCORE"] = 2.2
         assert not psingle.is_valid
 
@@ -1085,7 +1086,7 @@ class TestPotcarSingle(unittest.TestCase):
 
         psingle = copy.deepcopy(self.psingle_Fe_54)
         old_data = psingle.data
-        psingle.data = psingle.data.replace("RCORE = 1.878", "RCORE = 2.2")
+        psingle.data = psingle.data.replace("RCORE  =    2.3", "RCORE = 2.2")
         assert old_data != psingle.data
         # TODO: should arguably be False but since header is parsed at instantiation time and not reparsed
         # in is_valid, changing the data string in the header section does not currently invalidate POTCAR
@@ -1136,25 +1137,25 @@ class TestPotcarSingle(unittest.TestCase):
         assert (
             repr(self.psingle_Mn_pv)
             == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000 FAKE', "
-            "VRHFIN='Mn: 3p4s3d', n_valence_elec=10)"
+            "VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
 
     def test_hash(self):
-        assert self.psingle_Mn_pv.md5_header_hash == "69ab9ce2c4e19f5edd75f91657b1c0bf"
-        assert self.psingle_Fe.md5_header_hash == "0110ba9947623118570031c07ec47ded"
+        assert self.psingle_Mn_pv.md5_header_hash == "12ebca66d185118322f2ebbc73d270f9"
+        assert self.psingle_Fe.md5_header_hash == "ea98d3eb45e34957a2e8cd200a61f7ac"
 
     def test_potcar_file_hash(self):
-        assert self.psingle_Mn_pv.md5_computed_file_hash == "09a2521486040610c671ded3f91f1e51"
-        assert self.psingle_Fe.md5_computed_file_hash == "926047c5ad9e2e07679174dd3fc186f1"
+        assert self.psingle_Mn_pv.md5_computed_file_hash == "2111214d926135f3b288d2910b5fce34"
+        assert self.psingle_Fe.md5_computed_file_hash == "78662b23c58f9920cbdc73cc3b3209ef"
 
     def test_sha256_file_hash(self):
         assert (
             self.psingle_Mn_pv.sha256_computed_file_hash
-            == "94f49f3fc29d4197bb54b52ed9f62ab0e1a0503430f3ddf93ffe415a1fdb65fe"
+            == "e6c4708d01062e0a622db6d7da4b6938e6b68c10de797b9840cf9e5d1fd3376c"
         )
         assert (
             self.psingle_Fe.sha256_computed_file_hash
-            == "c4694b1112d843f5fceab63c62d95347ca2c80cd3bd83e7ad2a50703ce74c578"
+            == "5223977ca296a1581d7828a561e5418f32be8ebd1715caf0dc43bbcae2c7c9b4"
         )
 
 
@@ -1167,7 +1168,7 @@ class TestPotcar(PymatgenTest):
     def test_init(self):
         assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
-        assert potcar[0].enmax == 69.852
+        assert potcar[0].enmax == 293.238
 
     def test_from_file(self):
         assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
@@ -1203,10 +1204,10 @@ class TestPotcar(PymatgenTest):
 
     def test_set_symbol(self):
         assert self.potcar.symbols == ["Fe", "P", "O"]
-        assert self.potcar[0].nelectrons == 2
+        assert self.potcar[0].nelectrons == 8
         self.potcar.symbols = ["Fe_pv", "O"]
         assert self.potcar.symbols == ["Fe_pv", "O"]
-        assert self.potcar[0].nelectrons == 16.408
+        assert self.potcar[0].nelectrons == 14
 
     # def test_default_functional(self):
     #     p = Potcar(["Fe", "P"])

@@ -672,9 +672,9 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 8) == 9
-        assert vasp_run.structures[0].charge == approx(1.758, abs=1e-4)
-        assert vasp_run.initial_structure.charge == approx(1.758, abs=1e-4)
-        assert vasp_run.final_structure.charge == approx(1.758, abs=1e-4)
+        assert vasp_run.structures[0].charge == -1
+        assert vasp_run.initial_structure.charge == -1
+        assert vasp_run.final_structure.charge == -1
 
         vpath = f"{TEST_FILES_DIR}/vasprun.split.charged.xml"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.split.charged.gz"
