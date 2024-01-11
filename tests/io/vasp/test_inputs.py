@@ -22,6 +22,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     POTCAR_STATS_PATH,
+    BadIncarWarning,
     Incar,
     Kpoints,
     KpointsSupportedModes,
@@ -721,7 +722,7 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters
-        with pytest.warns() as record:
+        with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
