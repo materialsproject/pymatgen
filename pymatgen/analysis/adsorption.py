@@ -576,12 +576,12 @@ class AdsorbateSiteFinder:
         # surface atoms, i.e. search for sites above (below) the bottom (top) surface
         sorted_sites = sorted(sym_slab, key=lambda site: site.frac_coords[2])
         if sorted_sites[0].surface_properties == "surface":
-            d = sorted_sites[0].frac_coords[2] + dist_from_surf
+            dist = sorted_sites[0].frac_coords[2] + dist_from_surf
         else:
-            d = sorted_sites[-1].frac_coords[2] - dist_from_surf
+            dist = sorted_sites[-1].frac_coords[2] - dist_from_surf
 
         for idx, site in enumerate(sym_slab):
-            if d - range_tol < site.frac_coords[2] < d + range_tol and (
+            if dist - range_tol < site.frac_coords[2] < dist + range_tol and (
                 target_species and site.species_string in target_species or not target_species
             ):
                 substituted_slabs.append(substitute(site, idx))
@@ -601,7 +601,7 @@ def get_mi_vec(slab):
 def get_rot(slab):
     """Gets the transformation to rotate the z axis into the miller index."""
     new_z = get_mi_vec(slab)
-    a, b, c = slab.lattice.matrix
+    a, _b, _c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)

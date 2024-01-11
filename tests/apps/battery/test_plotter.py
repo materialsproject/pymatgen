@@ -17,13 +17,13 @@ class TestVoltageProfilePlotter(unittest.TestCase):
     def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
-        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as f:
-            entries_LTO = json.load(f, cls=MontyDecoder)
-            self.ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
+        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as file:
+            entries_LTO = json.load(file, cls=MontyDecoder)
+        self.ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
 
-        with open(f"{TEST_FILES_DIR}/FeF3_batt.json") as fid:
-            entries = json.load(fid, cls=MontyDecoder)
-            self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
+        with open(f"{TEST_FILES_DIR}/FeF3_batt.json") as file:
+            entries = json.load(file, cls=MontyDecoder)
+        self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 
     def test_name(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")
@@ -45,4 +45,4 @@ class TestVoltageProfilePlotter(unittest.TestCase):
 
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         fig = plotter.get_plotly_figure()
-        assert fig.layout.xaxis.title.text == "x Workion Ion per Host F.U."
+        assert fig.layout.xaxis.title.text == "x Work Ion per Host F.U."

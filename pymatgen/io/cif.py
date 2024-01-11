@@ -1152,7 +1152,7 @@ class CifParser:
 
     def parse_structures(
         self,
-        primitive: bool = False,
+        primitive: bool | None = None,
         symmetrized: bool = False,
         check_occu: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "warn",
@@ -1183,12 +1183,14 @@ class CifParser:
         """
         if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
             raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
-        warnings.warn(
-            "The default value of primitive was changed from True to False in "
-            "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
-            "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
-            UserWarning,
-        )
+        if primitive is None:
+            primitive = False
+            warnings.warn(
+                "The default value of primitive was changed from True to False in "
+                "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
+                "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
+                UserWarning,
+            )
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
@@ -1365,7 +1367,7 @@ class CifWriter:
         block["_chemical_formula_sum"] = no_oxi_comp.formula
         block["_cell_volume"] = format_str.format(lattice.volume)
 
-        reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
+        _reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
 
         if symprec is None:

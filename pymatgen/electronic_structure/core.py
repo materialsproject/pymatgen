@@ -5,9 +5,13 @@ such as the Spin, Orbital, etc.
 from __future__ import annotations
 
 from enum import Enum, unique
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 @unique
@@ -16,13 +20,13 @@ class Spin(Enum):
 
     up, down = 1, -1
 
-    def __int__(self):
+    def __int__(self) -> int:
         return self.value
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
 
@@ -35,7 +39,7 @@ class OrbitalType(Enum):
     d = 2
     f = 3
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
 
 
@@ -62,10 +66,10 @@ class Orbital(Enum):
     f2 = 14
     f3 = 15
 
-    def __int__(self):
+    def __int__(self) -> int:
         return self.value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
 
     @property
@@ -118,7 +122,9 @@ class Magmom(MSONable):
     https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS
     """
 
-    def __init__(self, moment, saxis=(0, 0, 1)):
+    def __init__(
+        self, moment: float | Sequence[float] | np.ndarray | Magmom, saxis: Sequence[float] = (0, 0, 1)
+    ) -> None:
         """:param moment: magnetic moment, supplied as float or list/np.ndarray
         :param saxis: spin axis, supplied as list/np.ndarray, parameter will
             be converted to unit vector (default is [0, 0, 1])
@@ -128,8 +134,8 @@ class Magmom(MSONable):
         """
         # to init from another Magmom instance
         if isinstance(moment, Magmom):
-            saxis = moment.saxis
-            moment = moment.moment
+            saxis = moment.saxis  # type: ignore[has-type]
+            moment = moment.moment  # type: ignore[has-type]
 
         moment = np.array(moment, dtype="d")
         if moment.ndim == 0:
@@ -282,7 +288,7 @@ class Magmom(MSONable):
         return Magmom(self)
 
     @staticmethod
-    def have_consistent_saxis(magmoms):
+    def have_consistent_saxis(magmoms) -> bool:
         """This method checks that all Magmom objects in a list have a
         consistent spin quantization axis. To write MAGMOM tags to a
         VASP INCAR, a global SAXIS value for all magmoms has to be used.
@@ -431,7 +437,7 @@ class Magmom(MSONable):
     def __hash__(self) -> int:
         return hash(tuple(self.moment) + tuple(self.saxis))
 
-    def __float__(self):
+    def __float__(self) -> float:
         """Returns magnitude of magnetic moment with a sign with respect to
         an arbitrary direction.
 
@@ -453,10 +459,10 @@ class Magmom(MSONable):
         """
         return float(self.get_00t_magmom_with_xyz_saxis()[2])
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(float(self))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if np.allclose(self.saxis, (0, 0, 1)):
             return f"Magnetic moment {self.moment}"
         return f"Magnetic moment {self.moment} (spin axis = {self.saxis})"

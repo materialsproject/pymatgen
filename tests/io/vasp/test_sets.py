@@ -1424,6 +1424,16 @@ class TestMPHSEBS(PymatgenTest):
         assert vis.incar["ISYM"] == 3
         assert len(vis.kpoints.kpts) == 180
 
+        vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", reciprocal_density=50)
+        assert vis.reciprocal_density == 50
+
+        vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", reciprocal_density=100)
+        assert vis.reciprocal_density == 100
+
+        uks = {"reciprocal_density": 100}
+        vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", user_kpoints_settings=uks)
+        assert vis.reciprocal_density == 100
+
         with pytest.warns(BadInputSetWarning, match=r"Hybrid functionals"):
             vis = self.set(PymatgenTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
             vis.incar.items()

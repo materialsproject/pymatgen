@@ -144,7 +144,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         Returns:
             List of valid dir/file paths for assimilation
         """
-        (parent, subdirs, files) = path
+        parent, subdirs, _files = path
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (
@@ -381,7 +381,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         Returns:
             List of valid dir/file paths for assimilation
         """
-        parent, subdirs, files = path
+        parent, _subdirs, files = path
         return [os.path.join(parent, f) for f in files if os.path.splitext(f)[1] in self._file_extensions]
 
     def __str__(self):

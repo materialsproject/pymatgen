@@ -194,7 +194,7 @@ class HeisenbergMapper:
             all_dists += [0] * (3 - len(all_dists))
 
         all_dists = all_dists[:3]
-        labels = ["nn", "nnn", "nnnn"]
+        labels = ("nn", "nnn", "nnnn")
         dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
@@ -469,14 +469,12 @@ class HeisenbergMapper:
 
         m_avg = np.mean([np.sqrt(m**2) for m in magmoms])
 
-        # If m_avg for FM config is < 1 we won't get sensibile results.
+        # If m_avg for FM config is < 1 we won't get sensible results.
         if m_avg < 1:
-            iamthedanger = """
-                Local magnetic moments are small (< 1 muB / atom). The
-                exchange parameters may be wrong, but <J> and the mean
-                field critical temperature estimate may be OK.
-                """
-            logging.warning(iamthedanger)
+            logging.warning(
+                "Local magnetic moments are small (< 1 muB / atom). The exchange parameters may "
+                "be wrong, but <J> and the mean field critical temperature estimate may be OK."
+            )
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
         j_avg = delta_e / (m_avg**2)  # eV / magnetic ion
@@ -487,7 +485,7 @@ class HeisenbergMapper:
     def get_mft_temperature(self, j_avg):
         """
         Crude mean field estimate of critical temperature based on <J> for
-        one sublattice, or solving the coupled equations for a multisublattice
+        one sublattice, or solving the coupled equations for a multi-sublattice
         material.
 
         Args:
@@ -496,15 +494,15 @@ class HeisenbergMapper:
         Returns:
             mft_t (float): Critical temperature (K)
         """
-        num_sublattices = len(self.unique_site_ids)
+        num_sub_lattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
 
         # Only 1 magnetic sublattice
-        if num_sublattices == 1:
+        if num_sub_lattices == 1:
             mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
 
         else:  # multiple magnetic sublattices
-            omega = np.zeros((num_sublattices, num_sublattices))
+            omega = np.zeros((num_sub_lattices, num_sub_lattices))
             ex_params = self.ex_params
             ex_params = {k: v for (k, v) in ex_params.items() if k != "E0"}  # ignore E0
             for k in ex_params:
@@ -516,15 +514,14 @@ class HeisenbergMapper:
                 omega[j, i] += ex_params[k]
 
             omega = omega * 2 / 3 / k_boltzmann
-            eigenvals, eigenvecs = np.linalg.eig(omega)
-            mft_t = max(eigenvals)
+            eigen_vals, _eigen_vecs = np.linalg.eig(omega)
+            mft_t = max(eigen_vals)
 
         if mft_t > 1500:  # Not sensible!
-            stayoutofmyterritory = """
-                This mean field estimate is too high! Probably
-                the true low energy orderings were not given as inputs.
-                """
-            logging.warning(stayoutofmyterritory)
+            logging.warning(
+                "This mean field estimate is too high! Probably "
+                "the true low energy orderings were not given as inputs."
+            )
 
         return mft_t
 

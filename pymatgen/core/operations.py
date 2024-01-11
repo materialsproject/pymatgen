@@ -476,7 +476,7 @@ class MagSymmOp(SymmOp):
     moment.
     """
 
-    def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01) -> None:
         """Initializes the MagSymmOp from a 4x4 affine transformation matrix and time reversal
         operator. In general, this constructor should not be used unless you are transferring
         rotations. Use the static constructors instead to generate a SymmOp from proper rotations
@@ -500,10 +500,10 @@ class MagSymmOp(SymmOp):
             self.time_reversal == other.time_reversal
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.as_xyzt_string()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         output = [
             "Rot:",
             str(self.affine_matrix[0:3][:, 0:3]),

@@ -95,7 +95,7 @@ class Tensor(np.ndarray, MSONable):
         """Define a hash function, since numpy arrays have their own __eq__ method."""
         return hash(self.tostring())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__}({self})"
 
     def zeroed(self, tol: float = 1e-3):
@@ -327,7 +327,7 @@ class Tensor(np.ndarray, MSONable):
             warnings.warn("Tensor is not symmetric, information may be lost in voigt conversion.")
         return v_matrix * self._vscale
 
-    def is_voigt_symmetric(self, tol: float = 1e-6):
+    def is_voigt_symmetric(self, tol: float = 1e-6) -> bool:
         """Tests symmetry of tensor to that necessary for voigt-conversion
         by grouping indices into pairs and constructing a sequence of
         possible permutations to be used in a tensor transpose.
@@ -585,7 +585,7 @@ class Tensor(np.ndarray, MSONable):
             mask = abs(self) > prec
             guess[mask] = self[mask]
 
-            def merge(old, new):
+            def merge(old, new) -> None:
                 gmask = np.abs(old) > prec
                 nmask = np.abs(new) > prec
                 new_mask = np.logical_not(gmask) * nmask
@@ -674,7 +674,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """
         self.tensors = [tensor if isinstance(tensor, base_class) else base_class(tensor) for tensor in tensor_list]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.tensors)
 
     def __getitem__(self, ind):
@@ -980,7 +980,7 @@ class TensorMapping(collections.abc.MutableMapping):
     and should be used with care.
     """
 
-    def __init__(self, tensors: Sequence[Tensor] = (), values: Sequence = (), tol: float = 1e-5):
+    def __init__(self, tensors: Sequence[Tensor] = (), values: Sequence = (), tol: float = 1e-5) -> None:
         """Initialize a TensorMapping.
 
         Args:
@@ -1004,7 +1004,7 @@ class TensorMapping(collections.abc.MutableMapping):
             raise KeyError(f"{item} not found in mapping.")
         return self._value_list[index]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         index = self._get_item_index(key)
         if index is None:
             self._tensor_list.append(key)
@@ -1012,12 +1012,12 @@ class TensorMapping(collections.abc.MutableMapping):
         else:
             self._value_list[index] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         index = self._get_item_index(key)
         self._tensor_list.pop(index)
         self._value_list.pop(index)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._tensor_list)
 
     def __iter__(self):
@@ -1031,7 +1031,7 @@ class TensorMapping(collections.abc.MutableMapping):
         """Items in mapping."""
         return zip(self._tensor_list, self._value_list)
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return self._get_item_index(item) is not None
 
     def _get_item_index(self, item):

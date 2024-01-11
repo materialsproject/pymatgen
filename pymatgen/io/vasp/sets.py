@@ -1459,10 +1459,10 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
 
-        if not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings:
-            self.reciprocal_density = 50
-        else:
+        if reciprocal_density or "reciprocal_density" in self.user_kpoints_settings:
             self.reciprocal_density = reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+        else:
+            self.reciprocal_density = 50
 
         self.kpoints_line_density = kpoints_line_density
         self.copy_chgcar = copy_chgcar
@@ -3295,7 +3295,7 @@ class MPAbsorptionSet(MPRelaxSet):
             The input set with the settings (structure, k-points, incar, etc)
             updated using the previous VASP run.
         """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+        vasprun, _outcar = get_vasprun_outcar(prev_calc_dir)
         self.prev_incar = vasprun.incar
         self.structure = vasprun.final_structure
 

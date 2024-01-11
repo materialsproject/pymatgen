@@ -380,7 +380,7 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         mol_matcher = HungarianOrderMatcher(mol1)
 
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = mol_matcher.fit(mol2)
+            mol_matcher.fit(mol2)
 
     def test_fit(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
@@ -485,7 +485,7 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         mol_matcher = GeneticOrderMatcher(mol1, threshold=0.3)
 
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = mol_matcher.fit(mol2)[0]
+            mol_matcher.fit(mol2)[0]
 
     def test_fit(self):
         mol1 = Molecule.from_file(f"{test_dir}/benzene1.xyz")
@@ -562,7 +562,7 @@ class TestKabschMatcherSi(unittest.TestCase):
         with pytest.raises(
             ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
         ):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
@@ -600,7 +600,7 @@ class TestBruteForceOrderMatcherSi(unittest.TestCase):
             ValueError,
             match="The number of all possible permutations \\(20922789888000\\) is not feasible to run this method",
         ):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
 
 class TestHungarianOrderMatcherSi(unittest.TestCase):
@@ -617,7 +617,7 @@ class TestHungarianOrderMatcherSi(unittest.TestCase):
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         # TODO: Checking the cause of the large deviation
@@ -690,7 +690,7 @@ class TestKabschMatcherSi2O(unittest.TestCase):
         with pytest.raises(
             ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
         ):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
@@ -709,7 +709,7 @@ class TestKabschMatcherSi2O(unittest.TestCase):
         with pytest.raises(
             ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
         ):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
 
 class TestBruteForceOrderMatcherSi2O(unittest.TestCase):
@@ -721,7 +721,7 @@ class TestBruteForceOrderMatcherSi2O(unittest.TestCase):
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
@@ -753,7 +753,7 @@ class TestHungarianOrderMatcherSi2O(unittest.TestCase):
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
         with pytest.raises(ValueError, match="The number of the same species aren't matching"):
-            _, rmsd = self.mol_matcher.fit(mol2)
+            self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")

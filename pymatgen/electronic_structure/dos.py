@@ -40,7 +40,7 @@ class DOS(Spectrum):
     XLABEL = "Energy"
     YLABEL = "Density"
 
-    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float):
+    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float) -> None:
         """
         Args:
             energies: A sequence of energies
@@ -149,7 +149,7 @@ class DOS(Spectrum):
         cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
@@ -243,16 +243,19 @@ class Dos(MSONable):
         densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
         return Dos(self.efermi, self.energies, densities)
 
-    def get_interpolated_value(self, energy: float):
+    def get_interpolated_value(self, energy: float) -> dict[Spin, float]:
         """Returns interpolated density for a particular energy.
 
         Args:
-            energy: Energy to return the density for.
+            energy (float): Energy to return the density for.
+
+        Returns:
+            dict[Spin, float]: Density for energy for each spin.
         """
-        f = {}
+        energies = {}
         for spin in self.densities:
-            f[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
-        return f
+            energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
+        return energies
 
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """Expects a DOS object and finds the gap.
@@ -339,7 +342,7 @@ class Dos(MSONable):
         (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
@@ -385,7 +388,7 @@ class FermiDos(Dos, MSONable):
         structure: Structure | None = None,
         nelecs: float | None = None,
         bandgap: float | None = None,
-    ):
+    ) -> None:
         """
         Args:
             dos: Pymatgen Dos object.
@@ -1097,7 +1100,10 @@ class CompleteDos(Dos):
         n_bins: int = 256,
         normalize: bool = True,
     ) -> NamedTuple:
-        """Generates the DOS fingerprint based on work of
+        """Generates the DOS fingerprint.
+
+        Based on work of:
+
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
         Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
@@ -1117,7 +1123,7 @@ class CompleteDos(Dos):
 
         Returns:
             Fingerprint(namedtuple) : The electronic density of states fingerprint
-            of format (energies, densities, type, n_bins)
+                of format (energies, densities, type, n_bins)
         """
         fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")
         energies = self.energies - self.efermi
@@ -1279,7 +1285,7 @@ class CompleteDos(Dos):
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
         return dct
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Complete DOS for {self.structure}"
 
 
