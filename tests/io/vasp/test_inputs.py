@@ -427,6 +427,27 @@ direct
             [False, False, False],
         ]
 
+    def test_invalid_selective_dynamics(self):
+        """
+        The POSCAR string 'invalid_poscar_str' represents a case with incorrect
+        placement of selective dynamics information (Comment like 'Si' should
+        be followed by selective dynamics values 'T' or 'F').
+        """
+        invalid_poscar_str = """POSCAR with invalid selective dynamics info
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 Si T T F
+3.840198   1.50000000   2.35163175 F T T F
+"""
+        with pytest.warns(UserWarning, match="Selective dynamics values must be either 'T' or 'F'"):
+            Poscar.from_str(invalid_poscar_str)
+
 
 class TestIncar(PymatgenTest):
     def setUp(self):
