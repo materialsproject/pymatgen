@@ -1319,7 +1319,7 @@ class CifWriter:
         significant_figures: int = 8,
         angle_tolerance: float = 5.0,
         refine_struct: bool = True,
-        write_site_properties: bool =False,
+        write_site_properties: bool = False,
     ) -> None:
         """
         Args:
