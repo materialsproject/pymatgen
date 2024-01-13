@@ -888,11 +888,11 @@ class AbinitTimer:
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
         axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
-            tl.set_visible(False)
+            tl.set_visible(False)  # noqa: FBT003
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
-                tl.set_visible(False)
+                tl.set_visible(False)  # noqa: FBT003
                 axHisty.set_xticks([0, 50, 100])
 
         # plt.draw()
