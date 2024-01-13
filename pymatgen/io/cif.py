@@ -1442,10 +1442,7 @@ class CifWriter:
                         atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
 
                     if write_site_properties:
-                        for (
-                            property_key,
-                            property_vals,
-                        ) in struct.site_properties.items():
+                        for property_key, property_vals in struct.site_properties.items():
                             atom_site_properties[property_key].append(property_vals[count])
 
                     count += 1
@@ -1477,14 +1474,12 @@ class CifWriter:
                     site_label = site.label if site.label != site.species_string else f"{sp.symbol}{count}"
                     atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
-                    count += 1
 
                     if write_site_properties:
-                        for (
-                            property_key,
-                            property_vals,
-                        ) in struct.site_properties.items():
+                        for property_key, property_vals in struct.site_properties.items():
                             atom_site_properties[property_key].append(property_vals[count])
+
+                    count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label
