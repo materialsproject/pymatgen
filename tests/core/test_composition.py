@@ -749,6 +749,7 @@ class TestComposition(PymatgenTest):
 
         # however the user can explicitly add an oxidation state to deuterium
         composition = Composition({"D+": 2, "O": 1})
+        assert composition.elements[0].oxi_state == 1
         assert "Deuterium" in [x.long_name for x in composition.elements]
 
 

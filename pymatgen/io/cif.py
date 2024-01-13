@@ -1382,9 +1382,7 @@ class CifParser:
             failure_reason = f"Missing elements {missing_str} {addendum}"
 
         elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
-            """
-            Check that stoichiometry is same, i.e., same relative ratios of elements
-            """
+            # Check that stoichiometry is same, i.e., same relative ratios of elements
             ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
             same_stoich = all(
