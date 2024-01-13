@@ -1004,7 +1004,7 @@ class TestCifParserAssess(PymatgenTest):
     def test_valid_cif(self):
         cif = CifParser(f"{TEST_FILES_DIR}/CsI3Pb.cif")
         structure = Structure.from_file(f"{TEST_FILES_DIR}/CsI3Pb.cif")
-        failure_reason = cif.assess(structure)
+        failure_reason = cif.check(structure)
         assert failure_reason is None
 
     def test_missing_elements(self):
@@ -1022,7 +1022,7 @@ class TestCifParserAssess(PymatgenTest):
 
         cif = CifParser.from_str(cif_str)
         structure = Structure.from_str(cif_str, "cif")
-        failure_reason = cif.assess(structure)
+        failure_reason = cif.check(structure)
         assert failure_reason == "Missing elements H from PMG structure composition"
 
     def test_incorrect_stoichiometry(self):
@@ -1035,7 +1035,7 @@ class TestCifParserAssess(PymatgenTest):
 
         cif = CifParser.from_str(cif_str)
         structure = Structure.from_str(cif_str, "cif")
-        failure_reason = cif.assess(structure)
+        failure_reason = cif.check(structure)
         assert "Incorrect stoichiometry" in failure_reason
 
     def test_missing_cif_composition(self):
@@ -1048,7 +1048,7 @@ class TestCifParserAssess(PymatgenTest):
             file.write(cif_str)
 
         cif = CifParser(test_cif_file)
-        failure_reason = cif.assess(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
         assert failure_reason == "Cannot determine chemical composition from CIF!"
 
     def test_invalid_cif_composition(self):
@@ -1061,5 +1061,5 @@ class TestCifParserAssess(PymatgenTest):
             file.write(cif_str.replace("Li", "X"))
 
         cif = CifParser(test_cif_file)
-        failure_reason = cif.assess(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
         assert failure_reason == "Exception: 'X' is not a valid Element"

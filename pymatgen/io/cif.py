@@ -1141,7 +1141,7 @@ class CifParser:
                 struct = struct.get_reduced_structure()
 
             if self.check_cif:
-                cif_failure_reason = self.assess(struct)
+                cif_failure_reason = self.check(struct)
                 if cif_failure_reason is not None:
                     warnings.warn(cif_failure_reason)
 
@@ -1322,9 +1322,8 @@ class CifParser:
         """Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
 
-    def assess(self, structure: Structure) -> str | None:
-        """
-        Check whether PMG structure constructed from CIF passes sanity checks.
+    def check(self, structure: Structure) -> str | None:
+        """Check whether a structure constructed from CIF passes sanity checks.
 
         Args:
             structure (Structure) : structure created from CIF
