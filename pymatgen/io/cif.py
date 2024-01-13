@@ -1313,14 +1313,14 @@ class CifWriter:
 
     def __init__(
         self,
-        struct,
-        symprec=None,
-        write_magmoms=False,
-        significant_figures=8,
-        angle_tolerance=5.0,
-        refine_struct=True,
-        write_site_properties=False,
-    ):
+        struct: Structure,
+        symprec: float | None = None,
+        write_magmoms: bool = False,
+        significant_figures: int = 8,
+        angle_tolerance: float = 5.0,
+        refine_struct: bool = True,
+        write_site_properties: bool =False,
+    ) -> None:
         """
         Args:
             struct (Structure): structure to write
