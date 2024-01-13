@@ -295,7 +295,7 @@ class CifParser:
         site_tolerance: float = 1e-4,
         frac_tolerance: float = 1e-4,
         check_cif: bool = True,
-        cif_assessor_tol: float = 1.0e-2,
+        cif_assessor_tol: float = 0.01,
     ) -> None:
         """
         Args:
@@ -307,9 +307,9 @@ class CifParser:
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
                 value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
                 However, for very large CIF files, this may need to be set to 0.
-            check_cif (bool) : whether to check that stoichiometry reported in CIF matches
-                that of resultant PMG structure, and whether elements are missing
-            cif_assessor_tol (float) : tolerance for evaluating how closely stoichiometries match
+            check_cif (bool): Whether to check that stoichiometry reported in CIF matches
+                that of resulting Structure, and whether elements are missing. Defaults to True.
+            cif_assessor_tol (float): Tolerance for how closely stoichiometries should match. Defaults to 0.01.
         """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
@@ -1326,25 +1326,22 @@ class CifParser:
         """
         Check whether PMG structure constructed from CIF passes sanity checks.
 
-        args:
+        Args:
             structure (Structure) : structure created from CIF
 
-        returns:
-            str | None
+        Returns:
+            str | None: If any check fails, on output, returns a human-readable str for the
+                reason why (e.g., which elements are missing). Returns None if all checks pass.
 
         Checks:
             - Composition from CIF is valid
             - CIF composition contains only valid elements
             - CIF and structure contain the same elements (often hydrogens
-                are omitted from CIFs, as their positions cannot be determined)
+                are omitted from CIFs, as their positions cannot be determined from
+                X-ray diffraction, needs more difficult neutron diffraction)
             -  CIF and structure have same relative stoichiometry. Thus
                 if CIF reports stoichiometry LiFeO, and the structure has
                 composition (LiFeO)4, this check passes.
-
-        If any check fails, on output, returns a human-readable str for the
-        reason why (e.g., which elements are missing).
-
-        If all checks pass, returns None.
         """
         failure_reason = None
 
@@ -1352,7 +1349,7 @@ class CifParser:
         head_key = next(iter(cif_as_dict))
 
         cif_formula = None
-        for key in ["_chemical_formula_sum", "_chemical_formula_structural"]:
+        for key in ("_chemical_formula_sum", "_chemical_formula_structural"):
             if cif_as_dict[head_key].get(key):
                 cif_formula = cif_as_dict[head_key][key]
                 break
@@ -1362,14 +1359,14 @@ class CifParser:
 
         try:
             cif_composition = Composition(cif_formula)
-        except Exception:
-            return "Cannot determine chemical composition from CIF!"
+        except Exception as exc:
+            return f"Cannot determine chemical composition from CIF! {exc}"
 
         try:
             orig_comp = cif_composition.remove_charges().as_dict()
             struct_comp = structure.composition.remove_charges().as_dict()
         except Exception as exc:
-            return f"Exception: {exc}"
+            return str(exc)
 
         orig_comp_elts = {str(elt) for elt in orig_comp}
         struct_comp_elts = {str(elt) for elt in struct_comp}

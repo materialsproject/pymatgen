@@ -540,7 +540,7 @@ class LammpsData(MSONable):
             ref_masses = {el.name: el.atomic_mass.real for el in Element}
             symbols = list(ref_masses.keys())
             diff = np.abs(np.array(list(ref_masses.values())) - unique_masses[:, None])
-            symbols = [Element(symbols[i]).symbol for i in np.argmin(diff, axis=1)]
+            symbols = [Element(symbols[idx]).symbol for idx in np.argmin(diff, axis=1)]
         else:
             symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
