@@ -627,8 +627,8 @@ class CifParser:
                 data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
             )
 
-
         except KeyError:
+            # Missing Key search for cell setting
             for lattice_label in ["_symmetry_cell_setting", "_space_group_crystal_system"]:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
