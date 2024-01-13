@@ -432,13 +432,13 @@ direct
         # be a slash in the element names
         # Test that Poscar works for these too
         poscar_str = ""
-        with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as f:
-            for iline, line in enumerate(f):
-                if iline == 5:
+        with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
+            for idx, line in enumerate(file):
+                if idx == 5:
                     line = " ".join([x + "/" for x in line.split()]) + "\n"
                 poscar_str += line
         poscar = Poscar.from_str(poscar_str)
-        assert {x.name for x in poscar.structure.composition} == {"Li", "Fe", "P", "O"}
+        assert poscar.structure.formula == "Li4 Fe4 P4 O16"
 
 
 class TestIncar(PymatgenTest):

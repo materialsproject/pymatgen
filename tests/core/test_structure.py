@@ -1752,14 +1752,14 @@ Sites (8)
         struct_deuter = struct.copy()
         struct_deuter.replace_species({"H": "D"})
 
-        assert "Deuterium" not in [x.long_name for x in struct.composition.elements]
-        assert "Deuterium" in [x.long_name for x in struct_deuter.composition.elements]
+        assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
+        assert "Deuterium" in [el.long_name for el in struct_deuter.composition.elements]
         assert struct_deuter == struct
 
         # test to make sure no Deuteriums are written to POSCAR
         struct_deuter.to(f"{self.tmp_path}/POSCAR_deuter")
         struct = Structure.from_file(f"{self.tmp_path}/POSCAR_deuter")
-        assert "Deuterium" not in [x.long_name for x in struct.composition.elements]
+        assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
 
 
 class TestIMolecule(PymatgenTest):
