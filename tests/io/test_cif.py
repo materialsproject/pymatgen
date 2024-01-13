@@ -870,6 +870,21 @@ Si1 Si 0 0 0 1 0.0
         assert len(read_structs) == 2
         assert [x.formula for x in read_structs] == ["Fe4 P4 O16", "C4"]
 
+    def test_cif_writer_site_properties(self):
+        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        site_props = {"hello": [1.0] * len(struct1), "world": [2.0] * len(struct1)}
+        site_props["hello"][-1] = -1.0
+        struct1.add_site_property("hello", site_props["hello"])
+        struct1.add_site_property("world", site_props["world"])
+        out_path = f"{self.tmp_path}/test.cif"
+        CifWriter(struct1, write_site_properties=True).write_file(out_path)
+        with open(out_path) as f:
+            lines = f.readlines()
+        cif_str = "".join(lines)
+        assert "_atom_site_occupancy\n _atom_site_hello\n _atom_site_world\n" in cif_str
+        assert "Fe  Fe0  1  0.21872822  0.75000000  0.47486711  1  1.0  2.0" in cif_str
+        assert "O  O23  1  0.95662769  0.25000000  0.29286233  1  -1.0  2.0" in cif_str
+
 
 class TestMagCif(PymatgenTest):
     def setUp(self):
