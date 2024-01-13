@@ -323,11 +323,7 @@ class CifParser:
             """Checks to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = [
-                "_space_group_magn",
-                "_atom_site_moment",
-                "_space_group_symop_magn",
-            ]
+            prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
             for d in self._cif.data.values():
                 for k in d.data:
                     for prefix in prefixes:
@@ -628,18 +624,12 @@ class CifParser:
         """
         try:
             return self.get_lattice_no_exception(
-                data=data,
-                angle_strings=angle_strings,
-                lattice_type=lattice_type,
-                length_strings=length_strings,
+                data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
             )
 
+
         except KeyError:
-            # Missing Key search for cell setting
-            for lattice_label in [
-                "_symmetry_cell_setting",
-                "_space_group_crystal_system",
-            ]:
+            for lattice_label in ["_symmetry_cell_setting", "_space_group_crystal_system"]:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
                     try:
@@ -658,10 +648,7 @@ class CifParser:
 
     @staticmethod
     def get_lattice_no_exception(
-        data,
-        length_strings=("a", "b", "c"),
-        angle_strings=("alpha", "beta", "gamma"),
-        lattice_type=None,
+        data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
         Take a dictionary of CIF data and returns a pymatgen Lattice object.
@@ -741,11 +728,7 @@ class CifParser:
 
                     try:
                         cod_data = loadfn(
-                            os.path.join(
-                                os.path.dirname(os.path.dirname(__file__)),
-                                "symmetry",
-                                "symm_ops.json",
-                            )
+                            os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json")
                         )
                         for d in cod_data:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
@@ -928,11 +911,7 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(
-        self,
-        data: dict[str, Any],
-        primitive: bool,
-        symmetrized: bool,
-        check_occu: bool = False,
+        self, data: dict[str, Any], primitive: bool, symmetrized: bool, check_occu: bool = False
     ) -> Structure | None:
         """Generate structure from part of the cif."""
 
@@ -1121,13 +1100,7 @@ class CifParser:
             else:
                 all_labels = None  # type: ignore
 
-            struct = Structure(
-                lattice,
-                all_species,
-                all_coords,
-                site_properties=site_properties,
-                labels=all_labels,
-            )
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
@@ -1143,11 +1116,7 @@ class CifParser:
             if not check_occu:
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
-                        all_species_noedit[idx],
-                        all_coords[idx],
-                        lattice,
-                        properties=site_properties,
-                        skip_checks=True,
+                        all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
                     )
 
             if symmetrized or not check_occu:
@@ -1381,10 +1350,7 @@ class CifWriter:
         spacegroup = ("P 1", 1)
         if symprec is not None:
             spg_analyzer = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
-            spacegroup = (
-                spg_analyzer.get_space_group_symbol(),
-                spg_analyzer.get_space_group_number(),
-            )
+            spacegroup = (spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number())
 
             if refine_struct:
                 # Needs the refined structure when using symprec. This converts
