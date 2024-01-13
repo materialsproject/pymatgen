@@ -54,7 +54,7 @@ class ElementBase(Enum):
             Z (int): Atomic number.
             symbol (str): Element symbol.
             long_name (str): Long name for element. E.g., "Hydrogen".
-            A (int) : Atomic mass number (number of protons plus number of neutrons).
+            A (int) : Atomic mass number (number of protons plus neutrons).
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
                 Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
@@ -121,10 +121,9 @@ class ElementBase(Enum):
         self._atomic_mass = Mass(data["Atomic mass"], "amu")
 
         self._atomic_mass_number = None
-        self.A = None
-        if data.get("Atomic mass no"):
-            self.A = data.get("Atomic mass no")
-            self._atomic_mass_number = Mass(data["Atomic mass no"], "amu")
+        self.A = data.get("Atomic mass no")
+        if self.A:
+            self._atomic_mass_number = Mass(self.A, "amu")
 
         self.long_name = data["Name"]
         self._data = data
@@ -134,8 +133,8 @@ class ElementBase(Enum):
         """Pauling electronegativity of element. Note that if an element does not
         have an Pauling electronegativity, a NaN float is returned.
         """
-        if "X" in self._data:
-            return self._data["X"]
+        if X := self._data.get("X"):
+            return X
         warnings.warn(
             f"No Pauling electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
             "and is mainly done to avoid errors caused by the code expecting a float."
@@ -484,6 +483,7 @@ class ElementBase(Enum):
         return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
 
     def __hash__(self) -> int:
+        # multiply Z by 1000 to avoid hash collisions of element N with isotopes of elements N+/-1,2,3...
         return self.Z * 1000 + self.A if self._is_named_isotope else self.Z
 
     def __repr__(self) -> str:
@@ -514,14 +514,14 @@ class ElementBase(Enum):
 
         Args:
             Z (int): Atomic number (number of protons)
-            A (int or None) : Atomic mass number (number of protons + neutrons)
+            A (int | None) : Atomic mass number (number of protons + neutrons)
 
         Returns:
             Element with atomic number Z.
         """
         for sym, data in _pt_data.items():
-            amn = data.get("Atomic mass no") if A else None
-            if data["Atomic no"] == Z and amn == A:
+            atomic_mass_num = data.get("Atomic mass no") if A else None
+            if data["Atomic no"] == Z and atomic_mass_num == A:
                 return Element(sym)
         raise ValueError(f"Unexpected atomic number {Z=}")
 
@@ -535,9 +535,9 @@ class ElementBase(Enum):
         Returns:
             Element with the name 'name'
         """
-        # to accommodate the British English speaking world
-        GBE_to_AmE = {"aluminium": "aluminum", "caesium": "cesium"}
-        name = GBE_to_AmE.get(name.lower(), name)
+        # to accommodate the British-english-speaking world
+        uk_to_us = {"aluminium": "aluminum", "caesium": "cesium"}
+        name = uk_to_us.get(name.lower(), name)
         for sym, data in _pt_data.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
@@ -973,15 +973,11 @@ class Species(MSONable, Stringify):
 
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
-        if any(not hasattr(other, attribute) for attribute in ("oxi_state", "symbol", "spin", "A")):
+        attrs = ("oxi_state", "symbol", "spin", "A")
+        if not all(hasattr(other, attribute) for attribute in attrs):
             return NotImplemented
 
-        return (
-            self.symbol == other.symbol  # type: ignore
-            and self.oxi_state == other.oxi_state  # type: ignore
-            and self.spin == other.spin  # type: ignore
-            and self.A == other.A  # type: ignore
-        )
+        return all(getattr(self, attr) == getattr(other, attr) for attr in attrs)
 
     def __hash__(self) -> int:
         """Equal Species should have the same str representation, hence
@@ -1267,7 +1263,7 @@ class DummySpecies(Species):
             of this is to ensure that for most use cases, a DummySpecies behaves no
             differently from an Element or Species.
         A (int): Just as for Z, to get a DummySpecies to behave like an Element,
-            need atomic mass number. Here it is set arbitrarily to twice Z.
+            it needs atomic mass number A (arbitrarily set to twice Z).
         X (float): DummySpecies is always assigned a Pauling electronegativity of 0.
     """
 
@@ -1330,10 +1326,10 @@ class DummySpecies(Species):
     @property
     def A(self) -> int:
         """
-        DummySpecies is always assigned an atomic mass number equal to
-        twice its Z value.
+        For DummySpecies to behave like an Element, it needs an atomic mass number attribute.
+        Here it is set arbitrarily to twice Z.
         """
-        return 2 * hash(self.symbol)
+        return 2 * self.Z
 
     @property
     def oxi_state(self) -> float | None:
@@ -1454,7 +1450,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             that can be determined.
     """
     if isinstance(obj, (Element, Species, DummySpecies)):
-        if hasattr(obj, "_is_named_isotope") and obj._is_named_isotope:
+        if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
