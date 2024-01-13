@@ -70,8 +70,8 @@ def parse_oxi_state():
 
 def parse_ionic_radii():
     data = loadfn("periodic_table.yaml")
-    with open("ionic_radii.csv") as f:
-        radii_data = f.read()
+    with open("ionic_radii.csv") as file:
+        radii_data = file.read()
     radii_data = radii_data.split("\r")
     header = radii_data[0].split(",")
     for idx in range(1, len(radii_data)):
@@ -95,14 +95,14 @@ def parse_ionic_radii():
                 data[el]["Ionic_radii"] = ionic_radii
         else:
             print(el)
-    with open("periodic_table2.yaml", "w") as f:
-        yaml.dump(data, f)
+    with open("periodic_table2.yaml", "w") as file:
+        yaml.dump(data, file)
 
 
 def parse_radii():
     data = loadfn("periodic_table.yaml")
-    with open("radii.csv") as f:
-        radii_data = f.read()
+    with open("radii.csv") as file:
+        radii_data = file.read()
     radii_data = radii_data.split("\r")
 
     for line in radii_data:
@@ -129,10 +129,10 @@ def parse_radii():
             data[el]["Van der waals radius"] = vdw_radii
         else:
             print(el)
-    with open("periodic_table2.yaml", "w") as f:
-        yaml.dump(data, f)
-    with open("../pymatgen/core/periodic_table.json", "w") as f:
-        json.dump(data, f)
+    with open("periodic_table2.yaml", "w") as file:
+        yaml.dump(data, file)
+    with open("../pymatgen/core/periodic_table.json", "w") as file:
+        json.dump(data, file)
 
 
 def update_ionic_radii():
@@ -148,10 +148,10 @@ def update_ionic_radii():
         if "Ionic_radii_ls" in d:
             d["Ionic radii ls"] = {k: v / 100 for k, v in d["Ionic_radii_ls"].items()}
             del d["Ionic_radii_ls"]
-    with open("periodic_table2.yaml", "w") as f:
-        yaml.dump(data, f)
-    with open("../pymatgen/core/periodic_table.json", "w") as f:
-        json.dump(data, f)
+    with open("periodic_table2.yaml", "w") as file:
+        yaml.dump(data, file)
+    with open("../pymatgen/core/periodic_table.json", "w") as file:
+        json.dump(data, file)
 
 
 def parse_shannon_radii():
@@ -188,15 +188,15 @@ def parse_shannon_radii():
             data[el]["Shannon radii"] = dict(radii[el])
 
     dumpfn(data, "periodic_table.yaml")
-    with open("../pymatgen/core/periodic_table.json", "w") as f:
-        json.dump(data, f)
+    with open("../pymatgen/core/periodic_table.json", "w") as file:
+        json.dump(data, file)
 
 
 def gen_periodic_table():
     data = loadfn("periodic_table.yaml")
 
-    with open("../pymatgen/core/periodic_table.json", "w") as f:
-        json.dump(data, f)
+    with open("../pymatgen/core/periodic_table.json", "w") as file:
+        json.dump(data, file)
 
 
 def gen_iupac_ordering():
@@ -263,10 +263,10 @@ def add_electron_affinities():
         # don't want superheavy elements or less common isotopes
         if int(r[0]) > max_Z or r[2] in ea:
             continue
-        tempstr = re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))
+        temp_str = re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))
         # hyphen-like characters used that can't be parsed by .float
-        bytesrep = tempstr.encode("unicode_escape").replace(b"\\u2212", b"-")
-        ea[r[2]] = float(bytesrep.decode("unicode_escape"))
+        bytes_rep = temp_str.encode("unicode_escape").replace(b"\\u2212", b"-")
+        ea[r[2]] = float(bytes_rep.decode("unicode_escape"))
 
     Z_set = {Element.from_name(element).Z for element in ea}
     assert Z_set.issuperset(range(1, 93))  # Ensure that we have data for up to U.
@@ -280,14 +280,14 @@ def add_electron_affinities():
 def add_ionization_energies():
     """Update the periodic table data file with ground level and ionization energies from NIST."""
 
-    with open("NIST Atomic Ionization Energies Output.html") as f:
-        soup = BeautifulSoup(f.read(), "html.parser")
-    for t in soup.find_all("table"):
-        if "Hydrogen" in t.text:
+    with open("NIST Atomic Ionization Energies Output.html") as file:
+        soup = BeautifulSoup(file.read(), "html.parser")
+    for table in soup.find_all("table"):
+        if "Hydrogen" in table.text:
             break
     data = collections.defaultdict(list)
-    for tr in t.find_all("tr"):
-        row = [td.get_text().strip() for td in tr.find_all("td")]
+    for row in table.find_all("tr"):
+        row = [td.get_text().strip() for td in row.find_all("td")]
         if row:
             Z = int(row[0])
             val = re.sub(r"\s", "", row[8].strip("()[]"))
