@@ -91,7 +91,7 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
+        self.rootgrp.set_auto_mask(False)
 
     def __enter__(self):
         """Activated when used in the with statement."""
