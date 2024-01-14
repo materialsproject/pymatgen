@@ -870,6 +870,7 @@ Si1 Si 0 0 0 1 0.0
         assert len(read_structs) == 2
         assert [x.formula for x in read_structs] == ["Fe4 P4 O16", "C4"]
 
+
 class TestMagCif(PymatgenTest):
     def setUp(self):
         self.mcif = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
