@@ -7,7 +7,7 @@ import os
 import re
 import textwrap
 import warnings
-from collections import deque
+from collections import defaultdict, deque
 from datetime import datetime
 from functools import partial
 from inspect import getfullargspec as getargspec
@@ -1402,13 +1402,14 @@ class CifWriter:
 
     def __init__(
         self,
-        struct,
-        symprec=None,
-        write_magmoms=False,
-        significant_figures=8,
-        angle_tolerance=5.0,
-        refine_struct=True,
-    ):
+        struct: Structure,
+        symprec: float | None = None,
+        write_magmoms: bool = False,
+        significant_figures: int = 8,
+        angle_tolerance: float = 5,
+        refine_struct: bool = True,
+        write_site_properties: bool = False,
+    ) -> None:
         """
         Args:
             struct (Structure): structure to write
@@ -1424,6 +1425,8 @@ class CifWriter:
                 is not None.
             refine_struct: Used only if symprec is not None. If True, get_refined_structure
                 is invoked to convert input structure from primitive to conventional.
+            write_site_properties (bool): Whether to write the Structure.site_properties
+                to the CIF as _atom_site_{property name}. Defaults to False.
         """
         if write_magmoms and symprec:
             warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen,disabling symmetry detection.")
@@ -1431,7 +1434,7 @@ class CifWriter:
 
         format_str = f"{{:.{significant_figures}f}}"
 
-        block = {}
+        block: dict[str, Any] = {}
         loops = []
         spacegroup = ("P 1", 1)
         if symprec is not None:
@@ -1456,7 +1459,7 @@ class CifWriter:
         block["_chemical_formula_sum"] = no_oxi_comp.formula
         block["_cell_volume"] = format_str.format(lattice.volume)
 
-        _reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
+        _, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
 
         if symprec is None:
@@ -1477,12 +1480,12 @@ class CifWriter:
         loops.append(["_symmetry_equiv_pos_site_id", "_symmetry_equiv_pos_as_xyz"])
 
         try:
-            symbol_to_oxinum = {str(el): float(el.oxi_state) for el in sorted(comp.elements)}
-            block["_atom_type_symbol"] = list(symbol_to_oxinum)
-            block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
+            symbol_to_oxi_num = {str(el): float(el.oxi_state or 0) for el in sorted(comp.elements)}
+            block["_atom_type_symbol"] = list(symbol_to_oxi_num)
+            block["_atom_type_oxidation_number"] = symbol_to_oxi_num.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
         except (TypeError, AttributeError):
-            symbol_to_oxinum = {el.symbol: 0 for el in sorted(comp.elements)}
+            symbol_to_oxi_num = {el.symbol: 0 for el in sorted(comp.elements)}
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []
@@ -1495,6 +1498,7 @@ class CifWriter:
         atom_site_moment_crystalaxis_x = []
         atom_site_moment_crystalaxis_y = []
         atom_site_moment_crystalaxis_z = []
+        atom_site_properties: dict[str, list] = defaultdict(list)
         count = 0
         if symprec is None:
             for site in struct:
@@ -1525,6 +1529,10 @@ class CifWriter:
                         atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
                         atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
                         atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
+
+                    if write_site_properties:
+                        for key, val in site.properties.items():
+                            atom_site_properties[key].append(format_str.format(val))
 
                     count += 1
         else:
@@ -1564,17 +1572,21 @@ class CifWriter:
         block["_atom_site_fract_y"] = atom_site_fract_y
         block["_atom_site_fract_z"] = atom_site_fract_z
         block["_atom_site_occupancy"] = atom_site_occupancy
-        loops.append(
-            [
-                "_atom_site_type_symbol",
-                "_atom_site_label",
-                "_atom_site_symmetry_multiplicity",
-                "_atom_site_fract_x",
-                "_atom_site_fract_y",
-                "_atom_site_fract_z",
-                "_atom_site_occupancy",
-            ]
-        )
+        loop_labels = [
+            "_atom_site_type_symbol",
+            "_atom_site_label",
+            "_atom_site_symmetry_multiplicity",
+            "_atom_site_fract_x",
+            "_atom_site_fract_y",
+            "_atom_site_fract_z",
+            "_atom_site_occupancy",
+        ]
+        if write_site_properties:
+            for key, vals in atom_site_properties.items():
+                block[f"_atom_site_{key}"] = vals
+                loop_labels += [f"_atom_site_{key}"]
+        loops.append(loop_labels)
+
         if write_magmoms:
             block["_atom_site_moment_label"] = atom_site_moment_label
             block["_atom_site_moment_crystalaxis_x"] = atom_site_moment_crystalaxis_x
