@@ -1474,7 +1474,6 @@ class CifWriter:
                     site_label = site.label if site.label != site.species_string else f"{sp.symbol}{count}"
                     atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
-
                     count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
