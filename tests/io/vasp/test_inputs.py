@@ -427,7 +427,7 @@ direct
             [False, False, False],
         ]
 
-    def test_new_format(self):
+    def test_vasp_6_4_2_format(self):
         # As of vasp 6.4.2, when using POTCARs with SHAs, there can
         # be a slash in the element names
         # Test that Poscar works for these too

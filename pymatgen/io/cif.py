@@ -1376,7 +1376,7 @@ class CifParser:
             missing = set(orig_comp_elts).difference(set(struct_comp_elts))
             addendum = "from PMG structure composition"
             if len(missing) == 0:
-                addendum = "from CIF reported composition"
+                addendum = "from CIF-reported composition"
                 missing = set(struct_comp_elts).difference(set(orig_comp_elts))
             missing_str = ", ".join([str(x) for x in missing])
             failure_reason = f"Missing elements {missing_str} {addendum}"

@@ -334,6 +334,7 @@ class PeriodicSite(Site, MSONable):
                     species = Composition({get_el_sp(species): 1})  # type: ignore
                 except TypeError:
                     species = Composition(species)
+
             total_occu = species.num_atoms
             if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")

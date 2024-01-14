@@ -19,19 +19,11 @@ from ruamel import yaml
 
 from pymatgen.core import Element, get_el_sp
 
-
-def test_yaml():
-    loadfn("periodic_table.yaml")
-
-
-def test_json():
-    with open("../pymatgen/core/periodic_table.json") as file:
-        data = json.load(file)
-        print(data)
+ptable_yaml_path = "periodic_table.yaml"
 
 
 def parse_oxi_state():
-    data = loadfn("periodic_table.yaml")
+    data = loadfn(ptable_yaml_path)
     with open("oxidation_states.txt") as file:
         oxi_data = file.read()
     oxi_data = re.sub("[\n\r]", "", oxi_data)
@@ -69,7 +61,7 @@ def parse_oxi_state():
 
 
 def parse_ionic_radii():
-    data = loadfn("periodic_table.yaml")
+    data = loadfn(ptable_yaml_path)
     with open("ionic_radii.csv") as file:
         radii_data = file.read()
     radii_data = radii_data.split("\r")
@@ -100,7 +92,7 @@ def parse_ionic_radii():
 
 
 def parse_radii():
-    data = loadfn("periodic_table.yaml")
+    data = loadfn(ptable_yaml_path)
     with open("radii.csv") as file:
         radii_data = file.read()
     radii_data = radii_data.split("\r")
@@ -136,7 +128,7 @@ def parse_radii():
 
 
 def update_ionic_radii():
-    data = loadfn("periodic_table.yaml")
+    data = loadfn(ptable_yaml_path)
 
     for d in data.values():
         if "Ionic_radii" in d:
@@ -155,7 +147,7 @@ def update_ionic_radii():
 
 
 def parse_shannon_radii():
-    data = loadfn("periodic_table.yaml")
+    data = loadfn(ptable_yaml_path)
 
     from openpyxl import load_workbook
 
@@ -187,13 +179,13 @@ def parse_shannon_radii():
         if el in data:
             data[el]["Shannon radii"] = dict(radii[el])
 
-    dumpfn(data, "periodic_table.yaml")
+    dumpfn(data, ptable_yaml_path)
     with open("../pymatgen/core/periodic_table.json", "w") as file:
         json.dump(data, file)
 
 
 def gen_periodic_table():
-    data = loadfn("periodic_table.yaml")
+    data = loadfn(ptable_yaml_path)
 
     with open("../pymatgen/core/periodic_table.json", "w") as file:
         json.dump(data, file)
@@ -272,8 +264,8 @@ def add_electron_affinities():
     assert Z_set.issuperset(range(1, 93))  # Ensure that we have data for up to U.
     print(ea)
     pt = loadfn("../pymatgen/core/periodic_table.json")
-    for k, v in pt.items():
-        v["Electron affinity"] = ea.get(Element(k).long_name)
+    for key, val in pt.items():
+        val["Electron affinity"] = ea.get(Element(key).long_name)
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 
@@ -297,14 +289,14 @@ def add_ionization_energies():
     print(data[51])
     assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     pt = loadfn("../pymatgen/core/periodic_table.json")
-    for k, v in pt.items():
-        del v["Ionization energy"]
-        v["Ionization energies"] = data.get(Element(k).long_name, [])
+    for key, val in pt.items():
+        del val["Ionization energy"]
+        val["Ionization energies"] = data.get(Element(key).long_name, [])
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 
 if __name__ == "__main__":
-    parse_shannon_radii()
+    # parse_shannon_radii()
     # add_ionization_energies()
     add_electron_affinities()
     # gen_periodic_table()
