@@ -1442,8 +1442,8 @@ class CifWriter:
                         atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
 
                     if write_site_properties:
-                        for property_key, property_vals in struct.site_properties.items():
-                            atom_site_properties[property_key].append(property_vals[count])
+                        for property_key, property_vals in site.properties.items():
+                            atom_site_properties[property_key].append(property_vals)
 
                     count += 1
         else:
@@ -1476,8 +1476,8 @@ class CifWriter:
                     atom_site_occupancy.append(str(occu))
 
                     if write_site_properties:
-                        for property_key, property_vals in struct.site_properties.items():
-                            atom_site_properties[property_key].append(property_vals[count])
+                        for property_key, property_vals in site.properties.items():
+                            atom_site_properties[property_key].append(property_vals)
 
                     count += 1
 
