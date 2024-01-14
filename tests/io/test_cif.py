@@ -876,7 +876,7 @@ Si1 Si 0 0 0 1 0.0
         site_props["hello"][-1] = -1.0
         struct1.add_site_property("hello", site_props["hello"])
         struct1.add_site_property("world", site_props["world"])
-        out_path = f"{self.tmp_path}/test.cif"
+        out_path = f"{self.tmp_path}/test2.cif"
         CifWriter(struct1, write_site_properties=True).write_file(out_path)
         with open(out_path) as f:
             cif_str = f.read()
