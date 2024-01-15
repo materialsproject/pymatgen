@@ -95,7 +95,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(kwargs)}")
 
 
-def structure_from_abivars(cls=Structure, *args, **kwargs) -> Structure:
+def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
     """
     Build a Structure object from a dictionary with ABINIT variables.
 
@@ -115,28 +115,28 @@ def structure_from_abivars(cls=Structure, *args, **kwargs) -> Structure:
     `xred` can be replaced with `xcart` or `xangst`.
     """
     kwargs.update(dict(*args))
-    dct = kwargs
+    cls = cls or Structure
 
     # lattice = Lattice.from_dict(d, fmt="abivars")
-    lattice = lattice_from_abivars(**dct)
-    coords, coords_are_cartesian = dct.get("xred"), False
+    lattice = lattice_from_abivars(**kwargs)
+    coords, coords_are_cartesian = kwargs.get("xred"), False
 
     if coords is None:
-        coords = dct.get("xcart")
+        coords = kwargs.get("xcart")
         if coords is not None:
-            if "xangst" in dct:
+            if "xangst" in kwargs:
                 raise ValueError("xangst and xcart are mutually exclusive")
             coords = ArrayWithUnit(coords, "bohr").to("ang")
         else:
-            coords = dct.get("xangst")
+            coords = kwargs.get("xangst")
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError(f"Cannot extract coordinates from:\n {dct}")
+        raise ValueError(f"Cannot extract coordinates from:\n {kwargs}")
 
     coords = np.reshape(coords, (-1, 3))
 
-    znucl_type, typat = dct["znucl"], dct["typat"]
+    znucl_type, typat = kwargs["znucl"], kwargs["typat"]
 
     if not isinstance(znucl_type, Iterable):
         znucl_type = [znucl_type]
@@ -158,7 +158,7 @@ def structure_from_abivars(cls=Structure, *args, **kwargs) -> Structure:
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=coords_are_cartesian,
-        properties=dct.get("properties"),
+        properties=kwargs.get("properties"),
     )
 
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import string
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -23,7 +23,7 @@ _UNITS = {
 class InputVariable:
     """An Abinit input variable."""
 
-    def __init__(self, name, value, units="", valperline=3):
+    def __init__(self, name: str, value, units: str = "", valperline: int = 3) -> None:
         """
         Args:
             name: Name of the variable.
@@ -35,12 +35,11 @@ class InputVariable:
         self.value = value
         self._units = units
 
-        # Maximum number of values per line.
-        self.valperline = valperline
+        self.valperline = valperline  # Maximum number of values per line.
         if name == "bdgw":
             self.valperline = 2
 
-        if isinstance(self.value, Iterable) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
+        if isinstance(self.value, Sequence) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
             self.value = list(self.value)
             self._units = self.value.pop(-1)
 
