@@ -2632,12 +2632,12 @@ class IStructure(SiteCollection, MSONable):
         return df
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Structure:
+    def from_dict(cls, dct: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Structure:
         """Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
 
         Args:
-            d (dict): Dict representation of structure.
+            dct (dict): Dict representation of structure.
             fmt ('abivars' | None): Use structure_from_abivars() to parse the dict. Defaults to None.
 
         Returns:
@@ -2646,12 +2646,12 @@ class IStructure(SiteCollection, MSONable):
         if fmt == "abivars":
             from pymatgen.io.abinit.abiobjects import structure_from_abivars
 
-            return structure_from_abivars(cls=cls, **d)
+            return structure_from_abivars(cls=cls, **dct)
 
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        charge = d.get("charge")
-        return cls.from_sites(sites, charge=charge, properties=d.get("properties"))
+        lattice = Lattice.from_dict(dct["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
+        charge = dct.get("charge")
+        return cls.from_sites(sites, charge=charge, properties=dct.get("properties"))
 
     def to(self, filename: str | Path = "", fmt: str = "", **kwargs) -> str:
         """Outputs the structure to a file or string.
