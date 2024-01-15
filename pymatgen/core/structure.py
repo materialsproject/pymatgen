@@ -927,7 +927,7 @@ class IStructure(SiteCollection, MSONable):
         for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {key: val[idx] for key, val in site_properties.items()}
+                prop = {key: val[idx] for key, val in site_properties.items() if val is not None}
 
             label = labels[idx] if labels else None
 
@@ -943,7 +943,7 @@ class IStructure(SiteCollection, MSONable):
             sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
         if validate_proximity and not self.is_valid():
-            raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
+            raise StructureError(f"sites are less than {self.DISTANCE_TOLERANCE} Angstrom apart!")
         self._charge = charge
         self._properties = properties or {}
 
