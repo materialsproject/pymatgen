@@ -2653,7 +2653,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge")
         return cls.from_sites(sites, charge=charge, properties=d.get("properties"))
 
-    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str:
+    def to(self, filename: str | Path = "", fmt: str = "", **kwargs) -> str:
         """Outputs the structure to a file or string.
 
         Args:
@@ -2673,7 +2673,7 @@ class IStructure(SiteCollection, MSONable):
             str: String representation of molecule in given format. If a filename
                 is provided, the same string is written to the file.
         """
-        fmt = fmt.lower()
+        filename, fmt = str(filename), fmt.lower()
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
