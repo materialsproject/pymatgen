@@ -868,6 +868,11 @@ Direct
         # i.e. uses same merge_tol for site merging, same primitive=False, etc.
         assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
 
+        # https://github.com/materialsproject/pymatgen/issues/3551
+        json_path = Path("test-with-path.json")
+        self.struct.to(filename=json_path)
+        assert os.path.isfile(json_path)
+
     def test_to_file_alias(self):
         out_path = f"{self.tmp_path}/POSCAR"
         assert self.struct.to(out_path) == self.struct.to_file(out_path)
