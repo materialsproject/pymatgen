@@ -58,6 +58,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
         symbols=symbols,
         cell=pmg_structure.lattice.matrix,
         scaled_positions=pmg_structure.frac_coords,
+        magnetic_moments=pmg_structure.site_properties.get("magmom"),
     )
 
 
