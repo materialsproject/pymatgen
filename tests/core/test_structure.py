@@ -73,7 +73,9 @@ class TestIStructure(PymatgenTest):
         assert self.struct.is_ordered
         assert self.struct.ntypesp == 1
         coords = [[0, 0, 0], [0.0, 0, 0.0000001]]
-        with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
+        with pytest.raises(
+            StructureError, match=f"sites are less than {self.struct.DISTANCE_TOLERANCE} Angstrom apart"
+        ):
             IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
@@ -104,7 +106,7 @@ class TestIStructure(PymatgenTest):
 
     def test_as_dataframe(self):
         df = self.propertied_structure.as_dataframe()
-        assert df.attrs["Reduced Formula"] == "Si"
+        assert df.attrs["Reduced Formula"] == self.propertied_structure.composition.reduced_formula
         assert df.shape == (2, 8)
 
     def test_equal(self):
@@ -130,7 +132,7 @@ class TestIStructure(PymatgenTest):
 
     def test_bad_structure(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.75, 0.5, 0.75]]
-        with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
+        with pytest.raises(StructureError, match=f"sites are less than {Structure.DISTANCE_TOLERANCE} Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 3, coords, validate_proximity=True)
         # these shouldn't raise an error
         IStructure(self.lattice, ["Si"] * 2, coords[:2], validate_proximity=True)
