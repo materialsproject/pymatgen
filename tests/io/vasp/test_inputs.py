@@ -42,7 +42,7 @@ _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTC
 def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
-    monkeypatch.setattr(PotcarSingle, "potcar_summary_stats", _summ_stats)
+    monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
 
     # The fake POTCAR library is pretty big even with just a few sub-libraries
     # just copying over entries to work with PotcarSingle.is_valid
