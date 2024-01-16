@@ -37,7 +37,7 @@ class Movement(MSONable):
                 If set, the first ionic step read will be offset by the amount of
                 ionic_step_offset. Defaults to None.
         """
-        self.filename: str = filename
+        self.filename: PathLike = filename
         self.ionic_step_skip: int | None = ionic_step_skip
         self.ionic_step_offset: int | None = ionic_step_offset
         self.split_mark: str = "--------------------------------------"
