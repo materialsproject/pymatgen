@@ -126,7 +126,7 @@ class ACExtractor(ACExtractorBase):
         content: str = "LATTICE"
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
         for row_idx in [idx_row + 1, idx_row + 2, idx_row + 3]:
-            row_content: list[str] = linecache.getline(self.atom_config_path, row_idx).split()[:3]
+            row_content: list[str] = linecache.getline(str(self.atom_config_path), row_idx).split()[:3]
             for value in row_content:
                 basis_vectors.append(float(value))
 
@@ -264,11 +264,11 @@ class ACstrExtractor(ACExtractorBase):
         Returns:
             np.ndarray: Atomic magnetic moments.
         """
-        magnetic_moments_lst = []
-        aim_content = "MAGNETIC"
-        aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
+        magnetic_moments_lst: list[float] = []
+        aim_content: str = "MAGNETIC"
+        aim_idxs: list[int] = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
         if len(aim_idxs) == 0:
-            magnetic_moments_lst = [0 for _ in range(self.num_atoms)]
+            magnetic_moments_lst = [0.0 for _ in range(self.num_atoms)]
         else:
             aim_idx = aim_idxs[0]
             magnetic_moments_content = self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]
