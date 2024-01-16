@@ -36,8 +36,8 @@ class TestReport(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/pwmat/REPORT"
         report = Report(filepath)
         assert hasattr(report, "spin")
-        assert hasattr(report, "nkpoints")
-        assert hasattr(report, "nbands")
+        assert hasattr(report, "n_kpoints")
+        assert hasattr(report, "n_bands")
         assert hasattr(report, "eigenvalues")
         assert hasattr(report, "kpoints")
         assert hasattr(report, "kpoints_weight")
