@@ -204,16 +204,16 @@ class Report(MSONable):
             num_kpts (int): The number of kpoints.
             num_bands (int): The number of bands.
         """
-        content = "SPIN"
+        content: str = "SPIN"
         row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
         spin = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
 
-        content: str = "NUM_KPT"
-        row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
+        content = "NUM_KPT"
+        row_idx = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
         num_kpts = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
 
-        content: str = "NUM_BAND"
-        row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
+        content = "NUM_BAND"
+        row_idx = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
         num_bands = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
         return spin, num_kpts, num_bands
 
