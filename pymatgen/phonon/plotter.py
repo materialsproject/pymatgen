@@ -561,8 +561,8 @@ class PhononBSPlotter:
         """
         tick_distance = []
         tick_labels: list[str] = []
-        previous_label = self._bs.qpoints[0].label
-        previous_branch = self._bs.branches[0]["name"]
+        prev_label = self._bs.qpoints[0].label
+        prev_branch = self._bs.branches[0]["name"]
         for idx, point in enumerate(self._bs.qpoints):
             if point.label is not None:
                 tick_distance.append(self._bs.distance[idx])
@@ -571,11 +571,11 @@ class PhononBSPlotter:
                     if b["start_index"] <= idx <= b["end_index"]:
                         this_branch = b["name"]
                         break
-                if point.label != previous_label and previous_branch != this_branch:
+                if point.label != prev_label and prev_branch != this_branch:
                     label1 = point.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = f"${label1}$"
-                    label0 = previous_label or ""
+                    label0 = prev_label or ""
                     if label0.startswith("\\") or label0.find("_") != -1:
                         label0 = f"${label0}$"
                     tick_labels.pop()
@@ -585,8 +585,8 @@ class PhononBSPlotter:
                     tick_labels.append(f"${point.label}$")
                 else:
                     tick_labels.append(point.label)
-                previous_label = point.label
-                previous_branch = this_branch
+                prev_label = point.label
+                prev_branch = this_branch
         # map atomate2 all-upper-case labels like GAMMA/DELTA to pretty symbols
         tick_labels = [label.replace("GAMMA", "Γ").replace("DELTA", "Δ").replace("SIGMA", "Σ") for label in tick_labels]
         return {"distance": tick_distance, "label": tick_labels}

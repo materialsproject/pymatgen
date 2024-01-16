@@ -239,12 +239,11 @@ class DosPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
+    def save_plot(self, filename: str, xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
@@ -253,7 +252,7 @@ class DosPlotter:
             beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
         self.get_plot(xlim, ylim, invert_axes, beta_dashed)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
     def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
         """Show the plot using matplotlib.
@@ -732,19 +731,18 @@ class BSPlotter:
         self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()
 
-    def save_plot(self, filename, img_format="eps", ylim=None, zero_to_efermi=True, smooth=False) -> None:
+    def save_plot(self, filename: str, ylim=None, zero_to_efermi=True, smooth=False) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
             ylim: Specifies the y-axis limits.
             zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
                 Defaults to True.
             smooth: Cubic spline interpolation of the bands.
         """
         self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
         plt.close()
 
     def get_ticks(self):
@@ -2601,18 +2599,11 @@ class BSDOSPlotter:
         inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(
-            0.70, -0.2, m_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="left"
-        )
-        inset_ax.text(
-            0.325, 0.70, c_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="center"
-        )
-        inset_ax.text(
-            -0.05, -0.2, y_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="right"
-        )
-        inset_ax.text(
-            0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
-        )
+        common = dict(fontsize=13, family="Times New Roman")
+        inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
+        inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
+        inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")
+        inset_ax.text(0.325, 0.22, k_label, **common, color=(1, 1, 1), horizontalalignment="center")
 
         inset_ax.axis("off")
 
@@ -3791,19 +3782,18 @@ class CohpPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None) -> None:
+    def save_plot(self, filename: str, xlim=None, ylim=None) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: File name to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): File name to write to. Must include extension to specify image format.
             xlim: Specifies the x-axis limits. Defaults to None for
                 automatic determination.
             ylim: Specifies the y-axis limits. Defaults to None for
                 automatic determination.
         """
         self.get_plot(xlim, ylim)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
     def show(self, xlim=None, ylim=None) -> None:
         """Show the plot using matplotlib.
