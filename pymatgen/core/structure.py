@@ -60,6 +60,8 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
+FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", ""]
+
 
 class Neighbor(Site):
     """Simple Site subclass to contain a neighboring atom that skips all the unnecessary checks for speed. Can be
@@ -447,13 +449,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return np.min(all_dists) > tol
 
     @abstractmethod
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
         """Generates string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
         raise NotImplementedError
 
-    def to_file(self, filename: str = "", fmt: str = "") -> str | None:
+    def to_file(self, filename: str = "", fmt: FileFormats = "") -> str | None:
         """A more intuitive alias for .to()."""
         return self.to(filename, fmt)
 
@@ -2653,7 +2655,7 @@ class IStructure(SiteCollection, MSONable):
         charge = dct.get("charge")
         return cls.from_sites(sites, charge=charge, properties=dct.get("properties"))
 
-    def to(self, filename: str | Path = "", fmt: str = "", **kwargs) -> str:
+    def to(self, filename: str | Path = "", fmt: FileFormats = "", **kwargs) -> str:
         """Outputs the structure to a file or string.
 
         Args:
@@ -2663,7 +2665,7 @@ class IStructure(SiteCollection, MSONable):
             fmt (str): Format to output to. Defaults to JSON unless filename
                 is provided. If fmt is specifies, it overrides whatever the
                 filename is. Options include "cif", "poscar", "cssr", "json",
-                "xsf", "mcsqs", "prismatic", "yaml", "fleur-inpgen", "pwmat".
+                "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat".
                 Non-case sensitive.
             **kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
@@ -2673,7 +2675,7 @@ class IStructure(SiteCollection, MSONable):
             str: String representation of molecule in given format. If a filename
                 is provided, the same string is written to the file.
         """
-        filename, fmt = str(filename), fmt.lower()
+        filename, fmt = str(filename), cast(FileFormats, fmt.lower())
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
@@ -2722,7 +2724,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.prismatic import Prismatic
 
             return Prismatic(self).to_str()
-        elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
+        elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = StringIO()
             yaml.dump(self.as_dict(), str_io)
@@ -2751,7 +2753,7 @@ class IStructure(SiteCollection, MSONable):
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
-            raise ValueError(f"Invalid format={fmt!r}")
+            raise ValueError(f"Invalid {fmt=}, valid options are {get_args(FileFormats)}")
 
         if filename:
             writer.write_file(filename)
@@ -2761,7 +2763,7 @@ class IStructure(SiteCollection, MSONable):
     def from_str(  # type: ignore[override]
         cls,
         input_string: str,
-        fmt: Literal["cif", "poscar", "cssr", "json", "yaml", "xsf", "mcsqs", "res", "pwmat"],
+        fmt: FileFormats,
         primitive: bool = False,
         sort: bool = False,
         merge_tol: float = 0.0,
@@ -2772,7 +2774,7 @@ class IStructure(SiteCollection, MSONable):
         Args:
             input_string (str): String to parse.
             fmt (str): A file format specification. One of "cif", "poscar", "cssr",
-                "json", "yaml", "xsf", "mcsqs".
+                "json", "yaml", "yml", "xsf", "mcsqs", "res".
             primitive (bool): Whether to find a primitive cell. Defaults to
                 False.
             sort (bool): Whether to sort the sites in accordance to the default
@@ -2801,12 +2803,12 @@ class IStructure(SiteCollection, MSONable):
             cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure
         elif fmt_low == "json":
-            d = json.loads(input_string)
-            struct = Structure.from_dict(d)
-        elif fmt_low == "yaml":
+            dct = json.loads(input_string)
+            struct = Structure.from_dict(dct)
+        elif fmt_low in ("yaml", "yml"):
             yaml = YAML()
-            d = yaml.load(input_string)
-            struct = Structure.from_dict(d)
+            dct = yaml.load(input_string)
+            struct = Structure.from_dict(dct)
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
@@ -2833,7 +2835,7 @@ class IStructure(SiteCollection, MSONable):
 
             struct = AtomConfig.from_str(input_string, **kwargs).structure
         else:
-            raise ValueError(f"Unrecognized format `{fmt}`!")
+            raise ValueError(f"Invalid {fmt=}, valid options are {get_args(FileFormats)}")
 
         if sort:
             struct = struct.get_sorted_structure()
