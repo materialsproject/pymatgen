@@ -320,8 +320,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def clarke_thermalcond(self, structure: Structure) -> float:
-        """
-        Calculates Clarke's thermal conductivity (in SI units).
+        """Calculates Clarke's thermal conductivity.
 
         Args:
             structure: pymatgen structure object
@@ -339,8 +338,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def cahill_thermalcond(self, structure: Structure) -> float:
-        """
-        Calculates Cahill's thermal conductivity (in SI units).
+        """Calculate Cahill's thermal conductivity.
 
         Args:
             structure: pymatgen structure object
@@ -354,12 +352,11 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @due.dcite(
         Doi("10.1039/C7EE03256K"),
-        description="Minimum thermal conductivity in the context of diffuson-mediated thermal transport",
+        description="Minimum thermal conductivity in the context of diffusion-mediated thermal transport",
     )
     @raise_if_unphysical
     def agne_diffusive_thermalcond(self, structure: Structure) -> float:
-        """
-        Calculates Agne's diffusive thermal conductivity (in SI units).
+        """Calculates Agne's diffusive thermal conductivity.
 
         Please cite the original authors if using this method
         M. T. Agne, R. Hanus, G. J. Snyder, Energy Environ. Sci. 2018, 11, 609-616.
@@ -397,23 +394,23 @@ class ElasticTensor(NthOrderElasticTensor):
         return 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1 / 3)
 
     @property
-    def universal_anisotropy(self):
+    def universal_anisotropy(self) -> float:
         """Returns the universal anisotropy value."""
         return 5 * self.g_voigt / self.g_reuss + self.k_voigt / self.k_reuss - 6.0
 
     @property
-    def homogeneous_poisson(self):
+    def homogeneous_poisson(self) -> float:
         """Returns the homogeneous poisson ratio."""
         return (1 - 2 / 3 * self.g_vrh / self.k_vrh) / (2 + 2 / 3 * self.g_vrh / self.k_vrh)
 
-    def green_kristoffel(self, u):
+    def green_kristoffel(self, u) -> float:
         """Returns the Green-Kristoffel tensor for a second-order tensor."""
         return self.einsum_sequence([u, u], "ijkl,i,l")
 
     @property
     def property_dict(self):
         """Returns a dictionary of properties derived from the elastic tensor."""
-        props = [
+        props = (
             "k_voigt",
             "k_reuss",
             "k_vrh",
@@ -423,7 +420,7 @@ class ElasticTensor(NthOrderElasticTensor):
             "universal_anisotropy",
             "homogeneous_poisson",
             "y_mod",
-        ]
+        )
         return {prop: getattr(self, prop) for prop in props}
 
     def get_structure_property_dict(
@@ -441,7 +438,7 @@ class ElasticTensor(NthOrderElasticTensor):
             ignore_errors (bool): if set to true, will set problem properties
                 that depend on a physical tensor to None, defaults to False
         """
-        s_props = [
+        s_props = (
             "trans_v",
             "long_v",
             "snyder_ac",
@@ -450,7 +447,7 @@ class ElasticTensor(NthOrderElasticTensor):
             "clarke_thermalcond",
             "cahill_thermalcond",
             "debye_temperature",
-        ]
+        )
         sp_dict: dict[str, float | Structure | None]
         if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
             sp_dict = {prop: None for prop in s_props}
@@ -514,8 +511,8 @@ class ElasticTensor(NthOrderElasticTensor):
                 c_ij[ii, jj] = np.polyfit(strains[:, ii], stresses[:, jj], 1)[0]
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
-        c = cls.from_voigt(c_ij)
-        return c.zeroed(tol)
+        instance = cls.from_voigt(c_ij)
+        return instance.zeroed(tol)
 
 
 class ComplianceTensor(Tensor):

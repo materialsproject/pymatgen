@@ -98,22 +98,28 @@ class TestPhonopyParser(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestStructureConversion(PymatgenTest):
     def test_structure_conversion(self):
-        s_pmg = PymatgenTest.get_structure("LiFePO4")
-        s_ph = get_phonopy_structure(s_pmg)
-        s_pmg2 = get_pmg_structure(s_ph)
+        struct_pmg = PymatgenTest.get_structure("LiFePO4")
+        # add magmoms to site_properties
+        struct_pmg.add_site_property("magmom", magmoms := [1] * len(struct_pmg))
+        struct_ph = get_phonopy_structure(struct_pmg)
+        struct_pmg_round_trip = get_pmg_structure(struct_ph)
+        assert struct_pmg_round_trip.matches(struct_pmg)
 
-        coords_ph = s_ph.get_scaled_positions()
-        symbols_pmg = {e.symbol for e in s_pmg.composition}
-        symbols_pmg2 = {e.symbol for e in s_pmg2.composition}
+        coords_ph = struct_ph.get_scaled_positions()
+        symbols_pmg = {e.symbol for e in struct_pmg.composition}
+        symbols_pmg2 = {e.symbol for e in struct_pmg_round_trip.composition}
 
-        assert s_ph.get_cell()[1, 1] == approx(s_pmg.lattice._matrix[1, 1], abs=1e-7)
-        assert s_pmg.lattice._matrix[1, 1] == approx(s_pmg2.lattice._matrix[1, 1], abs=1e-7)
-        assert symbols_pmg == set(s_ph.symbols)
+        assert struct_ph.get_cell()[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
+        assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
+        assert symbols_pmg == set(struct_ph.symbols)
         assert symbols_pmg == symbols_pmg2
-        assert_allclose(coords_ph[3], s_pmg.frac_coords[3])
-        assert_allclose(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
-        assert s_ph.get_number_of_atoms() == len(s_pmg)
-        assert len(s_pmg) == len(s_pmg2)
+        assert_allclose(coords_ph[3], struct_pmg.frac_coords[3])
+        assert_allclose(struct_pmg.frac_coords[3], struct_pmg_round_trip.frac_coords[3])
+        assert struct_ph.get_number_of_atoms() == len(struct_pmg)
+        assert len(struct_pmg) == len(struct_pmg_round_trip)
+
+        # https://github.com/materialsproject/pymatgen/pull/3555
+        assert list(struct_ph.magnetic_moments) == magmoms
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
