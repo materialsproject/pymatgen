@@ -60,7 +60,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
-FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", ""]
+FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
 
 
 class Neighbor(Site):
