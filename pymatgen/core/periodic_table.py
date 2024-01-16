@@ -1317,19 +1317,25 @@ class DummySpecies(Species):
 
     @property
     def Z(self) -> int:
-        """DummySpecies is always assigned an atomic number equal to the hash of
-        the symbol. The expectation is that someone would be an actual dummy
-        to use atomic numbers for a Dummy specie.
+        """
+        Proton number of DummySpecies.
+
+        DummySpecies is always assigned an atomic number equal to the hash of
+        the symbol. This is necessary for the DummySpecies object to behave like
+        an ElementBase object (which Species inherits from).
         """
         return hash(self.symbol)
 
     @property
-    def A(self) -> int:
+    def A(self) -> int | None:
         """
-        For DummySpecies to behave like an Element, it needs an atomic mass number attribute.
-        Here it is set arbitrarily to twice Z.
+        Atomic mass number of a DummySpecies.
+
+        To behave like an ElementBase object (from which Species inherits),
+        DummySpecies needs an atomic mass number. Consistent with the
+        implementation for ElementBase, this can return an int or None (default).
         """
-        return 2 * self.Z
+        return None
 
     @property
     def oxi_state(self) -> float | None:
