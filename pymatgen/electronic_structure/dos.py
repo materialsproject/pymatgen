@@ -243,16 +243,19 @@ class Dos(MSONable):
         densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
         return Dos(self.efermi, self.energies, densities)
 
-    def get_interpolated_value(self, energy: float):
+    def get_interpolated_value(self, energy: float) -> dict[Spin, float]:
         """Returns interpolated density for a particular energy.
 
         Args:
-            energy: Energy to return the density for.
+            energy (float): Energy to return the density for.
+
+        Returns:
+            dict[Spin, float]: Density for energy for each spin.
         """
-        f = {}
+        energies = {}
         for spin in self.densities:
-            f[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
-        return f
+            energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
+        return energies
 
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """Expects a DOS object and finds the gap.
