@@ -91,7 +91,7 @@ class Movement(MSONable):
 
     @property
     def fatoms(self) -> np.ndarray:
-        """Returns forces on atoms in each structures contained in MOVMENT.
+        """Returns forces on atoms in each structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: The forces on atoms of each ionic step structure,
