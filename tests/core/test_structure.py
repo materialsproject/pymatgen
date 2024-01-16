@@ -818,7 +818,7 @@ Direct
         assert_allclose(self.struct.distance_matrix, ans)
 
     def test_to_from_file_and_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr"]:
+        for fmt in ("cif", "json", "poscar", "cssr"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
@@ -851,7 +851,7 @@ Direct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
-        with pytest.raises(ValueError, match="Invalid format='badformat'"):
+        with pytest.raises(ValueError, match="Invalid fmt='badformat'"):
             self.struct.to(fmt="badformat")
 
         self.struct.to(filename=(gz_json_path := "POSCAR.testing.gz"))
@@ -1284,7 +1284,7 @@ class TestStructure(PymatgenTest):
 
     def test_to_from_file_string(self):
         # to/from string
-        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
+        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
