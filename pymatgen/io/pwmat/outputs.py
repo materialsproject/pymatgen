@@ -158,13 +158,13 @@ class Movement(MSONable):
 class OutFermi(MSONable):
     """Extract fermi energy (eV) from OUT.FERMI"""
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: PathLike):
         """Initialization function
 
         Args:
-            filename (str): The absolute path of OUT.FERMI file.
+            filename (PathLike): The absolute path of OUT.FERMI file.
         """
-        self.filename: str = filename
+        self.filename: PathLike = filename
         with zopen(self.filename, "rt") as f:
             self._efermi: float = np.round(float(f.readline().split()[-2].strip()), 3)
 
@@ -181,13 +181,13 @@ class OutFermi(MSONable):
 class Report(MSONable):
     """Extract information of spin, kpoints, bands, eigenvalues from REPORT file."""
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: PathLike):
         """Initialization function.
 
         Args:
-            filename (str): The absolute path of REPORT file.
+            filename (PathLike): The absolute path of REPORT file.
         """
-        self.filename = filename
+        self.filename: PathLike = filename
         self._spin, self._num_kpts, self._num_bands = self._parse_band()
         self._eigenvalues = self._parse_eigen()
         self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
@@ -326,8 +326,8 @@ class DosSpin(MSONable):
     - DOS.spindown, DOS.spindown_projected
     """
 
-    def __init__(self, filename: str):
-        self.filename = filename
+    def __init__(self, filename: PathLike):
+        self.filename: PathLike = filename
         self._labels, self._dos = self._parse()
 
     def _parse(self):

@@ -409,11 +409,11 @@ class AtomConfig(MSONable):
         return cls(structure)
 
     @classmethod
-    def from_file(cls, filename: str, mag: bool = True) -> AtomConfig:
+    def from_file(cls, filename: PathLike, mag: bool = True) -> AtomConfig:
         """Returns a AtomConfig from a file
 
         Args:
-            filename (str): File name containing AtomConfig data
+            filename (PathLike): File name containing AtomConfig data
             mag (bool, optional): Whether to read magnetic moments. Defaults to True.
 
         Returns:
@@ -577,11 +577,11 @@ class GenKpt(MSONable):
                 genkpt_str += f"{flatten_paths[ii+1]}\n"
         return genkpt_str
 
-    def write_file(self, filename: str):
+    def write_file(self, filename: PathLike):
         """Writes gen.kpt to a file.
 
         Args:
-            filename (str): The absolute path of file to be written.
+            filename (PathLike): The absolute path of file to be written.
         """
         with zopen(filename, "wt") as f:
             f.write(self.get_str())
@@ -676,7 +676,7 @@ class HighSymmetryPoint(MSONable):
             hsp_str += get_hsp_row_str(flatten_paths[ii], index, coordinate)
         return hsp_str
 
-    def write_file(self, filename: str):
+    def write_file(self, filename: PathLike):
         """Write HighSymmetryPoint to a file."""
         with zopen(filename, "wt") as f:
             f.write(self.get_str())
