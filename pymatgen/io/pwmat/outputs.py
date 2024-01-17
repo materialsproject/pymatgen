@@ -206,15 +206,15 @@ class Report(MSONable):
         """
         content: str = "SPIN"
         row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
-        spin = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
+        spin = int(linecache.getline(str(self.filename), row_idx).split()[-1].strip())
 
         content = "NUM_KPT"
         row_idx = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
-        num_kpts = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
+        num_kpts = int(linecache.getline(str(self.filename), row_idx).split()[-1].strip())
 
         content = "NUM_BAND"
         row_idx = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
-        num_bands = int(linecache.getline(self.filename, row_idx).split()[-1].strip())
+        num_bands = int(linecache.getline(str(self.filename), row_idx).split()[-1].strip())
         return spin, num_kpts, num_bands
 
     def _parse_eigen(self) -> np.ndarray:
@@ -235,7 +235,7 @@ class Report(MSONable):
             for jj in range(self._num_kpts):
                 tmp_eigenvalues_str = ""
                 for kk in range(num_rows):
-                    tmp_eigenvalues_str += linecache.getline(self.filename, rows_array[ii][jj] + kk + 1)
+                    tmp_eigenvalues_str += linecache.getline(str(self.filename), rows_array[ii][jj] + kk + 1)
                 tmp_eigenvalues_array = np.array([float(eigen_value) for eigen_value in tmp_eigenvalues_str.split()])
                 for kk in range(self._num_bands):
                     eigenvalues[ii][jj][kk] = tmp_eigenvalues_array[kk]
@@ -257,7 +257,7 @@ class Report(MSONable):
         hsps: dict[str, np.array] = {}
         for ii in range(num_rows):
             #  0.00000     0.00000    0.00000     0.03704           G
-            tmp_row_lst: list[str] = linecache.getline(self.filename, row_idx + ii + 1).split()
+            tmp_row_lst: list[str] = linecache.getline(str(self.filename), row_idx + ii + 1).split()
             for jj in range(3):
                 kpts[ii][jj] = float(tmp_row_lst[jj].strip())
             kpts_weight[ii] = float(tmp_row_lst[3].strip())
@@ -338,7 +338,7 @@ class DosSpin(MSONable):
             dos (np.array): Value of density of state.
         """
         labels: list[str] = []
-        labels = linecache.getline(self.filename, 1).split()[1:]
+        labels = linecache.getline(str(self.filename), 1).split()[1:]
         dos_str: str = ""
         with zopen(self.filename) as f:
             f.readline()
