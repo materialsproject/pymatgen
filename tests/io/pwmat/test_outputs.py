@@ -6,7 +6,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestMovement(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/MOVEMENT"
+        filepath = f"{TEST_FILES_DIR}/pwmat/MOVEMENT.lzma"
         movement = Movement(filepath)
         assert movement.n_ionic_steps == len(movement.chunk_sizes)
         assert movement.n_ionic_steps == len(movement.chunk_starts)
@@ -26,7 +26,7 @@ class TestMovement(PymatgenTest):
 
 class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/OUT.FERMI"
+        filepath = f"{TEST_FILES_DIR}/pwmat/OUT.FERMI.lzma"
         out_fermi = OutFermi(filepath)
         assert isinstance(out_fermi.efermi, float)
 
@@ -44,10 +44,9 @@ class TestReport(PymatgenTest):
         assert hasattr(report, "hsps")
 
 
-class TestDosspin(PymatgenTest):
+class TestDosSpin(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected"
-        dosspin = DosSpin(filepath)
-        assert hasattr(dosspin, "dos")
-        # assert type(dosspin.dos) == np.ndarray
-        assert hasattr(dosspin, "labels")
+        filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected.lzma"
+        dos_spin = DosSpin(filepath)
+        assert dos_spin.dos.shape == (200, 21)
+        assert dos_spin.labels == []
