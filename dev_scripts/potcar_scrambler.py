@@ -175,8 +175,10 @@ def generate_fake_potcar_libraries():
 
 def potcar_cleanser():
     """
-    Function to replace copywritten POTCARs used in io.vasp.sets testing
-    with dummy POTCARs.
+    Function to replace copyrighted POTCARs used in io.vasp.sets testing
+    with dummy POTCARs that have scrambled PSP and kinetic energy values
+    (but retain the original header information which is also found in OUTCARs
+    and freely shared by VASP)
     """
 
     search_dir = "../tests/files/fake_potcars/real_potcars/"

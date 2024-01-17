@@ -993,13 +993,13 @@ class Vasprun(MSONable):
         Returns the POTCAR from the specified path.
 
         Args:
-            path (str): The path to search for POTCARs.
+            path (str | Path): The path to search for POTCARs.
 
         Returns:
-            Potcar | None: The POTCAR from the specified path.
+            Potcar | None: The POTCAR from the specified path or None if not found/no path specified.
         """
 
-        if path is False:
+        if not path:
             return None
 
         if isinstance(path, (str, Path)) and "POTCAR" in str(path):
