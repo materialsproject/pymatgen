@@ -46,7 +46,7 @@ class TestReport(PymatgenTest):
 
 class TestDosSpin(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected.lzma"
+        filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected"
         dos_spin = DosSpin(filepath)
-        assert dos_spin.dos.shape == (200, 21)
-        assert dos_spin.labels == []
+        assert dos_spin.dos.shape == (50, 21)
+        assert len(dos_spin.labels) == 21
