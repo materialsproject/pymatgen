@@ -428,8 +428,42 @@ class TestMITMPRelaxSet(PymatgenTest):
             assert mp_set.kpoints is not None
             assert mp_set.incar is not None
 
+        # ensure EDIFF never goes about 1e-4 when an input set uses EDIFF_PER_ATOM
+        struct = Structure(lattice, ["Co4+", "O"], coords)
+        struct.make_supercell([10, 10, 10])
+        mpr = MPRelaxSet(struct)
+        assert mpr.incar["EDIFF"] == 1e-4
+
+        # ensure ISMEAR and SIGMA are set correctly according to bandgap. Also check
+        # that user_incar_settings are not overwritten.
+        mpr = MPRelaxSet(struct, bandgap=None)
+        assert mpr.incar["ISMEAR"] == 0
+        assert mpr.incar["SIGMA"] == 0.05
+        mpr = MPRelaxSet(struct, bandgap=0)
+        assert mpr.incar["ISMEAR"] == 1
+        assert mpr.incar["SIGMA"] == 0.2
+        mpr = MPRelaxSet(struct, bandgap=1)
+        assert mpr.incar["ISMEAR"] == 0
+        assert mpr.incar["SIGMA"] == 0.05
+        mpr = MPRelaxSet(struct, bandgap=1, user_incar_settings={"ISMEAR": -5, "SIGMA": 0.5})
+        assert mpr.incar["ISMEAR"] == -5
+        assert mpr.incar["SIGMA"] == 0.5
+
+        # check LREAL = False is the default
+        mpr = MPRelaxSet(struct)
+        assert mpr.incar["LREAL"] is False
+
     def test_get_kpoints(self):
-        kpoints = MPRelaxSet(self.structure).kpoints
+        # check number of kpoints is correct for bandgap in [None, 0, 1]
+        kpoints = MPRelaxSet(self.structure, bandgap=None).kpoints
+        assert kpoints.kpts == [[3, 6, 7]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        kpoints = MPRelaxSet(self.structure, bandgap=0).kpoints
+        assert kpoints.kpts == [[3, 6, 7]]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        kpoints = MPRelaxSet(self.structure, bandgap=1).kpoints
         assert kpoints.kpts == [[2, 4, 5]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
@@ -445,7 +479,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert kpoints.kpts == [[25]]
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
-        recip_param_set = MPRelaxSet(self.structure, force_gamma=True)
+        recip_param_set = MPRelaxSet(self.structure, bandgap=1, force_gamma=True)
         recip_param_set.kpoints_settings = {"reciprocal_density": 40}
         kpoints = recip_param_set.kpoints
         assert kpoints.kpts == [[2, 4, 5]]
@@ -494,20 +528,20 @@ class TestMITMPRelaxSet(PymatgenTest):
         input_set = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
         assert "LDAUU" not in input_set.incar
         assert input_set.incar["EDIFF"] == 1e-10
-        # after testing, we have determined LMAXMIX should still be 4 for d-block
-        # even if U is turned off (thanks Andrew Rosen for reporting)
-        assert input_set.incar["LMAXMIX"] == 4
+        # LMAXMIX should be 6 for all elements. Thanks to Andrew Rosen and Aaron Kaplan
+        # for investigating this.
+        assert input_set.incar["LMAXMIX"] == 6
 
     def test_incar_lmaxmix(self):
         # https://github.com/materialsproject/pymatgen/issues/3040
 
         # structure containing neither f- nor d-electrons
-        structure_f = self.get_structure("Si")
-        assert "LMAXMIX" not in MPRelaxSet(structure_f).incar
+        structure_no_f_no_d = self.get_structure("Si")
+        assert MPRelaxSet(structure_no_f_no_d).incar["LMAXMIX"] == 6
 
         # structure containing d-electrons but no f-electrons
         structure_d = self.get_structure("LiFePO4")
-        assert MPRelaxSet(structure_d).incar["LMAXMIX"] == 4
+        assert MPRelaxSet(structure_d).incar["LMAXMIX"] == 6
 
         # structure containing f-electrons but no d-electrons
         structure_f = structure_d.copy()
@@ -1519,6 +1553,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert incar["LASPH"]
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
+        assert incar["LREAL"] is False
         assert incar["NSW"] == 500
         # the default POTCAR contains metals
         assert incar["KSPACING"] == 0.22
