@@ -444,6 +444,19 @@ direct
             [False, False, False],
         ]
 
+    def test_vasp_6_4_2_format(self):
+        # As of vasp 6.4.2, when using POTCARs with SHAs, there can
+        # be a slash in the element names
+        # Test that Poscar works for these too
+        poscar_str = ""
+        with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
+            for idx, line in enumerate(file):
+                if idx == 5:
+                    line = " ".join([x + "/" for x in line.split()]) + "\n"
+                poscar_str += line
+        poscar = Poscar.from_str(poscar_str)
+        assert poscar.structure.formula == "Li4 Fe4 P4 O16"
+
 
 class TestIncar(PymatgenTest):
     def setUp(self):

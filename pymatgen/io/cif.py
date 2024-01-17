@@ -294,6 +294,8 @@ class CifParser:
         occupancy_tolerance: float = 1.0,
         site_tolerance: float = 1e-4,
         frac_tolerance: float = 1e-4,
+        check_cif: bool = True,
+        cif_assessor_tol: float = 0.01,
     ) -> None:
         """
         Args:
@@ -305,6 +307,9 @@ class CifParser:
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
                 value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
                 However, for very large CIF files, this may need to be set to 0.
+            check_cif (bool): Whether to check that stoichiometry reported in CIF matches
+                that of resulting Structure, and whether elements are missing. Defaults to True.
+            cif_assessor_tol (float): Tolerance for how closely stoichiometries should match. Defaults to 0.01.
         """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
@@ -313,6 +318,11 @@ class CifParser:
             self._cif = CifFile.from_file(filename)
         else:
             self._cif = CifFile.from_str(filename.read())
+
+        # options related to checking CIFs for missing elements
+        # or incorrect stoichiometries
+        self.check_cif = check_cif
+        self.cif_assessor_tol = cif_assessor_tol
 
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
@@ -1130,6 +1140,11 @@ class CifParser:
                 struct = struct.get_primitive_structure()
                 struct = struct.get_reduced_structure()
 
+            if self.check_cif:
+                cif_failure_reason = self.check(struct)
+                if cif_failure_reason is not None:
+                    warnings.warn(cif_failure_reason)
+
             return struct
         return None
 
@@ -1306,6 +1321,80 @@ class CifParser:
     def has_errors(self):
         """Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
+
+    def check(self, structure: Structure) -> str | None:
+        """Check whether a structure constructed from CIF passes sanity checks.
+
+        Args:
+            structure (Structure) : structure created from CIF
+
+        Returns:
+            str | None: If any check fails, on output, returns a human-readable str for the
+                reason why (e.g., which elements are missing). Returns None if all checks pass.
+
+        Checks:
+            - Composition from CIF is valid
+            - CIF composition contains only valid elements
+            - CIF and structure contain the same elements (often hydrogens
+                are omitted from CIFs, as their positions cannot be determined from
+                X-ray diffraction, needs more difficult neutron diffraction)
+            -  CIF and structure have same relative stoichiometry. Thus
+                if CIF reports stoichiometry LiFeO, and the structure has
+                composition (LiFeO)4, this check passes.
+        """
+        failure_reason = None
+
+        cif_as_dict = self.as_dict()
+        head_key = next(iter(cif_as_dict))
+
+        cif_formula = None
+        for key in ("_chemical_formula_sum", "_chemical_formula_structural"):
+            if cif_as_dict[head_key].get(key):
+                cif_formula = cif_as_dict[head_key][key]
+                break
+
+        if cif_formula is None and cif_as_dict[head_key].get("_atom_site_type_symbol"):
+            cif_formula = " ".join(cif_as_dict[head_key]["_atom_site_type_symbol"])
+
+        try:
+            cif_composition = Composition(cif_formula)
+        except Exception as exc:
+            return f"Cannot determine chemical composition from CIF! {exc}"
+
+        try:
+            orig_comp = cif_composition.remove_charges().as_dict()
+            struct_comp = structure.composition.remove_charges().as_dict()
+        except Exception as exc:
+            return str(exc)
+
+        orig_comp_elts = {str(elt) for elt in orig_comp}
+        struct_comp_elts = {str(elt) for elt in struct_comp}
+
+        if orig_comp_elts != struct_comp_elts:
+            # hard failure - missing elements
+
+            missing = set(orig_comp_elts).difference(set(struct_comp_elts))
+            addendum = "from PMG structure composition"
+            if len(missing) == 0:
+                addendum = "from CIF-reported composition"
+                missing = set(struct_comp_elts).difference(set(orig_comp_elts))
+            missing_str = ", ".join([str(x) for x in missing])
+            failure_reason = f"Missing elements {missing_str} {addendum}"
+
+        elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
+            # Check that stoichiometry is same, i.e., same relative ratios of elements
+            ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
+
+            same_stoich = all(
+                abs(ratios[elt_a] - ratios[elt_b]) < self.cif_assessor_tol
+                for elt_a in orig_comp_elts
+                for elt_b in orig_comp_elts
+            )
+
+            if not same_stoich:
+                failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
+
+        return failure_reason
 
 
 class CifWriter:

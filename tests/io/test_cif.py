@@ -870,7 +870,72 @@ Si1 Si 0 0 0 1 0.0
         assert len(read_structs) == 2
         assert [x.formula for x in read_structs] == ["Fe4 P4 O16", "C4"]
 
+    def test_valid_cif(self):
+        cif = CifParser(f"{TEST_FILES_DIR}/CsI3Pb.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/CsI3Pb.cif")
+        failure_reason = cif.check(structure)
+        assert failure_reason is None
+
+    def test_missing_elements(self):
+        cif_str = ""
+        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as f:
+            for line in f:
+                if "_chemical_formula_sum" in line:
+                    # remove this line
+                    continue
+
+                # add missing hydrogens
+                if "_chemical_formula_structural" in line:
+                    line = line.split("\n")[0] + "H6" + "\n"
+                cif_str += line
+
+        cif = CifParser.from_str(cif_str)
+        structure = Structure.from_str(cif_str, "cif")
+        failure_reason = cif.check(structure)
+        assert failure_reason == "Missing elements H from PMG structure composition"
+
+    def test_incorrect_stoichiometry(self):
+        cif_str = ""
+        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as f:
+            for line in f:
+                if "_chemical_formula_sum" in line:
+                    line = line.replace("F6", "F5")
+                cif_str += line
+
+        cif = CifParser.from_str(cif_str)
+        structure = Structure.from_str(cif_str, "cif")
+        failure_reason = cif.check(structure)
+        assert "Incorrect stoichiometry" in failure_reason
+
+    def test_missing_cif_composition(self):
+        with open(f"{TEST_FILES_DIR}/LiFePO4.cif") as file:
+            cif_str = file.read()
+        # remove only key that gives info about CIF composition in this file
+        cif_str = "\n".join([line for line in cif_str.split("\n") if "_atom_site_type_symbol" not in line])
+        test_cif_file = f"{self.tmp_path}/test_broken.cif"
+        with open(test_cif_file, "w+") as file:
+            file.write(cif_str)
+
+        cif = CifParser(test_cif_file)
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        assert failure_reason == "Cannot determine chemical composition from CIF! 'NoneType' object is not iterable"
+
+    def test_invalid_cif_composition(self):
+        with open(f"{TEST_FILES_DIR}/LiFePO4.cif") as file:
+            cif_str = file.read()
+
+        test_cif_file = f"{self.tmp_path}/test_broken.cif"
+        with open(test_cif_file, "w+") as file:
+            # replace Li with dummy atom X
+            file.write(cif_str.replace("Li", "X"))
+
+        cif = CifParser(test_cif_file)
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        assert failure_reason == "'X' is not a valid Element"
+
     def test_cif_writer_site_properties(self):
+        # check CifWriter(write_site_properties=True) adds Structure site properties to
+        # CIF with _atom_site_ prefix
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         struct.add_site_property(label := "hello", [1.0] * (len(struct) - 1) + [-1.0])
         out_path = f"{self.tmp_path}/test2.cif"
