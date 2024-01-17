@@ -271,7 +271,10 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                    warnings.warn("Cannot determine elements in POSCAR. Falling back to manual assignment.")
+                    warnings.warn(
+                        "Cannot determine elements in POSCAR. Falling back to manual assignment.",
+                        BadPoscarWarning
+                        )
                 except Exception:
                     names = None
         with zopen(filename, "rt") as f:
@@ -418,8 +421,12 @@ class Poscar(MSONable):
                 for i, nat in enumerate(n_atoms):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * nat)
-                warnings.warn(f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.")
-        # read the atomic coordinates
+                warnings.warn(
+                    f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
+                    BadPoscarWarning
+                    )
+
+        # Read the atomic coordinates
         coords = []
         selective_dynamics = [] if has_selective_dynamics else None
         for i in range(n_sites):
@@ -427,9 +434,29 @@ class Poscar(MSONable):
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
             if has_selective_dynamics:
+                # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
-                    warnings.warn("Selective dynamics values must be either 'T' or 'F'")
+                    warnings.warn(
+                        "Selective dynamics values must be either 'T' or 'F'.",
+                        BadPoscarWarning
+                        )
+
+                # Warn when elements contains Fluorine (F) (#3539)
+                if atomic_symbols[i] == "F" and len(tokens[3:]) == 4 \
+                        and "F" in tokens[3:6]:
+                    warnings.warn(
+                        "Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics.",
+                        BadPoscarWarning
+                        )
+
                 selective_dynamics.append([value == "T" for value in tokens[3:6]])
+
+        # Warn when ALL degrees of freedom relaxed (#3539)
+        if has_selective_dynamics and all(all(i is True for i in in_list) for in_list in selective_dynamics):
+            warnings.warn(
+                "Selective dynamics toggled with ALL degrees of freedom relaxed.",
+                BadPoscarWarning
+                )
 
         struct = Structure(
             lattice,
@@ -549,7 +576,10 @@ class Poscar(MSONable):
                     # VASP is strict about the format when reading this quantity
                     lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
-                warnings.warn("Lattice velocities are missing or corrupted.")
+                warnings.warn(
+                    "Lattice velocities are missing or corrupted.",
+                    BadPoscarWarning
+                    )
 
         if self.velocities:
             try:
@@ -557,7 +587,10 @@ class Poscar(MSONable):
                 for velo in self.velocities:
                     lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
-                warnings.warn("Velocities are missing or corrupted.")
+                warnings.warn(
+                    "Velocities are missing or corrupted.",
+                    BadPoscarWarning
+                    )
 
         if self.predictor_corrector:
             lines.append("")
@@ -569,7 +602,8 @@ class Poscar(MSONable):
                         lines.append(" ".join(format_str.format(i) for i in z))
             else:
                 warnings.warn(
-                    "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data."
+                    "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
+                    BadPoscarWarning
                 )
 
         return "\n".join(lines) + "\n"
@@ -663,12 +697,12 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
+class BadPoscarWarning(UserWarning):
+    """Warning class for bad POSCAR entries."""
+
+
 with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") as json_file:
     incar_params = json.loads(json_file.read())
-
-
-class BadIncarWarning(UserWarning):
-    """Warning class for bad Incar parameters."""
 
 
 class Incar(dict, MSONable):
@@ -979,6 +1013,10 @@ class Incar(dict, MSONable):
             # Check if the given value is in the list
             elif isinstance(incar_params[tag], list) and val not in incar_params[tag]:
                 warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+
+
+class BadIncarWarning(UserWarning):
+    """Warning class for bad INCAR parameters."""
 
 
 class KpointsSupportedModes(Enum):

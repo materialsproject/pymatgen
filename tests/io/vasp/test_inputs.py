@@ -23,6 +23,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     POTCAR_STATS_PATH,
     BadIncarWarning,
+    BadPoscarWarning,
     Incar,
     Kpoints,
     KpointsSupportedModes,
@@ -445,8 +446,53 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(UserWarning, match="Selective dynamics values must be either 'T' or 'F'"):
+        with pytest.warns(
+                BadPoscarWarning,
+                match="Selective dynamics values must be either 'T' or 'F'."):
             Poscar.from_str(invalid_poscar_str)
+
+    def test_selective_dynamics_with_fluorine(self):
+        """
+        TODO:
+        """
+        poscar_str_with_fluorine = """Selective dynamics toggled with Fluorine
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 Si T T F
+3.840198   1.50000000   2.35163175 F T T F
+"""
+        with pytest.warns(
+                BadPoscarWarning,
+                match="Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics."):
+            Poscar.from_str(poscar_str_with_fluorine)
+
+    def test_all_DOFs_relaxed(self):
+        """
+        A warning should be issued when selective dynamics is toggled
+        while ALL degrees of freedom are relaxed.
+        """
+        poscar_str_all_dof_relaxed = """All degrees of freedom relaxed
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si O
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 T T T
+3.840198   1.50000000   2.35163175 T T T
+"""
+        with pytest.warns(
+                BadPoscarWarning,
+                match="Selective dynamics toggled with ALL degrees of freedom relaxed."):
+            Poscar.from_str(poscar_str_all_dof_relaxed)
 
 
 class TestIncar(PymatgenTest):
