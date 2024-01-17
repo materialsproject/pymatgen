@@ -2917,7 +2917,7 @@ class IStructure(SiteCollection, MSONable):
 
             struct = AtomConfig.from_file(filename, **kwargs).structure
         else:
-            raise ValueError("Unrecognized file extension!")
+            raise ValueError(f"Unrecognized extension in {filename=}")
         if sort:
             struct = struct.get_sorted_structure()
         if merge_tol:

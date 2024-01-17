@@ -1301,6 +1301,11 @@ class TestStructure(PymatgenTest):
             assert os.path.isfile(f"json-struct{ext}")
             assert Structure.from_file(f"json-struct{ext}") == self.struct
 
+        # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
+        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
+        with pytest.raises(ValueError, match=f"Unrecognized extension in {filename=}"):
+            self.struct.from_file(filename=filename)
+
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])
         assert s1.formula == "Li8 O4"
