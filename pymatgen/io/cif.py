@@ -277,8 +277,8 @@ class CifFile:
         Returns:
             CifFile
         """
-        with zopen(str(filename), "rt", errors="replace") as f:
-            return cls.from_str(f.read())
+        with zopen(str(filename), mode="rt", errors="replace") as file:
+            return cls.from_str(file.read())
 
 
 class CifParser:

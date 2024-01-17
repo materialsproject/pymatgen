@@ -93,7 +93,7 @@ class Critic2Caller:
         # not otherwise used
         self._input_script = input_script
 
-        with open("input_script.cri", "w") as f:
+        with open("input_script.cri", mode="w") as f:
             f.write(input_script)
 
         args = ["critic2", "input_script.cri"]

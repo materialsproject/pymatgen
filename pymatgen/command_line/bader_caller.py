@@ -157,8 +157,8 @@ class BaderAnalysis:
                 )
 
             data = []
-            with open("ACF.dat") as f:
-                lines = f.readlines()
+            with open("ACF.dat") as file:
+                lines = file.readlines()
                 headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
                 lines.pop(0)
                 lines.pop(0)
@@ -184,11 +184,7 @@ class BaderAnalysis:
 
                 atomic_densities = []
                 # For each atom in the structure
-                for _, loc, chg in zip(
-                    self.chgcar.structure,
-                    self.chgcar.structure.frac_coords,
-                    atom_chgcars,
-                ):
+                for _site, loc, chg in zip(self.chgcar.structure, self.chgcar.structure.frac_coords, atom_chgcars):
                     # Find the index of the atom in the charge density atom
                     index = np.round(np.multiply(loc, chg.dim))
 

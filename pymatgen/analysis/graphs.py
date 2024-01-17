@@ -926,17 +926,17 @@ class StructureGraph(MSONable):
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
 
-        write_dot(g, basename + ".dot")
+        write_dot(g, f"{basename}.dot")
 
-        with open(filename, "w") as f:
-            args = [algo, "-T", extension, basename + ".dot"]
-            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+        with open(filename, mode="w") as file:
+            args = [algo, "-T", extension, f"{basename}.dot"]
+            with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
                 if rs.returncode != 0:
                     raise RuntimeError(f"{algo} exited with return code {rs.returncode}.")
 
         if not keep_dot:
-            os.remove(basename + ".dot")
+            os.remove(f"{basename}.dot")
 
     @property
     def types_and_weights_of_connections(self):
@@ -2574,17 +2574,17 @@ class MoleculeGraph(MSONable):
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
 
-        write_dot(g, basename + ".dot")
+        write_dot(g, f"{basename}.dot")
 
-        with open(filename, "w") as f:
-            args = [algo, "-T", extension, basename + ".dot"]
-            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+        with open(filename, mode="w") as file:
+            args = [algo, "-T", extension, f"{basename}.dot"]
+            with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
                 if rs.returncode != 0:
                     raise RuntimeError(f"{algo} exited with return code {rs.returncode}.")
 
         if not keep_dot:
-            os.remove(basename + ".dot")
+            os.remove(f"{basename}.dot")
 
     def as_dict(self):
         """

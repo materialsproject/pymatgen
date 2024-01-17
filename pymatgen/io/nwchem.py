@@ -384,7 +384,7 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, mode="w") as f:
             f.write(str(self))
 
     def as_dict(self):

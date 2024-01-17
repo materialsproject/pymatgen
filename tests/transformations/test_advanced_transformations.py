@@ -86,13 +86,11 @@ class TestSuperTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct, return_ranked_list=True)
 
@@ -124,13 +122,11 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
@@ -149,13 +145,11 @@ class TestChargeBalanceTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
 
@@ -172,8 +166,8 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             s = trans.apply_transformation(struct)
-            oxitrans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-            s = oxitrans.apply_transformation(s)
+            oxi_trans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
+            s = oxi_trans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
             assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
@@ -258,13 +252,11 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["O2-", "Li1+", "Li1+"], coords)
 
         outputs = trafo.apply_transformation(struct, return_ranked_list=True)
