@@ -1284,7 +1284,7 @@ class TestStructure(PymatgenTest):
 
     def test_to_from_file_string(self):
         # to/from string
-        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res"):
+        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
