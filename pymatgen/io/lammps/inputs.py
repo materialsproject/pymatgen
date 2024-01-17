@@ -529,7 +529,7 @@ class LammpsInputFile(InputFile):
             filename (str or path): The filename to output to, including path.
             ignore_comments (bool): True if only the commands should be kept from the InputFile.
             keep_stages (bool): True if the block structure from the InputFile should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, mode="wt") as file:
@@ -550,7 +550,7 @@ class LammpsInputFile(InputFile):
             contents (str): String representation of LammpsInputFile.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
@@ -624,7 +624,7 @@ class LammpsInputFile(InputFile):
             path (str or path): Filename to read, including path.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
