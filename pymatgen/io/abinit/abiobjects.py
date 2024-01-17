@@ -226,7 +226,7 @@ def structure_to_abivars(
 
     if enforce_order:
         znucl_type = enforce_znucl
-        typat = enforce_typat or []
+        typat = enforce_typat or []  # or [] added for mypy
     else:
         types_of_specie = species_by_znucl(structure)
 
@@ -255,11 +255,11 @@ def structure_to_abivars(
     }
 
     # Add info on the lattice.
-    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+    # Should we use (rprim, acell) or (ang_deg, acell) to specify the lattice?
     geo_mode = kwargs.pop("geomode", "rprim")
     if geo_mode == "automatic":
         geo_mode = "rprim"
-        if structure.lattice.is_hexagonal:  # or structure.lattice.is_rhombohedral
+        if structure.lattice.is_hexagonal():  # or structure.lattice.is_rhombohedral
             geo_mode = "angdeg"
             ang_deg = structure.lattice.angles
             # Here one could polish a bit the numerical values if they are not exact.
@@ -283,15 +283,15 @@ def structure_to_abivars(
     return dct
 
 
-def contract(s):
+def contract(string):
     """
     assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
     assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
-    if not s:
-        return s
+    if not string:
+        return string
 
-    tokens = s.split()
+    tokens = string.split()
     old = tokens[0]
     count = [[1, old]]
 
