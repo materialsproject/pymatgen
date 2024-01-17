@@ -993,35 +993,34 @@ class Vasprun(MSONable):
         Returns the POTCAR from the specified path.
 
         Args:
-            path (str): The path to search for POTCARs.
+            path (str | Path): The path to search for POTCARs.
 
         Returns:
-            Potcar | None: The POTCAR from the specified path.
+            Potcar | None: The POTCAR from the specified path or None if not found/no path specified.
         """
 
-        def get_potcar_in_path(p):
-            for fn in os.listdir(os.path.abspath(p)):
-                if fn.startswith("POTCAR") and ".spec" not in fn:
-                    pc = Potcar.from_file(os.path.join(p, fn))
-                    if {d.header for d in pc} == set(self.potcar_symbols):
-                        return pc
-            warnings.warn(f"No POTCAR file with matching TITEL fields was found in {os.path.abspath(p)}")
+        if not path:
             return None
 
-        if isinstance(path, (str, Path)):
-            path = str(path)
-            if "POTCAR" in path:
-                potcar = Potcar.from_file(path)
-                if {d.TITEL for d in potcar} != set(self.potcar_symbols):
-                    raise ValueError("Potcar TITELs do not match Vasprun")
-            else:
-                potcar = get_potcar_in_path(path)
-        elif isinstance(path, bool) and path:
-            potcar = get_potcar_in_path(os.path.split(self.filename)[0])
+        if isinstance(path, (str, Path)) and "POTCAR" in str(path):
+            potcar_paths = [str(path)]
         else:
-            potcar = None
+            search_path = os.path.split(self.filename)[0] if path is True else str(path)
+            potcar_paths = [
+                f"{search_path}/{fn}" for fn in os.listdir(search_path) if fn.startswith("POTCAR") and ".spec" not in fn
+            ]
 
-        return potcar
+        for potcar_path in potcar_paths:
+            try:
+                potcar = Potcar.from_file(potcar_path)
+                if {d.header for d in potcar} == set(self.potcar_symbols):
+                    return potcar
+            except Exception:
+                continue
+
+        warnings.warn("No POTCAR file with matching TITEL fields was found in\n" + "\n  ".join(potcar_paths))
+
+        return None
 
     def get_trajectory(self):
         """

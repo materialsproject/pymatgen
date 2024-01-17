@@ -55,11 +55,13 @@ from pymatgen.io.vasp.sets import (
     get_valid_magmom_struct,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 
 dec = MontyDecoder()
+
+MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
@@ -776,12 +778,11 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["SIGMA"] == 0.05
         assert incar["LMAXMIX"] == 6
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert input_set.potcar_functional == "PBE_64"
+
+        assert input_set.potcar_functional == "PBE_64"  # test POTCARs default to PBE_64
         assert input_set.kpoints is None
-        # test POTCAR files are default PBE_64 PSPs and functional
         # only runs if POTCAR files to compare against are available
-        if os.path.isdir(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_64"):
+        if os.path.isdir(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_64"):
             assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
     def test_with_prev_incar(self):

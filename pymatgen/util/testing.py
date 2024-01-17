@@ -26,6 +26,10 @@ if TYPE_CHECKING:
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / "structures"
 TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+# fake POTCARs have original header information, meaning properties like number of electrons,
+# nuclear charge, core radii, etc. are unchanged (important for testing) while values of the and
+# pseudopotential kinetic energy corrections are scrambled to avoid VASP copyright infringement
+FAKE_POTCAR_DIR = TEST_FILES_DIR / "fake_potcars"
 
 
 class PymatgenTest(unittest.TestCase):

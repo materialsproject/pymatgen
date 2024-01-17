@@ -1691,7 +1691,7 @@ class PotcarSingle:
     )
 
     # used for POTCAR validation
-    potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
+    _potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
 
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
@@ -1975,7 +1975,7 @@ class PotcarSingle:
 
         identity: dict[str, list] = {"potcar_functionals": [], "potcar_symbols": []}
         for func in self.functional_dir:
-            for ref_psp in self.potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
+            for ref_psp in self._potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
 
@@ -2243,9 +2243,9 @@ class PotcarSingle:
         consistent values of LEXCH
         """
         for func in self.functional_dir:
-            for titel_no_spc in self.potcar_summary_stats[func]:
+            for titel_no_spc in self._potcar_summary_stats[func]:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
-                    for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
+                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
                             possible_potcar_matches.append(
                                 {
@@ -2370,7 +2370,7 @@ class PotcarSingle:
 
 
 def _gen_potcar_summary_stats(
-    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str = POTCAR_STATS_PATH
+    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
     This function solely intended to be used for PMG development to regenerate the
@@ -2426,7 +2426,10 @@ def _gen_potcar_summary_stats(
                 }
             )
 
-    dumpfn(new_summary_stats, summary_stats_filename)
+    if summary_stats_filename:
+        dumpfn(new_summary_stats, summary_stats_filename)
+
+    return new_summary_stats
 
 
 class Potcar(list, MSONable):
