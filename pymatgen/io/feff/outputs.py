@@ -67,7 +67,7 @@ class LDos(MSONable):
             dos_index = 1
             begin = 0
 
-            with zopen(pot_inp, "r") as potfile:
+            with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
                     if len(pot_readend.findall(line)) > 0:
                         break
@@ -92,7 +92,7 @@ class LDos(MSONable):
             dicts = Potential.pot_dict_from_string(pot_string)
             pot_dict = dicts[0]
 
-        with zopen(ldos_file + "00.dat", "r") as file:
+        with zopen(ldos_file + "00.dat", mode="r") as file:
             lines = file.readlines()
         efermi = float(lines[0].split()[4])
 
@@ -171,7 +171,7 @@ class LDos(MSONable):
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
             pot_readstart = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
             pot_readend = re.compile(".*ExternalPot.*switch.*")
-            with zopen(pot_inp, "r") as potfile:
+            with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
                     if len(pot_readend.findall(line)) > 0:
                         break

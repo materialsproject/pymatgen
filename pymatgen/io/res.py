@@ -243,7 +243,7 @@ class ResParser:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
-        with zopen(filename, "r") as file:
+        with zopen(filename, mode="r") as file:
             self.source = file.read()
             return self._parse_txt()
 

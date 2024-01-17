@@ -4726,7 +4726,7 @@ class Eigenval:
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
 
-        with zopen(filename, "r") as f:
+        with zopen(filename, mode="r") as f:
             self.ispin = int(f.readline().split()[-1])
 
             # useless header information

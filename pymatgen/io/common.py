@@ -308,7 +308,7 @@ class VolumetricData(MSONable):
         """
         import h5py
 
-        with h5py.File(filename, "r") as file:
+        with h5py.File(filename, mode="r") as file:
             data = {k: np.array(v) for k, v in file["vdata"].items()}
             data_aug = None
             if "vdata_aug" in file:

@@ -100,7 +100,7 @@ class Unk:
             Unk object
         """
         input_data = []
-        with FortranFile(filename, "r") as f:
+        with FortranFile(filename, mode="r") as f:
             *ng, ik, nbnd = f.read_ints()
             for _ in range(nbnd):
                 input_data.append(

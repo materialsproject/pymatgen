@@ -365,7 +365,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, mode="r") as f:
             return cls.from_str(f.read())
 
     def get_zmatrix(self):
@@ -1123,7 +1123,7 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, "r") as f:
+        with zopen(self.filename, mode="r") as f:
             line = f.readline()
 
             while line != "":
@@ -1212,7 +1212,7 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, "r") as f:
+        with zopen(self.filename, mode="r") as f:
             line = f.readline()
             td = False
             while line != "":

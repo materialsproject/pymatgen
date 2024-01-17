@@ -145,7 +145,7 @@ class ZeoCssr(Cssr):
         Returns:
             ZeoCssr object.
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, mode="r") as f:
             return cls.from_str(f.read())
 
 
