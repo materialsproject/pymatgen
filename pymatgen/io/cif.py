@@ -61,8 +61,7 @@ class CifBlock:
         """
         self.loops = loops
         self.data = data
-        # AJ (@computron) says: CIF Block names cannot be more than 75 characters or you
-        # get an Exception
+        # AJ (@computron) says: CIF Block names cannot be more than 75 characters or you get an Exception
         self.header = header[:74]
 
     def __eq__(self, other: object) -> bool:
@@ -73,7 +72,7 @@ class CifBlock:
     def __getitem__(self, key):
         return self.data[key]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns the cif string for the data block."""
         out = [f"data_{self.header}"]
         keys = list(self.data)
@@ -114,17 +113,21 @@ class CifBlock:
             out += line
         return out
 
-    def _format_field(self, v):
-        v = str(v).strip()
-        if len(v) > self.max_len:
-            return ";\n" + textwrap.fill(v, self.max_len) + "\n;"
+    def _format_field(self, val) -> str:
+        val = str(val).strip()
+        if len(val) > self.max_len:
+            return ";\n" + textwrap.fill(val, self.max_len) + "\n;"
         # add quotes if necessary
-        if v == "":
+        if val == "":
             return '""'
-        if (" " in v or v[0] == "_") and not (v[0] == "'" and v[-1] == "'") and not (v[0] == '"' and v[-1] == '"'):
-            q = '"' if "'" in v else "'"
-            v = q + v + q
-        return v
+        if (
+            (" " in val or val[0] == "_")
+            and not (val[0] == "'" and val[-1] == "'")
+            and not (val[0] == '"' and val[-1] == '"')
+        ):
+            quote = '"' if "'" in val else "'"
+            val = quote + val + quote
+        return val
 
     @classmethod
     def _process_string(cls, string):
@@ -137,19 +140,18 @@ class CifBlock:
         # since line breaks in .cif files are mostly meaningless,
         # break up into a stream of tokens to parse, rejoining multiline
         # strings (between semicolons)
-        q = deque()
+        deq = deque()
         multiline = False
         ml = []
-        # this regex splits on spaces, except when in quotes.
-        # starting quotes must not be preceded by non-whitespace
-        # (these get eaten by the first expression)
-        # ending quotes must not be followed by non-whitespace
-        p = re.compile(r"""([^'"\s][\S]*)|'(.*?)'(?!\S)|"(.*?)"(?!\S)""")
+        # this regex splits on spaces, except when in quotes. starting quotes must not be
+        # preceded by non-whitespace (these get eaten by the first expression). ending
+        # quotes must not be followed by non-whitespace
+        pattern = re.compile(r"""([^'"\s][\S]*)|'(.*?)'(?!\S)|"(.*?)"(?!\S)""")
         for line in string.splitlines():
             if multiline:
                 if line.startswith(";"):
                     multiline = False
-                    q.append(("", "", "", " ".join(ml)))
+                    deq.append(("", "", "", " ".join(ml)))
                     ml = []
                     line = line[1:].strip()
                 else:
@@ -159,11 +161,10 @@ class CifBlock:
                 multiline = True
                 ml.append(line[1:].strip())
             else:
-                for s in p.findall(line):
-                    # s is tuple. location of the data in the tuple
-                    # depends on whether it was quoted in the input
-                    q.append(tuple(s))
-        return q
+                for string in pattern.findall(line):
+                    # location of the data in string depends on whether it was quoted in the input
+                    deq.append(tuple(string))
+        return deq
 
     @classmethod
     def from_str(cls, string):
@@ -216,7 +217,7 @@ class CifBlock:
 class CifFile:
     """Reads and parses CifBlocks from a .cif file or string."""
 
-    def __init__(self, data, orig_string=None, comment=None):
+    def __init__(self, data: dict, orig_string: str | None = None, comment: str | None = None) -> None:
         """
         Args:
             data (dict): Of CifBlock objects.
@@ -250,7 +251,7 @@ class CifFile:
             # CifParser was also not parsing it.
             if "powder_pattern" in re.split(r"\n", block_str, maxsplit=1)[0]:
                 continue
-            block = CifBlock.from_str("data_" + block_str)
+            block = CifBlock.from_str(f"data_{block_str}")
             # TODO (@janosh, 2023-10-11) multiple CIF blocks with equal header will overwrite each other,
             # latest taking precedence. maybe something to fix and test e.g. in test_cif_writer_write_file
             dct[block.header] = block
@@ -258,7 +259,7 @@ class CifFile:
         return cls(dct, string)
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> CifFile:
         """
         Reads CifFile from a filename.
 
@@ -273,9 +274,8 @@ class CifFile:
 
 class CifParser:
     """
-    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
-    issue warnings if corrections applied. These are also stored in the
-    CifParser's errors attribute.
+    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will issue warnings
+    if corrections applied. These are also stored in the CifParser's errors attribute.
     """
 
     def __init__(
@@ -285,7 +285,7 @@ class CifParser:
         site_tolerance: float = 1e-4,
         frac_tolerance: float = 1e-4,
         check_cif: bool = True,
-        cif_assessor_tol: float = 0.01,
+        comp_tol: float = 0.01,
     ) -> None:
         """
         Args:
@@ -299,7 +299,10 @@ class CifParser:
                 However, for very large CIF files, this may need to be set to 0.
             check_cif (bool): Whether to check that stoichiometry reported in CIF matches
                 that of resulting Structure, and whether elements are missing. Defaults to True.
-            cif_assessor_tol (float): Tolerance for how closely stoichiometries should match. Defaults to 0.01.
+            comp_tol (float): Tolerance for how closely stoichiometries of CIF file and pymatgen should match.
+                Defaults to 0.01. Context: Experimental CIF files often don't report hydrogens positions due to being
+                hard-to-locate with X-rays. pymatgen warns if the stoichiometry of the CIF file and the Structure
+                don't match to within comp_tol.
         """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
@@ -312,7 +315,7 @@ class CifParser:
         # options related to checking CIFs for missing elements
         # or incorrect stoichiometries
         self.check_cif = check_cif
-        self.cif_assessor_tol = cif_assessor_tol
+        self.comp_tol = comp_tol
 
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
@@ -1371,7 +1374,7 @@ class CifParser:
             ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
             same_stoich = all(
-                abs(ratios[elt_a] - ratios[elt_b]) < self.cif_assessor_tol
+                abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
                 for elt_a in orig_comp_elts
                 for elt_b in orig_comp_elts
             )
