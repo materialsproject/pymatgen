@@ -51,7 +51,7 @@ class XYZ:
         return self._mols  # type: ignore[return-value]
 
     @staticmethod
-    def _from_frame_string(contents) -> Molecule:
+    def _from_frame_str(contents) -> Molecule:
         """Convert a single frame XYZ string to a molecule."""
         lines = contents.split("\n")
         num_sites = int(lines[0])
@@ -92,7 +92,7 @@ class XYZ:
         mols = []
         for xyz_match in pat.finditer(contents):
             xyz_text = xyz_match.group(0)
-            mols.append(XYZ._from_frame_string(xyz_text))
+            mols.append(XYZ._from_frame_str(xyz_text))
         return cls(mols)
 
     @classmethod

@@ -1282,7 +1282,7 @@ class TestStructure(PymatgenTest):
         assert s2 == self.struct
         assert isinstance(s2, Structure)
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         # to/from string
         for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res"):
             struct = self.struct.to(fmt=fmt)
@@ -2013,7 +2013,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert d["charge"] == 0
         assert d["spin_multiplicity"] == 1
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         self.mol.properties["test_prop"] = 42
         for fmt in ("xyz", "json", "g03", "yaml", "yml"):
             mol = self.mol.to(fmt=fmt)
@@ -2190,7 +2190,7 @@ class TestMolecule(PymatgenTest):
         benzene.substitute(13, sub)
         assert benzene.formula == "H9 C8 Br1"
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None

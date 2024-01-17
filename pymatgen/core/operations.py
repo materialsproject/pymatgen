@@ -575,18 +575,18 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @classmethod
-    def from_xyzt_str(cls, xyzt_string: str) -> MagSymmOp:
+    def from_xyzt_str(cls, xyzt_str: str) -> MagSymmOp:
         """
         Args:
-            xyzt_string (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
+            xyzt_str (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
                 '-2y+1/2, 3x+1/2, z-y+1/2, +1', etc.
 
         Returns:
             MagSymmOp object
         """
-        symm_op = SymmOp.from_xyz_string(xyzt_string.rsplit(",", 1)[0])
+        symm_op = SymmOp.from_xyz_str(xyzt_str.rsplit(",", 1)[0])
         try:
-            time_reversal = int(xyzt_string.rsplit(",", 1)[1])
+            time_reversal = int(xyzt_str.rsplit(",", 1)[1])
         except Exception:
             raise Exception("Time reversal operator could not be parsed.")
         return cls.from_symmop(symm_op, time_reversal)

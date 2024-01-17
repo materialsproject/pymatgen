@@ -27,7 +27,7 @@ class JonesFaithfulTransformation:
         """Transform between settings using matrix P and origin shift vector p,
         using same notation as reference.
 
-        Should initialize using `from_transformation_string` in Jones
+        Should initialize using from_transformation_str in Jones
         faithful notation, given by a string specifying both a
         transformation matrix and an origin shift, with parts delimited
         by a semi-colon. Best shown by example:

@@ -291,7 +291,7 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations.
         """
-        trafo_struct = TransformedStructure.from_poscar_string(poscar_string, [])
+        trafo_struct = TransformedStructure.from_poscar_str(poscar_string, [])
         super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
     @staticmethod
@@ -309,7 +309,7 @@ class PoscarTransmuter(StandardTransmuter):
         trafo_structs = []
         for filename in poscar_filenames:
             with open(filename) as file:
-                trafo_structs.append(TransformedStructure.from_poscar_string(file.read(), []))
+                trafo_structs.append(TransformedStructure.from_poscar_str(file.read(), []))
         return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
 
 
