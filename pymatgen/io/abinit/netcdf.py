@@ -91,7 +91,7 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
+        self.rootgrp.set_auto_mask(False)
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -456,10 +456,6 @@ class AbinitHeader(AttrDict):
 
     def __str__(self):
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, verbose=0, title=None, **kwargs):
         """

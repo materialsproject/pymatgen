@@ -26,6 +26,10 @@ if TYPE_CHECKING:
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / "structures"
 TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+# fake POTCARs have original header information, meaning properties like number of electrons,
+# nuclear charge, core radii, etc. are unchanged (important for testing) while values of the and
+# pseudopotential kinetic energy corrections are scrambled to avoid VASP copyright infringement
+FAKE_POTCAR_DIR = TEST_FILES_DIR / "fake_potcars"
 
 
 class PymatgenTest(unittest.TestCase):
@@ -95,15 +99,15 @@ class PymatgenTest(unittest.TestCase):
             tmpfile = self.tmp_path / f"tempfile_{protocol}.pkl"
 
             try:
-                with open(tmpfile, "wb") as fh:
-                    pickle.dump(objects, fh, protocol=protocol)
+                with open(tmpfile, "wb") as file:
+                    pickle.dump(objects, file, protocol=protocol)
             except Exception as exc:
                 errors.append(f"pickle.dump with {protocol=} raised:\n{exc}")
                 continue
 
             try:
-                with open(tmpfile, "rb") as fh:
-                    unpickled_objs = pickle.load(fh)
+                with open(tmpfile, "rb") as file:
+                    unpickled_objs = pickle.load(file)
             except Exception as exc:
                 errors.append(f"pickle.load with {protocol=} raised:\n{exc}")
                 continue

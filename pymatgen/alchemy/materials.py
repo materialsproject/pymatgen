@@ -11,7 +11,6 @@ import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
-import numpy as np
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -207,7 +206,7 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
-        with open(f"{output_dir}/transformations.json", "w") as fp:
+        with open(f"{output_dir}/transformations.json", mode="w") as fp:
             json.dump(self.as_dict(), fp)
 
     def __str__(self) -> str:
@@ -243,11 +242,6 @@ class TransformedStructure(MSONable):
         """
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
         return [*h_structs, self.final_structure]
-
-    @classmethod
-    @np.deprecate(message="Use from_cif_str instead")
-    def from_cif_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_cif_str(*args, **kwargs)
 
     @classmethod
     def from_cif_str(
@@ -294,11 +288,6 @@ class TransformedStructure(MSONable):
             "cif_data": cif_dict[cif_keys[0]],
         }
         return cls(struct, transformations, history=[source_info])
-
-    @classmethod
-    @np.deprecate(message="Use from_poscar_str instead")
-    def from_poscar_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_poscar_str(*args, **kwargs)
 
     @classmethod
     def from_poscar_str(

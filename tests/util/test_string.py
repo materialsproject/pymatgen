@@ -90,7 +90,7 @@ class TestFunc(unittest.TestCase):
 
         assert charge_string(0) == "(aq)"
 
-    def test_transformation_to_string(self):
+    def test_transformation_to_str(self):
         m = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         t = [0, 0, 0]
         s = "x,y,z"

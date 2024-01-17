@@ -256,7 +256,6 @@ class TestMultiDataset(PymatgenTest):
 
 class TestShiftMode(PymatgenTest):
     def test_shiftmode(self):
-        """Testing shiftmode."""
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
         assert ShiftMode.from_object(gamma) == gamma

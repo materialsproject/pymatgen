@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pymatgen.core import Lattice, Structure
+from pymatgen.core import Structure
 from pymatgen.io.aims.sets.bs import BandStructureSetGenerator
 
 
@@ -61,7 +61,7 @@ def comp_system(atoms, user_params, test_name, work_path, ref_path):
 
 
 Si = Structure(
-    lattice=Lattice([[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]]),
+    lattice=[[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]],
     species=["Si", "Si"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )

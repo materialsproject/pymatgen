@@ -52,7 +52,7 @@ class Cssr:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self) + "\n")
 
     @classmethod
@@ -92,5 +92,5 @@ class Cssr:
         Returns:
             Cssr object.
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())

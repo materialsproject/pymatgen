@@ -59,7 +59,7 @@ class CRESTInput(MSONable):
                 reference_fnm=self.coords_filename,
                 constraints=self.constraints,
             )
-            with open(".constrains", "w") as f:
+            with open(".constrains", mode="w") as f:
                 f.write(constrains_string)
 
     @staticmethod

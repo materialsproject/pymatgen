@@ -434,5 +434,5 @@ class CorrectionCalculator:
         contents["Uncertainties"].yaml_set_start_comment(
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
         )
-        with open(path, "w") as file:
+        with open(path, mode="w") as file:
             yml.dump(contents, file)

@@ -61,12 +61,12 @@ def _read_nlines(filename: str, n_lines: int) -> list[str]:
     If nlines is < 0, the entire file is read.
     """
     if n_lines < 0:
-        with open(filename) as fh:
-            return fh.readlines()
+        with open(filename) as file:
+            return file.readlines()
 
     lines = []
-    with open(filename) as fh:
-        for lineno, line in enumerate(fh):
+    with open(filename) as file:
+        for lineno, line in enumerate(file):
             if lineno == n_lines:
                 break
             lines.append(line)
@@ -134,10 +134,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def __str__(self) -> str:
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, verbose=0) -> str:
         """String representation."""
@@ -233,8 +229,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and return MD5 hash value."""
-        with open(self.path) as fh:
-            text = fh.read()
+        with open(self.path) as file:
+            text = file.read()
             # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
             # https://github.com/materialsproject/pymatgen/issues/2804
             md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+

@@ -51,11 +51,11 @@ def prepare_band_input(structure: Structure, density: float = 20):
     bands = []
     for segment in lines_and_labels:
         start, end = segment["coords"]
-        lstart, lend = segment["labels"]
+        label_start, label_end = segment["labels"]
         bands.append(
             f"band {start[0]:9.5f}{start[1]:9.5f}{start[2]:9.5f} "
             f"{end[0]:9.5f}{end[1]:9.5f}{end[2]:9.5f} {segment['length']:4d} "
-            f"{lstart:3}{lend:3}"
+            f"{label_start:3}{label_end:3}"
         )
     return bands
 
@@ -133,15 +133,9 @@ class GWSetGenerator(AimsInputGenerator):
         current_output = prev_parameters.get("output", [])
         if isinstance(structure, Structure) and all(structure.lattice.pbc):
             updates.update(
-                {
-                    "qpe_calc": "gw_expt",
-                    "output": current_output + prepare_band_input(structure, self.k_point_density),
-                }
+                qpe_calc="gw_expt",
+                output=current_output + prepare_band_input(structure, self.k_point_density),
             )
         else:
-            updates.update(
-                {
-                    "qpe_calc": "gw",
-                }
-            )
+            updates.update(qpe_calc="gw")
         return updates

@@ -150,10 +150,6 @@ class LammpsBox(MSONable):
         matrix = self._matrix
         return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, significant_figures: int = 6) -> str:
         """
         Returns the string representation of simulation box in LAMMPS
@@ -325,10 +321,6 @@ class LammpsData(MSONable):
             site_properties=site_properties,
         )
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """
         Returns the string representation of LammpsData, essentially
@@ -481,7 +473,7 @@ class LammpsData(MSONable):
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
         """
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
@@ -537,10 +529,10 @@ class LammpsData(MSONable):
         masses["label"] = atom_labels
         unique_masses = np.unique(masses["mass"])
         if guess_element:
-            ref_masses = [el.atomic_mass.real for el in Element]
-            diff = np.abs(np.array(ref_masses) - unique_masses[:, None])
-            atomic_numbers = np.argmin(diff, axis=1) + 1
-            symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
+            ref_masses = {el.name: el.atomic_mass.real for el in Element}
+            symbols = list(ref_masses)
+            diff = np.abs(np.array(list(ref_masses.values())) - unique_masses[:, None])
+            symbols = [Element(symbols[idx]).symbol for idx in np.argmin(diff, axis=1)]
         else:
             symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
@@ -647,7 +639,7 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
@@ -1195,7 +1187,7 @@ class ForceField(MSONable):
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             yaml = YAML()
             yaml.dump(d, f)
 
@@ -1397,7 +1389,7 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             lines = f.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
@@ -1461,10 +1453,6 @@ class CombinedData(LammpsData):
         if atom_style:
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """

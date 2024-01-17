@@ -397,7 +397,7 @@ class Trajectory(MSONable):
         """Writes to Xdatcar file.
 
         The supported kwargs are the same as those for the
-        Xdatcar_from_structs.get_string method and are passed through directly.
+        Xdatcar_from_structs.get_str method and are passed through directly.
 
         Args:
             filename: Name of file to write.  It's prudent to end the filename with
@@ -442,7 +442,7 @@ class Trajectory(MSONable):
 
         xdatcar_string = "\n".join(lines) + "\n"
 
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(xdatcar_string)
 
     def as_dict(self) -> dict:
