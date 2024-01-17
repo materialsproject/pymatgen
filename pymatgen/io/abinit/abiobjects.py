@@ -185,16 +185,17 @@ def species_by_znucl(structure: Structure) -> list[Species]:
     return types
 
 
-def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kwargs):
+def structure_to_abivars(
+    structure: Structure, enforce_znucl: list | None = None, enforce_typat: list | None = None, **kwargs
+):
     """
     Receives a structure and returns a dictionary with ABINIT variables.
 
     Args:
-        enforce_znucl: List of ntypat entries with the value of Z for each type of atom.
-            Used to change the default ordering.
-        enforce_typat: List with natom entries with the type index.
-            Fortran conventions: start to count from 1.
-            Used to change the default ordering.
+        enforce_znucl (list): ntypat entries with the value of Z for each type of atom.
+            Used to change the default ordering. Defaults to None.
+        enforce_typat (list): natom entries with the type index.
+            Fortran conventions: start to count from 1. Used to change the default ordering.
     """
     if not structure.is_ordered:
         raise ValueError(
@@ -205,7 +206,6 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
         )
 
     n_atoms = len(structure)
-    n_types_atom = structure.ntypesp
     enforce_order = False
 
     if enforce_znucl is not None or enforce_typat is not None:
@@ -219,19 +219,21 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != n_types_atom:
-            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {n_types_atom=}")
+        if len(enforce_znucl) != structure.n_elems:
+            raise ValueError(
+                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
+            )
 
-    if not enforce_order:
+    if enforce_order:
+        znucl_type = enforce_znucl
+        typat = enforce_typat or []
+    else:
         types_of_specie = species_by_znucl(structure)
 
         znucl_type = [specie.number for specie in types_of_specie]
         typat = np.zeros(n_atoms, int)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
-    else:
-        znucl_type = enforce_znucl
-        typat = enforce_typat
 
     r_prim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
     ang_deg = structure.lattice.angles
@@ -245,7 +247,7 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
     # Info on atoms.
     dct = {
         "natom": n_atoms,
-        "ntypat": n_types_atom,
+        "ntypat": structure.n_elems,
         "typat": typat,
         "znucl": znucl_type,
         "xred": x_red,

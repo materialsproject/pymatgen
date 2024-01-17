@@ -71,7 +71,7 @@ class TestIStructure(PymatgenTest):
         self.struct = IStructure(self.lattice, ["Si"] * 2, coords)
         assert len(self.struct) == 2, "Wrong number of sites in structure!"
         assert self.struct.is_ordered
-        assert self.struct.ntypesp == 1
+        assert self.struct.n_elems == 1
         coords = [[0, 0, 0], [0.0, 0, 0.0000001]]
         with pytest.raises(
             StructureError, match=f"sites are less than {self.struct.DISTANCE_TOLERANCE} Angstrom apart"
@@ -967,7 +967,7 @@ class TestStructure(PymatgenTest):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])
         assert struct.formula == "Si2 O1"
-        assert struct.ntypesp == 2
+        assert struct.n_elems == 2
         assert struct.symbol_set == ("O", "Si")
         assert struct.indices_from_symbol("Si") == (0, 2)
         assert struct.indices_from_symbol("O") == (1,)
@@ -977,7 +977,7 @@ class TestStructure(PymatgenTest):
         assert struct.indices_from_symbol("O") == (1,)
         struct.append("N", [0.25, 0.25, 0.25])
         assert struct.formula == "Si1 N1 O1"
-        assert struct.ntypesp == 3
+        assert struct.n_elems == 3
         assert struct.symbol_set == ("N", "O", "Si")
         assert struct.indices_from_symbol("Si") == (0,)
         assert struct.indices_from_symbol("O") == (1,)
@@ -987,7 +987,7 @@ class TestStructure(PymatgenTest):
         assert struct.symbol_set == ("Ge", "N", "O")
         struct.replace_species({"Ge": "Si"})
         assert struct.formula == "Si1 N1 O1"
-        assert struct.ntypesp == 3
+        assert struct.n_elems == 3
 
         struct.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
         assert struct.formula == "Si0.5 Ge0.5 N1 O1"
@@ -995,7 +995,7 @@ class TestStructure(PymatgenTest):
         struct.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         assert struct.formula == "Si0.75 Ge0.25 N1 O1"
 
-        assert struct.ntypesp == 4
+        assert struct.n_elems == 4
 
         struct.replace_species({"Ge": "Si"})
         struct.substitute(1, "hydroxyl")
