@@ -8,40 +8,40 @@ class TestMovement(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/MOVEMENT.lzma"
         movement = Movement(filepath)
-        assert movement.n_ionic_steps == len(movement.chunk_sizes)
+        assert movement.n_ionic_steps == len(movement.chunk_sizes) == 1
         assert movement.n_ionic_steps == len(movement.chunk_starts)
         assert movement.n_ionic_steps == len(movement.atom_configs)
-        assert movement.atom_configs[0].structure.num_sites == movement.atom_configs[0].structure.num_sites
         assert "atom_config" in movement.ionic_steps[0]
-        assert "etot" in movement.ionic_steps[0]
-        assert "fatoms" in movement.ionic_steps[0]
-        # assert "virial" in movement.ionic_steps
-        # assert "eatoms" in movement.ionic_steps
-        assert hasattr(movement, "atom_configs")
-        assert hasattr(movement, "etots")
-        assert hasattr(movement, "fatoms")
-        # assert hasattr(movement, "eatoms")
-        # assert hasattr(movement, "virials")
+        assert "e_tot" in movement.ionic_steps[0]
+        assert "atom_forces" in movement.ionic_steps[0]
+        assert "virial" in movement.ionic_steps[0]
+        assert "atom_energies" in movement.ionic_steps[0]
+        assert movement.e_tots == -357677.2281
+        assert movement.atom_configs[0] == movement.ionic_steps[0]["atom_config"]
+        assert list(movement.e_atoms) == []
+        assert movement.atom_forces.shape == (1, 72, 3)
+        assert movement.virials.shape == (1, 3, 3)
+        assert movement.ionic_steps[0]["e_tot"] == -357677.2281
 
 
 class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/OUT.FERMI.lzma"
         out_fermi = OutFermi(filepath)
-        assert isinstance(out_fermi.efermi, float)
+        assert out_fermi.e_fermi == -2.359
 
 
 class TestReport(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/REPORT"
         report = Report(filepath)
-        assert hasattr(report, "spin")
-        assert hasattr(report, "n_kpoints")
-        assert hasattr(report, "n_bands")
-        assert hasattr(report, "eigenvalues")
-        assert hasattr(report, "kpoints")
-        assert hasattr(report, "kpoints_weight")
-        assert hasattr(report, "hsps")
+        assert report.spin == 1
+        assert report.n_kpoints == 1
+        assert report.n_bands == 10
+        assert report.eigenvalues.shape == (1, 1, 10)
+        assert report.kpoints.shape == (1, 3)
+        assert report.kpoints_weight.shape == (1,)
+        assert report.hsps == {}
 
 
 class TestDosSpin(PymatgenTest):

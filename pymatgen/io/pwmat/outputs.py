@@ -80,27 +80,27 @@ class Movement(MSONable):
         return [step["atom_config"] for _, step in enumerate(self.ionic_steps)]
 
     @property
-    def etots(self) -> np.ndarray:
+    def e_tots(self) -> np.ndarray:
         """Returns total energies of each ionic step structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: Total energy of of each ionic step structure,
                 with shape of (n_ionic_steps,).
         """
-        return np.array([step["etot"] for _, step in enumerate(self.ionic_steps)])
+        return np.array([step["e_tot"] for _, step in enumerate(self.ionic_steps)])
 
     @property
-    def fatoms(self) -> np.ndarray:
+    def atom_forces(self) -> np.ndarray:
         """Returns forces on atoms in each structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: The forces on atoms of each ionic step structure,
                 with shape of (n_ionic_steps, n_atoms, 3).
         """
-        return np.array([step["fatoms"] for _, step in enumerate(self.ionic_steps)])
+        return np.array([step["atom_forces"] for _, step in enumerate(self.ionic_steps)])
 
     @property
-    def eatoms(self) -> np.ndarray:
+    def e_atoms(self) -> np.ndarray:
         """
         Returns individual energies of atoms in each ionic step structures
         contained in MOVEMENT.
@@ -128,8 +128,8 @@ class Movement(MSONable):
 
         Returns:
             list[dict]: Structure containing structures, energies, forces on atoms
-                and virial tensor. The corresponding keys are 'atom_config', 'etot',
-                'fatoms', 'virial'.
+                and virial tensor. The corresponding keys are 'atom_config', 'e_tot',
+                'atom_forces' and 'virial'.
         """
         ionic_steps: list[dict] = []
         with zopen(self.filename, "rt") as mvt:
@@ -139,11 +139,11 @@ class Movement(MSONable):
                 for _ in range(self.chunk_sizes[ii]):
                     tmp_chunk += mvt.readline()
                 tmp_step.update({"atom_config": AtomConfig.from_str(tmp_chunk)})
-                tmp_step.update({"etot": ACstrExtractor(tmp_chunk).get_etot()[0]})
-                tmp_step.update({"fatoms": ACstrExtractor(tmp_chunk).get_fatoms().reshape(-1, 3)})
-                eatoms: np.ndarray | None = ACstrExtractor(tmp_chunk).get_fatoms()
-                if eatoms is not None:
-                    tmp_step.update({"eatoms": ACstrExtractor(tmp_chunk).get_eatoms()})
+                tmp_step.update({"e_tot": ACstrExtractor(tmp_chunk).get_e_tot()[0]})
+                tmp_step.update({"atom_forces": ACstrExtractor(tmp_chunk).get_atom_forces().reshape(-1, 3)})
+                e_atoms: np.ndarray | None = ACstrExtractor(tmp_chunk).get_atom_forces()
+                if e_atoms is not None:
+                    tmp_step.update({"atom_energies": ACstrExtractor(tmp_chunk).get_atom_energies()})
                 else:
                     print(f"Ionic step #{ii} : Energy deposition is turn down.")
                 virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
@@ -166,16 +166,16 @@ class OutFermi(MSONable):
         """
         self.filename: PathLike = filename
         with zopen(self.filename, "rt") as f:
-            self._efermi: float = np.round(float(f.readline().split()[-2].strip()), 3)
+            self._e_fermi: float = np.round(float(f.readline().split()[-2].strip()), 3)
 
     @property
-    def efermi(self) -> float:
+    def e_fermi(self) -> float:
         """Returns the fermi energy level.
 
         Returns:
             float: Fermi energy level.
         """
-        return self._efermi
+        return self._e_fermi
 
 
 class Report(MSONable):
@@ -241,13 +241,14 @@ class Report(MSONable):
                     eigenvalues[ii][jj][kk] = tmp_eigenvalues_array[kk]
         return eigenvalues
 
-    def _parse_kpt(self):
+    def _parse_kpt(self) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
         """Parse REPORT file to obtain information about kpoints.
 
         Returns:
-            kpts (np.ndarray):  The fractional coordinates of kpoints.
-            kpts_weight (np.ndarray): The weight of kpoints.
-            hsps (dict[str, np.ndarray]): The name and coordinates of high symmetric points.
+            3-tuple containing:
+                kpts (np.ndarray): The fractional coordinates of kpoints.
+                kpts_weight (np.ndarray): The weight of kpoints.
+                hsps (dict[str, np.ndarray]): The name and coordinates of high symmetric points.
         """
         num_rows: int = int(self._num_kpts)
         content: str = "total number of K-point:"
@@ -340,7 +341,7 @@ class DosSpin(MSONable):
         labels: list[str] = []
         labels = linecache.getline(str(self.filename), 1).split()[1:]
         dos_str: str = ""
-        with zopen(self.filename) as file:
+        with zopen(self.filename, mode="rt") as file:
             file.readline()
             dos_str = file.read()
         dos: np.array = np.loadtxt(StringIO(dos_str))

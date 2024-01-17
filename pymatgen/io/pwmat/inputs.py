@@ -33,7 +33,7 @@ class LineLocator(MSONable):
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
-        with zopen(file_path, "rt") as f:
+        with zopen(file_path, mode="rt") as f:
             for row_content in f:
                 row_no += 1
                 if content.upper() in row_content.upper():
@@ -88,12 +88,11 @@ class ACExtractorBase(ABC):
 class ACExtractor(ACExtractorBase):
     """Extract information contained in atom.config : number of atoms, lattice, types, frac_coords, magmoms"""
 
-    def __init__(self, file_path: PathLike):
+    def __init__(self, file_path: PathLike) -> None:
         """Initialization function
 
         Args
-            file_path: str
-                The absolute path of atom.config file.
+            file_path (str): The absolute path of atom.config file.
         """
         self.atom_config_path = file_path
         self.n_atoms = self.get_n_atoms()
@@ -103,11 +102,7 @@ class ACExtractor(ACExtractorBase):
         self.magmoms = self.get_magmoms()
 
     def get_n_atoms(self) -> int:
-        """Return the number of atoms in structure.
-
-        Returns:
-            int: number of atoms
-        """
+        """Return the number of atoms in the structure."""
         first_row = linecache.getline(str(self.atom_config_path), 1)
         return int(first_row.split()[0])
 
@@ -135,8 +130,8 @@ class ACExtractor(ACExtractorBase):
         """
         content = "POSITION"
         idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as f:
-            atom_config_content = f.readlines()
+        with open(self.atom_config_path) as file:
+            atom_config_content = file.readlines()
         atomic_numbers_content = atom_config_content[idx_row : idx_row + self.n_atoms]
         atomic_numbers_lst = [int(row.split()[0]) for row in atomic_numbers_content]  # convert str to int
         return np.array(atomic_numbers_lst)
@@ -272,7 +267,7 @@ class ACstrExtractor(ACExtractorBase):
             ]
         return np.array(magnetic_moments_lst)
 
-    def get_etot(self) -> np.ndarray:
+    def get_e_tot(self) -> np.ndarray:
         """Return the total energy of structure.
 
         Returns:
@@ -288,7 +283,7 @@ class ACstrExtractor(ACExtractorBase):
         #   ['Ek', '(eV)', '=', '-0.2831881714E+05', '-0.2836665392E+05', '0.4783678177E+02']
         return np.array([float(strs_lst[aim_index].split()[3].strip())])
 
-    def get_eatoms(self) -> np.ndarray | None:
+    def get_atom_energies(self) -> np.ndarray | None:
         """Return the energies of individual atoms in material system.
 
         Returns:
@@ -297,7 +292,7 @@ class ACstrExtractor(ACExtractorBase):
         Description:
             When turn on `ENERGY DEPOSITION`, PWmat will output energy per atom.
         """
-        eatoms_lst = []
+        energies = []
         aim_content = "Atomic-Energy, ".upper()
         aim_idxs = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)
         if len(aim_idxs) == 0:
@@ -308,25 +303,23 @@ class ACstrExtractor(ACExtractorBase):
             Atomic-Energy, Etot(eV),E_nonloc(eV),Q_atom:dE(eV)=  -0.1281163115E+06
             14   0.6022241483E+03    0.2413350871E+02    0.3710442365E+01
             """
-            eatoms_lst.append(float(tmp_str.split()[1]))
-        return np.array(eatoms_lst)
+            energies.append(float(tmp_str.split()[1]))
+        return np.array(energies)
 
-    def get_fatoms(self) -> np.ndarray:
+    def get_atom_forces(self) -> np.ndarray:
         """Return the force on atoms in material system.
 
         Returns:
             np.ndarray: Forces acting on individual atoms of shape=(num_atoms*3,)
         """
-        forces_lst = []
+        forces = []
         aim_content = "Force".upper()
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
 
-        for tmp_str in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
+        for line in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
             # ['14', '0.089910342901203', '0.077164252174742', '0.254144099204679']
-            tmp_str_lst = tmp_str.split()
-            tmp_forces = [float(value) for value in tmp_str_lst[1:4]]
-            forces_lst.append(tmp_forces)
-        return -np.array(forces_lst).reshape(-1)
+            forces.append([float(val) for val in line.split()[1:4]])
+        return -np.array(forces).reshape(-1)
 
     def get_virial(self) -> np.ndarray | None:
         """Return the virial tensor of material system.
