@@ -42,7 +42,7 @@ class TestAtomConfig(PymatgenTest):
     def test_write_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         atom_config = AtomConfig.from_file(filepath)
-        tmp_file = f"{TEST_FILES_DIR}/pwmat/atom.config.testing.lzma"
+        tmp_file = f"{self.tmp_path}/atom.config.testing.lzma"
         atom_config.write_file(tmp_file)
         tmp_atom_config = AtomConfig.from_file(filepath)
         assert_allclose(atom_config.structure.lattice.abc, tmp_atom_config.structure.lattice.abc, 5)
@@ -65,7 +65,7 @@ class TestGenKpt(PymatgenTest):
         dim = 2
         density = 0.01
         gen_kpt = GenKpt.from_structure(structure, dim, density)
-        tmp_file = f"{TEST_FILES_DIR}/pwmat/gen.kpt.testing.lzma"
+        tmp_file = f"{self.tmp_path}/gen.kpt.testing.lzma"
         gen_kpt.write_file(tmp_file)
         tmp_gen_kpt_str = ""
         with zopen(tmp_file, mode="rt") as file:
@@ -90,7 +90,7 @@ class TestHighSymmetryPoint(PymatgenTest):
         dim = 2
         density = 0.01
         high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim, density)
-        tmp_filepath = f"{TEST_FILES_DIR}/pwmat/HIGH_SYMMETRY_POINTS.testing.lzma"
+        tmp_filepath = f"{self.tmp_path}/HIGH_SYMMETRY_POINTS.testing.lzma"
         high_symmetry_points.write_file(tmp_filepath)
         tmp_high_symmetry_points_str = ""
         with zopen(tmp_filepath, "rt") as f:
