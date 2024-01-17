@@ -270,8 +270,8 @@ class EnumlibAdaptor:
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", "w") as f:
-            f.write("\n".join(output))
+        with open("struct_enum.in", mode="w") as file:
+            file.write("\n".join(output))
 
     def _run_multienum(self):
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:

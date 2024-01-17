@@ -308,8 +308,8 @@ class PoscarTransmuter(StandardTransmuter):
         """
         trafo_structs = []
         for filename in poscar_filenames:
-            with open(filename) as f:
-                trafo_structs.append(TransformedStructure.from_poscar_string(f.read(), []))
+            with open(filename) as file:
+                trafo_structs.append(TransformedStructure.from_poscar_string(file.read(), []))
         return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
 
 

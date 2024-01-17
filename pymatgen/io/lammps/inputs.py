@@ -532,7 +532,7 @@ class LammpsInputFile(InputFile):
                                 If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
@@ -630,7 +630,7 @@ class LammpsInputFile(InputFile):
             LammpsInputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self) -> str:
@@ -1069,7 +1069,7 @@ def write_lammps_inputs(
     input_script = template.safe_substitute(**variables)
     if make_dir_if_not_present:
         os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, script_filename), "w") as f:
+    with open(os.path.join(output_dir, script_filename), mode="w") as f:
         f.write(input_script)
     read_data = re.search(r"read_data\s+(.*)\n", input_script)
     if read_data:

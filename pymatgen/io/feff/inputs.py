@@ -244,7 +244,7 @@ class Header(MSONable):
         Returns:
             Reads header string.
         """
-        with zopen(filename, "r") as fobject:
+        with zopen(filename, mode="r") as fobject:
             f = fobject.readlines()
             feff_header_str = []
             ln = 0
@@ -380,7 +380,7 @@ class Header(MSONable):
         Args:
             filename: Filename and path for file to be written to disk
         """
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             f.write(str(self) + "\n")
 
 
@@ -446,7 +446,7 @@ class Atoms(MSONable):
         Returns:
             Atoms string.
         """
-        with zopen(filename, "rt") as fobject:
+        with zopen(filename, mode="rt") as fobject:
             f = fobject.readlines()
             coords = 0
             atoms_str = []
@@ -538,7 +538,7 @@ class Atoms(MSONable):
         Args:
             filename: path for file to be written
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(f"{self}\n")
 
 
@@ -661,7 +661,7 @@ class Tags(dict):
         Args:
             filename: filename and path to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(f"{self}\n")
 
     @classmethod
@@ -675,7 +675,7 @@ class Tags(dict):
         Returns:
             Feff_tag object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
         eels_params = []
@@ -840,7 +840,7 @@ class Potential(MSONable):
         Returns:
             FEFFPOT string.
         """
-        with zopen(filename, "rt") as f_object:
+        with zopen(filename, mode="rt") as f_object:
             f = f_object.readlines()
             ln = -1
             pot_str = ["POTENTIALS\n"]
@@ -953,7 +953,7 @@ class Potential(MSONable):
         Args:
             filename: filename and path to write potential file to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self) + "\n")
 
 
@@ -994,7 +994,7 @@ class Paths(MSONable):
 
     def write_file(self, filename="paths.dat"):
         """Write paths.dat."""
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self) + "\n")
 
 

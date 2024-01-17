@@ -417,8 +417,8 @@ def _get_transformation_history(path):
     trans_json = glob(f"{path}/transformations.json*")
     if trans_json:
         try:
-            with zopen(trans_json[0]) as f:
-                return json.load(f)["history"]
+            with zopen(trans_json[0]) as file:
+                return json.load(file)["history"]
         except Exception:
             return None
     return None

@@ -71,7 +71,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     for entry in search:
         entry[0] = re.compile(entry[0])
 
-    with zopen(filename, "rt") as f:
+    with zopen(filename, mode="rt") as f:
         for line in f:
             for entry in search:
                 match = re.search(entry[0], line)

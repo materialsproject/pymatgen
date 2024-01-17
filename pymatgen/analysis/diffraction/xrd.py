@@ -47,8 +47,8 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as file:
+    ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):

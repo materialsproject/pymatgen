@@ -272,7 +272,7 @@ class Poscar(MSONable):
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:
                     names = None
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read(), names, read_velocities=read_velocities)
 
     @classmethod
@@ -576,7 +576,7 @@ class Poscar(MSONable):
         Writes POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_str method and are passed through directly.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
@@ -768,7 +768,7 @@ class Incar(dict, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))
 
     @classmethod
@@ -781,7 +781,7 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
 
     @classmethod
@@ -1338,7 +1338,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
 
     @classmethod
@@ -1459,7 +1459,7 @@ class Kpoints(MSONable):
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))
 
     def __repr__(self):
@@ -1786,7 +1786,7 @@ class PotcarSingle:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
     @classmethod
@@ -1803,7 +1803,7 @@ class PotcarSingle:
         symbol = match.group(0) if match else ""
 
         try:
-            with zopen(filename, "rt") as file:
+            with zopen(filename, mode="rt") as file:
                 return cls(file.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
@@ -2472,7 +2472,7 @@ class Potcar(list, MSONable):
         Returns:
             Potcar
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             fdata = f.read()
         potcar = cls()
 
@@ -2497,7 +2497,7 @@ class Potcar(list, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))
 
     @property
@@ -2604,7 +2604,7 @@ class VaspInput(dict, MSONable):
             os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
-                with zopen(os.path.join(output_dir, k), "wt") as f:
+                with zopen(os.path.join(output_dir, k), mode="wt") as f:
                     f.write(str(v))
 
     @classmethod
@@ -2662,5 +2662,7 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir), open(output_file, "w") as stdout_file, open(err_file, "w", buffering=1) as stderr_file:
+        with cd(run_dir), open(output_file, mode="w") as stdout_file, open(
+            err_file, mode="w", buffering=1
+        ) as stderr_file:
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)

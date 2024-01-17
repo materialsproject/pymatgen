@@ -140,7 +140,7 @@ class ExcitingInput(MSONable):
         Returns:
             ExcitingInput
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             data = f.read().replace("\n", "")
         return cls.from_str(data)
 

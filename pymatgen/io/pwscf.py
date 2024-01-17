@@ -214,7 +214,7 @@ class PWInput:
         Args:
             filename (str): The string filename to output to.
         """
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             f.write(str(self))
 
     @classmethod
@@ -228,7 +228,7 @@ class PWInput:
         Returns:
             PWInput object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
 
     @classmethod

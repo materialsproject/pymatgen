@@ -473,7 +473,7 @@ class LammpsData(MSONable):
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
         """
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
@@ -639,7 +639,7 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
@@ -1187,7 +1187,7 @@ class ForceField(MSONable):
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             yaml = YAML()
             yaml.dump(d, f)
 
@@ -1389,7 +1389,7 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             lines = f.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line

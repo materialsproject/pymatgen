@@ -711,7 +711,7 @@ class Cp2kInput(Section):
     @classmethod
     def from_file(cls, file: str):
         """Initialize from a file."""
-        with zopen(file, "rt") as f:
+        with zopen(file, mode="rt") as f:
             txt = preprocessor(f.read(), os.path.dirname(f.name))
             return cls.from_str(txt)
 
@@ -796,7 +796,7 @@ class Cp2kInput(Section):
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
-        with open(filepath, "w") as f:
+        with open(filepath, mode="w") as f:
             f.write(self.get_str())
 
 
@@ -2745,7 +2745,7 @@ class DataFile(MSONable):
 
     def write_file(self, fn):
         """Write to a file."""
-        with open(fn, "w") as f:
+        with open(fn, mode="w") as f:
             f.write(self.get_str())
 
     def get_str(self) -> str:

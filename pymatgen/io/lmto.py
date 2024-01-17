@@ -133,7 +133,7 @@ class LMTOCtrl:
         Writes a CTRL file with structure, HEADER, and VERS that can be
         used as input for lmhart.run.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(self.get_str(**kwargs))
 
     @classmethod
@@ -147,7 +147,7 @@ class LMTOCtrl:
         Returns:
             An LMTOCtrl object.
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             contents = f.read()
         return LMTOCtrl.from_str(contents, **kwargs)
 
@@ -292,7 +292,7 @@ class LMTOCopl:
               eV, set to True. Defaults to False for energies in Ry.
         """
         # COPL files have an extra trailing blank line
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             contents = f.read().split("\n")[:-1]
         # The parameters line is the second line in a COPL file. It
         # contains all parameters that are needed to map the file.

@@ -337,7 +337,7 @@ class Cp2kOutput:
         )
 
         coord_table = []
-        with zopen(self.filename, "rt") as f:
+        with zopen(self.filename, mode="rt") as f:
             while True:
                 line = f.readline()
                 if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
@@ -804,7 +804,7 @@ class Cp2kOutput:
             except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = None
 
-        with zopen(self.filename, "rt") as f:
+        with zopen(self.filename, mode="rt") as f:
             j = -1
             lines = f.readlines()
             for k, line in enumerate(lines):
@@ -1029,7 +1029,7 @@ class Cp2kOutput:
         eigenvalues = []
         efermi = []
 
-        with zopen(self.filename, "rt") as f:
+        with zopen(self.filename, mode="rt") as f:
             lines = iter(f.readlines())
             for line in lines:
                 try:
@@ -1374,7 +1374,7 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(hyperfine_filename, "rt") as f:
+        with zopen(hyperfine_filename, mode="rt") as f:
             lines = [line for line in f.read().split("\n") if line]
 
         hyperfine = [[] for _ in self.ionic_steps]
@@ -1395,7 +1395,7 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(gtensor_filename, "rt") as f:
+        with zopen(gtensor_filename, mode="rt") as f:
             lines = [line for line in f.read().split("\n") if line]
 
         data = {}
@@ -1432,7 +1432,7 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(chi_filename, "rt") as f:
+        with zopen(chi_filename, mode="rt") as f:
             lines = [line for line in f.read().split("\n") if line]
 
         data = {}
@@ -1590,7 +1590,7 @@ class Cp2kOutput:
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
-        with zopen(self.filename, "rt") as f:
+        with zopen(self.filename, mode="rt") as f:
             if strip:
                 lines = f.readlines()
                 text = "".join(
@@ -1724,7 +1724,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
     """
     spin = Spin(spin_channel) if spin_channel else Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 
-    with zopen(dos_file, "rt") as f:
+    with zopen(dos_file, mode="rt") as f:
         lines = f.readlines()
         kind = re.search(r"atomic kind\s(.*)\sat iter", lines[0]) or re.search(r"list\s(\d+)\s(.*)\sat iter", lines[0])
         kind = kind.groups()[0]

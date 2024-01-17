@@ -1392,7 +1392,7 @@ class TestChgcar(PymatgenTest):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
-        with h5py.File(out_path, "r") as f:
+        with h5py.File(out_path, mode="r") as f:
             assert_allclose(f["vdata"]["total"], chgcar.data["total"])
             assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
             assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
