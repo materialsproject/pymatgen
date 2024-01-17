@@ -147,7 +147,7 @@ class ACExtractor(ACExtractorBase):
         Returns:
             np.ndarray: Fractional coordinates.
         """
-        coords_lst: list[float] = []
+        coords_lst: list[np.ndarray] = []
         content: str = "POSITION"
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
         with open(self.atom_config_path) as f:
@@ -487,7 +487,8 @@ class GenKpt(MSONable):
     """GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints."""
 
     def __init__(
-        self, reciprocal_lattice: np.ndarray, kpoints: dict[str, np.array], path: list[list[str]], density: float = 0.01
+        self, reciprocal_lattice: np.ndarray, kpoints: dict[str, np.ndarray], path: list[list[str]],
+        density: float = 0.01
     ):
         """Initialization function.
 
@@ -504,7 +505,7 @@ class GenKpt(MSONable):
         self._density = density
 
     @staticmethod
-    def from_structure(structure: Structure, dim: int, density: float = 0.01) -> AtomConfig:
+    def from_structure(structure: Structure, dim: int, density: float = 0.01) -> GenKpt:
         """Obtain a AtomConfig object from Structure object.
 
         Args:

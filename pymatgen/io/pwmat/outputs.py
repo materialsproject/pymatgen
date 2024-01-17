@@ -228,8 +228,8 @@ class Report(MSONable):
         num_rows: int = int(np.ceil(self._num_bands / 5))
         content: str = "eigen energies, in eV"
         rows_lst: list[int] = LineLocator.locate_all_lines(file_path=self.filename, content=content)
-        rows_array: np.array = np.array(rows_lst).reshape(self._spin, -1)
-        eigenvalues: np.array = np.zeros((self._spin, self._num_kpts, self._num_bands))
+        rows_array: np.ndarray = np.array(rows_lst).reshape(self._spin, -1)
+        eigenvalues: np.ndarray = np.zeros((self._spin, self._num_kpts, self._num_bands))
 
         for ii in range(self._spin):
             for jj in range(self._num_kpts):
