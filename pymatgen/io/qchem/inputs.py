@@ -6,7 +6,6 @@ import logging
 import re
 from typing import TYPE_CHECKING, Literal
 
-import numpy as np
 from monty.io import zopen
 
 from pymatgen.core import Molecule
@@ -237,10 +236,6 @@ class QCInput(InputFile):
         #   - Check that basis is defined for all species in the molecule
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self) -> str:
         """Return a string representation of an entire input file."""

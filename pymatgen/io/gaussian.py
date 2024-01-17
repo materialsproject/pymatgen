@@ -275,11 +275,6 @@ class GaussianInput:
         return Molecule(species, coords)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, contents):
         """
         Creates GaussianInput from a string.
@@ -381,10 +376,6 @@ class GaussianInput:
 
     def __str__(self):
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, cart_coords=False):
         """Return GaussianInput string.

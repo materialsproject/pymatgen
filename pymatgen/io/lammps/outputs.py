@@ -47,11 +47,6 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> LammpsDump:
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, string: str) -> LammpsDump:
         """
         Constructor from string parsing.

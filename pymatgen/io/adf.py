@@ -6,7 +6,6 @@ import os
 import re
 from typing import TYPE_CHECKING
 
-import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -332,11 +331,6 @@ class AdfKey(MSONable):
         subkey_list = d.get("subkeys", [])
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string: str) -> AdfKey:

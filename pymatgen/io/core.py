@@ -33,7 +33,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
-import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -63,11 +62,6 @@ class InputFile(MSONable):
     def get_str(self) -> str:
         """Return a string representation of an entire input file."""
 
-    @np.deprecate(message="Use get_str instead")
-    @abc.abstractmethod
-    def get_string(self) -> str:
-        """Return a string representation of an entire input file."""
-
     def write_file(self, filename: str | PathLike) -> None:
         """
         Write the input file.
@@ -78,20 +72,6 @@ class InputFile(MSONable):
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, "wt") as file:
             file.write(self.get_str())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    @abc.abstractmethod
-    def from_string(cls, contents: str) -> InputFile:
-        """
-        Create an InputFile object from a string.
-
-        Args:
-            contents: The contents of the file as a single string
-
-        Returns:
-            InputFile
-        """
 
     @classmethod
     @abc.abstractmethod

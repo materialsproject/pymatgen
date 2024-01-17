@@ -150,10 +150,6 @@ class LammpsBox(MSONable):
         matrix = self._matrix
         return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, significant_figures: int = 6) -> str:
         """
         Returns the string representation of simulation box in LAMMPS
@@ -324,10 +320,6 @@ class LammpsData(MSONable):
             coords_are_cartesian=True,
             site_properties=site_properties,
         )
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """
@@ -1461,10 +1453,6 @@ class CombinedData(LammpsData):
         if atom_style:
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """

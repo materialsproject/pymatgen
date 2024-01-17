@@ -27,7 +27,6 @@ from __future__ import annotations
 import os
 import re
 
-import numpy as np
 from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
@@ -90,11 +89,6 @@ class ZeoCssr(Cssr):
             output.append(f"{idx + 1} {specie} {site.c:.4f} {site.a:.4f} {site.b:.4f} 0 0 0 0 0 0 0 0 {charge:.4f}")
 
         return "\n".join(output)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string):

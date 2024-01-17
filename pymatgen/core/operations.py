@@ -411,10 +411,6 @@ class SymmOp(MSONable):
             "tolerance": self.tol,
         }
 
-    @np.deprecate(message="Use as_xyz_str instead")
-    def as_xyz_string(self, *args, **kwargs):  # noqa: D102
-        return self.as_xyz_str(*args, **kwargs)
-
     def as_xyz_str(self) -> str:
         """Returns a string of the form 'x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', etc.
         Only works for integer rotation matrices.
@@ -424,11 +420,6 @@ class SymmOp(MSONable):
             warnings.warn("Rotation matrix should be integer")
 
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
-
-    @classmethod
-    @np.deprecate(message="Use from_xyz_str instead")
-    def from_xyz_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_xyz_str(*args, **kwargs)
 
     @classmethod
     def from_xyz_str(cls, xyz_str: str) -> SymmOp:
@@ -584,11 +575,6 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @classmethod
-    @np.deprecate(message="Use from_xyzt_str instead")
-    def from_xyzt_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_xyzt_str(*args, **kwargs)
-
-    @classmethod
     def from_xyzt_str(cls, xyzt_string: str) -> MagSymmOp:
         """
         Args:
@@ -604,10 +590,6 @@ class MagSymmOp(SymmOp):
         except Exception:
             raise Exception("Time reversal operator could not be parsed.")
         return cls.from_symmop(symm_op, time_reversal)
-
-    @np.deprecate(message="Use as_xyzt_str instead")
-    def as_xyzt_string(self, *args, **kwargs):  # noqa: D102
-        return self.as_xyzt_str(*args, **kwargs)
 
     def as_xyzt_str(self) -> str:
         """Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',

@@ -245,11 +245,6 @@ class BalancedReaction(MSONable):
         return cls(reactants, products)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, rxn_str):
         """
         Generates a balanced reaction from a string. The reaction must

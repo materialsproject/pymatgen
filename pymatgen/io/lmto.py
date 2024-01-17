@@ -58,10 +58,6 @@ class LMTOCtrl:
         """String representation of the CTRL file."""
         return self.get_str()
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, sigfigs=8) -> str:
         """
         Generates the string representation of the CTRL file. This is
@@ -154,11 +150,6 @@ class LMTOCtrl:
         with zopen(filename, "rt") as f:
             contents = f.read()
         return LMTOCtrl.from_str(contents, **kwargs)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     @no_type_check

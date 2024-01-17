@@ -166,11 +166,6 @@ class CifBlock:
         return q
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, string):
         """
         Reads CifBlock from string.
@@ -235,11 +230,6 @@ class CifFile:
     def __str__(self):
         out = "\n".join(map(str, self.data.values()))
         return f"{self.comment}\n{out}\n"
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string) -> CifFile:
@@ -366,11 +356,6 @@ class CifParser:
         for key in self._cif.data:
             # pass individual CifBlocks to _sanitize_data
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, cif_string: str, **kwargs) -> CifParser:

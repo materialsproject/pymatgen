@@ -49,15 +49,9 @@ class JonesFaithfulTransformation:
         See: International Tables for Crystallography (2016). Vol. A,
         Chapter 1.5, pp. 75-106.
         """
-        # using capital letters in violation of PEP8 to
-        # be consistent with variables in supplied reference,
-        # for easier debugging in future
+        # using capital letters in violation of PEP8 to be consistent with variables
+        # in supplied reference, for easier debugging in future
         self._P, self._p = P, p
-
-    @classmethod
-    @np.deprecate(message="Use from_transformation_str instead")
-    def from_transformation_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_transformation_str(*args, **kwargs)
 
     @classmethod
     def from_transformation_str(cls, transformation_string="a,b,c;0,0,0"):

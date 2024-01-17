@@ -6,7 +6,6 @@ import re
 from io import StringIO
 from typing import TYPE_CHECKING
 
-import numpy as np
 import pandas as pd
 from monty.io import zopen
 
@@ -70,11 +69,6 @@ class XYZ:
                 xyz = [val.lower().replace("d", "e").replace("*^", "e") for val in m.groups()[1:4]]
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, contents) -> XYZ:

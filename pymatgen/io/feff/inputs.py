@@ -277,11 +277,6 @@ class Header(MSONable):
         return "".join(feff_header_str)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, header_str):
         """
         Reads Header string and returns Header object if header was
@@ -604,10 +599,6 @@ class Tags(dict):
             if k not in ("@module", "@class"):
                 i[k] = v
         return i
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
