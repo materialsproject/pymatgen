@@ -51,7 +51,7 @@ class InputFile(MSONable):
     is optional; it is possible create an InputSet that does not rely on underlying
     InputFile objects.
 
-    All InputFile classes must implement a get_string method, which is called by
+    All InputFile classes must implement a get_str method, which is called by
     write_file.
 
     If InputFile classes implement an __init__ method, they must assign all arguments

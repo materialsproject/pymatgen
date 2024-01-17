@@ -256,8 +256,8 @@ def unicodeify_species(specie_string):
     if not specie_string:
         return ""
 
-    for character, unicode_character in SUPERSCRIPT_UNICODE.items():
-        specie_string = specie_string.replace(character, unicode_character)
+    for char, unicode_char in SUPERSCRIPT_UNICODE.items():
+        specie_string = specie_string.replace(char, unicode_char)
 
     return specie_string
 

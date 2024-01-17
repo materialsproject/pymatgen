@@ -385,14 +385,14 @@ class GaussianInput:
                 Defaults to False.
         """
 
-        def para_dict_to_string(para, joiner=" "):
+        def para_dict_to_str(para, joiner=" "):
             para_str = []
             # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
                 elif isinstance(val, dict):
-                    val_str = para_dict_to_string(val, joiner=",")
+                    val_str = para_dict_to_str(val, joiner=",")
                     para_str.append(f"{par}=({val_str})")
                 else:
                     para_str.append(f"{par}={val}")
@@ -400,7 +400,7 @@ class GaussianInput:
 
         output = []
         if self.link0_parameters:
-            output.append(para_dict_to_string(self.link0_parameters, "\n"))
+            output.append(para_dict_to_str(self.link0_parameters, "\n"))
 
         # Handle functional or basis set to None, empty string or whitespace
         func_str = "" if self.functional is None else self.functional.strip()
@@ -413,7 +413,7 @@ class GaussianInput:
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
         output.extend(
-            (f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}", "", self.title, "")
+            (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
         )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
@@ -430,7 +430,7 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.extend((para_dict_to_string(self.input_parameters, "\n"), "\n"))
+        output.extend((para_dict_to_str(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):

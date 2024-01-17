@@ -251,7 +251,7 @@ class CifTransmuter(StandardTransmuter):
             if read_data:
                 structure_data[-1].append(line)
         for data in structure_data:
-            trafo_struct = TransformedStructure.from_cif_string("\n".join(data), [], primitive)
+            trafo_struct = TransformedStructure.from_cif_str("\n".join(data), [], primitive)
             transformed_structures.append(trafo_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 

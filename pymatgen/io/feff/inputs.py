@@ -873,7 +873,7 @@ class Potential(MSONable):
         return "".join(pot_str).rstrip("\n")
 
     @staticmethod
-    def pot_dict_from_string(pot_data):
+    def pot_dict_from_str(pot_data):
         """
         Creates atomic symbol/potential number dictionary
         forward and reverse.

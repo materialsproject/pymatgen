@@ -20,7 +20,7 @@ except ImportError:
 
 
 class TestCifBlock(PymatgenTest):
-    def test_to_string(self):
+    def test_to_str(self):
         with open(f"{TEST_FILES_DIR}/Graphite.cif") as file:
             cif_str = file.read()
         cif_block = CifBlock.from_str(cif_str)

@@ -20,7 +20,7 @@ class TestXSF(PymatgenTest):
         xsf = XSF(structure)
         assert structure, XSF.from_str(xsf.to_str())
 
-    def test_to_string(self):
+    def test_to_str(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
         xsf_str = xsf.to_str()

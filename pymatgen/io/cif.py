@@ -84,7 +84,7 @@ class CifBlock:
             for loop in self.loops:
                 # search for a corresponding loop
                 if key in loop:
-                    out.append(self._loop_to_string(loop))
+                    out.append(self._loop_to_str(loop))
                     written.extend(loop)
                     break
             if key not in written:
@@ -96,7 +96,7 @@ class CifBlock:
                     out.extend([key, v])
         return "\n".join(out)
 
-    def _loop_to_string(self, loop):
+    def _loop_to_str(self, loop):
         out = "loop_"
         for line in loop:
             out += "\n " + line
