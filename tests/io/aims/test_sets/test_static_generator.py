@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 from glob import glob
 from pathlib import Path
 
@@ -64,17 +63,11 @@ def test_static_si_no_kgrid(tmp_path):
     comp_system(Si, parameters, "static-no-kgrid-si", tmp_path, ref_path)
 
 
-def test_static_default_species_dir(tmp_path):
-    sd_def = os.getenv("AIMS_SPECIES_DIR", None)
-    os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
+def test_static_default_species_dir(tmp_path, monkeypatch):
+    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
     parameters = {"k_grid": [2, 2, 2]}
 
     comp_system(Si, parameters, "static-default-sd-si", tmp_path, ref_path)
-
-    if sd_def:
-        os.environ["AIMS_SPECIES_DIR"] = sd_def
-    else:
-        os.unsetenv("AIMS_SPECIES_DIR")
 
 
 def test_static_o2(tmp_path):
@@ -82,14 +75,8 @@ def test_static_o2(tmp_path):
     comp_system(O2, parameters, "static-o2", tmp_path, ref_path)
 
 
-def test_static_default_species_dir_o2(tmp_path):
-    sd_def = os.getenv("AIMS_SPECIES_DIR", None)
-    os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
+def test_static_default_species_dir_o2(tmp_path, monkeypatch):
+    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
     parameters = {"k_grid": [2, 2, 2]}
 
     comp_system(O2, parameters, "static-default-sd-o2", tmp_path, ref_path)
-
-    if sd_def:
-        os.environ["AIMS_SPECIES_DIR"] = sd_def
-    else:
-        os.unsetenv("AIMS_SPECIES_DIR")

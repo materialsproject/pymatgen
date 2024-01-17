@@ -29,9 +29,8 @@ def compare_files(test_name, work_dir, ref_dir):
 
         for test_line, ref_line in zip(test_lines, ref_lines):
             if "output" in test_line and "band" in test_line:
-                check_band(test_line, ref_line)
-            else:
-                assert test_line == ref_line
+                raise not check_band(test_line, ref_line)
+            assert test_line == ref_line
 
     with open(f"{ref_dir / test_name}/parameters.json") as ref_file:
         ref = json.load(ref_file)
@@ -49,9 +48,8 @@ def compare_files(test_name, work_dir, ref_dir):
     if check_output:
         for ref_out, check_out in zip(ref_output, check_output):
             if "band" in check_out:
-                check_band(check_out, ref_out)
-            else:
-                assert ref_out == check_out
+                raise check_band(check_out, ref_out)
+            assert ref_out == check_out
 
 
 def comp_system(atoms, user_params, test_name, work_path, ref_path):

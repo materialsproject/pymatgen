@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 import shutil
 from glob import glob
 from pathlib import Path
@@ -85,9 +84,8 @@ def test_static_from_relax_si_no_kgrid(tmp_path):
     )
 
 
-def test_static_from_relax_default_species_dir(tmp_path):
-    sd_def = os.getenv("AIMS_SPECIES_DIR", None)
-    os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
+def test_static_from_relax_default_species_dir(tmp_path, monkeypatch):
+    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
 
     comp_system(
         Si,
@@ -97,11 +95,6 @@ def test_static_from_relax_default_species_dir(tmp_path):
         ref_path,
         species_dir,
     )
-
-    if sd_def:
-        os.environ["AIMS_SPECIES_DIR"] = sd_def
-    else:
-        os.unsetenv("AIMS_SPECIES_DIR")
 
 
 def test_static_from_relax_o2(tmp_path):
@@ -115,9 +108,8 @@ def test_static_from_relax_o2(tmp_path):
     )
 
 
-def test_static_from_relax_default_species_dir_o2(tmp_path):
-    sd_def = os.getenv("AIMS_SPECIES_DIR", None)
-    os.environ["AIMS_SPECIES_DIR"] = str(species_dir / "light")
+def test_static_from_relax_default_species_dir_o2(tmp_path, monkeypatch):
+    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
 
     comp_system(
         O2,
@@ -127,8 +119,3 @@ def test_static_from_relax_default_species_dir_o2(tmp_path):
         ref_path,
         species_dir,
     )
-
-    if sd_def:
-        os.environ["AIMS_SPECIES_DIR"] = sd_def
-    else:
-        os.unsetenv("AIMS_SPECIES_DIR")
