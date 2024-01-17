@@ -1,7 +1,6 @@
 """Module defining base FHI-aims input set and generator."""
 from __future__ import annotations
 
-import contextlib
 import copy
 import json
 import logging
@@ -12,6 +11,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
+import monty
+import monty.os
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
 
@@ -31,43 +32,7 @@ PARAMS_JSON_FILE_NAME: str = "parameters.json"
 GEOMETRY_FILE_NAME: str = "geometry.in"
 
 
-@contextlib.contextmanager
-def cwd(path: str, mkdir: bool = False, rmdir: bool = False):
-    """Change cwd intermediately.
-
-    Example
-    -------
-    >>> with cwd(some_path):
-    >>>     do so some stuff in some_path
-    >>> do so some other stuff in old cwd
-
-    Args:
-        path (str) or Path: Path to change working directory to
-        mkdir (bool): If True make path if it does not exist
-        rmdir (bool): If True remove the working directory upon exiting
-    """
-    CWD = os.getcwd()
-
-    if os.path.exists(path) is False and mkdir:
-        os.makedirs(path)
-
-    os.chdir(path)
-    yield
-
-    os.chdir(CWD)
-    if rmdir:
-        shutil.rmtree(path)
-
-
-DEFAULT_AIMS_PROPERTIES = [
-    "energy",
-    "free_energy",
-    "forces",
-    "stress",
-    "stresses",
-    "dipole",
-    "magmom",
-]
+DEFAULT_AIMS_PROPERTIES = ("energy", "free_energy", "forces", "stress", "stresses", "dipole", "magmom")
 
 logger = logging.getLogger(__name__)
 
@@ -80,15 +45,7 @@ class AimsInputFile(InputFile):
         _content_str (str): The contents of the input file as a string
     """
 
-    _content_str: str = ""
-
-    def get_string(self) -> str:
-        """Get the contents of the input file.
-
-        Returns:
-            str: The contents of the input file
-        """
-        return self._content_str
+    content_str: str = ""
 
     def get_str(self) -> str:
         """Get the contents of the input file.
@@ -96,16 +53,7 @@ class AimsInputFile(InputFile):
         Returns:
             str: The contents of the input file
         """
-        return self._content_str
-
-    @classmethod
-    def from_string(cls, contents: str):
-        """Create an input file from the contents string.
-
-        Args:
-            contents (str): The contents of the input file
-        """
-        return cls(contents)
+        return self.content_str
 
     @classmethod
     def from_str(cls, contents: str):
@@ -125,7 +73,7 @@ class AimsInputSet(InputSet):
         parameters: dict[str, Any],
         structure: Structure | Molecule,
         properties: Sequence[str] = ("energy", "free_energy"),
-    ):
+    ) -> None:
         """Construct the AimsInputSet.
 
         Args:
@@ -167,12 +115,15 @@ class AimsInputSet(InputSet):
         aims_geometry_in = AimsGeometryIn.from_structure(self._structure)
         aims_control_in = AimsControlIn(updated_params)
 
-        with cwd(TMPDIR_NAME, mkdir=True, rmdir=True):
+        os.makedirs(TMPDIR_NAME, exist_ok=True)
+        with monty.os.cd(TMPDIR_NAME):
             aims_control_in.write_file(self._structure)
             aims_control_in_content = AimsInputFile.from_file("control.in")
 
             aims_geometry_in.write_file()
             aims_geometry_in_content = AimsInputFile.from_file("geometry.in")
+
+        shutil.rmtree(TMPDIR_NAME, ignore_errors=True)
 
         return aims_control_in_content, aims_geometry_in_content
 
@@ -194,7 +145,7 @@ class AimsInputSet(InputSet):
     def set_parameters(self, *args, **kwargs) -> dict[str, Any]:
         """Set the parameters object for the AimsTemplate.
 
-        This sets the parameters object that is passed to an AimsTempalte and
+        This sets the parameters object that is passed to an AimsTemplate and
         resets the control.in file
 
         One can pass a dictionary mapping the aims variables to their values or
@@ -237,10 +188,9 @@ class AimsInputSet(InputSet):
         if isinstance(keys, str):
             keys = [keys]
         for key in keys:
-            if strict and key not in self._parameters:
-                raise ValueError(f"The key ({key}) is not in self._parameters")
-
             if key not in self._parameters:
+                if strict:
+                    raise ValueError(f"The {key=} not in {list(self._parameters)=}")
                 continue
 
             del self._parameters[key]
