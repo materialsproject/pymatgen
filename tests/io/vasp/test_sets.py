@@ -298,17 +298,13 @@ class TestMITMPRelaxSet(PymatgenTest):
         coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
 
         # Silicon structure for testing.
-        lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        )
+        lattice = [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, [si, si], coords)
         incar = MPRelaxSet(struct).incar
         assert "LDAU" not in incar
 
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        )
+        lattice = [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, ["Fe", "Mn"], coords)
 
         incar = MPRelaxSet(struct).incar
@@ -410,9 +406,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         coords.append(np.array([0.75, 0.5, 0.75]))
 
         # Silicon structure for testing.
-        lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        )
+        lattice = [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct, use_structure_charge=True)
         assert mpr.incar["NELECT"] == 7, "NELECT not properly set for nonzero charge"

@@ -308,12 +308,12 @@ class VolumetricData(MSONable):
         """
         import h5py
 
-        with h5py.File(filename, "r") as f:
-            data = {k: np.array(v) for k, v in f["vdata"].items()}
+        with h5py.File(filename, "r") as file:
+            data = {k: np.array(v) for k, v in file["vdata"].items()}
             data_aug = None
-            if "vdata_aug" in f:
-                data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
+            if "vdata_aug" in file:
+                data_aug = {k: np.array(v) for k, v in file["vdata_aug"].items()}
+            structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
             return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
     def to_cube(self, filename, comment=None):
