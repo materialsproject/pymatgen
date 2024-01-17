@@ -28,7 +28,7 @@ class LineLocator(MSONable):
         """Locate the line in file where a certain paragraph of text is located (return all indices)
 
         Args:
-            file_path (str): Absolute path to file.
+            file_path (PathLike): Absolute path to file.
             content (str): Certain paragraph of text that needs to be located.
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
@@ -168,8 +168,8 @@ class ACExtractor(ACExtractorBase):
         Returns:
             np.ndarray: The magnetic moments of individual atoms.
         """
-        content = "MAGNETIC"
-        magnetic_moments_lst = []
+        content: str = "MAGNETIC"
+        magnetic_moments_lst: list[float] = []
         try:  # Error: not containing magmoms info.
             idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[-1]
 
@@ -185,7 +185,7 @@ class ACExtractor(ACExtractorBase):
             ]
         except Exception:
             magnetic_moments_lst = [0 for _ in range(self.n_atoms)]
-        return magnetic_moments_lst
+        return np.array(magnetic_moments_lst)
 
 
 class ACstrExtractor(ACExtractorBase):
@@ -487,7 +487,7 @@ class GenKpt(MSONable):
     """GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints."""
 
     def __init__(
-        self, reciprocal_lattice: np.array, kpoints: dict[str, np.array], path: list[list[str]], density: float = 0.01
+        self, reciprocal_lattice: np.ndarray, kpoints: dict[str, np.array], path: list[list[str]], density: float = 0.01
     ):
         """Initialization function.
 
@@ -515,7 +515,7 @@ class GenKpt(MSONable):
         """
         kpath_set = KPathSeek(structure)
         if dim == 2:
-            kpts_2d: dict[str, np.array] = {}
+            kpts_2d: dict[str, np.ndarray] = {}
             for tmp_name, tmp_kpt in kpath_set.kpath["kpoints"].items():
                 if (tmp_kpt[2]) == 0:
                     kpts_2d.update({tmp_name: tmp_kpt})
@@ -528,12 +528,12 @@ class GenKpt(MSONable):
                         tmp_path_2d.append(tmp_hsp)
                 if len(tmp_path_2d) > 1:
                     path_2d.append(tmp_path_2d)
-            kpts: dict[str, np.array] = kpts_2d
+            kpts: dict[str, np.ndarray] = kpts_2d
             path: list[list[str]] = path_2d
         else:
             kpts = kpath_set.kpath["kpoints"]
             path = kpath_set.kpath["path"]
-        rec_lattice: np.array = structure.lattice.reciprocal_lattice.matrix  # with 2*pi
+        rec_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix  # with 2*pi
         return GenKpt(rec_lattice, kpts, path, density * 2 * np.pi)
 
     def get_str(self):
@@ -549,10 +549,10 @@ class GenKpt(MSONable):
             Returns:
                 distance (float): Distance between two high symmetry points.With factor of 2*pi
             """
-            hsp1_coord: np.array = np.dot(
+            hsp1_coord: np.ndarray = np.dot(
                 np.array(self._kpath["kpoints"][hsp1]).reshape(1, 3), self._reciprocal_lattice
             )
-            hsp2_coord: np.array = np.dot(
+            hsp2_coord: np.ndarray = np.dot(
                 np.array(self._kpath["kpoints"][hsp2]).reshape(1, 3), self._reciprocal_lattice
             )
             return float(np.linalg.norm(hsp2_coord - hsp1_coord))
@@ -590,7 +590,7 @@ class GenKpt(MSONable):
 class HighSymmetryPoint(MSONable):
     """HighSymmetryPoint object for reading and writing HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
 
-    def __init__(self, reciprocal_lattice: np.array, kpts: dict[str, list], path: list[list[str]], density: float):
+    def __init__(self, reciprocal_lattice: np.ndarray, kpts: dict[str, list], path: list[list[str]], density: float):
         """Initialization function.
 
         Args:
@@ -599,7 +599,7 @@ class HighSymmetryPoint(MSONable):
             path (list[list[str]]): All k-paths, with each list representing one k-path.
             density (float): Density of kpoints mesh with factor of 2*pi.
         """
-        self._reciprocal_lattice: np.array = reciprocal_lattice
+        self._reciprocal_lattice: np.ndarray = reciprocal_lattice
         self._kpath: dict = {}
         self._kpath.update({"kpoints": kpts})
         self._kpath.update({"path": path})
@@ -615,7 +615,7 @@ class HighSymmetryPoint(MSONable):
             density (float, optional): Density of kpoints mesh without factor of 2*pi. Defaults to 0.01.
                 The program will automatically convert it to with factor of 2*pi.
         """
-        reciprocal_lattice: np.array = structure.lattice.reciprocal_lattice.matrix
+        reciprocal_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix
         gen_kpt = GenKpt.from_structure(structure=structure, dim=dim, density=density)
         return HighSymmetryPoint(
             reciprocal_lattice, gen_kpt._kpath["kpoints"], gen_kpt._kpath["path"], density * 2 * np.pi
@@ -630,10 +630,10 @@ class HighSymmetryPoint(MSONable):
             Returns:
                 distance (float): Calculate the distance of two high symmetry points. With factor of 2*pi.
             """
-            hsp1_coord: np.array = np.dot(
+            hsp1_coord: np.ndarray = np.dot(
                 np.array(self._kpath["kpoints"][hsp1]).reshape(1, 3), self._reciprocal_lattice
             )
-            hsp2_coord: np.array = np.dot(
+            hsp2_coord: np.ndarray = np.dot(
                 np.array(self._kpath["kpoints"][hsp2]).reshape(1, 3), self._reciprocal_lattice
             )
             return float(np.linalg.norm(hsp2_coord - hsp1_coord))
