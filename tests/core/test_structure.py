@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+import re
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
@@ -1303,7 +1304,7 @@ class TestStructure(PymatgenTest):
 
         # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
         Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
-        with pytest.raises(ValueError, match=f"Unrecognized extension in {filename=}"):
+        with pytest.raises(ValueError, match=re.escape(f"Unrecognized extension in {filename=}")):
             self.struct.from_file(filename=filename)
 
     def test_from_spacegroup(self):
