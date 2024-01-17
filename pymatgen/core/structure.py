@@ -2912,7 +2912,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.res import ResIO
 
             struct = ResIO.structure_from_file(filename, **kwargs)
-        elif fnmatch(fname.lower(), "*.config") or fnmatch(fname.lower(), "*.pwmat"):
+        elif fnmatch(fname.lower(), "*.config*") or fnmatch(fname.lower(), "*.pwmat*"):
             from pymatgen.io.pwmat import AtomConfig
 
             struct = AtomConfig.from_file(filename, **kwargs).structure
