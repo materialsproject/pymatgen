@@ -307,7 +307,7 @@ def test_input_set():
     assert parameters_json_str == in_set.parameters_json
 
     with pytest.raises(
-        ValueError, 
+        ValueError,
         match="The key='relax_geometry' not in list",
     ):
         in_set.remove_parameters(keys=["relax_geometry"], strict=True)
