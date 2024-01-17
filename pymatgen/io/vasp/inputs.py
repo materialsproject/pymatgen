@@ -272,9 +272,8 @@ class Poscar(MSONable):
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
                     warnings.warn(
-                        "Cannot determine elements in POSCAR. Falling back to manual assignment.",
-                        BadPoscarWarning
-                        )
+                        "Cannot determine elements in POSCAR. Falling back to manual assignment.", BadPoscarWarning
+                    )
                 except Exception:
                     names = None
         with zopen(filename, "rt") as f:
@@ -423,8 +422,8 @@ class Poscar(MSONable):
                     atomic_symbols.extend([sym] * nat)
                 warnings.warn(
                     f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
-                    BadPoscarWarning
-                    )
+                    BadPoscarWarning,
+                )
 
         # Read the atomic coordinates
         coords = []
@@ -436,27 +435,20 @@ class Poscar(MSONable):
             if has_selective_dynamics:
                 # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
-                    warnings.warn(
-                        "Selective dynamics values must be either 'T' or 'F'.",
-                        BadPoscarWarning
-                        )
+                    warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
 
                 # Warn when elements contains Fluorine (F) (#3539)
-                if atomic_symbols[i] == "F" and len(tokens[3:]) == 4 \
-                        and "F" in tokens[3:6]:
+                if atomic_symbols[i] == "F" and len(tokens[3:]) == 4 and "F" in tokens[3:6]:
                     warnings.warn(
                         "Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics.",
-                        BadPoscarWarning
-                        )
+                        BadPoscarWarning,
+                    )
 
                 selective_dynamics.append([value == "T" for value in tokens[3:6]])
 
         # Warn when ALL degrees of freedom relaxed (#3539)
         if has_selective_dynamics and all(all(i is True for i in in_list) for in_list in selective_dynamics):
-            warnings.warn(
-                "Selective dynamics toggled with ALL degrees of freedom relaxed.",
-                BadPoscarWarning
-                )
+            warnings.warn("Selective dynamics toggled with ALL degrees of freedom relaxed.", BadPoscarWarning)
 
         struct = Structure(
             lattice,
@@ -576,10 +568,7 @@ class Poscar(MSONable):
                     # VASP is strict about the format when reading this quantity
                     lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
-                warnings.warn(
-                    "Lattice velocities are missing or corrupted.",
-                    BadPoscarWarning
-                    )
+                warnings.warn("Lattice velocities are missing or corrupted.", BadPoscarWarning)
 
         if self.velocities:
             try:
@@ -587,10 +576,7 @@ class Poscar(MSONable):
                 for velo in self.velocities:
                     lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
-                warnings.warn(
-                    "Velocities are missing or corrupted.",
-                    BadPoscarWarning
-                    )
+                warnings.warn("Velocities are missing or corrupted.", BadPoscarWarning)
 
         if self.predictor_corrector:
             lines.append("")
@@ -603,7 +589,7 @@ class Poscar(MSONable):
             else:
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
-                    BadPoscarWarning
+                    BadPoscarWarning,
                 )
 
         return "\n".join(lines) + "\n"
