@@ -487,8 +487,11 @@ class GenKpt(MSONable):
     """GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints."""
 
     def __init__(
-        self, reciprocal_lattice: np.ndarray, kpoints: dict[str, np.ndarray], path: list[list[str]],
-        density: float = 0.01
+        self,
+        reciprocal_lattice: np.ndarray,
+        kpoints: dict[str, np.ndarray],
+        path: list[list[str]],
+        density: float = 0.01,
     ):
         """Initialization function.
 
