@@ -99,15 +99,15 @@ class PymatgenTest(unittest.TestCase):
             tmpfile = self.tmp_path / f"tempfile_{protocol}.pkl"
 
             try:
-                with open(tmpfile, "wb") as fh:
-                    pickle.dump(objects, fh, protocol=protocol)
+                with open(tmpfile, "wb") as file:
+                    pickle.dump(objects, file, protocol=protocol)
             except Exception as exc:
                 errors.append(f"pickle.dump with {protocol=} raised:\n{exc}")
                 continue
 
             try:
-                with open(tmpfile, "rb") as fh:
-                    unpickled_objs = pickle.load(fh)
+                with open(tmpfile, "rb") as file:
+                    unpickled_objs = pickle.load(file)
             except Exception as exc:
                 errors.append(f"pickle.load with {protocol=} raised:\n{exc}")
                 continue

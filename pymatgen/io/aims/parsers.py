@@ -1095,11 +1095,11 @@ def read_aims_header_info(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(filename, mode="rt") as fd:
-                content = fd.read()
+            with gzip.open(filename, mode="rt") as file:
+                content = file.read()
         else:
-            with open(filename) as fd:
-                content = fd.read()
+            with open(filename) as file:
+                content = file.read()
 
     if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")
@@ -1155,11 +1155,11 @@ def read_aims_output(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(path, mode="rt") as fd:
-                content = fd.read()
+            with gzip.open(path, mode="rt") as file:
+                content = file.read()
         else:
-            with open(path) as fd:
-                content = fd.read()
+            with open(path) as file:
+                content = file.read()
 
     if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")

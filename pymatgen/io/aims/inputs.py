@@ -171,14 +171,14 @@ class AimsGeometryIn(MSONable):
         if not overwrite and (Path(directory) / "geometry.in").exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
-        with open(f"{directory}/geometry.in", mode="w") as fd:
-            fd.write("#" + "=" * 72 + "\n")
-            fd.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
-            fd.write("# File generated from pymatgen\n")
-            fd.write(f"# {time.asctime()}\n")
-            fd.write("#" + "=" * 72 + "\n")
-            fd.write(self.content)
-            fd.write("\n")
+        with open(f"{directory}/geometry.in", mode="w") as file:
+            file.write("#" + "=" * 72 + "\n")
+            file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
+            file.write("# File generated from pymatgen\n")
+            file.write(f"# {time.asctime()}\n")
+            file.write("#" + "=" * 72 + "\n")
+            file.write(self.content)
+            file.write("\n")
 
     def as_dict(self) -> dict[str, Any]:
         """Get a dictionary representation of the geometry.in file."""
@@ -517,12 +517,12 @@ class AimsControlIn(MSONable):
 
         parameters = deepcopy(self._parameters)
 
-        with open(f"{directory}/control.in", mode="w") as fd:
-            fd.write("#" + "=" * 72 + "\n")
-            fd.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
-            fd.write("# File generated from pymatgen\n")
-            fd.write(f"# {time.asctime()}\n")
-            fd.write("#" + "=" * 72 + "\n")
+        with open(f"{directory}/control.in", mode="w") as file:
+            file.write("#" + "=" * 72 + "\n")
+            file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
+            file.write("# File generated from pymatgen\n")
+            file.write(f"# {time.asctime()}\n")
+            file.write("#" + "=" * 72 + "\n")
 
             if parameters["xc"] == "LDA":
                 parameters["xc"] = "pw-lda"
@@ -530,11 +530,11 @@ class AimsControlIn(MSONable):
             cubes = parameters.pop("cubes", None)
 
             if verbose_header:
-                fd.write("# \n# List of parameters used to initialize the calculator:")
-                for p, v in parameters.items():
-                    s = f"#     {p}:{v}\n"
-                    fd.write(s)
-            fd.write(lim + "\n")
+                file.write("# \n# List of parameters used to initialize the calculator:")
+                for param, val in parameters.items():
+                    s = f"#     {param}:{val}\n"
+                    file.write(s)
+            file.write(lim + "\n")
 
             assert not ("smearing" in parameters and "occupation_type" in parameters)
 
@@ -552,28 +552,28 @@ class AimsControlIn(MSONable):
                     else:
                         order = ""
 
-                    fd.write(self.get_aims_control_parameter_str("occupation_type", (name, width, order), "%s %f%s"))
+                    file.write(self.get_aims_control_parameter_str("occupation_type", (name, width, order), "%s %f%s"))
                 elif key == "output":
                     for output_type in value:
-                        fd.write(self.get_aims_control_parameter_str(key, output_type, "%s"))
+                        file.write(self.get_aims_control_parameter_str(key, output_type, "%s"))
                 elif key == "vdw_correction_hirshfeld" and value:
-                    fd.write(self.get_aims_control_parameter_str(key, "", "%s"))
+                    file.write(self.get_aims_control_parameter_str(key, "", "%s"))
                 elif isinstance(value, bool):
-                    fd.write(self.get_aims_control_parameter_str(key, str(value).lower(), ".%s."))
+                    file.write(self.get_aims_control_parameter_str(key, str(value).lower(), ".%s."))
                 elif isinstance(value, (tuple, list)):
-                    fd.write(self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s"))
+                    file.write(self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s"))
                 elif isinstance(value, str):
-                    fd.write(self.get_aims_control_parameter_str(key, value, "%s"))
+                    file.write(self.get_aims_control_parameter_str(key, value, "%s"))
                 else:
-                    fd.write(self.get_aims_control_parameter_str(key, value, "%r"))
+                    file.write(self.get_aims_control_parameter_str(key, value, "%r"))
 
             if cubes:
                 for cube in cubes:
-                    fd.write(cube.control_block)
+                    file.write(cube.control_block)
 
-            fd.write(lim + "\n\n")
+            file.write(lim + "\n\n")
             species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
-            fd.write(self.get_species_block(structure, species_dir))
+            file.write(self.get_species_block(structure, species_dir))
 
     def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
         """Get the basis set information for a structure
