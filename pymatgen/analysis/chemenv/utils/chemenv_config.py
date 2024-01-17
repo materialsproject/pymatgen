@@ -149,8 +149,8 @@ class ChemEnvConfig:
             if test != "Y":
                 print("Configuration not saved")
                 return config_file
-        with open(config_file, "w") as f:
-            json.dump(config_dict, f)
+        with open(config_file, mode="w") as file:
+            json.dump(config_dict, file)
         print("Configuration saved")
         return config_file
 

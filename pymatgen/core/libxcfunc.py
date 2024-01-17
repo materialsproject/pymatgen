@@ -25,8 +25,8 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
-    _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as file:
+    _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
 
 
 # @unique

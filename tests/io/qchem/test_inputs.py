@@ -510,7 +510,7 @@ $end"""
         for i_str in str_actual_list:
             assert i_str in str_test
 
-    def test_from_string(self):
+    def test_from_str(self):
         string = """$molecule
  0  1
  S          -0.00250959       -0.05817469       -0.02921636

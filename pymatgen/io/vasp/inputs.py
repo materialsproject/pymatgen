@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import scipy.constants as const
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -273,13 +272,8 @@ class Poscar(MSONable):
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:
                     names = None
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read(), names, read_velocities=read_velocities)
-
-    @classmethod
-    @deprecated(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, data, default_names=None, read_velocities=True):
@@ -343,7 +337,7 @@ class Poscar(MSONable):
             ipos = 6
         except ValueError:
             vasp5_symbols = True
-            symbols = lines[5].split()
+            symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
 
             """
             Atoms and number of atoms in POSCAR written with vasp appear on
@@ -489,10 +483,6 @@ class Poscar(MSONable):
             lattice_velocities=lattice_velocities,
         )
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
@@ -584,9 +574,9 @@ class Poscar(MSONable):
     def write_file(self, filename: PathLike, **kwargs):
         """
         Writes POSCAR to a file. The supported kwargs are the same as those for
-        the Poscar.get_string method and are passed through directly.
+        the Poscar.get_str method and are passed through directly.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
@@ -728,10 +718,6 @@ class Incar(dict, MSONable):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the INCAR. The reason why this
@@ -782,7 +768,7 @@ class Incar(dict, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))
 
     @classmethod
@@ -795,13 +781,8 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string: str) -> Incar:
@@ -1001,11 +982,6 @@ class KpointsSupportedModes(Enum):
 
     def __str__(self):
         return str(self.name)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, mode: str) -> KpointsSupportedModes:
@@ -1362,13 +1338,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string):
@@ -1488,7 +1459,7 @@ class Kpoints(MSONable):
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))
 
     def __repr__(self):
@@ -1691,7 +1662,7 @@ class PotcarSingle:
     )
 
     # used for POTCAR validation
-    potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
+    _potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
 
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
@@ -1815,7 +1786,7 @@ class PotcarSingle:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
     @classmethod
@@ -1832,7 +1803,7 @@ class PotcarSingle:
         symbol = match.group(0) if match else ""
 
         try:
-            with zopen(filename, "rt") as file:
+            with zopen(filename, mode="rt") as file:
                 return cls(file.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
@@ -1975,7 +1946,7 @@ class PotcarSingle:
 
         identity: dict[str, list] = {"potcar_functionals": [], "potcar_symbols": []}
         for func in self.functional_dir:
-            for ref_psp in self.potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
+            for ref_psp in self._potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
 
@@ -2243,9 +2214,9 @@ class PotcarSingle:
         consistent values of LEXCH
         """
         for func in self.functional_dir:
-            for titel_no_spc in self.potcar_summary_stats[func]:
+            for titel_no_spc in self._potcar_summary_stats[func]:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
-                    for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
+                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
                             possible_potcar_matches.append(
                                 {
@@ -2370,7 +2341,7 @@ class PotcarSingle:
 
 
 def _gen_potcar_summary_stats(
-    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str = POTCAR_STATS_PATH
+    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
     This function solely intended to be used for PMG development to regenerate the
@@ -2426,7 +2397,10 @@ def _gen_potcar_summary_stats(
                 }
             )
 
-    dumpfn(new_summary_stats, summary_stats_filename)
+    if summary_stats_filename:
+        dumpfn(new_summary_stats, summary_stats_filename)
+
+    return new_summary_stats
 
 
 class Potcar(list, MSONable):
@@ -2498,7 +2472,7 @@ class Potcar(list, MSONable):
         Returns:
             Potcar
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             fdata = f.read()
         potcar = cls()
 
@@ -2523,7 +2497,7 @@ class Potcar(list, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))
 
     @property
@@ -2630,7 +2604,7 @@ class VaspInput(dict, MSONable):
             os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
-                with zopen(os.path.join(output_dir, k), "wt") as f:
+                with zopen(os.path.join(output_dir, k), mode="wt") as f:
                     f.write(str(v))
 
     @classmethod
@@ -2688,5 +2662,7 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir), open(output_file, "w") as stdout_file, open(err_file, "w", buffering=1) as stderr_file:
+        with cd(run_dir), open(output_file, mode="w") as stdout_file, open(
+            err_file, mode="w", buffering=1
+        ) as stderr_file:
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)

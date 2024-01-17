@@ -42,7 +42,7 @@ class TestGaussianInput(unittest.TestCase):
         ):
             GaussianInput(mol, spin_multiplicity=1)
 
-    def test_str_and_from_string(self):
+    def test_str_and_from_str(self):
         answer = """#P HF/6-31G(d) SCF=Tight SP
 
 H4 C1
@@ -124,7 +124,7 @@ Sites (6)
 5 H    -0.580711    -0.766761     3.043012"""
         assert str(mol) == answer
 
-    def test_from_string(self):
+    def test_from_str(self):
         gau_str = """%mem=5000000
         %chk=filename
         # mp2/6-31g* scf=direct

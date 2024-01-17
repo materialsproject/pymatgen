@@ -270,7 +270,7 @@ class Lobsterin(UserDict, MSONable):
                     self[key] = entry
 
         filename = path
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
@@ -578,7 +578,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin object
         """
-        with zopen(lobsterin, "rt") as f:
+        with zopen(lobsterin, mode="rt") as f:
             data = f.read().split("\n")
         if len(data) == 0:
             raise OSError("lobsterin file contains no data.")
@@ -630,7 +630,7 @@ class Lobsterin(UserDict, MSONable):
                 raise OSError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in lobster-4.1.0
-        with zopen(POTCAR_input, "r") as f:
+        with zopen(POTCAR_input, mode="r") as f:
             data = f.read()
         if isinstance(data, bytes):
             data = data.decode("utf-8")

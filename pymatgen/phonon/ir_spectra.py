@@ -90,7 +90,7 @@ class IRDielectricTensor(MSONable):
 
     def write_json(self, filename: str | PathLike) -> None:
         """Save a json file with this data."""
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             json.dump(self.as_dict(), f)
 
     def get_ir_spectra(

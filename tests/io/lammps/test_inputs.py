@@ -79,7 +79,7 @@ class TestLammpsInputFile(PymatgenTest):
         assert "pe\ndump dmp all atom 5 run.dump\nmin_style cg\nfix 1 all" in string
         assert "box/relax iso 0.0 vmax 0.001\nminimize 1.0e-16 1.0e-16 5000 10000\nwrite_data run.data" in string
 
-    def test_from_string(self):
+    def test_from_str(self):
         string = """# LGPS
 
 # 1) Initialization

@@ -739,6 +739,19 @@ class TestComposition(PymatgenTest):
             else:
                 assert oxi_comp.charge is None
 
+    def test_isotopes(self):
+        composition = Composition({"D": 2, "O": 1})
+        assert "Deuterium" in [x.long_name for x in composition.elements]
+
+        # adding oxidation state removes Deuterium characteristic
+        composition = composition.add_charges_from_oxi_state_guesses()
+        assert "Deuterium" not in [x.long_name for x in composition.elements]
+
+        # however the user can explicitly add an oxidation state to deuterium
+        composition = Composition({"D+": 2, "O": 1})
+        assert composition.elements[0].oxi_state == 1
+        assert "Deuterium" in [x.long_name for x in composition.elements]
+
 
 class TestChemicalPotential(unittest.TestCase):
     def test_init(self):

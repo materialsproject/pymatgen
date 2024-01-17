@@ -668,7 +668,7 @@ class AbinitTimer:
         is_str = isinstance(fileobj, str)
 
         if is_str:
-            fileobj = open(fileobj, "w")  # noqa: SIM115
+            fileobj = open(fileobj, mode="w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
@@ -888,11 +888,11 @@ class AbinitTimer:
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
         axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
-            tl.set_visible(False)  # noqa: FBT003
+            tl.set_visible(False)
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
-                tl.set_visible(False)  # noqa: FBT003
+                tl.set_visible(False)
                 axHisty.set_xticks([0, 50, 100])
 
         # plt.draw()
