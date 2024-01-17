@@ -446,9 +446,7 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(
-                BadPoscarWarning,
-                match="Selective dynamics values must be either 'T' or 'F'."):
+        with pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either 'T' or 'F'."):
             Poscar.from_str(invalid_poscar_str)
 
     def test_selective_dynamics_with_fluorine(self):
@@ -468,8 +466,9 @@ Cartesian
 3.840198   1.50000000   2.35163175 F T T F
 """
         with pytest.warns(
-                BadPoscarWarning,
-                match="Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics."):
+            BadPoscarWarning,
+            match="Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics.",
+        ):
             Poscar.from_str(poscar_str_with_fluorine)
 
     def test_all_DOFs_relaxed(self):
@@ -489,9 +488,7 @@ Cartesian
 0.000000   0.00000000   0.00000000 T T T
 3.840198   1.50000000   2.35163175 T T T
 """
-        with pytest.warns(
-                BadPoscarWarning,
-                match="Selective dynamics toggled with ALL degrees of freedom relaxed."):
+        with pytest.warns(BadPoscarWarning, match="Selective dynamics toggled with ALL degrees of freedom relaxed."):
             Poscar.from_str(poscar_str_all_dof_relaxed)
 
 
