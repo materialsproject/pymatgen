@@ -27,7 +27,6 @@ from __future__ import annotations
 import os
 import re
 
-import numpy as np
 from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
@@ -92,11 +91,6 @@ class ZeoCssr(Cssr):
         return "\n".join(output)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, string):
         """
         Reads a string representation to a ZeoCssr object.
@@ -145,7 +139,7 @@ class ZeoCssr(Cssr):
         Returns:
             ZeoCssr object.
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, mode="r") as f:
             return cls.from_str(f.read())
 
 

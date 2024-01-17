@@ -99,7 +99,7 @@ def initial_lattice():
 
 @pytest.fixture
 def header_chunk():
-    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", "rt") as hc_file:
+    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", mode="rt") as hc_file:
         lines = hc_file.readlines()
 
     for ll, line in enumerate(lines):
@@ -290,8 +290,8 @@ def test_default_calc_converged(empty_calc_chunk):
 
 @pytest.fixture
 def calc_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
     for ll, line in enumerate(lines):
         lines[ll] = line.strip()
@@ -300,8 +300,8 @@ def calc_chunk(header_chunk):
 
 @pytest.fixture
 def numerical_stress_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
     for ll, line in enumerate(lines):
         lines[ll] = line.strip()
@@ -421,8 +421,8 @@ def test_calc_hirshfeld_dipole(calc_chunk):
 
 @pytest.fixture
 def molecular_header_chunk():
-    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
     for ll, line in enumerate(lines):
         lines[ll] = line.strip()
@@ -431,16 +431,11 @@ def molecular_header_chunk():
 
 
 @pytest.mark.parametrize(
-    "attrname",
-    [
-        "k_points",
-        "k_point_weights",
-        "initial_lattice",
-        "n_k_points",
-    ],
+    "attr_name",
+    ["k_points", "k_point_weights", "initial_lattice", "n_k_points"],
 )
-def test_chunk_molecular_header_defaults_none(attrname, molecular_header_chunk):
-    assert getattr(molecular_header_chunk, attrname) is None
+def test_chunk_molecular_header_defaults_none(attr_name, molecular_header_chunk):
+    assert getattr(molecular_header_chunk, attr_name) is None
 
 
 def test_molecular_header_n_bands(molecular_header_chunk):
@@ -452,23 +447,17 @@ def test_molecular_header_initial_structure(molecular_header_chunk, molecular_po
     assert np.all(["O", "H", "H"] == [sp.symbol for sp in molecular_header_chunk.initial_structure.species])
     assert np.allclose(
         molecular_header_chunk.initial_structure.cart_coords,
-        np.array(
-            [
-                [0, 0, 0],
-                [0.95840000, 0, 0],
-                [-0.24000000, 0.92790000, 0],
-            ]
-        ),
+        [[0, 0, 0], [0.95840000, 0, 0], [-0.24000000, 0.92790000, 0]],
     )
 
 
 @pytest.fixture
 def molecular_calc_chunk(molecular_header_chunk):
-    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
-    for ll, line in enumerate(lines):
-        lines[ll] = line.strip()
+    for idx, line in enumerate(lines):
+        lines[idx] = line.strip()
     return AimsOutCalcChunk(lines, molecular_header_chunk)
 
 

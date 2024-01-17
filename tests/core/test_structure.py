@@ -1282,7 +1282,7 @@ class TestStructure(PymatgenTest):
         assert s2 == self.struct
         assert isinstance(s2, Structure)
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         # to/from string
         for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res", "pwmat"):
             struct = self.struct.to(fmt=fmt)
@@ -1756,6 +1756,22 @@ Sites (8)
         assert len(atoms) == len(self.struct)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
 
+    def test_struct_with_isotope(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = struct.replace_species({"Li": "H"})
+
+        struct_deuter = struct.copy()
+        struct_deuter.replace_species({"H": "D"})
+
+        assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
+        assert "Deuterium" in [el.long_name for el in struct_deuter.composition.elements]
+        assert struct_deuter == struct
+
+        # test to make sure no Deuteriums are written to POSCAR
+        struct_deuter.to(f"{self.tmp_path}/POSCAR_deuter")
+        struct = Structure.from_file(f"{self.tmp_path}/POSCAR_deuter")
+        assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
+
 
 class TestIMolecule(PymatgenTest):
     def setUp(self):
@@ -2002,7 +2018,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert d["charge"] == 0
         assert d["spin_multiplicity"] == 1
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         self.mol.properties["test_prop"] = 42
         for fmt in ("xyz", "json", "g03", "yaml", "yml"):
             mol = self.mol.to(fmt=fmt)
@@ -2179,7 +2195,7 @@ class TestMolecule(PymatgenTest):
         benzene.substitute(13, sub)
         assert benzene.formula == "H9 C8 Br1"
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None

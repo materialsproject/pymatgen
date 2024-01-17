@@ -6,7 +6,6 @@ import logging
 import re
 from typing import TYPE_CHECKING, Literal
 
-import numpy as np
 from monty.io import zopen
 
 from pymatgen.core import Molecule
@@ -238,10 +237,6 @@ class QCInput(InputFile):
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self) -> str:
         """Return a string representation of an entire input file."""
         return str(self)
@@ -379,7 +374,7 @@ class QCInput(InputFile):
             job_list (): List of jobs.
             filename (): Filename
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(QCInput.multi_job_string(job_list))
 
     @classmethod
@@ -393,7 +388,7 @@ class QCInput(InputFile):
         Returns:
             QcInput
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
 
     @classmethod
@@ -407,7 +402,7 @@ class QCInput(InputFile):
         Returns:
             List of QCInput objects
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
