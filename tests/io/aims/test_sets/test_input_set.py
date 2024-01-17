@@ -306,7 +306,10 @@ def test_input_set():
     assert check_file(control_in_str, in_set.control_in.get_str())
     assert parameters_json_str == in_set.parameters_json
 
-    with pytest.raises(ValueError, match="is not in self._parameters"):
+    with pytest.raises(
+        ValueError, 
+        match="The key='relax_geometry' not in list",
+    ):
         in_set.remove_parameters(keys=["relax_geometry"], strict=True)
 
     new_structure = Structure(
