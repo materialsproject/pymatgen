@@ -221,7 +221,7 @@ class Report(MSONable):
         """Parse REPORT file to obtain information about eigenvalues.
 
         Returns:
-            np.ndarray: Eignvalues with shape of (1 or 2, n_kpoints, n_bands).
+            np.ndarray: Eigenvalues with shape of (1 or 2, n_kpoints, n_bands).
                 The first index represents spin, the second index represents
                 kpoints, the third index represents band.
         """
@@ -289,7 +289,7 @@ class Report(MSONable):
 
     @property
     def eigenvalues(self) -> np.ndarray:
-        """Returns the eignvalues.
+        """Returns the eigenvalues.
 
         Returns:
             np.ndarray: The first index represents spin, the second index
@@ -331,7 +331,7 @@ class DosSpin(MSONable):
         self._labels, self._dos = self._parse()
 
     def _parse(self):
-        """Parse the Dosspin file to get name and values of partial dos.
+        """Parse the DOS_SPIN file to get name and values of partial DOS.
 
         Returns:
             labels (list[str]): The label of DOS, e.g. Total, Cr-3S, ...
@@ -340,9 +340,9 @@ class DosSpin(MSONable):
         labels: list[str] = []
         labels = linecache.getline(str(self.filename), 1).split()[1:]
         dos_str: str = ""
-        with zopen(self.filename) as f:
-            f.readline()
-            dos_str = f.read()
+        with zopen(self.filename) as file:
+            file.readline()
+            dos_str = file.read()
         dos: np.array = np.loadtxt(StringIO(dos_str))
         return labels, dos
 

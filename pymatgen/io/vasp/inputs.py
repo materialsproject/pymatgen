@@ -2498,8 +2498,8 @@ class Potcar(list, MSONable):
         Returns:
             Potcar
         """
-        with zopen(filename, "rt") as f:
-            fdata = f.read()
+        with zopen(filename, "rt") as file:
+            fdata = file.read()
         potcar = cls()
 
         functionals = []
