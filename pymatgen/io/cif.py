@@ -277,7 +277,7 @@ class CifFile:
         Returns:
             CifFile
         """
-        with zopen(str(filename), "rt", errors="replace") as f:
+        with zopen(str(filename), mode="rt", errors="replace") as f:
             return cls.from_str(f.read())
 
 

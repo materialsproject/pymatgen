@@ -254,7 +254,7 @@ class BoltztrapRunner(MSONable):
 
         :param output_file: Filename
         """
-        with open(output_file, "w") as f:
+        with open(output_file, mode="w") as f:
             f.write("test\n")
             f.write(f"{len(self._bs.kpoints)}\n")
 
@@ -311,7 +311,7 @@ class BoltztrapRunner(MSONable):
         elif self._symprec is None:
             pass
 
-        with open(output_file, "w") as f:
+        with open(output_file, mode="w") as f:
             if self._symprec is not None:
                 f.write(f"{self._bs.structure.composition.formula} {sym.get_space_group_symbol()}\n")
             elif self._symprec is None:
@@ -342,11 +342,11 @@ class BoltztrapRunner(MSONable):
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
-        with open(output_file, "w") as f:
+        with open(output_file, mode="w") as file:
             so = ""
             if self._bs.is_spin_polarized or self.soc:
                 so = "so"
-            f.write(
+            file.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
                 "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
@@ -373,7 +373,7 @@ class BoltztrapRunner(MSONable):
         for oi, o in enumerate(Orbital):
             for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
-                    with open(f"{output_file_proj}_{site_nb}_{o}", "w") as f:
+                    with open(f"{output_file_proj}_{site_nb}_{o}", mode="w") as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
                         for i, kpt in enumerate(self._bs.kpoints):
@@ -391,7 +391,7 @@ class BoltztrapRunner(MSONable):
                             f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
                             for t in tmp_proj:
                                 f.write(f"{float(t):18.8f}\n")
-        with open(output_file_def, "w") as f:
+        with open(output_file_def, mode="w") as f:
             so = ""
             if self._bs.is_spin_polarized:
                 so = "so"
@@ -426,7 +426,7 @@ class BoltztrapRunner(MSONable):
         setgap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type in ("BOLTZ", "DOS"):
-            with open(output_file, "w") as fout:
+            with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
@@ -453,7 +453,7 @@ class BoltztrapRunner(MSONable):
                     fout.write(str(-d) + "\n")
 
         elif self.run_type == "FERMI":
-            with open(output_file, "w") as fout:
+            with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
@@ -475,7 +475,7 @@ class BoltztrapRunner(MSONable):
             elif isinstance(self.kpt_line[0], Kpoint):
                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
 
-            with open(output_file, "w") as fout:
+            with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "

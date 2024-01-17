@@ -331,7 +331,7 @@ class ThermalDisplacementMatrices(MSONable):
         elif which_structure == 1:
             structure = other.structure
 
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             #
             f.write("#VESTA_FORMAT_VERSION 3.5.4\n \n \n")
             f.write("CRYSTAL\n\n")

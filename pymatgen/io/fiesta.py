@@ -60,7 +60,7 @@ class Nwchem2Fiesta(MSONable):
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
-        with zopen(self.log_file, "w") as fout:
+        with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
                 [
                     self._NWCHEM2FIESTA_cmd,
@@ -131,7 +131,7 @@ class FiestaRun(MSONable):
             init_folder = os.getcwd()
             os.chdir(self.folder)
 
-        with zopen(self.log_file, "w") as fout:
+        with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -154,7 +154,7 @@ class FiestaRun(MSONable):
             init_folder = os.getcwd()
             os.chdir(self.folder)
 
-        with zopen(self.log_file, "w") as fout:
+        with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -524,7 +524,7 @@ $geometry
         Write FiestaInput to a file
         :param filename: Filename.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, mode="w") as f:
             f.write(str(self))
 
     def as_dict(self):

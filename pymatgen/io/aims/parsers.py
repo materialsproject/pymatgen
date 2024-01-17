@@ -1095,7 +1095,7 @@ def read_aims_header_info(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(filename, "rt") as fd:
+            with gzip.open(filename, mode="rt") as fd:
                 content = fd.read()
         else:
             with open(filename) as fd:
@@ -1155,7 +1155,7 @@ def read_aims_output(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(path, "rt") as fd:
+            with gzip.open(path, mode="rt") as fd:
                 content = fd.read()
         else:
             with open(path) as fd:

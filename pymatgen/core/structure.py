@@ -2696,7 +2696,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
             json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, "wt") as file:
+                with zopen(filename, mode="wt") as file:
                     file.write(json_str)
             return json_str
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
@@ -2730,7 +2730,7 @@ class IStructure(SiteCollection, MSONable):
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, "wt") as file:
+                with zopen(filename, mode="wt") as file:
                     file.write(yaml_str)
             return yaml_str
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
@@ -2871,7 +2871,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
-        with zopen(filename, "rt", errors="replace") as f:
+        with zopen(filename, mode="rt", errors="replace") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)

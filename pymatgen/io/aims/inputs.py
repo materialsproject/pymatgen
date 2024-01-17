@@ -115,7 +115,7 @@ class AimsGeometryIn(MSONable):
             AimsGeometryIn: The input object represented in the file
         """
         if str(filepath).endswith(".gz"):
-            with gzip.open(filepath, "rt") as infile:
+            with gzip.open(filepath, mode="rt") as infile:
                 content = infile.read()
         else:
             with open(filepath) as infile:
@@ -171,7 +171,7 @@ class AimsGeometryIn(MSONable):
         if not overwrite and (Path(directory) / "geometry.in").exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
-        with open(f"{directory}/geometry.in", "w") as fd:
+        with open(f"{directory}/geometry.in", mode="w") as fd:
             fd.write("#" + "=" * 72 + "\n")
             fd.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             fd.write("# File generated from pymatgen\n")
@@ -517,7 +517,7 @@ class AimsControlIn(MSONable):
 
         parameters = deepcopy(self._parameters)
 
-        with open(f"{directory}/control.in", "w") as fd:
+        with open(f"{directory}/control.in", mode="w") as fd:
             fd.write("#" + "=" * 72 + "\n")
             fd.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             fd.write("# File generated from pymatgen\n")
@@ -596,7 +596,7 @@ class AimsControlIn(MSONable):
                 with open(filename) as sf:
                     sb += "".join(sf.readlines())
             elif Path(f"{filename}.gz").exists():
-                with gzip.open(f"{filename}.gz", "rt") as sf:
+                with gzip.open(f"{filename}.gz", mode="rt") as sf:
                     sb += "".join(sf.readlines())
             else:
                 raise ValueError(f"Species file for {sp.symbol} not found.")

@@ -112,7 +112,7 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
 
     def as_dataframe(self):
@@ -149,5 +149,5 @@ class XYZ:
         Args:
             filename (str): File name of output file.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self))

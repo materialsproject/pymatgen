@@ -395,7 +395,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", "w") as fh:
+        with open("job_control.txt", mode="w") as fh:
             fh.write(lines)
 
     @staticmethod

@@ -99,7 +99,7 @@ def initial_lattice():
 
 @pytest.fixture
 def header_chunk():
-    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", "rt") as hc_file:
+    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", mode="rt") as hc_file:
         lines = hc_file.readlines()
 
     for ll, line in enumerate(lines):
@@ -290,7 +290,7 @@ def test_default_calc_converged(empty_calc_chunk):
 
 @pytest.fixture
 def calc_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", "rt") as fd:
+    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", mode="rt") as fd:
         lines = fd.readlines()
 
     for ll, line in enumerate(lines):
@@ -300,7 +300,7 @@ def calc_chunk(header_chunk):
 
 @pytest.fixture
 def numerical_stress_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", "rt") as fd:
+    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", mode="rt") as fd:
         lines = fd.readlines()
 
     for ll, line in enumerate(lines):
@@ -421,7 +421,7 @@ def test_calc_hirshfeld_dipole(calc_chunk):
 
 @pytest.fixture
 def molecular_header_chunk():
-    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", "rt") as fd:
+    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", mode="rt") as fd:
         lines = fd.readlines()
 
     for ll, line in enumerate(lines):
@@ -464,7 +464,7 @@ def test_molecular_header_initial_structure(molecular_header_chunk, molecular_po
 
 @pytest.fixture
 def molecular_calc_chunk(molecular_header_chunk):
-    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", "rt") as fd:
+    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", mode="rt") as fd:
         lines = fd.readlines()
 
     for ll, line in enumerate(lines):

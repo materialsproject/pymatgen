@@ -134,7 +134,7 @@ class Unk:
                 form 'UNKXXXXX.YY' where XXXXX is the kpoint index (Unk.ik) and
                 YY is 1 or 2 for the spin index or NC if noncollinear
         """
-        with FortranFile(filename, "w") as f:
+        with FortranFile(filename, mode="w") as f:
             f.write_record(np.array([*self.ng, self.ik, self.nbnd], dtype=np.int32))
             for ib in range(self.nbnd):
                 if self.is_noncollinear:

@@ -316,7 +316,7 @@ class ResWriter:
 
     def write(self, filename: str) -> None:
         """Write the res data to a file."""
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(str(self))
 
 

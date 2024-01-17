@@ -448,7 +448,7 @@ class GaussianInput:
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):

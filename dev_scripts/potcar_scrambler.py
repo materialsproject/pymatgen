@@ -125,7 +125,7 @@ class PotcarScrambler:
         return scrambled_potcar_str
 
     def to_file(self, filename: str):
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(self.scrambled_potcars_str)
 
     @classmethod

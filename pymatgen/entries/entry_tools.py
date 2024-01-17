@@ -297,7 +297,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         for entry in self.entries:
             els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as f:
             writer = csv.writer(
                 f,
                 delimiter=",",

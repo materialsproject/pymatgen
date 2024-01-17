@@ -24,7 +24,7 @@ def compare_files(ref_file, test_file):
     with open(test_file) as tf:
         test_lines = tf.readlines()[5:]
 
-    with gzip.open(f"{ref_file}.gz", "rt") as rf:
+    with gzip.open(f"{ref_file}.gz", mode="rt") as rf:
         ref_lines = rf.readlines()[5:]
 
     for test_line, ref_line in zip(test_lines, ref_lines):
@@ -55,7 +55,7 @@ def test_read_write_si_in(tmp_path):
 
     compare_files(infile_dir / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
 
-    with gzip.open(f"{infile_dir}/si_ref.json.gz", "rt") as si_ref_json:
+    with gzip.open(f"{infile_dir}/si_ref.json.gz", mode="rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
 
     assert si.structure == si_from_dct.structure
@@ -88,7 +88,7 @@ def test_read_h2o_in(tmp_path):
 
     compare_files(infile_dir / "geometry.in.h2o.ref", f"{tmp_path}/geometry.in")
 
-    with gzip.open(f"{infile_dir}/h2o_ref.json.gz", "rt") as h2o_ref_json:
+    with gzip.open(f"{infile_dir}/h2o_ref.json.gz", mode="rt") as h2o_ref_json:
         h2o_from_dct = json.load(h2o_ref_json, cls=MontyDecoder)
 
     assert h2o.structure == h2o_from_dct.structure
