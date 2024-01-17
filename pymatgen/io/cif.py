@@ -1453,12 +1453,12 @@ class CifWriter:
         else:
             spg_analyzer = SpacegroupAnalyzer(struct, symprec)
 
-            symm_ops = []
+            symm_ops: list[SymmOp] = []
             for op in spg_analyzer.get_symmetry_operations():
                 v = op.translation_vector
                 symm_ops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
 
-            ops = [op.as_xyz_string() for op in symm_ops]
+            ops = [op.as_xyz_str() for op in symm_ops]
             block["_symmetry_equiv_pos_site_id"] = [f"{i}" for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
 

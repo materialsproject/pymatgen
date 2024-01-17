@@ -292,7 +292,6 @@ class FloatWithUnit(float):
     Error = UnitError
 
     @classmethod
-    @classmethod
     def from_str(cls, s):
         """Parse string to FloatWithUnit.
 

@@ -492,7 +492,7 @@ class MagSymmOp(SymmOp):
         )
 
     def __str__(self) -> str:
-        return self.as_xyzt_string()
+        return self.as_xyzt_str()
 
     def __repr__(self) -> str:
         output = [
@@ -595,7 +595,7 @@ class MagSymmOp(SymmOp):
         """Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
-        xyzt_string = SymmOp.as_xyz_string(self)
+        xyzt_string = SymmOp.as_xyz_str(self)
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
