@@ -438,7 +438,7 @@ class Poscar(MSONable):
                     warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
 
                 # Warn when elements contains Fluorine (F) (#3539)
-                if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:6]:
+                if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
                     warnings.warn(
                         "Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics.",
                         BadPoscarWarning,
