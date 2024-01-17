@@ -135,10 +135,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def __str__(self) -> str:
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, verbose=0) -> str:
         """String representation."""
 

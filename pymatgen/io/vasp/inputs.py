@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import scipy.constants as const
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -277,11 +276,6 @@ class Poscar(MSONable):
             return cls.from_str(f.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    @deprecated(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, data, default_names=None, read_velocities=True):
         """
         Reads a Poscar from a string.
@@ -489,10 +483,6 @@ class Poscar(MSONable):
             lattice_velocities=lattice_velocities,
         )
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
@@ -584,7 +574,7 @@ class Poscar(MSONable):
     def write_file(self, filename: PathLike, **kwargs):
         """
         Writes POSCAR to a file. The supported kwargs are the same as those for
-        the Poscar.get_string method and are passed through directly.
+        the Poscar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt") as f:
             f.write(self.get_str(**kwargs))
@@ -728,10 +718,6 @@ class Incar(dict, MSONable):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the INCAR. The reason why this
@@ -797,11 +783,6 @@ class Incar(dict, MSONable):
         """
         with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string: str) -> Incar:
@@ -1001,11 +982,6 @@ class KpointsSupportedModes(Enum):
 
     def __str__(self):
         return str(self.name)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, mode: str) -> KpointsSupportedModes:
@@ -1364,11 +1340,6 @@ class Kpoints(MSONable):
         """
         with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string):

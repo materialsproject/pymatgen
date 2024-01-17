@@ -479,7 +479,7 @@ class SpeciesTestCase(PymatgenTest):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
-    def test_to_from_string(self):
+    def test_to_from_str(self):
         fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_str("Fe3+,spin=5")
@@ -547,7 +547,7 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert DummySpecies("Xg") != DummySpecies("Xg", 3)
         assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
 
-    def test_from_string(self):
+    def test_from_str(self):
         sp = DummySpecies.from_str("X")
         assert sp.oxi_state == 0
         sp = DummySpecies.from_str("X2+")

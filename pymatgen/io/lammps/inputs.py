@@ -483,10 +483,6 @@ class LammpsInputFile(InputFile):
         # Append the two list of stages
         self.stages += new_list_to_add
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
         """
         Generates and ² the string representation of the LammpsInputFile.
@@ -533,16 +529,11 @@ class LammpsInputFile(InputFile):
             filename (str or path): The filename to output to, including path.
             ignore_comments (bool): True if only the commands should be kept from the InputFile.
             keep_stages (bool): True if the block structure from the InputFile should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, mode="wt") as f:
-            f.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> LammpsInputFile:
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
     def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
@@ -559,7 +550,7 @@ class LammpsInputFile(InputFile):
             contents (str): String representation of LammpsInputFile.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
@@ -633,7 +624,7 @@ class LammpsInputFile(InputFile):
             path (str or path): Filename to read, including path.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile

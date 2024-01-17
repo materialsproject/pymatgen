@@ -89,7 +89,7 @@ class LDos(MSONable):
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)
-            dicts = Potential.pot_dict_from_string(pot_string)
+            dicts = Potential.pot_dict_from_str(pot_string)
             pot_dict = dicts[0]
 
         with zopen(ldos_file + "00.dat", mode="r") as file:
@@ -197,7 +197,7 @@ class LDos(MSONable):
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)
-            dicts = Potential.pot_dict_from_string(pot_string)
+            dicts = Potential.pot_dict_from_str(pot_string)
             pot_dict = dicts[1]
 
         for idx in range(len(dicts[0]) + 1):
@@ -222,7 +222,7 @@ class LDos(MSONable):
 
         return cht
 
-    def charge_transfer_to_string(self):
+    def charge_transfer_to_str(self):
         """Returns charge transfer as string."""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]

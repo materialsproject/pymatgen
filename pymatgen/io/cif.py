@@ -84,7 +84,7 @@ class CifBlock:
             for loop in self.loops:
                 # search for a corresponding loop
                 if key in loop:
-                    out.append(self._loop_to_string(loop))
+                    out.append(self._loop_to_str(loop))
                     written.extend(loop)
                     break
             if key not in written:
@@ -96,7 +96,7 @@ class CifBlock:
                     out.extend([key, v])
         return "\n".join(out)
 
-    def _loop_to_string(self, loop):
+    def _loop_to_str(self, loop):
         out = "loop_"
         for line in loop:
             out += "\n " + line
@@ -166,11 +166,6 @@ class CifBlock:
         return q
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, string):
         """
         Reads CifBlock from string.
@@ -235,11 +230,6 @@ class CifFile:
     def __str__(self):
         out = "\n".join(map(str, self.data.values()))
         return f"{self.comment}\n{out}\n"
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string) -> CifFile:
@@ -366,11 +356,6 @@ class CifParser:
         for key in self._cif.data:
             # pass individual CifBlocks to _sanitize_data
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, cif_string: str, **kwargs) -> CifParser:
@@ -1468,12 +1453,12 @@ class CifWriter:
         else:
             spg_analyzer = SpacegroupAnalyzer(struct, symprec)
 
-            symm_ops = []
+            symm_ops: list[SymmOp] = []
             for op in spg_analyzer.get_symmetry_operations():
                 v = op.translation_vector
                 symm_ops.append(SymmOp.from_rotation_and_translation(op.rotation_matrix, v))
 
-            ops = [op.as_xyz_string() for op in symm_ops]
+            ops = [op.as_xyz_str() for op in symm_ops]
             block["_symmetry_equiv_pos_site_id"] = [f"{i}" for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
 

@@ -457,10 +457,6 @@ class AbinitHeader(AttrDict):
     def __str__(self):
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, verbose=0, title=None, **kwargs):
         """
         String representation. kwargs are passed to `pprint.pformat`.

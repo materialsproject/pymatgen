@@ -9,7 +9,6 @@ from __future__ import annotations
 import copy
 import warnings
 
-import numpy as np
 from monty.dev import requires
 
 from pymatgen.core.structure import IMolecule, Molecule
@@ -338,11 +337,6 @@ class BabelMolAdaptor:
             BabelMolAdaptor object
         """
         return BabelMolAdaptor(mol.molecule)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @needs_openbabel
     @classmethod

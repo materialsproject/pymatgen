@@ -3997,10 +3997,6 @@ class Xdatcar:
                 structures.append(p.structure)
         self.structures = structures
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:
         """
         Write  Xdatcar class to a string.
@@ -4048,7 +4044,7 @@ class Xdatcar:
         Args:
             filename (str): Filename of output XDATCAR file.
             **kwargs: Supported kwargs are the same as those for the
-                Xdatcar.get_string method and are passed through directly.
+                Xdatcar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt") as f:
             f.write(self.get_str(**kwargs))

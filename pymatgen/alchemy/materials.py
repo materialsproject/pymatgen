@@ -11,7 +11,6 @@ import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
-import numpy as np
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -245,11 +244,6 @@ class TransformedStructure(MSONable):
         return [*h_structs, self.final_structure]
 
     @classmethod
-    @np.deprecate(message="Use from_cif_str instead")
-    def from_cif_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_cif_str(*args, **kwargs)
-
-    @classmethod
     def from_cif_str(
         cls,
         cif_string: str,
@@ -294,11 +288,6 @@ class TransformedStructure(MSONable):
             "cif_data": cif_dict[cif_keys[0]],
         }
         return cls(struct, transformations, history=[source_info])
-
-    @classmethod
-    @np.deprecate(message="Use from_poscar_str instead")
-    def from_poscar_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_poscar_str(*args, **kwargs)
 
     @classmethod
     def from_poscar_str(

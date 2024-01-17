@@ -1251,7 +1251,7 @@ class StructureGraph(MSONable):
         return self.__mul__(other)
 
     @classmethod
-    def _edges_to_string(cls, g):
+    def _edges_to_str(cls, g):
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
         edge_weight_name = g.graph["edge_weight_name"]
@@ -1286,14 +1286,14 @@ class StructureGraph(MSONable):
         out = "Structure Graph"
         out += f"\nStructure: \n{self.structure}"
         out += f"\nGraph: {self.name}\n"
-        out += self._edges_to_string(self.graph)
+        out += self._edges_to_str(self.graph)
         return out
 
     def __repr__(self):
         s = "Structure Graph"
         s += f"\nStructure: \n{self.structure!r}"
         s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
+        s += self._edges_to_str(self.graph)
         return s
 
     def __len__(self):
@@ -2608,7 +2608,7 @@ class MoleculeGraph(MSONable):
         return cls(mol, dct["graphs"])
 
     @classmethod
-    def _edges_to_string(cls, g):
+    def _edges_to_str(cls, g):
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
         edge_weight_name = g.graph["edge_weight_name"]
@@ -2643,14 +2643,14 @@ class MoleculeGraph(MSONable):
         out = "Molecule Graph"
         out += f"\nMolecule: \n{self.molecule}"
         out += f"\nGraph: {self.name}\n"
-        out += self._edges_to_string(self.graph)
+        out += self._edges_to_str(self.graph)
         return out
 
     def __repr__(self) -> str:
         out = "Molecule Graph"
         out += f"\nMolecule: \n{self.molecule!r}"
         out += f"\nGraph: {self.name}\n"
-        out += self._edges_to_string(self.graph)
+        out += self._edges_to_str(self.graph)
         return out
 
     def __len__(self) -> int:

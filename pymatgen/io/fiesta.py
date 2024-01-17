@@ -16,7 +16,6 @@ import shutil
 import subprocess
 from string import Template
 
-import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -554,11 +553,6 @@ $geometry
             GW_options=d["symmetry_options"],
             BSE_TDDFT_options=d["memory_options"],
         )
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string_input):

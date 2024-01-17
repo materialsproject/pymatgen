@@ -33,7 +33,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
-import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -52,7 +51,7 @@ class InputFile(MSONable):
     is optional; it is possible create an InputSet that does not rely on underlying
     InputFile objects.
 
-    All InputFile classes must implement a get_string method, which is called by
+    All InputFile classes must implement a get_str method, which is called by
     write_file.
 
     If InputFile classes implement an __init__ method, they must assign all arguments
@@ -61,11 +60,6 @@ class InputFile(MSONable):
 
     @abc.abstractmethod
     def get_str(self) -> str:
-        """Return a string representation of an entire input file."""
-
-    @np.deprecate(message="Use get_str instead")
-    @abc.abstractmethod
-    def get_string(self) -> str:
         """Return a string representation of an entire input file."""
 
     def write_file(self, filename: str | PathLike) -> None:
@@ -78,20 +72,6 @@ class InputFile(MSONable):
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, mode="wt") as file:
             file.write(self.get_str())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    @abc.abstractmethod
-    def from_string(cls, contents: str) -> InputFile:
-        """
-        Create an InputFile object from a string.
-
-        Args:
-            contents: The contents of the file as a single string
-
-        Returns:
-            InputFile
-        """
 
     @classmethod
     @abc.abstractmethod

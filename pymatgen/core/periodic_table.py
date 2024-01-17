@@ -1045,12 +1045,6 @@ class Species(MSONable, Stringify):
         return None
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        """Use from_str instead."""
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, species_string: str) -> Species:
         """Returns a Species from a string representation.
 

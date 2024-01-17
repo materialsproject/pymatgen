@@ -397,7 +397,7 @@ class Trajectory(MSONable):
         """Writes to Xdatcar file.
 
         The supported kwargs are the same as those for the
-        Xdatcar_from_structs.get_string method and are passed through directly.
+        Xdatcar_from_structs.get_str method and are passed through directly.
 
         Args:
             filename: Name of file to write.  It's prudent to end the filename with
