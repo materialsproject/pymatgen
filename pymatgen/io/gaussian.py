@@ -1093,19 +1093,12 @@ class GaussianOutput:
         Read a potential energy surface from a gaussian scan calculation.
 
         Returns:
-            A dict: {"energies": [ values ],
-                     "coords": {"d1": [ values ], "A2", [ values ], ... }}
-
+            dict[str, list]: {"energies": [...], "coords": {"d1": [...], "A2", [...], ... }}
             "energies" are the energies of all points of the potential energy
             surface. "coords" are the internal coordinates used to compute the
             potential energy surface and the internal coordinates optimized,
             labelled by their name as defined in the calculation.
         """
-
-        def floatList(lst):
-            """Return a list of float from a list of string."""
-            return [float(val) for val in lst]
-
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
         coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
@@ -1123,14 +1116,14 @@ class GaussianOutput:
                     line = f.readline()
                     endScan = False
                     while not endScan:
-                        data["energies"] += floatList(float_patt.findall(line))
+                        data["energies"] += list(map(float, float_patt.findall(line)))
                         line = f.readline()
                         while coord_patt.match(line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
-                                data["coords"][icname] += floatList(float_patt.findall(line))
+                                data["coords"][icname] += list(map(float, float_patt.findall(line)))
                             else:
-                                data["coords"][icname] = floatList(float_patt.findall(line))
+                                data["coords"][icname] = list(map(float, float_patt.findall(line)))
                             line = f.readline()
                         if not re.search(r"^\s+((\s*\d+)+)", line):
                             endScan = True
@@ -1143,7 +1136,7 @@ class GaussianOutput:
                     f.readline()
                     line = f.readline()
                     while not re.search(r"^\s-+", line):
-                        values = floatList(line.split())
+                        values = list(map(float, line.split()))
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
                             data["coords"][icname].append(values[i + 1])
