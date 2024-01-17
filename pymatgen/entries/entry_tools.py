@@ -297,9 +297,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         for entry in self.entries:
             els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as file:
             writer = csv.writer(
-                f,
+                file,
                 delimiter=",",
                 quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
@@ -321,13 +321,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         Returns:
             List of Elements, List of PDEntries
         """
-        with open(filename, encoding="utf-8") as f:
-            reader = csv.reader(
-                f,
-                delimiter=",",
-                quotechar='"',
-                quoting=csv.QUOTE_MINIMAL,
-            )
+        with open(filename, encoding="utf-8") as file:
+            reader = csv.reader(file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
             entries = []
             header_read = False
             elements: list[str] = []

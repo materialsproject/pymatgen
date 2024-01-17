@@ -67,7 +67,7 @@ class LDos(MSONable):
             dos_index = 1
             begin = 0
 
-            with zopen(pot_inp, "r") as potfile:
+            with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
                     if len(pot_readend.findall(line)) > 0:
                         break
@@ -89,10 +89,10 @@ class LDos(MSONable):
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)
-            dicts = Potential.pot_dict_from_string(pot_string)
+            dicts = Potential.pot_dict_from_str(pot_string)
             pot_dict = dicts[0]
 
-        with zopen(ldos_file + "00.dat", "r") as file:
+        with zopen(ldos_file + "00.dat", mode="r") as file:
             lines = file.readlines()
         efermi = float(lines[0].split()[4])
 
@@ -171,7 +171,7 @@ class LDos(MSONable):
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
             pot_readstart = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
             pot_readend = re.compile(".*ExternalPot.*switch.*")
-            with zopen(pot_inp, "r") as potfile:
+            with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
                     if len(pot_readend.findall(line)) > 0:
                         break
@@ -197,12 +197,12 @@ class LDos(MSONable):
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)
-            dicts = Potential.pot_dict_from_string(pot_string)
+            dicts = Potential.pot_dict_from_str(pot_string)
             pot_dict = dicts[1]
 
         for idx in range(len(dicts[0]) + 1):
             if len(str(idx)) == 1:
-                with zopen(f"{ldos_file}0{idx}.dat", "rt") as file:
+                with zopen(f"{ldos_file}0{idx}.dat", mode="rt") as file:
                     lines = file.readlines()
                     s = float(lines[3].split()[2])
                     p = float(lines[4].split()[2])
@@ -211,7 +211,7 @@ class LDos(MSONable):
                     tot = float(lines[1].split()[4])
                     cht[str(idx)] = {pot_dict[idx]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
             else:
-                with zopen(f"{ldos_file}{idx}.dat", "rt") as file:
+                with zopen(f"{ldos_file}{idx}.dat", mode="rt") as file:
                     lines = file.readlines()
                     s = float(lines[3].split()[2])
                     p = float(lines[4].split()[2])
@@ -222,7 +222,7 @@ class LDos(MSONable):
 
         return cht
 
-    def charge_transfer_to_string(self):
+    def charge_transfer_to_str(self):
         """Returns charge transfer as string."""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]

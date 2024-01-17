@@ -98,7 +98,6 @@ class TestHighSymmetryPoint(PymatgenTest):
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()
 
 
-
 class TestStructure(PymatgenTest):
     def test_to_from_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
