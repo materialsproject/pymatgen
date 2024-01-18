@@ -1230,12 +1230,9 @@ class DftSet(Cp2kInput):
         if isinstance(structure, Structure):
             subsys.insert(Cell(structure.lattice))
         else:
-            x = max(structure.cart_coords[:, 0])
-            y = max(structure.cart_coords[:, 1])
-            z = max(structure.cart_coords[:, 2])
-            x = x if x else 1
-            y = y if y else 1
-            z = z if z else 1
+            x = max(*structure.cart_coords[:, 0], 1)
+            y = max(*structure.cart_coords[:, 1], 1)
+            z = max(*structure.cart_coords[:, 2], 1)
             cell = Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
             cell.add(Keyword("PERIODIC", "NONE"))
             subsys.insert(cell)

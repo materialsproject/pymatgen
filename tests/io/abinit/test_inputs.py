@@ -51,8 +51,8 @@ class AbinitInputTestCase(PymatgenTest):
 
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
-        shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
-        assert_array_equal(calc_shiftk(inp.structure), shiftk)
+        shift_k = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
+        assert_array_equal(calc_shiftk(inp.structure), shift_k)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         repr(inp), str(inp)
@@ -81,8 +81,8 @@ class AbinitInputTestCase(PymatgenTest):
         inp.set_vars_ifnotin(ecut=-10)
         assert inp["ecut"] == 5
 
-        _, tmpname = tempfile.mkstemp(text=True)
-        inp.write(filepath=tmpname)
+        _, tmp_name = tempfile.mkstemp(text=True)
+        inp.write(filepath=tmp_name)
 
         # Cannot change structure variables directly.
         with pytest.raises(inp.Error):

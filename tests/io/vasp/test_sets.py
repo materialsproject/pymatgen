@@ -1088,7 +1088,7 @@ class TestMVLNPTMDSet(PymatgenTest):
         assert incar["EDIFF"] == approx(1e-5)
         assert incar["LANGEVIN_GAMMA_L"] == 1
         assert incar["LANGEVIN_GAMMA"] == [10, 10, 10]
-        enmax = max(npt_set.potcar[i].keywords["ENMAX"] for i in range(self.struct.ntypesp))
+        enmax = max(npt_set.potcar[idx].keywords["ENMAX"] for idx in range(self.struct.n_elems))
         assert incar["ENCUT"] == approx(1.5 * enmax)
         assert incar["ALGO"] == "Fast"
         assert incar["ISIF"] == 3
