@@ -849,10 +849,8 @@ Direct
         os.replace(yaml_path, yml_path)
         assert Structure.from_file(yml_path) == self.struct
 
-        atom_config_path = f"{self.tmp_path}/atom_testing.config"
-        atom_config_str = self.struct.to(filename=atom_config_path)
-        with open(atom_config_path) as file:
-            assert file.read() == atom_config_str
+        atom_config_path = f"{self.tmp_path}/atom-test.config"
+        self.struct.to(filename=atom_config_path)
         assert Structure.from_file(atom_config_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):

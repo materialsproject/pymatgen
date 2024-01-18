@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
 
@@ -35,9 +36,8 @@ class TestAtomConfig(PymatgenTest):
     def test_from_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         atom_config = AtomConfig.from_file(filename=filepath, mag=True)
-        # assert Composition("Cr2I6").formula == atom_config.true_names
-        for ii in range(8):
-            assert "magmom" in atom_config.structure.sites[ii].properties
+        assert Composition("Cr2I6").to_pretty_string() == atom_config.true_names
+        assert all("magmom" in site.properties for site in atom_config.structure)
 
     def test_write_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
@@ -52,12 +52,10 @@ class TestGenKpt(PymatgenTest):
     def test_from_structure(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         structure = Structure.from_file(filepath)
-        dim = 2
-        density = 0.01
-        gen_kpt = GenKpt.from_structure(structure, dim, density)
-        assert hasattr(gen_kpt, "_kpath")
-        assert hasattr(gen_kpt, "_reciprocal_lattice")
-        assert hasattr(gen_kpt, "_density")
+        gen_kpt = GenKpt.from_structure(structure, dim=2, density=0.01)
+        assert gen_kpt.density == pytest.approx(0.0628318530)
+        assert gen_kpt.reciprocal_lattice.shape == (3, 3)
+        assert gen_kpt.kpath["path"] == [["GAMMA", "M", "K", "GAMMA"]]
 
     def test_write_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
@@ -77,12 +75,11 @@ class TestHighSymmetryPoint(PymatgenTest):
     def test_from_structure(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         structure = Structure.from_file(filepath)
-        dim = 2
-        density = 0.01
-        high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim, density)
-        assert hasattr(high_symmetry_points, "_reciprocal_lattice")
-        assert hasattr(high_symmetry_points, "_kpath")
-        assert hasattr(high_symmetry_points, "_density")
+        high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim=2, density=0.01)
+        assert list(high_symmetry_points.kpath) == ["kpoints", "path"]
+        assert len(high_symmetry_points.kpath["path"]) == 1
+        assert high_symmetry_points.density == pytest.approx(0.0628318530)
+        assert high_symmetry_points.reciprocal_lattice.shape == (3, 3)
 
     def test_write_file(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
