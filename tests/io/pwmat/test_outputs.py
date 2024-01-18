@@ -48,5 +48,9 @@ class TestDosSpin(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected"
         dos_spin = DosSpin(filepath)
-        assert dos_spin.dos.shape == (50, 21)
-        assert len(dos_spin.labels) == 21
+        assert dos_spin.dos.shape == (20, 21)
+        assert dos_spin.labels == ["Energy", "Total", "Cr-3S", "Cr-3Pz", "Cr-3Px",
+                                   "Cr-3Py", "Cr-4S", "Cr-3Dz2", "Cr-3Dxz", "Cr-3Dyz",
+                                   "Cr-3D(x^2-y^2)", "Cr-3Dxy", "I-4Dz2", "I-4Dxz",
+                                   "I-4Dyz", "I-4D(x^2-y^2)", "I-4Dxy", "I-5S", "I-5Pz",
+                                   "I-5Px", "I-5Py"]
