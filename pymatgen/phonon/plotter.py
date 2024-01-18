@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-import palettable
 import scipy.constants as const
 from matplotlib.collections import LineCollection
 from monty.json import jsanitize
@@ -95,19 +94,18 @@ class PhononDosPlotter:
             )
         self.stack = stack
         self.sigma = sigma
-        self._doses: dict[str, dict[Literal["frequencies", "densities"], np.ndarray]] = {}
+        self._doses: dict[str, dict[str, np.ndarray]] = {}
 
-    def add_dos(self, label: str, dos: PhononDos) -> None:
+    def add_dos(self, label: str, dos: PhononDos, **kwargs: Any) -> None:
         """Adds a dos for plotting.
 
         Args:
-            label:
-                label for the DOS. Must be unique.
-            dos:
-                PhononDos object
+            label (str): label for the DOS. Must be unique.
+            dos (PhononDos): DOS object
+            **kwargs: kwargs supported by matplotlib.pyplot.plot
         """
         densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
-        self._doses[label] = {"frequencies": dos.frequencies, "densities": densities}
+        self._doses[label] = {"frequencies": dos.frequencies, "densities": densities, **kwargs}
 
     def add_dos_dict(self, dos_dict: dict, key_sort_func=None) -> None:
         """Add a dictionary of doses, with an optional sorting function for the
@@ -153,13 +151,12 @@ class PhononDosPlotter:
             ax (Axes): An existing axes object onto which the plot will be
                 added. If None, a new figure will be created.
         """
-        legend = legend or {"fontsize": 30}
+        legend = legend or {}
+        legend.setdefault("fontsize", 30)
         unit = freq_units(units)
 
         n_colors = max(3, len(self._doses))
         n_colors = min(9, n_colors)
-
-        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         y = None
         all_densities = []
@@ -185,18 +182,14 @@ class PhononDosPlotter:
         all_densities.reverse()
         all_frequencies.reverse()
         all_pts = []
+        colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+            color = self._doses[key].get("color", colors[idx % n_colors])
             all_pts.extend(list(zip(frequencies, densities)))
             if self.stack:
-                ax.fill(frequencies, densities, color=colors[idx % n_colors], label=str(key))
+                ax.fill(frequencies, densities, color=color, label=str(key))
             else:
-                ax.plot(
-                    frequencies,
-                    densities,
-                    color=colors[idx % n_colors],
-                    label=str(key),
-                    linewidth=3,
-                )
+                ax.plot(frequencies, densities, color=color, label=str(key), linewidth=3)
 
         if xlim:
             ax.set_xlim(xlim)
@@ -212,10 +205,10 @@ class PhononDosPlotter:
         ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
         ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
 
-        ax.legend()
-        legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
-        plt.setp(legend_text, **legend)
-        plt.tight_layout()
+        # only show legend if there are labels
+        if sum(map(len, keys)) > 0:
+            ax.legend(**legend)
+
         return ax
 
     def save_plot(
@@ -261,10 +254,12 @@ class PhononDosPlotter:
 class PhononBSPlotter:
     """Class to plot or get data to facilitate the plot of band structure objects."""
 
-    def __init__(self, bs: PhononBandStructureSymmLine) -> None:
+    def __init__(self, bs: PhononBandStructureSymmLine, label: str | None = None) -> None:
         """
         Args:
             bs: A PhononBandStructureSymmLine object.
+            label: A label for the plot. Defaults to None for no label. Esp. useful with
+                the plot_compare method to distinguish the two band structures.
         """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
@@ -273,33 +268,27 @@ class PhononBSPlotter:
                 "not along symmetry lines won't work)"
             )
         self._bs = bs
-        self._nb_bands = self._bs.nb_bands
+        self._label = label
+
+    @property
+    def n_bands(self) -> int:
+        """Number of bands."""
+        return self._bs.nb_bands
 
     def _make_ticks(self, ax: Axes) -> Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
-        # Sanitize only plot the uniq values
-        uniq_d = []
-        uniq_l = []
-        temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i, tt in enumerate(temp_ticks):
-            if i == 0:
-                uniq_d.append(tt[0])
-                uniq_l.append(tt[1])
-            else:
-                uniq_d.append(tt[0])
-                uniq_l.append(tt[1])
 
-        ax.set_xticks(uniq_d)
-        ax.set_xticklabels(uniq_l)
+        # zip to sanitize, only plot the uniq values
+        ticks_labels = list(zip(*zip(ticks["distance"], ticks["label"])))
+        if ticks_labels:
+            ax.set_xticks(ticks_labels[0])
+            ax.set_xticklabels(ticks_labels[1])
 
-        for i in range(len(ticks["label"])):
-            if ticks["label"][i] is not None:
-                # don't print the same label twice
-                if i != 0:
-                    ax.axvline(ticks["distance"][i], color="k")
-                else:
-                    ax.axvline(ticks["distance"][i], color="k")
+        # plot vertical lines at each of the ticks
+        for idx, label in enumerate(ticks["label"]):
+            if label is not None:
+                ax.axvline(ticks["distance"][idx], color="black")
         return ax
 
     def bs_plot_data(self) -> dict[str, Any]:
@@ -319,12 +308,14 @@ class PhononBSPlotter:
 
         ticks = self.get_ticks()
 
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             frequency.append([])
-            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
+            distance.append([self._bs.distance[j] for j in range(branch["start_index"], branch["end_index"] + 1)])
 
-            for i in range(self._nb_bands):
-                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+            for idx in range(self.n_bands):
+                frequency[-1].append(
+                    [self._bs.bands[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
 
         return {
             "ticks": ticks,
@@ -334,7 +325,7 @@ class PhononBSPlotter:
         }
 
     def get_plot(
-        self, ylim: float | None = None, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz"
+        self, ylim: float | None = None, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz", **kwargs
     ) -> Axes:
         """Get a matplotlib object for the bandstructure plot.
 
@@ -342,27 +333,24 @@ class PhononBSPlotter:
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+                Defaults to "thz".
+            **kwargs: passed to ax.plot function.
         """
         u = freq_units(units)
 
         ax = pretty_plot(12, 8)
 
-        band_linewidth = 1
-
         data = self.bs_plot_data()
-        for d in range(len(data["distances"])):
-            for i in range(self._nb_bands):
-                ax.plot(
-                    data["distances"][d],
-                    [data["frequency"][d][i][j] * u.factor for j in range(len(data["distances"][d]))],
-                    "b-",
-                    linewidth=band_linewidth,
-                )
+        kwargs.setdefault("color", "blue")
+        for dists, freqs in zip(data["distances"], data["frequency"]):
+            for idx in range(self.n_bands):
+                ys = [freqs[idx][j] * u.factor for j in range(len(dists))]
+                ax.plot(dists, ys, **kwargs)
 
         self._make_ticks(ax)
 
         # plot y=0 line
-        ax.axhline(0, linewidth=1, color="k")
+        ax.axhline(0, linewidth=1, color="black")
 
         # Main X and Y Labels
         ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
@@ -377,18 +365,16 @@ class PhononBSPlotter:
         if ylim is not None:
             ax.set_ylim(ylim)
 
-        plt.tight_layout()
-
         return ax
 
     def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
         """Compute the weight for each combination of sites according to the
         eigenvector.
         """
-        num_atom = int(self._nb_bands / 3)
+        num_atom = int(self.n_bands / 3)
         new_vec = np.zeros(num_atom)
-        for i in range(num_atom):
-            new_vec[i] = np.linalg.norm(vec[i * 3 : i * 3 + 3])
+        for idx in range(num_atom):
+            new_vec[idx] = np.linalg.norm(vec[idx * 3 : idx * 3 + 3])
         # get the projectors for each group
         gw = []
         norm_f = 0
@@ -445,10 +431,10 @@ class PhononBSPlotter:
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices: list[list[int]] = [[] for _ in range(len(elements))]
-            for i, ele in enumerate(self._bs.structure.species):
+            for idx, elem in enumerate(self._bs.structure.species):
                 for j, unique_species in enumerate(self._bs.structure.elements):
-                    if ele == unique_species:
-                        indices[j].append(i)
+                    if elem == unique_species:
+                        indices[j].append(idx)
         else:
             assert isinstance(site_comb, list)
             assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
@@ -464,7 +450,7 @@ class PhononBSPlotter:
         assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
 
         u = freq_units(units)
-        fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
+        _fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
         self._make_ticks(ax)
 
         data = self.bs_plot_data()
@@ -472,13 +458,13 @@ class PhononBSPlotter:
         for d in range(1, len(k_dist)):
             # consider 2 k points each time so they connect
             colors = []
-            for idx in range(self._nb_bands):
+            for idx in range(self.n_bands):
                 eigenvec_1 = self._bs.eigendisplacements[idx][d - 1].flatten()
                 eigenvec_2 = self._bs.eigendisplacements[idx][d].flatten()
                 colors1 = self._get_weight(eigenvec_1, indices)
                 colors2 = self._get_weight(eigenvec_2, indices)
                 colors.append(self._make_color((colors1 + colors2) / 2))
-            seg = np.zeros((self._nb_bands, 2, 2))
+            seg = np.zeros((self.n_bands, 2, 2))
             seg[:, :, 1] = self._bs.bands[:, d - 1 : d + 1] * u.factor
             seg[:, 0, 0] = k_dist[d - 1]
             seg[:, 1, 0] = k_dist[d]
@@ -503,7 +489,7 @@ class PhononBSPlotter:
         elif site_comb == "element":
             labels = [e.symbol for e in self._bs.structure.elements]
         else:
-            labels = [f"{i}" for i in range(len(site_comb))]
+            labels = [f"{idx}" for idx in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -575,8 +561,8 @@ class PhononBSPlotter:
         """
         tick_distance = []
         tick_labels: list[str] = []
-        previous_label = self._bs.qpoints[0].label
-        previous_branch = self._bs.branches[0]["name"]
+        prev_label = self._bs.qpoints[0].label
+        prev_branch = self._bs.branches[0]["name"]
         for idx, point in enumerate(self._bs.qpoints):
             if point.label is not None:
                 tick_distance.append(self._bs.distance[idx])
@@ -585,28 +571,35 @@ class PhononBSPlotter:
                     if b["start_index"] <= idx <= b["end_index"]:
                         this_branch = b["name"]
                         break
-                if point.label != previous_label and previous_branch != this_branch:
+                if point.label != prev_label and prev_branch != this_branch:
                     label1 = point.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = f"${label1}$"
-                    label0 = previous_label or ""
+                    label0 = prev_label or ""
                     if label0.startswith("\\") or label0.find("_") != -1:
                         label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(f"{label0}$\\mid${label1}")
+                    tick_labels.append(f"{label0}|{label1}")
                 elif point.label.startswith("\\") or point.label.find("_") != -1:
                     tick_labels.append(f"${point.label}$")
                 else:
-                    # map atomate2 all-upper-case point.labels to pretty LaTeX
-                    label = dict(GAMMA=r"$\Gamma$", DELTA=r"$\Delta$").get(point.label, point.label)
-                    tick_labels.append(label)
-                previous_label = point.label
-                previous_branch = this_branch
+                    tick_labels.append(point.label)
+                prev_label = point.label
+                prev_branch = this_branch
+        # map atomate2 all-upper-case labels like GAMMA/DELTA to pretty symbols
+        tick_labels = [label.replace("GAMMA", "Γ").replace("DELTA", "Δ").replace("SIGMA", "Σ") for label in tick_labels]
         return {"distance": tick_distance, "label": tick_labels}
 
     def plot_compare(
-        self, other_plotter: PhononBSPlotter, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz"
+        self,
+        other_plotter: PhononBSPlotter,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        labels: tuple[str, str] | None = None,
+        legend_kwargs: dict | None = None,
+        on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
+        other_kwargs: dict | None = None,
+        **kwargs,
     ) -> Axes:
         """Plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
@@ -614,34 +607,57 @@ class PhononBSPlotter:
         used to build the PhononBSPlotter.
 
         Args:
-            other_plotter: another PhononBSPlotter object defined along the same symmetry lines
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            other_plotter (PhononBSPlotter): another PhononBSPlotter object defined along the same symmetry lines
+            units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
+            labels (tuple[str, str] | None): labels for the two band structures. Defaults to None, which will use the
+                label of the two PhononBSPlotter objects if present.
+                Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
+                on which plot_compare() is called must come first.
+            legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
+            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures are not compatible.
+                Defaults to 'raise'.
+            other_kwargs: dict[str, Any]: kwargs passed to other_plotter ax.plot().
+            **kwargs: passed to ax.plot().
 
         Returns:
             a matplotlib object with both band structures
         """
-        u = freq_units(units)
+        unit = freq_units(units)
+        legend_kwargs = legend_kwargs or {}
+        other_kwargs = other_kwargs or {}
+        legend_kwargs.setdefault("fontsize", 20)
 
-        data_orig = self.bs_plot_data()
-        data = other_plotter.bs_plot_data()
+        self_data = self.bs_plot_data()
+        other_data = other_plotter.bs_plot_data()
 
-        if len(data_orig["distances"]) != len(data["distances"]):
-            raise ValueError("The two objects are not compatible.")
+        if len(self_data["distances"]) != len(other_data["distances"]):
+            if on_incompatible == "raise":
+                raise ValueError("The two band structures are not compatible.")
+            if on_incompatible == "warn":
+                logger.warning("The two band structures are not compatible.")
+            return None  # ignore/warn
 
-        ax = self.get_plot(units=units)
-        band_linewidth = 1
-        for band_idx in range(other_plotter._nb_bands):
-            for dist_idx in range(len(data_orig["distances"])):
-                ax.plot(
-                    data_orig["distances"][dist_idx],
-                    [
-                        data["frequency"][dist_idx][band_idx][j] * u.factor
-                        for j in range(len(data_orig["distances"][dist_idx]))
-                    ],
-                    "r-",
-                    linewidth=band_linewidth,
-                )
+        line_width = kwargs.setdefault("linewidth", 1)
+
+        ax = self.get_plot(units=units, **kwargs)
+
+        kwargs.setdefault("color", "red")  # don't move this line up! it would mess up self.get_plot color
+
+        for band_idx in range(other_plotter.n_bands):
+            for dist_idx, dists in enumerate(self_data["distances"]):
+                xs = dists
+                ys = [other_data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
+                ax.plot(xs, ys, **(kwargs | other_kwargs))
+
+        # add legend showing which color corresponds to which band structure
+        if labels or (self._label and other_plotter._label):
+            color_self, color_other = ax.lines[0].get_color(), ax.lines[-1].get_color()
+            label_self, label_other = labels or (self._label, other_plotter._label)
+            ax.plot([], [], label=label_self, linewidth=2 * line_width, color=color_self)
+            linestyle = other_kwargs.get("linestyle", "-")
+            ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
+            ax.legend(**legend_kwargs)
 
         return ax
 
@@ -649,18 +665,13 @@ class PhononBSPlotter:
         """Plot the Brillouin zone."""
         # get labels and lines
         labels = {}
-        for q in self._bs.qpoints:
-            if q.label:
-                labels[q.label] = q.frac_coords
+        for q_pt in self._bs.qpoints:
+            if q_pt.label:
+                labels[q_pt.label] = q_pt.frac_coords
 
         lines = []
         for b in self._bs.branches:
-            lines.append(
-                [
-                    self._bs.qpoints[b["start_index"]].frac_coords,
-                    self._bs.qpoints[b["end_index"]].frac_coords,
-                ]
-            )
+            lines.append([self._bs.qpoints[b["start_index"]].frac_coords, self._bs.qpoints[b["end_index"]].frac_coords])
 
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
@@ -979,14 +990,18 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
         ticks = self.get_ticks()
 
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             frequency.append([])
             gruneisen.append([])
-            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
+            distance.append([self._bs.distance[j] for j in range(branch["start_index"], branch["end_index"] + 1)])
 
-            for i in range(self._nb_bands):
-                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
-                gruneisen[-1].append([self._bs.gruneisen[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+            for idx in range(self.n_bands):
+                frequency[-1].append(
+                    [self._bs.bands[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
+                gruneisen[-1].append(
+                    [self._bs.gruneisen[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
 
         return {
             "ticks": ticks,
@@ -996,34 +1011,31 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             "lattice": self._bs.lattice_rec.as_dict(),
         }
 
-    def get_plot_gs(self, ylim: float | None = None) -> Axes:
-        """Get a matplotlib object for the gruneisen bandstructure plot.
+    def get_plot_gs(self, ylim: float | None = None, **kwargs) -> Axes:
+        """Get a matplotlib object for the Gruneisen bandstructure plot.
 
         Args:
             ylim: Specify the y-axis (gruneisen) limits; by default None let
                 the code choose.
+            **kwargs: additional keywords passed to ax.plot().
         """
         ax = pretty_plot(12, 8)
 
-        # band_linewidth = 1
+        kwargs.setdefault("linewidth", 2)
+        kwargs.setdefault("marker", "o")
+        kwargs.setdefault("markersize", 2)
 
         data = self.bs_plot_data()
-        for d in range(len(data["distances"])):
-            for i in range(self._nb_bands):
-                ax.plot(
-                    data["distances"][d],
-                    [data["gruneisen"][d][i][j] for j in range(len(data["distances"][d]))],
-                    "b-",
-                    # linewidth=band_linewidth)
-                    marker="o",
-                    markersize=2,
-                    linewidth=2,
-                )
+        for dist_idx in range(len(data["distances"])):
+            for band_idx in range(self.n_bands):
+                ys = [data["gruneisen"][dist_idx][band_idx][idx] for idx in range(len(data["distances"][dist_idx]))]
+
+                ax.plot(data["distances"][dist_idx], ys, "b-", **kwargs)
 
         self._make_ticks(ax)
 
         # plot y=0 line
-        ax.axhline(0, linewidth=1, color="k")
+        ax.axhline(0, linewidth=1, color="black")
 
         # Main X and Y Labels
         ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
@@ -1090,7 +1102,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
         ax = self.get_plot()
         band_linewidth = 1
-        for band_idx in range(other_plotter._nb_bands):
+        for band_idx in range(other_plotter.n_bands):
             for dist_idx in range(len(data_orig["distances"])):
                 ax.plot(
                     data_orig["distances"][dist_idx],

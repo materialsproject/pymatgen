@@ -93,7 +93,7 @@ class Critic2Caller:
         # not otherwise used
         self._input_script = input_script
 
-        with open("input_script.cri", "w") as f:
+        with open("input_script.cri", mode="w") as f:
             f.write(input_script)
 
         args = ["critic2", "input_script.cri"]
@@ -195,7 +195,7 @@ class Critic2Caller:
         if chgcar:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = f" zpsp {' '.join(f'{symbol} {zval}' for symbol, zval in zpsp.items())}"
+                zpsp_str = f" zpsp {' '.join(f'{symbol} {int(zval)}' for symbol, zval in zpsp.items())}"
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis

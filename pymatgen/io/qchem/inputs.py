@@ -6,7 +6,6 @@ import logging
 import re
 from typing import TYPE_CHECKING, Literal
 
-import numpy as np
 from monty.io import zopen
 
 from pymatgen.core import Molecule
@@ -152,6 +151,41 @@ class QCInput(InputFile):
                                 (1, 2)
                             ]
                         ]
+            svp (dict): Settings for the ISOSVP solvent model, corresponding to the $svp section
+                of the Q-Chem input file, which is formatted as a FORTRAN namelist. Note that in pymatgen, these
+                parameters are typically not set by the user, but rather are populated automatically by an InputSet.
+
+                An example for water may look like:
+                    {
+                        "RHOISO": "0.001",
+                        "DIELST": "78.36",
+                        "NPTLEB": "1202",
+                        "ITRNGR": "2",
+                        "IROTGR": "2",
+                        "IPNRF": "1",
+                        "IDEFESR": "1",
+                    }
+
+                See https://manual.q-chem.com/6.0/subsec_SS(V)PE.html in the Q-Chem manual for more
+                details.
+            pcm_nonels (dict): Settings for the non-electrostatic part of the CMIRS solvation
+                model, corresponding to the $pcm_nonels section of the Q-Chem input file/ Note that in pymatgen,
+                these parameters are typically not set by the user, but rather are populated automatically by an
+                InputSet.
+
+                An example for water may look like:
+                    {
+                        "a": "-0.006496",
+                        "b": "0.050833",
+                        "c": "-566.7",
+                        "d": "-30.503",
+                        "gamma": "3.2",
+                        "solvrho": "0.05",
+                        "delta": 7,
+                        "gaulag_n": 40,
+                    }
+
+                See https://manual.q-chem.com/6.0/example_CMIRS-water.html in the Q-Chem manual for more details.
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
@@ -202,10 +236,6 @@ class QCInput(InputFile):
         #   - Check that basis is defined for all species in the molecule
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self) -> str:
         """Return a string representation of an entire input file."""
@@ -344,7 +374,7 @@ class QCInput(InputFile):
             job_list (): List of jobs.
             filename (): Filename
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(QCInput.multi_job_string(job_list))
 
     @classmethod
@@ -358,7 +388,7 @@ class QCInput(InputFile):
         Returns:
             QcInput
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read())
 
     @classmethod
@@ -372,7 +402,7 @@ class QCInput(InputFile):
         Returns:
             List of QCInput objects
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs

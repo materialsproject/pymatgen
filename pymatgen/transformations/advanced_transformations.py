@@ -9,7 +9,7 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -1776,8 +1776,8 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             matches = np.absolute(zero_col) == np.amax(np.absolute(zero_col))
             row_idx_to_fix = np.where(matches)[0]
 
-            for i in row_idx_to_fix:
-                arr_rounded[i, zero_col_idx] = round_away_from_zero(arr[i, zero_col_idx])
+            for idx in row_idx_to_fix:
+                arr_rounded[idx, zero_col_idx] = round_away_from_zero(arr[idx, zero_col_idx])
     return arr_rounded.astype(int)
 
 
@@ -1874,31 +1874,33 @@ def _proj(b, a):
 
 
 class SQSTransformation(AbstractTransformation):
-    """A transformation that creates a special quasirandom structure (SQS) from a structure with partial occupancies."""
+    """A transformation that creates a special quasi-random structure (SQS)
+    from a structure with partial occupancies.
+    """
 
     def __init__(
         self,
-        scaling,
-        cluster_size_and_shell=None,
-        search_time=60,
-        directory=None,
-        instances=None,
-        temperature=1,
-        wr=1,
-        wn=1,
-        wd=0.5,
-        tol=1e-3,
-        best_only=True,
-        remove_duplicate_structures=True,
-        reduction_algo="LLL",
+        scaling: int | list[int],
+        cluster_size_and_shell: dict[int, int] | None = None,
+        search_time: float = 60,
+        directory: str | None = None,
+        instances: int | None = None,
+        temperature: float = 1,
+        wr: float = 1,
+        wn: float = 1,
+        wd: float = 0.5,
+        tol: float = 1e-3,
+        best_only: bool = True,
+        remove_duplicate_structures: bool = True,
+        reduction_algo: Literal["niggle", "LLL"] = "LLL",
     ):
         """
         Args:
             scaling (int or list): Scaling factor to determine supercell. Two options are possible:
-                    a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
-                       scaling=4 would lead to a 32 atom supercell
-                    b. A sequence of three scaling factors, e.g., [2, 1, 1], which
-                       specifies that the supercell should have dimensions 2a x b x c
+                a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
+                    scaling=4 would lead to a 32 atom supercell
+                b. A sequence of three scaling factors, e.g., [2, 1, 1], which
+                    specifies that the supercell should have dimensions 2a x b x c
             cluster_size_and_shell (Optional[Dict[int, int]]): Dictionary of cluster interactions with entries in
                 the form number of atoms: nearest neighbor shell
         Keyword Args:
@@ -1916,8 +1918,7 @@ class SQSTransformation(AbstractTransformation):
             best_only (bool): only return structures with lowest objective function
             remove_duplicate_structures (bool): only return unique structures
             reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
-                "False" does not reduce structure.
+                One of "niggli" or "LLL". Passing False does not reduce structure.
         """
         self.scaling = scaling
         self.search_time = search_time
@@ -2015,7 +2016,7 @@ class SQSTransformation(AbstractTransformation):
             and isinstance(self.instances, int)
             and return_ranked_list > self.instances
         ):
-            raise ValueError("return_ranked_list cannot be less that number of instances")
+            raise ValueError(f"{return_ranked_list=} cannot be greater than {self.instances=}")
 
         clusters = self._sqs_cluster_estimate(structure, self.cluster_size_and_shell)
 
@@ -2036,7 +2037,7 @@ class SQSTransformation(AbstractTransformation):
             tol=self.tol,
         )
 
-        return self._get_unique_bestsqs_strucs(
+        return self._get_unique_best_sqs_structs(
             sqs,
             best_only=self.best_only,
             return_ranked_list=return_ranked_list,
@@ -2045,7 +2046,7 @@ class SQSTransformation(AbstractTransformation):
         )
 
     @staticmethod
-    def _get_unique_bestsqs_strucs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
+    def _get_unique_best_sqs_structs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
         """Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
             in parallel, otherwise returns Sqs.bestsqs.
 
@@ -2056,44 +2057,43 @@ class SQSTransformation(AbstractTransformation):
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
             remove_duplicate_structures (bool): only return unique structures.
-            reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
-                "False" does not reduce structure.
+            reduction_algo (str): The lattice reduction algorithm to use. One of "niggli" or "LLL".
+                reduction_algo=False does not reduce structure.
 
         Returns:
             list of dicts of the form {'structure': Structure, 'objective_function': ...}, unless run in serial
                 (returns a single structure Sqs.bestsqs)
         """
         if not return_ranked_list:
-            return_struc = sqs.bestsqs
+            return_struct = sqs.bestsqs
 
             # reduce structure
             if reduction_algo:
-                return_struc = return_struc.get_reduced_structure(reduction_algo=reduction_algo)
+                return_struct = return_struct.get_reduced_structure(reduction_algo=reduction_algo)
 
             # return just the structure
-            return return_struc
+            return return_struct
 
-        strucs = []
+        structs = []
         for dct in sqs.allsqs:
             # filter for best structures only if enabled, else use full sqs.all_sqs list
             if (not best_only) or (best_only and dct["objective_function"] == sqs.objective_function):
                 struct = dct["structure"]
                 # add temporary objective_function attribute to access objective_function after grouping
                 struct.objective_function = dct["objective_function"]
-                strucs.append(struct)
+                structs.append(struct)
 
         if remove_duplicate_structures:
             matcher = StructureMatcher()
-            # sort by unique structures ... can take a while for a long list of strucs
-            unique_strucs_grouped = matcher.group_structures(strucs)
+            # sort by unique structures ... can take a while for a long list of structs
+            unique_structs_grouped = matcher.group_structures(structs)
             # get unique structures only
-            strucs = [group[0] for group in unique_strucs_grouped]
+            structs = [group[0] for group in unique_structs_grouped]
 
         # sort structures by objective function
-        strucs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
+        structs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
 
-        to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
+        to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in structs]
 
         for dct in to_return:
             # delete temporary objective_function attribute
@@ -2103,7 +2103,8 @@ class SQSTransformation(AbstractTransformation):
             if reduction_algo:
                 dct["structure"] = dct["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
-        if isinstance(return_ranked_list, int):
+        # because bools are subclasses of ints, cannot just check that returned_ranked_list is int
+        if isinstance(return_ranked_list, int) and not isinstance(return_ranked_list, bool):
             return to_return[:return_ranked_list]
         return to_return
 

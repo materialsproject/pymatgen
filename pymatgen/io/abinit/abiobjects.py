@@ -95,12 +95,12 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(kwargs)}")
 
 
-def structure_from_abivars(cls=None, *args, **kwargs):
+def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
     """
     Build a Structure object from a dictionary with ABINIT variables.
 
     Args:
-        cls: Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
+        cls: Structure class to be instantiated. Defaults to Structure.
 
     Example:
         al_structure = structure_from_abivars(
@@ -115,30 +115,28 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     `xred` can be replaced with `xcart` or `xangst`.
     """
     kwargs.update(dict(*args))
-    d = kwargs
-
-    cls = Structure if cls is None else cls
+    cls = cls or Structure
 
     # lattice = Lattice.from_dict(d, fmt="abivars")
-    lattice = lattice_from_abivars(**d)
-    coords, coords_are_cartesian = d.get("xred"), False
+    lattice = lattice_from_abivars(**kwargs)
+    coords, coords_are_cartesian = kwargs.get("xred"), False
 
     if coords is None:
-        coords = d.get("xcart")
+        coords = kwargs.get("xcart")
         if coords is not None:
-            if "xangst" in d:
+            if "xangst" in kwargs:
                 raise ValueError("xangst and xcart are mutually exclusive")
             coords = ArrayWithUnit(coords, "bohr").to("ang")
         else:
-            coords = d.get("xangst")
+            coords = kwargs.get("xangst")
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError(f"Cannot extract coordinates from:\n {d}")
+        raise ValueError(f"Cannot extract coordinates from:\n {kwargs}")
 
     coords = np.reshape(coords, (-1, 3))
 
-    znucl_type, typat = d["znucl"], d["typat"]
+    znucl_type, typat = kwargs["znucl"], kwargs["typat"]
 
     if not isinstance(znucl_type, Iterable):
         znucl_type = [znucl_type]
@@ -160,6 +158,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=coords_are_cartesian,
+        properties=kwargs.get("properties"),
     )
 
 
@@ -186,28 +185,27 @@ def species_by_znucl(structure: Structure) -> list[Species]:
     return types
 
 
-def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kwargs):
+def structure_to_abivars(
+    structure: Structure, enforce_znucl: list | None = None, enforce_typat: list | None = None, **kwargs
+):
     """
     Receives a structure and returns a dictionary with ABINIT variables.
 
     Args:
-        enforce_znucl: List of ntypat entries with the value of Z for each type of atom.
-            Used to change the default ordering.
-        enforce_typat: List with natom entries with the type index.
-            Fortran conventions: start to count from 1.
-            Used to change the default ordering.
+        enforce_znucl (list): ntypat entries with the value of Z for each type of atom.
+            Used to change the default ordering. Defaults to None.
+        enforce_typat (list): natom entries with the type index.
+            Fortran conventions: start to count from 1. Used to change the default ordering.
     """
     if not structure.is_ordered:
         raise ValueError(
-            """\
-Received disordered structure with partial occupancies that cannot be converted into an Abinit input.
-Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
-to build an appropriate supercell from partial occupancies or, alternatively, use the Rigid Band Model
-or the Virtual Crystal Approximation."""
+            "Received disordered structure with partial occupancies that cannot be converted into an "
+            "Abinit input. Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation "
+            "to build an appropriate supercell from partial occupancies or, alternatively, use the Rigid Band Model "
+            "or the Virtual Crystal Approximation."
         )
 
     n_atoms = len(structure)
-    n_types_atom = structure.ntypesp
     enforce_order = False
 
     if enforce_znucl is not None or enforce_typat is not None:
@@ -221,77 +219,79 @@ or the Virtual Crystal Approximation."""
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != n_types_atom:
-            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {n_types_atom=}")
+        if len(enforce_znucl) != structure.n_elems:
+            raise ValueError(
+                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
+            )
 
-    if not enforce_order:
+    if enforce_order:
+        znucl_type = enforce_znucl
+        typat = enforce_typat or []  # or [] added for mypy
+    else:
         types_of_specie = species_by_znucl(structure)
 
-        # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
         typat = np.zeros(n_atoms, int)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
-    else:
-        znucl_type = enforce_znucl
-        typat = enforce_typat
 
-    rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
-    angdeg = structure.lattice.angles
-    xred = np.reshape([site.frac_coords for site in structure], (-1, 3))
+    r_prim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
+    ang_deg = structure.lattice.angles
+    x_red = np.reshape([site.frac_coords for site in structure], (-1, 3))
 
     # Set small values to zero. This usually happens when the CIF file
     # does not give structure parameters with enough digits.
-    rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-    xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+    r_prim = np.where(np.abs(r_prim) > 1e-8, r_prim, 0.0)
+    x_red = np.where(np.abs(x_red) > 1e-8, x_red, 0.0)
 
     # Info on atoms.
     dct = {
         "natom": n_atoms,
-        "ntypat": n_types_atom,
+        "ntypat": structure.n_elems,
         "typat": typat,
         "znucl": znucl_type,
-        "xred": xred,
+        "xred": x_red,
+        "properties": structure.properties,
     }
 
     # Add info on the lattice.
-    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-    geomode = kwargs.pop("geomode", "rprim")
-    if geomode == "automatic":
-        geomode = "rprim"
-        if structure.lattice.is_hexagonal:  # or structure.lattice.is_rhombohedral
-            geomode = "angdeg"
-            angdeg = structure.lattice.angles
+    # Should we use (rprim, acell) or (ang_deg, acell) to specify the lattice?
+    geo_mode = kwargs.pop("geomode", "rprim")
+    if geo_mode == "automatic":
+        geo_mode = "rprim"
+        if structure.lattice.is_hexagonal():  # or structure.lattice.is_rhombohedral
+            geo_mode = "angdeg"
+            ang_deg = structure.lattice.angles
             # Here one could polish a bit the numerical values if they are not exact.
             # Note that in pmg the angles are 12, 20, 01 while in Abinit 12, 02, 01
             # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
-    if geomode == "rprim":
+    if geo_mode == "rprim":
         dct.update(
             acell=3 * [1.0],
-            rprim=rprim,
+            rprim=r_prim,
         )
 
-    elif geomode == "angdeg":
+    elif geo_mode == "angdeg":
         dct.update(
             acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
-            angdeg=angdeg,
+            angdeg=ang_deg,
         )
     else:
-        raise ValueError(f"Wrong value for {geomode=}")
+        raise ValueError(f"Wrong value for {geo_mode=}")
 
     return dct
 
 
-def contract(s):
+def contract(string):
     """
     assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
     assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
-    if not s:
-        return s
+    if not string:
+        return string
 
-    tokens = s.split()
+    tokens = string.split()
     old = tokens[0]
     count = [[1, old]]
 

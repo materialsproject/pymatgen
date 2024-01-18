@@ -87,7 +87,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
 
     for el in settings:
         print(f"Writing {el} settings file")
-        with open(os.path.join(target_dir, el), "w") as file:
+        with open(os.path.join(target_dir, el), mode="w") as file:
             yaml.dump(settings.get(el), file, default_flow_style=False)
 
     print(

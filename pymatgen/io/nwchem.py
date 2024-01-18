@@ -384,7 +384,7 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, mode="w") as f:
             f.write(str(self))
 
     def as_dict(self):
@@ -415,11 +415,6 @@ class NwInput(MSONable):
             symmetry_options=d["symmetry_options"],
             memory_options=d["memory_options"],
         )
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string_input):

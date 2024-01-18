@@ -26,9 +26,9 @@ __maintainer__ = "Yuta Suzuki"
 __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
-with open(os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")) as file:
     # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
-    ATOMIC_SCATTERING_LEN = json.load(f)
+    ATOMIC_SCATTERING_LEN = json.load(file)
 
 
 class NDCalculator(AbstractDiffractionPatternCalculator):

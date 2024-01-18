@@ -16,6 +16,7 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
+from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
@@ -48,7 +49,7 @@ class Trajectory(MSONable):
         time_step: float | None = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] | np.ndarray | None = None,
-    ):
+    ) -> None:
         """In below, `N` denotes the number of sites in the structure, and `M` denotes the
         number of frames in the trajectory.
 
@@ -392,11 +393,11 @@ class Trajectory(MSONable):
         filename: str | Path = "XDATCAR",
         system: str | None = None,
         significant_figures: int = 6,
-    ):
+    ) -> None:
         """Writes to Xdatcar file.
 
         The supported kwargs are the same as those for the
-        Xdatcar_from_structs.get_string method and are passed through directly.
+        Xdatcar_from_structs.get_str method and are passed through directly.
 
         Args:
             filename: Name of file to write.  It's prudent to end the filename with
@@ -441,7 +442,7 @@ class Trajectory(MSONable):
 
         xdatcar_string = "\n".join(lines) + "\n"
 
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(xdatcar_string)
 
     def as_dict(self) -> dict:
@@ -525,32 +526,47 @@ class Trajectory(MSONable):
 
     @classmethod
     def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
-        """Create trajectory from XDATCAR or vasprun.xml file.
+        """Create trajectory from XDATCAR, vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:
-            filename: Path to the file to read from.
-            constant_lattice: Whether the lattice changes during the simulation,
-                such as in an NPT MD simulation.
+            filename (str | Path): Path to the file to read from.
+            constant_lattice (bool): Whether the lattice changes during the simulation,
+                such as in an NPT MD simulation. Defaults to True.
             **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
-            A trajectory from the file.
+            Trajectory: containing the structures or molecules in the file.
         """
-        fname = Path(filename).expanduser().resolve().name
+        filename = str(Path(filename).expanduser().resolve())
+        is_mol = False
 
-        if fnmatch(fname, "*XDATCAR*"):
+        if fnmatch(filename, "*XDATCAR*"):
             structures = Xdatcar(filename).structures
-        elif fnmatch(fname, "vasprun*.xml*"):
+        elif fnmatch(filename, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
-        else:
-            supported = ("XDATCAR", "vasprun.xml")
-            raise ValueError(f"Expect file to be one of {supported}; got {filename}.")
+        elif fnmatch(filename, "*.traj"):
+            try:
+                from ase.io.trajectory import Trajectory as AseTrajectory
 
-        return cls.from_structures(
-            structures,
-            constant_lattice=constant_lattice,
-            **kwargs,
-        )
+                ase_traj = AseTrajectory(filename)
+                # periodic boundary conditions should be the same for all frames so just check the first
+                pbc = ase_traj[0].pbc
+                if any(pbc):
+                    structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
+                else:
+                    molecules = [AseAtomsAdaptor.get_molecule(atoms) for atoms in ase_traj]
+                    is_mol = True
+
+            except ImportError as exc:
+                raise exc
+
+        else:
+            supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")
+            raise ValueError(f"Expect file to be one of {supported_file_types}; got {filename}.")
+
+        if is_mol:
+            return cls.from_molecules(molecules, **kwargs)
+        return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:

@@ -49,14 +49,14 @@ __date__ = "August 17, 2017"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as f:
-    default_op_params = yaml.load(f)
+with open(f"{module_dir}/op_params.yaml") as file:
+    default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as f:
-    cn_opt_params = yaml.load(f)
+with open(f"{module_dir}/cn_opt_params.yaml") as file:
+    cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as fp:
-    _ion_radii = json.load(fp)
+with open(f"{module_dir}/ionic_radii.json") as file:
+    _ion_radii = json.load(file)
 
 
 class ValenceIonicRadiusEvaluator:

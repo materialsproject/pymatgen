@@ -49,7 +49,7 @@ class TemplateInputGen(InputGenerator):
         self.filename = filename
 
         # load the template
-        with zopen(self.template, "r") as f:
+        with zopen(self.template, mode="r") as f:
             template_str = f.read()
 
         # replace all variables

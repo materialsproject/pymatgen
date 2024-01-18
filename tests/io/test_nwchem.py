@@ -60,7 +60,7 @@ end
 task dft optimize"""
         assert str(t) == answer
 
-    def test_str_and_from_string(self):
+    def test_str(self):
         answer = """title "dft optimize"
 charge 0
 basis cartesian
@@ -326,7 +326,7 @@ task dft energy
         assert isinstance(nwi_symm, NwInput)
         json.dumps(d)
 
-    def test_from_string_and_file(self):
+    def test_from_str_and_file(self):
         nwi = NwInput.from_file(f"{test_dir}/ch4.nw")
         assert nwi.tasks[0].theory == "dft"
         assert nwi.memory_options == "total 1000 mb stack 400 mb"

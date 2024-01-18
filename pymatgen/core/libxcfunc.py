@@ -25,8 +25,8 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
-    _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as file:
+    _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
 
 
 # @unique
@@ -403,7 +403,7 @@ class LibxcFunc(Enum):
 
     # end_include_dont_touch
 
-    def __init__(self, _num):
+    def __init__(self, _num) -> None:
         """
         Args:
             num: Number for the xc.
@@ -412,7 +412,7 @@ class LibxcFunc(Enum):
         self.kind = info["Kind"]  # type: ignore
         self.family = info["Family"]  # type: ignore
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name, kind, family = self.name, self.kind, self.family
         return f"{type(self).__name__}({name=}, {kind=}, {family=})"
 

@@ -44,8 +44,8 @@ def make_doc(ctx):
         # ctx.run("rm pymatgen*tests*.md", warn=True)
         # ctx.run("rm pymatgen*.html", warn=True)
         # for fn in glob("pymatgen*.md"):
-        #     with open(fn) as f:
-        #         lines = [line.rstrip() for line in f if "Submodules" not in line]
+        #     with open(fn) as file:
+        #         lines = [line.rstrip() for line in file if "Submodules" not in line]
         #     if fn == "pymatgen.md":
         #         preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
         #     else:
@@ -60,8 +60,8 @@ def make_doc(ctx):
         #             "{:toc}",
         #             "",
         #         ]
-        #     with open(fn, "w") as f:
-        #         f.write("\n".join(preamble + lines))
+        #     with open(fn, mode="w") as file:
+        #         file.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
         ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
@@ -102,14 +102,14 @@ def set_ver(ctx, version):
         contents = file.read()
         contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
 
-    with open("pymatgen/core/__init__.py", "w") as file:
+    with open("pymatgen/core/__init__.py", mode="w") as file:
         file.write(contents)
 
     with open("setup.py") as file:
         contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "w") as file:
+    with open("setup.py", mode="w") as file:
         file.write(contents)
 
 
@@ -202,7 +202,7 @@ def update_changelog(ctx, version=None, dry_run=False):
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("docs/docs/CHANGES.md", "w") as file:
+        with open("docs/docs/CHANGES.md", mode="w") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
         ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")

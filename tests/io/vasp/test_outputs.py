@@ -40,7 +40,7 @@ from pymatgen.io.vasp.outputs import (
     Xdatcar,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 try:
     import h5py
@@ -617,13 +617,13 @@ class TestVasprun(PymatgenTest):
             expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
         vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
@@ -668,7 +668,7 @@ class TestVasprun(PymatgenTest):
 
     def test_charged_structure(self):
         vpath = f"{TEST_FILES_DIR}/vasprun.charged.xml"
-        potcar_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
+        potcar_path = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 8) == 9
@@ -1392,7 +1392,7 @@ class TestChgcar(PymatgenTest):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
-        with h5py.File(out_path, "r") as f:
+        with h5py.File(out_path, mode="r") as f:
             assert_allclose(f["vdata"]["total"], chgcar.data["total"])
             assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
             assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)

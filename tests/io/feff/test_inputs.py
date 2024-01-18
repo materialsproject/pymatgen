@@ -35,7 +35,7 @@ class TestHeader(unittest.TestCase):
             assert line == hs[i]
         assert header_string.splitlines() == header.splitlines(), "Failed to read HEADER file"
 
-    def test_from_string(self):
+    def test_from_str(self):
         header = Header.from_str(header_string)
         assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
@@ -211,7 +211,7 @@ class TestFeffPot(unittest.TestCase):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/POTENTIALS"
         feff_pot = Potential.pot_string_from_file(filepath)
-        dct, dr = Potential.pot_dict_from_string(feff_pot)
+        dct, dr = Potential.pot_dict_from_str(feff_pot)
         assert dct["Co"] == 1, "Wrong symbols read in for Potential"
         assert dr == {0: "O", 1: "Co", 2: "O"}
 

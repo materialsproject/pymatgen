@@ -178,12 +178,12 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
             if make_dir_if_not_present:
                 os.makedirs(output_dir, exist_ok=True)
 
-            with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
+            with zopen(f"{output_dir}/POTCAR.spec", mode="wt") as file:
                 file.write("\n".join(self.potcar_symbols))
 
             for key in ["INCAR", "POSCAR", "KPOINTS"]:
                 if (val := getattr(self, key.lower())) is not None:
-                    with zopen(os.path.join(output_dir, key), "wt") as file:
+                    with zopen(os.path.join(output_dir, key), mode="wt") as file:
                         file.write(str(val))
         else:
             vasp_input = self.get_vasp_input()
@@ -197,7 +197,7 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
-            with ZipFile(os.path.join(output_dir, filename), "w") as zip_file:
+            with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
                 for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
                     try:
                         zip_file.write(os.path.join(output_dir, file), arcname=file)
