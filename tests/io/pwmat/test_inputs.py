@@ -96,11 +96,3 @@ class TestHighSymmetryPoint(PymatgenTest):
         with zopen(tmp_filepath, "rt") as f:
             tmp_high_symmetry_points_str = f.read()
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()
-
-
-class TestStructure(PymatgenTest):
-    def test_to_from_file(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
-        struct = Structure.from_file(filepath)
-        tmp_filepath = f"{self.tmp_path}/atom.config.testing.lzma"
-        struct.to(tmp_filepath, fmt="pwmat")

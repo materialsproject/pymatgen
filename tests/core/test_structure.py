@@ -818,7 +818,7 @@ Direct
         assert_allclose(self.struct.distance_matrix, ans)
 
     def test_to_from_file_and_string(self):
-        for fmt in ("cif", "json", "poscar", "cssr"):
+        for fmt in ("cif", "json", "poscar", "cssr", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
@@ -848,6 +848,12 @@ Direct
         yml_path = yaml_path.replace(".yaml", ".yml")
         os.replace(yaml_path, yml_path)
         assert Structure.from_file(yml_path) == self.struct
+
+        atom_config_path = f"{self.tmp_path}/atom_testing.config"
+        atom_config_str = self.struct.to(filename=atom_config_path)
+        with open(atom_config_path) as file:
+            assert file.read() == atom_config_str
+        assert Structure.from_file(atom_config_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")

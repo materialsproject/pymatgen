@@ -375,7 +375,7 @@ class AtomConfig(MSONable):
         return self.get_str()
 
     @classmethod
-    def from_str(cls, data: str, mag: bool = True) -> AtomConfig:
+    def from_str(cls, data: str, mag: bool = False) -> AtomConfig:
         """Reads a atom.config from a string.
 
         Args:
@@ -402,7 +402,7 @@ class AtomConfig(MSONable):
         return cls(structure)
 
     @classmethod
-    def from_file(cls, filename: PathLike, mag: bool = True) -> AtomConfig:
+    def from_file(cls, filename: PathLike, mag: bool = False) -> AtomConfig:
         """Returns a AtomConfig from a file
 
         Args:
