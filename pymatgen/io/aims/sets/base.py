@@ -91,7 +91,7 @@ class AimsInputSet(InputSet):
             inputs={
                 CONTROL_FILE_NAME: aims_control_in,
                 GEOMETRY_FILE_NAME: aims_geometry_in,
-                PARAMS_JSON_FILE_NAME: json.dumps(self._parameters, indent=2, cls=MontyEncoder),
+                PARAMS_JSON_FILE_NAME: json.dumps(self._parameters, cls=MontyEncoder),
             }
         )
 
@@ -164,7 +164,7 @@ class AimsInputSet(InputSet):
         aims_control_in, _ = self.get_input_files()
 
         self.inputs[CONTROL_FILE_NAME] = aims_control_in
-        self.inputs[PARAMS_JSON_FILE_NAME] = json.dumps(self._parameters, indent=2, cls=MontyEncoder)
+        self.inputs[PARAMS_JSON_FILE_NAME] = json.dumps(self._parameters, cls=MontyEncoder)
 
         inputs = {str(key): val for key, val in self.inputs.items()}
         self.__dict__.update(inputs)
@@ -211,10 +211,6 @@ class AimsInputSet(InputSet):
         self.inputs[CONTROL_FILE_NAME] = aims_control_in
         inputs = {str(key): val for key, val in self.inputs.items()}
         self.__dict__.update(inputs)
-
-    def deepcopy(self):
-        """Deep copy of the input set."""
-        return copy.deepcopy(self)
 
 
 @dataclass
