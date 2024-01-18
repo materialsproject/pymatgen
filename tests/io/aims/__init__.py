@@ -3,7 +3,7 @@ from __future__ import annotations
 import gzip
 
 
-def compare_files(ref_file, test_file):
+def compare_single_files(ref_file, test_file):
     with open(test_file) as tf:
         test_lines = tf.readlines()[5:]
 
