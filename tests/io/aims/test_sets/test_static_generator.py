@@ -31,7 +31,7 @@ def compare_files(test_name, work_dir, ref_dir):
 
 
 def comp_system(atoms, user_params, test_name, work_path, ref_path):
-    generator = StaticSetGenerator(user_parameters=user_params)
+    generator = StaticSetGenerator(user_params=user_params)
     input_set = generator.get_input_set(atoms)
     input_set.write_input(work_path / test_name)
     compare_files(test_name, work_path, ref_path)
@@ -44,9 +44,9 @@ Si = Structure(
     species=["Si", "Si"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
-species_dir = Path(__file__).resolve().parents[1] / "species_directory"
 
 module_dir = Path(__file__).resolve().parents[1]
+species_dir = module_dir / "species_directory"
 ref_path = (module_dir / "aims_input_generator_ref").resolve()
 
 

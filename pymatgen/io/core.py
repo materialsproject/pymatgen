@@ -147,8 +147,8 @@ class InputSet(MSONable, MutableMapping):
         cls = self.__class__
         new_instance = cls.__new__(cls)
 
-        for k, v in self.__dict__.items():
-            setattr(new_instance, k, v)
+        for key, val in self.__dict__.items():
+            setattr(new_instance, key, val)
 
         return new_instance
 
@@ -157,8 +157,8 @@ class InputSet(MSONable, MutableMapping):
         new_instance = cls.__new__(cls)
         memo[id(self)] = new_instance
 
-        for k, v in self.__dict__.items():
-            setattr(new_instance, k, copy.deepcopy(v, memo))
+        for key, val in self.__dict__.items():
+            setattr(new_instance, key, copy.deepcopy(val, memo))
 
         return new_instance
 
@@ -168,7 +168,7 @@ class InputSet(MSONable, MutableMapping):
     def __iter__(self) -> Iterator[str | Path]:
         return iter(self.inputs)
 
-    def __getitem__(self, key) -> str | InputFile | slice:
+    def __getitem__(self, key: str | Path) -> str | InputFile | slice:
         return self.inputs[key]
 
     def __setitem__(self, key: str | Path, value: str | InputFile) -> None:

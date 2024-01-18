@@ -33,7 +33,7 @@ def compare_files(test_name, work_dir, ref_dir):
 
 
 def comp_system(atoms, prev_dir, test_name, work_path, ref_path, species_dir):
-    generator = StaticSetGenerator(user_parameters={})
+    generator = StaticSetGenerator(user_params={})
     # adjust species dir in the prev_dir
     params_file = Path(prev_dir) / "parameters.json"
     shutil.copy(params_file, Path(prev_dir) / "~parameters.json")
@@ -56,9 +56,9 @@ Si = Structure(
     species=["Si", "Si"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
-species_dir = Path(__file__).resolve().parents[1] / "species_directory"
 
 module_dir = Path(__file__).resolve().parents[1]
+species_dir = module_dir / "species_directory"
 ref_path = (module_dir / "aims_input_generator_ref").resolve()
 
 

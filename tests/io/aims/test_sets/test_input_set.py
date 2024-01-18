@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import pytest
-from monty.json import MontyEncoder
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.aims.sets import AimsInputSet
@@ -254,62 +253,51 @@ def test_input_set():
         species=["Si", "Si"],
         coords=[[0.0] * 3, [0.25] * 3],
     )
-    parameters_json_str = json.dumps(
-        {
-            "xc": "pbe",
-            "species_dir": f'{species_dir / "light"}',
-            "k_grid": [2, 2, 2],
-        },
-        indent=2,
-        cls=MontyEncoder,
-    )
-    parameters_json_str_rel = json.dumps(
-        {
-            "xc": "pbe",
-            "species_dir": f'{species_dir / "light"}',
-            "k_grid": [2, 2, 2],
-            "relax_geometry": "trm 1e-3",
-        },
-        indent=2,
-        cls=MontyEncoder,
-    )
+    params_json = {
+        "xc": "pbe",
+        "species_dir": f"{species_dir}/light",
+        "k_grid": [2, 2, 2],
+    }
+    params_json_rel = {
+        "xc": "pbe",
+        "species_dir": f"{species_dir}/light",
+        "k_grid": [2, 2, 2],
+        "relax_geometry": "trm 1e-3",
+    }
 
     parameters = {
         "xc": "pbe",
-        "species_dir": f"{species_dir / 'light'}",
+        "species_dir": f"{species_dir}/light",
         "k_grid": [2, 2, 2],
     }
-    properties = ("energy", "free_energy", "forces")
+    props = ("energy", "free_energy", "forces")
 
-    in_set = AimsInputSet(parameters, Si, properties)
+    in_set = AimsInputSet(parameters, Si, props)
     assert check_file(geometry_in_str, in_set.geometry_in.get_str())
     assert check_file(control_in_str, in_set.control_in.get_str())
-    assert parameters_json_str == in_set.parameters_json
+    assert params_json == json.loads(in_set.params_json)
 
     in_set_copy = in_set.deepcopy()
     assert check_file(geometry_in_str, in_set_copy.geometry_in.get_str())
     assert check_file(control_in_str, in_set_copy.control_in.get_str())
-    assert parameters_json_str == in_set_copy.parameters_json
+    assert params_json == json.loads(in_set_copy.params_json)
 
     in_set.set_parameters(**parameters, relax_geometry="trm 1e-3")
     assert check_file(control_in_str_rel, in_set.control_in.get_str())
     assert check_file(control_in_str, in_set_copy.control_in.get_str())
 
-    assert parameters_json_str_rel == in_set.parameters_json
-    assert parameters_json_str == in_set_copy.parameters_json
+    assert params_json_rel == json.loads(in_set.params_json)
+    assert params_json == json.loads(in_set_copy.params_json)
 
     in_set.remove_parameters(keys=["relax_geometry"])
     assert check_file(control_in_str, in_set.control_in.get_str())
-    assert parameters_json_str == in_set.parameters_json
+    assert params_json == json.loads(in_set.params_json)
 
     in_set.remove_parameters(keys=["relax_geometry"], strict=False)
     assert check_file(control_in_str, in_set.control_in.get_str())
-    assert parameters_json_str == in_set.parameters_json
+    assert params_json == json.loads(in_set.params_json)
 
-    with pytest.raises(
-        ValueError,
-        match="The key='relax_geometry' not in list",
-    ):
+    with pytest.raises(ValueError, match="key='relax_geometry' not in list"):
         in_set.remove_parameters(keys=["relax_geometry"], strict=True)
 
     new_structure = Structure(

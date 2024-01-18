@@ -77,7 +77,7 @@ class AimsInputSet(InputSet):
         """Construct the AimsInputSet.
 
         Args:
-            parameters (Dict[str, Any]): The ASE parameters object for the calculation
+            parameters (dict[str, Any]): The ASE parameters object for the calculation
             structure (Structure or Molecule): The Structure/Molecule objects to
                 create the inputs for
             properties (Sequence[str]): The properties to calculate for the calculation
@@ -138,7 +138,7 @@ class AimsInputSet(InputSet):
         return self[GEOMETRY_FILE_NAME]
 
     @property
-    def parameters_json(self) -> str | InputFile | slice:
+    def params_json(self) -> str | InputFile | slice:
         """Get the JSON representation of the parameters dict."""
         return self[PARAMS_JSON_FILE_NAME]
 
@@ -190,7 +190,7 @@ class AimsInputSet(InputSet):
         for key in keys:
             if key not in self._parameters:
                 if strict:
-                    raise ValueError(f"The {key=} not in {list(self._parameters)=}")
+                    raise ValueError(f"{key=} not in {list(self._parameters)=}")
                 continue
 
             del self._parameters[key]
@@ -224,13 +224,13 @@ class AimsInputGenerator(InputGenerator):
 
     Parameters
     ----------
-    user_parameters: Dict[str, Any]
+    user_params: dict[str, Any]
         Updates the default parameters for the FHI-aims calculator
-    user_kpoints_settings: Dict[str, Any]
+    user_kpoints_settings: dict[str, Any]
         The settings used to create the k-grid parameters for FHI-aims
     """
 
-    user_parameters: dict[str, Any] = field(default_factory=dict)
+    user_params: dict[str, Any] = field(default_factory=dict)
     user_kpoints_settings: dict[str, Any] = field(default_factory=dict)
 
     def get_input_set(  # type: ignore
@@ -377,12 +377,12 @@ class AimsInputGenerator(InputGenerator):
         parameter_updates = self.get_parameter_updates(structure, prev_parameters)
         parameters = recursive_update(parameters, parameter_updates)
 
-        # Override default parameters with user_parameters
-        parameters = recursive_update(parameters, self.user_parameters)
+        # Override default parameters with user_params
+        parameters = recursive_update(parameters, self.user_params)
         if ("k_grid" in parameters) and ("density" in kpt_settings):
             warn(
-                "WARNING: the k_grid is set in user_parameters and in the kpt_settings,"
-                " using the one passed in user_parameters.",
+                "WARNING: the k_grid is set in user_params and in the kpt_settings,"
+                " using the one passed in user_params.",
                 stacklevel=1,
             )
         elif isinstance(structure, Structure) and ("k_grid" not in parameters):
@@ -402,7 +402,7 @@ class AimsInputGenerator(InputGenerator):
         ----------
         structure : Structure or Molecule
             The system to run
-        prev_parameters: Dict[str, Any]
+        prev_parameters: dict[str, Any]
             Previous calculation parameters.
 
         Returns
