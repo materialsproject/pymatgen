@@ -463,7 +463,7 @@ class TestCombinedIcohp(unittest.TestCase):
                 v.pop("@version")
             assert v == icohpvalue[key]
 
-        assert {} == self.icohpcollection_KF.get_icohp_dict_by_bondlengths(minbondlength=0.0, maxbondlength=1.0)
+        assert self.icohpcollection_KF.get_icohp_dict_by_bondlengths(minbondlength=0.0, maxbondlength=1.0) == {}
 
         # with spin polarization
         icohpvalue_spin = {}

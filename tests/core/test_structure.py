@@ -780,11 +780,11 @@ Direct
         )
         all_nn = struct.get_all_neighbors(1e-5, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
         all_nn = struct.get_all_neighbors(0, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
     def test_coincide_sites(self):
         struct = Structure(

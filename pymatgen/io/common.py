@@ -279,22 +279,22 @@ class VolumetricData(MSONable):
         """
         import h5py
 
-        with h5py.File(filename, mode="w") as f:
-            ds = f.create_dataset("lattice", (3, 3), dtype="float")
+        with h5py.File(filename, mode="w") as file:
+            ds = file.create_dataset("lattice", (3, 3), dtype="float")
             ds[...] = self.structure.lattice.matrix
-            ds = f.create_dataset("Z", (len(self.structure.species),), dtype="i")
+            ds = file.create_dataset("Z", (len(self.structure.species),), dtype="i")
             ds[...] = np.array([sp.Z for sp in self.structure.species])
-            ds = f.create_dataset("fcoords", self.structure.frac_coords.shape, dtype="float")
+            ds = file.create_dataset("fcoords", self.structure.frac_coords.shape, dtype="float")
             ds[...] = self.structure.frac_coords
             dt = h5py.special_dtype(vlen=str)
-            ds = f.create_dataset("species", (len(self.structure.species),), dtype=dt)
+            ds = file.create_dataset("species", (len(self.structure.species),), dtype=dt)
             ds[...] = [str(sp) for sp in self.structure.species]
-            grp = f.create_group("vdata")
+            grp = file.create_group("vdata")
             for k in self.data:
                 ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
                 ds[...] = self.data[k]
-            f.attrs["name"] = self.name
-            f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+            file.attrs["name"] = self.name
+            file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
     @classmethod
     def from_hdf5(cls, filename, **kwargs):

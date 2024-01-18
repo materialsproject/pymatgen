@@ -112,7 +112,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
             znucl=13,
         )
 
-    `xred` can be replaced with `xcart` or `xangst`.
+    xred can be replaced with xcart or xangst.
     """
     kwargs.update(dict(*args))
     cls = cls or Structure
@@ -307,8 +307,7 @@ def contract(string):
 
 class AbivarAble(metaclass=abc.ABCMeta):
     """
-    An `AbivarAble` object provides a method `to_abivars`
-    that returns a dictionary with the abinit variables.
+    An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
 
     @abc.abstractmethod
@@ -369,17 +368,13 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
         # Assume a string with mode
         try:
-            return _mode2spinvars[obj]
+            return _mode_to_spin_vars[obj]
         except KeyError:
             raise KeyError(f"Wrong value for spin_mode: {obj}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
-        return {
-            "nsppol": self.nsppol,
-            "nspinor": self.nspinor,
-            "nspden": self.nspden,
-        }
+        return {"nsppol": self.nsppol, "nspinor": self.nspinor, "nspden": self.nspden}
 
     def as_dict(self):
         """Convert object to dict."""
@@ -394,7 +389,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
 
 # An handy Multiton
-_mode2spinvars = {
+_mode_to_spin_vars = {
     "unpolarized": SpinMode("unpolarized", 1, 1, 1),
     "polarized": SpinMode("polarized", 2, 1, 2),
     "afm": SpinMode("afm", 1, 1, 2),
