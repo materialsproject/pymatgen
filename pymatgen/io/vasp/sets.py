@@ -2759,7 +2759,7 @@ class MVLNPTMDSet(MITMDSet):
         defaults = {
             "ALGO": "Fast",
             "ISIF": 3,
-            "LANGEVIN_GAMMA": [10] * self.structure.ntypesp,
+            "LANGEVIN_GAMMA": [10] * self.structure.n_elems,
             "LANGEVIN_GAMMA_L": 1,
             "MDALGO": 3,
             "PMASS": 10,
@@ -2771,7 +2771,7 @@ class MVLNPTMDSet(MITMDSet):
         self.user_incar_settings = defaults
 
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
-        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]
+        enmax = [self.potcar[idx].keywords["ENMAX"] for idx in range(self.structure.n_elems)]
         encut = max(enmax) * 1.5
         self._config_dict["INCAR"]["ENCUT"] = encut
 
