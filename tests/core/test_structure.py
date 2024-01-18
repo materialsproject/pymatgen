@@ -818,7 +818,7 @@ Direct
         assert_allclose(self.struct.distance_matrix, ans)
 
     def test_to_from_file_and_string(self):
-        for fmt in ("cif", "json", "poscar", "cssr"):
+        for fmt in ("cif", "json", "poscar", "cssr", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
@@ -848,6 +848,10 @@ Direct
         yml_path = yaml_path.replace(".yaml", ".yml")
         os.replace(yaml_path, yml_path)
         assert Structure.from_file(yml_path) == self.struct
+
+        atom_config_path = f"{self.tmp_path}/atom-test.config"
+        self.struct.to(filename=atom_config_path)
+        assert Structure.from_file(atom_config_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
@@ -1284,7 +1288,7 @@ class TestStructure(PymatgenTest):
 
     def test_to_from_file_str(self):
         # to/from string
-        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res"):
+        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
@@ -1300,6 +1304,11 @@ class TestStructure(PymatgenTest):
             self.struct.to(filename=f"json-struct{ext}")
             assert os.path.isfile(f"json-struct{ext}")
             assert Structure.from_file(f"json-struct{ext}") == self.struct
+
+        # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
+        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
+        with pytest.raises(ValueError, match="Unrecognized extension in filename="):
+            self.struct.from_file(filename=filename)
 
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])
