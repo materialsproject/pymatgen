@@ -243,7 +243,7 @@ class ResParser:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
-        with zopen(filename, "r") as file:
+        with zopen(filename, mode="r") as file:
             self.source = file.read()
             return self._parse_txt()
 
@@ -316,7 +316,7 @@ class ResWriter:
 
     def write(self, filename: str) -> None:
         """Write the res data to a file."""
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(str(self))
 
 

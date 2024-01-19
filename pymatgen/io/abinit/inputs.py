@@ -615,8 +615,8 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
-        with open(filepath, "w") as fh:
-            fh.write(str(self))
+        with open(filepath, mode="w") as file:
+            file.write(str(self))
 
     def deepcopy(self):
         """Deep copy of the input."""
@@ -815,10 +815,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "You cannot set the value of a variable associated to the structure.\n"
                 "Use Structure objects to prepare the input file."
             )
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """
@@ -1225,10 +1221,6 @@ class BasicMultiDataset:
 
     def __str__(self):
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, with_pseudos=True):
         """

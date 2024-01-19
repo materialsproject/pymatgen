@@ -34,11 +34,11 @@ class Algo:
 
 if __name__ == "__main__":
     # Choose the geometry
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
     while True:
         cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
         try:
-            cg = allcg[cg_symbol]
+            cg = all_cg[cg_symbol]
             break
         except LookupError:
             print("Wrong geometry, try again ...")
@@ -93,5 +93,5 @@ if __name__ == "__main__":
         cg._algorithms = [ExplicitPermutationsAlgorithm(permutations=explicit_permutations)]
         new_geom_dir = "new_geometry_files"
         os.makedirs(new_geom_dir, exist_ok=True)
-        with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as f:
-            json.dump(cg.as_dict(), f)
+        with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w") as file:
+            json.dump(cg.as_dict(), file)

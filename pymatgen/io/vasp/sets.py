@@ -164,12 +164,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             if make_dir_if_not_present:
                 os.makedirs(output_dir, exist_ok=True)
 
-            with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
+            with zopen(f"{output_dir}/POTCAR.spec", mode="wt") as file:
                 file.write("\n".join(self.potcar_symbols))
 
             for key in ["INCAR", "POSCAR", "KPOINTS"]:
                 if (val := getattr(self, key.lower())) is not None:
-                    with zopen(os.path.join(output_dir, key), "wt") as file:
+                    with zopen(os.path.join(output_dir, key), mode="wt") as file:
                         file.write(str(val))
         else:
             vasp_input = self.get_vasp_input()
@@ -183,7 +183,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
-            with ZipFile(os.path.join(output_dir, filename), "w") as zip_file:
+            with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
                 for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
                     try:
                         zip_file.write(os.path.join(output_dir, file), arcname=file)
@@ -1270,7 +1270,9 @@ class MatPESStaticSet(DictSet):
             self._config_dict["INCAR"].pop("GGA", None)
         if xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
-        default_potcars = self.CONFIG["PARENT"].replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
+
+        default_potcars = self.CONFIG["PARENT"].upper()
+        default_potcars = default_potcars.replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
         user_potcar_functional = kwargs.get("user_potcar_functional", default_potcars)
         if user_potcar_functional.upper() != default_potcars:
             warnings.warn(
@@ -2757,7 +2759,7 @@ class MVLNPTMDSet(MITMDSet):
         defaults = {
             "ALGO": "Fast",
             "ISIF": 3,
-            "LANGEVIN_GAMMA": [10] * self.structure.ntypesp,
+            "LANGEVIN_GAMMA": [10] * self.structure.n_elems,
             "LANGEVIN_GAMMA_L": 1,
             "MDALGO": 3,
             "PMASS": 10,
@@ -2769,7 +2771,7 @@ class MVLNPTMDSet(MITMDSet):
         self.user_incar_settings = defaults
 
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
-        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]
+        enmax = [self.potcar[idx].keywords["ENMAX"] for idx in range(self.structure.n_elems)]
         encut = max(enmax) * 1.5
         self._config_dict["INCAR"]["ENCUT"] = encut
 

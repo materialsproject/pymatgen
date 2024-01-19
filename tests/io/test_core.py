@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import os
 
-import numpy as np
 import pytest
 from monty.serialization import MontyDecoder
 
@@ -18,10 +17,6 @@ class StructInputFile(InputFile):
 
     def __init__(self, structure: Structure):
         self.structure = structure
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self) -> str:
         cw = CifWriter(self.structure)

@@ -17,14 +17,14 @@ test_dir = f"{TEST_FILES_DIR}/lammps"
 class TestLammpsDump(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open(f"{test_dir}/dump.rdx_wc.100") as f:
-            rdx_str = f.read()
+        with open(f"{test_dir}/dump.rdx_wc.100") as file:
+            rdx_str = file.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)
-        with open(f"{test_dir}/dump.tatb") as f:
-            tatb_str = f.read()
+        with open(f"{test_dir}/dump.tatb") as file:
+            tatb_str = file.read()
         cls.tatb = LammpsDump.from_str(string=tatb_str)
 
-    def test_from_string(self):
+    def test_from_str(self):
         assert self.rdx.timestep == 100
         assert self.rdx.natoms == 21
         np.testing.assert_array_equal(self.rdx.box.bounds, np.array([(35, 48)] * 3))

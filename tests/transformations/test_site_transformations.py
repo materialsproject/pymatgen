@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.transformations.site_transformations import (
     AddSitePropertyTransformation,
@@ -38,13 +37,11 @@ class TestTranslateSitesTransformation(PymatgenTest):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
@@ -94,13 +91,11 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
@@ -128,13 +123,11 @@ class TestRemoveSitesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
@@ -162,13 +155,11 @@ class TestInsertSitesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
@@ -201,13 +192,11 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation_complete(self):

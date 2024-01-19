@@ -71,7 +71,7 @@ class TestIStructure(PymatgenTest):
         self.struct = IStructure(self.lattice, ["Si"] * 2, coords)
         assert len(self.struct) == 2, "Wrong number of sites in structure!"
         assert self.struct.is_ordered
-        assert self.struct.ntypesp == 1
+        assert self.struct.n_elems == 1
         coords = [[0, 0, 0], [0.0, 0, 0.0000001]]
         with pytest.raises(
             StructureError, match=f"sites are less than {self.struct.DISTANCE_TOLERANCE} Angstrom apart"
@@ -818,7 +818,7 @@ Direct
         assert_allclose(self.struct.distance_matrix, ans)
 
     def test_to_from_file_and_string(self):
-        for fmt in ("cif", "json", "poscar", "cssr"):
+        for fmt in ("cif", "json", "poscar", "cssr", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
@@ -848,6 +848,10 @@ Direct
         yml_path = yaml_path.replace(".yaml", ".yml")
         os.replace(yaml_path, yml_path)
         assert Structure.from_file(yml_path) == self.struct
+
+        atom_config_path = f"{self.tmp_path}/atom-test.config"
+        self.struct.to(filename=atom_config_path)
+        assert Structure.from_file(atom_config_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
@@ -967,7 +971,7 @@ class TestStructure(PymatgenTest):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])
         assert struct.formula == "Si2 O1"
-        assert struct.ntypesp == 2
+        assert struct.n_elems == 2
         assert struct.symbol_set == ("O", "Si")
         assert struct.indices_from_symbol("Si") == (0, 2)
         assert struct.indices_from_symbol("O") == (1,)
@@ -977,7 +981,7 @@ class TestStructure(PymatgenTest):
         assert struct.indices_from_symbol("O") == (1,)
         struct.append("N", [0.25, 0.25, 0.25])
         assert struct.formula == "Si1 N1 O1"
-        assert struct.ntypesp == 3
+        assert struct.n_elems == 3
         assert struct.symbol_set == ("N", "O", "Si")
         assert struct.indices_from_symbol("Si") == (0,)
         assert struct.indices_from_symbol("O") == (1,)
@@ -987,7 +991,7 @@ class TestStructure(PymatgenTest):
         assert struct.symbol_set == ("Ge", "N", "O")
         struct.replace_species({"Ge": "Si"})
         assert struct.formula == "Si1 N1 O1"
-        assert struct.ntypesp == 3
+        assert struct.n_elems == 3
 
         struct.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
         assert struct.formula == "Si0.5 Ge0.5 N1 O1"
@@ -995,7 +999,7 @@ class TestStructure(PymatgenTest):
         struct.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         assert struct.formula == "Si0.75 Ge0.25 N1 O1"
 
-        assert struct.ntypesp == 4
+        assert struct.n_elems == 4
 
         struct.replace_species({"Ge": "Si"})
         struct.substitute(1, "hydroxyl")
@@ -1282,9 +1286,9 @@ class TestStructure(PymatgenTest):
         assert s2 == self.struct
         assert isinstance(s2, Structure)
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         # to/from string
-        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res"):
+        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
@@ -1300,6 +1304,11 @@ class TestStructure(PymatgenTest):
             self.struct.to(filename=f"json-struct{ext}")
             assert os.path.isfile(f"json-struct{ext}")
             assert Structure.from_file(f"json-struct{ext}") == self.struct
+
+        # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
+        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
+        with pytest.raises(ValueError, match="Unrecognized extension in filename="):
+            self.struct.from_file(filename=filename)
 
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])
@@ -1751,6 +1760,22 @@ Sites (8)
         assert len(atoms) == len(self.struct)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
 
+    def test_struct_with_isotope(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = struct.replace_species({"Li": "H"})
+
+        struct_deuter = struct.copy()
+        struct_deuter.replace_species({"H": "D"})
+
+        assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
+        assert "Deuterium" in [el.long_name for el in struct_deuter.composition.elements]
+        assert struct_deuter == struct
+
+        # test to make sure no Deuteriums are written to POSCAR
+        struct_deuter.to(f"{self.tmp_path}/POSCAR_deuter")
+        struct = Structure.from_file(f"{self.tmp_path}/POSCAR_deuter")
+        assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
+
 
 class TestIMolecule(PymatgenTest):
     def setUp(self):
@@ -1997,7 +2022,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert d["charge"] == 0
         assert d["spin_multiplicity"] == 1
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         self.mol.properties["test_prop"] = 42
         for fmt in ("xyz", "json", "g03", "yaml", "yml"):
             mol = self.mol.to(fmt=fmt)
@@ -2174,7 +2199,7 @@ class TestMolecule(PymatgenTest):
         benzene.substitute(13, sub)
         assert benzene.formula == "H9 C8 Br1"
 
-    def test_to_from_file_string(self):
+    def test_to_from_file_str(self):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None

@@ -796,11 +796,11 @@ class BuckinghamPotential:
         """
         assert bush_lewis_flag in {"bush", "lewis"}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
-        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as f:
+        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as file:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
-            for row in f:
+            for row in file:
                 if row[0] == "#":
                     continue
                 if row.split()[0] == "species":

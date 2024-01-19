@@ -99,10 +99,10 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
         feff_input = "\n\n".join(str(feff[k]) for k in ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"] if k in feff)
 
         for k, v in feff.items():
-            with open(os.path.join(output_dir, k), "w") as f:
+            with open(os.path.join(output_dir, k), mode="w") as f:
                 f.write(str(v))
 
-        with open(f"{output_dir}/feff.inp", "w") as f:
+        with open(f"{output_dir}/feff.inp", mode="w") as f:
             f.write(feff_input)
 
         # write the structure to CIF file

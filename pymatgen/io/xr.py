@@ -65,13 +65,8 @@ class Xr:
         Args:
             filename (str): name of the file to write to.
         """
-        with zopen(filename, "wt") as f:
+        with zopen(filename, mode="wt") as f:
             f.write(str(self) + "\n")
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string, use_cores=True, thresh=1.0e-4):
@@ -158,5 +153,5 @@ class Xr:
             xr (Xr): Xr object corresponding to the input
                     file.
         """
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt") as f:
             return cls.from_str(f.read(), use_cores=use_cores, thresh=thresh)
