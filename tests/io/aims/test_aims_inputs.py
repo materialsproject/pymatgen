@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from helpers.aims import compare_single_files as compare_files
 from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.io.aims.inputs import (
@@ -16,8 +17,6 @@ from pymatgen.io.aims.inputs import (
     AimsCube,
     AimsGeometryIn,
 )
-
-from . import compare_single_files as compare_files
 
 infile_dir = Path(__file__).parent / "input_files"
 

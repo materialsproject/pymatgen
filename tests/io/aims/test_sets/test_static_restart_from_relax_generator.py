@@ -1,35 +1,13 @@
 """The test of input sets generating from restart information"""
 from __future__ import annotations
 
-import gzip
 import json
 import shutil
-from glob import glob
 from pathlib import Path
 
-from pymatgen.core import Lattice, Molecule, Structure
+from helpers.aims import O2, Si, compare_files
+
 from pymatgen.io.aims.sets.core import StaticSetGenerator
-
-
-def compare_files(test_name, work_dir, ref_dir):
-    for file in glob(f"{work_dir / test_name}/*in"):
-        with open(file) as test_file:
-            test_lines = [line.strip() for line in test_file.readlines()[4:] if len(line.strip()) > 0]
-
-        with gzip.open(f"{ref_dir / test_name / Path(file).name}.gz", "rt") as ref_file:
-            ref_lines = [line.strip() for line in ref_file.readlines()[4:] if len(line.strip()) > 0]
-
-        assert test_lines == ref_lines
-
-    with open(f"{ref_dir / test_name}/parameters.json") as ref_file:
-        ref = json.load(ref_file)
-    ref.pop("species_dir", None)
-
-    with open(f"{work_dir / test_name}/parameters.json") as check_file:
-        check = json.load(check_file)
-    check.pop("species_dir", None)
-
-    assert ref == check
 
 
 def comp_system(atoms, prev_dir, test_name, work_path, ref_path, species_dir):
@@ -48,14 +26,6 @@ def comp_system(atoms, prev_dir, test_name, work_path, ref_path, species_dir):
     compare_files(test_name, work_path, ref_path)
     shutil.move(Path(prev_dir) / "~parameters.json", params_file)
 
-
-O2 = Molecule(species=["O", "O"], coords=[[0, 0, 0.622978], [0, 0, -0.622978]])
-
-Si = Structure(
-    lattice=Lattice([[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]]),
-    species=["Si", "Si"],
-    coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
-)
 
 module_dir = Path(__file__).resolve().parents[1]
 species_dir = module_dir / "species_directory"

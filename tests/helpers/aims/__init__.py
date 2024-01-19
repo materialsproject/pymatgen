@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pymatgen.core import Structure
+from pymatgen.core import Molecule, Structure
 
 
 def check_band(test_line, ref_line):
@@ -52,12 +52,37 @@ def compare_files(test_name, work_dir, ref_dir):
                 assert ref_out == check_out
 
 
+def comp_system(atoms, user_params, test_name, work_path, ref_path, generator_cls):
+    k_point_density = user_params.pop("k_point_density", 20)
+
+    try:
+        generator = generator_cls(user_params=user_params, k_point_density=k_point_density)
+    except TypeError:
+        generator = generator_cls(user_params=user_params)
+
+    input_set = generator.get_input_set(atoms)
+    input_set.write_input(work_path / test_name)
+
+    return compare_files(test_name, work_path, ref_path)
+
+
+def compare_single_files(ref_file, test_file):
+    with open(test_file) as tf:
+        test_lines = tf.readlines()[5:]
+
+    with gzip.open(f"{ref_file}.gz", mode="rt") as rf:
+        ref_lines = rf.readlines()[5:]
+
+    for test_line, ref_line in zip(test_lines, ref_lines):
+        if "species_dir" in ref_line:
+            continue
+        assert test_line.strip() == ref_line.strip()
+
+
 Si = Structure(
     lattice=[[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]],
     species=["Si", "Si"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
 
-module_dir = Path(__file__).resolve().parents[1]
-species_dir = module_dir / "species_directory"
-ref_path = (module_dir / "aims_input_generator_ref").resolve()
+O2 = Molecule(species=["O", "O"], coords=[[0, 0, 0.622978], [0, 0, -0.622978]])

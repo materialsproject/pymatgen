@@ -87,6 +87,7 @@ isort.split-on-trailing-comma = false
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
+norecursedirs = "tests/helpers"
 
 [tool.coverage.run]
 parallel = true
