@@ -239,7 +239,8 @@ class Trajectory(MSONable):
         if (
             self.lattice is None  # is molecules
             and trajectory.lattice is not None  # is structures
-            or self.lattice is not None  # is structures
+        ) or (
+            self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
             raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
@@ -442,8 +443,8 @@ class Trajectory(MSONable):
 
         xdatcar_string = "\n".join(lines) + "\n"
 
-        with zopen(filename, mode="wt") as f:
-            f.write(xdatcar_string)
+        with zopen(filename, mode="wt") as file:
+            file.write(xdatcar_string)
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""

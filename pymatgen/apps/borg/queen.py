@@ -74,13 +74,11 @@ class BorgQueen:
         for parent, subdirs, files in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data = []
-        count = 0
         total = len(valid_paths)
-        for path in valid_paths:
+        for idx, path in enumerate(valid_paths, 1):
             new_data = self._drone.assimilate(path)
             self._data.append(new_data)
-            count += 1
-            logger.info(f"{count}/{total} ({count / total:.2%}) done")
+            logger.info(f"{idx}/{total} ({idx / total:.2%}) done")
         for json_str in data:
             self._data.append(json.loads(json_str, cls=MontyDecoder))
 

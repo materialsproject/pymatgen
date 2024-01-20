@@ -1,3 +1,5 @@
+# ruff: noqa: N806
+
 from __future__ import annotations
 
 import functools
@@ -72,8 +74,8 @@ class TestRemoveSpeciesTransformation(unittest.TestCase):
             [0.00, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
-        assert s.composition.formula == "O2"
+        struct = trafo.apply_transformation(struct)
+        assert struct.composition.formula == "O2"
 
         d = trafo.as_dict()
         assert isinstance(RemoveSpeciesTransformation.from_dict(d), RemoveSpeciesTransformation)
@@ -296,12 +298,12 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
         assert trafo.lowest_energy_structure == output[0]["structure"]
 
         struct = Structure(lattice, [{"Si4+": 0.5}, {"Si4+": 0.5}, {"O2-": 0.5}, {"O2-": 0.5}], coords)
-        allstructs = trafo.apply_transformation(struct, 50)
-        assert len(allstructs) == 4
+        all_structs = trafo.apply_transformation(struct, 50)
+        assert len(all_structs) == 4
 
         struct = Structure(lattice, [{"Si4+": 0.333}, {"Si4+": 0.333}, {"Si4+": 0.333}, "O2-"], coords)
-        allstructs = trafo.apply_transformation(struct, 50)
-        assert len(allstructs) == 3
+        all_structs = trafo.apply_transformation(struct, 50)
+        assert len(all_structs) == 3
 
         d = trafo.as_dict()
         assert isinstance(OrderDisorderedStructureTransformation.from_dict(d), OrderDisorderedStructureTransformation)

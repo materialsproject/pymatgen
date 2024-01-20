@@ -360,8 +360,8 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, mode="r") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="r") as file:
+            return cls.from_str(file.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
@@ -1196,8 +1196,8 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, mode="r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
             td = False
             while line != "":
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
@@ -1206,7 +1206,7 @@ class GaussianOutput:
                 if td and re.search(r"^\sExcited State\s*\d", line):
                     val = [float(v) for v in float_patt.findall(line)]
                     transitions.append(tuple(val[0:3]))
-                line = f.readline()
+                line = file.readline()
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):

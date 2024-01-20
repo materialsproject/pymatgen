@@ -294,7 +294,7 @@ class AdfKey(MSONable):
         """
         if len(self.options) == 0:
             return False
-        return any(self._sized_op and op[0] == option or op == option for op in self.options)
+        return any((self._sized_op and op[0] == option) or op == option for op in self.options)
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
@@ -606,7 +606,7 @@ class AdfInput:
         """
         self.task = task
 
-    def write_file(self, molecule, inpfile):
+    def write_file(self, molecule, inp_file):
         """
         Write an ADF input file.
 
@@ -624,15 +624,15 @@ class AdfInput:
         mol_blocks.append(atom_block)
 
         if molecule.charge != 0:
-            netq = molecule.charge
+            net_q = molecule.charge
             ab = molecule.spin_multiplicity - 1
-            charge_block = AdfKey("Charge", [netq, ab])
+            charge_block = AdfKey("Charge", [net_q, ab])
             mol_blocks.append(charge_block)
             if ab != 0:
                 unres_block = AdfKey("Unrestricted")
                 mol_blocks.append(unres_block)
 
-        with open(inpfile, "w+") as f:
+        with open(inp_file, "w+") as f:
             for block in mol_blocks:
                 f.write(str(block) + "\n")
             f.write(str(self.task) + "\n")
@@ -860,8 +860,8 @@ class AdfOutput:
             parse_coord = False
             n_atoms = len(self.final_structure)
 
-        with open(self.filename) as f:
-            for line in f:
+        with open(self.filename) as file:
+            for line in file:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:
                         m = coord_on_patt.search(line)

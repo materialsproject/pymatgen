@@ -71,7 +71,7 @@ class TestIStructure(PymatgenTest):
         self.struct = IStructure(self.lattice, ["Si"] * 2, coords)
         assert len(self.struct) == 2, "Wrong number of sites in structure!"
         assert self.struct.is_ordered
-        assert self.struct.ntypesp == 1
+        assert self.struct.n_elems == 1
         coords = [[0, 0, 0], [0.0, 0, 0.0000001]]
         with pytest.raises(
             StructureError, match=f"sites are less than {self.struct.DISTANCE_TOLERANCE} Angstrom apart"
@@ -751,7 +751,7 @@ Direct
         r_b2 = offsets2[1]
         assert sym_ops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
         assert sym_ops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
-        c_indices3, p_indices3, offsets3, distances3, s_indices3, sym_ops3 = s2.get_symmetric_neighbor_list(
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, _sym_ops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
@@ -780,11 +780,11 @@ Direct
         )
         all_nn = struct.get_all_neighbors(1e-5, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
         all_nn = struct.get_all_neighbors(0, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
     def test_coincide_sites(self):
         struct = Structure(
@@ -818,7 +818,7 @@ Direct
         assert_allclose(self.struct.distance_matrix, ans)
 
     def test_to_from_file_and_string(self):
-        for fmt in ("cif", "json", "poscar", "cssr"):
+        for fmt in ("cif", "json", "poscar", "cssr", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
@@ -848,6 +848,10 @@ Direct
         yml_path = yaml_path.replace(".yaml", ".yml")
         os.replace(yaml_path, yml_path)
         assert Structure.from_file(yml_path) == self.struct
+
+        atom_config_path = f"{self.tmp_path}/atom-test.config"
+        self.struct.to(filename=atom_config_path)
+        assert Structure.from_file(atom_config_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
@@ -967,7 +971,7 @@ class TestStructure(PymatgenTest):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])
         assert struct.formula == "Si2 O1"
-        assert struct.ntypesp == 2
+        assert struct.n_elems == 2
         assert struct.symbol_set == ("O", "Si")
         assert struct.indices_from_symbol("Si") == (0, 2)
         assert struct.indices_from_symbol("O") == (1,)
@@ -977,7 +981,7 @@ class TestStructure(PymatgenTest):
         assert struct.indices_from_symbol("O") == (1,)
         struct.append("N", [0.25, 0.25, 0.25])
         assert struct.formula == "Si1 N1 O1"
-        assert struct.ntypesp == 3
+        assert struct.n_elems == 3
         assert struct.symbol_set == ("N", "O", "Si")
         assert struct.indices_from_symbol("Si") == (0,)
         assert struct.indices_from_symbol("O") == (1,)
@@ -987,7 +991,7 @@ class TestStructure(PymatgenTest):
         assert struct.symbol_set == ("Ge", "N", "O")
         struct.replace_species({"Ge": "Si"})
         assert struct.formula == "Si1 N1 O1"
-        assert struct.ntypesp == 3
+        assert struct.n_elems == 3
 
         struct.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
         assert struct.formula == "Si0.5 Ge0.5 N1 O1"
@@ -995,7 +999,7 @@ class TestStructure(PymatgenTest):
         struct.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         assert struct.formula == "Si0.75 Ge0.25 N1 O1"
 
-        assert struct.ntypesp == 4
+        assert struct.n_elems == 4
 
         struct.replace_species({"Ge": "Si"})
         struct.substitute(1, "hydroxyl")
@@ -1284,7 +1288,7 @@ class TestStructure(PymatgenTest):
 
     def test_to_from_file_str(self):
         # to/from string
-        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res"):
+        for fmt in ("cif", "json", "poscar", "cssr", "yaml", "yml", "xsf", "res", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
@@ -1300,6 +1304,11 @@ class TestStructure(PymatgenTest):
             self.struct.to(filename=f"json-struct{ext}")
             assert os.path.isfile(f"json-struct{ext}")
             assert Structure.from_file(f"json-struct{ext}") == self.struct
+
+        # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
+        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
+        with pytest.raises(ValueError, match="Unrecognized extension in filename="):
+            self.struct.from_file(filename=filename)
 
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])

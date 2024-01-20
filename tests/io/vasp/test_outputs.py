@@ -240,7 +240,7 @@ class TestVasprun(PymatgenTest):
 
         assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
 
-        assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasp_run.atomic_symbols
+        assert vasp_run.atomic_symbols == ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
         assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
         assert vasp_run.incar is not None, "Incar cannot be read"
         assert vasp_run.kpoints is not None, "Kpoints cannot be read"
@@ -859,11 +859,11 @@ class TestOutcar(PymatgenTest):
     def test_pseudo_zval(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        assert {"Ba": 10.00, "Ti": 10.00, "O": 6.00} == outcar.zval_dict
+        assert outcar.zval_dict == {"Ba": 10.00, "Ti": 10.00, "O": 6.00}
 
         filepath = f"{TEST_FILES_DIR}/OUTCAR.LaSnNO2.polar"
         outcar = Outcar(filepath)
-        assert {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0} == outcar.zval_dict
+        assert outcar.zval_dict == {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0}
 
     def test_dielectric(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.dielectric"

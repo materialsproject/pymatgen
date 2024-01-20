@@ -20,9 +20,6 @@ from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
-
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.22"
@@ -31,13 +28,18 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "03/31/2020"
 
 
+module_dir = os.path.dirname(__file__)
+with open(f"{module_dir}/atomic_scattering_params.json") as file:
+    ATOMIC_SCATTERING_PARAMS = json.load(file)
+
+
 class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the TEM pattern of a crystal structure for multiple Laue zones.
     Code partially inspired from XRD calculation implementation. X-ray factor to electron factor
         conversion based on the International Table of Crystallography.
     #TODO: Could add "number of iterations", "magnification", "critical value of beam",
-            "twin direction" for certain materials, "sample thickness", and "excitation error s".
+        "twin direction" for certain materials, "sample thickness", and "excitation error s".
     """
 
     def __init__(

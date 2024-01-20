@@ -2139,28 +2139,25 @@ def read_cube_file(filename):
     """
     with open(filename) as file:
         natoms = 0
-        count_line = 0
-        for line in file:
+        for idx, line in enumerate(file):
             line = line.rstrip("\n")
-            if count_line == 0 and "CUBE" not in line:
+            if idx == 0 and "CUBE" not in line:
                 raise ValueError("CUBE file format not recognized")
 
-            if count_line == 2:
+            if idx == 2:
                 tokens = line.split()
                 natoms = int(tokens[0])
-            if count_line == 3:
+            if idx == 3:
                 tokens = line.split()
                 n1 = int(tokens[0])
-            elif count_line == 4:
+            elif idx == 4:
                 tokens = line.split()
                 n2 = int(tokens[0])
-            elif count_line == 5:
+            elif idx == 5:
                 tokens = line.split()
                 n3 = int(tokens[0])
-            elif count_line > 5:
+            elif idx > 5:
                 break
-
-            count_line += 1
 
     if "fort.30" in filename:
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)

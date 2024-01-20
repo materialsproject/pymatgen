@@ -181,7 +181,7 @@ class TestPiezoSensitivity(PymatgenTest):
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM1 = fcm.get_stable_FCM(rand_FCM)
 
-        eigs, vecs = np.linalg.eig(rand_FCM1)
+        eigs, _vecs = np.linalg.eig(rand_FCM1)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
             assert eigs[eigsort[i]] < 1e-6
@@ -227,7 +227,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 dyn_mass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
         dyn_mass = np.reshape(np.swapaxes(dyn_mass, 1, 2), (10 * 3, 10 * 3))
-        eigs, vecs = np.linalg.eig(dyn_mass)
+        eigs, _vecs = np.linalg.eig(dyn_mass)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
             assert eigs[eigsort[i]] < 1e-6
@@ -259,7 +259,7 @@ class TestPiezoSensitivity(PymatgenTest):
 
     def test_rand_piezo(self):
         pytest.importorskip("phonopy")
-        rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(
+        rand_BEC, rand_IST, rand_FCM, _piezo = rand_piezo(
             self.piezo_struct, self.pointops, self.sharedops, self.BEC, self.IST, self.FCM
         )
 

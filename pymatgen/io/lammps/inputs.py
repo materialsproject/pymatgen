@@ -97,16 +97,16 @@ class LammpsInputFile(InputFile):
         Returns the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
-        ncomments = 0
+        n_comments = 0
         for stage in self.stages:
             # Block of comment = 1 comment
             if all(cmd.strip().startswith("#") for (cmd, args) in stage["commands"]):
-                ncomments += 1
+                n_comments += 1
             else:
                 # Else, inline comment each count as one
-                ncomments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
+                n_comments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
 
-        return ncomments
+        return n_comments
 
     def get_args(self, command: str, stage_name: str | None = None) -> list | str:
         """
@@ -183,14 +183,14 @@ class LammpsInputFile(InputFile):
             raise ValueError("""The argument 'how' should be a 'first', 'all', an integer or a list of integers.""")
 
         # Look for occurrences in the relevant stages
-        i = 0
+        idx = 0
         for i_stage, stage in enumerate(self.stages):
             if stage["stage_name"] in stages_to_look:
                 for i_cmd, (cmd, _) in enumerate(stage["commands"]):
                     if command == cmd:
-                        if i in how:
+                        if idx in how:
                             self.stages[i_stage]["commands"][i_cmd] = (cmd, argument)
-                        i += 1
+                        idx += 1
 
     def add_stage(
         self,
@@ -815,11 +815,8 @@ class LammpsInputFile(InputFile):
         lines = [string_list[0]]
 
         for idx, string in enumerate(string_list[1:-1]):
-            if (
-                string != ""
-                and not (string[0] == "#" and ignore_comments)
-                or string == ""
-                and string_list[idx + 2] != ""
+            if (string != "" and not (string[0] == "#" and ignore_comments)) or (
+                string == "" and string_list[idx + 2] != ""
             ):
                 lines.append(string)
 

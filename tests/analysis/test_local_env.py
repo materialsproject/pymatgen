@@ -240,9 +240,7 @@ class TestVoronoiNN(PymatgenTest):
 
         # Make sure it works for the `get_all` operation
         all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
-        assert [
-            8,
-        ] * 16 == [len(x) for x in all_nns]
+        assert [len(x) for x in all_nns] == [8] * 16
 
     def tearDown(self):
         del self.struct

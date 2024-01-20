@@ -400,7 +400,7 @@ class TestSlabGenerator(PymatgenTest):
                     random.randint(0, 6),
                 )
             gen = SlabGenerator(struct, miller, 10, 10)
-            a, b, c = gen.oriented_unit_cell.lattice.matrix
+            a, b, _c = gen.oriented_unit_cell.lattice.matrix
             assert np.dot(a, gen._normal) == approx(0)
             assert np.dot(b, gen._normal) == approx(0)
 
@@ -432,7 +432,7 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
         # Test orthogonality of some internal variables.
-        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        a, b, _c = gen.oriented_unit_cell.lattice.matrix
         assert np.dot(a, gen._normal) == approx(0)
         assert np.dot(b, gen._normal) == approx(0)
 
@@ -460,7 +460,7 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         assert len(lco) == 1
-        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        a, b, _c = gen.oriented_unit_cell.lattice.matrix
         assert np.dot(a, gen._normal) == approx(0)
         assert np.dot(b, gen._normal) == approx(0)
 

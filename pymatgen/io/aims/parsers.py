@@ -1015,7 +1015,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
     # If SCF is not converged then do not treat the next chunk_end_line as a
     # new chunk until after the SCF is re-initialized
     ignore_chunk_end_line = False
-    line_iter = lines.__iter__()
+    line_iter = iter(lines)
     while True:
         try:
             line = next(line_iter).strip()  # Raises StopIteration on empty file

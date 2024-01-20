@@ -270,4 +270,4 @@ class TestEnergyTrend(PymatgenTest):
 
     def test_endpoints_minima(self):
         endpoints = self.energy_trend.endpoints_minima(slope_cutoff=1e-2)
-        assert {"polar": True, "nonpolar": True} == endpoints
+        assert endpoints == {"polar": True, "nonpolar": True}

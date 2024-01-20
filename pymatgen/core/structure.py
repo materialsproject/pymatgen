@@ -60,7 +60,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
-FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", ""]
+FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
 
 
 class Neighbor(Site):
@@ -262,7 +262,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return [site.species for site in self]
 
     @property
+    @deprecated(message="Use n_type_sp instead.")
     def ntypesp(self) -> int:
+        """Number of types of atoms."""
+        return len(self.types_of_species)
+
+    @property
+    def n_elems(self) -> int:
         """Number of types of atoms."""
         return len(self.types_of_species)
 
@@ -2665,7 +2671,7 @@ class IStructure(SiteCollection, MSONable):
             fmt (str): Format to output to. Defaults to JSON unless filename
                 is provided. If fmt is specifies, it overrides whatever the
                 filename is. Options include "cif", "poscar", "cssr", "json",
-                "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen".
+                "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat".
                 Non-case sensitive.
             **kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
@@ -2746,6 +2752,10 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf8") as file:
                     file.write(res_str)
             return res_str
+        elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
+            from pymatgen.io.pwmat import AtomConfig
+
+            writer = AtomConfig(self, **kwargs)
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
@@ -2826,6 +2836,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.res import ResIO
 
             struct = ResIO.structure_from_str(input_string, **kwargs)
+        elif fmt == "pwmat":
+            from pymatgen.io.pwmat import AtomConfig
+
+            struct = AtomConfig.from_str(input_string, **kwargs).structure
         else:
             raise ValueError(f"Invalid {fmt=}, valid options are {get_args(FileFormats)}")
 
@@ -2904,8 +2918,12 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.res import ResIO
 
             struct = ResIO.structure_from_file(filename, **kwargs)
+        elif fnmatch(fname.lower(), "*.config*") or fnmatch(fname.lower(), "*.pwmat*"):
+            from pymatgen.io.pwmat import AtomConfig
+
+            struct = AtomConfig.from_file(filename, **kwargs).structure
         else:
-            raise ValueError("Unrecognized file extension!")
+            raise ValueError(f"Unrecognized extension in {filename=}")
         if sort:
             struct = struct.get_sorted_structure()
         if merge_tol:
@@ -3603,8 +3621,8 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
         from pymatgen.io.gaussian import GaussianOutput
 
-        with zopen(filename) as f:
-            contents = f.read()
+        with zopen(filename) as file:
+            contents = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")

@@ -112,7 +112,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
             znucl=13,
         )
 
-    `xred` can be replaced with `xcart` or `xangst`.
+    xred can be replaced with xcart or xangst.
     """
     kwargs.update(dict(*args))
     cls = cls or Structure
@@ -185,16 +185,17 @@ def species_by_znucl(structure: Structure) -> list[Species]:
     return types
 
 
-def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kwargs):
+def structure_to_abivars(
+    structure: Structure, enforce_znucl: list | None = None, enforce_typat: list | None = None, **kwargs
+):
     """
     Receives a structure and returns a dictionary with ABINIT variables.
 
     Args:
-        enforce_znucl: List of ntypat entries with the value of Z for each type of atom.
-            Used to change the default ordering.
-        enforce_typat: List with natom entries with the type index.
-            Fortran conventions: start to count from 1.
-            Used to change the default ordering.
+        enforce_znucl (list): ntypat entries with the value of Z for each type of atom.
+            Used to change the default ordering. Defaults to None.
+        enforce_typat (list): natom entries with the type index.
+            Fortran conventions: start to count from 1. Used to change the default ordering.
     """
     if not structure.is_ordered:
         raise ValueError(
@@ -205,7 +206,6 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
         )
 
     n_atoms = len(structure)
-    n_types_atom = structure.ntypesp
     enforce_order = False
 
     if enforce_znucl is not None or enforce_typat is not None:
@@ -219,19 +219,21 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != n_types_atom:
-            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {n_types_atom=}")
+        if len(enforce_znucl) != structure.n_elems:
+            raise ValueError(
+                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
+            )
 
-    if not enforce_order:
+    if enforce_order:
+        znucl_type = enforce_znucl
+        typat = enforce_typat or []  # or [] added for mypy
+    else:
         types_of_specie = species_by_znucl(structure)
 
         znucl_type = [specie.number for specie in types_of_specie]
         typat = np.zeros(n_atoms, int)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
-    else:
-        znucl_type = enforce_znucl
-        typat = enforce_typat
 
     r_prim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
     ang_deg = structure.lattice.angles
@@ -245,7 +247,7 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
     # Info on atoms.
     dct = {
         "natom": n_atoms,
-        "ntypat": n_types_atom,
+        "ntypat": structure.n_elems,
         "typat": typat,
         "znucl": znucl_type,
         "xred": x_red,
@@ -253,11 +255,11 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
     }
 
     # Add info on the lattice.
-    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+    # Should we use (rprim, acell) or (ang_deg, acell) to specify the lattice?
     geo_mode = kwargs.pop("geomode", "rprim")
     if geo_mode == "automatic":
         geo_mode = "rprim"
-        if structure.lattice.is_hexagonal:  # or structure.lattice.is_rhombohedral
+        if structure.lattice.is_hexagonal():  # or structure.lattice.is_rhombohedral
             geo_mode = "angdeg"
             ang_deg = structure.lattice.angles
             # Here one could polish a bit the numerical values if they are not exact.
@@ -281,15 +283,15 @@ def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kw
     return dct
 
 
-def contract(s):
+def contract(string):
     """
     assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
     assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
-    if not s:
-        return s
+    if not string:
+        return string
 
-    tokens = s.split()
+    tokens = string.split()
     old = tokens[0]
     count = [[1, old]]
 
@@ -305,8 +307,7 @@ def contract(s):
 
 class AbivarAble(metaclass=abc.ABCMeta):
     """
-    An `AbivarAble` object provides a method `to_abivars`
-    that returns a dictionary with the abinit variables.
+    An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
 
     @abc.abstractmethod
@@ -367,17 +368,13 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
         # Assume a string with mode
         try:
-            return _mode2spinvars[obj]
+            return _mode_to_spin_vars[obj]
         except KeyError:
             raise KeyError(f"Wrong value for spin_mode: {obj}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
-        return {
-            "nsppol": self.nsppol,
-            "nspinor": self.nspinor,
-            "nspden": self.nspden,
-        }
+        return {"nsppol": self.nsppol, "nspinor": self.nspinor, "nspden": self.nspden}
 
     def as_dict(self):
         """Convert object to dict."""
@@ -392,7 +389,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
 
 # An handy Multiton
-_mode2spinvars = {
+_mode_to_spin_vars = {
     "unpolarized": SpinMode("unpolarized", 1, 1, 1),
     "polarized": SpinMode("polarized", 2, 1, 2),
     "afm": SpinMode("afm", 1, 1, 2),

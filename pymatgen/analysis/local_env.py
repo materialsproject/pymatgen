@@ -1211,9 +1211,9 @@ class JmolNN(NearNeighbors):
 
         # Load elemental radii table
         bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
-        with open(bonds_file) as f:
+        with open(bonds_file) as file:
             yaml = YAML()
-            self.el_radius = yaml.load(f)
+            self.el_radius = yaml.load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
