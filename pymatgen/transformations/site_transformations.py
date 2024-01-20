@@ -342,7 +342,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
-        for idx, all_indices in enumerate(itertools.product(*all_combis)):
+        for idx, all_indices in enumerate(itertools.product(*all_combis), 1):
             sites_to_remove = []
             indices_list = []
             for indices in all_indices:
@@ -352,8 +352,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             s_new.remove_sites(indices_list)
             energy = ewald_sum.compute_partial_energy(indices_list)
             already_tested = False
-            for idx, t_sites in enumerate(tested_sites):
-                t_energy = all_structures[idx]["energy"]
+            for ii, t_sites in enumerate(tested_sites):
+                t_energy = all_structures[ii]["energy"]
                 if abs((energy - t_energy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
                     sites_to_remove, t_sites, symm_prec=symprec
                 ):
