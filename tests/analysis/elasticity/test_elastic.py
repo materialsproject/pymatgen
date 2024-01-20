@@ -470,7 +470,7 @@ class TestDiffFit(PymatgenTest):
         # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced)
         c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
-        c2, c3, c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
+        c2, c3, _c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
         c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)
         c2_red, c3_red = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3)
         assert_allclose(c2.voigt, self.data_dict["C2_raw"], atol=1e-5)
