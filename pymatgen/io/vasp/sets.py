@@ -223,6 +223,10 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
         return dct
 
 
+# create VaspInputGenerator alias to follow atomate2 terminology
+VaspInputGenerator = VaspInputSet
+
+
 def _load_yaml_config(fname):
     config = loadfn(MODULE_DIR / (f"{fname}.yaml"))
     if "PARENT" in config:
