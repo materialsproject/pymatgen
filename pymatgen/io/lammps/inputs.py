@@ -815,11 +815,8 @@ class LammpsInputFile(InputFile):
         lines = [string_list[0]]
 
         for idx, string in enumerate(string_list[1:-1]):
-            if (
-                string != ""
-                and not (string[0] == "#" and ignore_comments)
-                or string == ""
-                and string_list[idx + 2] != ""
+            if (string != "" and not (string[0] == "#" and ignore_comments)) or (
+                string == "" and string_list[idx + 2] != ""
             ):
                 lines.append(string)
 

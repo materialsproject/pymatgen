@@ -294,7 +294,7 @@ class AdfKey(MSONable):
         """
         if len(self.options) == 0:
             return False
-        return any(self._sized_op and op[0] == option or op == option for op in self.options)
+        return any((self._sized_op and op[0] == option) or op == option for op in self.options)
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""

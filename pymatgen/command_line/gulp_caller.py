@@ -526,7 +526,9 @@ class GulpIO:
         """
         energy = None
         for line in gout.split("\n"):
-            if "Total lattice energy" in line and "eV" in line or "Non-primitive unit cell" in line and "eV" in line:
+            if ("Total lattice energy" in line and "eV" in line) or (
+                "Non-primitive unit cell" in line and "eV" in line
+            ):
                 energy = line.split()
         if energy:
             return float(energy[4])

@@ -239,7 +239,8 @@ class Trajectory(MSONable):
         if (
             self.lattice is None  # is molecules
             and trajectory.lattice is not None  # is structures
-            or self.lattice is not None  # is structures
+        ) or (
+            self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
             raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
