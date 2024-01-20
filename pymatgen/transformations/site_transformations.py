@@ -330,9 +330,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Performing complete ordering...")
         all_structures: list[dict[str, float | Structure]] = []
         symprec = 0.2
-        spga = SpacegroupAnalyzer(structure, symprec=symprec)
-        self.logger.debug(f"Symmetry of structure is determined to be {spga.get_space_group_symbol()}.")
-        sg = spga.get_space_group_operations()
+        spg_analyzer = SpacegroupAnalyzer(structure, symprec=symprec)
+        self.logger.debug(f"Symmetry of structure is determined to be {spg_analyzer.get_space_group_symbol()}.")
+        sg = spg_analyzer.get_space_group_operations()
         tested_sites: list[list[PeriodicSite]] = []
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
@@ -342,8 +342,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
-        count = 0
-        for all_indices in itertools.product(*all_combis):
+        for idx, all_indices in enumerate(itertools.product(*all_combis)):
             sites_to_remove = []
             indices_list = []
             for indices in all_indices:
@@ -364,18 +363,17 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 tested_sites.append(sites_to_remove)
                 all_structures.append({"structure": s_new, "energy": energy})
 
-            count += 1
-            if count % 10 == 0:
-                timenow = time.perf_counter()
-                self.logger.debug(f"{count} structures, {timenow - start_time:.2f} seconds.")
-                self.logger.debug(f"Average time per combi = {(timenow - start_time) / count} seconds")
+            if idx % 10 == 0:
+                now = time.perf_counter()
+                self.logger.debug(f"{idx} structures, {now - start_time:.2f} seconds.")
+                self.logger.debug(f"Average time per combi = {(now - start_time) / idx} seconds")
                 self.logger.debug(f"{len(all_structures)} symmetrically distinct structures found.")
 
         self.logger.debug(f"Total symmetrically distinct structures found = {len(all_structures)}")
         return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
-        """This method uses the matrix form of ewaldsum to calculate the ewald
+        """This method uses the matrix form of Ewald sum to calculate the ewald
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter
@@ -386,13 +384,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
 
-        ewaldmatrix = EwaldSummation(structure).total_energy_matrix
+        ewald_matrix = EwaldSummation(structure).total_energy_matrix
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
         m_list = [[0, num, list(indices), None] for indices, num in num_remove_dict.items()]
 
         self.logger.debug("Calling EwaldMinimizer...")
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+        minimizer = EwaldMinimizer(ewald_matrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
 
         all_structures = []
