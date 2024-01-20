@@ -52,8 +52,8 @@ class Cssr:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
     @classmethod
     def from_str(cls, string):

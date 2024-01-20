@@ -10,18 +10,18 @@ import os
 from pymatgen.io.vasp import Potcar
 
 
-def proc_dir(dirname, procfilefunction):
+def proc_dir(dirname, proc_file_function):
     """Process a directory.
 
     Args:
         dirname (str): Directory name.
-        procfilefunction (callable): Callable to execute on directory.
+        proc_file_function (callable): Callable to execute on directory.
     """
     for f in os.listdir(dirname):
         if os.path.isdir(os.path.join(dirname, f)):
-            proc_dir(os.path.join(dirname, f), procfilefunction)
+            proc_dir(os.path.join(dirname, f), proc_file_function)
         else:
-            procfilefunction(dirname, f)
+            proc_file_function(dirname, f)
 
 
 def gen_potcar(dirname, filename):

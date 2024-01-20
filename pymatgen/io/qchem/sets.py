@@ -501,10 +501,8 @@ class QChemDictSet(QCInput):
 
         tmp_geom_opt = self.geom_opt
         geom_opt = self.geom_opt
-        if (
-            self.job_type.lower() in ["opt", "optimization"]
-            and self.qchem_version == 6
-            or (self.qchem_version == 5 and self.geom_opt is not None)
+        if (self.job_type.lower() in ["opt", "optimization"] and self.qchem_version == 6) or (
+            self.qchem_version == 5 and self.geom_opt is not None
         ):
             if self.qchem_version == 5:
                 rem["geom_opt2"] = "3"

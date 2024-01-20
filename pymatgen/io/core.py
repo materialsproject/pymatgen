@@ -211,8 +211,8 @@ class InputSet(MSONable, MutableMapping):
             if isinstance(contents, InputFile):
                 contents.write_file(file_path)
             else:
-                with zopen(file_path, mode="wt") as f:
-                    f.write(str(contents))
+                with zopen(file_path, mode="wt") as file:
+                    file.write(str(contents))
 
         if zip_inputs:
             filename = path / f"{type(self).__name__}.zip"

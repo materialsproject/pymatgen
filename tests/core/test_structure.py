@@ -751,7 +751,7 @@ Direct
         r_b2 = offsets2[1]
         assert sym_ops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
         assert sym_ops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
-        c_indices3, p_indices3, offsets3, distances3, s_indices3, sym_ops3 = s2.get_symmetric_neighbor_list(
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, _sym_ops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
@@ -780,11 +780,11 @@ Direct
         )
         all_nn = struct.get_all_neighbors(1e-5, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
         all_nn = struct.get_all_neighbors(0, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
     def test_coincide_sites(self):
         struct = Structure(
