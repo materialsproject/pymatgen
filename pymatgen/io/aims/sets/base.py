@@ -4,15 +4,11 @@ from __future__ import annotations
 import copy
 import json
 import logging
-import os
-import shutil
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
-import monty
-import monty.os
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
 
@@ -35,34 +31,6 @@ GEOMETRY_FILE_NAME: str = "geometry.in"
 DEFAULT_AIMS_PROPERTIES = ("energy", "free_energy", "forces", "stress", "stresses", "dipole", "magmom")
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class AimsInputFile(InputFile):
-    """The input file for an FHI-aims calculation.
-
-    Args:
-        _content_str (str): The contents of the input file as a string
-    """
-
-    content_str: str = ""
-
-    def get_str(self) -> str:
-        """Get the contents of the input file.
-
-        Returns:
-            str: The contents of the input file
-        """
-        return self.content_str
-
-    @classmethod
-    def from_str(cls, contents: str):
-        """Create an input file from the contents string.
-
-        Args:
-            contents (str): The contents of the input file
-        """
-        return cls(contents)
 
 
 class AimsInputSet(InputSet):
@@ -115,30 +83,23 @@ class AimsInputSet(InputSet):
         aims_geometry_in = AimsGeometryIn.from_structure(self._structure)
         aims_control_in = AimsControlIn(updated_params)
 
-        os.makedirs(TMPDIR_NAME, exist_ok=True)
-        with monty.os.cd(TMPDIR_NAME):
-            aims_control_in.write_file(self._structure)
-            aims_control_in_content = AimsInputFile.from_file("control.in")
-
-            aims_geometry_in.write_file()
-            aims_geometry_in_content = AimsInputFile.from_file("geometry.in")
-
-        shutil.rmtree(TMPDIR_NAME, ignore_errors=True)
-
-        return aims_control_in_content, aims_geometry_in_content
+        return (
+            aims_control_in.get_content(structure=self._structure),
+            aims_geometry_in.content,
+        )
 
     @property
-    def control_in(self) -> str | InputFile | slice:
+    def control_in(self) -> str | slice | InputFile:
         """Get the control.in file contents."""
         return self[CONTROL_FILE_NAME]
 
     @property
-    def geometry_in(self) -> str | InputFile | slice:
+    def geometry_in(self) -> str | slice | InputFile:
         """Get the geometry.in file contents."""
         return self[GEOMETRY_FILE_NAME]
 
     @property
-    def params_json(self) -> str | InputFile | slice:
+    def params_json(self) -> str | slice | InputFile:
         """Get the JSON representation of the parameters dict."""
         return self[PARAMS_JSON_FILE_NAME]
 

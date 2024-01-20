@@ -20,10 +20,10 @@ def check_band(test_line, ref_line):
 def compare_files(test_name, work_dir, ref_dir):
     for file in glob(f"{work_dir / test_name}/*in"):
         with open(file) as test_file:
-            test_lines = [line.strip() for line in test_file.readlines()[4:] if len(line.strip()) > 0]
+            test_lines = [line.strip() for line in test_file.readlines() if len(line.strip()) > 0 and line[0] != "#"]
 
         with gzip.open(f"{ref_dir / test_name / Path(file).name}.gz", "rt") as ref_file:
-            ref_lines = [line.strip() for line in ref_file.readlines()[4:] if len(line.strip()) > 0]
+            ref_lines = [line.strip() for line in ref_file.readlines() if len(line.strip()) > 0 and line[0] != "#"]
 
         for test_line, ref_line in zip(test_lines, ref_lines):
             if "output" in test_line and "band" in test_line:

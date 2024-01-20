@@ -241,10 +241,10 @@ infile_dir = Path(__file__).parent / "input_files"
 
 
 def check_file(ref: str, test: str) -> bool:
-    ref_lines = [line.strip() for line in ref.split("\n") if len(line.strip()) > 0]
-    test_lines = [line.strip() for line in test.split("\n") if len(line.strip()) > 0]
+    ref_lines = [line.strip() for line in ref.split("\n") if len(line.strip()) > 0 and line[0] != "#"]
+    test_lines = [line.strip() for line in test.split("\n") if len(line.strip()) > 0 and line[0] != "#"]
 
-    return ref_lines[5:] == test_lines[5:]
+    return ref_lines == test_lines
 
 
 def test_input_set():
@@ -274,28 +274,29 @@ def test_input_set():
     props = ("energy", "free_energy", "forces")
 
     in_set = AimsInputSet(parameters, Si, props)
-    assert check_file(geometry_in_str, in_set.geometry_in.get_str())
-    assert check_file(control_in_str, in_set.control_in.get_str())
+
+    assert check_file(geometry_in_str, in_set.geometry_in)
+    assert check_file(control_in_str, in_set.control_in)
     assert params_json == json.loads(in_set.params_json)
 
     in_set_copy = copy.deepcopy(in_set)
-    assert check_file(geometry_in_str, in_set_copy.geometry_in.get_str())
-    assert check_file(control_in_str, in_set_copy.control_in.get_str())
+    assert check_file(geometry_in_str, in_set_copy.geometry_in)
+    assert check_file(control_in_str, in_set_copy.control_in)
     assert params_json == json.loads(in_set_copy.params_json)
 
     in_set.set_parameters(**parameters, relax_geometry="trm 1e-3")
-    assert check_file(control_in_str_rel, in_set.control_in.get_str())
-    assert check_file(control_in_str, in_set_copy.control_in.get_str())
+    assert check_file(control_in_str_rel, in_set.control_in)
+    assert check_file(control_in_str, in_set_copy.control_in)
 
     assert params_json_rel == json.loads(in_set.params_json)
     assert params_json == json.loads(in_set_copy.params_json)
 
     in_set.remove_parameters(keys=["relax_geometry"])
-    assert check_file(control_in_str, in_set.control_in.get_str())
+    assert check_file(control_in_str, in_set.control_in)
     assert params_json == json.loads(in_set.params_json)
 
     in_set.remove_parameters(keys=["relax_geometry"], strict=False)
-    assert check_file(control_in_str, in_set.control_in.get_str())
+    assert check_file(control_in_str, in_set.control_in)
     assert params_json == json.loads(in_set.params_json)
 
     with pytest.raises(ValueError, match="key='relax_geometry' not in list"):
@@ -307,5 +308,5 @@ def test_input_set():
         coords=[[-0.01, 0, 0], [0.25, 0.25, 0.25]],
     )
     in_set.set_structure(new_structure)
-    assert check_file(geometry_in_str_new, in_set.geometry_in.get_str())
-    assert check_file(geometry_in_str, in_set_copy.geometry_in.get_str())
+    assert check_file(geometry_in_str_new, in_set.geometry_in)
+    assert check_file(geometry_in_str, in_set_copy.geometry_in)
