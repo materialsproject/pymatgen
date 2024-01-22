@@ -7,7 +7,6 @@ from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy
 from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -269,11 +268,11 @@ class TestPlotBZ(unittest.TestCase):
         )
 
     def test_fold_point(self):
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.0, -0.5, 0.5], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.0, 0.5, 0.5]),
         )
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2]),
         )
