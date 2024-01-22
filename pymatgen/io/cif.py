@@ -116,7 +116,7 @@ class CifBlock:
     def _format_field(self, val) -> str:
         val = str(val).strip()
         if len(val) > self.max_len:
-            return ";\n" + textwrap.fill(val, self.max_len) + "\n;"
+            return f";\n{textwrap.fill(val, self.max_len)}\n;"
         # add quotes if necessary
         if val == "":
             return '""'

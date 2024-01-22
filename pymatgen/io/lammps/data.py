@@ -543,16 +543,16 @@ class LammpsData(MSONable):
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
-        nonbond_coeffs: list = []
+        non_bond_coeffs: list = []
         topo_coeffs: dict = {}
         if self.force_field:
             if "PairIJ Coeffs" in self.force_field:
                 nbc = self.force_field["PairIJ Coeffs"]
                 nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
+                non_bond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
             elif "Pair Coeffs" in self.force_field:
                 nbc = self.force_field["Pair Coeffs"].sort_index()
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
+                non_bond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
 
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
             for kw in topo_coeffs:
@@ -596,7 +596,7 @@ class LammpsData(MSONable):
 
         ff = ForceField(
             mass_info=mass_info,
-            nonbond_coeffs=nonbond_coeffs if any(nonbond_coeffs) else None,
+            nonbond_coeffs=non_bond_coeffs if any(non_bond_coeffs) else None,
             topo_coeffs=topo_coeffs if any(topo_coeffs) else None,
         )
 

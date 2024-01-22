@@ -2279,15 +2279,15 @@ class LocalStructOrderParams:
                 pruned using the get_nn method from the
                 VoronoiNN class.
         """
-        for t in types:
-            if t not in LocalStructOrderParams.__supported_types:
-                raise ValueError("Unknown order parameter type (" + t + ")!")
+        for typ in types:
+            if typ not in LocalStructOrderParams.__supported_types:
+                raise ValueError(f"Unknown order parameter type ({typ})!")
         self._types = tuple(types)
 
         self._comp_azi = False
         self._params = []
-        for i, t in enumerate(self._types):
-            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None else None
+        for i, typ in enumerate(self._types):
+            d = deepcopy(default_op_params[typ]) if default_op_params[typ] is not None else None
             if parameters is None or parameters[i] is None:
                 self._params.append(d)
             else:

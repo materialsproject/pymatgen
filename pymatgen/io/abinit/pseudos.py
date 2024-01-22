@@ -615,12 +615,12 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
     kwargs = Namespace()
 
-    for i, nk in enumerate(key_nums):
+    for idx, nk in enumerate(key_nums):
         if nk == 0:
             continue
-        line = lines[i]
+        line = lines[idx]
 
-        tokens = [t.strip() for t in line.split()]
+        tokens = [tok.strip() for tok in line.split()]
         values, keys = tokens[:nk], "".join(tokens[nk:])
         # Sanitize keys: In some case we might get strings in the form: foo[,bar]
         keys.replace("[", "").replace("]", "")
@@ -978,7 +978,7 @@ class PawAbinitHeader(AbinitHeader):
         lines = lines[5:]
         # TODO
         # Parse orbitals and number of meshes.
-        header["orbitals"] = [int(t) for t in lines[0].split(":")[0].split()]
+        header["orbitals"] = [int(tok) for tok in lines[0].split(":")[0].split()]
         header["number_of_meshes"] = num_meshes = int(lines[1].split(":")[0])
 
         # Skip meshes =

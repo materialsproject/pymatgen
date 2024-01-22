@@ -375,8 +375,8 @@ class NwInput(MSONable):
         for site in self._mol:
             out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
         out.append("end\n")
-        for t in self.tasks:
-            out.extend((str(t), ""))
+        for task in self.tasks:
+            out.extend((str(task), ""))
         return "\n".join(out)
 
     def write_file(self, filename):
@@ -391,8 +391,8 @@ class NwInput(MSONable):
         """Returns: MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
-            "tasks": [t.as_dict() for t in self.tasks],
-            "directives": [list(t) for t in self.directives],
+            "tasks": [task.as_dict() for task in self.tasks],
+            "directives": [list(task) for task in self.directives],
             "geometry_options": list(self.geometry_options),
             "symmetry_options": self.symmetry_options,
             "memory_options": self.memory_options,

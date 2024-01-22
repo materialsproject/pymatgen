@@ -328,7 +328,9 @@ class CorrectionCalculator:
                     del labels_species[num - idx - 1]
                     del abs_errors[num - idx - 1]
                     del diffs_cpy[num - idx - 1]
-        abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species))))  # sort by error
+        abs_errors, labels_species = (
+            list(tup) for tup in zip(*sorted(zip(abs_errors, labels_species)))
+        )  # sort by error
 
         num = len(abs_errors)
         fig = go.Figure(

@@ -301,7 +301,7 @@ class GulpIO:
             core_site_desc = f"{specie.symbol} core {' '.join(coord)}\n"
             gin += core_site_desc
             if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
-                shel_site_desc = specie.symbol + " shel " + " ".join(coord) + "\n"
+                shel_site_desc = f"{specie.symbol} shel {' '.join(coord)}\n"
                 gin += shel_site_desc
             else:
                 pass

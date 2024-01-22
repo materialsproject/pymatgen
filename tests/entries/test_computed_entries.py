@@ -469,8 +469,8 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             1500: -37.793417248809774,
             1800: -32.32513382051749,
         }
-        for t in self.temps:
-            assert self.entries_with_temps[t].energy == approx(energies[t])
+        for temp in self.temps:
+            assert self.entries_with_temps[temp].energy == approx(energies[temp])
 
     def test_interpolation(self):
         temp = 450

@@ -766,7 +766,7 @@ class BSPlotter:
             # add latex $$
             for idx, label in enumerate(labels):
                 if label.startswith("\\") or "_" in label:
-                    labels[idx] = "$" + label + "$"
+                    labels[idx] = f"${label}$"
 
             # If next branch is not continuous,
             # join the first lbl to the previous tick label
@@ -774,7 +774,7 @@ class BSPlotter:
             # otherwise add to ticks list both new labels.
             # Similar for distances.
             if ticks and labels[0] != ticks[-1]:
-                ticks[-1] += "$\\mid$" + labels[0]
+                ticks[-1] += f"$\\mid${labels[0]}"
                 ticks.append(labels[1])
                 distance.append(bs.distance[end])
             else:
@@ -807,15 +807,15 @@ class BSPlotter:
                 if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
+                        label1 = f"${label1}$"
                     label0 = previous_label
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
                 elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"${c.label}$")
                 else:
                     tick_labels.append(c.label)
                 previous_label = c.label
@@ -4122,7 +4122,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
     for k, coords in labels.items():
         label = k
         if k.startswith("\\") or k.find("_") != -1:
-            label = "$" + k + "$"
+            label = f"${k}$"
         off = 0.01
         if coords_are_cartesian:
             coords = np.array(coords)

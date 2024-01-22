@@ -131,8 +131,8 @@ class StandardTransmuter:
         Args:
             transformations: Sequence of Transformations
         """
-        for t in transformations:
-            self.append_transformation(t)
+        for trafo in transformations:
+            self.append_transformation(trafo)
 
     def apply_filter(self, structure_filter):
         """Applies a structure_filter to the list of TransformedStructures

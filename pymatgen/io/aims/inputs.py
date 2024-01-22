@@ -172,11 +172,11 @@ class AimsGeometryIn(MSONable):
             raise ValueError(f"geometry.in file exists in {directory}")
 
         with open(f"{directory}/geometry.in", mode="w") as file:
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")
             file.write(f"# {time.asctime()}\n")
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(self.content)
             file.write("\n")
 
@@ -518,11 +518,11 @@ class AimsControlIn(MSONable):
         parameters = deepcopy(self._parameters)
 
         with open(f"{directory}/control.in", mode="w") as file:
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")
             file.write(f"# {time.asctime()}\n")
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
 
             if parameters["xc"] == "LDA":
                 parameters["xc"] = "pw-lda"

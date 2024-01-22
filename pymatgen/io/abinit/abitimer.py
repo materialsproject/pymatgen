@@ -279,7 +279,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         for sect_name in self.section_names():
             ref_sect = ref_t.get_section(sect_name)
-            sects = [t.get_section(sect_name) for t in timers]
+            sects = [timer.get_section(sect_name) for timer in timers]
             try:
                 ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
                 wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
@@ -384,7 +384,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.grid(visible=True)
 
         # Set xticks and labels.
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -468,7 +468,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
@@ -608,7 +608,7 @@ class AbinitTimerSection:
         string = ""
 
         if with_header:
-            string += "# " + " ".join(at for at in AbinitTimerSection.FIELDS) + "\n"
+            string += f"# {' '.join(at for at in AbinitTimerSection.FIELDS)}\n"
 
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string

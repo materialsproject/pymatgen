@@ -618,26 +618,26 @@ class Tags(dict):
         if sort_keys:
             keys = sorted(keys)
         lines = []
-        for k in keys:
-            if k == "IONS":
-                for t in self[k]:
-                    lines.append(["ION", f"{t[0]} {t[1]:.4f}"])
-            elif isinstance(self[k], dict):
-                if k in ["ELNES", "EXELFS"]:
-                    lines.append([k, self._stringify_val(self[k]["ENERGY"])])
-                    beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
+        for key in keys:
+            if key == "IONS":
+                for tok in self[key]:
+                    lines.append(["ION", f"{tok[0]} {tok[1]:.4f}"])
+            elif isinstance(self[key], dict):
+                if key in ["ELNES", "EXELFS"]:
+                    lines.append([key, self._stringify_val(self[key]["ENERGY"])])
+                    beam_energy = self._stringify_val(self[key]["BEAM_ENERGY"])
                     beam_energy_list = beam_energy.split()
                     if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
-                        lines.extend(([beam_energy], [self._stringify_val(self[k]["BEAM_DIRECTION"])]))
+                        lines.extend(([beam_energy], [self._stringify_val(self[key]["BEAM_DIRECTION"])]))
                     else:
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)
                         lines.append([self._stringify_val(beam_energy_list)])
-                    lines.append([self._stringify_val(self[k]["ANGLES"])])
-                    lines.append([self._stringify_val(self[k]["MESH"])])
-                    lines.append([self._stringify_val(self[k]["POSITION"])])
+                    lines.append([self._stringify_val(self[key]["ANGLES"])])
+                    lines.append([self._stringify_val(self[key]["MESH"])])
+                    lines.append([self._stringify_val(self[key]["POSITION"])])
             else:
-                lines.append([k, self._stringify_val(self[k])])
+                lines.append([key, self._stringify_val(self[key])])
         if pretty:
             return tabulate(lines)
 

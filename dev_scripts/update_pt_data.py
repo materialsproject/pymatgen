@@ -238,11 +238,11 @@ def add_electron_affinities():
 
     req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)")
     soup = BeautifulSoup(req.text, "html.parser")
-    for t in soup.find_all("table"):
-        if "Hydrogen" in t.text:
+    for table in soup.find_all("table"):
+        if "Hydrogen" in table.text:
             break
     data = []
-    for tr in t.find_all("tr"):
+    for tr in table.find_all("tr"):
         row = []
         for td in tr.find_all("td"):
             row.append(td.get_text().strip())

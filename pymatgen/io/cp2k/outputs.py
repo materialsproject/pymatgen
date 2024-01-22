@@ -889,12 +889,12 @@ class Cp2kOutput:
             postprocess=postprocessor,
         )
         self.timing = {}
-        for t in timing:
-            self.timing[t[0]] = {
-                "calls": {"max": t[1]},
-                "asd": t[2],
-                "self_time": {"average": t[3], "maximum": t[4]},
-                "total_time": {"average": t[5], "maximum": t[6]},
+        for time in timing:
+            self.timing[time[0]] = {
+                "calls": {"max": time[1]},
+                "asd": time[2],
+                "self_time": {"average": time[3], "maximum": time[4]},
+                "total_time": {"average": time[5], "maximum": time[6]},
             }
 
     def parse_opt_steps(self):

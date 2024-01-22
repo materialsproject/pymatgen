@@ -804,7 +804,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return dct
 
     def __setitem__(self, key, value):
-        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
+        if (
+            key in _TOLVARS_SCF
+            and hasattr(self, "_vars")
+            and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
+        ):
             logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
