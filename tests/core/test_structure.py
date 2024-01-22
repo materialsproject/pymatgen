@@ -105,9 +105,12 @@ class TestIStructure(PymatgenTest):
         assert sqs[0].formula == "Mn8 Fe8"
 
     def test_as_dataframe(self):
-        df = self.propertied_structure.as_dataframe()
-        assert df.attrs["Reduced Formula"] == self.propertied_structure.composition.reduced_formula
-        assert df.shape == (2, 8)
+        df_struct = self.propertied_structure.as_dataframe()
+        assert df_struct.attrs["Reduced Formula"] == self.propertied_structure.composition.reduced_formula
+        assert df_struct.shape == (2, 8)
+        assert list(df_struct) == ["Species", *"abcxyz", "magmom"]
+        assert list(df_struct["magmom"]) == [5, -5]
+        assert list(map(str, df_struct["Species"])) == ["Si1", "Si1"]
 
     def test_equal(self):
         struct = self.struct
