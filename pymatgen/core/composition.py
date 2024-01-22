@@ -558,15 +558,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 raise ValueError(f"{form} is an invalid formula!")
             return sym_dict
 
-        m = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
-        if m:
+        match = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
+        while match:
             factor = 1.0
-            if m.group(2) != "":
-                factor = float(m.group(2))
-            unit_sym_dict = get_sym_dict(m.group(1), factor)
+            if match.group(2) != "":
+                factor = float(match.group(2))
+            unit_sym_dict = get_sym_dict(match.group(1), factor)
             expanded_sym = "".join(f"{el}{amt}" for el, amt in unit_sym_dict.items())
-            expanded_formula = formula.replace(m.group(), expanded_sym)
-            return self._parse_formula(expanded_formula)
+            expanded_formula = formula.replace(match.group(), expanded_sym, 1)
+            formula = expanded_formula
+            match = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
         return get_sym_dict(formula, 1)
 
     @property
@@ -581,14 +582,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
-        for e, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
+        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
             if amt == 1:
                 amt_str = ""
             elif abs(amt % 1) < 1e-8:
                 amt_str = str(int(amt))
             else:
                 amt_str = str(amt)
-            anon += f"{e}{amt_str}"
+            anon += f"{elem}{amt_str}"
         return anon
 
     @property
