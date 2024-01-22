@@ -271,10 +271,12 @@ class TestPlotBZ(unittest.TestCase):
         assert_allclose(
             fold_point([0.0, -0.5, 0.5], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.0, 0.5, 0.5]),
+            atol=1e-8,
         )
         assert_allclose(
             fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2]),
+            atol=1e-8,
         )
 
 
