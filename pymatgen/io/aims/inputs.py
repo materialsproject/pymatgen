@@ -306,14 +306,13 @@ class AimsCube(MSONable):
             ValueError: If any of the inputs is invalid
         """
         split_type = self.type.split()
+        cube_type = split_type[0]
         if split_type[0] in ALLOWED_AIMS_CUBE_TYPES:
             if len(split_type) > 1:
-                msg = f"Cube of type {split_type[0]} can not have a state associated with it"
-                raise ValueError(msg)
+                raise ValueError(f"{cube_type=} can not have a state associated with it")
         elif split_type[0] in ALLOWED_AIMS_CUBE_TYPES_STATE:
             if len(split_type) != 2:
-                msg = f"Cube of type {split_type[0]} must have a state associated with it"
-                raise ValueError(msg)
+                raise ValueError(f"{cube_type=} must have a state associated with it")
         else:
             raise ValueError("Cube type undefined")
 
