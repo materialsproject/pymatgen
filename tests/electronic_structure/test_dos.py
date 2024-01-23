@@ -147,8 +147,8 @@ class TestCompleteDos(unittest.TestCase):
             self.dos.get_interpolated_value(1000)
 
     def test_as_from_dict(self):
-        d = self.dos.as_dict()
-        dos = CompleteDos.from_dict(d)
+        dct = self.dos.as_dict()
+        dos = CompleteDos.from_dict(dct)
         el_dos = dos.get_element_dos()
         assert len(el_dos) == 4
         spd_dos = dos.get_spd_dos()

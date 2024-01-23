@@ -2131,13 +2131,13 @@ class TestMolecule(PymatgenTest):
         self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
         assert self.mol.formula == "Si0.75 Ge0.25 H4"
 
-        d = 0.1
+        dist = 0.1
         pre_perturbation_sites = self.mol.sites[:]
-        self.mol.perturb(distance=d)
+        self.mol.perturb(distance=dist)
         post_perturbation_sites = self.mol.sites
 
-        for i, x in enumerate(pre_perturbation_sites):
-            assert x.distance(post_perturbation_sites[i]) == approx(d), "Bad perturbation distance"
+        for idx, site in enumerate(pre_perturbation_sites):
+            assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
 
     def test_add_site_property(self):
         self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])

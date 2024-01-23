@@ -1931,7 +1931,7 @@ class Outcar:
                 self.read_pattern({key: rf"{key}\s+=\s+([\d\-\.]+)"})
             if not self.data[key]:
                 continue
-            final_energy_contribs[key] = sum(float(f) for f in self.data[key][-1])
+            final_energy_contribs[key] = sum(map(float, self.data[key][-1]))
         self.final_energy_contribs = final_energy_contribs
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
@@ -2053,7 +2053,7 @@ class Outcar:
 
         pattern = {"radii": r"the test charge radii are((?:\s+[\.\-\d]+)+)"}
         self.read_pattern(pattern, reverse=True, terminate_on_match=True, postprocess=str)
-        self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
+        self.sampling_radii = [*map(float, self.data["radii"][0][0].split())]
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
@@ -2064,7 +2064,7 @@ class Outcar:
 
         pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pots)
 
-        self.electrostatic_potential = [float(f) for f in pots]
+        self.electrostatic_potential = [*map(float, pots)]
 
     @staticmethod
     def _parse_sci_notation(line):
