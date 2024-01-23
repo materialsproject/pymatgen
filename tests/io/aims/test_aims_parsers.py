@@ -132,7 +132,7 @@ def test_header_initial_structure(header_chunk, initial_lattice):
     assert len(header_chunk.initial_structure) == 2
     assert_allclose(header_chunk.initial_structure.lattice.matrix, initial_lattice)
     assert_allclose(header_chunk.initial_structure.cart_coords, initial_positions, atol=1e-12)
-    assert np.all(["Na", "Cl"] == [sp.symbol for sp in header_chunk.initial_structure.species])
+    assert ["Na", "Cl"] == [sp.symbol for sp in header_chunk.initial_structure.species]
 
 
 def test_header_initial_lattice(header_chunk, initial_lattice):
@@ -235,7 +235,7 @@ def test_header_transfer_initial_structure(empty_calc_chunk, initial_lattice):
     assert len(empty_calc_chunk.initial_structure) == 2
     assert_allclose(empty_calc_chunk.initial_structure.lattice.matrix, initial_lattice)
     assert_allclose(empty_calc_chunk.initial_structure.cart_coords, initial_positions, atol=1e-12)
-    assert np.all(["Na", "Cl"] == [sp.symbol for sp in empty_calc_chunk.initial_structure.species])
+    assert ["Na", "Cl"] == [sp.symbol for sp in empty_calc_chunk.initial_structure.species]
 
 
 def test_header_transfer_electronic_temperature(empty_calc_chunk):
@@ -260,7 +260,7 @@ def test_default_calc_energy_raises_error(empty_calc_chunk):
 
 
 @pytest.mark.parametrize(
-    "attrname",
+    "attr",
     [
         "forces",
         "stresses",
@@ -276,8 +276,8 @@ def test_default_calc_energy_raises_error(empty_calc_chunk):
         "hirshfeld_dipole",
     ],
 )
-def test_chunk_defaults_none(attrname, empty_calc_chunk):
-    assert getattr(empty_calc_chunk, attrname) is None
+def test_chunk_defaults_none(attr, empty_calc_chunk):
+    assert getattr(empty_calc_chunk, attr) is None
 
 
 def test_default_calc_is_metallic(empty_calc_chunk):
@@ -314,7 +314,7 @@ def test_calc_structure(calc_chunk, initial_lattice):
     assert len(calc_chunk.structure.species) == 2
     assert_allclose(calc_chunk.structure.lattice.matrix, initial_lattice)
     assert_allclose(calc_chunk.structure.cart_coords, initial_positions, atol=1e-12)
-    assert np.all(["Na", "Cl"] == [sp.symbol for sp in calc_chunk.structure.species])
+    assert ["Na", "Cl"] == [sp.symbol for sp in calc_chunk.structure.species]
 
 
 def test_calc_forces(calc_chunk):
@@ -444,7 +444,7 @@ def test_molecular_header_n_bands(molecular_header_chunk):
 
 def test_molecular_header_initial_structure(molecular_header_chunk, molecular_positions):
     assert len(molecular_header_chunk.initial_structure) == 3
-    assert np.all(["O", "H", "H"] == [sp.symbol for sp in molecular_header_chunk.initial_structure.species])
+    assert ["O", "H", "H"] == [sp.symbol for sp in molecular_header_chunk.initial_structure.species]
     assert_allclose(
         molecular_header_chunk.initial_structure.cart_coords,
         [[0, 0, 0], [0.95840000, 0, 0], [-0.24000000, 0.92790000, 0]],
@@ -469,7 +469,7 @@ def molecular_positions():
 def test_molecular_calc_atoms(molecular_calc_chunk, molecular_positions):
     assert len(molecular_calc_chunk.structure.species) == 3
     assert_allclose(molecular_calc_chunk.structure.cart_coords, molecular_positions)
-    assert np.all(["O", "H", "H"] == [sp.symbol for sp in molecular_calc_chunk.structure.species])
+    assert ["O", "H", "H"] == [sp.symbol for sp in molecular_calc_chunk.structure.species]
 
 
 def test_molecular_calc_forces(molecular_calc_chunk):
