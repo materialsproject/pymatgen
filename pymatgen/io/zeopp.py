@@ -219,7 +219,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
@@ -228,10 +228,9 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Structure within the
-        unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Structure within the
-        unit cell defined by the lattice of input structure
+        voronoi nodes as pymatgen Structure within the unit cell defined by the lattice of
+        input structure voronoi face centers as pymatgen Structure within the unit cell
+        defined by the lattice of input structure
     """
     with ScratchDir("."):
         name = "temp_zeo1"
@@ -306,7 +305,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
@@ -315,9 +314,9 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             Default is 0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Structure within the
+        voronoi nodes as pymatgen Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Structure within the
+        voronoi face centers as pymatgen Structure within the
         unit cell defined by the lattice of input structure
     """
     with ScratchDir("."):
@@ -368,7 +367,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
@@ -377,9 +376,9 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Structure within the
+        voronoi nodes as pymatgen Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Structure within the
+        voronoi face centers as pymatgen Structure within the
         unit cell defined by the lattice of input structure
     """
     with ScratchDir("."):
