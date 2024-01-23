@@ -1226,10 +1226,9 @@ class TestCrystalNN(PymatgenTest):
             3.3897, 3.2589, 3.1207, 3.1924, 3.1915, 3.1207, 3.2598, 3.3897,
         ]
         # fmt: on
-        s = self.lifepo4.copy()
-        s.remove_oxidation_states()
-        for idx in range(len(s)):
-            cn_array.append(cnn.get_cn(s, idx, use_weights=True))
+        struct = self.lifepo4.copy().remove_oxidation_states()
+        for idx in range(len(struct)):
+            cn_array.append(cnn.get_cn(struct, idx, use_weights=True))
 
         assert_allclose(expected_array, cn_array, 2)
 

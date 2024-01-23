@@ -1099,14 +1099,16 @@ class TestStructure(PymatgenTest):
         o_specie = Species("O", -2)
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice.cubic(10)
-        s_elem = Structure(lattice, [co_elem, o_elem], coords)
-        s_specie = Structure(lattice, [co_specie, o_specie], coords)
-        s_specie.remove_oxidation_states()
-        assert s_elem == s_specie, "Oxidation state remover failed"
+        struct_elem = Structure(lattice, [co_elem, o_elem], coords)
+        struct_specie = Structure(lattice, [co_specie, o_specie], coords)
+        struct_out = struct_specie.remove_oxidation_states()
+        assert struct_out is struct_specie
+        assert struct_elem == struct_specie, "Oxidation state remover failed"
 
     def test_add_oxidation_states_by_guess(self):
         struct = PymatgenTest.get_structure("Li2O")
-        struct.add_oxidation_state_by_guess()
+        struct_with_oxi = struct.add_oxidation_state_by_guess()
+        assert struct_with_oxi is struct
         expected = [Species("Li", 1), Species("O", -2)]
         for site in struct:
             assert site.specie in expected
@@ -1118,17 +1120,21 @@ class TestStructure(PymatgenTest):
         nio = Structure.from_spacegroup(225, latt, species, coords)
 
         # should do nothing, but not fail
-        nio.remove_spin()
+        nio1 = nio.remove_spin()
+        assert nio1 is nio
 
         spins = {"Ni": 5}
-        nio.add_spin_by_element(spins)
+        nio2 = nio.add_spin_by_element(spins)
+        assert nio2 is nio
         assert nio[0].specie.spin == 5, "Failed to add spin states"
 
-        nio.remove_spin()
+        nio3 = nio.remove_spin()
+        assert nio3 is nio
         assert nio[0].specie.spin is None
 
         spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
-        nio.add_spin_by_site(spins)
+        nio4 = nio.add_spin_by_site(spins)
+        assert nio4 is nio
         assert nio[1].specie.spin == -5, "Failed to add spin states"
 
     def test_apply_operation(self):

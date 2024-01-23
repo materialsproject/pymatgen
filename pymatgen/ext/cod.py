@@ -52,8 +52,8 @@ class COD:
         Returns:
             Response from SQL query.
         """
-        r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
-        return r.decode("utf-8")
+        resp = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
+        return resp.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_cod_ids(self, formula):
@@ -84,8 +84,7 @@ class COD:
 
         Args:
             cod_id (int): COD id.
-            kwargs: All kwargs supported by
-                :func:`pymatgen.core.structure.Structure.from_str`.
+            kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
             A Structure.
@@ -100,8 +99,7 @@ class COD:
 
         Args:
             formula (str): Chemical formula.
-            kwargs: All kwargs supported by
-                :func:`pymatgen.core.structure.Structure.from_str`.
+            kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
             A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
