@@ -10,6 +10,7 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
+from math import isclose
 from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
@@ -503,9 +504,9 @@ class CollinearMagneticStructureAnalyzer:
 
         is_potentially_ferromagnetic = np.all(magmoms >= 0) or np.all(magmoms <= 0)
 
-        if total_magnetization > 0 and is_potentially_ferromagnetic:
+        if not isclose(total_magnetization, 0, abs_tol=1e-8) and is_potentially_ferromagnetic:
             return Ordering.FM
-        if total_magnetization > 0:
+        if not isclose(total_magnetization, 0, abs_tol=1e-8):
             return Ordering.FiM
         if max_magmom > 0:
             return Ordering.AFM

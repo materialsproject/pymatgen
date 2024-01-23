@@ -34,6 +34,8 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
 
         self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif", primitive=True)
 
+        self.CuO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.CuO.mcif", primitive=True)
+
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -183,6 +185,9 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert msa.number_of_unique_magnetic_sites() == 1
         assert msa.types_of_magnetic_species == (Element.Ni,)
         assert msa.get_exchange_group_info() == ("Fm-3m", 225)
+
+        msa = CollinearMagneticStructureAnalyzer(self.CuO_expt)
+        assert msa.ordering == Ordering.AFM
 
     def test_str(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001)
