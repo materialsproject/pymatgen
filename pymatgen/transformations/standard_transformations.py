@@ -181,9 +181,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         Returns:
             Non-oxidation state decorated Structure.
         """
-        struct = structure.copy()
-        struct.remove_oxidation_states()
-        return struct
+        return structure.copy().remove_oxidation_states()
 
     @property
     def inverse(self):
@@ -611,7 +609,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
-            s_copy = struct.copy()
+            struct_copy = struct.copy()
             # do deletions afterwards because they screw up the indices of the
             # structure
             del_indices = []
@@ -619,17 +617,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    s_copy[manipulation[0]] = manipulation[1]
-            s_copy.remove_sites(del_indices)
+                    struct_copy[manipulation[0]] = manipulation[1]
+            struct_copy.remove_sites(del_indices)
 
             if self.no_oxi_states:
-                s_copy.remove_oxidation_states()
+                struct_copy.remove_oxidation_states()
 
             self._all_structures.append(
                 {
                     "energy": output[0],
                     "energy_above_minimum": (output[0] - lowest_energy) / num_atoms,
-                    "structure": s_copy.get_sorted_structure(),
+                    "structure": struct_copy.get_sorted_structure(),
                 }
             )
 

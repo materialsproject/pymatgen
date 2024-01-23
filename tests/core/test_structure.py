@@ -1099,10 +1099,11 @@ class TestStructure(PymatgenTest):
         o_specie = Species("O", -2)
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice.cubic(10)
-        s_elem = Structure(lattice, [co_elem, o_elem], coords)
-        s_specie = Structure(lattice, [co_specie, o_specie], coords)
-        s_specie.remove_oxidation_states()
-        assert s_elem == s_specie, "Oxidation state remover failed"
+        struct_elem = Structure(lattice, [co_elem, o_elem], coords)
+        struct_specie = Structure(lattice, [co_specie, o_specie], coords)
+        struct_out = struct_specie.remove_oxidation_states()
+        assert struct_out is struct_specie
+        assert struct_elem == struct_specie, "Oxidation state remover failed"
 
     def test_add_oxidation_states_by_guess(self):
         struct = PymatgenTest.get_structure("Li2O")
