@@ -34,7 +34,7 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
 
         self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif", primitive=True)
 
-        self.CuO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.CuO.mcif", primitive=True)
+        self.CuO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.CuO.mcif.gz", primitive=True)
 
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
@@ -163,31 +163,31 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert CollinearMagneticStructureAnalyzer(s1).matches_ordering(s2_prim)
 
     def test_magnetic_properties(self):
-        msa = CollinearMagneticStructureAnalyzer(self.GdB4)
-        assert not msa.is_collinear
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.GdB4)
+        assert not mag_struct_analyzer.is_collinear
 
-        msa = CollinearMagneticStructureAnalyzer(self.Fe)
-        assert not msa.is_magnetic
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.Fe)
+        assert not mag_struct_analyzer.is_magnetic
 
         self.Fe.add_site_property("magmom", [5])
 
-        msa = CollinearMagneticStructureAnalyzer(self.Fe)
-        assert msa.is_magnetic
-        assert msa.is_collinear
-        assert msa.ordering == Ordering.FM
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.Fe)
+        assert mag_struct_analyzer.is_magnetic
+        assert mag_struct_analyzer.is_collinear
+        assert mag_struct_analyzer.ordering == Ordering.FM
 
-        msa = CollinearMagneticStructureAnalyzer(
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(
             self.NiO,
             make_primitive=False,
             overwrite_magmom_mode="replace_all_if_undefined",
         )
-        assert msa.number_of_magnetic_sites == 4
-        assert msa.number_of_unique_magnetic_sites() == 1
-        assert msa.types_of_magnetic_species == (Element.Ni,)
-        assert msa.get_exchange_group_info() == ("Fm-3m", 225)
+        assert mag_struct_analyzer.number_of_magnetic_sites == 4
+        assert mag_struct_analyzer.number_of_unique_magnetic_sites() == 1
+        assert mag_struct_analyzer.types_of_magnetic_species == (Element.Ni,)
+        assert mag_struct_analyzer.get_exchange_group_info() == ("Fm-3m", 225)
 
-        msa = CollinearMagneticStructureAnalyzer(self.CuO_expt)
-        assert msa.ordering == Ordering.AFM
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.CuO_expt)
+        assert mag_struct_analyzer.ordering == Ordering.AFM
 
     def test_str(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001)
