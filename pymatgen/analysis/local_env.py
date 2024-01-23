@@ -49,14 +49,14 @@ __date__ = "August 17, 2017"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as f:
-    default_op_params = yaml.load(f)
+with open(f"{module_dir}/op_params.yaml") as file:
+    default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as f:
-    cn_opt_params = yaml.load(f)
+with open(f"{module_dir}/cn_opt_params.yaml") as file:
+    cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as fp:
-    _ion_radii = json.load(fp)
+with open(f"{module_dir}/ionic_radii.json") as file:
+    _ion_radii = json.load(file)
 
 
 class ValenceIonicRadiusEvaluator:
@@ -68,7 +68,7 @@ class ValenceIonicRadiusEvaluator:
     def __init__(self, structure: Structure) -> None:
         """
         Args:
-            structure: pymatgen.core.structure.Structure.
+            structure: pymatgen Structure.
         """
         self._structure = structure.copy()
         self._valences = self._get_valences()
@@ -1211,9 +1211,9 @@ class JmolNN(NearNeighbors):
 
         # Load elemental radii table
         bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
-        with open(bonds_file) as f:
+        with open(bonds_file) as file:
             yaml = YAML()
-            self.el_radius = yaml.load(f)
+            self.el_radius = yaml.load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -2279,15 +2279,15 @@ class LocalStructOrderParams:
                 pruned using the get_nn method from the
                 VoronoiNN class.
         """
-        for t in types:
-            if t not in LocalStructOrderParams.__supported_types:
-                raise ValueError("Unknown order parameter type (" + t + ")!")
+        for typ in types:
+            if typ not in LocalStructOrderParams.__supported_types:
+                raise ValueError(f"Unknown order parameter type ({typ})!")
         self._types = tuple(types)
 
         self._comp_azi = False
         self._params = []
-        for i, t in enumerate(self._types):
-            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None else None
+        for i, typ in enumerate(self._types):
+            d = deepcopy(default_op_params[typ]) if default_op_params[typ] is not None else None
             if parameters is None or parameters[i] is None:
                 self._params.append(d)
             else:

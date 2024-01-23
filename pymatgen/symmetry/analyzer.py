@@ -56,7 +56,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
 
 
 class SpacegroupAnalyzer:
-    """Takes a pymatgen.core.structure.Structure object and a symprec.
+    """Takes a pymatgen Structure object and a symprec.
 
     Uses spglib to perform various symmetry finding operations.
     """
@@ -295,7 +295,7 @@ class SpacegroupAnalyzer:
         Returns:
             list[SymmOp]: Point group symmetry operations.
         """
-        rotation, translation = self._get_symmetry()
+        rotation, _translation = self._get_symmetry()
         symm_ops = []
         seen = set()
         mat = self._structure.lattice.matrix.T
@@ -1242,7 +1242,7 @@ class PointGroupAnalyzer:
         axis.
         """
         rot_present = defaultdict(bool)
-        origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
+        _origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
         test_set = min(dist_el_sites.values(), key=len)
         coords = [s.coords for s in test_set]
         for c1, c2, c3 in itertools.combinations(coords, 3):

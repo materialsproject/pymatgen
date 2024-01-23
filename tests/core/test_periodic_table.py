@@ -18,7 +18,7 @@ class ElementTestCase(PymatgenTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
-        fictional_symbols = ["D", "T", "Zebra"]
+        fictional_symbols = ("Dolphin", "Tyrannosaurus", "Zebra")
 
         for sym in fictional_symbols:
             with pytest.raises(ValueError, match=f"{sym!r} is not a valid Element"):
@@ -358,6 +358,14 @@ class ElementTestCase(PymatgenTest):
     def test_is(self):
         assert Element("Bi").is_post_transition_metal, True
 
+    def test_isotope(self):
+        elems = [Element(el) for el in ("H", "D", "T")]
+        assert [x.symbol for x in elems] == ["H", "H", "H"]
+        assert list(map(str, elems)) == ["H", "H", "H"]
+        assert [el.A for el in elems] == [1, 2, 3]
+        assert all(abs(el.atomic_mass - idx - 1) < 0.1 for idx, el in enumerate(elems))
+        assert [el.atomic_mass for el in elems] == [1.00794, 2.013553212712, 3.0155007134]
+
 
 class SpeciesTestCase(PymatgenTest):
     def setUp(self):
@@ -471,7 +479,7 @@ class SpeciesTestCase(PymatgenTest):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
-    def test_to_from_string(self):
+    def test_to_from_str(self):
         fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_str("Fe3+,spin=5")
@@ -539,7 +547,7 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert DummySpecies("Xg") != DummySpecies("Xg", 3)
         assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
 
-    def test_from_string(self):
+    def test_from_str(self):
         sp = DummySpecies.from_str("X")
         assert sp.oxi_state == 0
         sp = DummySpecies.from_str("X2+")

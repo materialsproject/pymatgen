@@ -64,11 +64,6 @@ class ExcitingInput(MSONable):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, data):
         """Reads the exciting input from a string."""
         root = ET.fromstring(data)
@@ -145,8 +140,8 @@ class ExcitingInput(MSONable):
         Returns:
             ExcitingInput
         """
-        with zopen(filename, "rt") as f:
-            data = f.read().replace("\n", "")
+        with zopen(filename, mode="rt") as file:
+            data = file.read().replace("\n", "")
         return cls.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
@@ -243,8 +238,8 @@ class ExcitingInput(MSONable):
                     symbol = kpath.kpath["path"][idx][j]
                     coords = kpath.kpath["kpoints"][symbol]
                     coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
-                    if symbol == "\\Gamma":
-                        symbol = "GAMMA"
+                    symbol_map = {"\\Gamma": "GAMMA", "\\Sigma": "SIGMA", "\\Delta": "DELTA", "\\Lambda": "LAMBDA"}
+                    symbol = symbol_map.get(symbol, symbol)
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
         elif bandstr and celltype != "primitive":
             raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")

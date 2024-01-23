@@ -615,8 +615,8 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
-        with open(filepath, "w") as fh:
-            fh.write(str(self))
+        with open(filepath, mode="w") as file:
+            file.write(str(self))
 
     def deepcopy(self):
         """Deep copy of the input."""
@@ -804,7 +804,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return dct
 
     def __setitem__(self, key, value):
-        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
+        if (
+            key in _TOLVARS_SCF
+            and hasattr(self, "_vars")
+            and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
+        ):
             logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
@@ -815,10 +819,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "You cannot set the value of a variable associated to the structure.\n"
                 "Use Structure objects to prepare the input file."
             )
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """
@@ -1225,10 +1225,6 @@ class BasicMultiDataset:
 
     def __str__(self):
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, with_pseudos=True):
         """

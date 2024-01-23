@@ -15,8 +15,8 @@ rc("text", usetex=False)  # Disabling latex for testing
 
 class TestPhononDosPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.dos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.dos = CompletePhononDos.from_dict(json.load(file))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
 
@@ -45,12 +45,12 @@ class TestPhononDosPlotter(unittest.TestCase):
 
 class TestPhononBSPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as f:
-            d = json.loads(f.read())
+        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
+            d = json.loads(file.read())
             self.bs = PhononBandStructureSymmLine.from_dict(d)
             self.plotter = PhononBSPlotter(self.bs)
-        with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as f:
-            d = json.loads(f.read())
+        with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as file:
+            d = json.loads(file.read())
             self.bs_sto = PhononBandStructureSymmLine.from_dict(d)
             self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
@@ -76,13 +76,19 @@ class TestPhononBSPlotter(unittest.TestCase):
         self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2], [3, 4]])
 
     def test_plot_compare(self):
-        self.plotter.plot_compare(self.plotter, units="mev")
+        labels = ("NaCl", "NaCl 2")
+        ax = self.plotter.plot_compare(self.plotter, units="mev", labels=labels)
+        assert isinstance(ax, axes.Axes)
+        assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
+        assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
+        assert ax.get_title() == ""
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
 
 
 class TestThermoPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.dos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.dos = CompletePhononDos.from_dict(json.load(file))
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
     def test_plot_functions(self):

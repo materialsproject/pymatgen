@@ -102,7 +102,7 @@ class DosPlotter:
             "efermi": efermi,
         }
 
-    def add_dos_dict(self, dos_dict, key_sort_func=None):
+    def add_dos_dict(self, dos_dict, key_sort_func=None) -> None:
         """Add a dictionary of doses, with an optional sorting function for the
         keys.
 
@@ -239,12 +239,11 @@ class DosPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
+    def save_plot(self, filename: str, xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
@@ -253,9 +252,9 @@ class DosPlotter:
             beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
         self.get_plot(xlim, ylim, invert_axes, beta_dashed)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
-    def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
+    def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
         """Show the plot using matplotlib.
 
         Args:
@@ -706,7 +705,7 @@ class BSPlotter:
         plt.tight_layout()
 
         # auto tight_layout when resizing or pressing t
-        def fix_layout(event):
+        def fix_layout(event) -> None:
             if (event.name == "key_press_event" and event.key == "t") or event.name == "resize_event":
                 plt.tight_layout()
                 plt.gcf().canvas.draw()
@@ -716,7 +715,7 @@ class BSPlotter:
 
         return ax
 
-    def show(self, zero_to_efermi=True, ylim=None, smooth=False, smooth_tol=None):
+    def show(self, zero_to_efermi=True, ylim=None, smooth=False, smooth_tol=None) -> None:
         """Show the plot using matplotlib.
 
         Args:
@@ -732,19 +731,18 @@ class BSPlotter:
         self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()
 
-    def save_plot(self, filename, img_format="eps", ylim=None, zero_to_efermi=True, smooth=False):
+    def save_plot(self, filename: str, ylim=None, zero_to_efermi=True, smooth=False) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
             ylim: Specifies the y-axis limits.
             zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
                 Defaults to True.
             smooth: Cubic spline interpolation of the bands.
         """
         self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
         plt.close()
 
     def get_ticks(self):
@@ -768,7 +766,7 @@ class BSPlotter:
             # add latex $$
             for idx, label in enumerate(labels):
                 if label.startswith("\\") or "_" in label:
-                    labels[idx] = "$" + label + "$"
+                    labels[idx] = f"${label}$"
 
             # If next branch is not continuous,
             # join the first lbl to the previous tick label
@@ -776,7 +774,7 @@ class BSPlotter:
             # otherwise add to ticks list both new labels.
             # Similar for distances.
             if ticks and labels[0] != ticks[-1]:
-                ticks[-1] += "$\\mid$" + labels[0]
+                ticks[-1] += f"$\\mid${labels[0]}"
                 ticks.append(labels[1])
                 distance.append(bs.distance[end])
             else:
@@ -809,15 +807,15 @@ class BSPlotter:
                 if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
+                        label1 = f"${label1}$"
                     label0 = previous_label
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
                 elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"${c.label}$")
                 else:
                     tick_labels.append(c.label)
                 previous_label = c.label
@@ -896,7 +894,7 @@ class BSPlotterProjected(BSPlotter):
     projected along orbitals, elements or sites.
     """
 
-    def __init__(self, bs):
+    def __init__(self, bs) -> None:
         """
         Args:
             bs: A BandStructureSymmLine object with projections.
@@ -2485,7 +2483,7 @@ class BSDOSPlotter:
         return bs_ax
 
     @staticmethod
-    def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
+    def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid") -> None:
         """An RGB colored line for plotting.
         creation of segments based on:
         http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb.
@@ -2567,7 +2565,7 @@ class BSDOSPlotter:
         return contribs
 
     @staticmethod
-    def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc):
+    def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc) -> None:
         """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
@@ -2601,23 +2599,16 @@ class BSDOSPlotter:
         inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(
-            0.70, -0.2, m_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="left"
-        )
-        inset_ax.text(
-            0.325, 0.70, c_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="center"
-        )
-        inset_ax.text(
-            -0.05, -0.2, y_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="right"
-        )
-        inset_ax.text(
-            0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
-        )
+        common = dict(fontsize=13, family="Times New Roman")
+        inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
+        inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
+        inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")
+        inset_ax.text(0.325, 0.22, k_label, **common, color=(1, 1, 1), horizontalalignment="center")
 
         inset_ax.axis("off")
 
     @staticmethod
-    def _rgb_triangle(ax, r_label, g_label, b_label, loc):
+    def _rgb_triangle(ax, r_label, g_label, b_label, loc) -> None:
         """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
@@ -2682,7 +2673,7 @@ class BSDOSPlotter:
         inset_ax.axis("off")
 
     @staticmethod
-    def _rb_line(ax, r_label, b_label, loc):
+    def _rb_line(ax, r_label, b_label, loc) -> None:
         # Draw an rb bar legend on the desired axis
 
         if loc not in range(1, 11):
@@ -2731,14 +2722,14 @@ class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
     """class containing methods to plot the data from Boltztrap."""
 
-    def __init__(self, bz):
+    def __init__(self, bz) -> None:
         """
         Args:
             bz: a BoltztrapAnalyzer object.
         """
         self._bz = bz
 
-    def _plot_doping(self, plt, temp):
+    def _plot_doping(self, plt, temp) -> None:
         if len(self._bz.doping) != 0:
             limit = 2.21e15
             plt.axvline(self._bz.mu_doping["n"][temp][0], linewidth=3.0, linestyle="--")
@@ -2770,7 +2761,7 @@ class BoltztrapPlotter:
                 color="b",
             )
 
-    def _plot_bg_limits(self, plt):
+    def _plot_bg_limits(self, plt) -> None:
         plt.axvline(0.0, color="k", linewidth=3.0)
         plt.axvline(self._bz.gap, color="k", linewidth=3.0)
 
@@ -3600,7 +3591,7 @@ class CohpPlotter:
     DosPlotter object.
     """
 
-    def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False):
+    def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False) -> None:
         """
         Args:
             zero_at_efermi: Whether to shift all populations to have zero
@@ -3613,9 +3604,9 @@ class CohpPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self._cohps = {}
+        self._cohps: dict[str, dict[str, np.ndarray | dict[Spin, np.ndarray] | float]] = {}
 
-    def add_cohp(self, label, cohp):
+    def add_cohp(self, label, cohp) -> None:
         """Adds a COHP for plotting.
 
         Args:
@@ -3633,7 +3624,7 @@ class CohpPlotter:
             "efermi": cohp.efermi,
         }
 
-    def add_cohp_dict(self, cohp_dict, key_sort_func=None):
+    def add_cohp_dict(self, cohp_dict, key_sort_func=None) -> None:
         """Adds a dictionary of COHPs with an optional sorting function
         for the keys.
 
@@ -3791,21 +3782,20 @@ class CohpPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+    def save_plot(self, filename: str, xlim=None, ylim=None) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: File name to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): File name to write to. Must include extension to specify image format.
             xlim: Specifies the x-axis limits. Defaults to None for
                 automatic determination.
             ylim: Specifies the y-axis limits. Defaults to None for
                 automatic determination.
         """
         self.get_plot(xlim, ylim)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
-    def show(self, xlim=None, ylim=None):
+    def show(self, xlim=None, ylim=None) -> None:
         """Show the plot using matplotlib.
 
         Args:
@@ -4132,7 +4122,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
     for k, coords in labels.items():
         label = k
         if k.startswith("\\") or k.find("_") != -1:
-            label = "$" + k + "$"
+            label = f"${k}$"
         off = 0.01
         if coords_are_cartesian:
             coords = np.array(coords)
@@ -4354,7 +4344,7 @@ def plot_ellipsoid(
 
     # calculate the ellipsoid
     # find the rotation matrix and radii of the axes
-    U, s, rotation = np.linalg.svd(hessian)
+    _U, s, rotation = np.linalg.svd(hessian)
     radii = 1.0 / np.sqrt(s)
 
     # from polar coordinates

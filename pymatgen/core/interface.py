@@ -19,7 +19,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 class Interface(Structure):
     """This class stores data for defining an interface between two structures.
-    It is a subclass of pymatgen.core.structure.Structure.
+    It is a subclass of pymatgen Structure.
     """
 
     def __init__(
@@ -35,7 +35,7 @@ class Interface(Structure):
         gap: float = 0,
         vacuum_over_film: float = 0,
         interface_properties: dict | None = None,
-    ):
+    ) -> None:
         """Makes an interface structure, a structure object with additional information
         and methods pertaining to interfaces.
 

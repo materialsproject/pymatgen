@@ -270,23 +270,23 @@ class Lobsterin(UserDict, MSONable):
                     self[key] = entry
 
         filename = path
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as file:
             for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
-                        f.write(f"{key} {self.get(key)}\n")
+                        file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
                                 new_key = key_here
                         if self.get(new_key):
-                            f.write(key + "\n")
+                            file.write(key + "\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
-                        f.write(f"{key} {self.get(key)}\n")
+                        file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
                         for entry in self.get(key):
-                            f.write(f"{key} {entry}\n")
+                            file.write(f"{key} {entry}\n")
 
     def as_dict(self):
         """MSONable dict"""
@@ -578,8 +578,8 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin object
         """
-        with zopen(lobsterin, "rt") as f:
-            data = f.read().split("\n")
+        with zopen(lobsterin, mode="rt") as file:
+            data = file.read().split("\n")
         if len(data) == 0:
             raise OSError("lobsterin file contains no data.")
         Lobsterindict: dict[str, Any] = {}
@@ -630,8 +630,8 @@ class Lobsterin(UserDict, MSONable):
                 raise OSError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in lobster-4.1.0
-        with zopen(POTCAR_input, "r") as f:
-            data = f.read()
+        with zopen(POTCAR_input, mode="r") as file:
+            data = file.read()
         if isinstance(data, bytes):
             data = data.decode("utf-8")
         if "SHA256" in data or "COPYR" in data:

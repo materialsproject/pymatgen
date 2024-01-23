@@ -186,6 +186,25 @@ class TestComposition(PymatgenTest):
 
         assert Composition("Na 3 Zr (PO 4) 3").reduced_formula == "Na3Zr(PO4)3"
 
+        # gh-3559
+        very_nested_formula = (
+            "(Bi2(Mg0.667Nb1.333)O7)((Bi2(Mg0.667Nb1.333)O7)0.9(SrCO3)0.1)((Bi2(Mg0.667Nb1.333)O7)0.7(SrCO3)0.3)"
+        )
+        assert Composition(very_nested_formula).formula == "Sr0.4 Mg1.7342 Nb3.4658 Bi5.2 C0.4 O19.4"
+        assert Composition(very_nested_formula) == Composition(
+            "(Bi2(Mg0.667Nb1.333)O7)1((Bi2(Mg0.667Nb1.333)O7)0.9(SrCO3)0.1)((Bi2(Mg0.667Nb1.333)O7)0.7(SrCO3)0.3)"
+        )
+        assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
+
+        assert Composition("NaN").reduced_formula == "NaN"
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?"):
+            Composition(float("NaN"))
+
+        # test bad formulas raise ValueError
+        for bad_formula in ("", " ", "  2", "4 2", "6123", "1.2", "1/2", "1.2.3"):
+            with pytest.raises(ValueError, match=f"Invalid formula={bad_formula!r}"):
+                Composition(bad_formula)
+
     def test_to_latex_html_unicode(self):
         assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
         assert self.comps[0].to_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
@@ -729,6 +748,19 @@ class TestComposition(PymatgenTest):
                 assert abs(oxi_comp.charge) < Composition.charge_balanced_tolerance
             else:
                 assert oxi_comp.charge is None
+
+    def test_isotopes(self):
+        composition = Composition({"D": 2, "O": 1})
+        assert "Deuterium" in [x.long_name for x in composition.elements]
+
+        # adding oxidation state removes Deuterium characteristic
+        composition = composition.add_charges_from_oxi_state_guesses()
+        assert "Deuterium" not in [x.long_name for x in composition.elements]
+
+        # however the user can explicitly add an oxidation state to deuterium
+        composition = Composition({"D+": 2, "O": 1})
+        assert composition.elements[0].oxi_state == 1
+        assert "Deuterium" in [x.long_name for x in composition.elements]
 
 
 class TestChemicalPotential(unittest.TestCase):

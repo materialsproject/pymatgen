@@ -86,13 +86,11 @@ class TestSuperTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct, return_ranked_list=True)
 
@@ -124,13 +122,11 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
@@ -149,13 +145,11 @@ class TestChargeBalanceTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
 
@@ -172,8 +166,8 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             s = trans.apply_transformation(struct)
-            oxitrans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-            s = oxitrans.apply_transformation(s)
+            oxi_trans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
+            s = oxi_trans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
             assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
@@ -258,13 +252,11 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["O2-", "Li1+", "Li1+"], coords)
 
         outputs = trafo.apply_transformation(struct, return_ranked_list=True)
@@ -302,8 +294,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8.remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -609,7 +600,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
-        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs.json")
+        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -620,13 +611,24 @@ class TestSQSTransformation(PymatgenTest):
 
     def test_return_ranked_list(self):
         # list of structures
-        pzt_structs2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs2.json")
-        trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struct = self.get_structure("Pb2TiZrO6").copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-        matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
-        assert any(matches)
+        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs-2.json")
+
+        n_structs_expected = 1
+        sqs_kwargs = {"scaling": 2, "search_time": 0.01, "instances": 8, "wd": 0}
+        for all_structs in (True, False):
+            if all_structs:
+                # when we don't remove structures from the search, should get
+                # return one structure for each instance run
+                sqs_kwargs |= {"best_only": False, "remove_duplicate_structures": False}
+                n_structs_expected = sqs_kwargs["instances"]
+
+            trans = SQSTransformation(**sqs_kwargs)
+            struct = self.get_structure("Pb2TiZrO6").copy()
+            struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+            ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
+            matches = [ranked_list_out[0]["structure"].matches(struct) for struct in pzt_structs_2]
+            assert any(matches)
+            assert len(ranked_list_out) == n_structs_expected
 
     def test_spin(self):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -637,8 +639,8 @@ class TestSQSTransformation(PymatgenTest):
 
         struct_out = trans.apply_transformation(struct)
         struct_out_specie_strings = [site.species_string for site in struct_out]
-        assert "Ti,spin=-5" in struct_out_specie_strings
-        assert "Ti,spin=5" in struct_out_specie_strings
+        assert "Ti0+,spin=-5" in struct_out_specie_strings
+        assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
 class TestCubicSupercellTransformation(PymatgenTest):

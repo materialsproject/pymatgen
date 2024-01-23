@@ -301,7 +301,7 @@ class GulpIO:
             core_site_desc = f"{specie.symbol} core {' '.join(coord)}\n"
             gin += core_site_desc
             if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
-                shel_site_desc = specie.symbol + " shel " + " ".join(coord) + "\n"
+                shel_site_desc = f"{specie.symbol} shel {' '.join(coord)}\n"
                 gin += shel_site_desc
             else:
                 pass
@@ -317,7 +317,7 @@ class GulpIO:
         structure.
 
         Args:
-            structure: pymatgen.core.structure.Structure object
+            structure: pymatgen Structure object
             potential: String specifying the type of potential used
             kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
@@ -349,20 +349,20 @@ class GulpIO:
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = "GULP_LIB" in os.environ
+        gulp_lib_set = "GULP_LIB" in os.environ
 
         def readable(f):
             return os.path.isfile(f) and os.access(f, os.R_OK)
 
         gin = ""
-        dirpath, fname = os.path.split(file_name)
+        dirpath, _fname = os.path.split(file_name)
         if dirpath and readable(file_name):  # Full path specified
             gin = "library " + file_name
         else:
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = "library " + fpath
-            elif gulplib_set:  # Check the GULP_LIB path
+            elif gulp_lib_set:  # Check the GULP_LIB path
                 fpath = os.path.join(os.environ["GULP_LIB"], file_name)
                 if readable(fpath):
                     gin = "library " + file_name
@@ -375,7 +375,7 @@ class GulpIO:
         from library.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
             keywords: GULP first line keywords.
             library (Default=None): File containing the species and potential.
             uc (Default=True): Unit Cell Flag.
@@ -401,7 +401,7 @@ class GulpIO:
                J. Mater Chem., 4, 831-837 (1994)
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
             val_dict (Needed if structure is not charge neutral): {El:valence}
                 dict, where El is element.
         """
@@ -462,7 +462,7 @@ class GulpIO:
         """Gets a GULP input with Tersoff potential for an oxide structure.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
             periodic (Default=False): Flag denoting whether periodic
                 boundary conditions are used
             library (Default=None): File containing the species and potential.
@@ -487,7 +487,7 @@ class GulpIO:
         """Generate the species, Tersoff potential lines for an oxide structure.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
         """
         bv = BVAnalyzer()
         el = [site.specie.symbol for site in structure]
@@ -526,7 +526,9 @@ class GulpIO:
         """
         energy = None
         for line in gout.split("\n"):
-            if "Total lattice energy" in line and "eV" in line or "Non-primitive unit cell" in line and "eV" in line:
+            if ("Total lattice energy" in line and "eV" in line) or (
+                "Non-primitive unit cell" in line and "eV" in line
+            ):
                 energy = line.split()
         if energy:
             return float(energy[4])
@@ -637,7 +639,7 @@ class GulpCaller:
         def is_exe(f) -> bool:
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
-        fpath, fname = os.path.split(cmd)
+        fpath, _fname = os.path.split(cmd)
         if fpath:
             if is_exe(cmd):
                 self._gulp_cmd = cmd
@@ -700,7 +702,7 @@ def get_energy_tersoff(structure, gulp_cmd="gulp"):
     """Compute the energy of a structure using Tersoff potential.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         gulp_cmd: GULP command if not in standard place
     """
     gio = GulpIO()
@@ -714,7 +716,7 @@ def get_energy_buckingham(structure, gulp_cmd="gulp", keywords=("optimise", "con
     """Compute the energy of a structure using Buckingham potential.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         gulp_cmd: GULP command if not in standard place
         keywords: GULP first line keywords
         valence_dict: {El: valence}. Needed if the structure is not charge
@@ -731,7 +733,7 @@ def get_energy_relax_structure_buckingham(structure, gulp_cmd="gulp", keywords=(
     """Relax a structure and compute the energy using Buckingham potential.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         gulp_cmd: GULP command if not in standard place
         keywords: GULP first line keywords
         valence_dict: {El: valence}. Needed if the structure is not charge
@@ -796,11 +798,11 @@ class BuckinghamPotential:
         """
         assert bush_lewis_flag in {"bush", "lewis"}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
-        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as f:
+        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as file:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
-            for row in f:
+            for row in file:
                 if row[0] == "#":
                     continue
                 if row.split()[0] == "species":
@@ -863,9 +865,9 @@ class TersoffPotential:
 
     def __init__(self):
         """Init TersoffPotential."""
-        with open(f"{module_dir}/OxideTersoffPotentials") as f:
+        with open(f"{module_dir}/OxideTersoffPotentials") as file:
             data = {}
-            for row in f:
+            for row in file:
                 metaloxi = row.split()[0]
                 line = row.split(")")
                 data[metaloxi] = line[1]

@@ -7,7 +7,6 @@ from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy
 from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -37,8 +36,8 @@ rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
-            self.dos = CompleteDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+            self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
     def test_add_dos_dict(self):
@@ -68,8 +67,8 @@ class TestDosPlotter(PymatgenTest):
         # reproduces the same energy and DOS axis limits
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as f:
-            limits_results = json.load(f)
+        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as file:
+            limits_results = json.load(file)
 
         for item in limits_results:
             ax = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
@@ -88,20 +87,20 @@ class TestDosPlotter(PymatgenTest):
 
 class TestBSPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.bs = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.sbs_sc = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.sbs_met = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])
         assert len(self.plotter_multi._bs) == 2, "wrong number of band objects"
@@ -213,8 +212,8 @@ class TestBSDOSPlotter(unittest.TestCase):
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
-            band_struct_dict = json.load(f)
+        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as file:
+            band_struct_dict = json.load(file)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
@@ -269,13 +268,15 @@ class TestPlotBZ(unittest.TestCase):
         )
 
     def test_fold_point(self):
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.0, -0.5, 0.5], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.0, 0.5, 0.5]),
+            atol=1e-8,
         )
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2]),
+            atol=1e-8,
         )
 
 

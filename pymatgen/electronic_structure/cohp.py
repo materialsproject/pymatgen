@@ -43,7 +43,7 @@ due.cite(
 class Cohp(MSONable):
     """Basic COHP object."""
 
-    def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, icohp=None):
+    def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, icohp=None) -> None:
         """
         Args:
             are_coops: Indicates whether this object describes COOPs.
@@ -60,7 +60,7 @@ class Cohp(MSONable):
         self.cohp = cohp
         self.icohp = icohp
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
             cohp_str = "COOP"
@@ -68,16 +68,16 @@ class Cohp(MSONable):
             cohp_str = "COBI"
         else:
             cohp_str = "COHP"
-        header = ["Energy", cohp_str + "Up"]
+        header = ["Energy", f"{cohp_str}Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
-            header.append(cohp_str + "Down")
+            header.append(f"{cohp_str}Down")
             data.append(self.cohp[Spin.down])
         if self.icohp:
-            header.append("I" + cohp_str + "Up")
+            header.append(f"I{cohp_str}Up")
             data.append(self.icohp[Spin.up])
             if Spin.down in self.cohp:
-                header.append("I" + cohp_str + "Down")
+                header.append(f"I{cohp_str}Down")
                 data.append(self.icohp[Spin.down])
         format_header = "#" + " ".join("{:15s}" for __ in header)
         format_data = " ".join("{:.5f}" for __ in header)
@@ -217,7 +217,7 @@ class CompleteCohp(Cohp):
         are_coops=False,
         are_cobis=False,
         orb_res_cohp=None,
-    ):
+    ) -> None:
         """
         Args:
             structure: Structure associated with this COHP.
@@ -250,12 +250,9 @@ class CompleteCohp(Cohp):
         self.are_cobis = are_cobis
         self.all_cohps = cohp_dict
         self.orb_res_cohp = orb_res_cohp
-        if bonds is None:
-            self.bonds = {label: {} for label in self.all_cohps}
-        else:
-            self.bonds = bonds
+        self.bonds = bonds or {label: {} for label in self.all_cohps}
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.are_coops:
             return f"Complete COOPs for {self.structure}"
         if self.are_cobis:
@@ -786,7 +783,7 @@ class IcohpValue(MSONable):
 
     def __init__(
         self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False, orbitals=None
-    ):
+    ) -> None:
         """
         Args:
             label: label for the icohp
@@ -973,7 +970,7 @@ class IcohpCollection(MSONable):
         list_orb_icohp=None,
         are_coops=False,
         are_cobis=False,
-    ):
+    ) -> None:
         """
         Args:
             list_labels: list of labels for ICOHP/ICOOP values
@@ -1019,7 +1016,7 @@ class IcohpCollection(MSONable):
                 orbitals=None if list_orb_icohp is None else list_orb_icohp[ilist],
             )
 
-    def __str__(self):
+    def __str__(self) -> str:
         joinstr = []
         for value in self._icohplist.values():
             joinstr.append(str(value))

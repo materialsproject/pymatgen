@@ -11,7 +11,6 @@ import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
-import numpy as np
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -174,14 +173,14 @@ class TransformedStructure(MSONable):
                 return_alternatives can be a number, which stipulates the
                 total number of structures to return.
         """
-        for t in transformations:
-            self.append_transformation(t, return_alternatives=return_alternatives)
+        for trafo in transformations:
+            self.append_transformation(trafo, return_alternatives=return_alternatives)
 
     def get_vasp_input(self, vasp_input_set: type[VaspInputSet] = MPRelaxSet, **kwargs) -> dict[str, Any]:
         """Returns VASP input as a dict of VASP objects.
 
         Args:
-            vasp_input_set (pymatgen.io.vasp.sets.VaspInputSet): input set
+            vasp_input_set (VaspInputSet): input set
                 to create VASP input files from structures
             **kwargs: All keyword args supported by the VASP input set.
         """
@@ -207,8 +206,8 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
-        with open(f"{output_dir}/transformations.json", "w") as fp:
-            json.dump(self.as_dict(), fp)
+        with open(f"{output_dir}/transformations.json", mode="w") as file:
+            json.dump(self.as_dict(), file)
 
     def __str__(self) -> str:
         output = ["Current structure", "------------", str(self.final_structure), "\nHistory", "------------"]
@@ -243,11 +242,6 @@ class TransformedStructure(MSONable):
         """
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
         return [*h_structs, self.final_structure]
-
-    @classmethod
-    @np.deprecate(message="Use from_cif_str instead")
-    def from_cif_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_cif_str(*args, **kwargs)
 
     @classmethod
     def from_cif_str(
@@ -294,11 +288,6 @@ class TransformedStructure(MSONable):
             "cif_data": cif_dict[cif_keys[0]],
         }
         return cls(struct, transformations, history=[source_info])
-
-    @classmethod
-    @np.deprecate(message="Use from_poscar_str instead")
-    def from_poscar_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_poscar_str(*args, **kwargs)
 
     @classmethod
     def from_poscar_str(

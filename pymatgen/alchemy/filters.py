@@ -265,9 +265,11 @@ class RemoveExistingFilter(AbstractStructureFilter):
 
         for s in self.existing_structures:
             if (
-                self.structure_matcher._comparator.get_hash(structure.composition)
-                == self.structure_matcher._comparator.get_hash(s.composition)
-                and self.symprec is None
+                (
+                    self.structure_matcher._comparator.get_hash(structure.composition)
+                    == self.structure_matcher._comparator.get_hash(s.composition)
+                    and self.symprec is None
+                )
                 or get_sg(s) == get_sg(structure)
             ) and self.structure_matcher.fit(s, structure):
                 return False

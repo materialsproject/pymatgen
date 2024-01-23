@@ -582,7 +582,7 @@ class AdsorbateSiteFinder:
 
         for idx, site in enumerate(sym_slab):
             if dist - range_tol < site.frac_coords[2] < dist + range_tol and (
-                target_species and site.species_string in target_species or not target_species
+                (target_species and site.species_string in target_species) or not target_species
             ):
                 substituted_slabs.append(substitute(site, idx))
 
@@ -601,7 +601,7 @@ def get_mi_vec(slab):
 def get_rot(slab):
     """Gets the transformation to rotate the z axis into the miller index."""
     new_z = get_mi_vec(slab)
-    a, b, c = slab.lattice.matrix
+    a, _b, _c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)

@@ -40,7 +40,7 @@ from pymatgen.io.vasp.outputs import (
     Xdatcar,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 try:
     import h5py
@@ -240,7 +240,7 @@ class TestVasprun(PymatgenTest):
 
         assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
 
-        assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasp_run.atomic_symbols
+        assert vasp_run.atomic_symbols == ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
         assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
         assert vasp_run.incar is not None, "Incar cannot be read"
         assert vasp_run.kpoints is not None, "Kpoints cannot be read"
@@ -617,13 +617,13 @@ class TestVasprun(PymatgenTest):
             expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
         vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
@@ -668,7 +668,7 @@ class TestVasprun(PymatgenTest):
 
     def test_charged_structure(self):
         vpath = f"{TEST_FILES_DIR}/vasprun.charged.xml"
-        potcar_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
+        potcar_path = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 8) == 9
@@ -859,11 +859,11 @@ class TestOutcar(PymatgenTest):
     def test_pseudo_zval(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        assert {"Ba": 10.00, "Ti": 10.00, "O": 6.00} == outcar.zval_dict
+        assert outcar.zval_dict == {"Ba": 10.00, "Ti": 10.00, "O": 6.00}
 
         filepath = f"{TEST_FILES_DIR}/OUTCAR.LaSnNO2.polar"
         outcar = Outcar(filepath)
-        assert {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0} == outcar.zval_dict
+        assert outcar.zval_dict == {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0}
 
     def test_dielectric(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.dielectric"
@@ -1392,15 +1392,15 @@ class TestChgcar(PymatgenTest):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
-        with h5py.File(out_path, "r") as f:
-            assert_allclose(f["vdata"]["total"], chgcar.data["total"])
-            assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
-            assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
-            assert_allclose(f["fcoords"], chgcar.structure.frac_coords)
-            for z in f["Z"]:
+        with h5py.File(out_path, mode="r") as dct:
+            assert_allclose(dct["vdata"]["total"], chgcar.data["total"])
+            assert_allclose(dct["vdata"]["diff"], chgcar.data["diff"])
+            assert_allclose(dct["lattice"], chgcar.structure.lattice.matrix)
+            assert_allclose(dct["fcoords"], chgcar.structure.frac_coords)
+            for z in dct["Z"]:
                 assert z in [Element.Ni.Z, Element.O.Z]
 
-            for sp in f["species"]:
+            for sp in dct["species"]:
                 assert sp in [b"Ni", b"O"]
 
         chgcar2 = Chgcar.from_hdf5(out_path)
@@ -1888,8 +1888,8 @@ class TestWaveder(PymatgenTest):
         wder_ref = np.loadtxt(f"{TEST_FILES_DIR}/WAVEDERF.Si", skiprows=1)
 
         def _check(wder):
-            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as f:
-                first_line = [int(a) for a in f.readline().split()]
+            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as file:
+                first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
             for i in range(10):

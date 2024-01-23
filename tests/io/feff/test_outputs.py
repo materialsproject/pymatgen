@@ -5,7 +5,7 @@ import unittest
 from pymatgen.io.feff.outputs import LDos, Xmu
 from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir_reci = f"{TEST_FILES_DIR}/feff_reci_dos"
+TEST_DIR = f"{TEST_FILES_DIR}/feff_reci_dos"
 
 
 class TestFeffLdos(unittest.TestCase):
@@ -13,8 +13,8 @@ class TestFeffLdos(unittest.TestCase):
     filepath2 = f"{TEST_FILES_DIR}/ldos"
     ldos = LDos.from_file(filepath1, filepath2)
 
-    reci_feffinp = f"{test_dir_reci}/feff.inp"
-    reci_ldos = f"{test_dir_reci}/ldos"
+    reci_feffinp = f"{TEST_DIR}/feff.inp"
+    reci_ldos = f"{TEST_DIR}/ldos"
     reci_dos = LDos.from_file(reci_feffinp, reci_ldos)
 
     def test_init(self):
@@ -28,9 +28,9 @@ class TestFeffLdos(unittest.TestCase):
         ), "Failed to construct complete_dos dict properly"
 
     def test_as_dict_and_from_dict(self):
-        l2 = TestFeffLdos.ldos.charge_transfer_to_string()
+        l2 = TestFeffLdos.ldos.charge_transfer_to_str()
         d = TestFeffLdos.ldos.as_dict()
-        l3 = LDos.from_dict(d).charge_transfer_to_string()
+        l3 = LDos.from_dict(d).charge_transfer_to_str()
         assert l2 == l3, "Feffldos to and from dict does not match"
 
     def test_reci_init(self):
