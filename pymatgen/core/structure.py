@@ -578,7 +578,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_sp[Species(sym, ox)] = occu
             site.species = Composition(new_sp)
 
-    def remove_oxidation_states(self) -> None:
+    def remove_oxidation_states(self) -> SiteCollection:
         """Removes oxidation states from a structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
@@ -586,6 +586,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 sym = el.symbol
                 new_sp[Element(sym)] += occu
             site.species = Composition(new_sp)
+
+        return self
 
     def add_oxidation_state_by_guess(self, **kwargs) -> None:
         """Decorates the structure with oxidation state, guessing
