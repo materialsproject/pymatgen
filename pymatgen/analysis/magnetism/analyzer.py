@@ -10,7 +10,6 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
-from math import isclose
 from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
@@ -482,10 +481,15 @@ class CollinearMagneticStructureAnalyzer:
     @property
     def ordering(self) -> Ordering:
         """Applies heuristics to return a magnetic ordering for a collinear
-        magnetic structure. Result is not guaranteed for correctness.
+        magnetic structure. Result is not guaranteed to be correct, just a best
+        guess. Tolerance for minimum total magnetization to be considered
+        ferro/ferrimagnetic is 1e-8.
 
         Returns:
-            Ordering: Enum ('FiM' is used as the abbreviation for ferrimagnetic)
+            Ordering: Enum  with values FM: ferromagnetic, FiM: ferrimagnetic,
+                AFM: antiferromagnetic, NM: non-magnetic or Unknown. Unknown is
+                returned if magnetic moments are not defined or structure is not collinear
+                (in which case a warning is issued).
         """
         if not self.is_collinear:
             warnings.warn("Detecting ordering in non-collinear structures not yet implemented.")
@@ -504,9 +508,9 @@ class CollinearMagneticStructureAnalyzer:
 
         is_potentially_ferromagnetic = np.all(magmoms >= 0) or np.all(magmoms <= 0)
 
-        if not isclose(total_magnetization, 0, abs_tol=1e-8) and is_potentially_ferromagnetic:
+        if abs(total_magnetization) > 1e-8 and is_potentially_ferromagnetic:
             return Ordering.FM
-        if not isclose(total_magnetization, 0, abs_tol=1e-8):
+        if abs(total_magnetization) > 1e-8:
             return Ordering.FiM
         if max_magmom > 0:
             return Ordering.AFM
