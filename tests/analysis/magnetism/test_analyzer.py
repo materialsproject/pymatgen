@@ -34,6 +34,8 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
 
         self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif", primitive=True)
 
+        # CuO.mcif sourced from https://www.cryst.ehu.es/magndata/index.php?index=1.62
+        # doi: 10.1088/0022-3719/21/15/023
         self.CuO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.CuO.mcif.gz", primitive=True)
 
         lattice = Lattice.cubic(4.17)
