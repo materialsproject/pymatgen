@@ -13,13 +13,13 @@ from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/lammps"
+TEST_DIR = f"{TEST_FILES_DIR}/lammps"
 
 
 class TestLammpsInputFile(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.filename = f"{test_dir}/lgps.in"
+        cls.filename = f"{TEST_DIR}/lgps.in"
 
     def test_from_file(self):
         lmp_input = LammpsInputFile().from_file(self.filename)

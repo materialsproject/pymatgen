@@ -808,8 +808,8 @@ class CifParser:
             label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
-                msg = MagneticSpaceGroup(label, jf)
+                jonas_faithful = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                msg = MagneticSpaceGroup(label, jonas_faithful)
 
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError("Incomplete specification to implement.")

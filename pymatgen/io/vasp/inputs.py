@@ -460,7 +460,7 @@ class Poscar(MSONable):
                 # First line in chunk is a key in CONTCAR
                 # Second line is POTIM
                 # Third line is the thermostat parameters
-                predictor_corrector_preamble = lines[0] + "\n" + lines[1] + "\n" + lines[2]
+                predictor_corrector_preamble = f"{lines[0]}\n{lines[1]}\n{lines[2]}"
                 # Rest is three sets of parameters, each set contains
                 # x, y, z predictor-corrector parameters for every atom in order
                 lines = lines[3:]

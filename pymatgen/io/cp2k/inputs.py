@@ -575,7 +575,7 @@ class Section(MSONable):
                 string += "\t" * (indent + 1) + v.get_str() + "\n"
         for v in d.subsections.values():
             string += v._get_str(v, indent + 1)
-        string += "\t" * indent + "&END " + d.name + "\n"
+        string += "\t" * indent + f"&END {d.name}\n"
 
         return string
 
@@ -764,7 +764,7 @@ class Cp2kInput(Section):
                         self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
                 else:
                     self.by_path(current).insert(s)
-                current = current + "/" + alias if alias else current + "/" + name
+                current = f"{current}/{alias or name}"
             else:
                 kwd = Keyword.from_str(line)
                 tmp = self.by_path(current).get(kwd.name)
