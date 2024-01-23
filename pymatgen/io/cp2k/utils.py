@@ -79,8 +79,8 @@ def preprocessor(data: str, dir: str = ".") -> str:
         assert len(inc) == 2  # @include filename
         inc = inc[1].strip("'")
         inc = inc.strip('"')
-        with zopen(os.path.join(dir, inc)) as f:
-            data = re.sub(rf"{incl}", f.read(), data)
+        with zopen(os.path.join(dir, inc)) as file:
+            data = re.sub(rf"{incl}", file.read(), data)
     variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()

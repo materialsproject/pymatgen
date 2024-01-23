@@ -33,8 +33,8 @@ class LineLocator(MSONable):
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
-        with zopen(file_path, mode="rt") as f:
-            for row_content in f:
+        with zopen(file_path, mode="rt") as file:
+            for row_content in file:
                 row_no += 1
                 if content.upper() in row_content.upper():
                     row_idxs.append(row_no)
@@ -145,8 +145,8 @@ class ACExtractor(ACExtractorBase):
         coords_lst: list[np.ndarray] = []
         content: str = "POSITION"
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as f:
-            atom_config_content = f.readlines()
+        with open(self.atom_config_path) as file:
+            atom_config_content = file.readlines()
         """
         row_content:
             '29         0.377262291145329         0.128590184800933         0.257759805813488     1  1  1'
@@ -168,8 +168,8 @@ class ACExtractor(ACExtractorBase):
         try:  # Error: not containing magmoms info.
             idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[-1]
 
-            with open(self.atom_config_path) as f:
-                atom_config_content = f.readlines()
+            with open(self.atom_config_path) as file:
+                atom_config_content = file.readlines()
 
             magnetic_moments_content = atom_config_content[idx_row : idx_row + self.n_atoms]
             # MAGNETIC
@@ -460,8 +460,8 @@ class AtomConfig(MSONable):
 
     def write_file(self, filename: PathLike, **kwargs):
         """Writes AtomConfig to a file."""
-        with zopen(filename, "wt") as f:
-            f.write(self.get_str(**kwargs))
+        with zopen(filename, "wt") as file:
+            file.write(self.get_str(**kwargs))
 
     def as_dict(self):
         """

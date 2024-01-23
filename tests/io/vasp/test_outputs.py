@@ -1392,15 +1392,15 @@ class TestChgcar(PymatgenTest):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
-        with h5py.File(out_path, mode="r") as f:
-            assert_allclose(f["vdata"]["total"], chgcar.data["total"])
-            assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
-            assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
-            assert_allclose(f["fcoords"], chgcar.structure.frac_coords)
-            for z in f["Z"]:
+        with h5py.File(out_path, mode="r") as dct:
+            assert_allclose(dct["vdata"]["total"], chgcar.data["total"])
+            assert_allclose(dct["vdata"]["diff"], chgcar.data["diff"])
+            assert_allclose(dct["lattice"], chgcar.structure.lattice.matrix)
+            assert_allclose(dct["fcoords"], chgcar.structure.frac_coords)
+            for z in dct["Z"]:
                 assert z in [Element.Ni.Z, Element.O.Z]
 
-            for sp in f["species"]:
+            for sp in dct["species"]:
                 assert sp in [b"Ni", b"O"]
 
         chgcar2 = Chgcar.from_hdf5(out_path)
@@ -1888,8 +1888,8 @@ class TestWaveder(PymatgenTest):
         wder_ref = np.loadtxt(f"{TEST_FILES_DIR}/WAVEDERF.Si", skiprows=1)
 
         def _check(wder):
-            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as f:
-                first_line = [int(a) for a in f.readline().split()]
+            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as file:
+                first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
             for i in range(10):

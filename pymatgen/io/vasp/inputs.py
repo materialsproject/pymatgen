@@ -272,8 +272,8 @@ class Poscar(MSONable):
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:
                     names = None
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read(), names, read_velocities=read_velocities)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
     def from_str(cls, data, default_names=None, read_velocities=True):
@@ -576,8 +576,8 @@ class Poscar(MSONable):
         Writes POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_str method and are passed through directly.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(self.get_str(**kwargs))
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -768,8 +768,8 @@ class Incar(dict, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Incar:
@@ -781,8 +781,8 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     @classmethod
     def from_str(cls, string: str) -> Incar:
@@ -1338,8 +1338,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     @classmethod
     def from_str(cls, string):
@@ -1459,8 +1459,8 @@ class Kpoints(MSONable):
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))
 
     def __repr__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
@@ -2472,8 +2472,8 @@ class Potcar(list, MSONable):
         Returns:
             Potcar
         """
-        with zopen(filename, mode="rt") as f:
-            fdata = f.read()
+        with zopen(filename, mode="rt") as file:
+            fdata = file.read()
         potcar = cls()
 
         functionals = []
@@ -2497,8 +2497,8 @@ class Potcar(list, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))
 
     @property
     def symbols(self):
@@ -2604,8 +2604,8 @@ class VaspInput(dict, MSONable):
             os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
-                with zopen(os.path.join(output_dir, k), mode="wt") as f:
-                    f.write(str(v))
+                with zopen(os.path.join(output_dir, k), mode="wt") as file:
+                    file.write(str(v))
 
     @classmethod
     def from_directory(cls, input_dir, optional_files=None):

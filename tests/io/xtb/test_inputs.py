@@ -34,8 +34,8 @@ class TestCRESTInput(PymatgenTest):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
         mol = Molecule.from_file(f"{TEST_DIR}/crest_in.xyz")
         cin = CRESTInput(molecule=mol, constraints=constraints)
-        with open(f"{EXPECTED_DIR}/expected_constrains.txt") as f:
-            exp_con = f.read()
+        with open(f"{EXPECTED_DIR}/expected_constrains.txt") as file:
+            exp_con = file.read()
             assert (
                 exp_con.strip()
                 == cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip()

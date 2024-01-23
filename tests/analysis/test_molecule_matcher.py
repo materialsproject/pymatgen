@@ -161,13 +161,13 @@ class TestMoleculeMatcher(unittest.TestCase):
 
     def test_group_molecules(self):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
-        with open(f"{TEST_DIR}/mol_list.txt") as f:
-            filename_list = [line.strip() for line in f.readlines()]
+        with open(f"{TEST_DIR}/mol_list.txt") as file:
+            filename_list = [line.strip() for line in file.readlines()]
         mol_list = [Molecule.from_file(os.path.join(TEST_DIR, f)) for f in filename_list]
         mol_groups = mol_matcher.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
-        with open(f"{TEST_DIR}/grouped_mol_list.txt") as f:
-            grouped_text = f.read().strip()
+        with open(f"{TEST_DIR}/grouped_mol_list.txt") as file:
+            grouped_text = file.read().strip()
         assert str(filename_groups) == grouped_text
 
     def test_to_and_from_dict(self):

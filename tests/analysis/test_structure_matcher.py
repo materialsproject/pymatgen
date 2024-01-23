@@ -22,8 +22,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestStructureMatcher(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
-            entries = json.load(fp, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
+            entries = json.load(file, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),

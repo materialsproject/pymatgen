@@ -254,9 +254,9 @@ class BoltztrapRunner(MSONable):
 
         :param output_file: Filename
         """
-        with open(output_file, mode="w") as f:
-            f.write("test\n")
-            f.write(f"{len(self._bs.kpoints)}\n")
+        with open(output_file, mode="w") as file:
+            file.write("test\n")
+            file.write(f"{len(self._bs.kpoints)}\n")
 
             if self.run_type == "FERMI":
                 sign = -1.0 if self.cond_band else 1.0
@@ -269,9 +269,9 @@ class BoltztrapRunner(MSONable):
                         ).to("Ry")
                     )
                     a, b, c = kpt.frac_coords
-                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
+                    file.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
                     for e in eigs:
-                        f.write(f"{sign * float(e):18.8f}\n")
+                        file.write(f"{sign * float(e):18.8f}\n")
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -296,10 +296,10 @@ class BoltztrapRunner(MSONable):
                         eigs.insert(0, self._ll)
                         eigs.append(self._hl)
                     a, b, c = kpt.frac_coords
-                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
+                    file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
 
                     for e in eigs:
-                        f.write(f"{float(e):18.8f}\n")
+                        file.write(f"{float(e):18.8f}\n")
 
     def write_struct(self, output_file) -> None:
         """Writes the structure to an output file.

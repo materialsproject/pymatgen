@@ -444,8 +444,8 @@ class TestLammpsData(PymatgenTest):
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
         ff = ForceField(mass.items(), non_bond_coeffs, topo_coeffs)
-        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz") as f:
-            topo_dicts = json.load(f)
+        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz") as file:
+            topo_dicts = json.load(file)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
         box = LammpsBox([[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]])
         ice = LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=topologies)
@@ -731,8 +731,8 @@ class TestForceField(unittest.TestCase):
         v = self.virus
         v.to_file(filename=filename)
         yaml = YAML()
-        with open(filename) as f:
-            d = yaml.load(f)
+        with open(filename) as file:
+            d = yaml.load(file)
         # assert d["mass_info"] == [list(m) for m in v.mass_info]
         assert d["nonbond_coeffs"] == v.nonbond_coeffs
 

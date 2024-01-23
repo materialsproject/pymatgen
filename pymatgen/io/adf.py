@@ -632,11 +632,11 @@ class AdfInput:
                 unres_block = AdfKey("Unrestricted")
                 mol_blocks.append(unres_block)
 
-        with open(inp_file, "w+") as f:
+        with open(inp_file, "w+") as file:
             for block in mol_blocks:
-                f.write(str(block) + "\n")
-            f.write(str(self.task) + "\n")
-            f.write("END INPUT")
+                file.write(str(block) + "\n")
+            file.write(str(self.task) + "\n")
+            file.write("END INPUT")
 
 
 class AdfOutput:

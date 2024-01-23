@@ -12,8 +12,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestExpEntry(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/Fe2O3_exp.json") as f:
-            thermo_data = json.load(f, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/Fe2O3_exp.json") as file:
+            thermo_data = json.load(file, cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermo_data)
 
     def test_energy(self):

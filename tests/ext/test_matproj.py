@@ -477,8 +477,8 @@ class TestMPResterOld(PymatgenTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as f:
-            d = yaml.load(f)
+        with open(MP_LOG_FILE) as file:
+            d = yaml.load(file)
 
         assert d["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
         assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)

@@ -14,18 +14,18 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/spectrum_test"
 
-with open(f"{TEST_DIR}/LiCoO2_k_xanes.json") as fp:
-    k_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(f"{TEST_DIR}/LiCoO2_k_exafs.json") as fp:
-    k_exafs_dict = json.load(fp, cls=MontyDecoder)
-with open(f"{TEST_DIR}/ZnO_l2_xanes.json") as fp:
-    l2_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(f"{TEST_DIR}/ZnO_l3_xanes.json") as fp:
-    l3_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(f"{TEST_DIR}/site1_k_xanes.json") as fp:
-    site1_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(f"{TEST_DIR}/site2_k_xanes.json") as fp:
-    site2_xanes_dict = json.load(fp, cls=MontyDecoder)
+with open(f"{TEST_DIR}/LiCoO2_k_xanes.json") as file:
+    k_xanes_dict = json.load(file, cls=MontyDecoder)
+with open(f"{TEST_DIR}/LiCoO2_k_exafs.json") as file:
+    k_exafs_dict = json.load(file, cls=MontyDecoder)
+with open(f"{TEST_DIR}/ZnO_l2_xanes.json") as file:
+    l2_xanes_dict = json.load(file, cls=MontyDecoder)
+with open(f"{TEST_DIR}/ZnO_l3_xanes.json") as file:
+    l3_xanes_dict = json.load(file, cls=MontyDecoder)
+with open(f"{TEST_DIR}/site1_k_xanes.json") as file:
+    site1_xanes_dict = json.load(file, cls=MontyDecoder)
+with open(f"{TEST_DIR}/site2_k_xanes.json") as file:
+    site2_xanes_dict = json.load(file, cls=MontyDecoder)
 
 
 class TestXAS(PymatgenTest):

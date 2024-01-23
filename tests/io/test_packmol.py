@@ -104,8 +104,8 @@ class TestPackmolSet(PymatgenTest):
             ],
         )
         input_set.write_input(self.tmp_path)
-        with open(os.path.join(self.tmp_path, "packmol.inp")) as f:
-            input_string = f.read()
+        with open(os.path.join(self.tmp_path, "packmol.inp")) as file:
+            input_string = file.read()
             assert "maxit 0" in input_string
             assert "nloop 0" in input_string
         with pytest.raises(ValueError):
@@ -136,8 +136,8 @@ class TestPackmolSet(PymatgenTest):
             box=[0, 0, 0, 2, 2, 2],
         )
         pw.write_input(self.tmp_path)
-        with open(os.path.join(self.tmp_path, "packmol.inp")) as f:
-            input_string = f.read()
+        with open(os.path.join(self.tmp_path, "packmol.inp")) as file:
+            input_string = file.read()
             assert "inside box 0 0 0 2 2 2" in input_string
         with pytest.raises(ValueError):
             pw.run(self.tmp_path)

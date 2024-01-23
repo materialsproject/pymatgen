@@ -2887,8 +2887,8 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
-        with zopen(filename, mode="rt", errors="replace") as f:
-            contents = f.read()
+        with zopen(filename, mode="rt", errors="replace") as file:
+            contents = file.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):

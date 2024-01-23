@@ -1269,8 +1269,8 @@ class TestVaspInput(PymatgenTest):
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
-        with open("vasp.out") as f:
-            output = f.read()
+        with open("vasp.out") as file:
+            output = file.read()
             assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):

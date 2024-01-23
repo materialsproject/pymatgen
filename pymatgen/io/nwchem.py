@@ -384,8 +384,8 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, mode="w") as f:
-            f.write(str(self))
+        with zopen(filename, mode="w") as file:
+            file.write(str(self))
 
     def as_dict(self):
         """Returns: MSONable dict."""
@@ -522,8 +522,8 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        with zopen(filename) as f:
-            return cls.from_str(f.read())
+        with zopen(filename) as file:
+            return cls.from_str(file.read())
 
 
 class NwInputError(Exception):
@@ -545,8 +545,8 @@ class NwOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            data = f.read()
+        with zopen(filename) as file:
+            data = file.read()
 
         chunks = re.split(r"NWChem Input Module", data)
         if re.search(r"CITATION", chunks[-1]):
