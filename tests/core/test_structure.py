@@ -1107,7 +1107,8 @@ class TestStructure(PymatgenTest):
 
     def test_add_oxidation_states_by_guess(self):
         struct = PymatgenTest.get_structure("Li2O")
-        struct.add_oxidation_state_by_guess()
+        struct_with_oxi = struct.add_oxidation_state_by_guess()
+        assert struct_with_oxi is struct
         expected = [Species("Li", 1), Species("O", -2)]
         for site in struct:
             assert site.specie in expected
@@ -1119,17 +1120,21 @@ class TestStructure(PymatgenTest):
         nio = Structure.from_spacegroup(225, latt, species, coords)
 
         # should do nothing, but not fail
-        nio.remove_spin()
+        nio1 = nio.remove_spin()
+        assert nio1 is nio
 
         spins = {"Ni": 5}
-        nio.add_spin_by_element(spins)
+        nio2 = nio.add_spin_by_element(spins)
+        assert nio2 is nio
         assert nio[0].specie.spin == 5, "Failed to add spin states"
 
-        nio.remove_spin()
+        nio3 = nio.remove_spin()
+        assert nio3 is nio
         assert nio[0].specie.spin is None
 
         spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
-        nio.add_spin_by_site(spins)
+        nio4 = nio.add_spin_by_site(spins)
+        assert nio4 is nio
         assert nio[1].specie.spin == -5, "Failed to add spin states"
 
     def test_apply_operation(self):
