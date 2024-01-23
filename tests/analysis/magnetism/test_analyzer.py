@@ -188,6 +188,7 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert mag_struct_analyzer.types_of_magnetic_species == (Element.Ni,)
         assert mag_struct_analyzer.get_exchange_group_info() == ("Fm-3m", 225)
 
+        # https://github.com/materialsproject/pymatgen/pull/3574
         mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.CuO_expt)
         assert mag_struct_analyzer.ordering == Ordering.AFM
 
