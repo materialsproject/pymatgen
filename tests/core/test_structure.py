@@ -2148,6 +2148,11 @@ class TestMolecule(PymatgenTest):
         assert self.mol[0].charge == 4.1
         assert self.mol[0].magmom == 3
         self.mol.remove_site_property("magmom")
+
+        # test ValueError when values have wrong length
+        with pytest.raises(ValueError, match="len(values)=2 must equal sites in structure=5"):
+            self.mol.add_site_property("charge", [4, 2])
+
         with pytest.raises(AttributeError, match="attr='magmom' not found on Site"):
             _ = self.mol[0].magmom
 

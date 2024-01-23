@@ -489,9 +489,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             property_name (str): The name of the property to add.
             values (list): A sequence of values. Must be same length as
                 number of sites.
+
+        Raises:
+            ValueError: if len(values) != number of sites.
         """
         if len(values) != len(self):
-            raise ValueError(f"Values has length {len(values)} but there are {len(self)} sites! Must be same length.")
+            raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
         for site, val in zip(self, values):
             site.properties[property_name] = val
 
