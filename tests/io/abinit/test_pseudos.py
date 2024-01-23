@@ -9,11 +9,11 @@ from pytest import approx
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-_test_dir = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 
 def ref_file(filename):
-    return os.path.join(_test_dir, filename)
+    return os.path.join(TEST_DIR, filename)
 
 
 def ref_files(*filenames):

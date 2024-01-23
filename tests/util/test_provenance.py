@@ -47,7 +47,7 @@ class StructureNLCase(unittest.TestCase):
             "\n year = {2013}\n}"
         )
         repeat = "REPEAT" * 10000
-        self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
+        self.superlong = f"@misc{{SuperLong,\ntitle = {{{repeat}}}}}"
         self.unicode_title = "@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
 
@@ -117,7 +117,7 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.struct, self.hulk, references=f"{self.matproj}\n{self.pmg}")
 
         # super long references are bad
-        with pytest.raises(ValueError, match="The BibTeX string must be fewer than 20000 chars, you have 60030"):
+        with pytest.raises(ValueError, match="The BibTeX string must be fewer than 20000 chars, you have 60028"):
             StructureNL(self.struct, self.hulk, references=self.superlong)
 
     def test_history_nodes(self):

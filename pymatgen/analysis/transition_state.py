@@ -166,32 +166,25 @@ class NEBAnalysis(MSONable):
             plt.Axes: matplotlib axes object.
         """
         ax = pretty_plot(12, 8)
-        scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
-        x = np.arange(0, np.max(self.r), 0.01)
-        y = self.spline(x) * 1000
+        scale = 1 / self.r[-1] if normalize_rxn_coordinate else 1
+        xs = np.arange(0, np.max(self.r), 0.01)
+        ys = self.spline(xs) * 1000
         relative_energies = self.energies - self.energies[0]
-        ax.plot(
-            self.r * scale,
-            relative_energies * 1000,
-            "ro",
-            x * scale,
-            y,
-            "k-",
-            linewidth=2,
-            markersize=10,
-        )
-        ax.set_xlabel("Reaction coordinate")
+        ax.plot(self.r * scale, relative_energies * 1000, "ro", xs * scale, ys, "k-", linewidth=2, markersize=10)
+
+        ax.set_xlabel("Reaction Coordinate")
         ax.set_ylabel("Energy (meV)")
-        ax.set_ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
+        ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
         if label_barrier:
-            data = zip(x * scale, y)
+            data = zip(xs * scale, ys)
             barrier = max(data, key=lambda d: d[1])
-            ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
+            ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--", linewidth=0.5)
             ax.annotate(
-                f"{np.max(y) - np.min(y):.0f} meV",
+                f"{np.max(ys) - np.min(ys):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
+                fontsize=18,
             )
         plt.tight_layout()
         return ax

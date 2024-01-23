@@ -24,7 +24,6 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Literal, SupportsIndex, cast, get_args
 
 import numpy as np
-import pandas as pd
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -490,9 +489,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             property_name (str): The name of the property to add.
             values (list): A sequence of values. Must be same length as
                 number of sites.
+
+        Raises:
+            ValueError: if len(values) != number of sites.
         """
         if len(values) != len(self):
-            raise ValueError(f"Values has length {len(values)} but there are {len(self)} sites! Must be same length.")
+            raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
         for site, val in zip(self, values):
             site.properties[property_name] = val
 
@@ -579,7 +581,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_sp[Species(sym, ox)] = occu
             site.species = Composition(new_sp)
 
-    def remove_oxidation_states(self) -> None:
+    def remove_oxidation_states(self) -> SiteCollection:
         """Removes oxidation states from a structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
@@ -588,7 +590,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_sp[Element(sym)] += occu
             site.species = Composition(new_sp)
 
-    def add_oxidation_state_by_guess(self, **kwargs) -> None:
+        return self
+
+    def add_oxidation_state_by_guess(self, **kwargs) -> SiteCollection:
         """Decorates the structure with oxidation state, guessing
         using Composition.oxi_state_guesses(). If multiple guesses are found
         we take the first one.
@@ -600,7 +604,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]
         self.add_oxidation_state_by_element(oxi_guess[0])
 
-    def add_spin_by_element(self, spins: dict[str, float]) -> None:
+        return self
+
+    def add_spin_by_element(self, spins: dict[str, float]) -> SiteCollection:
         """Add spin states to structure.
 
         Args:
@@ -616,7 +622,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_species[species] = occu
             site.species = Composition(new_species)
 
-    def add_spin_by_site(self, spins: Sequence[float]) -> None:
+        return self
+
+    def add_spin_by_site(self, spins: Sequence[float]) -> SiteCollection:
         """Add spin states to structure by site.
 
         Args:
@@ -633,7 +641,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_species[Species(sym, oxidation_state=oxi_state, spin=spin)] = occu
             site.species = Composition(new_species)
 
-    def remove_spin(self) -> None:
+        return self
+
+    def remove_spin(self) -> SiteCollection:
         """Remove spin states from structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
@@ -641,6 +651,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 oxi_state = getattr(sp, "oxi_state", None)
                 new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu
             site.species = Composition(new_sp)
+
+        return self
 
     def extract_cluster(self, target_sites: list[Site], **kwargs) -> list[Site]:
         """Extracts a cluster of atoms based on bond lengths.
@@ -2625,16 +2637,19 @@ class IStructure(SiteCollection, MSONable):
             0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
             1    (Si)  0.0  0.0  1.000000e-7  0.0 -2.217138e-7  3.135509e-7      -5
         """
-        data = []
+        # pandas lazy imported for speed (https://github.com/materialsproject/pymatgen/issues/3563)
+        import pandas as pd
+
+        data: list[list[str | float]] = []
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
             row = [site.species, *site.frac_coords, *site.coords]
-            for k in prop_keys:
-                row.append(site.properties.get(k))
+            for key in prop_keys:
+                row.append(site.properties.get(key))
             data.append(row)
 
-        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z", *prop_keys])
+        df = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
         df.attrs["Reduced Formula"] = self.composition.reduced_formula
         df.attrs["Lattice"] = self.lattice
         return df
@@ -2885,8 +2900,8 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
-        with zopen(filename, mode="rt", errors="replace") as f:
-            contents = f.read()
+        with zopen(filename, mode="rt", errors="replace") as file:
+            contents = file.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):

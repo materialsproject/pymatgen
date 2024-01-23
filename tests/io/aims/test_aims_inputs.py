@@ -17,7 +17,7 @@ from pymatgen.io.aims.inputs import (
     AimsGeometryIn,
 )
 
-infile_dir = Path(__file__).parent / "input_files"
+TEST_DIR = Path(__file__).parent / "input_files"
 
 
 def compare_files(ref_file, test_file):
@@ -34,7 +34,7 @@ def compare_files(ref_file, test_file):
 
 
 def test_read_write_si_in(tmp_path):
-    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz")
+    si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz")
 
     in_lattice = np.array([[0.0, 2.715, 2.716], [2.717, 0.0, 2.718], [2.719, 2.720, 0.0]])
     in_coords = np.array([[0.0, 0.0, 0.0], [0.25, 0.24, 0.26]])
@@ -53,16 +53,16 @@ def test_read_write_si_in(tmp_path):
     ):
         si_test_from_struct.write_file(directory=tmp_path, overwrite=False)
 
-    compare_files(infile_dir / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
+    compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
 
-    with gzip.open(f"{infile_dir}/si_ref.json.gz", mode="rt") as si_ref_json:
+    with gzip.open(f"{TEST_DIR}/si_ref.json.gz", mode="rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
 
     assert si.structure == si_from_dct.structure
 
 
 def test_read_h2o_in(tmp_path):
-    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz")
+    h2o = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.h2o.gz")
 
     in_coords = np.array(
         [
@@ -80,15 +80,12 @@ def test_read_h2o_in(tmp_path):
 
     h2o_test_from_struct.write_file(directory=tmp_path, overwrite=True)
 
-    with pytest.raises(
-        ValueError,
-        match="geometry.in file exists in ",
-    ):
+    with pytest.raises(ValueError, match="geometry.in file exists in "):
         h2o_test_from_struct.write_file(directory=tmp_path, overwrite=False)
 
-    compare_files(infile_dir / "geometry.in.h2o.ref", f"{tmp_path}/geometry.in")
+    compare_files(TEST_DIR / "geometry.in.h2o.ref", f"{tmp_path}/geometry.in")
 
-    with gzip.open(f"{infile_dir}/h2o_ref.json.gz", mode="rt") as h2o_ref_json:
+    with gzip.open(f"{TEST_DIR}/h2o_ref.json.gz", mode="rt") as h2o_ref_json:
         h2o_from_dct = json.load(h2o_ref_json, cls=MontyDecoder)
 
     assert h2o.structure == h2o_from_dct.structure
@@ -184,7 +181,7 @@ def test_aims_control_in(tmp_path):
         "compute_forces": True,
         "relax_geometry": ["trm", "1e-3"],
         "batch_size_limit": 200,
-        "species_dir": str(infile_dir.parent / "species_directory/light"),
+        "species_dir": str(TEST_DIR.parent / "species_directory/light"),
     }
 
     aims_control = AimsControlIn(parameters.copy())
@@ -196,12 +193,12 @@ def test_aims_control_in(tmp_path):
     assert "xc" not in aims_control.parameters
     aims_control.parameters = parameters
 
-    h2o = AimsGeometryIn.from_file(infile_dir / "geometry.in.h2o.gz").structure
+    h2o = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.h2o.gz").structure
 
-    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz").structure
+    si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz").structure
     aims_control.write_file(h2o, directory=tmp_path, overwrite=True)
 
-    compare_files(infile_dir / "control.in.h2o", f"{tmp_path}/control.in")
+    compare_files(TEST_DIR / "control.in.h2o", f"{tmp_path}/control.in")
 
     with pytest.raises(
         ValueError,
@@ -227,12 +224,12 @@ def test_aims_control_in(tmp_path):
         assert aims_control_from_dict[key] == val
 
     aims_control_from_dict.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
-    compare_files(infile_dir / "control.in.si", f"{tmp_path}/control.in")
+    compare_files(TEST_DIR / "control.in.si", f"{tmp_path}/control.in")
 
 
 def test_aims_control_in_default_species_dir(tmp_path):
     original_sd = os.environ.get("AIMS_SPECIES_DIR", None)
-    os.environ["AIMS_SPECIES_DIR"] = str(infile_dir.parent / "species_directory/light")
+    os.environ["AIMS_SPECIES_DIR"] = str(TEST_DIR.parent / "species_directory/light")
 
     parameters = {
         "cubes": [
@@ -254,10 +251,10 @@ def test_aims_control_in_default_species_dir(tmp_path):
     for key, val in parameters.items():
         assert aims_control[key] == val
 
-    si = AimsGeometryIn.from_file(infile_dir / "geometry.in.si.gz").structure
+    si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz").structure
 
     aims_control.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
-    compare_files(infile_dir / "control.in.si.no_sd", f"{tmp_path}/control.in")
+    compare_files(TEST_DIR / "control.in.si.no_sd", f"{tmp_path}/control.in")
 
     if original_sd is not None:
         os.environ["AIMS_SPECIES_DIR"] = original_sd

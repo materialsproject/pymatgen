@@ -15,7 +15,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-test_dir = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
+TEST_DIR = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
 class TestUtil(PymatgenTest):
@@ -35,12 +35,12 @@ class TestUtil(PymatgenTest):
             lower_and_check_unique(d4)
 
     def test_process_parsed_hess(self):
-        with zopen(f"{test_dir}/parse_hess/132.0", mode="rb") as f:
-            binary = f.read()
+        with zopen(f"{TEST_DIR}/parse_hess/132.0", mode="rb") as file:
+            binary = file.read()
             data_132 = [struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(int(len(binary) / 8))]
 
-        with zopen(f"{test_dir}/parse_hess/HESS", mode="rt", encoding="ISO-8859-1") as f:
-            data_hess = f.readlines()
+        with zopen(f"{TEST_DIR}/parse_hess/HESS", mode="rt", encoding="ISO-8859-1") as file:
+            data_hess = file.readlines()
 
         processed_data_hess = process_parsed_hess(data_hess)
 

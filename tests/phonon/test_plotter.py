@@ -15,8 +15,8 @@ rc("text", usetex=False)  # Disabling latex for testing
 
 class TestPhononDosPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.dos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.dos = CompletePhononDos.from_dict(json.load(file))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
 

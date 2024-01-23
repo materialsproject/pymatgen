@@ -380,8 +380,8 @@ class Header(MSONable):
         Args:
             filename: Filename and path for file to be written to disk
         """
-        with open(filename, mode="w") as f:
-            f.write(str(self) + "\n")
+        with open(filename, mode="w") as file:
+            file.write(str(self) + "\n")
 
 
 class Atoms(MSONable):
@@ -538,8 +538,8 @@ class Atoms(MSONable):
         Args:
             filename: path for file to be written
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(f"{self}\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(f"{self}\n")
 
 
 class Tags(dict):
@@ -661,8 +661,8 @@ class Tags(dict):
         Args:
             filename: filename and path to write to.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(f"{self}\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(f"{self}\n")
 
     @classmethod
     def from_file(cls, filename="feff.inp"):
@@ -675,8 +675,8 @@ class Tags(dict):
         Returns:
             Feff_tag object
         """
-        with zopen(filename, mode="rt") as f:
-            lines = list(clean_lines(f.readlines()))
+        with zopen(filename, mode="rt") as file:
+            lines = list(clean_lines(file.readlines()))
         params = {}
         eels_params = []
         ieels = -1
@@ -953,8 +953,8 @@ class Potential(MSONable):
         Args:
             filename: filename and path to write potential file to.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
 
 class Paths(MSONable):
@@ -994,8 +994,8 @@ class Paths(MSONable):
 
     def write_file(self, filename="paths.dat"):
         """Write paths.dat."""
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
 
 class FeffParseError(ParseError):
