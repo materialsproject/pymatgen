@@ -1089,6 +1089,10 @@ class TestMITMDSet(PymatgenTest):
         incar = param.incar
         assert "LDAUU" not in incar
         assert incar["EDIFF"] == approx(1e-5)
+        assert incar["ALGO"] == "Fast"
+        assert incar["ISMEAR"] == 0
+        assert incar["IBRION"] == 0
+        assert incar["ISYM"] == 0
         kpoints = param.kpoints
         assert kpoints.kpts == [(1, 1, 1)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
@@ -1098,7 +1102,18 @@ class TestMITMDSet(PymatgenTest):
         input_set = dec.process_decoded(dct)
         assert isinstance(input_set, self.set)
         assert input_set.incar["TEBEG"] == 300
+        assert input_set.incar["TEEND"] == 1200
         assert input_set.incar["PREC"] == "Low"
+        assert input_set.incar["POTIM"] == 2
+        assert input_set.incar["NSW"] == 10000
+
+    def test_user_heat_speed(self):
+        vis=self.set(self.struct,start_temp=0,end_temp=1000,time_step=0.5)
+        vis.nsteps=(vis.end_temp-vis.start_temp)/vis.time_step
+        assert vis.incar["TEBEG"] == 0
+        assert vis.incar["TEEND"] == 1000
+        assert vis.incar["POTIM"] == 0.5
+        assert vis.incar["NSW"] == 2000
 
 
 @skip_if_no_psp_dir
