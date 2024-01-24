@@ -188,6 +188,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # basic test of initialization with no structure.
         vis = MPRelaxSet()
         assert vis.as_dict()["structure"] is None
+        assert vis.inherit_incar == False
         with pytest.raises(RuntimeError, match="No structure is associated with the input set!"):
             _ = vis.incar
         vis.structure = self.structure
@@ -198,8 +199,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
         with pytest.warns(
-            BadInputSetWarning,
-            match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
+                BadInputSetWarning,
+                match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
         ) as warns:
             vis = self.set(structure)
             _ = vis.incar
@@ -243,9 +244,9 @@ class TestMITMPRelaxSet(PymatgenTest):
                     structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
                 )
                 expected = {  # noqa: SIM222
-                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-                    **(user_potcar_settings or {}),
-                } or None
+                               **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
+                               **(user_potcar_settings or {}),
+                           } or None
                 assert relax_set.user_potcar_settings == expected
 
     @skip_if_no_psp_dir
@@ -270,7 +271,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # disordered structure are not supported
         disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         with pytest.raises(
-            ValueError, match="Disordered structure with partial occupancies cannot be converted into POSCAR"
+                ValueError, match="Disordered structure with partial occupancies cannot be converted into POSCAR"
         ):
             _ = self.set(disordered).nelect
 
@@ -623,6 +624,7 @@ class TestMPStaticSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
 
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run)
+        assert vis.inherit_incar
         assert vis.incar["NSW"] == 0
         # Check that the ENCUT has been inherited.
         assert vis.incar["ENCUT"] == 600
@@ -859,7 +861,7 @@ class TestMatPESStaticSet(PymatgenTest):
     def test_functionals(self):
         xc_functional = "LDA"
         with pytest.raises(
-            ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
+                ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
         ):
             MatPESStaticSet(self.struct, xc_functional=xc_functional)
 
@@ -883,8 +885,11 @@ class TestMPNonSCFSet(PymatgenTest):
     @skip_if_no_psp_dir
     def test_init(self):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
-        # check boltztrap mode
+        # check mode belong to ["line", "uniform", "boltztrap"]
+        with pytest.raises(ValueError, match="Supported modes for NonSCF runs are 'line', 'uniform' and 'boltztrap!"):
+            vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="None")
 
+        # check boltztrap mode
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="Boltztrap")
         assert vis.incar["ISMEAR"] == 0
 
@@ -906,6 +911,7 @@ class TestMPNonSCFSet(PymatgenTest):
         )
 
         assert vis.incar["NSW"] == 0
+        assert vis.incar["LORBIT"] == 11
         # Check that the ENCUT has been inherited.
         assert vis.incar["ENCUT"] == 600
         # Check that the user_incar_settings works
@@ -1003,12 +1009,18 @@ class TestMPNonSCFSet(PymatgenTest):
         # Check that the ENCUT has been inherited.
         assert vis.incar["ENCUT"] == 600
 
-        # check NEDOS and ISMEAR set correctly
+        # Check NEDOS and ISMEAR set correctly
         assert vis.incar["NEDOS"] == 2001
         assert vis.incar["ISMEAR"] == -5
         assert vis.incar["ISYM"] == 2
 
+        # Check OPTICS=True INCAR settings, LREAL needs to be False when LOPTICS=True
+        assert vis.incar["CSHIFT"] == 1e-5
+        assert vis.incar["LREAL"] == False
         assert vis.incar["LOPTICS"]
+
+        # Check spin off for magmom <0.02 for each site
+        assert vis.incar["ISPIN"] == 1
         assert vis.kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_user_kpoint_override(self):
@@ -1615,7 +1627,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_54"
 
         with pytest.raises(
-            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+                ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1784,7 +1796,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+                ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 
