@@ -123,9 +123,9 @@ class TestBSPlotter(PymatgenTest):
 
     def test_interpolate_bands(self):
         data = self.plotter.bs_plot_data()
-        d = data["distances"]
+        dct = data["distances"]
         en = data["energy"]["1"]
-        int_distances, int_energies = self.plotter._interpolate_bands(d, en)
+        int_distances, int_energies = self.plotter._interpolate_bands(dct, en)
 
         assert len(int_distances) == 10, "wrong length of distances list"
         assert len(int_distances[0]) == 100, "wrong length of distances in a branch"
@@ -217,19 +217,19 @@ class TestBSDOSPlotter(unittest.TestCase):
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
-        d = band_struct_dict["projections"]["1"]
-        for i in range(len(d)):
-            for j in range(len(d[i])):
-                for k in range(len(d[i][j])):
-                    for m in range(len(d[i][j][k])):
-                        d[i][j][k][m] = 0
+        dct = band_struct_dict["projections"]["1"]
+        for i in range(len(dct)):
+            for j in range(len(dct[i])):
+                for k in range(len(dct[i][j])):
+                    for m in range(len(dct[i][j][k])):
+                        dct[i][j][k][m] = 0
                         # d[i][j][k][m] = np.random.rand()
                     # generate random number for two atoms
                     a = np.random.randint(0, 7)
                     b = np.random.randint(0, 7)
                     # c = np.random.randint(0,7)
-                    d[i][j][k][a] = np.random.rand()
-                    d[i][j][k][b] = np.random.rand()
+                    dct[i][j][k][a] = np.random.rand()
+                    dct[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
         ax = plotter.get_plot(band_struct)

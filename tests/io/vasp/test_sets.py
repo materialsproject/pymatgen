@@ -1189,8 +1189,8 @@ class TestMPMDSet(PymatgenTest):
         assert incar["NSW"] == 1000
 
     def test_as_from_dict(self):
-        d = self.mp_md_set_noTS.as_dict()
-        v = dec.process_decoded(d)
+        dct = self.mp_md_set_noTS.as_dict()
+        v = dec.process_decoded(dct)
         assert isinstance(v, MPMDSet)
         assert v.incar["NSW"] == 1000
 
@@ -1219,8 +1219,8 @@ class TestMITNEBSet(PymatgenTest):
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
     def test_as_from_dict(self):
-        d = self.vis.as_dict()
-        v = dec.process_decoded(d)
+        dct = self.vis.as_dict()
+        v = dec.process_decoded(dct)
         assert v.incar["IMAGES"] == 2
 
     @skip_if_no_psp_dir
@@ -1544,8 +1544,8 @@ class TestMVLScanRelaxSet(PymatgenTest):
     #             assert relax_set.user_potcar_settings == expected
 
     def test_as_from_dict(self):
-        d = self.mvl_scan_set.as_dict()
-        v = dec.process_decoded(d)
+        dct = self.mvl_scan_set.as_dict()
+        v = dec.process_decoded(dct)
         assert isinstance(v, self.set)
         assert v.incar["METAGGA"] == "Scan"
         assert v.user_incar_settings["NSW"] == 500
@@ -1648,8 +1648,8 @@ class TestMPScanRelaxSet(PymatgenTest):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
     def test_as_from_dict(self):
-        d = self.mp_scan_set.as_dict()
-        input_set = dec.process_decoded(d)
+        dct = self.mp_scan_set.as_dict()
+        input_set = dec.process_decoded(dct)
         assert isinstance(input_set, MPScanRelaxSet)
         assert input_set._config_dict["INCAR"]["METAGGA"] == "R2SCAN"
         assert input_set.user_incar_settings["NSW"] == 500

@@ -104,8 +104,8 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
         assert struct.formula == "Na1 Li3 O4"
 
     def test_as_from_dict(self):
-        d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
-        trafo = ReplaceSiteSpeciesTransformation.from_dict(d)
+        dct = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
+        trafo = ReplaceSiteSpeciesTransformation.from_dict(dct)
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Na1 Li3 O4"
 
@@ -136,8 +136,8 @@ class TestRemoveSitesTransformation(unittest.TestCase):
         assert struct.formula == "Li2 O4"
 
     def test_as_from_dict(self):
-        d = RemoveSitesTransformation(range(2)).as_dict()
-        trafo = RemoveSitesTransformation.from_dict(d)
+        dct = RemoveSitesTransformation(range(2)).as_dict()
+        trafo = RemoveSitesTransformation.from_dict(dct)
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li2 O4"
 
@@ -173,8 +173,8 @@ class TestInsertSitesTransformation(unittest.TestCase):
             trafo.apply_transformation(self.struct)
 
     def test_as_from_dict(self):
-        d = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
-        trafo = InsertSitesTransformation.from_dict(d)
+        dct = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
+        trafo = InsertSitesTransformation.from_dict(dct)
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li4 Mn1 Fe1 O4"
 

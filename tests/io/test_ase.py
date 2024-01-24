@@ -253,8 +253,8 @@ def test_back_forth_v2():
         assert str(atoms_back.todict()[k]) == str(v)
 
     # test document can be jsanitized and decoded
-    d = jsanitize(structure, strict=True, enum_values=True)
-    MontyDecoder().process_decoded(d)
+    dct = jsanitize(structure, strict=True, enum_values=True)
+    MontyDecoder().process_decoded(dct)
 
 
 def test_back_forth_v3():
@@ -287,5 +287,5 @@ def test_back_forth_v4():
     assert molecule_back == molecule
 
     # test document can be jsanitized and decoded
-    d = jsanitize(molecule, strict=True, enum_values=True)
-    MontyDecoder().process_decoded(d)
+    dct = jsanitize(molecule, strict=True, enum_values=True)
+    MontyDecoder().process_decoded(dct)
