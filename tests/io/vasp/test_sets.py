@@ -188,7 +188,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # basic test of initialization with no structure.
         vis = MPRelaxSet()
         assert vis.as_dict()["structure"] is None
-        assert vis.inherit_incar == False
+        assert vis.inherit_incar is False
         with pytest.raises(RuntimeError, match="No structure is associated with the input set!"):
             _ = vis.incar
         vis.structure = self.structure
@@ -200,7 +200,8 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         with pytest.warns(
                 BadInputSetWarning,
-                match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
+                match="Relaxation of likely metal with ISMEAR < 1 detected. "
+                      "See VASP recommendations on ISMEAR for metals.",
         ) as warns:
             vis = self.set(structure)
             _ = vis.incar
@@ -1016,7 +1017,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
         # Check OPTICS=True INCAR settings, LREAL needs to be False when LOPTICS=True
         assert vis.incar["CSHIFT"] == 1e-5
-        assert vis.incar["LREAL"] == False
+        assert vis.incar["LREAL"] is False
         assert vis.incar["LOPTICS"]
 
         # Check spin off for magmom <0.02 for each site
