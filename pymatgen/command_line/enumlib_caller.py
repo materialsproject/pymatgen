@@ -353,8 +353,8 @@ class EnumlibAdaptor:
             inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as f:
-                data = f.read()
+            with open(file) as file:
+                data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_str(data, self.index_species)

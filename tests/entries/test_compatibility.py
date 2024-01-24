@@ -439,8 +439,8 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
                 ],
             },
         )
-        d = compat.get_explanation_dict(entry)
-        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
+        dct = compat.get_explanation_dict(entry)
+        assert dct["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -1312,8 +1312,8 @@ class TestMITCompatibility(unittest.TestCase):
                 ],
             },
         )
-        d = compat.get_explanation_dict(entry)
-        assert d["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
+        dct = compat.get_explanation_dict(entry)
+        assert dct["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()

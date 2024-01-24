@@ -16,8 +16,8 @@ class TestInsertionElectrode(unittest.TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as f:
-            self.entries_LTO = json.load(f, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as file:
+            self.entries_LTO = json.load(file, cls=MontyDecoder)
 
         with open(f"{TEST_FILES_DIR}/MgVO_batt.json") as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
@@ -25,8 +25,8 @@ class TestInsertionElectrode(unittest.TestCase):
         with open(f"{TEST_FILES_DIR}/Mg_batt.json") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/CaMoO2_batt.json") as f:
-            self.entries_CMO = json.load(f, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/CaMoO2_batt.json") as file:
+            self.entries_CMO = json.load(file, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)
         self.ie_MVO = InsertionElectrode.from_entries(self.entries_MVO, self.entry_Mg)

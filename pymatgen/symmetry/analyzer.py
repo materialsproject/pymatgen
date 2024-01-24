@@ -56,7 +56,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
 
 
 class SpacegroupAnalyzer:
-    """Takes a pymatgen.core.structure.Structure object and a symprec.
+    """Takes a pymatgen Structure object and a symprec.
 
     Uses spglib to perform various symmetry finding operations.
     """

@@ -278,22 +278,22 @@ class TestQCOutput(PymatgenTest):
         dumpfn(multi_job_dict, "multi_job.json")
 
     def _test_property(self, key, single_outs, multi_outs):
-        for name, out_data in single_outs.items():
+        for filename, out_data in single_outs.items():
             try:
-                assert out_data.get(key) == single_job_dict[name].get(key)
+                assert out_data.get(key) == single_job_dict[filename].get(key)
             except ValueError:
                 try:
-                    assert_array_equal(out_data.get(key), single_job_dict[name].get(key))
+                    assert_array_equal(out_data.get(key), single_job_dict[filename].get(key))
                 except AssertionError:
-                    raise RuntimeError("Issue with file: " + name + " Exiting...")
+                    raise RuntimeError(f"Issue with {filename=} Exiting...")
             except AssertionError:
-                raise RuntimeError("Issue with file: " + name + " Exiting...")
-        for name, outputs in multi_outs.items():
+                raise RuntimeError(f"Issue with {filename=} Exiting...")
+        for filename, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
-                    assert sub_output.data.get(key) == multi_job_dict[name][ii].get(key)
+                    assert sub_output.data.get(key) == multi_job_dict[filename][ii].get(key)
                 except ValueError:
-                    assert_array_equal(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
+                    assert_array_equal(sub_output.data.get(key), multi_job_dict[filename][ii].get(key))
 
     @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
     def test_all(self):

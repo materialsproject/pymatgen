@@ -575,7 +575,7 @@ class Section(MSONable):
                 string += "\t" * (indent + 1) + v.get_str() + "\n"
         for v in d.subsections.values():
             string += v._get_str(v, indent + 1)
-        string += "\t" * indent + "&END " + d.name + "\n"
+        string += "\t" * indent + f"&END {d.name}\n"
 
         return string
 
@@ -709,10 +709,10 @@ class Cp2kInput(Section):
         )
 
     @classmethod
-    def from_file(cls, file: str):
+    def from_file(cls, filename: str):
         """Initialize from a file."""
-        with zopen(file, mode="rt") as f:
-            txt = preprocessor(f.read(), os.path.dirname(f.name))
+        with zopen(filename, mode="rt") as file:
+            txt = preprocessor(file.read(), os.path.dirname(file.name))
             return cls.from_str(txt)
 
     @classmethod
@@ -764,7 +764,7 @@ class Cp2kInput(Section):
                         self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
                 else:
                     self.by_path(current).insert(s)
-                current = current + "/" + alias if alias else current + "/" + name
+                current = f"{current}/{alias or name}"
             else:
                 kwd = Keyword.from_str(line)
                 tmp = self.by_path(current).get(kwd.name)
@@ -796,8 +796,8 @@ class Cp2kInput(Section):
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
-        with open(filepath, mode="w") as f:
-            f.write(self.get_str())
+        with open(filepath, mode="w") as file:
+            file.write(self.get_str())
 
 
 class Global(Section):
@@ -2730,12 +2730,12 @@ class DataFile(MSONable):
     objects: Sequence | None = None
 
     @classmethod
-    def from_file(cls, fn):
+    def from_file(cls, filename):
         """Load from a file."""
-        with open(fn) as f:
-            data = cls.from_str(f.read())
+        with open(filename) as file:
+            data = cls.from_str(file.read())
             for obj in data.objects:
-                obj.filename = fn
+                obj.filename = filename
             return data
 
     @classmethod
@@ -2743,10 +2743,10 @@ class DataFile(MSONable):
         """Initialize from a string."""
         raise NotImplementedError
 
-    def write_file(self, fn):
+    def write_file(self, filename):
         """Write to a file."""
-        with open(fn, mode="w") as f:
-            f.write(self.get_str())
+        with open(filename, mode="w") as file:
+            file.write(self.get_str())
 
     def get_str(self) -> str:
         """Get string representation."""

@@ -337,14 +337,14 @@ class Cp2kOutput:
         )
 
         coord_table = []
-        with zopen(self.filename, mode="rt") as f:
+        with zopen(self.filename, mode="rt") as file:
             while True:
-                line = f.readline()
+                line = file.readline()
                 if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
                     for _ in range(self.data["num_atoms"][0][0]):
-                        line = f.readline().split()
+                        line = file.readline().split()
                         if line == []:
-                            line = f.readline().split()
+                            line = file.readline().split()
                         coord_table.append(line)
                     break
 
@@ -804,9 +804,9 @@ class Cp2kOutput:
             except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = None
 
-        with zopen(self.filename, mode="rt") as f:
+        with zopen(self.filename, mode="rt") as file:
             j = -1
-            lines = f.readlines()
+            lines = file.readlines()
             for k, line in enumerate(lines):
                 if "MOLECULE KIND INFORMATION" in line:
                     break
@@ -889,12 +889,12 @@ class Cp2kOutput:
             postprocess=postprocessor,
         )
         self.timing = {}
-        for t in timing:
-            self.timing[t[0]] = {
-                "calls": {"max": t[1]},
-                "asd": t[2],
-                "self_time": {"average": t[3], "maximum": t[4]},
-                "total_time": {"average": t[5], "maximum": t[6]},
+        for time in timing:
+            self.timing[time[0]] = {
+                "calls": {"max": time[1]},
+                "asd": time[2],
+                "self_time": {"average": time[3], "maximum": time[4]},
+                "total_time": {"average": time[5], "maximum": time[6]},
             }
 
     def parse_opt_steps(self):
@@ -1029,8 +1029,8 @@ class Cp2kOutput:
         eigenvalues = []
         efermi = []
 
-        with zopen(self.filename, mode="rt") as f:
-            lines = iter(f.readlines())
+        with zopen(self.filename, mode="rt") as file:
+            lines = iter(file.readlines())
             for line in lines:
                 try:
                     if " occupied subspace spin" in line:
@@ -1300,8 +1300,8 @@ class Cp2kOutput:
             else:
                 return
 
-        with open(bandstructure_filename) as f:
-            lines = f.read().split("\n")
+        with open(bandstructure_filename) as file:
+            lines = file.read().split("\n")
 
         data = np.loadtxt(bandstructure_filename)
         nkpts = int(lines[0].split()[6])
@@ -1374,8 +1374,8 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(hyperfine_filename, mode="rt") as f:
-            lines = [line for line in f.read().split("\n") if line]
+        with zopen(hyperfine_filename, mode="rt") as file:
+            lines = [line for line in file.read().split("\n") if line]
 
         hyperfine = [[] for _ in self.ionic_steps]
         for i in range(2, len(lines), 5):
@@ -1395,8 +1395,8 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(gtensor_filename, mode="rt") as f:
-            lines = [line for line in f.read().split("\n") if line]
+        with zopen(gtensor_filename, mode="rt") as file:
+            lines = [line for line in file.read().split("\n") if line]
 
         data = {}
         data["gmatrix_zke"] = []
@@ -1432,8 +1432,8 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(chi_filename, mode="rt") as f:
-            lines = [line for line in f.read().split("\n") if line]
+        with zopen(chi_filename, mode="rt") as file:
+            lines = [line for line in file.read().split("\n") if line]
 
         data = {}
         data["chi_soft"] = []
@@ -1590,9 +1590,9 @@ class Cp2kOutput:
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
-        with zopen(self.filename, mode="rt") as f:
+        with zopen(self.filename, mode="rt") as file:
             if strip:
-                lines = f.readlines()
+                lines = file.readlines()
                 text = "".join(
                     [
                         lines[i]
@@ -1606,7 +1606,7 @@ class Cp2kOutput:
                     ]
                 )
             else:
-                text = f.read()
+                text = file.read()
 
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
         table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
@@ -1724,8 +1724,8 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
     """
     spin = Spin(spin_channel) if spin_channel else Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 
-    with zopen(dos_file, mode="rt") as f:
-        lines = f.readlines()
+    with zopen(dos_file, mode="rt") as file:
+        lines = file.readlines()
         kind = re.search(r"atomic kind\s(.*)\sat iter", lines[0]) or re.search(r"list\s(\d+)\s(.*)\sat iter", lines[0])
         kind = kind.groups()[0]
 

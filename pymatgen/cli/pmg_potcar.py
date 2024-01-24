@@ -33,8 +33,8 @@ def gen_potcar(dirname, filename):
     """
     if filename == "POTCAR.spec":
         fullpath = os.path.join(dirname, filename)
-        with open(fullpath) as f:
-            elements = f.readlines()
+        with open(fullpath) as file:
+            elements = file.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
         potcar.write_file(f"{dirname}/POTCAR")

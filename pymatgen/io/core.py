@@ -98,8 +98,8 @@ class InputFile(MSONable):
             InputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     def __str__(self) -> str:
         return self.get_str()

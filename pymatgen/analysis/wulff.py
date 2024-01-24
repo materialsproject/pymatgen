@@ -530,7 +530,7 @@ class WulffShape:
 
             tri_indices = np.array(list(itertools.combinations(index_list, 3))).T
             hkl = self.miller_list[plane.index]
-            hkl = unicodeify_spacegroup("(" + "%s" * len(hkl) % hkl + ")")
+            hkl = unicodeify_spacegroup(f"({'%s' * len(hkl) % hkl})")
             cs = tuple(np.array(plane_color) * 255)
             color = f"rgba({cs[0]:.5f}, {cs[1]:.5f}, {cs[2]:.5f}, {cs[3]:.5f})"
 

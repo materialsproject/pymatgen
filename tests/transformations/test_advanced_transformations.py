@@ -264,8 +264,8 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
 
     def test_as_dict(self):
         trafo = SubstitutionPredictorTransformation(threshold=2, alpha=-2, lambda_table=get_table())
-        d = trafo.as_dict()
-        trafo = SubstitutionPredictorTransformation.from_dict(d)
+        dct = trafo.as_dict()
+        trafo = SubstitutionPredictorTransformation.from_dict(dct)
         assert trafo.threshold == 2, "incorrect threshold passed through dict"
         assert trafo._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
 
@@ -294,8 +294,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8.remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -337,10 +336,10 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
-        d = trans.as_dict()
+        dct = trans.as_dict()
         # Check json encodability
-        _ = json.dumps(d)
-        trans = MagOrderingTransformation.from_dict(d)
+        _ = json.dumps(dct)
+        trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
 
         assert isinstance(trans.energy_model, SymmetryModel)
@@ -535,10 +534,10 @@ class TestDopingTransformation(PymatgenTest):
 
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
-        d = trans.as_dict()
+        dct = trans.as_dict()
         # Check json encodability
-        _ = json.dumps(d)
-        trans = DopingTransformation.from_dict(d)
+        _ = json.dumps(dct)
+        trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"
         assert trans.max_structures_per_enum == 1
 

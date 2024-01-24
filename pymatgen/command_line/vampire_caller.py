@@ -296,8 +296,8 @@ class VampireCaller:
 
         input_script = "\n".join(input_script)
 
-        with open("input", mode="w") as f:
-            f.write(input_script)
+        with open("input", mode="w") as file:
+            file.write(input_script)
 
     def _create_ucf(self):
         structure = self.structure

@@ -59,8 +59,8 @@ class QCOutput(MSONable):
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
-        with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
-            self.text = f.read()
+        with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
+            self.text = file.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.data["multiple_outputs"] = read_pattern(
@@ -632,8 +632,8 @@ class QCOutput(MSONable):
         2.) Creates separate QCCalcs for each one from the sub-files.
         """
         to_return = []
-        with zopen(filename, mode="rt") as f:
-            text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", f.read())
+        with zopen(filename, mode="rt") as file:
+            text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", file.read())
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
@@ -2850,8 +2850,8 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
         RuntimeError
     """
     # Open the lines
-    with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
-        lines = f.readlines()
+    with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
+        lines = file.readlines()
 
     # Compile the dataframes
     dfs = {}

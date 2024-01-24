@@ -402,9 +402,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 a2 = aligned_mol2.GetAtom(c2)
                 for c1 in candidates1:
                     a1 = canon_mol1.GetAtom(c1)
-                    d = a1.GetDistance(a2)
-                    if d < distance:
-                        distance = d
+                    dist = a1.GetDistance(a2)
+                    if dist < distance:
+                        distance = dist
                         canon_idx = c1
                 canon_label2[c2 - 1] = canon_idx
                 candidates1.remove(canon_idx)
@@ -462,9 +462,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2 = cmol2.GetAtom(h2)
             for h1 in hydrogen_label1:
                 a1 = cmol1.GetAtom(h1)
-                d = a1.GetDistance(a2)
-                if d < distance:
-                    distance = d
+                dist = a1.GetDistance(a2)
+                if dist < distance:
+                    distance = dist
                     idx = h1
             hydrogen_label2.append(idx)
             hydrogen_label1.remove(idx)
@@ -828,11 +828,11 @@ class KabschMatcher(MSONable):
         V, _S, WT = np.linalg.svd(C)
 
         # Getting the sign of the det(V*Wt) to decide whether
-        d = np.linalg.det(np.dot(V, WT))
+        det = np.linalg.det(np.dot(V, WT))
 
         # And finally calculating the optimal rotation matrix R
         # we need to correct our rotation matrix to ensure a right-handed coordinate system.
-        return np.dot(np.dot(V, np.diag([1, 1, d])), WT)
+        return np.dot(np.dot(V, np.diag([1, 1, det])), WT)
 
 
 class BruteForceOrderMatcher(KabschMatcher):

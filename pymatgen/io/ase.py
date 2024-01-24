@@ -183,7 +183,7 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            Equivalent pymatgen.core.structure.Structure
+            Structure: Equivalent pymatgen Structure
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()

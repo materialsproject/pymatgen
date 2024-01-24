@@ -17,11 +17,11 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 
 def ref_file(filename):
-    return os.path.join(_test_dir, filename)
+    return os.path.join(TEST_DIR, filename)
 
 
 class TestEtsfReader(PymatgenTest):

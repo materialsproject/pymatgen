@@ -184,8 +184,8 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_str(poscar_string)
-        d = poscar.as_dict()
-        poscar2 = Poscar.from_dict(d)
+        dct = poscar.as_dict()
+        poscar2 = Poscar.from_dict(dct)
         assert poscar2.comment == "Test3"
         assert all(poscar2.selective_dynamics[0])
         assert not all(poscar2.selective_dynamics[1])
@@ -619,11 +619,11 @@ class TestIncar(PymatgenTest):
         }
 
     def test_as_dict_and_from_dict(self):
-        d = self.incar.as_dict()
-        incar2 = Incar.from_dict(d)
+        dct = self.incar.as_dict()
+        incar2 = Incar.from_dict(dct)
         assert self.incar == incar2
-        d["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
-        incar3 = Incar.from_dict(d)
+        dct["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
+        incar3 = Incar.from_dict(dct)
         assert incar3["MAGMOM"] == [Magmom([1, 2, 3])]
 
     def test_write(self):
@@ -905,11 +905,11 @@ Cartesian
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
         k = Kpoints.from_file(file_name)
-        d = k.as_dict()
+        dct = k.as_dict()
 
-        json.dumps(d)
+        json.dumps(dct)
         # This doesn't work
-        k2 = Kpoints.from_dict(d)
+        k2 = Kpoints.from_dict(dct)
         assert k.kpts == k2.kpts
         assert k.style == k2.style
         assert k.kpts_shift == k2.kpts_shift
@@ -1195,8 +1195,8 @@ class TestPotcar(PymatgenTest):
         assert potcar.symbols == ["Fe_pv"], "Wrong symbols read in for POTCAR"
 
     def test_as_from_dict(self):
-        d = self.potcar.as_dict()
-        potcar = Potcar.from_dict(d)
+        dct = self.potcar.as_dict()
+        potcar = Potcar.from_dict(dct)
         assert potcar.symbols == ["Fe", "P", "O"]
 
     def test_write(self):
@@ -1253,8 +1253,8 @@ class TestVaspInput(PymatgenTest):
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
     def test_as_from_dict(self):
-        d = self.vasp_input.as_dict()
-        vasp_input = VaspInput.from_dict(d)
+        dct = self.vasp_input.as_dict()
+        vasp_input = VaspInput.from_dict(dct)
         comp = vasp_input["POSCAR"].structure.composition
         assert comp == Composition("Fe4P4O16")
 
@@ -1269,8 +1269,8 @@ class TestVaspInput(PymatgenTest):
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
-        with open("vasp.out") as f:
-            output = f.read()
+        with open("vasp.out") as file:
+            output = file.read()
             assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):

@@ -295,12 +295,12 @@ def contract(string):
     old = tokens[0]
     count = [[1, old]]
 
-    for t in tokens[1:]:
-        if t == old:
+    for tok in tokens[1:]:
+        if tok == old:
             count[-1][0] += 1
         else:
-            old = t
-            count.append([1, t])
+            old = tok
+            count.append([1, tok])
 
     return " ".join(f"{c}*{t}" for c, t in count)
 

@@ -13,8 +13,8 @@ class TestACstrExtractor(PymatgenTest):
     def test_extract(self):
         filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
         ac_extractor = ACExtractor(file_path=filepath)
-        with zopen(filepath, mode="rt") as f:
-            ac_str_extractor = ACstrExtractor(atom_config_str="".join(f.readlines()))
+        with zopen(filepath, mode="rt") as file:
+            ac_str_extractor = ACstrExtractor(atom_config_str="".join(file.readlines()))
         assert ac_extractor.n_atoms == ac_str_extractor.get_n_atoms()
         for idx in range(9):
             assert ac_extractor.lattice[idx] == ac_str_extractor.get_lattice()[idx]
@@ -90,6 +90,6 @@ class TestHighSymmetryPoint(PymatgenTest):
         tmp_filepath = f"{self.tmp_path}/HIGH_SYMMETRY_POINTS.testing.lzma"
         high_symmetry_points.write_file(tmp_filepath)
         tmp_high_symmetry_points_str = ""
-        with zopen(tmp_filepath, "rt") as f:
-            tmp_high_symmetry_points_str = f.read()
+        with zopen(tmp_filepath, "rt") as file:
+            tmp_high_symmetry_points_str = file.read()
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()

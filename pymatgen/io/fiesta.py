@@ -523,8 +523,8 @@ $geometry
         Write FiestaInput to a file
         :param filename: Filename.
         """
-        with zopen(filename, mode="w") as f:
-            f.write(str(self))
+        with zopen(filename, mode="w") as file:
+            file.write(str(self))
 
     def as_dict(self):
         """MSONable dict"""
@@ -719,8 +719,8 @@ class FiestaOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            data = f.read()
+        with zopen(filename) as file:
+            data = file.read()
 
         chunks = re.split(r"GW Driver iteration", data)
 

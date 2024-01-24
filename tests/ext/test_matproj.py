@@ -477,11 +477,11 @@ class TestMPResterOld(PymatgenTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as f:
-            d = yaml.load(f)
+        with open(MP_LOG_FILE) as file:
+            dct = yaml.load(file)
 
-        assert d["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
-        assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
+        assert dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
+        assert isinstance(dct["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
     def test_pourbaix_heavy(self):
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])

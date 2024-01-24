@@ -473,8 +473,8 @@ class LammpsData(MSONable):
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
         """
-        with open(filename, mode="w") as f:
-            f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
+        with open(filename, mode="w") as file:
+            file.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
         self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
@@ -543,16 +543,16 @@ class LammpsData(MSONable):
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
-        nonbond_coeffs: list = []
+        non_bond_coeffs: list = []
         topo_coeffs: dict = {}
         if self.force_field:
             if "PairIJ Coeffs" in self.force_field:
                 nbc = self.force_field["PairIJ Coeffs"]
                 nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
+                non_bond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
             elif "Pair Coeffs" in self.force_field:
                 nbc = self.force_field["Pair Coeffs"].sort_index()
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
+                non_bond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
 
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
             for kw in topo_coeffs:
@@ -596,7 +596,7 @@ class LammpsData(MSONable):
 
         ff = ForceField(
             mass_info=mass_info,
-            nonbond_coeffs=nonbond_coeffs if any(nonbond_coeffs) else None,
+            nonbond_coeffs=non_bond_coeffs if any(non_bond_coeffs) else None,
             topo_coeffs=topo_coeffs if any(topo_coeffs) else None,
         )
 
@@ -639,8 +639,8 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, mode="rt") as f:
-            lines = f.readlines()
+        with zopen(filename, mode="rt") as file:
+            lines = file.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
@@ -1182,14 +1182,14 @@ class ForceField(MSONable):
         Args:
             filename (str): Filename.
         """
-        d = {
+        dct = {
             "mass_info": self.mass_info,
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        with open(filename, mode="w") as f:
+        with open(filename, mode="w") as file:
             yaml = YAML()
-            yaml.dump(d, f)
+            yaml.dump(dct, file)
 
     @classmethod
     def from_file(cls, filename: str) -> ForceField:
@@ -1199,9 +1199,9 @@ class ForceField(MSONable):
         Args:
             filename (str): Filename.
         """
-        with open(filename) as f:
+        with open(filename) as file:
             yaml = YAML()
-            d = yaml.load(f)
+            d = yaml.load(file)
         return cls.from_dict(d)
 
     @classmethod
@@ -1389,8 +1389,8 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, mode="rt") as f:
-            lines = f.readlines()
+        with zopen(filename, mode="rt") as file:
+            lines = file.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
         df = pd.read_csv(
