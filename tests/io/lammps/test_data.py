@@ -732,9 +732,9 @@ class TestForceField(unittest.TestCase):
         v.to_file(filename=filename)
         yaml = YAML()
         with open(filename) as file:
-            d = yaml.load(file)
-        # assert d["mass_info"] == [list(m) for m in v.mass_info]
-        assert d["nonbond_coeffs"] == v.nonbond_coeffs
+            dct = yaml.load(file)
+        # assert dct["mass_info"] == [list(m) for m in v.mass_info]
+        assert dct["nonbond_coeffs"] == v.nonbond_coeffs
 
     def test_from_file(self):
         e = self.ethane
@@ -752,8 +752,8 @@ class TestForceField(unittest.TestCase):
         assert "AngleAngle Coeffs" in e_tc["Improper Coeffs"][0]
 
     def test_from_dict(self):
-        d = self.ethane.as_dict()
-        json_str = json.dumps(d)
+        dct = self.ethane.as_dict()
+        json_str = json.dumps(dct)
         decoded = ForceField.from_dict(json.loads(json_str))
         assert decoded.mass_info == self.ethane.mass_info
         assert decoded.nonbond_coeffs == self.ethane.nonbond_coeffs

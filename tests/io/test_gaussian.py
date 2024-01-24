@@ -281,9 +281,9 @@ class TestGaussianOutput(unittest.TestCase):
         assert gau.functional == "hf"
         assert gau.basis_set == "3-21G"
         assert gau.num_basis_func == 17
-        d = gau.as_dict()
-        assert d["input"]["functional"] == "hf"
-        assert d["output"]["final_energy"] == approx(-39.9768775602)
+        dct = gau.as_dict()
+        assert dct["input"]["functional"] == "hf"
+        assert dct["output"]["final_energy"] == approx(-39.9768775602)
         assert len(gau.cart_forces) == 3
         assert gau.cart_forces[0][5] == 0.009791094
         assert gau.cart_forces[0][-1] == -0.003263698
@@ -389,19 +389,19 @@ class TestGaussianOutput(unittest.TestCase):
 
     def test_scan(self):
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan.log")
-        d = gau.read_scan()
-        assert approx(d["energies"][-1]) == -548.02102
-        assert len(d["coords"]) == 1
-        assert len(d["energies"]) == len(gau.energies)
-        assert len(d["energies"]) == 21
+        dct = gau.read_scan()
+        assert approx(dct["energies"][-1]) == -548.02102
+        assert len(dct["coords"]) == 1
+        assert len(dct["energies"]) == len(gau.energies)
+        assert len(dct["energies"]) == 21
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan_opt.log")
         assert len(gau.opt_structures) == 21
-        d = gau.read_scan()
-        assert approx(d["energies"][-1]) == -548.02336
-        assert len(d["coords"]) == 2
-        assert len(d["energies"]) == 21
-        assert approx(d["coords"]["DSO"][6]) == 1.60000
-        assert approx(d["coords"]["ASO"][2]) == 124.01095
+        dct = gau.read_scan()
+        assert approx(dct["energies"][-1]) == -548.02336
+        assert len(dct["coords"]) == 2
+        assert len(dct["energies"]) == 21
+        assert approx(dct["coords"]["DSO"][6]) == 1.60000
+        assert approx(dct["coords"]["ASO"][2]) == 124.01095
         gau = GaussianOutput(f"{TEST_DIR}/H2O_scan_G16.out")
         assert len(gau.opt_structures) == 21
         coords = [
@@ -410,12 +410,12 @@ class TestGaussianOutput(unittest.TestCase):
             [0.000000, -0.815522, -0.376673],
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
-        d = gau.read_scan()
-        assert approx(d["energies"][-1]) == -0.00523
-        assert len(d["coords"]) == 3
-        assert len(d["energies"]) == 21
-        assert approx(d["coords"]["R1"][6]) == 0.94710
-        assert approx(d["coords"]["R2"][17]) == 0.94277
+        dct = gau.read_scan()
+        assert approx(dct["energies"][-1]) == -0.00523
+        assert len(dct["coords"]) == 3
+        assert len(dct["energies"]) == 21
+        assert approx(dct["coords"]["R1"][6]) == 0.94710
+        assert approx(dct["coords"]["R2"][17]) == 0.94277
 
     def test_geo_opt(self):
         """Test an optimization where no "input orientation" is outputted."""

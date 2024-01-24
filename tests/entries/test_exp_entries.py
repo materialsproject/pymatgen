@@ -20,9 +20,9 @@ class TestExpEntry(unittest.TestCase):
         assert self.entry.energy == approx(-825.5)
 
     def test_as_from_dict(self):
-        d = self.entry.as_dict()
-        e = ExpEntry.from_dict(d)
-        assert e.energy == approx(-825.5)
+        dct = self.entry.as_dict()
+        entry = ExpEntry.from_dict(dct)
+        assert entry.energy == approx(-825.5)
 
     def test_str(self):
         assert str(self.entry) == "ExpEntry Fe2 O3, Energy = -825.5000"

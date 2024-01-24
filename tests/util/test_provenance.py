@@ -180,7 +180,7 @@ class StructureNLCase(unittest.TestCase):
 
         # change the created at date, now they are no longer equal
         created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
-        c = StructureNL(
+        snl_new_date = StructureNL(
             self.struct,
             self.hulk,
             ["test_project"],
@@ -190,10 +190,10 @@ class StructureNLCase(unittest.TestCase):
             [self.valid_node, self.valid_node2],
             created_at,
         )
-        assert struct_nl != c, "__eq__() method is broken! false positive"
+        assert struct_nl != snl_new_date, "__eq__() method is broken! false positive"
 
         # or try a different structure, those should not be equal
-        d = StructureNL(
+        snl_diff_struct = StructureNL(
             self.s2,
             self.hulk,
             ["test_project"],
@@ -203,7 +203,7 @@ class StructureNLCase(unittest.TestCase):
             [self.valid_node, self.valid_node2],
             created_at,
         )
-        assert struct_nl != d, "__eq__() method is broken! false positive"
+        assert struct_nl != snl_diff_struct, "__eq__() method is broken! false positive"
 
     def test_as_from_dict(self):
         # no complicated objects in the 'data' or 'nodes' field

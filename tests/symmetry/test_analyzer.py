@@ -208,9 +208,9 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
         # Check copying
         assert symm_struct.copy() == symm_struct
-        d = symm_struct.as_dict()
+        dct = symm_struct.as_dict()
 
-        ss = SymmetrizedStructure.from_dict(d)
+        ss = SymmetrizedStructure.from_dict(dct)
         assert ss.wyckoff_symbols[0] == "16h"
         assert str(ss).startswith("SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: ")
 
