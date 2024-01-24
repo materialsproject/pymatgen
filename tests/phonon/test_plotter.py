@@ -21,17 +21,17 @@ class TestPhononDosPlotter(unittest.TestCase):
             self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
 
     def test_add_dos_dict(self):
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 0
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 0
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 2
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 2
 
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
+        dct = self.plotter.get_dos_dict()
         for el in ["Na", "Cl"]:
-            assert el in d
+            assert el in dct
 
     def test_plot(self):
         self.plotter.add_dos("Total", self.dos)
@@ -46,12 +46,12 @@ class TestPhononDosPlotter(unittest.TestCase):
 class TestPhononBSPlotter(unittest.TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
-            d = json.loads(file.read())
-            self.bs = PhononBandStructureSymmLine.from_dict(d)
+            dct = json.loads(file.read())
+            self.bs = PhononBandStructureSymmLine.from_dict(dct)
             self.plotter = PhononBSPlotter(self.bs)
         with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as file:
-            d = json.loads(file.read())
-            self.bs_sto = PhononBandStructureSymmLine.from_dict(d)
+            dct = json.loads(file.read())
+            self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
             self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
     def test_bs_plot_data(self):

@@ -22,8 +22,8 @@ class TestUtil(PymatgenTest):
     """test utils."""
 
     def test_lower_and_check_unique(self):
-        d = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
-        d2 = lower_and_check_unique(d)
+        dct = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
+        d2 = lower_and_check_unique(dct)
         assert d2 == {"svp": {"RHOISO": 0.0009}, "job_type": "sp"}
         d3 = lower_and_check_unique(d2["svp"])
         assert d3 == {"rhoiso": "0.0009"}

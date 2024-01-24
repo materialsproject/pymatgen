@@ -185,8 +185,8 @@ class TestPseudoTable(PymatgenTest):
         # Data persistence
         self.serialize_with_pickle(table, test_eq=False)
 
-        d = table.as_dict()
-        PseudoTable.from_dict(d)
+        dct = table.as_dict()
+        PseudoTable.from_dict(dct)
         self.assert_msonable(table)
 
         selected = table.select_symbols("Si")

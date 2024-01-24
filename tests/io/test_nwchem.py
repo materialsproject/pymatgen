@@ -316,15 +316,15 @@ task dft energy
         assert str(self.nwi_symm) == ans_symm
 
     def test_as_from_dict(self):
-        d = self.nwi.as_dict()
-        nwi = NwInput.from_dict(d)
+        dct = self.nwi.as_dict()
+        nwi = NwInput.from_dict(dct)
         assert isinstance(nwi, NwInput)
         # Ensure it is json-serializable.
-        json.dumps(d)
-        d = self.nwi_symm.as_dict()
-        nwi_symm = NwInput.from_dict(d)
+        json.dumps(dct)
+        dct = self.nwi_symm.as_dict()
+        nwi_symm = NwInput.from_dict(dct)
         assert isinstance(nwi_symm, NwInput)
-        json.dumps(d)
+        json.dumps(dct)
 
     def test_from_str_and_file(self):
         nwi = NwInput.from_file(f"{TEST_DIR}/ch4.nw")
