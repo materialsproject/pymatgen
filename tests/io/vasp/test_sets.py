@@ -1108,8 +1108,8 @@ class TestMITMDSet(PymatgenTest):
         assert input_set.incar["NSW"] == 10000
 
     def test_user_heat_speed(self):
-        vis=self.set(self.struct,start_temp=0,end_temp=1000,time_step=0.5)
-        vis.nsteps=(vis.end_temp-vis.start_temp)/vis.time_step
+        vis = self.set(self.struct, start_temp=0, end_temp=1000, time_step=0.5)
+        vis.nsteps = (vis.end_temp - vis.start_temp) / vis.time_step
         assert vis.incar["TEBEG"] == 0
         assert vis.incar["TEEND"] == 1000
         assert vis.incar["POTIM"] == 0.5
