@@ -186,6 +186,16 @@ class TestComposition(PymatgenTest):
 
         assert Composition("Na 3 Zr (PO 4) 3").reduced_formula == "Na3Zr(PO4)3"
 
+        # gh-3559
+        very_nested_formula = (
+            "(Bi2(Mg0.667Nb1.333)O7)((Bi2(Mg0.667Nb1.333)O7)0.9(SrCO3)0.1)((Bi2(Mg0.667Nb1.333)O7)0.7(SrCO3)0.3)"
+        )
+        assert Composition(very_nested_formula).formula == "Sr0.4 Mg1.7342 Nb3.4658 Bi5.2 C0.4 O19.4"
+        assert Composition(very_nested_formula) == Composition(
+            "(Bi2(Mg0.667Nb1.333)O7)1((Bi2(Mg0.667Nb1.333)O7)0.9(SrCO3)0.1)((Bi2(Mg0.667Nb1.333)O7)0.7(SrCO3)0.3)"
+        )
+        assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
+
         assert Composition("NaN").reduced_formula == "NaN"
         with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?"):
             Composition(float("NaN"))

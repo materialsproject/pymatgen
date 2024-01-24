@@ -582,7 +582,7 @@ class AdsorbateSiteFinder:
 
         for idx, site in enumerate(sym_slab):
             if dist - range_tol < site.frac_coords[2] < dist + range_tol and (
-                target_species and site.species_string in target_species or not target_species
+                (target_species and site.species_string in target_species) or not target_species
             ):
                 substituted_slabs.append(substitute(site, idx))
 

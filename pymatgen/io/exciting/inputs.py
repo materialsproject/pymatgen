@@ -140,8 +140,8 @@ class ExcitingInput(MSONable):
         Returns:
             ExcitingInput
         """
-        with zopen(filename, mode="rt") as f:
-            data = f.read().replace("\n", "")
+        with zopen(filename, mode="rt") as file:
+            data = file.read().replace("\n", "")
         return cls.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):

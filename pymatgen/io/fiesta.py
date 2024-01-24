@@ -205,8 +205,8 @@ class BasisSetReader:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            basis_set = f.read()
+        with zopen(filename) as file:
+            basis_set = file.read()
 
         self.data = self._parse_file(basis_set)
         # compute the number of nlm orbitals per atom
@@ -523,8 +523,8 @@ $geometry
         Write FiestaInput to a file
         :param filename: Filename.
         """
-        with zopen(filename, mode="w") as f:
-            f.write(str(self))
+        with zopen(filename, mode="w") as file:
+            file.write(str(self))
 
     def as_dict(self):
         """MSONable dict"""
@@ -701,8 +701,8 @@ $geometry
         Returns:
             FiestaInput object
         """
-        with zopen(filename) as f:
-            return cls.from_str(f.read())
+        with zopen(filename) as file:
+            return cls.from_str(file.read())
 
 
 class FiestaOutput:
@@ -719,8 +719,8 @@ class FiestaOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            data = f.read()
+        with zopen(filename) as file:
+            data = file.read()
 
         chunks = re.split(r"GW Driver iteration", data)
 
@@ -815,8 +815,8 @@ class BSEOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            log_bse = f.read()
+        with zopen(filename) as file:
+            log_bse = file.read()
 
         # self.job_info = self._parse_preamble(preamble)
         self.exiton = self._parse_job(log_bse)

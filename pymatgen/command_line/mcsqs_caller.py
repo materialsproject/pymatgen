@@ -234,8 +234,8 @@ def _parse_clusters(filename):
                 num_possible_species: int
                 cluster_function: float
     """
-    with open(filename) as f:
-        lines = f.readlines()
+    with open(filename) as file:
+        lines = file.readlines()
 
     clusters = []
     cluster_block = []

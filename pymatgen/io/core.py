@@ -98,8 +98,8 @@ class InputFile(MSONable):
             InputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     def __str__(self) -> str:
         return self.get_str()
@@ -211,8 +211,8 @@ class InputSet(MSONable, MutableMapping):
             if isinstance(contents, InputFile):
                 contents.write_file(file_path)
             else:
-                with zopen(file_path, mode="wt") as f:
-                    f.write(str(contents))
+                with zopen(file_path, mode="wt") as file:
+                    file.write(str(contents))
 
         if zip_inputs:
             filename = path / f"{type(self).__name__}.zip"

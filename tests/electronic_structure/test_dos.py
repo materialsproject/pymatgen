@@ -18,8 +18,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestDos(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
-            self.dos = CompleteDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+            self.dos = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
         assert self.dos.get_gap() == approx(2.0589, abs=1e-4)
@@ -53,8 +53,8 @@ class TestDos(unittest.TestCase):
 
 class TestFermiDos(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
-            self.dos = CompleteDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+            self.dos = CompleteDos.from_dict(json.load(file))
         self.dos = FermiDos(self.dos)
 
     def test_doping_fermi(self):
@@ -100,10 +100,10 @@ class TestFermiDos(unittest.TestCase):
 
 class TestCompleteDos(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
-            self.dos = CompleteDos.from_dict(json.load(f))
-        with zopen(f"{TEST_FILES_DIR}/pdag3_complete_dos.json.gz") as f:
-            self.dos_pdag3 = CompleteDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+            self.dos = CompleteDos.from_dict(json.load(file))
+        with zopen(f"{TEST_FILES_DIR}/pdag3_complete_dos.json.gz") as file:
+            self.dos_pdag3 = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
         assert self.dos.get_gap() == approx(2.0589, abs=1e-4), "Wrong gap from dos!"
@@ -147,8 +147,8 @@ class TestCompleteDos(unittest.TestCase):
             self.dos.get_interpolated_value(1000)
 
     def test_as_from_dict(self):
-        d = self.dos.as_dict()
-        dos = CompleteDos.from_dict(d)
+        dct = self.dos.as_dict()
+        dos = CompleteDos.from_dict(dct)
         el_dos = dos.get_element_dos()
         assert len(el_dos) == 4
         spd_dos = dos.get_spd_dos()
@@ -327,28 +327,28 @@ class TestSpinPolarization(unittest.TestCase):
 
 class TestLobsterCompleteDos(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_spin.json") as f:
-            data_spin = json.load(f)
+        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_spin.json") as file:
+            data_spin = json.load(file)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_nonspin.json") as f:
-            data_nonspin = json.load(f)
+        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_nonspin.json") as file:
+            data_nonspin = json.load(file)
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(f"{TEST_FILES_DIR}/structure_KF.json") as f:
-            data_structure = json.load(f)
+        with open(f"{TEST_FILES_DIR}/structure_KF.json") as file:
+            data_structure = json.load(file)
         self.structure = Structure.from_dict(data_structure)
 
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_MnO.json") as f:
-            data_MnO = json.load(f)
+        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_MnO.json") as file:
+            data_MnO = json.load(file)
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_MnO_nonspin.json") as f:
-            data_MnO_nonspin = json.load(f)
+        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_MnO_nonspin.json") as file:
+            data_MnO_nonspin = json.load(file)
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-        with open(f"{TEST_FILES_DIR}/structure_MnO.json") as f:
-            data_MnO = json.load(f)
+        with open(f"{TEST_FILES_DIR}/structure_MnO.json") as file:
+            data_MnO = json.load(file)
         self.structure_MnO = Structure.from_dict(data_MnO)
 
     def test_get_site_orbital_dos(self):
