@@ -77,6 +77,7 @@ ignore = [
   "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+  "ISC001",  # Implicitly concatenated strings 
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
