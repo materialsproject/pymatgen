@@ -735,12 +735,12 @@ class BztTransportProperties:
 
             # Derived properties
             cond_eff_mass = np.zeros((len(self.temp_r), len(self.mu_r), 3, 3))
-            for t in range(len(self.temp_r)):
+            for temp in range(len(self.temp_r)):
                 for i in range(len(self.mu_r)):
                     try:
-                        cond_eff_mass[t, i] = (
-                            np.linalg.inv(self.Conductivity_mu[t, i])
-                            * self.Carrier_conc_mu[t, i]
+                        cond_eff_mass[temp, i] = (
+                            np.linalg.inv(self.Conductivity_mu[temp, i])
+                            * self.Carrier_conc_mu[temp, i]
                             * units.qe_SI**2
                             / units.me_SI
                             * 1e6
@@ -1038,9 +1038,9 @@ class BztPlotter:
         mu = self.bzt_transP.mu_r_eV
 
         if prop_z == "doping" and prop_x == "temp":
-            p_array = eval("self.bzt_transP." + props[idx_prop] + "_" + prop_z)
+            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_z}")
         else:
-            p_array = eval("self.bzt_transP." + props[idx_prop] + "_" + prop_x)
+            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_x}")
 
         if ax is None:
             plt.figure(figsize=(10, 8))

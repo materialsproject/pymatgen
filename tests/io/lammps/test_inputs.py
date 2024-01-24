@@ -13,13 +13,13 @@ from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/lammps"
+TEST_DIR = f"{TEST_FILES_DIR}/lammps"
 
 
 class TestLammpsInputFile(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.filename = f"{test_dir}/lgps.in"
+        cls.filename = f"{TEST_DIR}/lgps.in"
 
     def test_from_file(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
@@ -79,7 +79,7 @@ class TestLammpsInputFile(PymatgenTest):
         assert "pe\ndump dmp all atom 5 run.dump\nmin_style cg\nfix 1 all" in string
         assert "box/relax iso 0.0 vmax 0.001\nminimize 1.0e-16 1.0e-16 5000 10000\nwrite_data run.data" in string
 
-    def test_from_string(self):
+    def test_from_str(self):
         string = """# LGPS
 
 # 1) Initialization
@@ -572,8 +572,8 @@ class TestLammpsRun(PymatgenTest):
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
-        with open(f"{self.tmp_path}/md/in.md") as f:
-            md_script = f.read()
+        with open(f"{self.tmp_path}/md/in.md") as file:
+            md_script = file.read()
         script_string = """# Sample input script template for MD
 
 # Initialization
@@ -618,12 +618,12 @@ run             10000
 class TestFunc(PymatgenTest):
     def test_write_lammps_inputs(self):
         # script template
-        with open(f"{TEST_FILES_DIR}/lammps/kappa.txt") as f:
-            kappa_template = f.read()
+        with open(f"{TEST_FILES_DIR}/lammps/kappa.txt") as file:
+            kappa_template = file.read()
         kappa_settings = {"method": "heat"}
         write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
-        with open(f"{self.tmp_path}/heat/in.lammps") as f:
-            kappa_script = f.read()
+        with open(f"{self.tmp_path}/heat/in.lammps") as file:
+            kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled
         assert fix_hot.group(1) == "heat"
@@ -635,8 +635,8 @@ class TestFunc(PymatgenTest):
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
         assert pair_style.group(1) == "${rc}"
 
-        with open(f"{TEST_FILES_DIR}/lammps/in.peptide") as f:
-            peptide_script = f.read()
+        with open(f"{TEST_FILES_DIR}/lammps/in.peptide") as file:
+            peptide_script = file.read()
         # copy data file
         src = f"{TEST_FILES_DIR}/lammps/data.quartz"
         write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
@@ -663,8 +663,8 @@ class TestLammpsTemplateGen(PymatgenTest):
         assert len(lis) == 1
         lis.write_input(self.tmp_path / "heat")
 
-        with open(self.tmp_path / "heat" / "in.lammps") as f:
-            kappa_script = f.read()
+        with open(self.tmp_path / "heat" / "in.lammps") as file:
+            kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled
         assert fix_hot.group(1) == "heat"

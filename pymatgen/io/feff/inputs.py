@@ -244,7 +244,7 @@ class Header(MSONable):
         Returns:
             Reads header string.
         """
-        with zopen(filename, "r") as fobject:
+        with zopen(filename, mode="r") as fobject:
             f = fobject.readlines()
             feff_header_str = []
             ln = 0
@@ -275,11 +275,6 @@ class Header(MSONable):
                         end = 1
 
         return "".join(feff_header_str)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, header_str):
@@ -385,8 +380,8 @@ class Header(MSONable):
         Args:
             filename: Filename and path for file to be written to disk
         """
-        with open(filename, "w") as f:
-            f.write(str(self) + "\n")
+        with open(filename, mode="w") as file:
+            file.write(str(self) + "\n")
 
 
 class Atoms(MSONable):
@@ -451,7 +446,7 @@ class Atoms(MSONable):
         Returns:
             Atoms string.
         """
-        with zopen(filename, "rt") as fobject:
+        with zopen(filename, mode="rt") as fobject:
             f = fobject.readlines()
             coords = 0
             atoms_str = []
@@ -543,8 +538,8 @@ class Atoms(MSONable):
         Args:
             filename: path for file to be written
         """
-        with zopen(filename, "wt") as f:
-            f.write(f"{self}\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(f"{self}\n")
 
 
 class Tags(dict):
@@ -605,10 +600,6 @@ class Tags(dict):
                 i[k] = v
         return i
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the Tags. The reason why this
@@ -627,26 +618,26 @@ class Tags(dict):
         if sort_keys:
             keys = sorted(keys)
         lines = []
-        for k in keys:
-            if k == "IONS":
-                for t in self[k]:
-                    lines.append(["ION", f"{t[0]} {t[1]:.4f}"])
-            elif isinstance(self[k], dict):
-                if k in ["ELNES", "EXELFS"]:
-                    lines.append([k, self._stringify_val(self[k]["ENERGY"])])
-                    beam_energy = self._stringify_val(self[k]["BEAM_ENERGY"])
+        for key in keys:
+            if key == "IONS":
+                for tok in self[key]:
+                    lines.append(["ION", f"{tok[0]} {tok[1]:.4f}"])
+            elif isinstance(self[key], dict):
+                if key in ["ELNES", "EXELFS"]:
+                    lines.append([key, self._stringify_val(self[key]["ENERGY"])])
+                    beam_energy = self._stringify_val(self[key]["BEAM_ENERGY"])
                     beam_energy_list = beam_energy.split()
                     if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
-                        lines.extend(([beam_energy], [self._stringify_val(self[k]["BEAM_DIRECTION"])]))
+                        lines.extend(([beam_energy], [self._stringify_val(self[key]["BEAM_DIRECTION"])]))
                     else:
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)
                         lines.append([self._stringify_val(beam_energy_list)])
-                    lines.append([self._stringify_val(self[k]["ANGLES"])])
-                    lines.append([self._stringify_val(self[k]["MESH"])])
-                    lines.append([self._stringify_val(self[k]["POSITION"])])
+                    lines.append([self._stringify_val(self[key]["ANGLES"])])
+                    lines.append([self._stringify_val(self[key]["MESH"])])
+                    lines.append([self._stringify_val(self[key]["POSITION"])])
             else:
-                lines.append([k, self._stringify_val(self[k])])
+                lines.append([key, self._stringify_val(self[key])])
         if pretty:
             return tabulate(lines)
 
@@ -670,8 +661,8 @@ class Tags(dict):
         Args:
             filename: filename and path to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(f"{self}\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(f"{self}\n")
 
     @classmethod
     def from_file(cls, filename="feff.inp"):
@@ -684,8 +675,8 @@ class Tags(dict):
         Returns:
             Feff_tag object
         """
-        with zopen(filename, "rt") as f:
-            lines = list(clean_lines(f.readlines()))
+        with zopen(filename, mode="rt") as file:
+            lines = list(clean_lines(file.readlines()))
         params = {}
         eels_params = []
         ieels = -1
@@ -849,7 +840,7 @@ class Potential(MSONable):
         Returns:
             FEFFPOT string.
         """
-        with zopen(filename, "rt") as f_object:
+        with zopen(filename, mode="rt") as f_object:
             f = f_object.readlines()
             ln = -1
             pot_str = ["POTENTIALS\n"]
@@ -882,7 +873,7 @@ class Potential(MSONable):
         return "".join(pot_str).rstrip("\n")
 
     @staticmethod
-    def pot_dict_from_string(pot_data):
+    def pot_dict_from_str(pot_data):
         """
         Creates atomic symbol/potential number dictionary
         forward and reverse.
@@ -962,8 +953,8 @@ class Potential(MSONable):
         Args:
             filename: filename and path to write potential file to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
 
 class Paths(MSONable):
@@ -1003,8 +994,8 @@ class Paths(MSONable):
 
     def write_file(self, filename="paths.dat"):
         """Write paths.dat."""
-        with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
 
 class FeffParseError(ParseError):

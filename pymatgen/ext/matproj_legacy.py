@@ -193,8 +193,8 @@ class _MPResterLegacy:
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
-                with open(MP_LOG_FILE) as f:
-                    dct = dict(yaml.load(f)) or {}
+                with open(MP_LOG_FILE) as file:
+                    dct = dict(yaml.load(file)) or {}
             except (OSError, TypeError):
                 # TypeError: 'NoneType' object is not iterable occurs if MP_LOG_FILE exists but is empty
                 dct = {}
@@ -228,8 +228,8 @@ class _MPResterLegacy:
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(MP_LOG_FILE, "w") as f:
-                    yaml.dump(dct, f)
+                with open(MP_LOG_FILE, mode="w") as file:
+                    yaml.dump(dct, file)
             except Exception:
                 pass
 
@@ -1508,7 +1508,7 @@ class _MPResterLegacy:
             metadata info, e.g. the task/external_ids that belong to a directory
         """
         # task_id's correspond to NoMaD external_id's
-        task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
+        task_types = [typ.value for typ in (task_types or []) if isinstance(typ, TaskType)]
 
         meta = {}
         for doc in self.query({"task_id": {"$in": material_ids}}, ["task_id", "blessed_tasks"]):
@@ -1534,7 +1534,7 @@ class _MPResterLegacy:
                 prefix += f"{file_pattern=}&"
         prefix += "external_id="
 
-        task_ids = [t["task_id"] for tl in meta.values() for t in tl]
+        task_ids = [task["task_id"] for task_list in meta.values() for task in task_list]
         nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
         if len(nomad_exist_task_ids) != len(task_ids):
             self._print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types)

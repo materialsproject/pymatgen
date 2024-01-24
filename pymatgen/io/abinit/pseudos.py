@@ -61,12 +61,12 @@ def _read_nlines(filename: str, n_lines: int) -> list[str]:
     If nlines is < 0, the entire file is read.
     """
     if n_lines < 0:
-        with open(filename) as fh:
-            return fh.readlines()
+        with open(filename) as file:
+            return file.readlines()
 
     lines = []
-    with open(filename) as fh:
-        for lineno, line in enumerate(fh):
+    with open(filename) as file:
+        for lineno, line in enumerate(file):
             if lineno == n_lines:
                 break
             lines.append(line)
@@ -134,10 +134,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def __str__(self) -> str:
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, verbose=0) -> str:
         """String representation."""
@@ -233,8 +229,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and return MD5 hash value."""
-        with open(self.path) as fh:
-            text = fh.read()
+        with open(self.path) as file:
+            text = file.read()
             # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
             # https://github.com/materialsproject/pymatgen/issues/2804
             md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
@@ -619,12 +615,12 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
     kwargs = Namespace()
 
-    for i, nk in enumerate(key_nums):
+    for idx, nk in enumerate(key_nums):
         if nk == 0:
             continue
-        line = lines[i]
+        line = lines[idx]
 
-        tokens = [t.strip() for t in line.split()]
+        tokens = [tok.strip() for tok in line.split()]
         values, keys = tokens[:nk], "".join(tokens[nk:])
         # Sanitize keys: In some case we might get strings in the form: foo[,bar]
         keys.replace("[", "").replace("]", "")
@@ -982,7 +978,7 @@ class PawAbinitHeader(AbinitHeader):
         lines = lines[5:]
         # TODO
         # Parse orbitals and number of meshes.
-        header["orbitals"] = [int(t) for t in lines[0].split(":")[0].split()]
+        header["orbitals"] = [int(tok) for tok in lines[0].split(":")[0].split()]
         header["number_of_meshes"] = num_meshes = int(lines[1].split(":")[0])
 
         # Skip meshes =

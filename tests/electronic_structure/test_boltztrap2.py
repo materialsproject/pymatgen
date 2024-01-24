@@ -24,36 +24,36 @@ try:
 except Exception:
     BOLTZTRAP2_PRESENT = False
 
-test_dir = f"{TEST_FILES_DIR}/boltztrap2"
+TEST_DIR = f"{TEST_FILES_DIR}/boltztrap2"
 
 
-vrun_file = f"{test_dir}/vasprun.xml"
-vrun = Vasprun(vrun_file, parse_projected_eigen=True)
+vasp_run_file = f"{TEST_DIR}/vasprun.xml"
+vasp_run = Vasprun(vasp_run_file, parse_projected_eigen=True)
 
-vrun_file_spin = f"{test_dir}/vasprun_spin.xml"
-vrun_spin = Vasprun(vrun_file_spin, parse_projected_eigen=True)
-bs = loadfn(f"{test_dir}/PbTe_bandstructure.json")
-bs_sp = loadfn(f"{test_dir}/N2_bandstructure.json")
+vasp_run_file_spin = f"{TEST_DIR}/vasprun_spin.xml"
+vasp_run_spin = Vasprun(vasp_run_file_spin, parse_projected_eigen=True)
+bs = loadfn(f"{TEST_DIR}/PbTe_bandstructure.json")
+bs_sp = loadfn(f"{TEST_DIR}/N2_bandstructure.json")
 
-bzt_interp_fn = f"{test_dir}/bztInterp.json.gz"
-bzt_transp_fn = f"{test_dir}/bztTranspProps.json.gz"
+bzt_interp_fn = f"{TEST_DIR}/bztInterp.json.gz"
+bzt_transp_fn = f"{TEST_DIR}/bztTranspProps.json.gz"
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class TestVasprunBSLoader(unittest.TestCase):
     def setUp(self):
-        self.loader = VasprunBSLoader(vrun)
+        self.loader = VasprunBSLoader(vasp_run)
         assert self.loader is not None
-        self.loader = VasprunBSLoader(bs, vrun.final_structure)
+        self.loader = VasprunBSLoader(bs, vasp_run.final_structure)
         assert self.loader is not None
-        self.loader = VasprunBSLoader.from_file(vrun_file)
+        self.loader = VasprunBSLoader.from_file(vasp_run_file)
         assert self.loader is not None
 
-        self.loader_sp = VasprunBSLoader(vrun_spin)
+        self.loader_sp = VasprunBSLoader(vasp_run_spin)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader(bs_sp, vrun_spin.final_structure)
+        self.loader_sp = VasprunBSLoader(bs_sp, vasp_run_spin.final_structure)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader.from_file(vrun_file_spin)
+        self.loader_sp = VasprunBSLoader.from_file(vasp_run_file_spin)
         assert self.loader_sp is not None
 
     def test_properties(self):
@@ -82,10 +82,10 @@ class TestVasprunBSLoader(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class TestBandstructureLoader(unittest.TestCase):
     def setUp(self):
-        self.loader = BandstructureLoader(bs, vrun.structures[-1])
+        self.loader = BandstructureLoader(bs, vasp_run.structures[-1])
         assert self.loader is not None
 
-        self.loader_sp = BandstructureLoader(bs_sp, vrun_spin.structures[-1])
+        self.loader_sp = BandstructureLoader(bs_sp, vasp_run_spin.structures[-1])
         assert self.loader_sp is not None
         assert self.loader_sp.ebands_all.shape == (24, 198)
 
@@ -111,7 +111,7 @@ class TestBandstructureLoader(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class TestVasprunLoader(unittest.TestCase):
     def setUp(self):
-        self.loader = VasprunLoader(vrun)
+        self.loader = VasprunLoader(vasp_run)
         assert self.loader.proj.shape == (120, 20, 2, 9)
         assert self.loader is not None
 
@@ -124,14 +124,14 @@ class TestVasprunLoader(unittest.TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
     def test_from_file(self):
-        self.loader = VasprunLoader().from_file(vrun_file)
+        self.loader = VasprunLoader().from_file(vasp_run_file)
         assert self.loader is not None
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class TestBztInterpolator(unittest.TestCase):
     def setUp(self):
-        self.loader = VasprunBSLoader(vrun)
+        self.loader = VasprunBSLoader(vasp_run)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
         assert self.bztInterp is not None
         self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=bzt_interp_fn)
@@ -139,7 +139,7 @@ class TestBztInterpolator(unittest.TestCase):
         self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=bzt_interp_fn)
         assert self.bztInterp is not None
 
-        self.loader_sp = VasprunBSLoader(vrun_spin)
+        self.loader_sp = VasprunBSLoader(vasp_run_spin)
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
         assert self.bztInterp_sp is not None
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=bzt_interp_fn)
@@ -208,7 +208,7 @@ class TestBztInterpolator(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class TestBztTransportProperties(unittest.TestCase):
     def setUp(self):
-        loader = VasprunBSLoader(vrun)
+        loader = VasprunBSLoader(vasp_run)
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp is not None
@@ -232,7 +232,7 @@ class TestBztTransportProperties(unittest.TestCase):
         self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=bzt_transp_fn)
         assert self.bztTransp is not None
 
-        loader_sp = VasprunBSLoader(vrun_spin)
+        loader_sp = VasprunBSLoader(vasp_run_spin)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
@@ -308,7 +308,7 @@ class TestBztTransportProperties(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class TestBztPlotter(unittest.TestCase):
     def test_plot(self):
-        loader = VasprunBSLoader(vrun)
+        loader = VasprunBSLoader(vasp_run)
         bztInterp = BztInterpolator(loader, lpfac=2)
         bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         self.bztPlotter = BztPlotter(bztTransp, bztInterp)

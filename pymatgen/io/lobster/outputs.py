@@ -95,8 +95,8 @@ class Cohpcar:
             else:
                 filename = "COHPCAR.lobster"
 
-        with zopen(filename, "rt") as f:
-            contents = f.read().split("\n")
+        with zopen(filename, mode="rt") as file:
+            contents = file.read().split("\n")
 
         # The parameters line is the second line in a COHPCAR file. It
         # contains all parameters that are needed to map the file.
@@ -265,8 +265,8 @@ class Icohplist:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename, "rt") as f:
-            data = f.read().split("\n")[1:-1]
+        with zopen(filename, mode="rt") as file:
+            data = file.read().split("\n")[1:-1]
         if len(data) == 0:
             raise OSError("ICOHPLIST file contains no data.")
 
@@ -429,7 +429,7 @@ class NciCobiList:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename, "rt") as file:
+        with zopen(filename, mode="rt") as file:
             data = file.read().split("\n")[1:-1]
         if len(data) == 0:
             raise OSError("NcICOBILIST file contains no data.")
@@ -556,20 +556,20 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        with zopen(doscar, "rt") as f:
-            natoms = int(f.readline().split()[0])
-            efermi = float([f.readline() for nn in range(4)][3].split()[17])
+        with zopen(doscar, mode="rt") as file:
+            natoms = int(file.readline().split()[0])
+            efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
             for _atom in range(natoms + 1):
-                line = f.readline()
+                line = file.readline()
                 ndos = int(line.split()[2])
                 orbitals.append(line.split(";")[-1].split())
-                line = f.readline().split()
+                line = file.readline().split()
                 cdos = np.zeros((ndos, len(line)))
                 cdos[0] = np.array(line)
                 for nd in range(1, ndos):
-                    line = f.readline().split()
+                    line = file.readline().split()
                     cdos[nd] = np.array(line)
                 dos.append(cdos)
         doshere = np.array(dos[0])
@@ -679,8 +679,8 @@ class Charge:
         Args:
             filename: filename for the CHARGE file, typically "CHARGE.lobster".
         """
-        with zopen(filename, "rt") as f:
-            data = f.read().split("\n")[3:-3]
+        with zopen(filename, mode="rt") as file:
+            data = file.read().split("\n")[3:-3]
         if len(data) == 0:
             raise OSError("CHARGES file contains no data.")
 
@@ -757,8 +757,8 @@ class Lobsterout:
             filename: filename of lobsterout.
         """
         # read in file
-        with zopen(filename, "rt") as f:
-            data = f.read().split("\n")  # [3:-3]
+        with zopen(filename, mode="rt") as file:
+            data = file.read().split("\n")  # [3:-3]
         if len(data) == 0:
             raise OSError("lobsterout does not contain any data")
 
@@ -1067,8 +1067,8 @@ class Fatband:
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
         for filename in filenames:
-            with zopen(filename, "rt") as f:
-                contents = f.read().split("\n")
+            with zopen(filename, mode="rt") as file:
+                contents = file.read().split("\n")
 
             atomnames.append(os.path.split(filename)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
@@ -1098,8 +1098,8 @@ class Fatband:
 
         kpoints_array = []
         for ifilename, filename in enumerate(filenames):
-            with zopen(filename, "rt") as f:
-                contents = f.read().split("\n")
+            with zopen(filename, mode="rt") as file:
+                contents = file.read().split("\n")
 
             if ifilename == 0:
                 self.nbands = int(parameters[6])
@@ -1228,8 +1228,8 @@ class Bandoverlaps:
         Args:
             filename: filename of the "bandOverlaps.lobster" file.
         """
-        with zopen(filename, "rt") as f:
-            contents = f.read().split("\n")
+        with zopen(filename, mode="rt") as file:
+            contents = file.read().split("\n")
 
         spin_numbers = [0, 1] if contents[0].split()[-1] == "0" else [1, 2]
 
@@ -1354,8 +1354,8 @@ class Grosspop:
             filename: filename of the "GROSSPOP.lobster" file.
         """
         # opens file
-        with zopen(filename, "rt") as f:
-            contents = f.read().split("\n")
+        with zopen(filename, mode="rt") as file:
+            contents = file.read().split("\n")
 
         self.list_dict_grosspop = []
         # transfers content of file to list of dict
@@ -1423,8 +1423,8 @@ class Wavefunction:
 
     @staticmethod
     def _parse_file(filename):
-        with zopen(filename, "rt") as f:
-            contents = f.read().split("\n")
+        with zopen(filename, mode="rt") as file:
+            contents = file.read().split("\n")
         points = []
         distance = []
         real = []
@@ -1582,8 +1582,8 @@ class MadelungEnergies:
         Args:
             filename: filename of the "MadelungEnergies.lobster" file.
         """
-        with zopen(filename, "rt") as f:
-            data = f.read().split("\n")[5]
+        with zopen(filename, mode="rt") as file:
+            data = file.read().split("\n")[5]
         if len(data) == 0:
             raise OSError("MadelungEnergies file contains no data.")
         line = data.split()
@@ -1613,8 +1613,8 @@ class SitePotential:
             filename: filename for the SitePotentials file, typically "SitePotentials.lobster".
         """
         # site_potentials
-        with zopen(filename, "rt") as f:
-            data = f.read().split("\n")
+        with zopen(filename, mode="rt") as file:
+            data = file.read().split("\n")
         if len(data) == 0:
             raise OSError("SitePotentials file contains no data.")
 
@@ -1737,8 +1737,8 @@ class LobsterMatrices:
 
         self._filename = filename
         # hamiltonMatrices
-        with zopen(self._filename, "rt") as f:
-            file_data = f.readlines()
+        with zopen(self._filename, mode="rt") as file:
+            file_data = file.readlines()
         if len(file_data) == 0:
             raise OSError("Please check provided input file, it seems to be empty")
 

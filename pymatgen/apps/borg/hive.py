@@ -224,7 +224,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 for filename in filenames:
                     files = sorted(glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or len(files) == 1 and filename == "DYNMAT":
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or (len(files) == 1 and filename == "DYNMAT"):
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -417,8 +417,8 @@ def _get_transformation_history(path):
     trans_json = glob(f"{path}/transformations.json*")
     if trans_json:
         try:
-            with zopen(trans_json[0]) as f:
-                return json.load(f)["history"]
+            with zopen(trans_json[0]) as file:
+                return json.load(file)["history"]
         except Exception:
             return None
     return None

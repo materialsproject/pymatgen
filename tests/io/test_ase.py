@@ -147,7 +147,7 @@ def test_get_structure():
     atoms = read(f"{TEST_FILES_DIR}/POSCAR_overlap")
     struct = AseAtomsAdaptor.get_structure(atoms)
     assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
-    with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
+    with pytest.raises(StructureError, match=f"sites are less than {struct.DISTANCE_TOLERANCE} Angstrom apart"):
         struct = AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
 
@@ -253,8 +253,8 @@ def test_back_forth_v2():
         assert str(atoms_back.todict()[k]) == str(v)
 
     # test document can be jsanitized and decoded
-    d = jsanitize(structure, strict=True, enum_values=True)
-    MontyDecoder().process_decoded(d)
+    dct = jsanitize(structure, strict=True, enum_values=True)
+    MontyDecoder().process_decoded(dct)
 
 
 def test_back_forth_v3():
@@ -287,5 +287,5 @@ def test_back_forth_v4():
     assert molecule_back == molecule
 
     # test document can be jsanitized and decoded
-    d = jsanitize(molecule, strict=True, enum_values=True)
-    MontyDecoder().process_decoded(d)
+    dct = jsanitize(molecule, strict=True, enum_values=True)
+    MontyDecoder().process_decoded(dct)

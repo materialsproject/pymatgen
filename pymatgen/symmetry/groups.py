@@ -219,7 +219,7 @@ class SpaceGroup(SymmetryGroup):
 
         for spg in SpaceGroup.SYMM_OPS:
             if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
-                ops = [SymmOp.from_xyz_string(s) for s in spg["symops"]]
+                ops = [SymmOp.from_xyz_str(s) for s in spg["symops"]]
                 self.symbol = re.sub(r":", "", re.sub(r" ", "", spg["universal_h_m"]))
                 if int_symbol in SpaceGroup.sg_encoding:
                     self.full_symbol = SpaceGroup.sg_encoding[int_symbol]["full_symbol"]

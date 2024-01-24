@@ -112,23 +112,23 @@ class AbinitTimerParser(collections.abc.Iterable):
             filenames = [filenames]
 
         read_ok = []
-        for fname in filenames:
+        for filename in filenames:
             try:
-                fh = open(fname)  # noqa: SIM115
+                file = open(filename)  # noqa: SIM115
             except OSError:
-                logger.warning(f"Cannot open file {fname}")
+                logger.warning(f"Cannot open file {filename}")
                 continue
 
             try:
-                self._read(fh, fname)
-                read_ok.append(fname)
+                self._read(file, filename)
+                read_ok.append(filename)
 
             except self.Error as e:
-                logger.warning(f"exception while parsing file {fname}:\n{e}")
+                logger.warning(f"exception while parsing file {filename}:\n{e}")
                 continue
 
             finally:
-                fh.close()
+                file.close()
 
         # Add read_ok to the list of files that have been parsed.
         self._filenames.extend(read_ok)
@@ -279,7 +279,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         for sect_name in self.section_names():
             ref_sect = ref_t.get_section(sect_name)
-            sects = [t.get_section(sect_name) for t in timers]
+            sects = [timer.get_section(sect_name) for timer in timers]
             try:
                 ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
                 wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
@@ -384,7 +384,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.grid(visible=True)
 
         # Set xticks and labels.
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -468,7 +468,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
@@ -608,7 +608,7 @@ class AbinitTimerSection:
         string = ""
 
         if with_header:
-            string += "# " + " ".join(at for at in AbinitTimerSection.FIELDS) + "\n"
+            string += f"# {' '.join(at for at in AbinitTimerSection.FIELDS)}\n"
 
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
@@ -668,7 +668,7 @@ class AbinitTimer:
         is_str = isinstance(fileobj, str)
 
         if is_str:
-            fileobj = open(fileobj, "w")  # noqa: SIM115
+            fileobj = open(fileobj, mode="w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
@@ -888,11 +888,11 @@ class AbinitTimer:
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
         axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
-            tl.set_visible(False)  # noqa: FBT003
+            tl.set_visible(False)
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
-                tl.set_visible(False)  # noqa: FBT003
+                tl.set_visible(False)
                 axHisty.set_xticks([0, 50, 100])
 
         # plt.draw()

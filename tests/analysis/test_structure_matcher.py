@@ -22,8 +22,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestStructureMatcher(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
-            entries = json.load(fp, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
+            entries = json.load(file, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
@@ -425,7 +425,7 @@ class TestStructureMatcher(PymatgenTest):
         s1 = Structure(latt, ["Si", "Si"], [[0, 0, 0.1], [0, 0, 0.2]])
         s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [0, 0.1, -0.95]])
 
-        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
+        s1, s2, fu, _s1_supercell = sm._preprocess(s1, s2, niggli=False)
 
         match = sm._strict_match(s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False)
         scale_matrix = match[2]

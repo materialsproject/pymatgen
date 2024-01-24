@@ -104,7 +104,7 @@ def get_total_ionic_dipole(structure, zval_dict):
 
 
 class PolarizationLattice(Structure):
-    """Why is a Lattice inheriting a structure? This is ridiculous."""
+    """TODO Why is a Lattice inheriting a structure? This is ridiculous."""
 
     def get_nearest_site(self, coords, site, r=None):
         """
@@ -144,14 +144,7 @@ class Polarization:
     electron Angstroms along the three lattice directions (a,b,c).
     """
 
-    def __init__(
-        self,
-        p_elecs,
-        p_ions,
-        structures,
-        p_elecs_in_cartesian=True,
-        p_ions_in_cartesian=False,
-    ):
+    def __init__(self, p_elecs, p_ions, structures, p_elecs_in_cartesian=True, p_ions_in_cartesian=False):
         """
         p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]
         p_ions: np.array of ionic contribution to the polarization with shape [N, 3]
@@ -270,7 +263,7 @@ class Polarization:
         lattices = [s.lattice for s in self.structures]
         volumes = np.array([s.lattice.volume for s in self.structures])
 
-        L = len(p_elec)
+        n_elecs = len(p_elec)
 
         e_to_muC = -1.6021766e-13
         cm2_to_A2 = 1e16
@@ -282,38 +275,41 @@ class Polarization:
             # Convert the total polarization
             p_tot = np.multiply(units.T[:, np.newaxis], p_tot)
             # adjust lattices
-            for i in range(L):
-                lattice = lattices[i]
-                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
+            for idx in range(n_elecs):
+                lattice = lattices[idx]
+                lattices[idx] = Lattice.from_parameters(
+                    *(np.array(lattice.lengths) * units.ravel()[idx]), *lattice.angles
+                )
         #  convert polarizations to polar lattice
         elif convert_to_muC_per_cm2 and all_in_polar:
             abc = [lattice.abc for lattice in lattices]
             abc = np.array(abc)  # [N, 3]
             p_tot /= abc  # e * Angstroms to e
             p_tot *= abc[-1] / volumes[-1] * e_to_muC * cm2_to_A2  # to muC / cm^2
-            for i in range(L):
+            for idx in range(n_elecs):
                 lattice = lattices[-1]  # Use polar lattice
                 # Use polar units (volume)
-                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
+                lattices[idx] = Lattice.from_parameters(
+                    *(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles
+                )
 
         d_structs = []
         sites = []
-        for i in range(L):
-            lattice = lattices[i]
-            frac_coord = np.divide(np.array([p_tot[i]]), np.array(lattice.lengths))
+        for idx in range(n_elecs):
+            lattice = lattices[idx]
+            frac_coord = np.divide(np.array([p_tot[idx]]), np.array(lattice.lengths))
             d = PolarizationLattice(lattice, ["C"], [np.array(frac_coord).ravel()])
             d_structs.append(d)
             site = d[0]
             # Adjust nonpolar polarization to be closest to zero.
             # This is compatible with both a polarization of zero or a half quantum.
-            prev_site = [0, 0, 0] if i == 0 else sites[-1].coords
+            prev_site = [0, 0, 0] if idx == 0 else sites[-1].coords
             new_site = d.get_nearest_site(prev_site, site)
             sites.append(new_site[0])
 
         adjust_pol = []
-        for s, d in zip(sites, d_structs):
-            lattice = d.lattice
-            adjust_pol.append(np.multiply(s.frac_coords, np.array(lattice.lengths)).ravel())
+        for site, d in zip(sites, d_structs):
+            adjust_pol.append(np.multiply(site.frac_coords, np.array(d.lattice.lengths)).ravel())
         return np.array(adjust_pol)
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
@@ -324,7 +320,7 @@ class Polarization:
         lattices = [s.lattice for s in self.structures]
         volumes = np.array([struct.volume for struct in self.structures])
 
-        L = len(self.structures)
+        n_structs = len(self.structures)
 
         e_to_muC = -1.6021766e-13
         cm2_to_A2 = 1e16
@@ -334,13 +330,17 @@ class Polarization:
         # convert polarizations and lattice lengths prior to adjustment
         if convert_to_muC_per_cm2 and not all_in_polar:
             # adjust lattices
-            for i in range(L):
-                lattice = lattices[i]
-                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[i]), *lattice.angles)
+            for idx in range(n_structs):
+                lattice = lattices[idx]
+                lattices[idx] = Lattice.from_parameters(
+                    *(np.array(lattice.lengths) * units.ravel()[idx]), *lattice.angles
+                )
         elif convert_to_muC_per_cm2 and all_in_polar:
-            for i in range(L):
+            for idx in range(n_structs):
                 lattice = lattices[-1]
-                lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
+                lattices[idx] = Lattice.from_parameters(
+                    *(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles
+                )
 
         return np.array([np.array(latt.lengths) for latt in lattices])
 

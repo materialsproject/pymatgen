@@ -127,13 +127,11 @@ class TestStructureGraph(PymatgenTest):
 
         # known example where this bug occurred due to edge weights not being
         # bit-for-bit identical in otherwise identical edges
-        nacl_lattice = Lattice(
-            [
-                [3.48543625, 0.0, 2.01231756],
-                [1.16181208, 3.28610081, 2.01231756],
-                [0.0, 0.0, 4.02463512],
-            ]
-        )
+        nacl_lattice = [
+            [3.48543625, 0.0, 2.01231756],
+            [1.16181208, 3.28610081, 2.01231756],
+            [0.0, 0.0, 4.02463512],
+        ]
         nacl = Structure(nacl_lattice, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
         nacl_graph = StructureGraph.with_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
@@ -887,7 +885,7 @@ class TestMoleculeGraph(unittest.TestCase):
         assert eth_copy_repl.get_coordination_of_site(5) == 4
         # Now swap one functional group for another
         eth_copy_repl.replace_group(5, "amine", MinimumDistanceNN)
-        assert ["C", "C", "H", "H", "H", "N", "H", "H"] == [str(s) for s in eth_copy_repl.molecule.species]
+        assert list(map(str, eth_copy_repl.molecule.species)) == ["C", "C", "H", "H", "H", "N", "H", "H"]
         assert len(eth_copy_repl.graph.nodes) == 8
         # Amine nitrogen should have coordination 3
         assert eth_copy_repl.get_coordination_of_site(5) == 3
