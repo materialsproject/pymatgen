@@ -199,9 +199,9 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
         with pytest.warns(
-                BadInputSetWarning,
-                match="Relaxation of likely metal with ISMEAR < 1 detected. "
-                      "See VASP recommendations on ISMEAR for metals.",
+            BadInputSetWarning,
+            match="Relaxation of likely metal with ISMEAR < 1 detected. "
+            "See VASP recommendations on ISMEAR for metals.",
         ) as warns:
             vis = self.set(structure)
             _ = vis.incar
@@ -245,9 +245,9 @@ class TestMITMPRelaxSet(PymatgenTest):
                     structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
                 )
                 expected = {  # noqa: SIM222
-                               **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-                               **(user_potcar_settings or {}),
-                           } or None
+                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
+                    **(user_potcar_settings or {}),
+                } or None
                 assert relax_set.user_potcar_settings == expected
 
     @skip_if_no_psp_dir
@@ -272,7 +272,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # disordered structure are not supported
         disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         with pytest.raises(
-                ValueError, match="Disordered structure with partial occupancies cannot be converted into POSCAR"
+            ValueError, match="Disordered structure with partial occupancies cannot be converted into POSCAR"
         ):
             _ = self.set(disordered).nelect
 
@@ -862,7 +862,7 @@ class TestMatPESStaticSet(PymatgenTest):
     def test_functionals(self):
         xc_functional = "LDA"
         with pytest.raises(
-                ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
+            ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
         ):
             MatPESStaticSet(self.struct, xc_functional=xc_functional)
 
@@ -1643,7 +1643,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_54"
 
         with pytest.raises(
-                ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1812,7 +1812,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-                ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 
