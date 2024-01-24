@@ -85,7 +85,7 @@ isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["ANN201", "D", "S101"]
+"tests/**" = ["ANN201", "D", "S101","ISC001"]
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/vis/*" = ["D"]
