@@ -526,6 +526,7 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(f"{TEST_FILES_DIR}/qchem/6.1.1.wb97xv.out.gz").data
         assert data["final_energy"] == -76.43205015
 
+
 def test_gradient(tmp_path):
     with gzip.open(f"{TEST_FILES_DIR}/qchem/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
