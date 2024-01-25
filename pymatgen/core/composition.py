@@ -544,6 +544,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise ValueError(f"Invalid {formula=}")
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
+        formula = formula.replace("[", "(")
+        formula = formula.replace("]", ")")
 
         def get_sym_dict(form: str, factor: float) -> dict[str, float]:
             sym_dict: dict[str, float] = collections.defaultdict(float)
@@ -1009,7 +1011,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo), key=lambda pair: pair[0], reverse=True
+                        zip(all_scores, all_sols, all_oxid_combo),
+                        key=lambda pair: pair[0],
+                        reverse=True,
                     )
                 )
             )
