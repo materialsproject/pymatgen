@@ -503,12 +503,6 @@ class AimsControlIn(MSONable):
         lim = "#" + "=" * 79
         content = ""
 
-        content += "#" + "=" * 72 + "\n"
-        content += f"# FHI-aims geometry file: {directory}/control.in\n"
-        content += "# File generated from pymatgen\n"
-        content += f"# {time.asctime()}\n"
-        content += "#" + "=" * 72 + "\n"
-
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
 
