@@ -135,7 +135,7 @@ class CollinearMagneticStructureAnalyzer:
                 in default_magmoms) will be rounded to zero
             threshold_ordering: number (absolute of sum of all magmoms,
                 in Bohr magneton) below which total magnetization is treated as zero
-                when defining magnetic ordering.
+                when defining magnetic ordering. Defaults to 1e-8.
         """
         if default_magmoms:
             self.default_magmoms = default_magmoms

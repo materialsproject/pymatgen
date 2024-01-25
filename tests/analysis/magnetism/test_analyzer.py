@@ -189,11 +189,9 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert mag_struct_analyzer.get_exchange_group_info() == ("Fm-3m", 225)
 
         # https://github.com/materialsproject/pymatgen/pull/3574
-        # https://github.com/materialsproject/pymatgen/pull/3577
-        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.CuO_expt, threshold_ordering=1e-8)
-        assert mag_struct_analyzer.ordering == Ordering.AFM
-        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.CuO_expt, threshold_ordering=1e-20)
-        assert mag_struct_analyzer.ordering == Ordering.FiM
+        for threshold, expected in [(1e-8, Ordering.AFM), (1e-20, Ordering.FiM)]:
+            mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.CuO_expt, threshold_ordering=threshold)
+            assert mag_struct_analyzer.ordering == expected
 
     def test_str(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001)
