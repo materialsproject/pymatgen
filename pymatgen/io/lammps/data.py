@@ -563,10 +563,10 @@ class LammpsData(MSONable):
                 }
                 ff_df = self.force_field[kw]
                 for t in ff_df.itertuples(index=True, name=None):
-                    d = {"coeffs": list(t[1:]), "types": []}
+                    coeffs_dict = {"coeffs": list(t[1:]), "types": []}
                     if class2_coeffs:
-                        d.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
-                    topo_coeffs[kw].append(d)
+                        coeffs_dict.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
+                    topo_coeffs[kw].append(coeffs_dict)
 
         if self.topology:
 
@@ -591,8 +591,8 @@ class LammpsData(MSONable):
 
         if any(topo_coeffs):
             for v in topo_coeffs.values():
-                for d in v:
-                    d["types"] = list(set(d["types"]))
+                for coeffs_dict in v:
+                    coeffs_dict["types"] = list(set(coeffs_dict["types"]))
 
         ff = ForceField(
             mass_info=mass_info,

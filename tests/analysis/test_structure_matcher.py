@@ -50,10 +50,10 @@ class TestStructureMatcher(PymatgenTest):
         }
 
     def test_get_supercell_size(self):
-        latt = Lattice.cubic(1)
-        l2 = Lattice.cubic(0.9)
-        s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu", "Ag"], [[0] * 3] * 5)
-        s2 = Structure(l2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
+        latt1 = Lattice.cubic(1)
+        latt2 = Lattice.cubic(0.9)
+        s1 = Structure(latt1, ["Mg", "Cu", "Ag", "Cu", "Ag"], [[0] * 3] * 5)
+        s2 = Structure(latt2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
 
         sm = StructureMatcher(supercell_size="volume")
         assert sm._get_supercell_size(s1, s2) == (1, True)
