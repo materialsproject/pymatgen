@@ -31,6 +31,7 @@ from pymatgen.core import DummySpecies, Element, Species, Structure, get_el_sp
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.icet import IcetSQS
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import (
     OrderDisorderedStructureTransformation,
@@ -41,6 +42,7 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
 try:
     import hiphive
@@ -1890,9 +1892,11 @@ class SQSTransformation(AbstractTransformation):
         wn: float = 1,
         wd: float = 0.5,
         tol: float = 1e-3,
+        icet_sqs_kwargs: dict[str, Any] | None = None,
         best_only: bool = True,
         remove_duplicate_structures: bool = True,
-        reduction_algo: Literal["niggle", "LLL"] = "LLL",
+        reduction_algo: Literal["niggli", "LLL"] = "LLL",
+        sqs_method: Literal["mcsqs", "icet-enumeration", "icet-monte_carlo"] = "mcsqs",
     ):
         """
         Args:
@@ -1904,7 +1908,8 @@ class SQSTransformation(AbstractTransformation):
             cluster_size_and_shell (Optional[Dict[int, int]]): Dictionary of cluster interactions with entries in
                 the form number of atoms: nearest neighbor shell
         Keyword Args:
-            search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
+            search_time (float):
+                If sqs_method == "mcsqs", the time spent looking for the ideal SQS in minutes (default: 60)
             directory (str): Directory to run mcsqs calculation and store files (default: None
                 runs calculations in a temp directory)
             instances (int): Specifies the number of parallel instances of mcsqs to run
@@ -1930,9 +1935,11 @@ class SQSTransformation(AbstractTransformation):
         self.wn = wn
         self.wd = wd
         self.tol = tol
+        self.icet_sqs_kwargs = icet_sqs_kwargs or {}
         self.best_only = best_only
         self.remove_duplicate_structures = remove_duplicate_structures
         self.reduction_algo = reduction_algo
+        self.sqs_method = sqs_method
 
     @staticmethod
     def _get_max_neighbor_distance(struct, shell):
@@ -2010,7 +2017,7 @@ class SQSTransformation(AbstractTransformation):
             pymatgen Structure which is an SQS of the input structure
         """
         if return_ranked_list and self.instances is None:
-            raise ValueError("mcsqs has no instances, so cannot return a ranked list")
+            raise ValueError("SQSTransformation has no instances, so cannot return a ranked list")
         if (
             isinstance(return_ranked_list, int)
             and isinstance(self.instances, int)
@@ -2023,19 +2030,37 @@ class SQSTransformation(AbstractTransformation):
         # useful for debugging and understanding
         self._last_used_clusters = clusters
 
-        sqs = run_mcsqs(
-            structure=structure,
-            clusters=clusters,
-            scaling=self.scaling,
-            search_time=self.search_time,
-            directory=self.directory,
-            instances=self.instances,
-            temperature=self.temperature,
-            wr=self.wr,
-            wn=self.wn,
-            wd=self.wd,
-            tol=self.tol,
-        )
+        if self.sqs_method == "mcsqs":
+            sqs = run_mcsqs(
+                structure=structure,
+                clusters=clusters,
+                scaling=self.scaling,
+                search_time=self.search_time,
+                directory=self.directory,
+                instances=self.instances,
+                temperature=self.temperature,
+                wr=self.wr,
+                wn=self.wn,
+                wd=self.wd,
+                tol=self.tol,
+            )
+
+        elif self.sqs_method.startswith("icet-"):
+            icet_defaults = {
+                "optimality_weight": self.wr,
+                "T_start": self.temperature,
+            }
+            for key in icet_defaults:
+                self.icet_sqs_kwargs[key] = self.icet_sqs_kwargs.get(key, icet_defaults[key])
+
+            sqs = IcetSQS(
+                structure=structure,
+                scaling=self.scaling,
+                instances=self.instances,
+                sqs_method=self.sqs_method.split("icet-")[1],
+                cluster_cutoffs=clusters,
+                sqs_kwargs=self.icet_sqs_kwargs,
+            ).run()
 
         return self._get_unique_best_sqs_structs(
             sqs,
