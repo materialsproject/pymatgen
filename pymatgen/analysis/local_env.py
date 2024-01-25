@@ -3923,20 +3923,20 @@ class CrystalNN(NearNeighbors):
             for entry in nn:
                 r2 = _get_radius(entry["site"])
                 if r1 > 0 and r2 > 0:
-                    dist = r1 + r2
+                    diameter = r1 + r2
                 else:
                     warnings.warn(
                         "CrystalNN: cannot locate an appropriate radius, "
                         "covalent or atomic radii will be used, this can lead "
                         "to non-optimal results."
                     )
-                    dist = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
+                    diameter = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
 
                 dist = np.linalg.norm(structure[n].coords - entry["site"].coords)
                 dist_weight: float = 0
 
-                cutoff_low = dist + self.distance_cutoffs[0]
-                cutoff_high = dist + self.distance_cutoffs[1]
+                cutoff_low = diameter + self.distance_cutoffs[0]
+                cutoff_high = diameter + self.distance_cutoffs[1]
 
                 if dist <= cutoff_low:
                     dist_weight = 1
