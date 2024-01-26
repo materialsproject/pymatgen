@@ -993,7 +993,8 @@ class Vasprun(MSONable):
         Returns the POTCAR from the specified path.
 
         Args:
-            path (str | Path): The path to search for POTCARs.
+            path (str | Path | bool): If a str or Path, the path to search for POTCARs.
+                If a bool, whether to take the search path from the specified vasprun.xml
 
         Returns:
             Potcar | None: The POTCAR from the specified path or None if not found/no path specified.
@@ -1005,9 +1006,12 @@ class Vasprun(MSONable):
         if isinstance(path, (str, Path)) and "POTCAR" in str(path):
             potcar_paths = [str(path)]
         else:
-            search_path = os.path.split(self.filename)[0] if path is True else str(path)
+            search_path = os.path.split(os.path.abspath(self.filename))[0] if path is True else str(path)
+
             potcar_paths = [
-                f"{search_path}/{fn}" for fn in os.listdir(search_path) if fn.startswith("POTCAR") and ".spec" not in fn
+                os.path.join(search_path, fn)
+                for fn in os.listdir(search_path)
+                if fn.startswith("POTCAR") and ".spec" not in fn
             ]
 
         for potcar_path in potcar_paths:
