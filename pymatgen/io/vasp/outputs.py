@@ -336,6 +336,16 @@ class Vasprun(MSONable):
         parsed_header = False
         in_kpoints_opt = False
         try:
+            # When parsing XML, start tags tell us when we have entered a block
+            # while end tags are when we have actually read the data.
+            # To know if a particular tag is nested within another block,
+            # we have to read the start tags (otherwise we will only learn of
+            # the nesting after we have left the data behind).
+            # When parsing KPOINTS_OPT data, some of the tags in vasprun.xml
+            # can only be distinguished from their regular counterparts by
+            # whether they are nested within another block. This is why we
+            # must read both start and end tags and have flags to tell us
+            # when we have entered or left a block. (2024-01-26)
             for event, elem in ET.iterparse(stream, events=["start", "end"]):
                 tag = elem.tag
                 if event == "start":
