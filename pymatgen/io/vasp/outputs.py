@@ -1009,7 +1009,7 @@ class Vasprun(MSONable):
             # the abspath is needed here in cases where no leading directory is specified,
             # e.g., Vasprun("vasprun.xml"). See issue #3586:
             # https://github.com/materialsproject/pymatgen/issues/3586
-            search_path = os.path.split(os.path.abspath(self.filename))[0] if path is True else str(path)
+            search_path = os.path.dirname(os.path.abspath(self.filename)) if path is True else str(path)
 
             potcar_paths = [
                 os.path.join(search_path, fn)

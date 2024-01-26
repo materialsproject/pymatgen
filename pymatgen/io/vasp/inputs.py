@@ -272,6 +272,7 @@ class Poscar(MSONable):
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:
                     names = None
+        print("shitfucker", names, dirname, filename)
         with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 

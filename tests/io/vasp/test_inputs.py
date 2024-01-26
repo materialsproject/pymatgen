@@ -6,6 +6,7 @@ import os
 import pickle
 import re
 import unittest
+from shutil import copyfile
 
 import numpy as np
 import pytest
@@ -418,7 +419,14 @@ direct
 
     def test_selective_dynamics(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR.Fe3O4"
-        poscar = Poscar.from_file(filepath)
+
+        # Previously, this test relied on the existence of a file named POTCAR
+        # that was sorted to the top of a list of POTCARs for the test to work.
+        # That's far too brittle - isolating requisite files here
+        copyfile(filepath, "POSCAR")
+        copyfile(os.path.join(TEST_FILES_DIR, "fake_potcars", "POTCAR.gz"), "POTCAR.gz")
+
+        poscar = Poscar.from_file("POSCAR")
         structure = poscar.structure
 
         # Fix bottom half
@@ -1014,7 +1022,7 @@ class TestPotcarSingle(unittest.TestCase):
             "RPACOR": 2.08,
             "RWIGS": 1.323,
             "STEP": [25.286, 0.183],
-            "TITEL": "PAW_PBE Mn_pv 07Sep2000 FAKE",
+            "TITEL": "PAW_PBE Mn_pv 07Sep2000",
             "VRHFIN": "Mn: 3p4s3d",
             "ZVAL": 13.0,
         }
@@ -1149,26 +1157,26 @@ class TestPotcarSingle(unittest.TestCase):
     def test_repr(self):
         assert (
             repr(self.psingle_Mn_pv)
-            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000 FAKE', "
+            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000', "
             "VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
 
     def test_hash(self):
-        assert self.psingle_Mn_pv.md5_header_hash == "12ebca66d185118322f2ebbc73d270f9"
-        assert self.psingle_Fe.md5_header_hash == "ea98d3eb45e34957a2e8cd200a61f7ac"
+        assert self.psingle_Mn_pv.md5_header_hash == "b45747d8ceeee91c3b27e8484db32f5a"
+        assert self.psingle_Fe.md5_header_hash == "adcc7d2abffa088eccc74948a68235d6"
 
     def test_potcar_file_hash(self):
-        assert self.psingle_Mn_pv.md5_computed_file_hash == "2111214d926135f3b288d2910b5fce34"
-        assert self.psingle_Fe.md5_computed_file_hash == "78662b23c58f9920cbdc73cc3b3209ef"
+        assert self.psingle_Mn_pv.md5_computed_file_hash == "e66e5662ec6e46d6f10ce0bb07b3b742"
+        assert self.psingle_Fe.md5_computed_file_hash == "ae761615a0734cc5a2a1db0d5919f12d"
 
     def test_sha256_file_hash(self):
         assert (
             self.psingle_Mn_pv.sha256_computed_file_hash
-            == "e6c4708d01062e0a622db6d7da4b6938e6b68c10de797b9840cf9e5d1fd3376c"
+            == "3890fe92124e18500817b565a6048a317968613e226ab7b7c2a2d4ca62451e3a"
         )
         assert (
             self.psingle_Fe.sha256_computed_file_hash
-            == "5223977ca296a1581d7828a561e5418f32be8ebd1715caf0dc43bbcae2c7c9b4"
+            == "7bcf5ad80200e5d74ba63b45d87825b31e6cae2bcd03cebda2f1cbec9870c1cf"
         )
 
 
@@ -1274,7 +1282,19 @@ class TestVaspInput(PymatgenTest):
             assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
-        vi = VaspInput.from_directory(TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
+        # Previously, this test relied on the existence of a file named POTCAR
+        # that was sorted to the top of a list of POTCARs for the test to work.
+        # That's far too brittle - isolating requisite files here
+        for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
+            copyfile(os.path.join(TEST_FILES_DIR, file), file.split(".")[0])
+
+        Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(os.path.join(self.tmp_path, "POTCAR"))
+
+        contcar_file = os.path.join(TEST_FILES_DIR, "CONTCAR.Li2O")
+        copyfile(contcar_file, "CONTCAR.Li2O")
+
+        vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR.Li2O": Poscar})
+
         assert vi["INCAR"]["ALGO"] == "Damped"
         assert "CONTCAR.Li2O" in vi
         dct = vi.as_dict()
