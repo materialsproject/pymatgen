@@ -1687,6 +1687,7 @@ class TestMPScanStaticSet(PymatgenTest):
     def test_init(self):
         vis, prev_run = self.vis, self.prev_run
         # check that StaticSet settings were applied
+        assert vis.inherit_incar
         assert vis.incar["NSW"] == 0
         assert vis.incar["LREAL"] is False
         assert vis.incar["LORBIT"] == 11
@@ -1929,6 +1930,7 @@ class TestMPAbsorptionSet(PymatgenTest):
             prev_calc_dir=prev_run, user_incar_settings={"NEDOS": 3000}, copy_wavecar=True, mode="IPA"
         )
         absorption_ipa.write_input(self.tmp_path)
+        assert absorption_ipa.inherit_incar
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert absorption_ipa.incar["ENCUT"] == 680
         assert absorption_ipa.incar["NEDOS"] == 3000
@@ -1957,6 +1959,7 @@ class TestMPAbsorptionSet(PymatgenTest):
             prev_run, user_incar_settings={"NEDOS": 3000}, copy_wavecar=True, mode="RPA"
         )
         absorption_rpa.write_input(self.tmp_path)
+        assert absorption_rpa.inherit_incar
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
         assert absorption_rpa.incar["ENCUT"] == 680
