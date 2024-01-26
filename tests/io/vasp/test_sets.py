@@ -1504,18 +1504,32 @@ class TestMVLScanRelaxSet(PymatgenTest):
         self.set = MVLScanRelaxSet
         file_path = f"{TEST_FILES_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
-        self.mvl_scan_set = self.set(self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500})
+        self.mvl_scan_set = self.set(self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500})
 
     def test_incar(self):
         incar = self.mvl_scan_set.incar
-        assert "METAGGA" in incar
-        assert "LASPH" in incar
-        assert "ADDGRID" in incar
+        assert incar["METAGGA"] == "Scan"
+        assert incar["ADDGRID"]
+        assert incar["LASPH"]
+        assert incar["SIGMA"] == 0.05
+        assert incar["ISMEAR"] == -5
         assert incar["NSW"] == 500
-
         # Test SCAN+rVV10
         scan_rvv10_set = self.set(self.struct, vdw="rVV10")
         assert scan_rvv10_set.incar["BPARAM"] == 15.7
+
+    @skip_if_no_psp_dir
+    def test_potcar(self):
+        assert self.mvl_scan_set.potcar.functional == "PBE_54"
+
+        # the default functional of MVLScanRelex is PBE_52
+        input_set = MVLScanRelaxSet(self.struct)
+        assert input_set.potcar.functional == "PBE_52"
+
+        with pytest.raises(
+            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+        ):
+            MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
     # @skip_if_no_psp_dir
     # def test_potcar(self):
