@@ -1006,6 +1006,9 @@ class Vasprun(MSONable):
         if isinstance(path, (str, Path)) and "POTCAR" in str(path):
             potcar_paths = [str(path)]
         else:
+            # the abspath is needed here in cases where no leading directory is specified,
+            # e.g., Vasprun("vasprun.xml"). See issue #3586:
+            # https://github.com/materialsproject/pymatgen/issues/3586
             search_path = os.path.split(os.path.abspath(self.filename))[0] if path is True else str(path)
 
             potcar_paths = [
