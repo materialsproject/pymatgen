@@ -533,18 +533,18 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = f"""TITLE {self.title}\n
+        out = f"""TITLE {self.title}\n
 {self.units}
 {self.xc}
 {self.basis_set}
 {self.scf}
 {self.geo}"""
-        s += "\n"
+        out += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
                 raise ValueError(f"{block_key} is not an AdfKey!")
-            s += str(block_key) + "\n"
-        return s
+            out += str(block_key) + "\n"
+        return out
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""

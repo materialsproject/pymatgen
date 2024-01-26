@@ -26,8 +26,8 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
 
     def test_assimilate(self):
         entry = self.drone.assimilate(TEST_FILES_DIR)
-        for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
-            assert p in entry.parameters
+        for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
+            assert param in entry.parameters
         assert entry.data["efermi"] == approx(-6.62148548)
         assert entry.composition.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
@@ -39,8 +39,8 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         # assert len(entry.parameters["history"]) == 2
 
     def test_as_from_dict(self):
-        d = self.structure_drone.as_dict()
-        drone = VaspToComputedEntryDrone.from_dict(d)
+        dct = self.structure_drone.as_dict()
+        drone = VaspToComputedEntryDrone.from_dict(dct)
         assert isinstance(drone, VaspToComputedEntryDrone)
 
 
@@ -55,8 +55,8 @@ class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_as_from_dict(self):
-        d = self.structure_drone.as_dict()
-        drone = SimpleVaspToComputedEntryDrone.from_dict(d)
+        dct = self.structure_drone.as_dict()
+        drone = SimpleVaspToComputedEntryDrone.from_dict(dct)
         assert isinstance(drone, SimpleVaspToComputedEntryDrone)
 
 
@@ -95,6 +95,6 @@ class TestGaussianToComputedEntryDrone(unittest.TestCase):
             assert p in entry.data
 
     def test_as_from_dict(self):
-        d = self.structure_drone.as_dict()
-        drone = GaussianToComputedEntryDrone.from_dict(d)
+        dct = self.structure_drone.as_dict()
+        drone = GaussianToComputedEntryDrone.from_dict(dct)
         assert isinstance(drone, GaussianToComputedEntryDrone)
