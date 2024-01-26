@@ -342,9 +342,9 @@ class TestStructureMatcher(PymatgenTest):
             scale=False,
             comparator=FrameworkComparator(),
         )
-        d = sm.as_dict()
-        sm2 = StructureMatcher.from_dict(d)
-        assert sm2.as_dict() == d
+        dct = sm.as_dict()
+        sm2 = StructureMatcher.from_dict(dct)
+        assert sm2.as_dict() == dct
 
     def test_no_scaling(self):
         sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator())

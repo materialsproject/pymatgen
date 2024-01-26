@@ -116,8 +116,8 @@ class TestCritic2Analysis(unittest.TestCase):
         # test connectivity
         assert self.c2o.edges[3] == {"from_idx": 1, "from_lvec": (0, 0, 0), "to_idx": 0, "to_lvec": (1, 0, 0)}
         # test as/from dict
-        d = self.c2o.as_dict()
-        assert set(d) == {
+        dct = self.c2o.as_dict()
+        assert set(dct) == {
             "@module",
             "@class",
             "@version",
@@ -128,7 +128,7 @@ class TestCritic2Analysis(unittest.TestCase):
             "yt",
             "zpsp",
         }
-        self.c2o.from_dict(d)
+        self.c2o.from_dict(dct)
 
     def test_graph_output(self):
         sg = self.c2o.structure_graph()

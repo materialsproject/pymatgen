@@ -152,15 +152,15 @@ class TestIon(unittest.TestCase):
         assert Ion.from_dict(sym_dict).reduced_formula == "PO4[-2]", "Creation form sym_amount dictionary failed!"
 
     def test_as_dict(self):
-        c = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
-        d = c.as_dict()
+        ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
+        dct = ion.as_dict()
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1.0}
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        d = c.to_reduced_dict
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        dct = ion.to_reduced_dict
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
         random_z = random.randint(1, 92)

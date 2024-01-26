@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 import random
 import unittest
 
@@ -646,7 +645,7 @@ class TestTopology(unittest.TestCase):
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class TestForceField(unittest.TestCase):
+class TestForceField(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         mass_info = [
@@ -655,7 +654,7 @@ class TestForceField(unittest.TestCase):
             ("C", Element("O")),
             ("D", 1.00794),
         ]
-        nonbond_coeffs = [
+        non_bond_coeffs = [
             [1, 1, 1.1225],
             [1, 1.175, 1.31894],
             [1, 1.55, 1.73988],
@@ -673,7 +672,7 @@ class TestForceField(unittest.TestCase):
                 {"coeffs": [50, 0.855906], "types": [("B", "C")]},
             ]
         }
-        cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs)
+        cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=non_bond_coeffs, topo_coeffs=topo_coeffs)
         cls.ethane = ForceField.from_file(f"{TEST_DIR}/ff_ethane.yaml")
 
     def test_init(self):
@@ -728,13 +727,12 @@ class TestForceField(unittest.TestCase):
 
     def test_to_file(self):
         filename = "ff_test.yaml"
-        v = self.virus
-        v.to_file(filename=filename)
+        self.virus.to_file(filename=f"{self.tmp_path}/{filename}")
         yaml = YAML()
         with open(filename) as file:
             dct = yaml.load(file)
         # assert dct["mass_info"] == [list(m) for m in v.mass_info]
-        assert dct["nonbond_coeffs"] == v.nonbond_coeffs
+        assert dct["nonbond_coeffs"] == self.virus.nonbond_coeffs
 
     def test_from_file(self):
         e = self.ethane
@@ -758,11 +756,6 @@ class TestForceField(unittest.TestCase):
         assert decoded.mass_info == self.ethane.mass_info
         assert decoded.nonbond_coeffs == self.ethane.nonbond_coeffs
         assert decoded.topo_coeffs == self.ethane.topo_coeffs
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists("ff_test.yaml"):
-            os.remove("ff_test.yaml")
 
 
 class TestFunc(unittest.TestCase):
