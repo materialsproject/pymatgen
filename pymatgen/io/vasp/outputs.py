@@ -402,8 +402,8 @@ class Vasprun(MSONable):
                     elif tag == "varray" and elem.attrib.get("name") == "stress":
                         md_data[-1]["stress"] = _parse_vasp_array(elem)
                     elif tag == "energy":
-                        d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
-                        if "kinetic" in d:
+                        e_dict = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
+                        if "kinetic" in e_dict:
                             md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
         except ET.ParseError as exc:
             if self.exception_on_bad_xml:
@@ -1296,17 +1296,17 @@ class Vasprun(MSONable):
         calculation.append(istep)
         for scstep in elem.findall("scstep"):
             try:
-                d = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
-                cur_ene = d["e_fr_energy"]
+                e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
+                cur_ene = e_steps_dict["e_fr_energy"]
                 min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
                 if len(calculation[-1]["electronic_steps"]) <= min_steps:
-                    calculation[-1]["electronic_steps"].append(d)
+                    calculation[-1]["electronic_steps"].append(e_steps_dict)
                 else:
                     last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]
                     if abs(cur_ene - last_ene) < 1.0:
-                        calculation[-1]["electronic_steps"].append(d)
+                        calculation[-1]["electronic_steps"].append(e_steps_dict)
                     else:
-                        calculation.append({"electronic_steps": [d]})
+                        calculation.append({"electronic_steps": [e_steps_dict]})
             except AttributeError:  # not all calculations have an energy
                 pass
         calculation[-1].update(calculation[-1]["electronic_steps"][-1])
@@ -1320,8 +1320,8 @@ class Vasprun(MSONable):
         esteps = []
         for scstep in elem.findall("scstep"):
             try:
-                d = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
-                esteps.append(d)
+                e_step_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
+                esteps.append(e_step_dict)
             except AttributeError:  # not all calculations have an energy
                 pass
         try:
