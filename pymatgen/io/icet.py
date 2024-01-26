@@ -146,7 +146,10 @@ class IcetSQS:
                 iletter += 1
 
     def _get_cluster_space(self) -> ClusterSpace:
-        chemical_symbols = [list(self.composition[key]) for key in self.composition]
+        chemical_symbols = [
+            list(self._structure.sites[isite].species.as_dict())
+            for isite in range(self._structure.num_sites)
+        ]
         return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: ClusterSpace | None = None) -> float:

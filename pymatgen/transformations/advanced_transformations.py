@@ -2046,6 +2046,9 @@ class SQSTransformation(AbstractTransformation):
             )
 
         elif self.sqs_method.startswith("icet-"):
+
+            if not isinstance(self.scaling,int):
+                raise ValueError(f"icet can only scale the input cell by an integer factor, not {self.scaling}.")
             icet_defaults = {
                 "optimality_weight": self.wr,
                 "T_start": self.temperature,
