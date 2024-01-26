@@ -242,10 +242,6 @@ class TestVoronoiNN(PymatgenTest):
         all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
         assert [len(x) for x in all_nns] == [8] * 16
 
-    def tearDown(self):
-        del self.struct
-        del self.nn
-
 
 class TestJmolNN(PymatgenTest):
     def setUp(self):
@@ -561,12 +557,6 @@ class TestMotifIdentification(PymatgenTest):
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi")) == 4
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_OKeeffe")) == 4
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE")) == 4
-
-    def tearDown(self):
-        del self.silicon
-        del self.diamond
-        del self.nacl
-        del self.cscl
 
 
 class TestNearNeighbor(PymatgenTest):

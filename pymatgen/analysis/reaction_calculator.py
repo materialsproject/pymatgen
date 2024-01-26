@@ -367,16 +367,16 @@ class Reaction(BalancedReaction):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): from as_dict().
+            dct (dict): from as_dict().
 
         Returns:
-            A Reaction object.
+            Reaction
         """
-        reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
-        products = [Composition(sym_amt) for sym_amt in d["products"]]
+        reactants = [*map(Composition, dct["reactants"])]
+        products = [*map(Composition, dct["products"])]
         return cls(reactants, products)
 
 

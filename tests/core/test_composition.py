@@ -115,16 +115,16 @@ class TestComposition(PymatgenTest):
         assert comp["O"] == 4
 
     def test_hill_formula(self):
-        c = Composition("CaCO3")
-        assert c.hill_formula == "C Ca O3"
-        c = Composition("C2H5OH")
-        assert c.hill_formula == "C2 H6 O"
+        comp = Composition("CaCO3")
+        assert comp.hill_formula == "C Ca O3"
+        comp = Composition("C2H5OH")
+        assert comp.hill_formula == "C2 H6 O"
         # A test case with both C and H, but not one after another (mp-1228185)
-        c = Composition("Ga8 As16 H102 C32 S36 O3")
-        assert c.hill_formula == "C32 H102 As16 Ga8 O3 S36"
+        comp = Composition("Ga8 As16 H102 C32 S36 O3")
+        assert comp.hill_formula == "C32 H102 As16 Ga8 O3 S36"
         # A test case with H but no C
-        c = Composition("Ga8 As16 H102 S36 O3")
-        assert c.hill_formula == "As16 Ga8 H102 O3 S36"
+        comp = Composition("Ga8 As16 H102 S36 O3")
+        assert comp.hill_formula == "As16 Ga8 H102 O3 S36"
 
     def test_init(self):
         with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
@@ -138,8 +138,8 @@ class TestComposition(PymatgenTest):
         assert Composition({1: 2, 8: 1}).formula == "H2 O1"
         assert Composition(Na=2, O=1).formula == "Na2 O1"
 
-        c = Composition({"S": Composition.amount_tolerance / 2})
-        assert len(c.elements) == 0
+        comp = Composition({"S": Composition.amount_tolerance / 2})
+        assert len(comp.elements) == 0
 
     def test_str_and_repr(self):
         test_cases = [
@@ -255,17 +255,12 @@ class TestComposition(PymatgenTest):
             ["Co2 O3", "C1 O5"],
             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
-            [
-                "Li1 Co1 P2 N1 O10",
-                "Li1 Co1 Po8 N1 O2",
-                "Li1 P2 C1 N1 O11",
-                "Li1 Po8 C1 N1 O3",
-            ],
+            ["Li1 Co1 P2 N1 O10", "Li1 Co1 Po8 N1 O2", "Li1 P2 C1 N1 O11", "Li1 Po8 C1 N1 O3"],
             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6", "Po4 C2 O2"],
             [],
         ]
-        for i, c in enumerate(correct_formulas):
-            assert [Composition(comp) for comp in c] == self.indeterminate_comp[i]
+        for idx, formulas in enumerate(correct_formulas):
+            assert [*map(Composition, formulas)] == self.indeterminate_comp[idx]
 
     def test_alphabetical_formula(self):
         correct_formulas = [
@@ -838,5 +833,11 @@ class TestChemicalPotential(unittest.TestCase):
         assert fe_pot - o_pot == pots - o_pot - o_pot
 
     def test_square_brackets(self):
-        c = Composition("(NH4)2[FeCl5(H2O)]")
-        assert str(c) == "N2 H10 Fe1 Cl5 O1"
+        comp = Composition("(NH4)2[FeCl5(H2O)]")
+        assert str(comp) == "N2 H10 Fe1 Cl5 O1"
+        # test nested brackets
+        comp = Composition("[[[[Fe]]]]")
+        assert str(comp) == "Fe1"
+        # test nested brackets with charge
+        comp = Composition("[N[Fe]2]2")
+        assert str(comp) == "N2 Fe4"
