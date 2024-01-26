@@ -705,6 +705,24 @@ class TestVasprun(PymatgenTest):
         assert props[3][0]
         assert props[3][1]
 
+    def test_parse_potcar_cwd_relative(self):
+        # Test to ensure that common use cases of vasprun parsing work
+        # in the current working directory using relative paths,
+        # either when leading ./ is specified or not for vasprun.xml
+        copyfile(os.path.join(TEST_FILES_DIR, "vasprun.xml.Al"), "vasprun.xml")
+
+        potcar_path = os.path.join(TEST_FILES_DIR, "fake_potcars", "POTPAW_PBE_54", "POTCAR.Al.gz")
+        copyfile(potcar_path, "POTCAR.gz")
+
+        potcar = Potcar.from_file(potcar_path)
+        for leading_path in ("", "./"):
+            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml"), parse_potcar_file=True)
+            # Note that the TITEL is not updated in Vasprun.potcar_spec
+            # Since the fake POTCARs modify the TITEL (to indicate fakeness), can't compare
+            for ipot in range(len(potcar)):
+                assert vrun.potcar_spec[ipot]["hash"] == potcar[ipot].md5_header_hash
+                assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
+
 
 class TestOutcar(PymatgenTest):
     def test_init(self):
