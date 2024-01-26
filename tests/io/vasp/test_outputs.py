@@ -713,22 +713,24 @@ class TestVasprun(PymatgenTest):
     def test_kpoints_opt(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
+        kopt_props = vasp_run.kpoints_opt_properties
         # Check the k-points were read correctly.
         assert len(vasp_run.actual_kpoints) == 10
         assert len(vasp_run.actual_kpoints_weights) == 10
-        assert len(vasp_run.actual_kpoints_opt) == 100
-        assert len(vasp_run.actual_kpoints_weights_opt) == 100
+        assert len(kopt_props.actual_kpoints) == 100
+        assert len(kopt_props.actual_kpoints_weights) == 100
         # Check the eigenvalues were read correctly.
         assert vasp_run.eigenvalues[Spin.up].shape == (10, 24, 2)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up].shape == (100, 24, 2)
+        assert kopt_props.eigenvalues[Spin.up].shape == (100, 24, 2)
         assert vasp_run.eigenvalues[Spin.up][0, 0, 0] == approx(-6.1471)
-        assert vasp_run.eigenvalues_kpoints_opt[Spin.up][0, 0, 0] == approx(-6.1536)
+        assert kopt_props.eigenvalues[Spin.up][0, 0, 0] == approx(-6.1536)
         # Check the projected eigenvalues were read correctly
         assert vasp_run.projected_eigenvalues[Spin.up].shape == (10, 24, 8, 9)
-        assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up].shape == (100, 24, 8, 9)
+        assert kopt_props.projected_eigenvalues[Spin.up].shape == (100, 24, 8, 9)
         assert vasp_run.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0492)
-        assert vasp_run.projected_eigenvalues_kpoints_opt[Spin.up][0, 1, 0, 0] == approx(0.0000)
+        assert kopt_props.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
+        # No matter. The point of the parser is to read what's in the file.
         # Test as_dict
         vasp_run_dct = vasp_run.as_dict()
         assert vasp_run_dct["input"]["nkpoints_opt"] == 100

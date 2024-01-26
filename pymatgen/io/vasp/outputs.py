@@ -140,6 +140,50 @@ def _vasprun_float(flt: float | str) -> float:
         raise exc
 
 
+class _ElectronicPropertiesContainer(MSONable):
+    """
+    Simple container class for KPOINTS_OPT data in Vasprun.
+
+    tdos (Dos)
+    idos (Dos)
+    pdos (list)
+    efermi (float)
+    eigenvalues (dict)
+    projected_eigenvalues (dict)
+    projected_magnetisation (np.array)
+    kpoints (Kpoints)
+    actual_kpoints (list)
+    actual_kpoints_weights (list)
+    dos_has_errors (bool)
+    """
+
+    def __init__(
+        self,
+        tdos: Dos | None = None,
+        idos: Dos | None = None,
+        pdos: list | None = None,
+        efermi: float | None = None,
+        eigenvalues: dict | None = None,
+        projected_eigenvalues: dict | None = None,
+        projected_magnetisation: np.array | None = None,
+        kpoints: Kpoints | None = None,
+        actual_kpoints: list | None = None,
+        actual_kpoints_weights: list | None = None,
+        dos_has_errors: bool | None = None,
+    ) -> None:
+        self.tdos = tdos
+        self.idos = idos
+        self.pdos = pdos
+        self.efermi = efermi
+        self.eigenvalues = eigenvalues
+        self.projected_eigenvalues = projected_eigenvalues
+        self.projected_magnetisation = projected_magnetisation
+        self.kpoints = kpoints
+        self.actual_kpoints = actual_kpoints
+        self.actual_kpoints_weights = actual_kpoints_weights
+        self.dos_has_errors = None
+
+
 class Vasprun(MSONable):
     """
     Vastly improved cElementTree-based parser for vasprun.xml files. Uses
@@ -192,22 +236,10 @@ class Vasprun(MSONable):
             0.04166667, ....].
         atomic_symbols (list): List of atomic symbols, e.g., ["Li", "Fe", "Fe", "P", "P", "P"].
         potcar_symbols (list): List of POTCAR symbols. e.g., ["PAW_PBE Li 17Jan2003", "PAW_PBE Fe 06Sep2000", ..].
-        tdos_opt (Dos): Same as tdos but obtained from KPOINTS_OPT (if present, else None).
-        idos_opt (Dos): Same as idos but obtained from KPOINTS_OPT (if present, else None).
-        pdos_opt (list): List of list of PDos objects. As pdos but obtained from KPOINTS_OPT (if present,
-            else None).
-        efermi_opt (float): Same as efermi but obtained from DOS calculated by KPOINTS_OPT.
-        eigenvalues_kpoints_opt (dict): Same as eigenvalues but obtained from KPOINTS_OPT (if present,
-            else None).
-        projected_eigenvalues_kpoints_opt (dict): Same as projected_eigenvalues but obtained from
-            KPOINTS_OPT (if present, else None).
-        projected_magnetisation_kpoints_opt (np.array): Same as projected_magnetisation but obtained
-            from KPOINTS_OPT (if present, else None).
-        kpoints_opt (Kpoints): Same as kpoints but obtained from KPOINTS_OPT (if present, else None).
-        actual_kpoints_opt (list): Same as actual_kpoints but obtained from KPOINTS_OPT (if present,
-            else None).
-        actual_kpoints_weights_opt (list): Same as actual_kpoints_weights but obtained from KPOINTS_OPT (if
-            present, else None).
+        kpoints_opt_properties (object): Object whose attributes are the data from KPOINTS_OPT (if present,
+            else None). Attributes of the same name have the same format and meaning as Vasprun (or they are
+            None if absent). Attributes are: tdos, idos, pdos, efermi, eigenvalues, projected_eigenvalues,
+            projected magnetisation, kpoints, actual_kpoints, actual_kpoints_weights, dos_has_errors.
 
     Author: Shyue Ping Ong
     """
@@ -324,11 +356,7 @@ class Vasprun(MSONable):
         self.other_dielectric = {}
         self.incar = {}
         # Initialise kpoints_opt attributes
-        self.eigenvalues_kpoints_opt = self.projected_eigenvalues_kpoints_opt = None
-        self.projected_magnetisation_kpoints_opt = None
-        self.kpoints_opt = self.actual_kpoints_opt = self.actual_kpoints_weights_opt = None
-        self.tdos_opt = self.idos_opt = self.pdos_opt = None
-        self.efermi_opt = self.dos_has_errors_opt = None
+        self.kpoints_opt_properties = None
 
         ionic_steps = []
 
@@ -385,12 +413,18 @@ class Vasprun(MSONable):
                             ionic_steps.extend(self._parse_chemical_shielding_calculation(elem))
                     elif parse_dos and tag == "dos":
                         if elem.get("comment") == "kpoints_opt":
+                            if self.kpoints_opt_properties is None:
+                                self.kpoints_opt_properties = _ElectronicPropertiesContainer()
                             try:
-                                self.tdos_opt, self.idos_opt, self.pdos_opt = self._parse_dos(elem)
-                                self.efermi_opt = self.tdos_opt.efermi
-                                self.dos_has_errors_opt = False
+                                (
+                                    self.kpoints_opt_properties.tdos,
+                                    self.kpoints_opt_properties.idos,
+                                    self.kpoints_opt_properties.pdos,
+                                ) = self._parse_dos(elem)
+                                self.kpoints_opt_properties.efermi = self.kpoints_opt_properties.tdos.efermi
+                                self.kpoints_opt_properties.dos_has_errors = False
                             except Exception:
-                                self.dos_has_errors_opt = True
+                                self.kpoints_opt_properties.dos_has_errors = True
                         else:
                             try:
                                 self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -404,20 +438,22 @@ class Vasprun(MSONable):
                         self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                     elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
                         in_kpoints_opt = False
+                        if self.kpoints_opt_properties is None:
+                            self.kpoints_opt_properties = _ElectronicPropertiesContainer()
                         if parse_eigen:
                             # projected_kpoints_opt includes occupation information whereas
                             # eigenvalues_kpoints_opt doesn't.
-                            self.eigenvalues_kpoints_opt = self._parse_eigen(elem.find("eigenvalues"))
+                            self.kpoints_opt_properties.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))
                         if tag == "eigenvalues_kpoints_opt":
                             (
-                                self.kpoints_opt,
-                                self.actual_kpoints_opt,
-                                self.actual_kpoints_weights_opt,
+                                self.kpoints_opt_properties.kpoints,
+                                self.kpoints_opt_properties.actual_kpoints,
+                                self.kpoints_opt_properties.actual_kpoints_weights,
                             ) = self._parse_kpoints(elem.find("kpoints"))
                         elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
                             (
-                                self.projected_eigenvalues_kpoints_opt,
-                                self.projected_magnetisation_kpoints_opt,
+                                self.kpoints_opt_properties.projected_eigenvalues,
+                                self.kpoints_opt_properties.projected_magnetisation,
                             ) = self._parse_projected_eigen(elem)
                     elif tag == "dielectricfunction":
                         if (
@@ -868,16 +904,19 @@ class Vasprun(MSONable):
             functionals). The explicit KPOINTS file needs to have data on the
             kpoint label as commentary.
 
-            If VASP was rum with KPOINTS_OPT, it reads the data from that
+            If VASP was run with KPOINTS_OPT, it reads the data from that
             file unless told otherwise. This overrides hybrid mode.
         """
-        use_kpoints_opt = not ignore_kpoints_opt and (getattr(self, "actual_kpoints_opt", None) is not None)
+        use_kpoints_opt = not ignore_kpoints_opt and (getattr(self, "kpoints_opt_properties", None) is not None)
         if not kpoints_filename:
             kpts_path = os.path.join(os.path.dirname(self.filename), "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS")
             kpoints_filename = zpath(kpts_path)
         if kpoints_filename and not os.path.isfile(kpoints_filename) and line_mode is True:
-            raise VaspParseError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
+            name = "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS"
+            raise VaspParseError(f"{name} not found but needed to obtain band structure along symmetry lines.")
 
+        # Note that we're using the Fermi energy of the self-consistent grid
+        # run even if we're reading bands from KPOINTS_OPT.
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
         elif efermi is None:
@@ -891,7 +930,7 @@ class Vasprun(MSONable):
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
 
         if use_kpoints_opt:
-            kpoints = [np.array(kpt) for kpt in self.actual_kpoints_opt]
+            kpoints = [np.array(kpt) for kpt in self.kpoints_opt_properties.actual_kpoints]
         else:
             kpoints = [np.array(kpt) for kpt in self.actual_kpoints]
 
@@ -901,8 +940,8 @@ class Vasprun(MSONable):
         nkpts = len(kpoints)
 
         if use_kpoints_opt:
-            eig_vals = self.eigenvalues_kpoints_opt
-            projected_eig_vals = self.projected_eigenvalues_kpoints_opt
+            eig_vals = self.kpoints_opt_properties.eigenvalues
+            projected_eig_vals = self.kpoints_opt_properties.projected_eigenvalues
         else:
             eig_vals = self.eigenvalues
             projected_eig_vals = self.projected_eigenvalues
@@ -1204,14 +1243,14 @@ class Vasprun(MSONable):
         ]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["nkpoints"] = len(actual_kpts)
-        if actual_kpoints_opt := getattr(self, "actual_kpoints_opt", None):
-            vin["kpoints_opt"] = self.kpoints_opt.as_dict()
+        if kopt_props := getattr(self, "kpoints_opt_properties", None):
+            vin["kpoints_opt"] = kopt_props.kpoints.as_dict()
             actual_kpts = [
                 {
-                    "abc": list(actual_kpoints_opt[idx]),
-                    "weight": self.actual_kpoints_weights_opt[idx],
+                    "abc": list(kopt_props.actual_kpoints[idx]),
+                    "weight": kopt_props.actual_kpoints_weights[idx],
                 }
-                for idx in range(len(actual_kpoints_opt))
+                for idx in range(len(kopt_props.actual_kpoints))
             ]
             vin["kpoints_opt"]["actual_kpoints"] = actual_kpts
             vin["nkpoints_opt"] = len(actual_kpts)
@@ -1255,20 +1294,20 @@ class Vasprun(MSONable):
             if self.projected_magnetisation is not None:
                 vout["projected_magnetisation"] = self.projected_magnetisation.tolist()
 
-        if self.eigenvalues_kpoints_opt:
-            eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues_kpoints_opt.items()}
+        if kopt_props and kopt_props.eigenvalues:
+            eigen = {str(spin): v.tolist() for spin, v in kopt_props.eigenvalues.items()}
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO implement kpoints_opt eigenvalue_band_proprties.
             # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
-            if self.projected_eigenvalues_kpoints_opt:
+            if kopt_props.projected_eigenvalues:
                 vout["projected_eigenvalues_kpoints_opt"] = {
-                    str(spin): v.tolist() for spin, v in self.projected_eigenvalues_kpoints_opt.items()
+                    str(spin): v.tolist() for spin, v in kopt_props.projected_eigenvalues.items()
                 }
 
-            if self.projected_magnetisation_kpoints_opt is not None:
-                vout["projected_magnetisation_kpoints_opt"] = self.projected_magnetisation_kpoints_opt.tolist()
+            if kopt_props.projected_magnetisation is not None:
+                vout["projected_magnetisation_kpoints_opt"] = kopt_props.projected_magnetisation.tolist()
 
         vout["epsilon_static"] = self.epsilon_static
         vout["epsilon_static_wolfe"] = self.epsilon_static_wolfe
@@ -1585,9 +1624,7 @@ class BSVasprun(Vasprun):
             parsed_header = False
             in_kpoints_opt = False
             self.eigenvalues = self.projected_eigenvalues = None
-            self.efermi_opt = None
-            self.eigenvalues_kpoints_opt = None
-            self.projected_eigenvalues_kpoints_opt = None
+            self.kpoints_opt_properties = None
             for event, elem in ET.iterparse(file, events=["start", "end"]):
                 tag = elem.tag
                 if event == "start":
@@ -1620,7 +1657,9 @@ class BSVasprun(Vasprun):
                             parsed_header = True
                     elif tag == "i" and elem.attrib.get("name") == "efermi":
                         if in_kpoints_opt:
-                            self.efermi_opt = float(elem.text)
+                            if self.kpoints_opt_properties is None:
+                                self.kpoints_opt_properties = _ElectronicPropertiesContainer()
+                            self.kpoints_opt_properties.efermi = float(elem.text)
                             in_kpoints_opt = False
                         else:
                             self.efermi = float(elem.text)
@@ -1629,20 +1668,22 @@ class BSVasprun(Vasprun):
                     elif parse_projected_eigen and tag == "projected" and not in_kpoints_opt:
                         self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                     elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
+                        if self.kpoints_opt_properties is None:
+                            self.kpoints_opt_properties = _ElectronicPropertiesContainer()
                         in_kpoints_opt = False
                         # projected_kpoints_opt includes occupation information whereas
                         # eigenvalues_kpoints_opt doesn't.
-                        self.eigenvalues_kpoints_opt = self._parse_eigen(elem.find("eigenvalues"))
+                        self.kpoints_opt_properties.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))
                         if tag == "eigenvalues_kpoints_opt":
                             (
-                                self.kpoints_opt,
-                                self.actual_kpoints_opt,
-                                self.actual_kpoints_weights_opt,
+                                self.kpoints_opt_properties.kpoints,
+                                self.kpoints_opt_properties.actual_kpoints,
+                                self.kpoints_opt_properties.actual_kpoints_weights,
                             ) = self._parse_kpoints(elem.find("kpoints"))
                         elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
                             (
-                                self.projected_eigenvalues_kpoints_opt,
-                                self.projected_magnetisation_kpoints_opt,
+                                self.kpoints_opt_properties.projected_eigenvalues,
+                                self.kpoints_opt_properties.projected_magnetisation,
                             ) = self._parse_projected_eigen(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                         self.final_structure = self._parse_structure(elem)
@@ -1683,14 +1724,14 @@ class BSVasprun(Vasprun):
             for i in range(len(self.actual_kpoints))
         ]
         vin["kpoints"]["actual_points"] = actual_kpts
-        if hasattr(self, "actual_kpoints_opt") and self.actual_kpoints_opt:
-            vin["kpoints_opt"] = self.kpoints_opt.as_dict()
+        if kopt_props := getattr(self, "kpoints_opt_properties", None):
+            vin["kpoints_opt"] = kopt_props.kpoints.as_dict()
             actual_kpts = [
                 {
-                    "abc": list(self.actual_kpoints_opt[idx]),
-                    "weight": self.actual_kpoints_weights_opt[idx],
+                    "abc": list(kopt_props.actual_kpoints[idx]),
+                    "weight": kopt_props.actual_kpoints_weights[idx],
                 }
-                for idx in range(len(self.actual_kpoints_opt))
+                for idx in range(len(kopt_props.actual_kpoints))
             ]
             vin["kpoints_opt"]["actual_kpoints"] = actual_kpts
             vin["nkpoints_opt"] = len(actual_kpts)
@@ -1720,16 +1761,16 @@ class BSVasprun(Vasprun):
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen
 
-        if self.eigenvalues_kpoints_opt:
-            eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues_kpoints_opt.items()}
+        if kopt_props and kopt_props.eigenvalues:
+            eigen = {str(spin): v.tolist() for spin, v in kopt_props.eigenvalues.items()}
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO implement kpoints_opt eigenvalue_band_proprties.
             # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
-            if self.projected_eigenvalues_kpoints_opt:
+            if kopt_props.projected_eigenvalues:
                 vout["projected_eigenvalues_kpoints_opt"] = {
-                    str(spin): v.tolist() for spin, v in self.projected_eigenvalues_kpoints_opt.items()
+                    str(spin): v.tolist() for spin, v in kopt_props.projected_eigenvalues.items()
                 }
 
         dct["output"] = vout
