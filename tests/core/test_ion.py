@@ -23,12 +23,12 @@ class TestIon(unittest.TestCase):
         self.comp.append(Ion.from_formula("NaOH(aq)"))
 
     def test_init(self):
-        c = Composition({"Fe": 4, "O": 16, "P": 4})
+        comp = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
-        assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
-        f = {1: 1, 8: 1}
+        assert Ion(comp, charge).formula == "Fe4 P4 O16 +4"
+        formula_dict = {1: 1, 8: 1}
         charge = -1
-        assert Ion(Composition(f), charge).formula == "H1 O1 -1"
+        assert Ion(Composition(formula_dict), charge).formula == "H1 O1 -1"
         assert Ion(Composition(S=2, O=3), -2).formula == "S2 O3 -2"
 
     def test_charge_from_formula(self):

@@ -544,6 +544,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise ValueError(f"Invalid {formula=}")
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
+        # square brackets are used in formulas to denote coordination complexes (gh-3583)
         formula = formula.replace("[", "(")
         formula = formula.replace("]", ")")
 
