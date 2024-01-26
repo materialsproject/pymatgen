@@ -1925,11 +1925,17 @@ class TestMPAbsorptionSet(PymatgenTest):
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"
-        absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
+        absorption_ipa = MPAbsorptionSet.from_prev_calc(
+            prev_calc_dir=prev_run, user_incar_settings={"NEDOS": 3000}, copy_wavecar=True, mode="IPA"
+        )
         absorption_ipa.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
+        assert absorption_ipa.incar["ENCUT"] == 680
+        assert absorption_ipa.incar["NEDOS"] == 3000
         assert absorption_ipa.incar["NBANDS"] == 32
         assert absorption_ipa.incar["ALGO"] == "Exact"
+        assert absorption_ipa.incar["LREAL"] is False
+        assert absorption_ipa.incar["LWAVE"]
         assert absorption_ipa.incar["LOPTICS"]
 
         # test override_from_prev_calc
@@ -1937,19 +1943,31 @@ class TestMPAbsorptionSet(PymatgenTest):
         absorption_ipa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorption_ipa.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
+        assert absorption_ipa.incar["ENCUT"] == 680
+        assert absorption_ipa.incar["NEDOS"] == 2001
         assert absorption_ipa.incar["NBANDS"] == 32
         assert absorption_ipa.incar["ALGO"] == "Exact"
+        assert absorption_ipa.incar["LREAL"] is False
+        assert absorption_ipa.incar["LWAVE"]
         assert absorption_ipa.incar["LOPTICS"]
 
     def test_rpa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
-        absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
+        absorption_rpa = MPAbsorptionSet.from_prev_calc(
+            prev_run, user_incar_settings={"NEDOS": 3000}, copy_wavecar=True, mode="RPA"
+        )
         absorption_rpa.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
+        assert absorption_rpa.incar["ENCUT"] == 680
+        assert absorption_rpa.incar["NEDOS"] == 3000
         assert absorption_rpa.incar["NOMEGA"] == 1000
         assert absorption_rpa.incar["NBANDS"] == 48
+        assert absorption_rpa.incar["NKREDX"] == 13
         assert absorption_rpa.incar["ALGO"] == "Chi"
+        assert absorption_rpa.incar["LREAL"] is False
+        assert "LOPTICS" not in absorption_rpa.incar
+        assert "LWAVE" not in absorption_rpa.incar
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
@@ -1958,6 +1976,44 @@ class TestMPAbsorptionSet(PymatgenTest):
         absorption_rpa.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
+        assert absorption_rpa.incar["ENCUT"] == 680
+        assert absorption_rpa.incar["NEDOS"] == 2001
         assert absorption_rpa.incar["NOMEGA"] == 1000
         assert absorption_rpa.incar["NBANDS"] == 48
+        assert absorption_rpa.incar["NKREDX"] == 13
         assert absorption_rpa.incar["ALGO"] == "Chi"
+        assert absorption_rpa.incar["LREAL"] is False
+        assert "LOPTICS" not in absorption_rpa.incar
+        assert "LWAVE" not in absorption_rpa.incar
+
+    def test_kpoints(self):
+        # Check IPA kpoints
+        prev_run = f"{TEST_FILES_DIR}/absorption/static"
+        absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, mode="IPA")
+        kpoints1 = absorption_ipa.kpoints
+        assert kpoints1.kpts == [[13, 13, 13]]
+        assert kpoints1.style == Kpoints.supported_modes.Gamma
+        # Check RPA kpoints
+        prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
+        absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, mode="RPA")
+        kpoints2 = absorption_rpa.kpoints
+        assert kpoints2.kpts == [[13, 13, 13]]
+        assert kpoints2.style == Kpoints.supported_modes.Gamma
+
+    def test_as_from_dict(self):
+        # IPA_as_dict
+        prev_run = f"{TEST_FILES_DIR}/absorption/static"
+        absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, mode="IPA")
+        dct = absorption_ipa.as_dict()
+        vasp_input = dec.process_decoded(dct)
+        assert vasp_input.incar["ALGO"] == "Exact"
+        assert vasp_input.incar["LOPTICS"]
+        assert vasp_input.incar["GGA"] == "Ps"
+        # RPA_as_dict
+        prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
+        absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, mode="RPA")
+        dct = absorption_rpa.as_dict()
+        vasp_input = dec.process_decoded(dct)
+        assert vasp_input.incar["ALGO"] == "Chi"
+        assert vasp_input.incar["NBANDS"] == 48
+        assert vasp_input.incar["GGA"] == "Ps"
