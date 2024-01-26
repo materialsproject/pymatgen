@@ -327,10 +327,13 @@ class QCOutput(MSONable):
             temp_dict = read_pattern(
                 self.text,
                 {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
+            ) or read_pattern(  # support Q-Chem 6.1.1+ (gh-3580)
+                self.text,
+                {"final_energy": r"\s+Total energy\s+=\s+([\d\-\.]+)"},
             )
 
-            if temp_dict.get("final_energy") is not None:
-                self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
+            if e_final_match := temp_dict.get("final_energy"):
+                self.data["final_energy"] = float(e_final_match[-1][0])
 
         # Check if calculation is using dft_d and parse relevant info if so
         self.data["using_dft_d3"] = read_pattern(self.text, {"key": r"dft_d\s*= d3"}, terminate_on_match=True).get(
