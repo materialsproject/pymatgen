@@ -173,13 +173,8 @@ class XcFunc(MSONable):
         xc = LibxcFunc[name]
         return cls(xc=xc)
 
-    @classmethod
-    def from_dict(cls, d):
-        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
-        return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
-
     def as_dict(self):
-        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
+        """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             dct["x"] = self.x.as_dict()
@@ -188,6 +183,11 @@ class XcFunc(MSONable):
         if self.xc is not None:
             dct["xc"] = self.xc.as_dict()
         return dct
+
+    @classmethod
+    def from_dict(cls, dct):
+        """Deserialize from MSONable dict representation."""
+        return cls(xc=dct.get("xc"), x=dct.get("x"), c=dct.get("c"))
 
     def __init__(self, xc=None, x=None, c=None) -> None:
         """
