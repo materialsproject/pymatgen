@@ -2,7 +2,6 @@ numpy==1.25.2
 sympy==1.11.1
 requests==2.31.0
 monty==2024.1.26
->>>>>>> bee080171 (Fix monty version.)
 ruamel.yaml==0.17.32
 scipy==1.11.2
 tabulate==0.9.0
