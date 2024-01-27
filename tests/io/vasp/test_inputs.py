@@ -430,7 +430,8 @@ direct
 
     def test_invalid_selective_dynamics(self):
         """
-        The POSCAR string 'invalid_poscar_str' represents a case with incorrect
+        Check invalid selective dynamics info. The POSCAR string
+        'invalid_poscar_str' represents a case with incorrect
         placement of selective dynamics information (Comment like 'Si' should
         be followed by selective dynamics values 'T' or 'F').
         """
@@ -451,7 +452,8 @@ Cartesian
 
     def test_selective_dynamics_with_fluorine(self):
         """
-        TODO:
+        Check ambiguous selective dynamics info when Fluorine(F) is
+        included and position lines include comments.
         """
         poscar_str_with_fluorine = """Selective dynamics toggled with Fluorine
 1.1
@@ -467,7 +469,7 @@ Cartesian
 """
         with pytest.warns(
             BadPoscarWarning,
-            match="Selective dynamics with Fluorine. Make sure the 4th-6th entry is selective dynamics.",
+            match="Selective dynamics toggled with Fluorine element detected. Make sure the 4th-6th entry each position line is selective dynamics info.",
         ):
             Poscar.from_str(poscar_str_with_fluorine)
 
