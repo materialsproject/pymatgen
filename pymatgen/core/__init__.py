@@ -35,7 +35,7 @@ __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
 try:
-    __version__ = version("pymatgen")
+    __version__ = '2024.1.27'
 except PackageNotFoundError:  # pragma: no cover
     # package is not installed
     pass
