@@ -14,6 +14,7 @@ from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.io.icet import loaded_icet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -641,6 +642,22 @@ class TestSQSTransformation(PymatgenTest):
         struct_out_specie_strings = [site.species_string for site in struct_out]
         assert "Ti0+,spin=-5" in struct_out_specie_strings
         assert "Ti0+,spin=5" in struct_out_specie_strings
+
+
+@unittest.skipIf(not loaded_icet, "icet not installed.")
+class TestSQSTransformationIcet(PymatgenTest):
+    def test_enumeration(self):
+        output = loadfn(f"{TEST_FILES_DIR}/icet-sqs-Mg_75-Al_25-scaling_8.json.gz")
+        disordered = output["disordered_structure"]
+        sqs = SQSTransformation(
+            scaling=8,
+            sqs_method="icet-enumeration",
+            instances=2,
+            best_only=False,
+        )
+        sqs_structure = sqs.apply_transformation(disordered, return_ranked_list=1)
+        for key in ("structure", "objective_function"):
+            assert sqs_structure[0][key] == output[key]
 
 
 class TestCubicSupercellTransformation(PymatgenTest):

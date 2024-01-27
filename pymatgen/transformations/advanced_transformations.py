@@ -1920,10 +1920,15 @@ class SQSTransformation(AbstractTransformation):
             wn (float): Multiplicative decrease in weight per additional point in cluster (default: 1)
             wd (float): Exponent of decay in weight as function of cluster diameter (default: 0)
             tol (float): Tolerance for matching correlations (default: 1e-3)
+            icet_sqs_kwargs (dict) : If icet is used for the SQS search, kwargs to pass to
+                pymatgen.io.icet.IcetSQS
             best_only (bool): only return structures with lowest objective function
             remove_duplicate_structures (bool): only return unique structures
             reduction_algo (str): The lattice reduction algorithm to use.
                 One of "niggli" or "LLL". Passing False does not reduce structure.
+            sqs_method (str): One of "mcsqs" (MCSQS method from ATAT), "icet-enumeration"
+                (enumeration of all possible SQS structures of a given size with icet),
+                or "icet-monte_carlo" (Monte Carlo search with icet, similar to MCSQS).
         """
         self.scaling = scaling
         self.search_time = search_time
@@ -2046,8 +2051,7 @@ class SQSTransformation(AbstractTransformation):
             )
 
         elif self.sqs_method.startswith("icet-"):
-
-            if not isinstance(self.scaling,int):
+            if not isinstance(self.scaling, int):
                 raise ValueError(f"icet can only scale the input cell by an integer factor, not {self.scaling}.")
             icet_defaults = {
                 "optimality_weight": self.wr,

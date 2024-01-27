@@ -29,6 +29,8 @@ if TYPE_CHECKING:
 
 
 class IcetSQS:
+    """Interface to the icet library of SQS structure generation tools."""
+
     sqs_kwarg_names: dict[str, tuple[str, ...]] = {
         "monte_carlo": ("T_start", "T_stop", "n_steps", "optimality_weight", "random_seed", "tol"),
         "enumeration": ("include_smaller_cells", "pbc", "optimality_weight", "tol"),
@@ -45,17 +47,37 @@ class IcetSQS:
         self,
         structure: Structure,
         scaling: int,
-        instances: int,
-        sqs_method: str,
+        instances: int | None,
         cluster_cutoffs: dict[int, float],
+        sqs_method: str | None = None,
         sqs_kwargs: dict | None = None,
     ) -> None:
+        """
+        Instantiate an IcetSQS interface.
+
+        Args:
+            structure (pymatgen Structure) : disordered structure to compute SQS
+            scaling (int) : SQS supercell contains scaling * len(structure) sites
+            instances (int) : number of parallel SQS jobs to run
+            cluster_cutoffs (dict) : dict of cluster size (pairs, triplets, ...) and
+                the size of the cluster
+        Kwargs:
+            sqs_method (str or None) : if a str, one of ("enumeration", "monte_carlo")
+                If None, default to "enumeration" for a supercell of < 24 sites, and
+                "monte carlo" otherwise.
+            sqs_kwargs (dict) : kwargs to pass to the icet SQS generators.
+                See self.sqs_kwarg_names for possible options.
+
+        Returns:
+            None
+        """
+
         if not loaded_icet:
             raise PackageNotFoundError("IcetSQS requires the icet package. Use `pip install icet`.")
 
         self._structure = structure
         self.scaling = scaling
-        self.instances = instances
+        self.instances = instances or multiproc.cpu_count()
 
         self._get_site_composition()
 
@@ -112,6 +134,13 @@ class IcetSQS:
         )
 
     def run(self) -> Sqs:
+        """
+        Run the SQS search with icet.
+
+        Returns:
+            pymatgen Sqs object
+        """
+
         sqs_structures = self.sqs_getter()
         for ientry in range(len(sqs_structures)):
             sqs_structures[ientry]["structure"] = AseAtomsAdaptor.get_structure(sqs_structures[ientry]["structure"])
@@ -129,16 +158,17 @@ class IcetSQS:
         """
         Get Icet-format composition from structure.
 
-        Sublattice compositions are specified with new uppercase letters,
-        e.g., In_x Ga_1-x As becomes:
-        {
-            "A": {"In": x, "Ga": 1 - x},
-            "B": {"As": 1}
-        }
+        Returns:
+            Dict with sublattice compositions specified by uppercase letters,
+                e.g., In_x Ga_1-x As becomes:
+                {
+                    "A": {"In": x, "Ga": 1 - x},
+                    "B": {"As": 1}
+                }
         """
         uppercase_letters = list(ascii_uppercase)
         iletter = 0
-        self.composition = {}
+        self.composition: dict[str, dict] = {}
         for isite in range(len(self._structure)):
             site_comp = self._structure.sites[isite].species.as_dict()
             if site_comp not in self.composition.values():
@@ -146,13 +176,25 @@ class IcetSQS:
                 iletter += 1
 
     def _get_cluster_space(self) -> ClusterSpace:
+        """Generate the ClusterSpace object for icet."""
         chemical_symbols = [
-            list(self._structure.sites[isite].species.as_dict())
-            for isite in range(self._structure.num_sites)
+            list(self._structure.sites[isite].species.as_dict()) for isite in range(self._structure.num_sites)
         ]
         return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: ClusterSpace | None = None) -> float:
+        """
+        Get the SQS objective function.
+
+        Args:
+            material (ase Atoms or pymatgen Structure) : structure to
+                compute SQS objective function.
+        Kwargs:
+            cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
+
+        Returns:
+            float : the SQS objective function
+        """
         if isinstance(material, Structure):
             material = AseAtomsAdaptor.get_atoms(material)
 
@@ -166,53 +208,20 @@ class IcetSQS:
 
     def enumerate_sqs_structures(self, cluster_space: ClusterSpace | None = None) -> list:
         """
-        Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration.
+        Generate an SQS by enumeration of all possible arrangements.
 
-        Given a ``cluster_space``, generate a special quasirandom structure
-        (SQS), i.e., a structure that for a given supercell size provides
-        the best possible approximation to a random alloy [ZunWeiFer90]_.
+        Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration
+        to accommodate multiprocessing.
 
-        In the present case, this means that the generated structure will
-        have a cluster vector that as closely as possible matches the
-        cluster vector of an infintely large randomly occupied supercell.
-        Internally the function uses a simulated annealing algorithm and the
-        difference between two cluster vectors is calculated with the
-        measure suggested by A. van de Walle et al. in Calphad **42**, 13-18
-        (2013) [WalTiwJon13]_ (for more information, see
-        :class:`mchammer.calculators.TargetVectorCalculator`).
+        Kwargs:
+            cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
 
-        This functions generates SQS cells by exhaustive enumeration, which
-        means that the generated SQS cell is guaranteed to be optimal with
-        regard to the specified measure and cell size.
-
-        Parameters
-        ----------
-        cluster_space : ClusterSpace | None = None
-            a cluster space defining the lattice to be occupied
-        scaling
-            maximum supercell size
-        target_concentrations
-            concentration of each species in the target structure, per
-            sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
-            single sublattice Au-Pd structure, or
-            ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
-            for a system with two sublattices.
-            The symbols defining sublattices ('A', 'B' etc) can be
-            found by printing the `cluster_space`
-        include_smaller_cells
-            if True, search among all supercell sizes including
-            ``max_size``, else search only among those exactly matching
-            ``max_size``
-        pbc
-            Periodic boundary conditions for each direction, e.g.,
-            ``(True, True, False)``. The axes are defined by
-            the cell of ``cluster_space.primitive_structure``.
-            Default is periodic boundary in all directions.
-        optimality_weight
-            controls weighting :math:`L` of perfect correlations, see
-            :class:`mchammer.calculators.TargetVectorCalculator`
-        tol
-            Numerical tolerance
+        Returns:
+            list : a list of dicts of the form:
+                {
+                    "structure": < SQS structure >,
+                    "objective_function": < SQS objective function>
+                }
         """
 
         # Translate concentrations to the format required for concentration
@@ -236,7 +245,7 @@ class IcetSQS:
         # Check to be sure...
         c_sum = sum(c[0] for c in cr.values())
         if abs(c_sum - 1) >= self.sqs_kwargs["tol"]:
-            raise ValueError(f"This should never happen, but {abs(c_sum - 1)}")
+            raise ValueError(f"Site occupancies sum to {abs(c_sum - 1)} instead of 1!")
 
         sizes = list(range(1, self.scaling + 1)) if self.sqs_kwargs["include_smaller_cells"] else [self.scaling]
 
@@ -245,7 +254,7 @@ class IcetSQS:
         prim.set_pbc(self.sqs_kwargs["pbc"])
 
         structures = enumerate_structures(prim, sizes, cluster_space.chemical_symbols, concentration_restrictions=cr)
-        chunks = [[] for _ in range(self.instances)]
+        chunks: list[list[Atoms]] = [[] for _ in range(self.instances)]
         iproc = 0
         for structure in structures:
             chunks[iproc].append(structure)
@@ -271,7 +280,15 @@ class IcetSQS:
         return list(working_list)
 
     def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> None:
-        best_sqs = {"structure": None, "objective_function": 1.0e20}
+        """
+        Find best SQS structure from list of SQS structures.
+
+        Args:
+            structures (list of ase Atoms) : list of SQS structures
+            output_list (list of dicts) : shared list between
+                multiprocessing processes to store best SQS objects.
+        """
+        best_sqs: dict[str, Any] = {"structure": None, "objective_function": 1.0e20}
         cluster_space = self._get_cluster_space()
         for structure in structures:
             objective = self.get_icet_sqs_obj(structure, cluster_space=cluster_space)
@@ -280,10 +297,12 @@ class IcetSQS:
         output_list.append(best_sqs)
 
     def monte_carlo_sqs_structures(self) -> list:
+        """Run `self.instances` Monte Carlo SQS search with Icet."""
         with multiproc.Pool(self.instances) as pool:
             return pool.starmap(self._single_monte_carlo_sqs_run, [() for _ in range(self.instances)])
 
     def _single_monte_carlo_sqs_run(self):
+        """Run a single Monte Carlo SQS search with Icet."""
         cluster_space = self._get_cluster_space()
         sqs_structure = generate_sqs(
             cluster_space=cluster_space,
