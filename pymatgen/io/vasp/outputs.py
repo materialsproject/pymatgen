@@ -988,9 +988,8 @@ class Vasprun(MSONable):
         # it is actually a metal
         return self.efermi
 
-    def get_potcars(self, path: str | Path) -> Potcar | None:
-        """
-        Returns the POTCAR from the specified path.
+    def get_potcars(self, path: str | Path | bool) -> Potcar | None:
+        """Returns the POTCAR from the specified path.
 
         Args:
             path (str | Path | bool): If a str or Path, the path to search for POTCARs.
@@ -1007,14 +1006,11 @@ class Vasprun(MSONable):
             potcar_paths = [str(path)]
         else:
             # the abspath is needed here in cases where no leading directory is specified,
-            # e.g., Vasprun("vasprun.xml"). See issue #3586:
-            # https://github.com/materialsproject/pymatgen/issues/3586
+            # e.g., Vasprun("vasprun.xml"). see gh-3586:
             search_path = os.path.dirname(os.path.abspath(self.filename)) if path is True else str(path)
 
             potcar_paths = [
-                os.path.join(search_path, fn)
-                for fn in os.listdir(search_path)
-                if fn.startswith("POTCAR") and ".spec" not in fn
+                f"{search_path}/{fn}" for fn in os.listdir(search_path) if fn.startswith("POTCAR") and ".spec" not in fn
             ]
 
         for potcar_path in potcar_paths:

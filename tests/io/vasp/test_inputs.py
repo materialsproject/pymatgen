@@ -418,15 +418,13 @@ direct
         assert_allclose(poscar.structure.lattice.abc, poscar.structure.lattice.abc, 5)
 
     def test_selective_dynamics(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR.Fe3O4"
-
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        copyfile(filepath, "POSCAR")
-        copyfile(os.path.join(TEST_FILES_DIR, "fake_potcars", "POTCAR.gz"), "POTCAR.gz")
+        copyfile(f"{TEST_FILES_DIR}/POSCAR.Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{TEST_FILES_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
 
-        poscar = Poscar.from_file("POSCAR")
+        poscar = Poscar.from_file(tmp_poscar_path)
         structure = poscar.structure
 
         # Fix bottom half
@@ -1286,12 +1284,11 @@ class TestVaspInput(PymatgenTest):
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
         for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
-            copyfile(os.path.join(TEST_FILES_DIR, file), file.split(".")[0])
+            copyfile(f"{TEST_FILES_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
 
-        Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(os.path.join(self.tmp_path, "POTCAR"))
+        Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
 
-        contcar_file = os.path.join(TEST_FILES_DIR, "CONTCAR.Li2O")
-        copyfile(contcar_file, "CONTCAR.Li2O")
+        copyfile(f"{TEST_FILES_DIR}/CONTCAR.Li2O", f"{self.tmp_path}/CONTCAR.Li2O")
 
         vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR.Li2O": Poscar})
 

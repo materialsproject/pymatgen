@@ -709,10 +709,10 @@ class TestVasprun(PymatgenTest):
         # Test to ensure that common use cases of vasprun parsing work
         # in the current working directory using relative paths,
         # either when leading ./ is specified or not for vasprun.xml
-        # See issue #3586, https://github.com/materialsproject/pymatgen/issues/3586
-        copyfile(os.path.join(TEST_FILES_DIR, "vasprun.xml.Al"), "vasprun.xml")
+        # See gh-3586
+        copyfile(f"{TEST_FILES_DIR}/vasprun.xml.Al", "vasprun.xml")
 
-        potcar_path = os.path.join(TEST_FILES_DIR, "fake_potcars", "POTPAW_PBE_54", "POTCAR.Al.gz")
+        potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
         copyfile(potcar_path, "POTCAR.gz")
 
         potcar = Potcar.from_file(potcar_path)
