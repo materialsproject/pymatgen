@@ -50,10 +50,10 @@ class TestStructureMatcher(PymatgenTest):
         }
 
     def test_get_supercell_size(self):
-        latt = Lattice.cubic(1)
-        l2 = Lattice.cubic(0.9)
-        s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu", "Ag"], [[0] * 3] * 5)
-        s2 = Structure(l2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
+        latt1 = Lattice.cubic(1)
+        latt2 = Lattice.cubic(0.9)
+        s1 = Structure(latt1, ["Mg", "Cu", "Ag", "Cu", "Ag"], [[0] * 3] * 5)
+        s2 = Structure(latt2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
 
         sm = StructureMatcher(supercell_size="volume")
         assert sm._get_supercell_size(s1, s2) == (1, True)
@@ -342,9 +342,9 @@ class TestStructureMatcher(PymatgenTest):
             scale=False,
             comparator=FrameworkComparator(),
         )
-        d = sm.as_dict()
-        sm2 = StructureMatcher.from_dict(d)
-        assert sm2.as_dict() == d
+        dct = sm.as_dict()
+        sm2 = StructureMatcher.from_dict(dct)
+        assert sm2.as_dict() == dct
 
     def test_no_scaling(self):
         sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator())

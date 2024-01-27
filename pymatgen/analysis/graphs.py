@@ -1290,11 +1290,11 @@ class StructureGraph(MSONable):
         return out
 
     def __repr__(self):
-        s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure!r}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_str(self.graph)
-        return s
+        out = "Structure Graph"
+        out += f"\nStructure: \n{self.structure!r}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_str(self.graph)
+        return out
 
     def __len__(self):
         """length of Structure / number of nodes in graph"""

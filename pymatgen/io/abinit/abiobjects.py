@@ -605,16 +605,16 @@ class Electrons(AbivarAble, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Build object from dictionary."""
-        d = d.copy()
-        d.pop("@module", None)
-        d.pop("@class", None)
+        dct = dct.copy()
+        dct.pop("@module", None)
+        dct.pop("@class", None)
         dec = MontyDecoder()
-        d["spin_mode"] = dec.process_decoded(d["spin_mode"])
-        d["smearing"] = dec.process_decoded(d["smearing"])
-        d["algorithm"] = dec.process_decoded(d["algorithm"]) if d["algorithm"] else None
-        return cls(**d)
+        dct["spin_mode"] = dec.process_decoded(dct["spin_mode"])
+        dct["smearing"] = dec.process_decoded(dct["smearing"])
+        dct["algorithm"] = dec.process_decoded(dct["algorithm"]) if dct["algorithm"] else None
+        return cls(**dct)
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
