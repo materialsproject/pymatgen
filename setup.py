@@ -29,7 +29,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
-        "monty>=3.0.2",
+        "monty<=2024.1.26",  # https://github.com/materialsvirtuallab/monty/issues/610
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",
