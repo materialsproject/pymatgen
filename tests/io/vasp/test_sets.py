@@ -189,11 +189,14 @@ class TestMITMPRelaxSet(PymatgenTest):
         vis = MPRelaxSet()
         assert vis.as_dict()["structure"] is None
         assert vis.inherit_incar is False
-        with pytest.raises(RuntimeError, match="No structure is associated with the input set!"):
-            _ = vis.incar
-        vis.structure = self.structure
+        props_to_test = ["incar", "kpoints", "poscar"]
+        for prop in props_to_test:
+            with pytest.raises(RuntimeError, match="No structure is associated with the input set!"):
+                _ = getattr(vis, prop)
+        vis.get_input_set(structure=self.structure)
         assert vis.incar["LDAUU"] == [5.3, 0, 0]
         assert vis.as_dict()["structure"] is not None
+        assert "structure" not in vis.as_dict(verbosity=1)
 
     def test_metal_check(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
@@ -202,10 +205,19 @@ class TestMITMPRelaxSet(PymatgenTest):
             BadInputSetWarning,
             match="Relaxation of likely metal with ISMEAR < 1 detected. "
             "See VASP recommendations on ISMEAR for metals.",
-        ) as warns:
+        ) as warns_metal:
             vis = self.set(structure)
             _ = vis.incar
-        assert len(warns) == 1
+        with pytest.warns(
+            BadInputSetWarning,
+            match="Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
+            "generates an adequate number of KPOINTS, lower KSPACING, or "
+            "set ISMEAR = 0",
+        ) as warns_kspacing:
+            vis = self.set(structure, user_incar_settings={"KSPACING": 1, "ISMEAR": -5})
+            _ = vis.incar
+        assert len(warns_metal) == 1
+        assert len(warns_kspacing) == 3
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
@@ -413,7 +425,14 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert incar["LDAUL"] == [3.0, 0, 0]
         assert incar["LDAUU"] == [1.8, 0, 0]
 
-        # test that van-der-Waals parameters are parsed correctly
+        # test that van-der-Waals parametchers are parsed correctly
+        with pytest.raises(
+            KeyError,
+            match="Invalid or unsupported van-der-Waals functional."
+            "Supported functionals are dftd2, dftd3, dftd3-bj,"
+            "ts, ts-hirshfeld, mbd@rsc, ddsc, df, optpbe, optb88, optb86b, df2, rvv10.",
+        ):
+            self.set(struct, vdw="optB86")
         incar = self.set(struct, vdw="optB86b").incar
         assert incar["GGA"] == "Mk"
         assert incar["LUSE_VDW"]
@@ -1208,6 +1227,12 @@ class TestMITNEBSet(PymatgenTest):
         syms = self.vis.potcar_symbols
         assert syms == ["Si"]
 
+    def test_unset_encut(self):
+        vis = MITNEBSet(self.structures, unset_encut=True)
+        assert "ENCUT" not in vis.incar
+        with pytest.raises(ValueError, match="You need at least 3 structures for an NEB."):
+            _ = MITNEBSet(self.structures[:2], unset_encut=True)
+
     def test_incar(self):
         incar = self.vis.incar
         assert "LDAUU" not in incar
@@ -1359,6 +1384,7 @@ class TestMVLSlabSet(PymatgenTest):
         vis_dict = self.vis.as_dict()
         vis = self.set.from_dict(vis_dict)
         assert {*vis.as_dict()} == {*vis_dict}
+        assert "structure" not in self.vis.as_dict(verbosity=1)
 
 
 class TestMVLElasticSet(PymatgenTest):
@@ -1378,6 +1404,9 @@ class TestMVLGWSet(PymatgenTest):
         self.struct = PymatgenTest.get_structure("Li2O")
 
     def test_static(self):
+        assert self.set.mode == "STATIC"
+        with pytest.raises(ValueError, match=r"EVGW not one of the support modes : \('DIAG', 'GW', 'STATIC', 'BSE'\)"):
+            _ = self.set(mode="EVGW")
         mvlgwsc = self.set(self.struct)
         incar = mvlgwsc.incar
         assert incar["SIGMA"] == 0.01
@@ -1772,7 +1801,7 @@ class TestFunc(PymatgenTest):
     def test_batch_write_input(self):
         structs = list(map(PymatgenTest.get_structure, ["Li2O", "LiFePO4"]))
 
-        batch_write_input(structs)
+        batch_write_input(structs, sanitize=True)
         for d in ["Li4Fe4P4O16_1", "Li2O1_0"]:
             for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
                 assert os.path.isfile(os.path.join(d, f))
@@ -1923,6 +1952,9 @@ class TestMPAbsorptionSet(PymatgenTest):
     def setUp(self):
         file_path = f"{TEST_FILES_DIR}/absorption/static/POSCAR"
         self.structure = Structure.from_file(file_path)
+        self.set = MPAbsorptionSet
+        with pytest.raises(ValueError, match=r"STATIC not one of the support modes : \('IPA', 'RPA'\)"):
+            self.set = MPAbsorptionSet(self.structure, mode="STATIC")
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"
