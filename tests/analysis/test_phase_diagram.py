@@ -614,6 +614,7 @@ class TestPhaseDiagram(PymatgenTest):
         dumpfn(self.pd, f"{self.tmp_path}/pd.json")
         pd = loadfn(f"{self.tmp_path}/pd.json")
         assert isinstance(pd, PhaseDiagram)
+        assert pd.elements == self.pd.elements
         assert {*pd.as_dict()} == {*self.pd.as_dict()}
 
     def test_el_refs(self):
