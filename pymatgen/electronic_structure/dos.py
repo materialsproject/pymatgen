@@ -360,7 +360,7 @@ class Dos(MSONable):
         return Dos(
             d["efermi"],
             d["energies"],
-            {Spin(int(k)): v for k, v in d["densities"].items()},
+            {Spin.from_str(k): v for k, v in d["densities"].items()},
         )
 
     def as_dict(self) -> dict:
@@ -573,7 +573,7 @@ class FermiDos(Dos, MSONable):
         dos = Dos(
             d["efermi"],
             d["energies"],
-            {Spin(int(k)): v for k, v in d["densities"].items()},
+            {Spin.from_str(k): v for k, v in d["densities"].items()},
         )
         return FermiDos(dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"])
 
@@ -1258,7 +1258,7 @@ class CompleteDos(Dos):
             orb_dos = {}
             for orb_str, odos in d["pdos"][i].items():
                 orb = Orbital[orb_str]
-                orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
+                orb_dos[orb] = {Spin.from_str(k): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
         return CompleteDos(struct, tdos, pdoss)
 
@@ -1404,7 +1404,7 @@ class LobsterCompleteDos(CompleteDos):
             orb_dos = {}
             for orb_str, odos in d["pdos"][i].items():
                 orb = orb_str
-                orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
+                orb_dos[orb] = {Spin.from_str(k): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
         return LobsterCompleteDos(struct, tdos, pdoss)
 

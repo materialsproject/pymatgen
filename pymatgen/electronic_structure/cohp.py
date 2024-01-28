@@ -181,12 +181,12 @@ class Cohp(MSONable):
     @classmethod
     def from_dict(cls, dct):
         """Returns a COHP object from a dict representation of the COHP."""
-        icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
+        icohp = {Spin.from_str(key): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
         are_cobis = dct.get("are_cobis", False)
         return Cohp(
             dct["efermi"],
             dct["energies"],
-            {Spin(int(key)): np.array(val) for key, val in dct["COHP"].items()},
+            {Spin.from_str(key): np.array(val) for key, val in dct["COHP"].items()},
             icohp=icohp,
             are_coops=dct["are_coops"],
             are_cobis=are_cobis,
@@ -541,9 +541,9 @@ class CompleteCohp(Cohp):
         else:
             bonds = None
         for label in d["COHP"]:
-            cohp = {Spin(int(spin)): np.array(d["COHP"][label][spin]) for spin in d["COHP"][label]}
+            cohp = {Spin.from_str(spin): np.array(d["COHP"][label][spin]) for spin in d["COHP"][label]}
             try:
-                icohp = {Spin(int(spin)): np.array(d["ICOHP"][label][spin]) for spin in d["ICOHP"][label]}
+                icohp = {Spin.from_str(spin): np.array(d["ICOHP"][label][spin]) for spin in d["ICOHP"][label]}
             except KeyError:
                 icohp = None
             if label == "average":
@@ -557,12 +557,12 @@ class CompleteCohp(Cohp):
                 orb_cohp[label] = {}
                 for orb in d["orb_res_cohp"][label]:
                     cohp = {
-                        Spin(int(s)): np.array(d["orb_res_cohp"][label][orb]["COHP"][s], dtype=float)
+                        Spin.from_str(s): np.array(d["orb_res_cohp"][label][orb]["COHP"][s], dtype=float)
                         for s in d["orb_res_cohp"][label][orb]["COHP"]
                     }
                     try:
                         icohp = {
-                            Spin(int(s)): np.array(d["orb_res_cohp"][label][orb]["ICOHP"][s], dtype=float)
+                            Spin.from_str(s): np.array(d["orb_res_cohp"][label][orb]["ICOHP"][s], dtype=float)
                             for s in d["orb_res_cohp"][label][orb]["ICOHP"]
                         }
                     except KeyError:

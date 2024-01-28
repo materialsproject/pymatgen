@@ -598,9 +598,9 @@ class BandStructure:
         projections = {}
         structure = None
         if isinstance(next(iter(dct["bands"].values())), dict):
-            eigen_vals = {Spin(int(k)): np.array(dct["bands"][k]["data"]) for k in dct["bands"]}
+            eigen_vals = {Spin.from_str(key): np.array(dct["bands"][key]["data"]) for key in dct["bands"]}
         else:
-            eigen_vals = {Spin(int(k)): dct["bands"][k] for k in dct["bands"]}
+            eigen_vals = {Spin.from_str(key): dct["bands"][key] for key in dct["bands"]}
 
         if "structure" in dct:
             structure = Structure.from_dict(dct["structure"])
@@ -609,7 +609,7 @@ class BandStructure:
             if dct.get("projections"):
                 if isinstance(dct["projections"]["up"][0][0], dict):
                     raise ValueError("Old band structure dict format detected!")
-                projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}
+                projections = {Spin.from_str(spin): np.array(val) for spin, val in dct["projections"].items()}
 
             return cls(
                 dct["kpoints"],
@@ -658,11 +658,11 @@ class BandStructure:
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
-                projections[Spin(int(spin))] = np.array(dd)
+                projections[Spin.from_str(spin)] = np.array(dd)
 
         return BandStructure(
             dct["kpoints"],
-            {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
+            {Spin.from_str(k): dct["bands"][k] for k in dct["bands"]},
             Lattice(dct["lattice_rec"]["matrix"]),
             dct["efermi"],
             labels_dict,
@@ -941,11 +941,11 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 if isinstance(dct["projections"]["up"][0][0], dict):
                     raise ValueError("Old band structure dict format detected!")
                 structure = Structure.from_dict(dct["structure"])
-                projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}
+                projections = {Spin.from_str(spin): np.array(v) for spin, v in dct["projections"].items()}
 
             return LobsterBandStructureSymmLine(
                 dct["kpoints"],
-                {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
+                {Spin.from_str(k): dct["bands"][k] for k in dct["bands"]},
                 Lattice(dct["lattice_rec"]["matrix"]),
                 dct["efermi"],
                 labels_dict,
@@ -985,11 +985,11 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                     for j in range(len(dct["projections"][spin][i])):
                         ddd.append(dct["projections"][spin][i][j])
                     dd.append(np.array(ddd))
-                projections[Spin(int(spin))] = np.array(dd)
+                projections[Spin.from_str(spin)] = np.array(dd)
 
         return LobsterBandStructureSymmLine(
             dct["kpoints"],
-            {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
+            {Spin.from_str(k): dct["bands"][k] for k in dct["bands"]},
             Lattice(dct["lattice_rec"]["matrix"]),
             dct["efermi"],
             labels_dict,

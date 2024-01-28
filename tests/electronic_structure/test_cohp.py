@@ -898,9 +898,9 @@ class TestCompleteCohp(PymatgenTest):
         cohp_lmto_dict = self.cohp_lmto.as_dict()
         for key in ["COHP", "ICOHP"]:
             assert_allclose(
-                cohp_lmto_dict[key]["average"]["1"],
-                self.cohp_lmto_dict.as_dict()[key]["average"]["1"],
-                5,
+                cohp_lmto_dict[key]["average"]["up"],
+                self.cohp_lmto_dict.as_dict()[key]["average"]["up"],
+                atol=1e-5,
             )
         # for key in cohp_lmto_dict:
         #     if key not in ["COHP", "ICOHP"]:

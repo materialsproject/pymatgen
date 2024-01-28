@@ -1240,7 +1240,7 @@ class Cp2kOutput:
             else:
                 for k, v in _tdos.densities.copy().items():
                     if k not in tdos.densities:
-                        tdos.densities[Spin(int(k))] = [0] * len(v)
+                        tdos.densities[Spin.from_str(k)] = [0] * len(v)
                     tdos.densities[k] = np.array(tdos.densities[k]) + np.array(_tdos.densities[k])
 
         # parse any site-projected dos
