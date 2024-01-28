@@ -40,7 +40,6 @@ body:
     attributes:
       label: Current behavior
       description: What bad behavior do you see?
-      render: Python
     validations:
       required: true
 

@@ -747,22 +747,14 @@ class ElementBase(Enum):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
-    @staticmethod
-    def from_dict(d) -> Element:
-        """Makes Element obey the general json interface used in pymatgen for
-        easier serialization.
-        """
-        return Element(d["element"])
-
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
-        """Makes Element obey the general json interface used in pymatgen for
-        easier serialization.
-        """
-        return {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-            "element": self.symbol,
-        }
+        """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
+        return {"@module": type(self).__module__, "@class": type(self).__name__, "element": self.symbol}
+
+    @staticmethod
+    def from_dict(dct: dict) -> Element:
+        """Deserialize from MSONable dict representation."""
+        return Element(dct["element"])
 
     @staticmethod
     def print_periodic_table(filter_function: Callable | None = None) -> None:
