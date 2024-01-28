@@ -16,7 +16,7 @@ def test_relax_si(tmp_path):
         "species_dir": str(species_dir / "light"),
         "k_grid": [2, 2, 2],
     }
-    comp_system(Si, params, "relax-si/inputs", tmp_path, ref_path, RelaxSetGenerator)
+    comp_system(Si, params, "relax-si/", tmp_path, ref_path, RelaxSetGenerator)
 
 
 def test_relax_si_no_kgrid(tmp_path):
@@ -28,7 +28,7 @@ def test_relax_default_species_dir(tmp_path, monkeypatch):
     monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
     params = {"k_grid": [2, 2, 2]}
 
-    comp_system(Si, params, "relax-default-sd-si", tmp_path, ref_path, RelaxSetGenerator)
+    comp_system(Si, params, "relax-si", tmp_path, ref_path, RelaxSetGenerator)
 
 
 def test_relax_o2(tmp_path):
@@ -40,4 +40,4 @@ def test_relax_default_species_dir_o2(tmp_path, monkeypatch):
     monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
     params = {"k_grid": [2, 2, 2]}
 
-    comp_system(O2, params, "relax-default-sd-o2", tmp_path, ref_path, RelaxSetGenerator)
+    comp_system(O2, params, "relax-o2", tmp_path, ref_path, RelaxSetGenerator)

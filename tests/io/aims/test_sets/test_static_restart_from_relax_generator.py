@@ -35,7 +35,7 @@ ref_path = (module_dir / "aims_input_generator_ref").resolve()
 def test_static_from_relax_si(tmp_path):
     comp_system(
         Si,
-        f"{ref_path}/relax-si/outputs",
+        f"{ref_path}/relax-si/",
         "static-from-prev-si",
         tmp_path,
         ref_path,
@@ -59,8 +59,8 @@ def test_static_from_relax_default_species_dir(tmp_path, monkeypatch):
 
     comp_system(
         Si,
-        f"{ref_path}/relax-default-sd-si/",
-        "static-from-prev-default-sd-si",
+        f"{ref_path}/relax-si/",
+        "static-from-prev-si",
         tmp_path,
         ref_path,
         species_dir,
@@ -83,8 +83,8 @@ def test_static_from_relax_default_species_dir_o2(tmp_path, monkeypatch):
 
     comp_system(
         O2,
-        f"{ref_path}/relax-default-sd-o2/",
-        "static-from-prev-default-sd-o2",
+        f"{ref_path}/relax-o2/",
+        "static-from-prev-o2",
         tmp_path,
         ref_path,
         species_dir,

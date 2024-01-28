@@ -1,7 +1,0 @@
-{
-  "xc": "pbe",
-  "relativistic": "atomic_zora scalar",
-  "anacon_type": "two-pole",
-  "qpe_calc": "gw",
-  "species_dir": "/home/andrey/workspace/atomate2/tests/aims/species_dir/tight"
-}
