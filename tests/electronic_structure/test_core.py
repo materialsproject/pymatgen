@@ -14,15 +14,28 @@ class TestSpin(unittest.TestCase):
     def test_init(self):
         assert int(Spin.up) == 1
         assert int(Spin.down) == -1
+        assert Spin.up != Spin.down
+        assert Spin.up == Spin.up
+        assert Spin.down == Spin.down
 
     def test_from_int(self):
         assert Spin(1) == Spin.up
         assert Spin(-1) == Spin.down
-        with pytest.raises(ValueError, match="0 is not a valid Spin"):
-            Spin(0)
+        for bad_spin in (0, 2, -2, "foo"):
+            with pytest.raises(ValueError, match=f"{bad_spin!r} is not a valid Spin"):
+                Spin(bad_spin)
 
     def test_cached(self):
         assert id(Spin(1)) == id(Spin.up)
+        assert id(Spin(-1)) == id(Spin.down)
+
+    def test_str(self):
+        assert str(Spin.up) == "up"
+        assert str(Spin.down) == "down"
+
+    def test_repr(self):
+        assert repr(Spin.up) == "<Spin.up: 1>"
+        assert repr(Spin.down) == "<Spin.down: -1>"
 
 
 class TestOrbital(unittest.TestCase):
