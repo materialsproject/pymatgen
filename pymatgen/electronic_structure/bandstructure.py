@@ -598,22 +598,22 @@ class BandStructure:
         projections = {}
         structure = None
         if isinstance(next(iter(dct["bands"].values())), dict):
-            eigenvals = {Spin(int(k)): np.array(dct["bands"][k]["data"]) for k in dct["bands"]}
+            eigen_vals = {Spin(int(k)): np.array(dct["bands"][k]["data"]) for k in dct["bands"]}
         else:
-            eigenvals = {Spin(int(k)): dct["bands"][k] for k in dct["bands"]}
+            eigen_vals = {Spin(int(k)): dct["bands"][k] for k in dct["bands"]}
 
         if "structure" in dct:
             structure = Structure.from_dict(dct["structure"])
 
         try:
             if dct.get("projections"):
-                if isinstance(dct["projections"]["1"][0][0], dict):
+                if isinstance(dct["projections"]["up"][0][0], dict):
                     raise ValueError("Old band structure dict format detected!")
                 projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}
 
             return cls(
                 dct["kpoints"],
-                eigenvals,
+                eigen_vals,
                 Lattice(dct["lattice_rec"]["matrix"]),
                 dct["efermi"],
                 labels_dict,
@@ -623,10 +623,8 @@ class BandStructure:
 
         except Exception:
             warnings.warn(
-                "Trying from_dict failed. Now we are trying the old "
-                "format. Please convert your BS dicts to the new "
-                "format. The old format will be retired in pymatgen "
-                "5.0."
+                "Trying from_dict failed. Now we are trying the old format. Please convert your BS "
+                "dicts to the new format. The old format will be retired in pymatgen 5.0."
             )
             return cls.from_old_dict(dct)
 
@@ -940,7 +938,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             projections = {}
             structure = None
             if dct.get("projections"):
-                if isinstance(dct["projections"]["1"][0][0], dict):
+                if isinstance(dct["projections"]["up"][0][0], dict):
                     raise ValueError("Old band structure dict format detected!")
                 structure = Structure.from_dict(dct["structure"])
                 projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}

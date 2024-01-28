@@ -22,8 +22,8 @@ class TestBandStructureSC(PymatgenTest):
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for i in range(230):
-            sg_num = i + 1
+        for idx in range(230):
+            sg_num = idx + 1
             if sg_num in triclinic:
                 lattice = Lattice([[3.0233057319441246, 0, 0], [0, 7.9850357844548681, 0], [0, 0, 8.1136762279561818]])
             elif sg_num in monoclinic:
