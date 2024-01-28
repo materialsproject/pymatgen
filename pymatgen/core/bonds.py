@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 
 def _load_bond_length_data():
     """Loads bond length data from json file."""
-    with open(os.path.join(os.path.dirname(__file__), "bond_lengths.json")) as f:
+    with open(os.path.join(os.path.dirname(__file__), "bond_lengths.json")) as file:
         data = collections.defaultdict(dict)
-        for row in json.load(f):
+        for row in json.load(file):
             els = sorted(row["elements"])
             data[tuple(els)][row["bond_order"]] = row["length"]
         return data

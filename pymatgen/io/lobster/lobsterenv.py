@@ -982,11 +982,9 @@ class LobsterNeighbors(NearNeighbors):
 
             elif additional_condition == 3:
                 # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-                if (
-                    (val1 < 0.0 < val2)
-                    or (val2 < 0.0 < val1)
-                    and icohp._atom1.rstrip("0123456789") != icohp._atom2.rstrip("0123456789")
-                ):
+                if ((val1 < 0.0 < val2) or (val2 < 0.0 < val1)) and icohp._atom1.rstrip(
+                    "0123456789"
+                ) != icohp._atom2.rstrip("0123456789"):
                     if atomnr1 == isite:
                         neighbors_from_ICOHPs.append(atomnr2)
                         lengths_from_ICOHPs.append(icohp._length)
@@ -1178,11 +1176,9 @@ class LobsterNeighbors(NearNeighbors):
                 val1 = self.valences[atomnr1]
                 val2 = self.valences[atomnr2]
 
-                if (
-                    (val1 < 0.0 < val2)
-                    or (val2 < 0.0 < val1)
-                    and value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789")
-                ):
+                if ((val1 < 0.0 < val2) or (val2 < 0.0 < val1)) and value._atom1.rstrip(
+                    "0123456789"
+                ) != value._atom2.rstrip("0123456789"):
                     list_icohps.append(value.summed_icohp)
 
             extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)

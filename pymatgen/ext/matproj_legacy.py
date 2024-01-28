@@ -1508,7 +1508,7 @@ class _MPResterLegacy:
             metadata info, e.g. the task/external_ids that belong to a directory
         """
         # task_id's correspond to NoMaD external_id's
-        task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
+        task_types = [typ.value for typ in (task_types or []) if isinstance(typ, TaskType)]
 
         meta = {}
         for doc in self.query({"task_id": {"$in": material_ids}}, ["task_id", "blessed_tasks"]):
@@ -1534,7 +1534,7 @@ class _MPResterLegacy:
                 prefix += f"{file_pattern=}&"
         prefix += "external_id="
 
-        task_ids = [t["task_id"] for tl in meta.values() for t in tl]
+        task_ids = [task["task_id"] for task_list in meta.values() for task in task_list]
         nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
         if len(nomad_exist_task_ids) != len(task_ids):
             self._print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types)
@@ -1633,12 +1633,12 @@ class _MPResterLegacy:
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
             for f in itertools.product(*parts):
-                c = Composition("".join(f))
-                if len(c) == n_elements:
+                comp = Composition("".join(f))
+                if len(comp) == n_elements:
                     # Check for valid Elements in keys.
-                    for e in c:
-                        Element(e.symbol)
-                    all_formulas.add(c.reduced_formula)
+                    for elem in comp:
+                        Element(elem.symbol)
+                    all_formulas.add(comp.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(tokens) == 1:

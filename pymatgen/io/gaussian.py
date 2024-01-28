@@ -360,8 +360,8 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, mode="r") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="r") as file:
+            return cls.from_str(file.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
@@ -1107,42 +1107,42 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, mode="r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
 
             while line != "":
                 if optscan_patt.match(line):
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     endScan = False
                     while not endScan:
                         data["energies"] += list(map(float, float_patt.findall(line)))
-                        line = f.readline()
+                        line = file.readline()
                         while coord_patt.match(line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
                                 data["coords"][icname] += list(map(float, float_patt.findall(line)))
                             else:
                                 data["coords"][icname] = list(map(float, float_patt.findall(line)))
-                            line = f.readline()
+                            line = file.readline()
                         if not re.search(r"^\s+((\s*\d+)+)", line):
                             endScan = True
                         else:
-                            line = f.readline()
+                            line = file.readline()
 
                 elif scan_patt.match(line):
-                    line = f.readline()
+                    line = file.readline()
                     data["coords"] = {icname: [] for icname in line.split()[1:-1]}
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     while not re.search(r"^\s-+", line):
                         values = list(map(float, line.split()))
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
                             data["coords"][icname].append(values[i + 1])
-                        line = f.readline()
+                        line = file.readline()
                 else:
-                    line = f.readline()
+                    line = file.readline()
 
         return data
 
@@ -1196,8 +1196,8 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, mode="r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
             td = False
             while line != "":
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
@@ -1206,7 +1206,7 @@ class GaussianOutput:
                 if td and re.search(r"^\sExcited State\s*\d", line):
                     val = [float(v) for v in float_patt.findall(line)]
                     transitions.append(tuple(val[0:3]))
-                line = f.readline()
+                line = file.readline()
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):

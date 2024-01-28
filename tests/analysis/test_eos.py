@@ -436,10 +436,9 @@ class TestEOS(PymatgenTest):
         assert_allclose(self.num_eos_fit.func(0.0), self.num_eos_fit(0.0))
 
     def test_summary_dict(self):
-        d = {
+        assert self.num_eos_fit.results == {
             "e0": self.num_eos_fit.e0,
             "b0": self.num_eos_fit.b0,
             "b1": self.num_eos_fit.b1,
             "v0": self.num_eos_fit.v0,
         }
-        assert self.num_eos_fit.results == d

@@ -68,7 +68,7 @@ class ValenceIonicRadiusEvaluator:
     def __init__(self, structure: Structure) -> None:
         """
         Args:
-            structure: pymatgen.core.structure.Structure.
+            structure: pymatgen Structure.
         """
         self._structure = structure.copy()
         self._valences = self._get_valences()
@@ -1211,9 +1211,9 @@ class JmolNN(NearNeighbors):
 
         # Load elemental radii table
         bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
-        with open(bonds_file) as f:
+        with open(bonds_file) as file:
             yaml = YAML()
-            self.el_radius = yaml.load(f)
+            self.el_radius = yaml.load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -2279,19 +2279,19 @@ class LocalStructOrderParams:
                 pruned using the get_nn method from the
                 VoronoiNN class.
         """
-        for t in types:
-            if t not in LocalStructOrderParams.__supported_types:
-                raise ValueError("Unknown order parameter type (" + t + ")!")
+        for typ in types:
+            if typ not in LocalStructOrderParams.__supported_types:
+                raise ValueError(f"Unknown order parameter type ({typ})!")
         self._types = tuple(types)
 
         self._comp_azi = False
         self._params = []
-        for i, t in enumerate(self._types):
-            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None else None
-            if parameters is None or parameters[i] is None:
-                self._params.append(d)
+        for idx, typ in enumerate(self._types):
+            dct = deepcopy(default_op_params[typ]) if default_op_params[typ] is not None else None
+            if parameters is None or parameters[idx] is None:
+                self._params.append(dct)
             else:
-                self._params.append(deepcopy(parameters[i]))
+                self._params.append(deepcopy(parameters[idx]))
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -3923,20 +3923,20 @@ class CrystalNN(NearNeighbors):
             for entry in nn:
                 r2 = _get_radius(entry["site"])
                 if r1 > 0 and r2 > 0:
-                    d = r1 + r2
+                    diameter = r1 + r2
                 else:
                     warnings.warn(
                         "CrystalNN: cannot locate an appropriate radius, "
                         "covalent or atomic radii will be used, this can lead "
                         "to non-optimal results."
                     )
-                    d = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
+                    diameter = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
 
                 dist = np.linalg.norm(structure[n].coords - entry["site"].coords)
                 dist_weight: float = 0
 
-                cutoff_low = d + self.distance_cutoffs[0]
-                cutoff_high = d + self.distance_cutoffs[1]
+                cutoff_low = diameter + self.distance_cutoffs[0]
+                cutoff_high = diameter + self.distance_cutoffs[1]
 
                 if dist <= cutoff_low:
                     dist_weight = 1

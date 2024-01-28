@@ -804,7 +804,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return dct
 
     def __setitem__(self, key, value):
-        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
+        if (
+            key in _TOLVARS_SCF
+            and hasattr(self, "_vars")
+            and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
+        ):
             logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
@@ -854,18 +858,18 @@ class BasicAbinitInput(AbstractInput, MSONable):
             vname = name + post
             app(str(InputVariable(vname, value)))
 
-        s = "\n".join(lines)
+        out = "\n".join(lines)
         if not with_pseudos:
-            return s
+            return out
 
         # Add JSON section with pseudo potentials.
         ppinfo = ["\n\n\n#<JSON>"]
-        d = {"pseudos": [p.as_dict() for p in self.pseudos]}
-        ppinfo.extend(json.dumps(d, indent=4).splitlines())
+        psp_dict = {"pseudos": [p.as_dict() for p in self.pseudos]}
+        ppinfo.extend(json.dumps(psp_dict, indent=4).splitlines())
         ppinfo.append("</JSON>")
 
-        s += "\n#".join(ppinfo)
-        return s
+        out += "\n#".join(ppinfo)
+        return out
 
     @property
     def comment(self):

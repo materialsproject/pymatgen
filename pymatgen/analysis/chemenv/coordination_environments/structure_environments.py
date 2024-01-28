@@ -1763,10 +1763,8 @@ class LightStructureEnvironments(MSONable):
         oxi_state = specie.oxi_state
         for isite, site in enumerate(self.structure):
             if (
-                element in [sp.symbol for sp in site.species]
-                and self.valences == "undefined"
-                or oxi_state == self.valences[isite]
-            ):
+                element in [sp.symbol for sp in site.species] and self.valences == "undefined"
+            ) or oxi_state == self.valences[isite]:
                 if self.coordination_environments[isite] is None:
                     continue
                 for ce_dict in self.coordination_environments[isite]:

@@ -7,7 +7,6 @@ from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy
 from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -37,8 +36,8 @@ rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
-            self.dos = CompleteDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+            self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
     def test_add_dos_dict(self):
@@ -68,8 +67,8 @@ class TestDosPlotter(PymatgenTest):
         # reproduces the same energy and DOS axis limits
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as f:
-            limits_results = json.load(f)
+        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as file:
+            limits_results = json.load(file)
 
         for item in limits_results:
             ax = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
@@ -88,20 +87,20 @@ class TestDosPlotter(PymatgenTest):
 
 class TestBSPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.bs = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.sbs_sc = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.sbs_met = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])
         assert len(self.plotter_multi._bs) == 2, "wrong number of band objects"
@@ -124,9 +123,9 @@ class TestBSPlotter(PymatgenTest):
 
     def test_interpolate_bands(self):
         data = self.plotter.bs_plot_data()
-        d = data["distances"]
+        dct = data["distances"]
         en = data["energy"]["1"]
-        int_distances, int_energies = self.plotter._interpolate_bands(d, en)
+        int_distances, int_energies = self.plotter._interpolate_bands(dct, en)
 
         assert len(int_distances) == 10, "wrong length of distances list"
         assert len(int_distances[0]) == 100, "wrong length of distances in a branch"
@@ -213,24 +212,24 @@ class TestBSDOSPlotter(unittest.TestCase):
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
-            band_struct_dict = json.load(f)
+        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as file:
+            band_struct_dict = json.load(file)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
-        d = band_struct_dict["projections"]["1"]
-        for i in range(len(d)):
-            for j in range(len(d[i])):
-                for k in range(len(d[i][j])):
-                    for m in range(len(d[i][j][k])):
-                        d[i][j][k][m] = 0
+        dct = band_struct_dict["projections"]["1"]
+        for i in range(len(dct)):
+            for j in range(len(dct[i])):
+                for k in range(len(dct[i][j])):
+                    for m in range(len(dct[i][j][k])):
+                        dct[i][j][k][m] = 0
                         # d[i][j][k][m] = np.random.rand()
                     # generate random number for two atoms
                     a = np.random.randint(0, 7)
                     b = np.random.randint(0, 7)
                     # c = np.random.randint(0,7)
-                    d[i][j][k][a] = np.random.rand()
-                    d[i][j][k][b] = np.random.rand()
+                    dct[i][j][k][a] = np.random.rand()
+                    dct[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
         ax = plotter.get_plot(band_struct)
@@ -269,13 +268,15 @@ class TestPlotBZ(unittest.TestCase):
         )
 
     def test_fold_point(self):
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.0, -0.5, 0.5], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.0, 0.5, 0.5]),
+            atol=1e-8,
         )
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2]),
+            atol=1e-8,
         )
 
 

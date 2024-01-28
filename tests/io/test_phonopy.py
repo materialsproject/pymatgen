@@ -37,12 +37,12 @@ except ImportError as exc:
     print(exc)
     Phonopy = None
 
-test_dir = f"{TEST_FILES_DIR}/phonopy"
+TEST_DIR = f"{TEST_FILES_DIR}/phonopy"
 
 
 class TestPhonopyParser(PymatgenTest):
     def test_get_ph_bs(self):
-        ph_bs = get_ph_bs_symm_line(f"{test_dir}/NaCl_band.yaml", has_nac=True)
+        ph_bs = get_ph_bs_symm_line(f"{TEST_DIR}/NaCl_band.yaml", has_nac=True)
 
         assert ph_bs.bands[1][10] == approx(0.7753555184)
         assert ph_bs.bands[5][100] == approx(5.2548379776)
@@ -71,7 +71,7 @@ class TestPhonopyParser(PymatgenTest):
         assert ph_bs.get_nac_eigendisplacements_along_dir([1, 0, 1]) is None
 
     def test_get_ph_dos(self):
-        dos = get_ph_dos(f"{test_dir}/NaCl_total_dos.dat")
+        dos = get_ph_dos(f"{TEST_DIR}/NaCl_total_dos.dat")
 
         assert dos.densities[15] == approx(0.0001665998)
         assert dos.frequencies[20] == approx(0.0894965119)
@@ -81,8 +81,8 @@ class TestPhonopyParser(PymatgenTest):
 
     def test_get_complete_dos(self):
         cdos = get_complete_ph_dos(
-            f"{test_dir}/NaCl_partial_dos.dat",
-            f"{test_dir}/NaCl_phonopy.yaml",
+            f"{TEST_DIR}/NaCl_partial_dos.dat",
+            f"{TEST_DIR}/NaCl_phonopy.yaml",
         )
         site_Na = cdos.structure[0]
         site_Cl = cdos.structure[1]
@@ -125,7 +125,7 @@ class TestStructureConversion(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
-        pmg_s = Structure.from_file(f"{test_dir}/POSCAR-unitcell", primitive=False)
+        pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
@@ -157,7 +157,7 @@ class TestGetDisplacedStructures(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestPhonopyFromForceConstants(unittest.TestCase):
     def setUp(self) -> None:
-        test_path = Path(test_dir)
+        test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"
         fc_file = test_path / "FORCE_CONSTANTS"
 

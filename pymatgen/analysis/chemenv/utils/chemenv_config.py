@@ -165,8 +165,8 @@ class ChemEnvConfig:
             root_dir = f"{home}/.chemenv"
         config_file = f"{root_dir}/config.json"
         try:
-            with open(config_file) as f:
-                config_dict = json.load(f)
+            with open(config_file) as file:
+                config_dict = json.load(file)
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
         except OSError:

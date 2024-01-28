@@ -217,7 +217,7 @@ class TestInterfaceReaction(unittest.TestCase):
 
     def test_get_get_elmt_amt_in_rxt(self):
         rxt1 = Reaction(
-            [Composition("Mn"), Composition("O2"), Composition("Li")],
+            [*map(Composition, ["Mn", "O2", "Li"])],
             [Composition("LiMnO2")],
         )
         test1 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt1), 3)

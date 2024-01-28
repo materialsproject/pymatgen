@@ -491,12 +491,12 @@ loop_
         # test angle tolerance.
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=0)
-        d = next(iter(writer.cif_file.data.values()))
-        assert d["_symmetry_Int_Tables_number"] == 14
+        dct = next(iter(writer.cif_file.data.values()))
+        assert dct["_symmetry_Int_Tables_number"] == 14
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=2)
-        d = next(iter(writer.cif_file.data.values()))
-        assert d["_symmetry_Int_Tables_number"] == 62
+        dct = next(iter(writer.cif_file.data.values()))
+        assert dct["_symmetry_Int_Tables_number"] == 62
 
     def test_disordered(self):
         si = Element("Si")
@@ -874,8 +874,8 @@ Si1 Si 0 0 0 1 0.0
 
     def test_missing_elements(self):
         cif_str = ""
-        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as f:
-            for line in f:
+        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as file:
+            for line in file:
                 if "_chemical_formula_sum" in line:
                     # remove this line
                     continue
@@ -892,8 +892,8 @@ Si1 Si 0 0 0 1 0.0
 
     def test_incorrect_stoichiometry(self):
         cif_str = ""
-        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as f:
-            for line in f:
+        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as file:
+            for line in file:
                 if "_chemical_formula_sum" in line:
                     line = line.replace("F6", "F5")
                 cif_str += line

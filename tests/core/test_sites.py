@@ -121,7 +121,7 @@ class TestPeriodicSite(PymatgenTest):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         distance, image = self.site.distance_and_image(other_site)
         assert distance == approx(6.22494979899)
-        assert ([-1, -1, -1] == image).all()
+        assert (image == [-1, -1, -1]).all()
         distance, image = self.site.distance_and_image(other_site, [1, 0, 0])
         assert distance == approx(19.461500456028563)
         # Test that old and new distance algo give the same ans for

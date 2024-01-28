@@ -36,8 +36,8 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/fermi/")
 
         with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
-            d = json.load(file)
-            cls.bs = BandStructure.from_dict(d)
+            dct = json.load(file)
+            cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 
     def test_properties(self):

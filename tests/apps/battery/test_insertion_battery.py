@@ -16,8 +16,8 @@ class TestInsertionElectrode(unittest.TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as f:
-            self.entries_LTO = json.load(f, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as file:
+            self.entries_LTO = json.load(file, cls=MontyDecoder)
 
         with open(f"{TEST_FILES_DIR}/MgVO_batt.json") as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
@@ -25,8 +25,8 @@ class TestInsertionElectrode(unittest.TestCase):
         with open(f"{TEST_FILES_DIR}/Mg_batt.json") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/CaMoO2_batt.json") as f:
-            self.entries_CMO = json.load(f, cls=MontyDecoder)
+        with open(f"{TEST_FILES_DIR}/CaMoO2_batt.json") as file:
+            self.entries_CMO = json.load(file, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)
         self.ie_MVO = InsertionElectrode.from_entries(self.entries_MVO, self.entry_Mg)
@@ -80,8 +80,8 @@ class TestInsertionElectrode(unittest.TestCase):
         self.ie_LTO.get_all_entries()
 
     def test_as_from_dict(self):
-        d = self.ie_LTO.as_dict()
-        ie = InsertionElectrode.from_dict(d)
+        dct = self.ie_LTO.as_dict()
+        ie = InsertionElectrode.from_dict(dct)
         assert ie.max_voltage == approx(2.78583901)
         assert ie.min_voltage == approx(0.89702381)
         assert ie.get_average_voltage() == approx(1.84143141)
@@ -112,14 +112,14 @@ class TestInsertionElectrode(unittest.TestCase):
         assert vv.voltage == approx(2.78583901)
 
     def test_get_summary_dict(self):
-        d = self.ie_CMO.get_summary_dict()
-        assert d["stability_charge"] == approx(0.2346574583333325)
-        assert d["stability_discharge"] == approx(0.33379544031249786)
-        assert d["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
+        dct = self.ie_CMO.get_summary_dict()
+        assert dct["stability_charge"] == approx(0.2346574583333325)
+        assert dct["stability_discharge"] == approx(0.33379544031249786)
+        assert dct["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
 
-        assert d["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
-        assert d["framework_formula"] == "MoO2"
-        assert d["adj_pairs"][1]["framework_formula"] == "MoO2"
+        assert dct["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
+        assert dct["framework_formula"] == "MoO2"
+        assert dct["adj_pairs"][1]["framework_formula"] == "MoO2"
 
     def test_init_no_structure(self):
         def remove_structure(entries):

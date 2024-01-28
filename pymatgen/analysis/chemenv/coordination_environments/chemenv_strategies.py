@@ -1062,7 +1062,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         :param max_csm:
         :param symmetry_measure_type:
         """
-        super.__init__(
+        super().__init__(
             self,
             structure_environments,
             additional_condition=additional_condition,

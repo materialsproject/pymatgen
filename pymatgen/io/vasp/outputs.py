@@ -262,10 +262,10 @@ class Vasprun(MSONable):
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
 
-        with zopen(filename, mode="rt") as f:
+        with zopen(filename, mode="rt") as file:
             if ionic_step_skip or ionic_step_offset:
                 # remove parts of the xml file and parse the string
-                run = f.read()
+                run = file.read()
                 steps = run.split("<calculation>")
                 # The text before the first <calculation> is the preamble!
                 preamble = steps.pop(0)
@@ -285,7 +285,7 @@ class Vasprun(MSONable):
                 )
             else:
                 self._parse(
-                    f,
+                    file,
                     parse_dos=parse_dos,
                     parse_eigen=parse_eigen,
                     parse_projected_eigen=parse_projected_eigen,
@@ -402,8 +402,8 @@ class Vasprun(MSONable):
                     elif tag == "varray" and elem.attrib.get("name") == "stress":
                         md_data[-1]["stress"] = _parse_vasp_array(elem)
                     elif tag == "energy":
-                        d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
-                        if "kinetic" in d:
+                        e_dict = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
+                        if "kinetic" in e_dict:
                             md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
         except ET.ParseError as exc:
             if self.exception_on_bad_xml:
@@ -1296,17 +1296,17 @@ class Vasprun(MSONable):
         calculation.append(istep)
         for scstep in elem.findall("scstep"):
             try:
-                d = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
-                cur_ene = d["e_fr_energy"]
+                e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
+                cur_ene = e_steps_dict["e_fr_energy"]
                 min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
                 if len(calculation[-1]["electronic_steps"]) <= min_steps:
-                    calculation[-1]["electronic_steps"].append(d)
+                    calculation[-1]["electronic_steps"].append(e_steps_dict)
                 else:
                     last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]
                     if abs(cur_ene - last_ene) < 1.0:
-                        calculation[-1]["electronic_steps"].append(d)
+                        calculation[-1]["electronic_steps"].append(e_steps_dict)
                     else:
-                        calculation.append({"electronic_steps": [d]})
+                        calculation.append({"electronic_steps": [e_steps_dict]})
             except AttributeError:  # not all calculations have an energy
                 pass
         calculation[-1].update(calculation[-1]["electronic_steps"][-1])
@@ -1320,8 +1320,8 @@ class Vasprun(MSONable):
         esteps = []
         for scstep in elem.findall("scstep"):
             try:
-                d = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
-                esteps.append(d)
+                e_step_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
+                esteps.append(e_step_dict)
             except AttributeError:  # not all calculations have an energy
                 pass
         try:
@@ -1471,11 +1471,11 @@ class BSVasprun(Vasprun):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
 
-        with zopen(filename, mode="rt") as f:
+        with zopen(filename, mode="rt") as file:
             self.efermi = None
             parsed_header = False
             self.eigenvalues = self.projected_eigenvalues = None
-            for _, elem in ET.iterparse(f):
+            for _, elem in ET.iterparse(file):
                 tag = elem.tag
                 if not parsed_header:
                     if tag == "generator":
@@ -1777,8 +1777,8 @@ class Outcar:
 
         # data from beginning of OUTCAR
         run_stats["cores"] = None
-        with zopen(filename, mode="rt") as f:
-            for line in f:
+        with zopen(filename, mode="rt") as file:
+            for line in file:
                 if "serial" in line:
                     # activate the serial parallelization
                     run_stats["cores"] = 1
@@ -1931,7 +1931,7 @@ class Outcar:
                 self.read_pattern({key: rf"{key}\s+=\s+([\d\-\.]+)"})
             if not self.data[key]:
                 continue
-            final_energy_contribs[key] = sum(float(f) for f in self.data[key][-1])
+            final_energy_contribs[key] = sum(map(float, self.data[key][-1]))
         self.final_energy_contribs = final_energy_contribs
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
@@ -2017,8 +2017,8 @@ class Outcar:
         if last_one_only and first_one_only:
             raise ValueError("last_one_only and first_one_only options are incompatible")
 
-        with zopen(self.filename, mode="rt") as f:
-            text = f.read()
+        with zopen(self.filename, mode="rt") as file:
+            text = file.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
         table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
@@ -2053,7 +2053,7 @@ class Outcar:
 
         pattern = {"radii": r"the test charge radii are((?:\s+[\.\-\d]+)+)"}
         self.read_pattern(pattern, reverse=True, terminate_on_match=True, postprocess=str)
-        self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
+        self.sampling_radii = [*map(float, self.data["radii"][0][0].split())]
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
@@ -2064,7 +2064,7 @@ class Outcar:
 
         pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pots)
 
-        self.electrostatic_potential = [float(f) for f in pots]
+        self.electrostatic_potential = [*map(float, pots)]
 
     @staticmethod
     def _parse_sci_notation(line):
@@ -2234,8 +2234,8 @@ class Outcar:
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
-        with zopen(self.filename, mode="rt") as f:
-            text = f.read()
+        with zopen(self.filename, mode="rt") as file:
+            text = file.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + r"(?P<table_body>.+)" + unsym_footer_pattern
         table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
@@ -3272,8 +3272,8 @@ class VolumetricData(BaseVolumetricData):
         ngrid_pts = 0
         data_count = 0
         poscar = None
-        with zopen(filename, mode="rt") as f:
-            for line in f:
+        with zopen(filename, mode="rt") as file:
+            for line in file:
                 original_line = line
                 line = line.strip()
                 if read_dataset:
@@ -3961,8 +3961,8 @@ class Xdatcar:
             raise Exception("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
-        with zopen(filename, mode="rt") as f:
-            for line in f:
+        with zopen(filename, mode="rt") as file:
+            for line in file:
                 line = line.strip()
                 if preamble is None:
                     preamble = [line]
@@ -4046,8 +4046,8 @@ class Xdatcar:
             **kwargs: Supported kwargs are the same as those for the
                 Xdatcar.get_str method and are passed through directly.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(self.get_str(**kwargs))
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(**kwargs))
 
     def __str__(self):
         return self.get_str()
@@ -4072,8 +4072,8 @@ class Dynmat:
         Args:
             filename: Name of file containing DYNMAT.
         """
-        with zopen(filename, mode="rt") as f:
-            lines = list(clean_lines(f.readlines()))
+        with zopen(filename, mode="rt") as file:
+            lines = list(clean_lines(file.readlines()))
             self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
             self._masses = map(float, lines[1].split())
             self.data = defaultdict(dict)
@@ -4244,9 +4244,9 @@ class Wavecar:
         # c = 0.26246582250210965422
         # 2m/hbar^2 in agreement with VASP
         self._C = 0.262465831
-        with open(self.filename, "rb") as f:
+        with open(self.filename, "rb") as file:
             # read the header information
-            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(int)
+            recl, spin, rtag = np.fromfile(file, dtype=np.float64, count=3).astype(int)
             if verbose:
                 print(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
@@ -4263,13 +4263,13 @@ class Wavecar:
                 raise ValueError(f"Invalid {rtag=}, must be one of {valid_rtags}")
 
             # padding to end of fortran REC=1
-            np.fromfile(f, dtype=np.float64, count=recl8 - 3)
+            np.fromfile(file, dtype=np.float64, count=recl8 - 3)
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb = np.fromfile(f, dtype=np.float64, count=2).astype(int)
-            self.encut = np.fromfile(f, dtype=np.float64, count=1)[0]
-            self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
-            self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
+            self.nk, self.nb = np.fromfile(file, dtype=np.float64, count=2).astype(int)
+            self.encut = np.fromfile(file, dtype=np.float64, count=1)[0]
+            self.a = np.fromfile(file, dtype=np.float64, count=9).reshape((3, 3))
+            self.efermi = np.fromfile(file, dtype=np.float64, count=1)[0]
             if verbose:
                 print(
                     f"kpoints = {self.nk}, bands = {self.nb}, energy cutoff = {self.encut}, fermi "
@@ -4302,7 +4302,7 @@ class Wavecar:
             self.ng = self._nbmax * 3 if precision.lower()[0] == "n" else self._nbmax * 4
 
             # padding to end of fortran REC=2
-            np.fromfile(f, dtype=np.float64, count=recl8 - 13)
+            np.fromfile(file, dtype=np.float64, count=recl8 - 13)
 
             # reading records
             self.Gpoints = [None for _ in range(self.nk)]
@@ -4320,8 +4320,8 @@ class Wavecar:
 
                 for ink in range(self.nk):
                     # information for this kpoint
-                    nplane = int(np.fromfile(f, dtype=np.float64, count=1)[0])
-                    kpoint = np.fromfile(f, dtype=np.float64, count=3)
+                    nplane = int(np.fromfile(file, dtype=np.float64, count=1)[0])
+                    kpoint = np.fromfile(file, dtype=np.float64, count=3)
 
                     if ispin == 0:
                         self.kpoints.append(kpoint)
@@ -4332,7 +4332,7 @@ class Wavecar:
                         print(f"kpoint {ink: 4} with {nplane: 5} plane waves at {kpoint}")
 
                     # energy and occupation information
-                    enocc = np.fromfile(f, dtype=np.float64, count=3 * self.nb).reshape((self.nb, 3))
+                    enocc = np.fromfile(file, dtype=np.float64, count=3 * self.nb).reshape((self.nb, 3))
                     if spin == 2:
                         self.band_energy[ispin].append(enocc)
                     else:
@@ -4342,7 +4342,7 @@ class Wavecar:
                         print("enocc =\n", enocc[:, [0, 2]])
 
                     # padding to end of record that contains nplane, kpoints, evals and occs
-                    np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
+                    np.fromfile(file, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
                     if self.vasp_type is None:
                         self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)
@@ -4372,13 +4372,13 @@ class Wavecar:
                     # extract coefficients
                     for inb in range(self.nb):
                         if rtag in (45200, 53300):
-                            data = np.fromfile(f, dtype=np.complex64, count=nplane)
-                            np.fromfile(f, dtype=np.float64, count=recl8 - nplane)
+                            data = np.fromfile(file, dtype=np.complex64, count=nplane)
+                            np.fromfile(file, dtype=np.float64, count=recl8 - nplane)
                         elif rtag in (45210, 53310):
                             # this should handle double precision coefficients
                             # but I don't have a WAVECAR to test it with
-                            data = np.fromfile(f, dtype=np.complex128, count=nplane)
-                            np.fromfile(f, dtype=np.float64, count=recl8 - 2 * nplane)
+                            data = np.fromfile(file, dtype=np.complex128, count=nplane)
+                            np.fromfile(file, dtype=np.float64, count=recl8 - 2 * nplane)
 
                         extra_coeffs = []
                         if len(extra_coeff_inds) > 0:
@@ -4722,14 +4722,14 @@ class Eigenval:
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
 
-        with zopen(filename, mode="r") as f:
-            self.ispin = int(f.readline().split()[-1])
+        with zopen(filename, mode="r") as file:
+            self.ispin = int(file.readline().split()[-1])
 
             # useless header information
             for _ in range(4):
-                f.readline()
+                file.readline()
 
-            self.nelect, self.nkpt, self.nbands = list(map(int, f.readline().split()))
+            self.nelect, self.nkpt, self.nbands = list(map(int, file.readline().split()))
 
             self.kpoints = []
             self.kpoints_weights = []
@@ -4742,14 +4742,14 @@ class Eigenval:
                 self.eigenvalues = {Spin.up: np.zeros((self.nkpt, self.nbands, 2))}
 
             ikpt = -1
-            for line in f:
+            for line in file:
                 if re.search(r"(\s+[\-+0-9eE.]+){4}", str(line)):
                     ikpt += 1
                     kpt = list(map(float, line.split()))
                     self.kpoints.append(kpt[:-1])
                     self.kpoints_weights.append(kpt[-1])
                     for i in range(self.nbands):
-                        sl = list(map(float, f.readline().split()))
+                        sl = list(map(float, file.readline().split()))
                         if len(sl) == 3:
                             self.eigenvalues[Spin.up][ikpt, i, 0] = sl[1]
                             self.eigenvalues[Spin.up][ikpt, i, 1] = sl[2]
@@ -4855,8 +4855,8 @@ class Waveder(MSONable):
         Returns:
             A Waveder object.
         """
-        with zopen(filename, mode="rt") as f:
-            nspin, nkpts, nbands = f.readline().split()
+        with zopen(filename, mode="rt") as file:
+            nspin, nkpts, nbands = file.readline().split()
         # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
         # 6:12 are the complex matrix elements in each cartesian direction.
         data = np.loadtxt(filename, skiprows=1, usecols=(1, 4, 6, 7, 8, 9, 10, 11))
@@ -4882,15 +4882,15 @@ class Waveder(MSONable):
         Returns:
             Waveder object.
         """
-        with open(filename, "rb") as fp:
+        with open(filename, "rb") as file:
 
             def read_data(dtype):
                 """Read records from Fortran binary file and convert to np.array of given dtype."""
                 data = b""
                 while True:
-                    prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
-                    data += fp.read(abs(prefix))
-                    suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    prefix = np.fromfile(file, dtype=np.int32, count=1)[0]
+                    data += file.read(abs(prefix))
+                    suffix = np.fromfile(file, dtype=np.int32, count=1)[0]
                     if abs(prefix) - abs(suffix):
                         raise RuntimeError(
                             f"Read wrong amount of bytes.\nExpected: {prefix}, read: {len(data)}, suffix: {suffix}."

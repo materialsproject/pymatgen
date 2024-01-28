@@ -59,8 +59,8 @@ class QCOutput(MSONable):
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
-        with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
-            self.text = f.read()
+        with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
+            self.text = file.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.data["multiple_outputs"] = read_pattern(
@@ -327,10 +327,13 @@ class QCOutput(MSONable):
             temp_dict = read_pattern(
                 self.text,
                 {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
+            ) or read_pattern(  # support Q-Chem 6.1.1+ (gh-3580)
+                self.text,
+                {"final_energy": r"\s+Total energy\s+=\s+([\d\-\.]+)"},
             )
 
-            if temp_dict.get("final_energy") is not None:
-                self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
+            if e_final_match := temp_dict.get("final_energy"):
+                self.data["final_energy"] = float(e_final_match[-1][0])
 
         # Check if calculation is using dft_d and parse relevant info if so
         self.data["using_dft_d3"] = read_pattern(self.text, {"key": r"dft_d\s*= d3"}, terminate_on_match=True).get(
@@ -632,8 +635,8 @@ class QCOutput(MSONable):
         2.) Creates separate QCCalcs for each one from the sub-files.
         """
         to_return = []
-        with zopen(filename, mode="rt") as f:
-            text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", f.read())
+        with zopen(filename, mode="rt") as file:
+            text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", file.read())
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
@@ -2850,8 +2853,8 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
         RuntimeError
     """
     # Open the lines
-    with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
-        lines = f.readlines()
+    with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
+        lines = file.readlines()
 
     # Compile the dataframes
     dfs = {}

@@ -93,8 +93,7 @@ class SpectrumPlotter:
         """
         ax = pretty_plot(12, 8)
         base = 0.0
-        idx = 0
-        for key, sp in self._spectra.items():
+        for idx, (key, sp) in enumerate(self._spectra.items()):
             if not self.stack:
                 ax.plot(
                     sp.x,
@@ -115,7 +114,6 @@ class SpectrumPlotter:
                 base = sp.y + base
             ax.set_xlabel(sp.XLABEL)
             ax.set_ylabel(sp.YLABEL)
-            idx += 1
 
         if xlim:
             ax.set_xlim(xlim)

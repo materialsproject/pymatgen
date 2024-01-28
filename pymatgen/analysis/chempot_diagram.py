@@ -548,12 +548,11 @@ class ChemicalPotentialDiagram(MSONable):
         el_refs = {}
         min_entries = []
 
-        for c, g in groupby(entries, key=lambda e: e.composition.reduced_formula):
-            c = Composition(c)
-            group = list(g)
+        for formula, group in groupby(entries, key=lambda e: e.composition.reduced_formula):
+            comp = Composition(formula)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
+            if comp.is_element:
+                el_refs[comp.elements[0]] = min_entry
             min_entries.append(min_entry)
 
         return min_entries, el_refs

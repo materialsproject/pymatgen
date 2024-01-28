@@ -131,8 +131,8 @@ class StandardTransmuter:
         Args:
             transformations: Sequence of Transformations
         """
-        for t in transformations:
-            self.append_transformation(t)
+        for trafo in transformations:
+            self.append_transformation(trafo)
 
     def apply_filter(self, structure_filter):
         """Applies a structure_filter to the list of TransformedStructures
@@ -268,8 +268,8 @@ class CifTransmuter(StandardTransmuter):
             extend_collection: Same meaning as in __init__.
         """
         cif_files = []
-        for fname in filenames:
-            with open(fname) as file:
+        for filename in filenames:
+            with open(filename) as file:
                 cif_files.append(file.read())
         return cls(
             "\n".join(cif_files),

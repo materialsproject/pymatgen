@@ -172,11 +172,11 @@ class AimsGeometryIn(MSONable):
             raise ValueError(f"geometry.in file exists in {directory}")
 
         with open(f"{directory}/geometry.in", mode="w") as file:
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")
             file.write(f"# {time.asctime()}\n")
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(self.content)
             file.write("\n")
 
@@ -306,14 +306,13 @@ class AimsCube(MSONable):
             ValueError: If any of the inputs is invalid
         """
         split_type = self.type.split()
+        cube_type = split_type[0]
         if split_type[0] in ALLOWED_AIMS_CUBE_TYPES:
             if len(split_type) > 1:
-                msg = f"Cube of type {split_type[0]} can not have a state associated with it"
-                raise ValueError(msg)
+                raise ValueError(f"{cube_type=} can not have a state associated with it")
         elif split_type[0] in ALLOWED_AIMS_CUBE_TYPES_STATE:
             if len(split_type) != 2:
-                msg = f"Cube of type {split_type[0]} must have a state associated with it"
-                raise ValueError(msg)
+                raise ValueError(f"{cube_type=} must have a state associated with it")
         else:
             raise ValueError("Cube type undefined")
 
@@ -469,18 +468,18 @@ class AimsControlIn(MSONable):
         if "output" not in self._parameters:
             self._parameters["output"] = []
 
-    def get_aims_control_parameter_str(self, key: str, value: Any, format: str) -> str:
+    def get_aims_control_parameter_str(self, key: str, value: Any, fmt: str) -> str:
         """Get the string needed to add a parameter to the control.in file
 
         Args:
-            key(str): The name of the input flag
-            value(Any): The value to be set for the flag
-            format(str): The format string to apply to the value
+            key (str): The name of the input flag
+            value (Any): The value to be set for the flag
+            fmt (str): The format string to apply to the value
 
         Returns:
             The line to add to the control.in file
         """
-        return f"{key:35s}" + (format % value) + "\n"
+        return f"{key:35s}{fmt % value}\n"
 
     def get_content(
         self, structure: Structure | Molecule, verbose_header: bool = False, directory: str | Path | None = None
@@ -503,12 +502,6 @@ class AimsControlIn(MSONable):
 
         lim = "#" + "=" * 79
         content = ""
-
-        content += "#" + "=" * 72 + "\n"
-        content += f"# FHI-aims geometry file: {directory}/control.in\n"
-        content += "# File generated from pymatgen\n"
-        content += f"# {time.asctime()}\n"
-        content += "#" + "=" * 72 + "\n"
 
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
@@ -597,6 +590,12 @@ class AimsControlIn(MSONable):
         content = self.get_content(structure, verbose_header)
 
         with open(f"{directory}/control.in", mode="w") as file:
+            file.write(f"#{'=' * 72}\n")
+            file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
+            file.write("# File generated from pymatgen\n")
+            file.write(f"# {time.asctime()}\n")
+            file.write(f"#{'=' * 72}\n")
+
             file.write(content)
 
     def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:

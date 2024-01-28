@@ -45,9 +45,9 @@ class TestKpoint(unittest.TestCase):
         assert self.kpoint.as_dict()["ccoords"] == [1.0, 4.0, -5.0]
 
     def test_from_dict(self):
-        d = self.kpoint.as_dict()
+        dct = self.kpoint.as_dict()
 
-        kpoint = Kpoint.from_dict(d)
+        kpoint = Kpoint.from_dict(dct)
 
         assert list(kpoint.frac_coords) == [0.1, 0.4, -0.5]
         assert kpoint.a == 0.1
@@ -268,14 +268,14 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
             f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
-        ) as f:
-            bs_spin_dict = json.load(f)
+        ) as file:
+            bs_spin_dict = json.load(file)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
             f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
-        ) as f:
-            bs_dict = json.load(f)
+        ) as file:
+            bs_dict = json.load(file)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
 
     def test_basic(self):
