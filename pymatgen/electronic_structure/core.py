@@ -29,6 +29,14 @@ class Spin(Enum):
     def __str__(self) -> str:
         return str(self.name)
 
+    @classmethod
+    def from_str(cls, val: str) -> Spin:
+        """Returns Spin from dict representation."""
+        value = {"spin.up": 1, "up": 1, "spin.down": -1, "down": -1}.get(val.lower(), val)
+        if value not in (1, -1, "1", "-1"):
+            raise ValueError(f"Invalid Spin {value=}")
+        return Spin(int(value))
+
 
 @unique
 class OrbitalType(Enum):

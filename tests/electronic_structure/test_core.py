@@ -18,9 +18,13 @@ class TestSpin(unittest.TestCase):
         assert Spin.up == Spin.up
         assert Spin.down == Spin.down
 
-    def test_from_int(self):
+    def test_to_from_int(self):
         assert Spin(1) == Spin.up
         assert Spin(-1) == Spin.down
+
+        assert int(Spin.up) == 1
+        assert int(Spin.down) == -1
+
         for bad_spin in (0, 2, -2, "foo"):
             with pytest.raises(ValueError, match=f"{bad_spin!r} is not a valid Spin"):
                 Spin(bad_spin)
@@ -29,7 +33,14 @@ class TestSpin(unittest.TestCase):
         assert id(Spin(1)) == id(Spin.up)
         assert id(Spin(-1)) == id(Spin.down)
 
-    def test_str(self):
+    def test_to_from_str(self):
+        assert Spin.from_str("up") == Spin.up
+        assert Spin.from_str("spin.up") == Spin.up
+        assert Spin.from_str("1") == Spin.up
+        assert Spin.from_str("down") == Spin.down
+        assert Spin.from_str("spin.down") == Spin.down
+        assert Spin.from_str("-1") == Spin.down
+
         assert str(Spin.up) == "up"
         assert str(Spin.down) == "down"
 
