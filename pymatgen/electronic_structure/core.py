@@ -27,7 +27,7 @@ class Spin(Enum):
         return float(self.value)
 
     def __str__(self) -> str:
-        return str(self.value)
+        return str(self.name)
 
 
 @unique
