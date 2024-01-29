@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from helpers.aims import Si, comp_system
-
 from pymatgen.io.aims.sets.bs import BandStructureSetGenerator
+from pymatgen.util.testing.aims import Si, comp_system
 
 module_dir = Path(__file__).resolve().parents[1]
 species_dir = module_dir / "species_directory"
@@ -24,9 +23,7 @@ def test_si_bs_output(tmp_path):
     parameters = {
         "species_dir": str(species_dir / "light"),
         "k_grid": [8, 8, 8],
-        "output": [
-            "json_log",
-        ],
+        "output": ["json_log"],
     }
     comp_system(Si, parameters, "static-si-bs-output", tmp_path, ref_path, BandStructureSetGenerator)
 

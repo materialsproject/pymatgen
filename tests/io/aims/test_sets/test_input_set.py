@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pymatgen.core import Lattice, Structure
+from pymatgen.core import Structure
 from pymatgen.io.aims.sets import AimsInputSet
 
 control_in_str = """
@@ -302,11 +302,11 @@ def test_input_set():
     with pytest.raises(ValueError, match="key='relax_geometry' not in list"):
         in_set.remove_parameters(keys=["relax_geometry"], strict=True)
 
-    new_structure = Structure(
-        lattice=Lattice([[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]]),
+    new_struct = Structure(
+        lattice=[[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]],
         species=["Si", "Si"],
         coords=[[-0.01, 0, 0], [0.25, 0.25, 0.25]],
     )
-    in_set.set_structure(new_structure)
+    in_set.set_structure(new_struct)
     assert check_file(geometry_in_str_new, in_set.geometry_in)
     assert check_file(geometry_in_str, in_set_copy.geometry_in)

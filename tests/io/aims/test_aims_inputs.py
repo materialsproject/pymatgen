@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from helpers.aims import compare_single_files as compare_files
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
@@ -17,6 +16,7 @@ from pymatgen.io.aims.inputs import (
     AimsCube,
     AimsGeometryIn,
 )
+from pymatgen.util.testing.aims import compare_single_files as compare_files
 
 TEST_DIR = Path(__file__).parent / "input_files"
 

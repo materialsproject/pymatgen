@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from helpers.aims import Si, comp_system
-
 from pymatgen.io.aims.sets.bs import GWSetGenerator
+from pymatgen.util.testing.aims import Si, comp_system
 
 module_dir = Path(__file__).resolve().parents[1]
 species_dir = module_dir / "species_directory"

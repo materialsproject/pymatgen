@@ -5,9 +5,8 @@ import json
 import shutil
 from pathlib import Path
 
-from helpers.aims import O2, Si, compare_files
-
 from pymatgen.io.aims.sets.core import StaticSetGenerator
+from pymatgen.util.testing.aims import O2, Si, compare_files
 
 
 def comp_system(atoms, prev_dir, test_name, work_path, ref_path, species_dir):
