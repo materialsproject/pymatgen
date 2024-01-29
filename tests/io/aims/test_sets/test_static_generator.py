@@ -23,8 +23,7 @@ def test_static_si_no_kgrid(tmp_path):
     comp_system(Si, parameters, "static-no-kgrid-si", tmp_path, ref_path, StaticSetGenerator)
 
 
-def test_static_default_species_dir(tmp_path, monkeypatch):
-    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
+def test_static_default_species_dir(tmp_path):
     parameters = {"k_grid": [2, 2, 2]}
 
     comp_system(Si, parameters, "static-si", tmp_path, ref_path, StaticSetGenerator)
@@ -35,8 +34,7 @@ def test_static_o2(tmp_path):
     comp_system(O2, parameters, "static-o2", tmp_path, ref_path, StaticSetGenerator)
 
 
-def test_static_default_species_dir_o2(tmp_path, monkeypatch):
-    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
+def test_static_default_species_dir_o2(tmp_path):
     parameters = {"k_grid": [2, 2, 2]}
 
     comp_system(O2, parameters, "static-o2", tmp_path, ref_path, StaticSetGenerator)

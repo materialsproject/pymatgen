@@ -53,9 +53,7 @@ def test_static_from_relax_si_no_kgrid(tmp_path):
     )
 
 
-def test_static_from_relax_default_species_dir(tmp_path, monkeypatch):
-    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
-
+def test_static_from_relax_default_species_dir(tmp_path):
     comp_system(
         Si,
         f"{ref_path}/relax-si/",
@@ -77,9 +75,7 @@ def test_static_from_relax_o2(tmp_path):
     )
 
 
-def test_static_from_relax_default_species_dir_o2(tmp_path, monkeypatch):
-    monkeypatch.setenv("AIMS_SPECIES_DIR", str(species_dir / "light"))
-
+def test_static_from_relax_default_species_dir_o2(tmp_path):
     comp_system(
         O2,
         f"{ref_path}/relax-o2/",
