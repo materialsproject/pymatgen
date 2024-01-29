@@ -114,7 +114,7 @@ class PotcarScrambler:
 
             aux_str = ""
             if "TITEL" in line:
-                aux_str = " FAKE"
+                aux_str = " ; FAKE"
             scrambled_potcar_str += f"{cline}{aux_str}\n"
 
         if needs_sha256:
