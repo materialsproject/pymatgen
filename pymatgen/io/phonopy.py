@@ -34,13 +34,13 @@ def get_pmg_structure(phonopy_structure: PhonopyAtoms) -> Structure:
     frac_coords = phonopy_structure.scaled_positions
     symbols = phonopy_structure.symbols
     masses = phonopy_structure.masses
-    mms = getattr(phonopy_structure, "magnetic_moments", None) or [0] * len(symbols)
+    magmoms = getattr(phonopy_structure, "magnetic_moments", [0] * len(symbols))
 
     return Structure(
         lattice,
         symbols,
         frac_coords,
-        site_properties={"phonopy_masses": masses, "magnetic_moments": mms},
+        site_properties={"phonopy_masses": masses, "magnetic_moments": magmoms},
     )
 
 
@@ -58,6 +58,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
         symbols=symbols,
         cell=pmg_structure.lattice.matrix,
         scaled_positions=pmg_structure.frac_coords,
+        magnetic_moments=pmg_structure.site_properties.get("magmom"),
     )
 
 

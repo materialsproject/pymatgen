@@ -31,7 +31,7 @@ from pymatgen.io.lobster import (
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -604,8 +604,8 @@ class TestDoscar(unittest.TestCase):
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        with open(f"{TEST_FILES_DIR}/structure_KF.json") as f:
-            data = json.load(f)
+        with open(f"{TEST_FILES_DIR}/structure_KF.json") as file:
+            data = json.load(file)
 
         self.structure = Structure.from_dict(data)
 
@@ -1704,7 +1704,7 @@ class TestLobsterin(unittest.TestCase):
         assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
         assert result[1] == {"Fe": "3d 4s 4p", "O": "2p 2s"}
 
-        potcar2 = Potcar.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
+        potcar2 = Potcar.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
         Potcar_names2 = [name["symbol"] for name in potcar2.spec]
         result2 = Lobsterin.get_all_possible_basis_functions(
             Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif"),

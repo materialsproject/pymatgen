@@ -861,8 +861,8 @@ class SurfaceEnergyPlotter:
         # w.r.t. bulk. Label with formula if non-stoichiometric
         ucell_comp = self.ucell_entry.composition.reduced_composition
         if entry.adsorbates:
-            s = entry.cleaned_up_slab
-            clean_comp = s.composition.reduced_composition
+            struct = entry.cleaned_up_slab
+            clean_comp = struct.composition.reduced_composition
         else:
             clean_comp = entry.composition.reduced_composition
 

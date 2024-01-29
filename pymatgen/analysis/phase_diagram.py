@@ -1095,7 +1095,7 @@ class PhaseDiagram(MSONable):
         num_atoms = n1 + (n2 - n1) * x_unnormalized
         cs *= num_atoms[:, None]
 
-        return [Composition((c, v) for c, v in zip(pd_els, m)) for m in cs]
+        return [Composition((elem, val) for elem, val in zip(pd_els, m)) for m in cs]
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """

@@ -85,6 +85,7 @@ class CollinearMagneticStructureAnalyzer:
         set_net_positive: bool = True,
         threshold: float = 0,
         threshold_nonmag: float = 0.1,
+        threshold_ordering: float = 1e-8,
     ):
         """
         If magnetic moments are not defined, moments will be
@@ -132,6 +133,9 @@ class CollinearMagneticStructureAnalyzer:
             threshold_nonmag: number (in Bohr magneton)
                 below which nonmagnetic ions (with no magmom specified
                 in default_magmoms) will be rounded to zero
+            threshold_ordering: number (absolute of sum of all magmoms,
+                in Bohr magneton) below which total magnetization is treated as zero
+                when defining magnetic ordering. Defaults to 1e-8.
         """
         if default_magmoms:
             self.default_magmoms = default_magmoms
@@ -289,6 +293,7 @@ class CollinearMagneticStructureAnalyzer:
             structure = structure.get_primitive_structure(use_site_props=True)
 
         self.structure = structure
+        self.threshold_ordering = threshold_ordering
 
     @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
@@ -481,10 +486,15 @@ class CollinearMagneticStructureAnalyzer:
     @property
     def ordering(self) -> Ordering:
         """Applies heuristics to return a magnetic ordering for a collinear
-        magnetic structure. Result is not guaranteed for correctness.
+        magnetic structure. Result is not guaranteed to be correct, just a best
+        guess. Tolerance for minimum total magnetization to be considered
+        ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
 
         Returns:
-            Ordering: Enum ('FiM' is used as the abbreviation for ferrimagnetic)
+            Ordering: Enum  with values FM: ferromagnetic, FiM: ferrimagnetic,
+                AFM: antiferromagnetic, NM: non-magnetic or Unknown. Unknown is
+                returned if magnetic moments are not defined or structure is not collinear
+                (in which case a warning is issued).
         """
         if not self.is_collinear:
             warnings.warn("Detecting ordering in non-collinear structures not yet implemented.")
@@ -503,9 +513,9 @@ class CollinearMagneticStructureAnalyzer:
 
         is_potentially_ferromagnetic = np.all(magmoms >= 0) or np.all(magmoms <= 0)
 
-        if total_magnetization > 0 and is_potentially_ferromagnetic:
+        if abs(total_magnetization) > self.threshold_ordering and is_potentially_ferromagnetic:
             return Ordering.FM
-        if total_magnetization > 0:
+        if abs(total_magnetization) > self.threshold_ordering:
             return Ordering.FiM
         if max_magmom > 0:
             return Ordering.AFM

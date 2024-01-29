@@ -140,7 +140,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
         chg_str = chg_str.replace("1", "")
 
     if chg_str != "(aq)" and brackets:
-        chg_str = "[" + chg_str + "]"
+        chg_str = f"[{chg_str}]"
 
     return chg_str
 
@@ -256,8 +256,8 @@ def unicodeify_species(specie_string):
     if not specie_string:
         return ""
 
-    for character, unicode_character in SUPERSCRIPT_UNICODE.items():
-        specie_string = specie_string.replace(character, unicode_character)
+    for char, unicode_char in SUPERSCRIPT_UNICODE.items():
+        specie_string = specie_string.replace(char, unicode_char)
 
     return specie_string
 

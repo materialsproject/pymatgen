@@ -275,11 +275,6 @@ class GaussianInput:
         return Molecule(species, coords)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, contents):
         """
         Creates GaussianInput from a string.
@@ -365,8 +360,8 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, "r") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="r") as file:
+            return cls.from_str(file.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
@@ -382,10 +377,6 @@ class GaussianInput:
     def __str__(self):
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, cart_coords=False):
         """Return GaussianInput string.
 
@@ -394,14 +385,14 @@ class GaussianInput:
                 Defaults to False.
         """
 
-        def para_dict_to_string(para, joiner=" "):
+        def para_dict_to_str(para, joiner=" "):
             para_str = []
             # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
                 elif isinstance(val, dict):
-                    val_str = para_dict_to_string(val, joiner=",")
+                    val_str = para_dict_to_str(val, joiner=",")
                     para_str.append(f"{par}=({val_str})")
                 else:
                     para_str.append(f"{par}={val}")
@@ -409,7 +400,7 @@ class GaussianInput:
 
         output = []
         if self.link0_parameters:
-            output.append(para_dict_to_string(self.link0_parameters, "\n"))
+            output.append(para_dict_to_str(self.link0_parameters, "\n"))
 
         # Handle functional or basis set to None, empty string or whitespace
         func_str = "" if self.functional is None else self.functional.strip()
@@ -422,7 +413,7 @@ class GaussianInput:
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
         output.extend(
-            (f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}", "", self.title, "")
+            (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
         )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
@@ -439,7 +430,7 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.extend((para_dict_to_string(self.input_parameters, "\n"), "\n"))
+        output.extend((para_dict_to_str(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):
@@ -448,7 +439,7 @@ class GaussianInput:
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
@@ -1102,19 +1093,12 @@ class GaussianOutput:
         Read a potential energy surface from a gaussian scan calculation.
 
         Returns:
-            A dict: {"energies": [ values ],
-                     "coords": {"d1": [ values ], "A2", [ values ], ... }}
-
+            dict[str, list]: {"energies": [...], "coords": {"d1": [...], "A2", [...], ... }}
             "energies" are the energies of all points of the potential energy
             surface. "coords" are the internal coordinates used to compute the
             potential energy surface and the internal coordinates optimized,
             labelled by their name as defined in the calculation.
         """
-
-        def floatList(lst):
-            """Return a list of float from a list of string."""
-            return [float(val) for val in lst]
-
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
         coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
@@ -1123,42 +1107,42 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, "r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
 
             while line != "":
                 if optscan_patt.match(line):
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     endScan = False
                     while not endScan:
-                        data["energies"] += floatList(float_patt.findall(line))
-                        line = f.readline()
+                        data["energies"] += list(map(float, float_patt.findall(line)))
+                        line = file.readline()
                         while coord_patt.match(line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
-                                data["coords"][icname] += floatList(float_patt.findall(line))
+                                data["coords"][icname] += list(map(float, float_patt.findall(line)))
                             else:
-                                data["coords"][icname] = floatList(float_patt.findall(line))
-                            line = f.readline()
+                                data["coords"][icname] = list(map(float, float_patt.findall(line)))
+                            line = file.readline()
                         if not re.search(r"^\s+((\s*\d+)+)", line):
                             endScan = True
                         else:
-                            line = f.readline()
+                            line = file.readline()
 
                 elif scan_patt.match(line):
-                    line = f.readline()
+                    line = file.readline()
                     data["coords"] = {icname: [] for icname in line.split()[1:-1]}
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     while not re.search(r"^\s-+", line):
-                        values = floatList(line.split())
+                        values = list(map(float, line.split()))
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
                             data["coords"][icname].append(values[i + 1])
-                        line = f.readline()
+                        line = file.readline()
                 else:
-                    line = f.readline()
+                    line = file.readline()
 
         return data
 
@@ -1212,8 +1196,8 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, "r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
             td = False
             while line != "":
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
@@ -1222,7 +1206,7 @@ class GaussianOutput:
                 if td and re.search(r"^\sExcited State\s*\d", line):
                     val = [float(v) for v in float_patt.findall(line)]
                     transitions.append(tuple(val[0:3]))
-                line = f.readline()
+                line = file.readline()
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):

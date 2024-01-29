@@ -6,7 +6,6 @@ import os
 import re
 from typing import TYPE_CHECKING
 
-import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -295,7 +294,7 @@ class AdfKey(MSONable):
         """
         if len(self.options) == 0:
             return False
-        return any(self._sized_op and op[0] == option or op == option for op in self.options)
+        return any((self._sized_op and op[0] == option) or op == option for op in self.options)
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
@@ -332,11 +331,6 @@ class AdfKey(MSONable):
         subkey_list = d.get("subkeys", [])
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string: str) -> AdfKey:
@@ -539,18 +533,18 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = f"""TITLE {self.title}\n
+        out = f"""TITLE {self.title}\n
 {self.units}
 {self.xc}
 {self.basis_set}
 {self.scf}
 {self.geo}"""
-        s += "\n"
+        out += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
                 raise ValueError(f"{block_key} is not an AdfKey!")
-            s += str(block_key) + "\n"
-        return s
+            out += str(block_key) + "\n"
+        return out
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
@@ -612,7 +606,7 @@ class AdfInput:
         """
         self.task = task
 
-    def write_file(self, molecule, inpfile):
+    def write_file(self, molecule, inp_file):
         """
         Write an ADF input file.
 
@@ -630,19 +624,19 @@ class AdfInput:
         mol_blocks.append(atom_block)
 
         if molecule.charge != 0:
-            netq = molecule.charge
+            net_q = molecule.charge
             ab = molecule.spin_multiplicity - 1
-            charge_block = AdfKey("Charge", [netq, ab])
+            charge_block = AdfKey("Charge", [net_q, ab])
             mol_blocks.append(charge_block)
             if ab != 0:
                 unres_block = AdfKey("Unrestricted")
                 mol_blocks.append(unres_block)
 
-        with open(inpfile, "w+") as f:
+        with open(inp_file, "w+") as file:
             for block in mol_blocks:
-                f.write(str(block) + "\n")
-            f.write(str(self.task) + "\n")
-            f.write("END INPUT")
+                file.write(str(block) + "\n")
+            file.write(str(self.task) + "\n")
+            file.write("END INPUT")
 
 
 class AdfOutput:
@@ -752,8 +746,8 @@ class AdfOutput:
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
         # ADF manual has a detailed explanation.
-        with zopen(logfile, "rt") as f:
-            for line in reverse_readline(f):
+        with zopen(logfile, mode="rt") as file:
+            for line in reverse_readline(file):
                 if line == "":
                     continue
                 if end_patt.search(line) is None:
@@ -763,8 +757,8 @@ class AdfOutput:
                     return
                 break
 
-        with open(logfile) as f:
-            for line in f:
+        with open(logfile) as file:
+            for line in file:
                 m = error_patt.search(line)
                 if m:
                     self.is_failed = True
@@ -866,8 +860,8 @@ class AdfOutput:
             parse_coord = False
             n_atoms = len(self.final_structure)
 
-        with open(self.filename) as f:
-            for line in f:
+        with open(self.filename) as file:
+            for line in file:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:
                         m = coord_on_patt.search(line)

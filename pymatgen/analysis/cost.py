@@ -91,8 +91,8 @@ class CostDBCSV(CostDB):
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
-        with open(filename) as f:
-            reader = csv.reader(f, quotechar="|")
+        with open(filename) as file:
+            reader = csv.reader(file, quotechar="|")
             for row in reader:
                 comp = Composition(row[0])
                 cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A

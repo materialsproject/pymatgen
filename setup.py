@@ -25,11 +25,11 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
-    version="2023.12.18",
+    version="2024.1.27",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
-        "monty>=3.0.2",
+        "monty<=2024.1.26",  # https://github.com/materialsvirtuallab/monty/issues/610
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",
@@ -68,8 +68,10 @@ setup(
         ],
         "optional": [
             "ase>=3.22.1",
-            # https://peps.python.org/pep-0508/#environment-markers
-            "BoltzTraP2>=22.3.2; platform_system!='Windows'",
+            # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
+            # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
+            # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
+            # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
             "chgnet",
             "f90nml>=1.1.2",

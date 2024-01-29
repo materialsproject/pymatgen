@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 from shutil import which
 
@@ -21,10 +20,8 @@ __date__ = "July 2017"
 @unittest.skipIf(not which("critic2"), "critic2 executable not present")
 class TestCritic2Caller(unittest.TestCase):
     def test_from_path(self):
-        # uses chgcars
-        test_dir = f"{TEST_FILES_DIR}/bader"
-
-        c2c = Critic2Caller.from_path(test_dir)
+        # uses CHGCARs
+        c2c = Critic2Caller.from_path(f"{TEST_FILES_DIR}/bader")
 
         # check we have some results!
         assert len(c2c._stdout) >= 500
@@ -51,7 +48,7 @@ class TestCritic2Caller(unittest.TestCase):
 
         # alternatively, can also set when we do the analysis, but note that this will change
         # the analysis performed since augmentation charges are added in core regions
-        c2c = Critic2Caller.from_path(test_dir, zpsp={"Fe": 8.0, "O": 6.0})
+        c2c = Critic2Caller.from_path(f"{TEST_FILES_DIR}/bader", zpsp={"Fe": 8.0, "O": 6.0})
 
         # check yt integration
         assert c2o.structure.site_properties["bader_volume"][0] == approx(66.0148355)
@@ -59,28 +56,31 @@ class TestCritic2Caller(unittest.TestCase):
         assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(4.2229131)
 
     def test_from_structure(self):
-        # uses promolecular density
-        structure = Structure.from_file(
-            os.path.join(
-                TEST_FILES_DIR,
-                "critic2/MoS2.cif",
-            )
-        )
+        # uses pro-molecular density
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
 
         c2c = Critic2Caller.from_chgcar(structure)
 
         # check we have some results!
         assert len(c2c._stdout) >= 500
 
+        # test with chgcar and zpsp to ensure zval is formatted as int
+        # https://github.com/materialsproject/pymatgen/issues/3501
+        c2c = Critic2Caller.from_chgcar(
+            structure, zpsp={"Mo": 6.0, "S": 6.0}, chgcar=f"{TEST_FILES_DIR}/bader/CHGCAR.gz"
+        )
+
+        assert "ERROR : load int.CHGCAR id chg_int zpsp Mo 6 S 6" in c2c._input_script
+
 
 class TestCritic2Analysis(unittest.TestCase):
     def setUp(self):
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"
-        with open(stdout_file) as f:
-            reference_stdout = f.read()
-        with open(stdout_file_new_format) as f:
-            reference_stdout_new_format = f.read()
+        with open(stdout_file) as file:
+            reference_stdout = file.read()
+        with open(stdout_file_new_format) as file:
+            reference_stdout_new_format = file.read()
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
 
@@ -116,8 +116,8 @@ class TestCritic2Analysis(unittest.TestCase):
         # test connectivity
         assert self.c2o.edges[3] == {"from_idx": 1, "from_lvec": (0, 0, 0), "to_idx": 0, "to_lvec": (1, 0, 0)}
         # test as/from dict
-        d = self.c2o.as_dict()
-        assert set(d) == {
+        dct = self.c2o.as_dict()
+        assert set(dct) == {
             "@module",
             "@class",
             "@version",
@@ -128,7 +128,7 @@ class TestCritic2Analysis(unittest.TestCase):
             "yt",
             "zpsp",
         }
-        self.c2o.from_dict(d)
+        self.c2o.from_dict(dct)
 
     def test_graph_output(self):
         sg = self.c2o.structure_graph()

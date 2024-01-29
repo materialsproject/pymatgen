@@ -20,17 +20,17 @@ from pymatgen.io.abinit.inputs import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-_test_dir = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 
 def abiref_file(filename):
     """Return absolute path to filename in ~pymatgen/tests/files/abinit."""
-    return os.path.join(_test_dir, filename)
+    return os.path.join(TEST_DIR, filename)
 
 
 def abiref_files(*filenames):
     """Return list of absolute paths to filenames in ~pymatgen/tests/files/abinit."""
-    return [os.path.join(_test_dir, f) for f in filenames]
+    return [os.path.join(TEST_DIR, f) for f in filenames]
 
 
 class AbinitInputTestCase(PymatgenTest):
@@ -51,8 +51,8 @@ class AbinitInputTestCase(PymatgenTest):
 
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
-        shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
-        assert_array_equal(calc_shiftk(inp.structure), shiftk)
+        shift_k = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
+        assert_array_equal(calc_shiftk(inp.structure), shift_k)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         repr(inp), str(inp)
@@ -81,8 +81,8 @@ class AbinitInputTestCase(PymatgenTest):
         inp.set_vars_ifnotin(ecut=-10)
         assert inp["ecut"] == 5
 
-        _, tmpname = tempfile.mkstemp(text=True)
-        inp.write(filepath=tmpname)
+        _, tmp_name = tempfile.mkstemp(text=True)
+        inp.write(filepath=tmp_name)
 
         # Cannot change structure variables directly.
         with pytest.raises(inp.Error):
@@ -152,7 +152,7 @@ class AbinitInputTestCase(PymatgenTest):
 
     def test_helper_functions(self):
         """Testing BasicAbinitInput helper functions."""
-        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=_test_dir)
+        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=TEST_DIR)
 
         inp.set_kmesh(ngkpt=(1, 2, 3), shiftk=(1, 2, 3, 4, 5, 6))
         assert inp["kptopt"] == 1
@@ -256,7 +256,6 @@ class TestMultiDataset(PymatgenTest):
 
 class TestShiftMode(PymatgenTest):
     def test_shiftmode(self):
-        """Testing shiftmode."""
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
         assert ShiftMode.from_object(gamma) == gamma

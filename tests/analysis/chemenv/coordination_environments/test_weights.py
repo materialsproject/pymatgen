@@ -243,8 +243,8 @@ class StrategyWeights(PymatgenTest):
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{struct_env_dir}/se_mp-743972.json") as f:
-            dct = json.load(f)
+        with open(f"{struct_env_dir}/se_mp-743972.json") as file:
+            dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
@@ -319,8 +319,8 @@ class StrategyWeights(PymatgenTest):
         assert abs(self_w - 0.14204073172729198) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
-            dct = json.load(f)
+        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+            dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights

@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 import warnings
+from glob import glob
 
 import numpy as np
 from monty.os.path import zpath
@@ -68,33 +69,64 @@ class PotcarScrambler:
             return input_str
 
     def scramble_single_potcar(self, potcar: PotcarSingle):
+        """
+        Scramble the body of a POTCAR, retain the PSCTR header information.
+
+        To the best of my (ADK) knowledge, in the OUTCAR file,
+        almost all information from the POTCAR in the "PSCTR" block
+            ```
+            parameters from PSCTR are:
+            ....
+            END of PSCTR-controll parameters
+            ```
+        is printed to OUTCAR. Specifically, all information above the line
+            `Error from kinetic energy argument (eV)`
+        is included. This information is not scrambled below.
+        """
         scrambled_potcar_str = ""
+        needs_sha256 = False
+        scramble_values = False
+        og_sha_str = "SHA256 = None\n"
         for line in potcar.data.split("\n")[:-1]:
             single_line_rows = line.split(";")
-            if "SHA256" in line or "COPYR" in line:
-                # files not copyrighted, remove copyright statement
-                # sha256 no longer applicable
+
+            if "SHA256" in line:
+                scrambled_potcar_str += og_sha_str
+                needs_sha256 = True
                 continue
+
+            if ("Error from kinetic energy argument (eV)" in line) or ("END of PSCTR-controll parameters" in line):
+                # start to scramble values, logic described above
+                scramble_values = True
 
             cline = ""
             for idx, row in enumerate(single_line_rows):
-                split_row = row.split()
-                for itmp, tmp in enumerate(split_row):
-                    cline += f"{self._read_fortran_str_and_scramble(tmp)}"
-                    if itmp < len(split_row) - 1:
-                        cline += " "
+                if scramble_values:
+                    split_row = row.split()
+                    for itmp, tmp in enumerate(split_row):
+                        cline += f"{self._read_fortran_str_and_scramble(tmp)}"
+                        if itmp < len(split_row) - 1:
+                            cline += " "
+                else:
+                    cline += row
                 if len(single_line_rows) > 1 and idx == 0:
                     cline += "; "
 
             aux_str = ""
             if "TITEL" in line:
-                aux_str = " FAKE"
+                aux_str = " ; FAKE"
             scrambled_potcar_str += f"{cline}{aux_str}\n"
+
+        if needs_sha256:
+            tps = PotcarSingle(scrambled_potcar_str)
+            scrambled_potcar_str = scrambled_potcar_str.replace(
+                og_sha_str, f"SHA256 = {tps.sha256_computed_file_hash}\n"
+            )
         return scrambled_potcar_str
 
     def to_file(self, filename: str):
-        with zopen(filename, "wt") as f:
-            f.write(self.scrambled_potcars_str)
+        with zopen(filename, mode="wt") as file:
+            file.write(self.scrambled_potcars_str)
 
     @classmethod
     def from_file(cls, input_filename: str, output_filename: str | None = None):
@@ -141,5 +173,28 @@ def generate_fake_potcar_libraries():
                     break
 
 
+def potcar_cleanser():
+    """
+    Function to replace copyrighted POTCARs used in io.vasp.sets testing
+    with dummy POTCARs that have scrambled PSP and kinetic energy values
+    (but retain the original header information which is also found in OUTCARs
+    and freely shared by VASP)
+    """
+
+    search_dir = "../tests/files/fake_potcars/real_potcars/"
+    rebase_dir = search_dir.replace("real", "fake")
+    potcars_to_cleanse = glob(f"{search_dir}/**/POTCAR*", recursive=True)
+
+    for potcar in potcars_to_cleanse:
+        path_to_potcar, potcar_name = potcar.split("POTCAR")
+        rebased = path_to_potcar.replace(search_dir, rebase_dir)
+        new_path = f"{rebased}POTCAR{potcar_name}"
+        if new_path[-3:] != ".gz":
+            new_path += ".gz"
+        os.makedirs(rebased, exist_ok=True)
+        PotcarScrambler.from_file(input_filename=potcar, output_filename=new_path)
+
+
 if __name__ == "__main__":
-    generate_fake_potcar_libraries()
+    potcar_cleanser()
+    # generate_fake_potcar_libraries()

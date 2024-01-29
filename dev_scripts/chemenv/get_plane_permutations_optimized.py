@@ -432,5 +432,5 @@ if __name__ == "__main__":
         if test == "y":
             new_geom_dir = "new_geometry_files"
             os.makedirs(new_geom_dir, exist_ok=True)
-            with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as file:
+            with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w") as file:
                 json.dump(cg.as_dict(), file)

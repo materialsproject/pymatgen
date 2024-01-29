@@ -68,16 +68,16 @@ class Cohp(MSONable):
             cohp_str = "COBI"
         else:
             cohp_str = "COHP"
-        header = ["Energy", cohp_str + "Up"]
+        header = ["Energy", f"{cohp_str}Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
-            header.append(cohp_str + "Down")
+            header.append(f"{cohp_str}Down")
             data.append(self.cohp[Spin.down])
         if self.icohp:
-            header.append("I" + cohp_str + "Up")
+            header.append(f"I{cohp_str}Up")
             data.append(self.icohp[Spin.up])
             if Spin.down in self.cohp:
-                header.append("I" + cohp_str + "Down")
+                header.append(f"I{cohp_str}Down")
                 data.append(self.icohp[Spin.down])
         format_header = "#" + " ".join("{:15s}" for __ in header)
         format_data = " ".join("{:.5f}" for __ in header)

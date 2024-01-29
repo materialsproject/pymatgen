@@ -80,9 +80,9 @@ class TestPDEntry(unittest.TestCase):
 
         assert entry.name == "mp-757614"
         assert entry.energy_per_atom == 53.0 / 4
-        gpentry = GrandPotPDEntry.from_dict(gpd)
-        assert gpentry.name == "mp-757614"
-        assert gpentry.energy_per_atom == 50.0 / 2
+        gp_entry = GrandPotPDEntry.from_dict(gpd)
+        assert gp_entry.name == "mp-757614"
+        assert gp_entry.energy_per_atom == 50.0 / 2
 
         d_anon = d.copy()
         del d_anon["name"]
@@ -109,12 +109,11 @@ class TestTransformedPDEntry(unittest.TestCase):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
 
-        terminal_compositions = ["Li2O", "FeO", "LiO8"]
-        terminal_compositions = [Composition(c) for c in terminal_compositions]
+        terminal_compositions = [*map(Composition, ("Li2O", "FeO", "LiO8"))]
 
         sp_mapping = {}
         for idx, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
+            sp_mapping[comp] = DummySpecies(f"X{chr(102 + idx)}")
 
         self.transformed_entry = TransformedPDEntry(entry, sp_mapping)
 
@@ -615,6 +614,7 @@ class TestPhaseDiagram(PymatgenTest):
         dumpfn(self.pd, f"{self.tmp_path}/pd.json")
         pd = loadfn(f"{self.tmp_path}/pd.json")
         assert isinstance(pd, PhaseDiagram)
+        assert pd.elements == self.pd.elements
         assert {*pd.as_dict()} == {*self.pd.as_dict()}
 
     def test_el_refs(self):

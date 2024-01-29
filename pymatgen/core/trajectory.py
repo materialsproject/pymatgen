@@ -239,7 +239,8 @@ class Trajectory(MSONable):
         if (
             self.lattice is None  # is molecules
             and trajectory.lattice is not None  # is structures
-            or self.lattice is not None  # is structures
+        ) or (
+            self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
             raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
@@ -397,7 +398,7 @@ class Trajectory(MSONable):
         """Writes to Xdatcar file.
 
         The supported kwargs are the same as those for the
-        Xdatcar_from_structs.get_string method and are passed through directly.
+        Xdatcar_from_structs.get_str method and are passed through directly.
 
         Args:
             filename: Name of file to write.  It's prudent to end the filename with
@@ -442,8 +443,8 @@ class Trajectory(MSONable):
 
         xdatcar_string = "\n".join(lines) + "\n"
 
-        with zopen(filename, "wt") as f:
-            f.write(xdatcar_string)
+        with zopen(filename, mode="wt") as file:
+            file.write(xdatcar_string)
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""

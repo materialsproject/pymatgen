@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
-import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
@@ -215,8 +214,8 @@ class PWInput:
         Args:
             filename (str): The string filename to output to.
         """
-        with open(filename, "w") as f:
-            f.write(str(self))
+        with open(filename, mode="w") as file:
+            file.write(str(self))
 
     @classmethod
     def from_file(cls, filename):
@@ -229,13 +228,8 @@ class PWInput:
         Returns:
             PWInput object
         """
-        with zopen(filename, "rt") as f:
-            return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     @classmethod
     def from_str(cls, string):

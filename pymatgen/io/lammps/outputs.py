@@ -47,11 +47,6 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> LammpsDump:
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, string: str) -> LammpsDump:
         """
         Constructor from string parsing.
@@ -118,10 +113,10 @@ def parse_lammps_dumps(file_pattern):
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
-    for fname in files:
-        with zopen(fname, "rt") as f:
+    for filename in files:
+        with zopen(filename, mode="rt") as file:
             dump_cache = []
-            for line in f:
+            for line in file:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
                         yield LammpsDump.from_str("".join(dump_cache))
@@ -148,8 +143,8 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
     """
-    with zopen(filename, "rt") as f:
-        lines = f.readlines()
+    with zopen(filename, mode="rt") as file:
+        lines = file.readlines()
     begin_flag = (
         "Memory usage per processor =",
         "Per MPI rank memory allocation (min/avg/max) =",

@@ -43,9 +43,6 @@ class TestMPResterOld(PymatgenTest):
     def setUp(self):
         self.rester = _MPResterLegacy()
 
-    def tearDown(self):
-        self.rester.session.close()
-
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
         random.shuffle(mids)
@@ -477,11 +474,11 @@ class TestMPResterOld(PymatgenTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as f:
-            d = yaml.load(f)
+        with open(MP_LOG_FILE) as file:
+            dct = yaml.load(file)
 
-        assert d["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
-        assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
+        assert dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
+        assert isinstance(dct["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
     def test_pourbaix_heavy(self):
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
