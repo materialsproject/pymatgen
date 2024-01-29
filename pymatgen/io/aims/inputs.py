@@ -481,6 +481,81 @@ class AimsControlIn(MSONable):
         """
         return f"{key:35s}{fmt % value}\n"
 
+    def get_content(
+        self, structure: Structure | Molecule, verbose_header: bool = False, directory: str | Path | None = None
+    ) -> str:
+        """Get the content of the file
+
+        Args:
+            structure (Structure or Molecule): The structure to write the input
+                file for
+            verbose_header (bool): If True print the input option dictionary
+            directory: str | Path | None = The directory for the calculation,
+
+        Returns:
+            str: The content of the file for a given structure
+        """
+        parameters = deepcopy(self._parameters)
+
+        if directory is None:
+            directory = ""
+
+        lim = "#" + "=" * 79
+        content = ""
+
+        if parameters["xc"] == "LDA":
+            parameters["xc"] = "pw-lda"
+
+        cubes = parameters.pop("cubes", None)
+
+        if verbose_header:
+            content += "# \n# List of parameters used to initialize the calculator:"
+            for param, val in parameters.items():
+                s = f"#     {param}:{val}\n"
+                content += s
+        content += lim + "\n"
+
+        assert not ("smearing" in parameters and "occupation_type" in parameters)
+
+        for key, value in parameters.items():
+            if key in ["species_dir", "plus_u"]:
+                continue
+            if key == "smearing":
+                name = parameters["smearing"][0].lower()
+                if name == "fermi-dirac":
+                    name = "fermi"
+                width = parameters["smearing"][1]
+                if name == "methfessel-paxton":
+                    order = parameters["smearing"][2]
+                    order = " %d" % order
+                else:
+                    order = ""
+
+                content += self.get_aims_control_parameter_str("occupation_type", (name, width, order), "%s %f%s")
+            elif key == "output":
+                for output_type in value:
+                    content += self.get_aims_control_parameter_str(key, output_type, "%s")
+            elif key == "vdw_correction_hirshfeld" and value:
+                content += self.get_aims_control_parameter_str(key, "", "%s")
+            elif isinstance(value, bool):
+                content += self.get_aims_control_parameter_str(key, str(value).lower(), ".%s.")
+            elif isinstance(value, (tuple, list)):
+                content += self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s")
+            elif isinstance(value, str):
+                content += self.get_aims_control_parameter_str(key, value, "%s")
+            else:
+                content += self.get_aims_control_parameter_str(key, value, "%r")
+
+        if cubes:
+            for cube in cubes:
+                content += cube.control_block
+
+        content += lim + "\n\n"
+        species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
+        content += self.get_species_block(structure, species_dir)
+
+        return content
+
     def write_file(
         self,
         structure: Structure | Molecule,
@@ -507,14 +582,12 @@ class AimsControlIn(MSONable):
         if (Path(directory) / "control.in").exists() and not overwrite:
             raise ValueError(f"control.in file already in {directory}")
 
-        lim = "#" + "=" * 79
-
         if isinstance(structure, Structure) and (
             "k_grid" not in self._parameters and "k_grid_density" not in self._parameters
         ):
             raise ValueError("k-grid must be defined for periodic systems")
 
-        parameters = deepcopy(self._parameters)
+        content = self.get_content(structure, verbose_header)
 
         with open(f"{directory}/control.in", mode="w") as file:
             file.write(f"#{'=' * 72}\n")
@@ -523,56 +596,7 @@ class AimsControlIn(MSONable):
             file.write(f"# {time.asctime()}\n")
             file.write(f"#{'=' * 72}\n")
 
-            if parameters["xc"] == "LDA":
-                parameters["xc"] = "pw-lda"
-
-            cubes = parameters.pop("cubes", None)
-
-            if verbose_header:
-                file.write("# \n# List of parameters used to initialize the calculator:")
-                for param, val in parameters.items():
-                    s = f"#     {param}:{val}\n"
-                    file.write(s)
-            file.write(lim + "\n")
-
-            assert not ("smearing" in parameters and "occupation_type" in parameters)
-
-            for key, value in parameters.items():
-                if key in ["species_dir", "plus_u"]:
-                    continue
-                if key == "smearing":
-                    name = parameters["smearing"][0].lower()
-                    if name == "fermi-dirac":
-                        name = "fermi"
-                    width = parameters["smearing"][1]
-                    if name == "methfessel-paxton":
-                        order = parameters["smearing"][2]
-                        order = " %d" % order
-                    else:
-                        order = ""
-
-                    file.write(self.get_aims_control_parameter_str("occupation_type", (name, width, order), "%s %f%s"))
-                elif key == "output":
-                    for output_type in value:
-                        file.write(self.get_aims_control_parameter_str(key, output_type, "%s"))
-                elif key == "vdw_correction_hirshfeld" and value:
-                    file.write(self.get_aims_control_parameter_str(key, "", "%s"))
-                elif isinstance(value, bool):
-                    file.write(self.get_aims_control_parameter_str(key, str(value).lower(), ".%s."))
-                elif isinstance(value, (tuple, list)):
-                    file.write(self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s"))
-                elif isinstance(value, str):
-                    file.write(self.get_aims_control_parameter_str(key, value, "%s"))
-                else:
-                    file.write(self.get_aims_control_parameter_str(key, value, "%r"))
-
-            if cubes:
-                for cube in cubes:
-                    file.write(cube.control_block)
-
-            file.write(lim + "\n\n")
-            species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
-            file.write(self.get_species_block(structure, species_dir))
+            file.write(content)
 
     def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
         """Get the basis set information for a structure
