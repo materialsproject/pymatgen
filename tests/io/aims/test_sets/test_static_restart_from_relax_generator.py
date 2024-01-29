@@ -12,7 +12,7 @@ ref_path = (module_dir / "aims_input_generator_ref").resolve()
 
 
 def test_static_from_relax_si(tmp_path):
-    user_params = {}
+    user_params = {"species_dir": str(species_dir / "light")}
     comp_system(
         Si,
         user_params,
@@ -26,7 +26,7 @@ def test_static_from_relax_si(tmp_path):
 
 
 def test_static_from_relax_si_no_kgrid(tmp_path):
-    user_params = {}
+    user_params = {"species_dir": str(species_dir / "light")}
     comp_system(
         Si,
         user_params,
@@ -40,7 +40,7 @@ def test_static_from_relax_si_no_kgrid(tmp_path):
 
 
 def test_static_from_relax_default_species_dir(tmp_path):
-    user_params = {}
+    user_params = {"species_dir": str(species_dir / "light")}
     comp_system(
         Si,
         user_params,
@@ -54,7 +54,7 @@ def test_static_from_relax_default_species_dir(tmp_path):
 
 
 def test_static_from_relax_o2(tmp_path):
-    user_params = {}
+    user_params = {"species_dir": str(species_dir / "light")}
     comp_system(
         O2,
         user_params,
@@ -68,7 +68,7 @@ def test_static_from_relax_o2(tmp_path):
 
 
 def test_static_from_relax_default_species_dir_o2(tmp_path):
-    user_params = {}
+    user_params = {"species_dir": str(species_dir / "light")}
     comp_system(
         O2,
         user_params,
