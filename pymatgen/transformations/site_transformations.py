@@ -303,7 +303,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         to_delete = []
 
         total_removals = sum(num_remove_dict.values())
-        removed = {k: 0 for k in num_remove_dict}
+        removed = dict.fromkeys(num_remove_dict, 0)
         for _ in range(total_removals):
             max_idx = None
             max_ene = float("-inf")

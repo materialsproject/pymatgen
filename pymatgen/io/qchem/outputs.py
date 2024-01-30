@@ -2513,7 +2513,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    LPentry: dict[str, str | float] = {orbital: 0.0 for orbital in orbitals}
+                    LPentry: dict[str, str | float] = dict.fromkeys(orbitals, 0.0)
                     LPentry["bond index"] = line[0:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
