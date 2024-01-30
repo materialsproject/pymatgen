@@ -10,8 +10,6 @@ from pymatgen.io.aims.sets.base import AimsInputGenerator
 if TYPE_CHECKING:
     from pymatgen.core import Molecule
 
-__all__ = ["StaticSetGenerator", "RelaxSetGenerator", "SocketIOSetGenerator"]
-
 
 @dataclass
 class StaticSetGenerator(AimsInputGenerator):
