@@ -445,7 +445,7 @@ class EwaldSummation(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, dct: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
@@ -456,20 +456,20 @@ class EwaldSummation(MSONable):
             EwaldSummation: class instance
         """
         summation = cls(
-            structure=Structure.from_dict(d["structure"]),
-            real_space_cut=d["real_space_cut"],
-            recip_space_cut=d["recip_space_cut"],
-            eta=d["eta"],
-            acc_factor=d["acc_factor"],
-            compute_forces=d["compute_forces"],
+            structure=Structure.from_dict(dct["structure"]),
+            real_space_cut=dct["real_space_cut"],
+            recip_space_cut=dct["recip_space_cut"],
+            eta=dct["eta"],
+            acc_factor=dct["acc_factor"],
+            compute_forces=dct["compute_forces"],
         )
 
         # set previously computed private attributes
-        if d["_recip"] is not None:
-            summation._recip = np.array(d["_recip"])
-            summation._real = np.array(d["_real"])
-            summation._point = np.array(d["_point"])
-            summation._forces = np.array(d["_forces"])
+        if dct["_recip"] is not None:
+            summation._recip = np.array(dct["_recip"])
+            summation._real = np.array(dct["_real"])
+            summation._point = np.array(dct["_point"])
+            summation._forces = np.array(dct["_forces"])
             summation._initialized = True
 
         return summation

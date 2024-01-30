@@ -484,27 +484,27 @@ class Slab(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
-        """:param d: dict
+    def from_dict(cls, dct: dict) -> Slab:  # type: ignore[override]
+        """:param dct: dict
 
         Returns:
             Creates slab from dict.
         """
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        lattice = Lattice.from_dict(dct["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
         struct = Structure.from_sites(sites)
 
         return Slab(
             lattice=lattice,
             species=struct.species_and_occu,
             coords=struct.frac_coords,
-            miller_index=d["miller_index"],
-            oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
-            shift=d["shift"],
-            scale_factor=d["scale_factor"],
+            miller_index=dct["miller_index"],
+            oriented_unit_cell=Structure.from_dict(dct["oriented_unit_cell"]),
+            shift=dct["shift"],
+            scale_factor=dct["scale_factor"],
             site_properties=struct.site_properties,
-            energy=d["energy"],
-            properties=d.get("properties"),
+            energy=dct["energy"],
+            properties=dct.get("properties"),
         )
 
     def get_surface_sites(self, tag=False):

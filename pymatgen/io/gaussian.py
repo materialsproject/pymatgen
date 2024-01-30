@@ -460,23 +460,23 @@ class GaussianInput:
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> GaussianInput:
         """
-        :param d: dict
+        :param dct: dict
 
         Returns:
             GaussianInput
         """
         return cls(
-            mol=Molecule.from_dict(d["molecule"]),
-            functional=d["functional"],
-            basis_set=d["basis_set"],
-            route_parameters=d["route_parameters"],
-            title=d["title"],
-            charge=d["charge"],
-            spin_multiplicity=d["spin_multiplicity"],
-            input_parameters=d["input_parameters"],
-            link0_parameters=d["link0_parameters"],
+            mol=Molecule.from_dict(dct["molecule"]),
+            functional=dct["functional"],
+            basis_set=dct["basis_set"],
+            route_parameters=dct["route_parameters"],
+            title=dct["title"],
+            charge=dct["charge"],
+            spin_multiplicity=dct["spin_multiplicity"],
+            input_parameters=dct["input_parameters"],
+            link0_parameters=dct["link0_parameters"],
         )
 
 
@@ -1156,19 +1156,19 @@ class GaussianOutput:
 
         ax = pretty_plot(12, 8)
 
-        d = self.read_scan()
+        dct = self.read_scan()
 
-        if coords and coords in d["coords"]:
-            x = d["coords"][coords]
+        if coords and coords in dct["coords"]:
+            x = dct["coords"][coords]
             ax.set_xlabel(coords)
         else:
-            x = range(len(d["energies"]))
+            x = range(len(dct["energies"]))
             ax.set_xlabel("points")
 
         ax.set_ylabel("Energy (eV)")
 
-        e_min = min(d["energies"])
-        y = [(e - e_min) * Ha_to_eV for e in d["energies"]]
+        e_min = min(dct["energies"])
+        y = [(e - e_min) * Ha_to_eV for e in dct["energies"]]
 
         ax.plot(x, y, "ro--")
         return ax
