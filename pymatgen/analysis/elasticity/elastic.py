@@ -450,7 +450,7 @@ class ElasticTensor(NthOrderElasticTensor):
         )
         sp_dict: dict[str, float | Structure | None]
         if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
-            sp_dict = {prop: None for prop in s_props}
+            sp_dict = dict.fromkeys(s_props)
         else:
             sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
         sp_dict["structure"] = structure

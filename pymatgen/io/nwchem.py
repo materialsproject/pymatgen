@@ -276,7 +276,7 @@ $theory_spec
 
         elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
-            basis_set = {el: basis_set for el in elements}
+            basis_set = dict.fromkeys(elements, basis_set)
 
         return NwTask(
             charge,
