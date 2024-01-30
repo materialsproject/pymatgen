@@ -763,6 +763,25 @@ class TestVasprun(PymatgenTest):
         projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
         assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
 
+    def test_parse_potcar_cwd_relative(self):
+        # Test to ensure that common use cases of vasprun parsing work
+        # in the current working directory using relative paths,
+        # either when leading ./ is specified or not for vasprun.xml
+        # See gh-3586
+        copyfile(f"{TEST_FILES_DIR}/vasprun.xml.Al", "vasprun.xml")
+
+        potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
+        copyfile(potcar_path, "POTCAR.gz")
+
+        potcar = Potcar.from_file(potcar_path)
+        for leading_path in ("", "./"):
+            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml"), parse_potcar_file=True)
+            # Note that the TITEL is not updated in Vasprun.potcar_spec
+            # Since the fake POTCARs modify the TITEL (to indicate fakeness), can't compare
+            for ipot in range(len(potcar)):
+                assert vrun.potcar_spec[ipot]["hash"] == potcar[ipot].md5_header_hash
+                assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
+
 
 class TestOutcar(PymatgenTest):
     def test_init(self):

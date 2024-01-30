@@ -54,7 +54,7 @@ def _init_node_labels(G, edge_attr, node_attr):
     if node_attr:
         return {u: str(dd[node_attr]) for u, dd in G.nodes(data=True)}
     if edge_attr:
-        return {u: "" for u in G}
+        return dict.fromkeys(G, "")
     return {u: str(deg) for u, deg in G.degree()}
 
 
