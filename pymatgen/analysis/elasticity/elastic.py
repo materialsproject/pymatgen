@@ -1002,9 +1002,9 @@ def generate_pseudo(strain_states, order=3):
             difference derivative of the stress with respect to the strain state
         absent_syms: symbols of the tensor absent from the PI expression
     """
-    s = sp.Symbol("s")
+    symb = sp.Symbol("s")
     nstates = len(strain_states)
-    ni = np.array(strain_states) * s
+    ni = np.array(strain_states) * symb
     pseudo_inverses, absent_symbols = [], []
     for degree in range(2, order + 1):
         cvec, carr = get_symbol_list(degree)
@@ -1015,14 +1015,14 @@ def generate_pseudo(strain_states, order=3):
             for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
             exps /= math.factorial(degree - 1)
-            sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
+            sarr[n] = [sp.diff(exp, symb, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_symbols = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
         absent_symbols += [set(cvec) - present_symbols]
-        m = np.zeros((6 * nstates, len(cvec)))
+        pseudo_mat = np.zeros((6 * nstates, len(cvec)))
         for n, c in enumerate(cvec):
-            m[:, n] = v_diff(svec, c)
-        pseudo_inverses.append(np.linalg.pinv(m))
+            pseudo_mat[:, n] = v_diff(svec, c)
+        pseudo_inverses.append(np.linalg.pinv(pseudo_mat))
     return pseudo_inverses, absent_symbols
 
 

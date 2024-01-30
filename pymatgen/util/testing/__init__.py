@@ -18,14 +18,14 @@ import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core import SETTINGS, Structure
+from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).absolute().parent
-STRUCTURES_DIR = MODULE_DIR / "structures"
-TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+STRUCTURES_DIR = MODULE_DIR / ".." / "structures"
+TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/tests/files"))
 # fake POTCARs have original header information, meaning properties like number of electrons,
 # nuclear charge, core radii, etc. are unchanged (important for testing) while values of the and
 # pseudopotential kinetic energy corrections are scrambled to avoid VASP copyright infringement

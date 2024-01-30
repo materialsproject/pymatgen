@@ -43,9 +43,6 @@ class TestMPResterOld(PymatgenTest):
     def setUp(self):
         self.rester = _MPResterLegacy()
 
-    def tearDown(self):
-        self.rester.session.close()
-
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
         random.shuffle(mids)

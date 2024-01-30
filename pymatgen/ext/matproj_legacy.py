@@ -1633,12 +1633,12 @@ class _MPResterLegacy:
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
             for f in itertools.product(*parts):
-                c = Composition("".join(f))
-                if len(c) == n_elements:
+                comp = Composition("".join(f))
+                if len(comp) == n_elements:
                     # Check for valid Elements in keys.
-                    for e in c:
-                        Element(e.symbol)
-                    all_formulas.add(c.reduced_formula)
+                    for elem in comp:
+                        Element(elem.symbol)
+                    all_formulas.add(comp.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(tokens) == 1:

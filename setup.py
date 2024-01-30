@@ -25,11 +25,11 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
-    version="2023.12.18",
+    version="2024.1.27",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
-        "monty>=3.0.2",
+        "monty<=2024.1.26",  # https://github.com/materialsvirtuallab/monty/issues/610
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",

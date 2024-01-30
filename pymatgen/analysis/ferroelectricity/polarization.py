@@ -46,11 +46,19 @@ determine the spontaneous polarization because it serves as a reference point.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from scipy.interpolate import UnivariateSpline
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pymatgen.core.sites import PeriodicSite
+
 
 __author__ = "Tess Smidt"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -73,7 +81,7 @@ def zval_dict_from_potcar(potcar):
     return zval_dict
 
 
-def calc_ionic(site, structure: Structure, zval):
+def calc_ionic(site: PeriodicSite, structure: Structure, zval: float) -> np.ndarray:
     """
     Calculate the ionic dipole moment using ZVAL from pseudopotential.
 
@@ -103,31 +111,27 @@ def get_total_ionic_dipole(structure, zval_dict):
     return np.sum(tot_ionic, axis=0)
 
 
-class PolarizationLattice(Structure):
-    """TODO Why is a Lattice inheriting a structure? This is ridiculous."""
+def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicSite, r: float | None = None):
+    """
+    Given coords and a site, find closet site to coords.
 
-    def get_nearest_site(self, coords, site, r=None):
-        """
-        Given coords and a site, find closet site to coords.
+    Args:
+        coords (3x1 array): Cartesian coords of center of sphere
+        site: site to find closest to coords
+        r (float): radius of sphere. Defaults to diagonal of unit cell
 
-        Args:
-            coords (3x1 array): Cartesian coords of center of sphere
-            site: site to find closest to coords
-            r: radius of sphere. Defaults to diagonal of unit cell
-
-        Returns:
-            Closest site and distance.
-        """
-        index = self.index(site)
-        if r is None:
-            r = np.linalg.norm(np.sum(self.lattice.matrix, axis=0))
-        ns = self.get_sites_in_sphere(coords, r, include_index=True)
-        # Get sites with identical index to site
-        ns = [n for n in ns if n[2] == index]
-        # Sort by distance to coords
-        ns.sort(key=lambda x: x[1])
-        # Return PeriodicSite and distance of closest image
-        return ns[0][0:2]
+    Returns:
+        Closest site and distance.
+    """
+    index = struct.index(site)
+    r = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
+    ns = struct.get_sites_in_sphere(coords, r, include_index=True)
+    # Get sites with identical index to site
+    ns = [n for n in ns if n[2] == index]
+    # Sort by distance to coords
+    ns.sort(key=lambda x: x[1])
+    # Return PeriodicSite and distance of closest image
+    return ns[0][0:2]
 
 
 class Polarization:
@@ -298,18 +302,18 @@ class Polarization:
         for idx in range(n_elecs):
             lattice = lattices[idx]
             frac_coord = np.divide(np.array([p_tot[idx]]), np.array(lattice.lengths))
-            d = PolarizationLattice(lattice, ["C"], [np.array(frac_coord).ravel()])
-            d_structs.append(d)
-            site = d[0]
+            struct = Structure(lattice, ["C"], [np.array(frac_coord).ravel()])
+            d_structs.append(struct)
+            site = struct[0]
             # Adjust nonpolar polarization to be closest to zero.
             # This is compatible with both a polarization of zero or a half quantum.
             prev_site = [0, 0, 0] if idx == 0 else sites[-1].coords
-            new_site = d.get_nearest_site(prev_site, site)
+            new_site = get_nearest_site(struct, prev_site, site)
             sites.append(new_site[0])
 
         adjust_pol = []
-        for site, d in zip(sites, d_structs):
-            adjust_pol.append(np.multiply(site.frac_coords, np.array(d.lattice.lengths)).ravel())
+        for site, struct in zip(sites, d_structs):
+            adjust_pol.append(np.multiply(site.frac_coords, np.array(struct.lattice.lengths)).ravel())
         return np.array(adjust_pol)
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
