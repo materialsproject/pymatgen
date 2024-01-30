@@ -1175,7 +1175,7 @@ class PhaseDiagram(MSONable):
         if referenced:
             el_energies = {el: self.el_refs[el].energy_per_atom for el in elements}
         else:
-            el_energies = {el: 0 for el in elements}
+            el_energies = dict.fromkeys(elements, 0)
 
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self.elements)))]
