@@ -452,7 +452,10 @@ class Poscar(MSONable):
 
         # Warn when ALL degrees of freedom relaxed (#3539)
         if has_selective_dynamics and all(all(i is True for i in in_list) for in_list in selective_dynamics):
-            warnings.warn("Selective dynamics toggled with ALL degrees of freedom relaxed.", BadPoscarWarning)
+            warnings.warn(
+                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
+                BadPoscarWarning
+                )
 
         struct = Structure(
             lattice,
