@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import multiprocessing as multiproc
+import warnings
 from importlib.metadata import PackageNotFoundError
 from string import ascii_uppercase
 from time import time
@@ -32,7 +33,16 @@ class IcetSQS:
     """Interface to the icet library of SQS structure generation tools."""
 
     sqs_kwarg_names: dict[str, tuple[str, ...]] = {
-        "monte_carlo": ("T_start", "T_stop", "n_steps", "optimality_weight", "random_seed", "tol"),
+        "monte_carlo": (
+            "include_smaller_cells",
+            "pbc",
+            "T_start",
+            "T_stop",
+            "n_steps",
+            "optimality_weight",
+            "random_seed",
+            "tol",
+        ),
         "enumeration": ("include_smaller_cells", "pbc", "optimality_weight", "tol"),
     }
     _sqs_kwarg_defaults: dict[str, Any] = {
@@ -107,7 +117,14 @@ class IcetSQS:
         # Default sqs_kwargs
         self.sqs_kwargs = self._sqs_kwarg_defaults.copy()
         self.sqs_kwargs.update(sqs_kwargs or {})
-        self.sqs_kwargs = {k: v for k, v in self.sqs_kwargs.items() if k in self.sqs_kwarg_names[sqs_method]}
+
+        unrecognized_kwargs = {key for key in self.sqs_kwargs if key not in self.sqs_kwarg_names[sqs_method]}
+        if len(unrecognized_kwargs) > 0:
+            warnings.warn(f"Ignoring unrecognized icet kwargs: {', '.join(unrecognized_kwargs)}")
+
+        self.sqs_kwargs = {
+            key: value for key, value in self.sqs_kwargs.items() if key in self.sqs_kwarg_names[sqs_method]
+        }
 
         if sqs_method == "monte_carlo":
             self.sqs_getter = self.monte_carlo_sqs_structures
@@ -306,7 +323,7 @@ class IcetSQS:
         cluster_space = self._get_cluster_space()
         sqs_structure = generate_sqs(
             cluster_space=cluster_space,
-            scaling=self.scaling,
+            max_size=self.scaling,
             target_concentrations=self.target_concentrations,
             **self.sqs_kwargs,
         )

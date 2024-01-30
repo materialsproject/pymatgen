@@ -646,18 +646,36 @@ class TestSQSTransformation(PymatgenTest):
 
 @unittest.skipIf(not loaded_icet, "icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    scaling: int = 8
+
     def test_enumeration(self):
-        output = loadfn(f"{TEST_FILES_DIR}/icet-sqs-Mg_75-Al_25-scaling_8.json.gz")
-        disordered = output["disordered_structure"]
         sqs = SQSTransformation(
-            scaling=8,
+            scaling=self.scaling,
             sqs_method="icet-enumeration",
             instances=2,
             best_only=False,
         )
-        sqs_structure = sqs.apply_transformation(disordered, return_ranked_list=1)
+        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
         for key in ("structure", "objective_function"):
-            assert sqs_structure[0][key] == output[key]
+            assert sqs_structure[0][key] == self.stored_run[key]
+
+    def test_monte_carlo(self):
+        sqs = SQSTransformation(
+            scaling=self.scaling, sqs_method="icet-monte_carlo", icet_sqs_kwargs={"n_steps": 5}, instances=2
+        )
+        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=False)
+        assert isinstance(sqs_structure, Structure)
+        assert len(sqs_structure) == self.scaling * len(self.stored_run["disordered_structure"])
+
+        sqs_output = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+
+        assert isinstance(sqs_output, list)
+        assert len(sqs_output) == 1
+        assert isinstance(sqs_output[0], dict)
+        expected_types = {"structure": Structure, "objective_function": float}
+        for key, value in expected_types.items():
+            assert isinstance(sqs_output[0][key], value)
 
 
 class TestCubicSupercellTransformation(PymatgenTest):
