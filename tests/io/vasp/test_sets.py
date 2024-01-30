@@ -428,8 +428,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         # test that van-der-Waals parametchers are parsed correctly
         with pytest.raises(
             KeyError,
-            match=r"Invalid or unsupported van-der-Waals functional."
-            "Supported functionals are dftd2, dftd3, dftd3-bj,"
+            match=r"Invalid or unsupported van-der-Waals functional. "
+            "Supported functionals are dftd2, dftd3, dftd3-bj, "
             "ts, ts-hirshfeld, mbd@rsc, ddsc, df, optpbe, optb88, optb86b, df2, rvv10.",
         ):
             self.set(struct, vdw="optB86")
