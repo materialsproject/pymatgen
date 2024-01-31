@@ -77,7 +77,6 @@ ignore = [
   "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
-  "ISC001",  # Implicitly concatenated strings
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -85,7 +84,7 @@ isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["ANN201", "D", "S101","ISC001"]
+"tests/**" = ["ANN201", "D", "S101"]
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/vis/*" = ["D"]
