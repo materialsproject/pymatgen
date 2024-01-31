@@ -358,7 +358,7 @@ class Header(MSONable):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.frac_coords]
             elif isinstance(self.struct, Molecule):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.coords]
-            output.append(output.append(f"* {idx + 1} {site.species_string} {' '.join(coords)}"))
+            output.append(f"* {idx + 1} {site.species_string} {' '.join(coords)}")
         return "\n".join(output)
 
     def write_file(self, filename="HEADER"):
