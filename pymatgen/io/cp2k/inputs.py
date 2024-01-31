@@ -426,7 +426,7 @@ class Section(MSONable):
                 return v
         return default
 
-    def update(self, d: dict, strict=False):
+    def update(self, dct: dict, strict=False):
         """
         Update the Section according to a dictionary argument. This is most useful
         for providing user-override settings to default parameters. As you pass a
@@ -450,7 +450,7 @@ class Section(MSONable):
             strict (bool): If true, only update existing sections and keywords. If false, allow
                 new sections and keywords. Default: False
         """
-        Section._update(self, d, strict=strict)
+        Section._update(self, dct, strict=strict)
 
     @staticmethod
     def _update(d1, d2, strict=False):
@@ -475,17 +475,17 @@ class Section(MSONable):
             else:
                 raise TypeError(f"Unrecognized type: {type(v)}")
 
-    def set(self, d: dict):
+    def set(self, dct: dict):
         """Alias for update. Used by custodian."""
-        self.update(d)
+        self.update(dct)
 
-    def safeset(self, d: dict):
+    def safeset(self, dct: dict):
         """Alias for update with strict (no insertions). Used by custodian."""
-        self.update(d, strict=True)
+        self.update(dct, strict=True)
 
-    def unset(self, d: dict):
+    def unset(self, dct: dict):
         """Dict based deletion. Used by custodian."""
-        for k, v in d.items():
+        for k, v in dct.items():
             if isinstance(v, (str, float, int, bool)):
                 del self[k][v]
             elif isinstance(v, (Keyword, Section, KeywordList, SectionList)):
@@ -495,15 +495,15 @@ class Section(MSONable):
             else:
                 TypeError("Can only add sections or keywords.")
 
-    def inc(self, d: dict):
+    def inc(self, dct: dict):
         """Mongo style dict modification. Include."""
-        for k, v in d.items():
-            if isinstance(v, (str, float, bool, int, list)):
-                v = Keyword(k, v)
-            if isinstance(v, (Keyword, Section, KeywordList, SectionList)):
-                self.add(v)
-            elif isinstance(v, dict):
-                self[k].inc(v)
+        for key, val in dct.items():
+            if isinstance(val, (str, float, bool, int, list)):
+                val = Keyword(key, val)
+            if isinstance(val, (Keyword, Section, KeywordList, SectionList)):
+                self.add(val)
+            elif isinstance(val, dict):
+                self[key].inc(val)
             else:
                 TypeError("Can only add sections or keywords.")
 

@@ -497,8 +497,8 @@ class OptimadeRester:
             """No validation attempted."""
             ps = {}
             try:
-                d = [d for d in provider_link_json["data"] if d["attributes"]["link_type"] == "child"]
-                for link in d:
+                data = [dct for dct in provider_link_json["data"] if dct["attributes"]["link_type"] == "child"]
+                for link in data:
                     key = f"{provider}.{link['id']}" if provider != link["id"] else provider
                     if link["attributes"]["base_url"]:
                         ps[key] = Provider(

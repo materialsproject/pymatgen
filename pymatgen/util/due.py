@@ -37,7 +37,7 @@ class InactiveDueCreditCollector:
     activate = add = cite = dump = load = _donothing
 
     def __repr__(self):
-        return self.__class__.__name__ + "()"
+        return f"{type(self).__name__}()"
 
 
 def _donothing_func(*args, **kwargs):

@@ -734,19 +734,19 @@ class CorrectionsList(Compatibility):
         Args:
             entry: A ComputedEntry.
         """
-        d = self.get_explanation_dict(entry)
-        print(f"The uncorrected value of the energy of {entry.composition} is {d['uncorrected_energy']:f} eV")
-        print(f"The following corrections / screening are applied for {d['compatibility']}:\n")
-        for c in d["corrections"]:
-            print(f"{c['name']} correction: {c['description']}\n")
-            print(f"For the entry, this correction has the value {c['value']:f} eV.")
-            if c["uncertainty"] != 0 or c["value"] == 0:
-                print(f"This correction has an uncertainty value of {c['uncertainty']:f} eV.")
+        dct = self.get_explanation_dict(entry)
+        print(f"The uncorrected value of the energy of {entry.composition} is {dct['uncorrected_energy']:f} eV")
+        print(f"The following corrections / screening are applied for {dct['compatibility']}:\n")
+        for corr in dct["corrections"]:
+            print(f"{corr['name']} correction: {corr['description']}\n")
+            print(f"For the entry, this correction has the value {corr['value']:f} eV.")
+            if corr["uncertainty"] != 0 or corr["value"] == 0:
+                print(f"This correction has an uncertainty value of {corr['uncertainty']:f} eV.")
             else:
                 print("This correction does not have uncertainty data available")
             print("-" * 30)
 
-        print(f"The final energy after corrections is {d['corrected_energy']:f}")
+        print(f"The final energy after corrections is {dct['corrected_energy']:f}")
 
 
 class MaterialsProjectCompatibility(CorrectionsList):

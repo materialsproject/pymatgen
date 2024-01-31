@@ -1001,13 +1001,11 @@ class _MPResterLegacy:
             num_tries = 0
             while num_tries < max_tries_per_chunk:
                 try:
-                    data.extend(
-                        self.query(
-                            chunk_criteria,
-                            properties,
-                            chunk_size=0,
-                            mp_decode=mp_decode,
-                        )
+                    data += self.query(
+                        chunk_criteria,
+                        properties,
+                        chunk_size=0,
+                        mp_decode=mp_decode,
                     )
                     break
                 except MPRestError as e:

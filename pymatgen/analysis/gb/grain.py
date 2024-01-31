@@ -251,18 +251,16 @@ class GrainBoundary(Structure):
             f"ab_shift: {self.ab_shift}",
         ]
 
-        def to_s(x, rjust=10):
+        def to_str(x, rjust=10):
             return (f"{x:0.6f}").rjust(rjust)
 
-        outs.extend(
-            (
-                f"abc   : {' '.join(to_s(i) for i in self.lattice.abc)}",
-                f"angles: {' '.join(to_s(i) for i in self.lattice.angles)}",
-                f"Sites ({len(self)})",
-            )
+        outs += (
+            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
+            f"Sites ({len(self)})",
         )
         for idx, site in enumerate(self):
-            outs.append(f"{idx + 1} {site.species_string} {' '.join(to_s(coord, 12) for coord in site.frac_coords)}")
+            outs.append(f"{idx + 1} {site.species_string} {' '.join(to_str(coord, 12) for coord in site.frac_coords)}")
         return "\n".join(outs)
 
     def as_dict(self):
@@ -284,32 +282,32 @@ class GrainBoundary(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> GrainBoundary:  # type: ignore[override]
         """
         Generates a GrainBoundary object from a dictionary created by as_dict().
 
         Args:
-            d: dict
+            dct: dict
 
         Returns:
             GrainBoundary object
         """
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        lattice = Lattice.from_dict(dct["lattice"])
+        sites = [PeriodicSite.from_dict(site_dict, lattice) for site_dict in dct["sites"]]
         struct = Structure.from_sites(sites)
 
         return GrainBoundary(
             lattice=lattice,
             species=struct.species_and_occu,
             coords=struct.frac_coords,
-            rotation_axis=d["rotation_axis"],
-            rotation_angle=d["rotation_angle"],
-            gb_plane=d["gb_plane"],
-            join_plane=d["join_plane"],
-            init_cell=Structure.from_dict(d["init_cell"]),
-            vacuum_thickness=d["vacuum_thickness"],
-            ab_shift=d["ab_shift"],
-            oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
+            rotation_axis=dct["rotation_axis"],
+            rotation_angle=dct["rotation_angle"],
+            gb_plane=dct["gb_plane"],
+            join_plane=dct["join_plane"],
+            init_cell=Structure.from_dict(dct["init_cell"]),
+            vacuum_thickness=dct["vacuum_thickness"],
+            ab_shift=dct["ab_shift"],
+            oriented_unit_cell=Structure.from_dict(dct["oriented_unit_cell"]),
             site_properties=struct.site_properties,
         )
 
