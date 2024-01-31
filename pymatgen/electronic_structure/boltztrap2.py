@@ -461,11 +461,11 @@ class BztInterpolator:
 
     def load(self, fname="bztInterp.json.gz"):
         """Load the coefficient, equivalences, bands from fname."""
-        d = loadfn(fname)
-        if len(d) > 2:
-            self.equivalences, coeffs, self.eband, self.vvband, self.cband = d
+        dct = loadfn(fname)
+        if len(dct) > 2:
+            self.equivalences, coeffs, self.eband, self.vvband, self.cband = dct
             bands_loaded = True
-        elif len(d) == 2:
+        elif len(dct) == 2:
             self.equivalences, coeffs = loadfn(fname)
             bands_loaded = False
         else:

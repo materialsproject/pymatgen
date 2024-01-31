@@ -451,13 +451,13 @@ class SymmOp(MSONable):
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, d) -> SymmOp:
-        """:param d: dict
+    def from_dict(cls, dct) -> SymmOp:
+        """:param dct: dict
 
         Returns:
             SymmOp from dict representation.
         """
-        return cls(d["matrix"], d["tolerance"])
+        return cls(dct["matrix"], dct["tolerance"])
 
 
 class MagSymmOp(SymmOp):
@@ -609,10 +609,10 @@ class MagSymmOp(SymmOp):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> MagSymmOp:
-        """:param d: dict
+    def from_dict(cls, dct: dict) -> MagSymmOp:
+        """:param dct: dict
 
         Returns:
             MagneticSymmOp from dict representation.
         """
-        return cls(d["matrix"], tol=d["tolerance"], time_reversal=d["time_reversal"])
+        return cls(dct["matrix"], tol=dct["tolerance"], time_reversal=dct["time_reversal"])
