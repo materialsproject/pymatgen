@@ -444,7 +444,7 @@ class Slab(Structure):
         self.append(specie, coords, coords_are_cartesian=True)
 
     def __str__(self) -> str:
-        def to_s(x) -> str:
+        def to_str(x) -> str:
             return f"{x:0.6f}"
 
         comp = self.composition
@@ -453,21 +453,13 @@ class Slab(Structure):
             f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
-            "abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc),
-            "angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles),
+            f"abc   : {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.abc)}",
+            f"angles: {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.angles)}",
             f"Sites ({len(self)})",
         ]
 
-        for i, site in enumerate(self):
-            outs.append(
-                " ".join(
-                    [
-                        str(i + 1),
-                        site.species_string,
-                        " ".join(to_s(j).rjust(12) for j in site.frac_coords),
-                    ]
-                )
-            )
+        for idx, site in enumerate(self):
+            outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
         return "\n".join(outs)
 
     def as_dict(self):
