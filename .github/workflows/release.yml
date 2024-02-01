@@ -55,6 +55,12 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
+      # TODO: remove pipx manual install if https://github.com/actions/runner-images/issues/9256
+      # is resolved
+      - name: Install pipx
+        if: matrix.os == 'macos-14'
+        run: brew install pipx && pipx ensurepath
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
