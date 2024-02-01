@@ -25,7 +25,7 @@ For developers interested in expanding `pymatgen` for their own purposes, we rec
 1. Make a new branch for your contributions
 
     ```sh
-    git checkout -b my-new-fix-or-feature # should be run from up-to-date master
+    git checkout -b my-new-fix-or-feature # should be run from up-to-date main
     ```
 
 1. Code (see [Coding Guidelines](#coding-guidelines)). Commit early and commit often. Keep your code up to date. You need to add the main repository to the list of your remotes.
@@ -34,16 +34,16 @@ For developers interested in expanding `pymatgen` for their own purposes, we rec
     git remote add upstream https://github.com/materialsproject/pymatgen
     ```
 
-    Make sure your repository is clean (no uncommitted changes) and is currently on the master branch. If not, commit or stash any changes and switch to the master.
+    Make sure your repository is clean (no uncommitted changes) and is currently on the main branch. If not, commit or stash any changes and switch to the main.
 
     ```sh
-    git checkout master
+    git checkout main
     ```
 
     Then you can pull all the new commits from the main line
 
     ```sh
-    git pull upstream master
+    git pull upstream main
     ```
 
     Remember, pull is a combination of the commands fetch and merge, so there may be merge conflicts to be manually resolved.
@@ -57,7 +57,7 @@ For developers interested in expanding `pymatgen` for their own purposes, we rec
     1. If everything is ok, publish the commits to your GitHub repository.
 
     ```sh
-    git push origin master
+    git push origin main
     ```
 
 1. Now that your commit is published, it doesn't mean that it has already been merged into the main repository. You should issue a merge request to `pymatgen` maintainers. They will pull your commits and run their own tests before releasing.

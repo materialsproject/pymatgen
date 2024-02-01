@@ -5,11 +5,11 @@ nav_order: 1
 ---
 
 <h1 align="center">
-  <img alt="pymatgen logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen.svg" width="300px">
+  <img alt="pymatgen logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/main/docs/assets/pymatgen.svg" width="300px">
 </h1>
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
+[![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/main/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
 [![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
@@ -151,7 +151,7 @@ For some extras, you can also install the optional dependencies using:
 pip install pymatgen[extra]
 ```
 
-For an always up-to-date list of extras, consult the [setup.py's extras_require](https://github.com/materialsproject/pymatgen/blob/master/setup.py).
+For an always up-to-date list of extras, consult the [setup.py's extras_require](https://github.com/materialsproject/pymatgen/blob/main/setup.py).
 
 ### Shared cluster installation
 

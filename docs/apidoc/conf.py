@@ -212,7 +212,7 @@ html_context = {
     "display_github": True,
     "github_user": "materialsproject",
     "github_repo": "pymatgen",
-    "github_version": "master",
+    "github_version": "main",
     "conf_py_path": "/docs_rst/",
 }
 

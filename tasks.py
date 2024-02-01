@@ -70,21 +70,6 @@ def make_doc(ctx):
 
 
 @task
-def submit_dash_pr(ctx, version):
-    with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        payload = {
-            "title": f"Update pymatgen docset to v{version}",
-            "body": f"Update pymatgen docset to v{version}",
-            "head": "Dash-User-Contributions:master",
-            "base": "master",
-        }
-        response = requests.post(
-            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls", data=json.dumps(payload)
-        )
-        print(response.text)
-
-
-@task
 def publish(ctx):
     """
     Upload release to Pypi using twine.
@@ -128,7 +113,7 @@ def release_github(ctx, version):
     desc = "\n".join(tokens[:-1]).strip()
     payload = {
         "tag_name": f"v{version}",
-        "target_commitish": "master",
+        "target_commitish": "main",
         "name": f"v{version}",
         "body": desc,
         "draft": False,

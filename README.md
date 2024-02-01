@@ -1,7 +1,7 @@
 <h1 align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/materialsproject/pymatgen/raw/master/docs/assets/pymatgen-white.svg">
-    <img alt="Logo" src="https://github.com/materialsproject/pymatgen/raw/master/docs/assets/pymatgen.svg"
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/materialsproject/pymatgen/raw/main/docs/assets/pymatgen-white.svg">
+    <img alt="Logo" src="https://github.com/materialsproject/pymatgen/raw/main/docs/assets/pymatgen.svg"
 height="70">
   </picture>
 </h1>
@@ -9,7 +9,7 @@ height="70">
 <h4 align="center">
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
+[![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/main/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
 [![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
@@ -67,7 +67,7 @@ The minimum Python version is 3.9. Some extra functionality (e.g., generation of
 
 ## Change Log
 
-See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`docs/CHANGES.md`](docs/CHANGES.md) or [commit history](https://github.com/materialsproject/pymatgen/commits/master) in increasing order of details.
+See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`docs/CHANGES.md`](docs/CHANGES.md) or [commit history](https://github.com/materialsproject/pymatgen/commits/main) in increasing order of details.
 
 ## Using pymatgen
 
