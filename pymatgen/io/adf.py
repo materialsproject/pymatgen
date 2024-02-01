@@ -543,7 +543,7 @@ class AdfTask(MSONable):
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
                 raise ValueError(f"{block_key} is not an AdfKey!")
-            out += str(block_key) + "\n"
+            out += f"{block_key}\n"
         return out
 
     def as_dict(self):
@@ -634,8 +634,8 @@ class AdfInput:
 
         with open(inp_file, "w+") as file:
             for block in mol_blocks:
-                file.write(str(block) + "\n")
-            file.write(str(self.task) + "\n")
+                file.write(f"{block}\n")
+            file.write(f"{self.task}\n")
             file.write("END INPUT")
 
 

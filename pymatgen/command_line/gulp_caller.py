@@ -287,7 +287,7 @@ class GulpIO:
             alpha, beta, gamma = lattice.angles
             a, b, c = lattice.lengths
             lat_str = f"{a:6f} {b:6f} {c:6f} {alpha:6f} {beta:6f} {gamma:6f}"
-            gin += lat_str + "\n"
+            gin += f"{lat_str}\n"
 
         if frac_flg:
             gin += "frac\n"
@@ -308,7 +308,7 @@ class GulpIO:
 
         if symm_flg:
             gin += "space\n"
-            gin += str(SpacegroupAnalyzer(structure).get_space_group_number()) + "\n"
+            gin += f"{SpacegroupAnalyzer(structure).get_space_group_number()}\n"
         return gin
 
     @staticmethod
@@ -367,7 +367,7 @@ class GulpIO:
                 if readable(fpath):
                     gin = "library " + file_name
         if gin:
-            return gin + "\n"
+            return f"{gin}\n"
         raise GulpError("GULP library not found")
 
     def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
@@ -694,7 +694,7 @@ class GulpCaller:
 
             gout = ""
             for line in out.split("\n"):
-                gout = gout + line + "\n"
+                gout = f"{gout}{line}\n"
             return gout
 
 

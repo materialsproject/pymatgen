@@ -85,7 +85,7 @@ def main():
 
     xc_funcs = parse_libxc_docs(path)
 
-    # Generate new json file in pycore
+    # Generate new JSON file in pycore
     pmg_core = os.path.abspath("../pymatgen/core/")
     json_path = f"{pmg_core}/libxc_docs.json"
     write_libxc_docs_json(xc_funcs, json_path)

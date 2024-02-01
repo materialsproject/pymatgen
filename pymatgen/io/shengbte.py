@@ -177,19 +177,19 @@ class Control(MSONable, dict):
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})
-        control_str = str(alloc_nml) + "\n"
+        control_str = f"{alloc_nml}\n"
 
         crystal_dict = _get_subdict(self, self.crystal_keys)
         crystal_nml = f90nml.Namelist({"crystal": crystal_dict})
-        control_str += str(crystal_nml) + "\n"
+        control_str += f"{crystal_nml}\n"
 
         params_dict = _get_subdict(self, self.params_keys)
         params_nml = f90nml.Namelist({"parameters": params_dict})
-        control_str += str(params_nml) + "\n"
+        control_str += f"{params_nml}\n"
 
         flags_dict = _get_subdict(self, self.flags_keys)
         flags_nml = f90nml.Namelist({"flags": flags_dict})
-        control_str += str(flags_nml) + "\n"
+        control_str += f"{flags_nml}\n"
 
         with open(filename, mode="w") as file:
             file.write(control_str)

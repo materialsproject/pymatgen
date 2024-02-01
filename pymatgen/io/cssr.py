@@ -53,7 +53,7 @@ class Cssr:
             filename (str): Filename to write to.
         """
         with zopen(filename, mode="wt") as file:
-            file.write(str(self) + "\n")
+            file.write(f"{self}\n")
 
     @classmethod
     def from_str(cls, string):

@@ -6,6 +6,34 @@ nav_order: 4
 
 # Changelog
 
+## v2024.2.1
+
+### 🐛 Bug Fixes
+
+* Fix `Vasprun.get_potcars` search method; tweak fake POTCARs by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3587
+
+### 🛠 Enhancements
+
+* Aims input sets by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3482
+
+### 📖 Documentation
+
+* Adding FHI-aims inputs developers by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3592
+
+### 🧪 Tests
+
+* Add tests for the New Vasp input sets by @Zhuoying in https://github.com/materialsproject/pymatgen/pull/3576
+
+### 🏥 Package Health
+
+* Switch macOS wheel building to new M1 runners by @janosh in https://github.com/materialsproject/pymatgen/pull/3596
+
+### 🤷‍♂️ Other Changes
+
+* Fix text formatting in `bug_report.yaml` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3589
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.1.27...v2024.2.1
+
 ## v2024.1.26
 
 ### 🐛 Bug Fixes

@@ -369,7 +369,7 @@ class Header(MSONable):
             filename: Filename and path for file to be written to disk
         """
         with open(filename, mode="w") as file:
-            file.write(str(self) + "\n")
+            file.write(f"{self}\n")
 
 
 class Atoms(MSONable):
@@ -942,7 +942,7 @@ class Potential(MSONable):
             filename: filename and path to write potential file to.
         """
         with zopen(filename, mode="wt") as file:
-            file.write(str(self) + "\n")
+            file.write(f"{self}\n")
 
 
 class Paths(MSONable):
@@ -983,7 +983,7 @@ class Paths(MSONable):
     def write_file(self, filename="paths.dat"):
         """Write paths.dat."""
         with zopen(filename, mode="wt") as file:
-            file.write(str(self) + "\n")
+            file.write(f"{self}\n")
 
 
 class FeffParseError(ParseError):
