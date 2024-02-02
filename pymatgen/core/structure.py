@@ -2083,7 +2083,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Invalid {reduction_algo=}")
 
         if reduced_latt != self.lattice:
-            return self.__class__(
+            return type(self)(
                 reduced_latt,
                 self.species_and_occu,
                 self.cart_coords,  # type: ignore
@@ -2124,7 +2124,7 @@ class IStructure(SiteCollection, MSONable):
         if properties:
             props.update(properties)
         if not sanitize:
-            return self.__class__(
+            return type(self)(
                 self._lattice,
                 self.species_and_occu,
                 self.frac_coords,
@@ -2265,9 +2265,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 lattice = self.lattice
             fcoords = start_coords + x * vec
-            structs.append(
-                self.__class__(lattice, sp, fcoords, site_properties=self.site_properties, labels=self.labels)
-            )
+            structs.append(type(self)(lattice, sp, fcoords, site_properties=self.site_properties, labels=self.labels))
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -3517,7 +3515,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return self.__class__(
+        return type(self)(
             self.species_and_occu,
             new_coords,
             charge=self._charge,
