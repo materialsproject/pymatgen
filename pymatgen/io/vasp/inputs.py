@@ -694,10 +694,6 @@ class BadPoscarWarning(UserWarning):
     """Warning class for bad POSCAR entries."""
 
 
-with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") as json_file:
-    incar_params = json.loads(json_file.read())
-
-
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -990,22 +986,37 @@ class Incar(dict, MSONable):
 
     def check_params(self):
         """
-        Raise a warning for nonexistent INCAR tags or invalid values.
-        If a tag doesn't exist (e.g. typo), calculation will still run,
-        however VASP will ignore the tag without letting you know.
+        Check INCAR for invalid tags or values.
+        If a tag doesn't exist, calculation will still run, however VASP
+        will ignore the tag and set it as default without letting you know.
         """
-        for tag, val in self.items():
-            # First check if this tag exists
-            if tag not in incar_params:
-                warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
+        # Load INCAR tag/value check reference file
+        with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") as json_file:
+            incar_params = json.loads(json_file.read())
 
-            # Now check if the tag type is appropriate
-            elif isinstance(incar_params[tag], str) and type(val).__name__ != incar_params[tag]:
-                warnings.warn(f"{tag}: {val} is not a {incar_params[tag]}", BadIncarWarning, stacklevel=2)
+        for tag, val in self.items():
+            # Check if the tag exists
+            if tag not in incar_params:
+                warnings.warn(
+                    f"Cannot find {tag} in the list of INCAR tags",
+                    BadIncarWarning, stacklevel=2
+                    )
+
+            # Check the value type
+            elif incar_params[tag].get("type") is not None \
+                    and type(val).__name__ != incar_params[tag]["type"]:
+                warnings.warn(
+                    f"{tag}: {val} is not a {incar_params[tag]['type']}",
+                    BadIncarWarning, stacklevel=2
+                    )
 
             # Check if the given value is in the list
-            elif isinstance(incar_params[tag], list) and val not in incar_params[tag]:
-                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+            elif incar_params[tag].get("values") is not None \
+                    and val not in incar_params[tag]["values"]:
+                warnings.warn(
+                    f"{tag}: Cannot find {val} in the list of values",
+                    BadIncarWarning, stacklevel=2
+                    )
 
 
 class BadIncarWarning(UserWarning):

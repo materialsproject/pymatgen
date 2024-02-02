@@ -787,7 +787,6 @@ SIGMA = 0.1"""
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
 
     def test_check_params(self):
-        # Triggers warnings when running into invalid parameters
         with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
@@ -796,12 +795,13 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
-                    "NBAND": 250,  # typo in tag
-                    "METAGGA": "SCAM",  # typo in value
+
+                    "NBAND": 250,  # typo in tag, expect "NBANDS"
+                    "METAGGA": "SCAM",  # typo in value, expect "SCAN"
                     "EDIFF": 5 + 1j,  # value should be a float
                     "ISIF": 9,  # value out of range
                     "LASPH": 5,  # value should be bool
-                    "PHON_TLIST": "is_a_str",  # value should be a list
+                    "PHON_TLIST": "is_str",  # value should be a list
                 }
             )
             incar.check_params()
@@ -811,7 +811,7 @@ SIGMA = 0.1"""
         assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
         assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
         assert record[4].message.args[0] == "LASPH: 5 is not a bool"
-        assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
+        assert record[5].message.args[0] == "PHON_TLIST: is_str is not a list"
 
 
 class TestKpointsSupportedModes:
