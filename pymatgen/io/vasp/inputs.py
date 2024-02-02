@@ -2677,8 +2677,8 @@ class VaspInput(dict, MSONable):
 
         output_dir = Path(output_dir)
 
-        if make_dir_if_not_present:
-            output_dir.mkdir(parents=True, exist_ok=False)
+        if make_dir_if_not_present and not output_dir.is_dir():
+            output_dir.mkdir(parents=True)
         for k, v in self.items():
             if v is not None:
                 with zopen(output_dir / k, "wt") as f:
