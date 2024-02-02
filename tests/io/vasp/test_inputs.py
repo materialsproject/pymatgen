@@ -796,6 +796,8 @@ SIGMA = 0.1"""
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
 
+                    "LREAL": "Auto",  # Union type of "bool | str"
+
                     "NBAND": 250,  # typo in tag, expect "NBANDS"
                     "METAGGA": "SCAM",  # typo in value, expect "SCAN"
                     "EDIFF": 5 + 1j,  # value should be a float
