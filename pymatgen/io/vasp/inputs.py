@@ -51,12 +51,6 @@ __copyright__ = "Copyright 2011, The Materials Project"
 logger = logging.getLogger(__name__)
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
-# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-# written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
-
 
 class Poscar(MSONable):
     """
@@ -1628,11 +1622,21 @@ def _parse_list(s):
 
 
 Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
-OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
+OrbitalDescription = namedtuple(
+    "OrbitalDescription",
+    ["l", "E", "Type", "Rcut", "Type2", "Rcut2"]
+    )
 
-
-class UnknownPotcarWarning(UserWarning):
-    """Warning raised when POTCAR hashes do not pass validation."""
+# hashes computed from the full POTCAR file contents by pymatgen
+# (not 1st-party VASP hashes)
+PYMATGEN_POTCAR_HASHES = loadfn(
+    f"{module_dir}/vasp_potcar_pymatgen_hashes.json"
+    )
+# written to some newer POTCARs by VASP
+VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH = os.path.join(
+    module_dir, "potcar-summary-stats.json.bz2"
+    )
 
 
 class PotcarSingle:
@@ -1642,8 +1646,9 @@ class PotcarSingle:
 
     Attributes:
         data (str): POTCAR data as a string.
-        keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
-            accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
+        keywords (dict): Keywords parsed from the POTCAR as a dict.
+        All keywords are also accessible as attributes in themselves.
+        E.g., potcar.enmax, potcar.encut, etc.
 
     md5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors
@@ -1651,10 +1656,10 @@ class PotcarSingle:
     """
 
     # NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
-    #     the original (univie) releases include no SHA256 hashes nor COPYR fields
-    #     in the PSCTR/header field.
-    # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
-    # The newer release is indicated as PBE_52_W_HASH, etc.
+    #     the original (univie) releases include no SHA256 hashes nor COPYR
+    #     fields in the PSCTR/header field.
+    # We indicate the older release in `functional_dir` as PBE_52, PBE_54,
+    # LDA_52, LDA_54. The newer release is indicated as PBE_52_W_HASH, etc.
     functional_dir = dict(
         PBE="POT_GGA_PAW_PBE",
         PBE_52="POT_GGA_PAW_PBE_52",
@@ -1731,9 +1736,10 @@ class PotcarSingle:
         """
         Args:
             data (str): Complete and single POTCAR file as a string.
-            symbol (str): POTCAR symbol corresponding to the filename suffix e.g. "Tm_3" for POTCAR.TM_3".
-                If not given, pymatgen will attempt to extract the symbol from the file itself. This is
-                not always reliable!
+            symbol (str): POTCAR symbol corresponding to the filename suffix
+                e.g. "Tm_3" for POTCAR.TM_3". If not given, pymatgen will
+                attempt to extract the symbol from the file itself.
+                This is not always reliable!
         """
         self.data = data  # raw POTCAR as a string
 
@@ -1744,7 +1750,10 @@ class PotcarSingle:
         search_lines = match.group(1) if match else ""
 
         keywords = {}
-        for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
+        for key, val in re.findall(
+                r"(\S+)\s*=\s*(.*?)(?=;|$)",
+                search_lines, flags=re.MULTILINE
+                ):
             try:
                 keywords[key] = self.parse_functions[key](val)  # type: ignore
             except KeyError:
@@ -1755,7 +1764,9 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_config_match = re.search(r"(?s)Atomic configuration(.*?)Description", search_lines)
+        atomic_config_match = re.search(
+            r"(?s)Atomic configuration(.*?)Description", search_lines
+            )
         if atomic_config_match:
             lines = atomic_config_match.group(1).splitlines()
             match = re.search(r"([0-9]+)", lines[1])
@@ -1765,7 +1776,8 @@ class PotcarSingle:
                 orbit = array_search.findall(line)
                 if orbit:
                     orbitals.append(
-                        Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]), float(orbit[3]), float(orbit[4]))
+                        Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]),
+                                float(orbit[3]), float(orbit[4]))
                     )
             PSCTR["Orbitals"] = tuple(orbitals)
 
@@ -1813,8 +1825,8 @@ class PotcarSingle:
             except IndexError:
                 self._symbol = keywords["TITEL"].strip()
 
-        # Compute the POTCAR meta to check them against the database of known metadata,
-        # and possibly SHA256 hashes contained in the file itself.
+        # Compute the POTCAR meta to check them against the database of known
+        # metadata, and possibly SHA256 hashes contained in the file itself.
 
         if not self.is_valid:
             warnings.warn(
@@ -1871,11 +1883,15 @@ class PotcarSingle:
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
 
-            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as file:
+            with codecs.open(
+                    filename, "r", encoding="utf-8", errors="ignore"
+                    ) as file:
                 return cls(file.read(), symbol=symbol or None)
 
     @classmethod
-    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
+    def from_symbol_and_functional(
+        cls, symbol: str, functional: str | None = None
+    ):
         """
         Makes a PotcarSingle from a symbol and functional.
 
@@ -1997,8 +2013,8 @@ class PotcarSingle:
 
         Returns:
             symbol (list): List of symbols associated with the PotcarSingle
-            potcar_functionals (list): List of potcar functionals associated with
-                the PotcarSingle
+            potcar_functionals (list): List of potcar functionals associated
+            with the PotcarSingle
         """
         if mode == "data":
             check_modes = ["header"]
@@ -2397,8 +2413,14 @@ class PotcarSingle:
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 
+class UnknownPotcarWarning(UserWarning):
+    """Warning raised when POTCAR hashes do not pass validation."""
+
+
 def _gen_potcar_summary_stats(
-    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str = POTCAR_STATS_PATH
+    append: bool = False,
+    vasp_psp_dir: str | None = None,
+    summary_stats_filename: str = POTCAR_STATS_PATH
 ):
     """
     This function solely intended to be used for PMG development to regenerate the
