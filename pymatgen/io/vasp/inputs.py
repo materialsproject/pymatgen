@@ -15,6 +15,7 @@ import os
 import re
 import subprocess
 import warnings
+from ast import literal_eval
 from collections import namedtuple
 from enum import Enum
 from glob import glob
