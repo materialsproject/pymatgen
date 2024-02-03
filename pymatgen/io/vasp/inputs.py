@@ -991,8 +991,7 @@ class Incar(dict, MSONable):
         will ignore the tag and set it as default without letting you know.
         """
         # Load INCAR tag/value check reference file
-        with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") \
-                as json_file:
+        with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") as json_file:
             incar_params = json.loads(json_file.read())
 
         for tag, val in self.items():
@@ -1008,8 +1007,7 @@ class Incar(dict, MSONable):
             param_type = incar_params[tag].get("type")
             allowed_values = incar_params[tag].get("values")
 
-            if param_type is not None \
-                    and not isinstance(val, eval(param_type)):
+            if param_type is not None and not isinstance(val, eval(param_type)):
                 warnings.warn(
                     f"{tag}: {val} is not a {param_type}",
                     BadIncarWarning, stacklevel=2
