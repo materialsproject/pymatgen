@@ -16,7 +16,8 @@
  },
  "ALGO": {
    "type": "str",
-   "values": [
+   "values":
+   [
       "Normal",
       "VeryFast",
       "Fast",
@@ -649,16 +650,14 @@
  "LPLANE": {
     "type": "bool"
  },
- "LREAL": {
-   "values": [
-      false,
-      true,
-      "O",
-      "A",
-      "Auto",
-      "On"
-     ]
- },
+ "LREAL": [
+  false,
+  true,
+  "O",
+  "A",
+  "Auto",
+  "On"
+ ],
  "LRPA": {
     "type": "bool"
  },
