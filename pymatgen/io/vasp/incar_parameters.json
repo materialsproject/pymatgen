@@ -650,7 +650,6 @@
     "type": "bool"
  },
  "LREAL": {
-   "type": "Union[bool, str]",
    "values": [
       false,
       true,
