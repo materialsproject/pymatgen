@@ -490,7 +490,7 @@ Cartesian
 0.000000   0.00000000   0.00000000 T T T
 3.840198   1.50000000   2.35163175 T T T
 """
-        with pytest.warns(BadPoscarWarning, match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed."):
+        with pytest.warns(BadPoscarWarning, match="Selective dynamics toggled with ALL degrees of freedom relaxed."):
             Poscar.from_str(poscar_str_all_dof_relaxed)
 
 
