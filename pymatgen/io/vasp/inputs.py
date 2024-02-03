@@ -1001,23 +1001,22 @@ class Incar(dict, MSONable):
                     f"Cannot find {tag} in the list of INCAR tags",
                     BadIncarWarning, stacklevel=2
                     )
-                continue
 
-            # Check value and its type
-            param_type = incar_params[tag].get("type")
-            allowed_values = incar_params[tag].get("values")
-
-            if param_type is not None and not isinstance(val, eval(param_type)):
+            # Check the value type
+            elif incar_params[tag].get("type") is not None \
+                    and type(val).__name__ != incar_params[tag]["type"]:
                 warnings.warn(
-                    f"{tag}: {val} is not a {param_type}",
+                    f"{tag}: {val} is not a {incar_params[tag]['type']}",
                     BadIncarWarning, stacklevel=2
-                )
+                    )
 
-            if allowed_values is not None and val not in allowed_values:
+            # Check if the given value is in the list
+            elif incar_params[tag].get("values") is not None \
+                    and val not in incar_params[tag]["values"]:
                 warnings.warn(
                     f"{tag}: Cannot find {val} in the list of values",
                     BadIncarWarning, stacklevel=2
-                )
+                    )
 
 
 class BadIncarWarning(UserWarning):
