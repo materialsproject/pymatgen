@@ -15,12 +15,10 @@ import os
 import re
 import subprocess
 import warnings
-from ast import literal_eval
 from collections import namedtuple
 from enum import Enum
 from glob import glob
 from hashlib import sha256
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union
 
 import numpy as np
@@ -51,7 +49,7 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chev
 __copyright__ = "Copyright 2011, The Materials Project"
 
 logger = logging.getLogger(__name__)
-module_dir = Path(__file__).resolve().parent
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class Poscar(MSONable):
@@ -258,7 +256,7 @@ class Poscar(MSONable):
             warnings.warn("check_for_POTCAR is deprecated. Use check_for_potcar instead.", DeprecationWarning)
             check_for_potcar = kwargs.pop("check_for_POTCAR")
 
-        dirname = Path(filename).resolve().parent
+        dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_potcar and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
             potcars = glob(f"{dirname}/*POTCAR*")
@@ -987,7 +985,7 @@ class Incar(dict, MSONable):
         will ignore the tag and set it as default without letting you know.
         """
         # Load INCAR tag/value check reference file
-        with open(module_dir / "incar_parameters.json", encoding="utf-8") \
+        with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") \
                 as json_file:
             incar_params = json.loads(json_file.read())
 
@@ -1631,10 +1629,14 @@ OrbitalDescription = namedtuple(
 
 # hashes computed from the full POTCAR file contents by pymatgen
 # (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(module_dir / "vasp_potcar_pymatgen_hashes.json")
+PYMATGEN_POTCAR_HASHES = loadfn(
+    f"{module_dir}/vasp_potcar_pymatgen_hashes.json"
+    )
 # written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(module_dir / "vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH = module_dir / "potcar-summary-stats.json.bz2"
+VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH = os.path.join(
+    module_dir, "potcar-summary-stats.json.bz2"
+    )
 
 
 class PotcarSingle:
@@ -1903,20 +1905,20 @@ class PotcarSingle:
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         assert isinstance(functional, str)  # mypy type narrowing
         funcdir = cls.functional_dir[functional]
-        PMG_VASP_PSP_DIR = Path(SETTINGS.get("PMG_VASP_PSP_DIR"))
+        PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
             raise ValueError(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
             )
         paths_to_try = [
-            PMG_VASP_PSP_DIR / funcdir / f"POTCAR.{symbol}",
-            PMG_VASP_PSP_DIR / funcdir / symbol / "POTCAR",
+            os.path.join(PMG_VASP_PSP_DIR, funcdir, f"POTCAR.{symbol}"),
+            os.path.join(PMG_VASP_PSP_DIR, funcdir, symbol, "POTCAR"),
         ]
         for path in paths_to_try:
-            path = zpath(Path(path).expanduser())
+            path = os.path.expanduser(path)
+            path = zpath(path)
             if os.path.isfile(path):
                 return cls.from_file(path)
-
         raise OSError(
             f"You do not have the right POTCAR with {functional=} and {symbol=} "
             f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"
@@ -2437,8 +2439,8 @@ def _gen_potcar_summary_stats(
     func_dir_exist: dict[str, str] = {}
     vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
     for func, cpsp_dir in PotcarSingle.functional_dir.items():
-        cpsp_path = Path(vasp_psp_dir) / cpsp_dir
-        if cpsp_path.is_dir():
+        cpsp_dir = f"{vasp_psp_dir}/{cpsp_dir}"
+        if os.path.isdir(cpsp_dir):
             func_dir_exist[func] = cpsp_dir
         else:
             warnings.warn(f"missing {cpsp_dir} POTCAR directory.")
@@ -2674,14 +2676,11 @@ class VaspInput(dict, MSONable):
             make_dir_if_not_present (bool): Create the directory if not
                 present. Defaults to True.
         """
-
-        output_dir = Path(output_dir)
-
         if make_dir_if_not_present:
-            output_dir.mkdir(parents=True, exist_ok=False)
+            os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
-                with zopen(output_dir / k, "wt") as f:
+                with zopen(os.path.join(output_dir, k), "wt") as f:
                     f.write(str(v))
 
     @classmethod
@@ -2697,7 +2696,6 @@ class VaspInput(dict, MSONable):
                 dict of {filename: Object type}. Object type must have a
                 static method from_file.
         """
-        input_dir = Path(input_dir)
         sub_d = {}
         for fname, ftype in [
             ("INCAR", Incar),
@@ -2706,7 +2704,7 @@ class VaspInput(dict, MSONable):
             ("POTCAR", Potcar),
         ]:
             try:
-                full_zpath = zpath(input_dir / fname)
+                full_zpath = zpath(os.path.join(input_dir, fname))
                 sub_d[fname.lower()] = ftype.from_file(full_zpath)
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_d[fname.lower()] = None
@@ -2714,7 +2712,7 @@ class VaspInput(dict, MSONable):
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = ftype.from_file(input_dir / fname)
+                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
         return cls(**sub_d)
 
     def run_vasp(
