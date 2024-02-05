@@ -59,8 +59,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
 
 class TestPoscar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        comp = Structure.from_file(filepath).composition
+        comp = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
@@ -458,7 +457,7 @@ direct
         with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
-                    line = " ".join([x + "/" for x in line.split()]) + "\n"
+                    line = " ".join(f"{x}/" for x in line.split()) + "\n"
                 poscar_str += line
         poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.formula == "Li4 Fe4 P4 O16"
@@ -466,8 +465,7 @@ direct
 
 class TestIncar(PymatgenTest):
     def setUp(self):
-        file_name = f"{TEST_FILES_DIR}/INCAR"
-        self.incar = Incar.from_file(file_name)
+        self.incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
     def test_init(self):
         incar = self.incar
@@ -475,6 +473,15 @@ class TestIncar(PymatgenTest):
         assert incar["ALGO"] == "Damped", "Wrong Algo"
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
+
+    def test_copy(self):
+        incar2 = self.incar.copy()
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert incar2 == self.incar
+        # modify incar2 and check that incar1 is not modified
+        incar2["LDAU"] = "F"
+        assert incar2["LDAU"] is False
+        assert self.incar.get("LDAU") is None
 
     def test_diff(self):
         filepath1 = f"{TEST_FILES_DIR}/INCAR"
