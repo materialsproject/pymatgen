@@ -186,7 +186,7 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
                     with zopen(os.path.join(output_dir, key), mode="wt") as file:
                         file.write(str(val))
         else:
-            vasp_input = self.get_vasp_input()
+            vasp_input = self.get_input_set()
             vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
         cif_name = ""
