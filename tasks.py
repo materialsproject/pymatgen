@@ -33,9 +33,7 @@ def make_doc(ctx):
         ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm pymatgen.*.rst", warn=True)
         # ctx.run("rm pymatgen.*.md", warn=True)
-        ctx.run(
-            "sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*"
-        )
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
@@ -158,9 +156,7 @@ def update_changelog(ctx, version=None, dry_run=False):
     :param ctx:
     """
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
-    output = subprocess.check_output(
-        ["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"]
-    )
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):
@@ -168,9 +164,7 @@ def update_changelog(ctx, version=None, dry_run=False):
         if re_match and "materialsproject/dependabot/pip" not in line:
             pr_number = re_match.group(1)
             contributor, pr_name = re_match.group(2).split("/", 1)
-            response = requests.get(
-                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}"
-            )
+            response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
             lines.append(f"* PR #{pr_number} from @{contributor} {pr_name}")
             json_resp = response.json()
             if body := json_resp["body"]:
@@ -225,8 +219,6 @@ def release(ctx, version=None, nodoc=False):
 def open_doc(ctx):
     """
     Open local documentation in web browser.
-
-    :param ctx:
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open(f"file://{pth}")
