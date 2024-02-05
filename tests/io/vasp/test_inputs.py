@@ -1280,6 +1280,22 @@ class TestVaspInput(PymatgenTest):
 
         assert {*os.listdir(tmp_dir)} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
 
+    def test_copy(self):
+        vasp_input2 = self.vasp_input.copy(deep=True)
+        assert isinstance(vasp_input2, VaspInput)
+        # make copy and original serialize to the same dict
+        assert vasp_input2.as_dict() == self.vasp_input.as_dict()
+        # modify the copy and make sure the original is not modified
+        vasp_input2["INCAR"]["NSW"] = 100
+        assert vasp_input2["INCAR"]["NSW"] == 100
+        assert self.vasp_input["INCAR"]["NSW"] == 99
+
+        # make a shallow copy and make sure the original is modified
+        vasp_input3 = self.vasp_input.copy(deep=False)
+        vasp_input3["INCAR"]["NSW"] = 100
+        assert vasp_input3["INCAR"]["NSW"] == 100
+        assert self.vasp_input["INCAR"]["NSW"] == 100
+
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
         with open("vasp.out") as file:
