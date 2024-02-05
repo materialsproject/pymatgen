@@ -682,8 +682,8 @@ class Incar(dict, MSONable):
                 params.get("LSORBIT") or params.get("LNONCOLLINEAR")
             ):
                 val = []
-                for i in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][i * 3 : (i + 1) * 3])
+                for idx in range(len(params["MAGMOM"]) // 3):
+                    val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
                 params["MAGMOM"] = val
 
             self.update(params)
@@ -2541,7 +2541,15 @@ class Potcar(list, MSONable):
 class VaspInput(dict, MSONable):
     """Class to contain a set of vasp input objects corresponding to a run."""
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
+    def __init__(
+        self,
+        incar: Incar,
+        kpoints: Kpoints,
+        poscar: Poscar,
+        potcar: Potcar,
+        optional_files: dict[PathLike, object] | None = None,
+        **kwargs,
+    ) -> None:
         """
         Initializes a VaspInput object with the given input files.
 
@@ -2562,19 +2570,19 @@ class VaspInput(dict, MSONable):
 
     def __str__(self):
         output = []
-        for k, v in self.items():
-            output.extend((k, str(v), ""))
+        for key, val in self.items():
+            output.extend((key, str(val), ""))
         return "\n".join(output)
 
     def as_dict(self):
         """MSONable dict."""
-        dct = {k: v.as_dict() for k, v in self.items()}
+        dct = {key: val.as_dict() for key, val in self.items()}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         :param d: Dict representation.
 
@@ -2582,13 +2590,13 @@ class VaspInput(dict, MSONable):
             VaspInput
         """
         dec = MontyDecoder()
-        sub_d = {"optional_files": {}}
-        for k, v in d.items():
-            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
-                sub_d[k.lower()] = dec.process_decoded(v)
-            elif k not in ["@module", "@class"]:
-                sub_d["optional_files"][k] = dec.process_decoded(v)
-        return cls(**sub_d)
+        sub_dct = {"optional_files": {}}
+        for key, val in dct.items():
+            if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+                sub_dct[key.lower()] = dec.process_decoded(val)
+            elif key not in ["@module", "@class"]:
+                sub_dct["optional_files"][key] = dec.process_decoded(val)
+        return cls(**sub_dct)
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -2620,7 +2628,7 @@ class VaspInput(dict, MSONable):
                 dict of {filename: Object type}. Object type must have a
                 static method from_file.
         """
-        sub_d = {}
+        sub_dct = {}
         for fname, ftype in [
             ("INCAR", Incar),
             ("KPOINTS", Kpoints),
@@ -2629,15 +2637,15 @@ class VaspInput(dict, MSONable):
         ]:
             try:
                 full_zpath = zpath(os.path.join(input_dir, fname))
-                sub_d[fname.lower()] = ftype.from_file(full_zpath)
+                sub_dct[fname.lower()] = ftype.from_file(full_zpath)
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
-                sub_d[fname.lower()] = None
+                sub_dct[fname.lower()] = None
 
-        sub_d["optional_files"] = {}
+        sub_dct["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
-        return cls(**sub_d)
+                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
+        return cls(**sub_dct)
 
     def run_vasp(
         self,
