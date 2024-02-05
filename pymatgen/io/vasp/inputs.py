@@ -58,8 +58,7 @@ POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
 class Poscar(MSONable):
-    """
-    Object for representing the data in a POSCAR or CONTCAR file.
+    """Object for representing the data in a POSCAR or CONTCAR file.
 
     Attributes:
         structure: Associated Structure.
@@ -2649,6 +2648,12 @@ class VaspInput(dict, MSONable):
             for fname, ftype in optional_files.items():
                 sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
         return cls(**sub_dct)
+
+    def copy(self, deep: bool = True):
+        """Deep copy of VaspInput."""
+        if deep:
+            return self.from_dict(self.as_dict())
+        return type(self)(**{key.lower(): val for key, val in self.items()})
 
     def run_vasp(
         self,
