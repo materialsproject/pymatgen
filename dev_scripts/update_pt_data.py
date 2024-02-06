@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Developer script to convert yaml periodic table to json format.
 Created on Nov 15, 2011.
@@ -217,7 +215,7 @@ def gen_iupac_ordering():
         ([17], range(6, 1, -1)),
     ]  # At -> F
 
-    order = sum((list(product(x, y)) for x, y in order), [])
+    order = sum((list(product(x, y)) for x, y in order), [])  # noqa: RUF017
     iupac_ordering_dict = dict(zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order))))
 
     # first clean periodic table of any IUPAC ordering

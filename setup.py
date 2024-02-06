@@ -29,7 +29,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
-        "monty<=2024.1.23",  # https://github.com/materialsvirtuallab/monty/issues/610
+        "monty>=2024.2.2",
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",
@@ -170,9 +170,15 @@ setup(
             ["pymatgen/optimization/linear_assignment.pyx"],
             extra_link_args=extra_link_args,
         ),
-        Extension("pymatgen.util.coord_cython", ["pymatgen/util/coord_cython.pyx"], extra_link_args=extra_link_args),
         Extension(
-            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.pyx"], extra_link_args=extra_link_args
+            "pymatgen.util.coord_cython",
+            ["pymatgen/util/coord_cython.pyx"],
+            extra_link_args=extra_link_args,
+        ),
+        Extension(
+            "pymatgen.optimization.neighbors",
+            ["pymatgen/optimization/neighbors.pyx"],
+            extra_link_args=extra_link_args,
         ),
     ],
     entry_points={
