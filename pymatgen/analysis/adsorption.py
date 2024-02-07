@@ -298,7 +298,7 @@ class AdsorbateSiteFinder:
             sites = [site + distance * np.asarray(self.mvec) for site in sites]
 
             ads_sites[key] = sites
-        ads_sites["all"] = sum(ads_sites.values(), [])
+        ads_sites["all"] = sum(ads_sites.values(), [])  # noqa: RUF017
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):

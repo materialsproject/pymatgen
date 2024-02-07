@@ -593,20 +593,20 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> Poscar:
+    def from_dict(cls, dct: dict) -> Poscar:
         """
-        :param d: Dict representation.
+        :param dct: Dict representation.
 
         Returns:
             Poscar
         """
         return Poscar(
-            Structure.from_dict(d["structure"]),
-            comment=d["comment"],
-            selective_dynamics=d["selective_dynamics"],
-            true_names=d["true_names"],
-            velocities=d.get("velocities"),
-            predictor_corrector=d.get("predictor_corrector"),
+            Structure.from_dict(dct["structure"]),
+            comment=dct["comment"],
+            selective_dynamics=dct["selective_dynamics"],
+            true_names=dct["true_names"],
+            velocities=dct.get("velocities"),
+            predictor_corrector=dct.get("predictor_corrector"),
         )
 
     def set_temperature(self, temperature: float):

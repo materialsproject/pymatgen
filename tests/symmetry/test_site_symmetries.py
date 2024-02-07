@@ -34,7 +34,7 @@ class TestSiteSymmetries(PymatgenTest):
         #         return obj.as_dict()
         #     if isinstance(obj, np.ndarray):
         #         return obj.tolist()
-        #     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+        #     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
         # with gzip.open(f"{TEST_FILES}/point_ops.json.gz", mode="wt") as file:
         #     json.dump(self.point_ops, file, default=handler)

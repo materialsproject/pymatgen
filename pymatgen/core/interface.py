@@ -282,21 +282,21 @@ class Interface(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
-        """:param d: dict
+    def from_dict(cls, dct: dict) -> Interface:  # type: ignore[override]
+        """:param dct: dict
 
         Returns:
             Creates slab from dict.
         """
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        lattice = Lattice.from_dict(dct["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
         struct = Structure.from_sites(sites)
 
         optional = {
-            "in_plane_offset": d.get("in_plane_offset"),
-            "gap": d.get("gap"),
-            "vacuum_over_film": d.get("vacuum_over_film"),
-            "interface_properties": d.get("interface_properties"),
+            "in_plane_offset": dct.get("in_plane_offset"),
+            "gap": dct.get("gap"),
+            "vacuum_over_film": dct.get("vacuum_over_film"),
+            "interface_properties": dct.get("interface_properties"),
         }
         return Interface(
             lattice=lattice,

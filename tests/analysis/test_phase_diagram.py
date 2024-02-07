@@ -614,6 +614,7 @@ class TestPhaseDiagram(PymatgenTest):
         dumpfn(self.pd, f"{self.tmp_path}/pd.json")
         pd = loadfn(f"{self.tmp_path}/pd.json")
         assert isinstance(pd, PhaseDiagram)
+        assert pd.elements == self.pd.elements
         assert {*pd.as_dict()} == {*self.pd.as_dict()}
 
     def test_el_refs(self):
@@ -771,8 +772,8 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
 
     def test_as_from_dict(self):
         ppd_dict = self.ppd.as_dict()
-        assert ppd_dict["@module"] == self.ppd.__class__.__module__
-        assert ppd_dict["@class"] == self.ppd.__class__.__name__
+        assert ppd_dict["@module"] == type(self.ppd).__module__
+        assert ppd_dict["@class"] == type(self.ppd).__name__
         assert ppd_dict["all_entries"] == [entry.as_dict() for entry in self.ppd.all_entries]
         assert ppd_dict["elements"] == [elem.as_dict() for elem in self.ppd.elements]
         # test round-trip dict serialization
