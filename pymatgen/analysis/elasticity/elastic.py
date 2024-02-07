@@ -722,7 +722,7 @@ class ElasticTensorExpansion(TensorCollection):
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
-            raise ValueError("Mode must be debye or dulong-petit")
+            raise ValueError(f"{mode=} must be debye or dulong-petit")
         tgt = self.get_tgt(temperature, structure)
         alpha = np.einsum("ijkl,ij", soec.compliance_tensor, tgt)
         alpha *= cv / (1e9 * v0 * 6.022e23)
@@ -741,7 +741,6 @@ class ElasticTensorExpansion(TensorCollection):
         ce_exp.append(np.einsum(ein_string, -ce_exp[-1], self[1], ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
             # Four terms in the Fourth-Order compliance tensor
-
             einstring_1 = "pqab,cdij,efkl,ghmn,abcdefgh"
             tensors_1 = [ce_exp[0]] * 4 + [self[-1]]
             temp = -np.einsum(einstring_1, *tensors_1)

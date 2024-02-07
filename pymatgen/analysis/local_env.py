@@ -766,11 +766,11 @@ class VoronoiNN(NearNeighbors):
                 cell_info = self._extract_cell_info(0, neighbors, targets, voro, self.compute_adj_neighbors)
                 break
 
-            except RuntimeError as e:
+            except RuntimeError as exc:
                 if cutoff >= max_cutoff:
-                    if e.args and "vertex" in e.args[0]:
+                    if exc.args and "vertex" in exc.args[0]:
                         # pass through the error raised by _extract_cell_info
-                        raise e
+                        raise exc
                     raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
