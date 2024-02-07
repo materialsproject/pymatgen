@@ -324,10 +324,10 @@ class CollinearMagneticStructureAnalyzer:
                 # round magmoms to these extrema
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
 
-            except Exception as e:
+            except Exception as exc:
                 # TODO: typically a singular matrix warning, investigate this
                 warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
-                warnings.warn(str(e))
+                warnings.warn(str(exc))
 
             # and finally round roughly to the number of significant figures in our kde width
             num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
