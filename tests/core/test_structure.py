@@ -159,6 +159,12 @@ class TestIStructure(PymatgenTest):
         assert self.propertied_structure.alphabetical_formula == "Si2"
         assert self.V2O3.alphabetical_formula == "O6 V4"
 
+    def test_reduced_formula(self):
+        assert self.struct.reduced_formula == "Si"
+        assert self.labeled_structure.reduced_formula == "Si"
+        assert self.propertied_structure.reduced_formula == "Si"
+        assert self.V2O3.reduced_formula == "V2O3"
+
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]

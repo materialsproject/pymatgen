@@ -370,6 +370,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return self.composition.alphabetical_formula
 
     @property
+    def reduced_formula(self) -> str:
+        """Returns the reduced formula as a string."""
+        return self.composition.reduced_formula
+
+    @property
     def elements(self) -> list[Element | Species | DummySpecies]:
         """Returns the elements in the structure as a list of Element objects."""
         return self.composition.elements
