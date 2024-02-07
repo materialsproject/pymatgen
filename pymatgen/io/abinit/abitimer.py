@@ -123,8 +123,8 @@ class AbinitTimerParser(collections.abc.Iterable):
                 self._read(file, filename)
                 read_ok.append(filename)
 
-            except self.Error as e:
-                logger.warning(f"exception while parsing file {filename}:\n{e}")
+            except self.Error as exc:
+                logger.warning(f"exception while parsing file {filename}:\n{exc}")
                 continue
 
             finally:
