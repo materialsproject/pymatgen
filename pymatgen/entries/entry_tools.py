@@ -49,12 +49,12 @@ def _perform_grouping(args):
         ref_formula = ref_host.composition.reduced_formula
         logger.info(f"Reference host = {ref_formula}")
         matches = [unmatched[0]]
-        for i in range(1, len(unmatched)):
-            test_host = unmatched[i][1]
-            logger.info(f"Testing tid = {unmatched[i][0].entry_id}, formula = {test_host.formula}")
+        for idx in range(1, len(unmatched)):
+            test_host = unmatched[idx][1]
+            logger.info(f"Testing tid = {unmatched[idx][0].entry_id}, formula = {test_host.formula}")
             test_formula = test_host.composition.reduced_formula
             logger.info(f"Test host = {test_formula}")
-            m = StructureMatcher(
+            matcher = StructureMatcher(
                 ltol=ltol,
                 stol=stol,
                 angle_tol=angle_tol,
@@ -62,9 +62,9 @@ def _perform_grouping(args):
                 scale=scale,
                 comparator=comparator,
             )
-            if m.fit(ref_host, test_host):
+            if matcher.fit(ref_host, test_host):
                 logger.info("Fit found")
-                matches.append(unmatched[i])
+                matches.append(unmatched[idx])
         groups.append(json.dumps([m[0] for m in matches], cls=MontyEncoder))
         unmatched = list(filter(lambda x: x not in matches, unmatched))
         logger.info(f"{len(unmatched)} unmatched remaining")

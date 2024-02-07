@@ -106,7 +106,7 @@ class TestIStructure(PymatgenTest):
 
     def test_as_dataframe(self):
         df_struct = self.propertied_structure.as_dataframe()
-        assert df_struct.attrs["Reduced Formula"] == self.propertied_structure.composition.reduced_formula
+        assert df_struct.attrs["Reduced Formula"] == self.propertied_structure.reduced_formula
         assert df_struct.shape == (2, 8)
         assert list(df_struct) == ["Species", *"abcxyz", "magmom"]
         assert list(df_struct["magmom"]) == [5, -5]
@@ -158,6 +158,12 @@ class TestIStructure(PymatgenTest):
         assert self.labeled_structure.alphabetical_formula == "Si2"
         assert self.propertied_structure.alphabetical_formula == "Si2"
         assert self.V2O3.alphabetical_formula == "O6 V4"
+
+    def test_reduced_formula(self):
+        assert self.struct.reduced_formula == "Si"
+        assert self.labeled_structure.reduced_formula == "Si"
+        assert self.propertied_structure.reduced_formula == "Si"
+        assert self.V2O3.reduced_formula == "V2O3"
 
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]

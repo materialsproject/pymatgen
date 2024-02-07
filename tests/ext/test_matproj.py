@@ -223,7 +223,7 @@ class TestMPResterOld(PymatgenTest):
         entries = self.rester.get_entries("TiO2", inc_structure=True)
         assert len(entries) > 1
         for entry in entries:
-            assert entry.structure.composition.reduced_formula == "TiO2"
+            assert entry.structure.reduced_formula == "TiO2"
 
         # all_entries = self.rester.get_entries("Fe", compatible_only=False)
         # entries = self.rester.get_entries("Fe", compatible_only=True)
@@ -701,7 +701,7 @@ class TestMPResterNewBasic:
     #     entries = self.rester.get_entries("TiO2", inc_structure=True)
     #     assert len(entries) > 1
     #     for entry in entries:
-    #         assert entry.structure.composition.reduced_formula == "TiO2"
+    #         assert entry.structure.reduced_formula == "TiO2"
 
     # # all_entries = self.rester.get_entries("Fe", compatible_only=False)
     # # entries = self.rester.get_entries("Fe", compatible_only=True)
