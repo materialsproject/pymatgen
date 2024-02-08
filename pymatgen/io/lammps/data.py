@@ -150,10 +150,6 @@ class LammpsBox(MSONable):
         matrix = self._matrix
         return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, significant_figures: int = 6) -> str:
         """
         Returns the string representation of simulation box in LAMMPS
@@ -306,7 +302,7 @@ class LammpsData(MSONable):
         if "nx" in atoms.columns:
             atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
-        ld_copy = self.__class__(self.box, masses, atoms)
+        ld_copy = type(self)(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
@@ -324,10 +320,6 @@ class LammpsData(MSONable):
             coords_are_cartesian=True,
             site_properties=site_properties,
         )
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """
@@ -481,8 +473,8 @@ class LammpsData(MSONable):
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
         """
-        with open(filename, "w") as f:
-            f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
+        with open(filename, mode="w") as file:
+            file.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
         self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
@@ -537,10 +529,10 @@ class LammpsData(MSONable):
         masses["label"] = atom_labels
         unique_masses = np.unique(masses["mass"])
         if guess_element:
-            ref_masses = [el.atomic_mass.real for el in Element]
-            diff = np.abs(np.array(ref_masses) - unique_masses[:, None])
-            atomic_numbers = np.argmin(diff, axis=1) + 1
-            symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
+            ref_masses = {el.name: el.atomic_mass.real for el in Element}
+            symbols = list(ref_masses)
+            diff = np.abs(np.array(list(ref_masses.values())) - unique_masses[:, None])
+            symbols = [Element(symbols[idx]).symbol for idx in np.argmin(diff, axis=1)]
         else:
             symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
@@ -551,16 +543,16 @@ class LammpsData(MSONable):
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
-        nonbond_coeffs: list = []
+        non_bond_coeffs: list = []
         topo_coeffs: dict = {}
         if self.force_field:
             if "PairIJ Coeffs" in self.force_field:
                 nbc = self.force_field["PairIJ Coeffs"]
                 nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
+                non_bond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
             elif "Pair Coeffs" in self.force_field:
                 nbc = self.force_field["Pair Coeffs"].sort_index()
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
+                non_bond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
 
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
             for kw in topo_coeffs:
@@ -571,10 +563,10 @@ class LammpsData(MSONable):
                 }
                 ff_df = self.force_field[kw]
                 for t in ff_df.itertuples(index=True, name=None):
-                    d = {"coeffs": list(t[1:]), "types": []}
+                    coeffs_dict = {"coeffs": list(t[1:]), "types": []}
                     if class2_coeffs:
-                        d.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
-                    topo_coeffs[kw].append(d)
+                        coeffs_dict.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
+                    topo_coeffs[kw].append(coeffs_dict)
 
         if self.topology:
 
@@ -599,12 +591,12 @@ class LammpsData(MSONable):
 
         if any(topo_coeffs):
             for v in topo_coeffs.values():
-                for d in v:
-                    d["types"] = list(set(d["types"]))
+                for coeffs_dict in v:
+                    coeffs_dict["types"] = list(set(coeffs_dict["types"]))
 
         ff = ForceField(
             mass_info=mass_info,
-            nonbond_coeffs=nonbond_coeffs if any(nonbond_coeffs) else None,
+            nonbond_coeffs=non_bond_coeffs if any(non_bond_coeffs) else None,
             topo_coeffs=topo_coeffs if any(topo_coeffs) else None,
         )
 
@@ -647,8 +639,8 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, "rt") as f:
-            lines = f.readlines()
+        with zopen(filename, mode="rt") as file:
+            lines = file.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
@@ -1190,14 +1182,14 @@ class ForceField(MSONable):
         Args:
             filename (str): Filename.
         """
-        d = {
+        dct = {
             "mass_info": self.mass_info,
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as file:
             yaml = YAML()
-            yaml.dump(d, f)
+            yaml.dump(dct, file)
 
     @classmethod
     def from_file(cls, filename: str) -> ForceField:
@@ -1207,25 +1199,25 @@ class ForceField(MSONable):
         Args:
             filename (str): Filename.
         """
-        with open(filename) as f:
+        with open(filename) as file:
             yaml = YAML()
-            d = yaml.load(f)
+            d = yaml.load(file)
         return cls.from_dict(d)
 
     @classmethod
-    def from_dict(cls, d: dict) -> ForceField:
+    def from_dict(cls, dct: dict) -> ForceField:
         """
         Constructor that reads in a dictionary.
 
         Args:
             d (dict): Dictionary to read.
         """
-        d["mass_info"] = [tuple(m) for m in d["mass_info"]]
-        if d.get("topo_coeffs"):
-            for v in d["topo_coeffs"].values():
+        dct["mass_info"] = [tuple(m) for m in dct["mass_info"]]
+        if dct.get("topo_coeffs"):
+            for v in dct["topo_coeffs"].values():
                 for c in v:
                     c["types"] = [tuple(t) for t in c["types"]]
-        return cls(d["mass_info"], d["nonbond_coeffs"], d["topo_coeffs"])
+        return cls(dct["mass_info"], dct["nonbond_coeffs"], dct["topo_coeffs"])
 
 
 class CombinedData(LammpsData):
@@ -1397,8 +1389,8 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, "rt") as f:
-            lines = f.readlines()
+        with zopen(filename, mode="rt") as file:
+            lines = file.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
         df = pd.read_csv(
@@ -1461,10 +1453,6 @@ class CombinedData(LammpsData):
         if atom_style:
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """

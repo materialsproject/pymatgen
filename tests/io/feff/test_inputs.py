@@ -35,9 +35,9 @@ class TestHeader(unittest.TestCase):
             assert line == hs[i]
         assert header_string.splitlines() == header.splitlines(), "Failed to read HEADER file"
 
-    def test_from_string(self):
+    def test_from_str(self):
         header = Header.from_str(header_string)
-        assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
+        assert header.struct.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
     def test_get_str(self):
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
@@ -50,8 +50,8 @@ class TestHeader(unittest.TestCase):
     def test_as_dict_and_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/HEADER"
         header = Header.from_file(file_name)
-        d = header.as_dict()
-        header2 = Header.from_dict(d)
+        dct = header.as_dict()
+        header2 = Header.from_dict(dct)
         assert str(header) == str(header2), "Header failed to and from dict test"
 
 
@@ -123,8 +123,8 @@ class TestFeffAtoms(unittest.TestCase):
         header = Header.from_file(file_name)
         struct = header.struct
         atoms = Atoms(struct, "O", radius=10.0)
-        d = atoms.as_dict()
-        atoms2 = Atoms.from_dict(d)
+        dct = atoms.as_dict()
+        atoms2 = Atoms.from_dict(dct)
         assert str(atoms) == str(atoms2), "Atoms failed to and from dict test"
 
     def test_cluster_from_file(self):
@@ -176,8 +176,8 @@ class TestFeffTags(unittest.TestCase):
     def test_as_dict_and_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/PARAMETERS"
         tags = Tags.from_file(file_name)
-        d = tags.as_dict()
-        tags2 = Tags.from_dict(d)
+        dct = tags.as_dict()
+        tags2 = Tags.from_dict(dct)
         assert tags == tags2, "Parameters do not match to and from dict"
 
     def test_eels_tags(self):
@@ -211,7 +211,7 @@ class TestFeffPot(unittest.TestCase):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/POTENTIALS"
         feff_pot = Potential.pot_string_from_file(filepath)
-        dct, dr = Potential.pot_dict_from_string(feff_pot)
+        dct, dr = Potential.pot_dict_from_str(feff_pot)
         assert dct["Co"] == 1, "Wrong symbols read in for Potential"
         assert dr == {0: "O", 1: "Co", 2: "O"}
 
@@ -235,8 +235,8 @@ class TestFeffPot(unittest.TestCase):
         header = Header.from_file(file_name)
         struct = header.struct
         pot = Potential(struct, "O")
-        d = pot.as_dict()
-        pot2 = Potential.from_dict(d)
+        dct = pot.as_dict()
+        pot2 = Potential.from_dict(dct)
         assert str(pot) == str(pot2), "Potential to and from dict does not match"
 
 

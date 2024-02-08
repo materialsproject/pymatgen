@@ -34,8 +34,9 @@ def make_doc(ctx):
         ctx.run("rm pymatgen.*.rst", warn=True)
         # ctx.run("rm pymatgen.*.md", warn=True)
         ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
+
+        # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
-        # ctx.run("sphinx-build -M markdown . .")
         ctx.run("rm apidocs/*.rst", warn=True)
         ctx.run("mv html/pymatgen*.html .")
         ctx.run("mv html/modules.html .")
@@ -43,16 +44,16 @@ def make_doc(ctx):
         # ctx.run("cp markdown/pymatgen*.md .")
         # ctx.run("rm pymatgen*tests*.md", warn=True)
         # ctx.run("rm pymatgen*.html", warn=True)
-        # for fn in glob("pymatgen*.md"):
-        #     with open(fn) as f:
-        #         lines = [line.rstrip() for line in f if "Submodules" not in line]
-        #     if fn == "pymatgen.md":
+        # for filename in glob("pymatgen*.md"):
+        #     with open(filename) as file:
+        #         lines = [line.rstrip() for line in file if "Submodules" not in line]
+        #     if filename == "pymatgen.md":
         #         preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
         #     else:
         #         preamble = [
         #             "---",
         #             "layout: default",
-        #             f"title: {fn}",
+        #             f"title: {filename}",
         #             "nav_exclude: true",
         #             "---",
         #             "",
@@ -60,28 +61,12 @@ def make_doc(ctx):
         #             "{:toc}",
         #             "",
         #         ]
-        #     with open(fn, "w") as f:
-        #         f.write("\n".join(preamble + lines))
+        #     with open(filename, mode="w") as file:
+        #         file.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
         ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
-        # ctx.run("cp ../README.md index.md")
         ctx.run("rm -rf doctrees", warn=True)
-
-
-@task
-def submit_dash_pr(ctx, version):
-    with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        payload = {
-            "title": f"Update pymatgen docset to v{version}",
-            "body": f"Update pymatgen docset to v{version}",
-            "head": "Dash-User-Contributions:master",
-            "base": "master",
-        }
-        response = requests.post(
-            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls", data=json.dumps(payload)
-        )
-        print(response.text)
 
 
 @task
@@ -89,7 +74,7 @@ def publish(ctx):
     """
     Upload release to Pypi using twine.
 
-    :param ctx:
+    :param ctx: Context
     """
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
@@ -98,18 +83,11 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/core/__init__.py") as file:
-        contents = file.read()
-        contents = re.sub(r"__version__ = .*\n", f"__version__ = {version!r}\n", contents)
-
-    with open("pymatgen/core/__init__.py", "w") as file:
-        file.write(contents)
-
     with open("setup.py") as file:
         contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", "w") as file:
+    with open("setup.py", mode="w") as file:
         file.write(contents)
 
 
@@ -162,7 +140,10 @@ def post_discourse(version):
     response = requests.post(
         "https://discuss.matsci.org/c/pymatgen/posts.json",
         data=payload,
-        params={"api_username": os.environ["DISCOURSE_API_USERNAME"], "api_key": os.environ["DISCOURSE_API_KEY"]},
+        params={
+            "api_username": os.environ["DISCOURSE_API_USERNAME"],
+            "api_key": os.environ["DISCOURSE_API_KEY"],
+        },
     )
     print(response.text)
 
@@ -202,7 +183,7 @@ def update_changelog(ctx, version=None, dry_run=False):
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("docs/docs/CHANGES.md", "w") as file:
+        with open("docs/docs/CHANGES.md", mode="w") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
         ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
@@ -238,8 +219,6 @@ def release(ctx, version=None, nodoc=False):
 def open_doc(ctx):
     """
     Open local documentation in web browser.
-
-    :param ctx:
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open(f"file://{pth}")

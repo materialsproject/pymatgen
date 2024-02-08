@@ -18,7 +18,7 @@ class ElementTestCase(PymatgenTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
-        fictional_symbols = ["D", "T", "Zebra"]
+        fictional_symbols = ("Dolphin", "Tyrannosaurus", "Zebra")
 
         for sym in fictional_symbols:
             with pytest.raises(ValueError, match=f"{sym!r} is not a valid Element"):
@@ -47,8 +47,8 @@ class ElementTestCase(PymatgenTest):
 
     def test_dict(self):
         fe = Element.Fe
-        d = fe.as_dict()
-        assert fe == Element.from_dict(d)
+        dct = fe.as_dict()
+        assert fe == Element.from_dict(dct)
 
     def test_block(self):
         cases = {
@@ -238,8 +238,8 @@ class ElementTestCase(PymatgenTest):
             ("O", "Te"): "is_chalcogen",
         }
 
-        for k, v in is_true.items():
-            for sym in k:
+        for key, v in is_true.items():
+            for sym in key:
                 assert getattr(Element(sym), v), f"{sym=} is false"
 
         keys = [
@@ -286,16 +286,15 @@ class ElementTestCase(PymatgenTest):
         # Test all elements up to Uranium
         for idx in range(1, 104):
             el = Element.from_Z(idx)
-            d = el.data
-            for k in keys:
-                k_str = k.capitalize().replace("_", " ")
-                if k_str in d and (not str(d[k_str]).startswith("no data")):
-                    assert getattr(el, k) is not None
-                elif k == "long_name":
-                    assert el.long_name == d["Name"]
-                elif k == "iupac_ordering":
-                    assert "IUPAC ordering" in d
-                    assert getattr(el, k) is not None
+            for key in keys:
+                k_str = key.capitalize().replace("_", " ")
+                if k_str in el.data and (not str(el.data[k_str]).startswith("no data")):
+                    assert getattr(el, key) is not None
+                elif key == "long_name":
+                    assert el.long_name == el.data["Name"]
+                elif key == "iupac_ordering":
+                    assert "IUPAC ordering" in el.data
+                    assert getattr(el, key) is not None
             el = Element.from_Z(idx)
             if len(el.oxidation_states) > 0:
                 assert max(el.oxidation_states) == el.max_oxidation_state
@@ -357,6 +356,14 @@ class ElementTestCase(PymatgenTest):
 
     def test_is(self):
         assert Element("Bi").is_post_transition_metal, True
+
+    def test_isotope(self):
+        elems = [Element(el) for el in ("H", "D", "T")]
+        assert [x.symbol for x in elems] == ["H", "H", "H"]
+        assert list(map(str, elems)) == ["H", "H", "H"]
+        assert [el.A for el in elems] == [1, 2, 3]
+        assert all(abs(el.atomic_mass - idx - 1) < 0.1 for idx, el in enumerate(elems))
+        assert [el.atomic_mass for el in elems] == [1.00794, 2.013553212712, 3.0155007134]
 
 
 class SpeciesTestCase(PymatgenTest):
@@ -471,7 +478,7 @@ class SpeciesTestCase(PymatgenTest):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
-    def test_to_from_string(self):
+    def test_to_from_str(self):
         fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_str("Fe3+,spin=5")
@@ -539,7 +546,7 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert DummySpecies("Xg") != DummySpecies("Xg", 3)
         assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
 
-    def test_from_string(self):
+    def test_from_str(self):
         sp = DummySpecies.from_str("X")
         assert sp.oxi_state == 0
         sp = DummySpecies.from_str("X2+")

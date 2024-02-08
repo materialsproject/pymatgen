@@ -88,7 +88,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             two_theta_range (tuple[float, float]): Range of two_thetas to calculate in degrees.
                 Defaults to (0, 90). Set to None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (str or None): Whether and how to annotate the peaks
+            annotate_peaks (str | None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
@@ -162,7 +162,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (str or None): Whether and how to annotate the peaks
+            annotate_peaks (str | None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
@@ -180,7 +180,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (str or None): Whether and how to annotate the peaks
+            annotate_peaks (str | None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.

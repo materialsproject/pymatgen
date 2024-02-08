@@ -486,7 +486,6 @@ class StructureGraph(MSONable):
         """
         Gives each node a "specie" and a "coords" attribute, updated with the
         current species and coordinates.
-
         """
         species = {}
         coords = {}
@@ -926,17 +925,17 @@ class StructureGraph(MSONable):
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
 
-        write_dot(g, basename + ".dot")
+        write_dot(g, f"{basename}.dot")
 
-        with open(filename, "w") as f:
-            args = [algo, "-T", extension, basename + ".dot"]
-            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+        with open(filename, mode="w") as file:
+            args = [algo, "-T", extension, f"{basename}.dot"]
+            with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
                 if rs.returncode != 0:
                     raise RuntimeError(f"{algo} exited with return code {rs.returncode}.")
 
         if not keep_dot:
-            os.remove(basename + ".dot")
+            os.remove(f"{basename}.dot")
 
     @property
     def types_and_weights_of_connections(self):
@@ -1251,12 +1250,12 @@ class StructureGraph(MSONable):
         return self.__mul__(other)
 
     @classmethod
-    def _edges_to_string(cls, g):
+    def _edges_to_str(cls, g) -> str:
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
         edge_weight_name = g.graph["edge_weight_name"]
         if edge_weight_name:
-            print_weights = ["weight"]
+            print_weights = True
             edge_label = g.graph["edge_weight_name"]
             edge_weight_units = g.graph["edge_weight_units"]
             if edge_weight_units:
@@ -1266,7 +1265,7 @@ class StructureGraph(MSONable):
         else:
             print_weights = False
 
-        s = header + "\n" + header_line + "\n"
+        out = f"{header}\n{header_line}\n"
 
         edges = list(g.edges(data=True))
 
@@ -1275,26 +1274,26 @@ class StructureGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
 
-        return s
+        return out
 
     def __str__(self):
         out = "Structure Graph"
         out += f"\nStructure: \n{self.structure}"
         out += f"\nGraph: {self.name}\n"
-        out += self._edges_to_string(self.graph)
+        out += self._edges_to_str(self.graph)
         return out
 
     def __repr__(self):
-        s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure!r}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Structure Graph"
+        out += f"\nStructure: \n{self.structure!r}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_str(self.graph)
+        return out
 
     def __len__(self):
         """length of Structure / number of nodes in graph"""
@@ -1833,7 +1832,6 @@ class MoleculeGraph(MSONable):
         """
         Replicates molecule site properties (specie, coords, etc.) in the
         MoleculeGraph.
-
         """
         species = {}
         coords = {}
@@ -2048,7 +2046,6 @@ class MoleculeGraph(MSONable):
         """
         Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
-
         """
         self.set_node_attributes()
 
@@ -2574,17 +2571,17 @@ class MoleculeGraph(MSONable):
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
 
-        write_dot(g, basename + ".dot")
+        write_dot(g, f"{basename}.dot")
 
-        with open(filename, "w") as f:
-            args = [algo, "-T", extension, basename + ".dot"]
-            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+        with open(filename, mode="w") as file:
+            args = [algo, "-T", extension, f"{basename}.dot"]
+            with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
                 if rs.returncode != 0:
                     raise RuntimeError(f"{algo} exited with return code {rs.returncode}.")
 
         if not keep_dot:
-            os.remove(basename + ".dot")
+            os.remove(f"{basename}.dot")
 
     def as_dict(self):
         """
@@ -2608,7 +2605,7 @@ class MoleculeGraph(MSONable):
         return cls(mol, dct["graphs"])
 
     @classmethod
-    def _edges_to_string(cls, g):
+    def _edges_to_str(cls, g):
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
         edge_weight_name = g.graph["edge_weight_name"]
@@ -2643,14 +2640,14 @@ class MoleculeGraph(MSONable):
         out = "Molecule Graph"
         out += f"\nMolecule: \n{self.molecule}"
         out += f"\nGraph: {self.name}\n"
-        out += self._edges_to_string(self.graph)
+        out += self._edges_to_str(self.graph)
         return out
 
     def __repr__(self) -> str:
         out = "Molecule Graph"
         out += f"\nMolecule: \n{self.molecule!r}"
         out += f"\nGraph: {self.name}\n"
-        out += self._edges_to_string(self.graph)
+        out += self._edges_to_str(self.graph)
         return out
 
     def __len__(self) -> int:

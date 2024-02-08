@@ -25,8 +25,8 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
-    _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as file:
+    _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
 
 
 # @unique
@@ -482,16 +482,12 @@ class LibxcFunc(Enum):
         return self.family == "HYB_MGGA"
 
     def as_dict(self):
-        """Makes LibxcFunc obey the general json interface used in pymatgen for
-        easier serialization.
-        """
+        """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
 
     @classmethod
-    def from_dict(cls, dct):
-        """Makes LibxcFunc obey the general json interface used in pymatgen for
-        easier serialization.
-        """
+    def from_dict(cls, dct: dict) -> LibxcFunc:
+        """Deserialize from MSONable dict representation."""
         return cls[dct["name"]]
 
     def to_json(self):

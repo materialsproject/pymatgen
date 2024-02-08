@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 import random
 import unittest
 
@@ -18,7 +17,7 @@ from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/lammps"
+TEST_DIR = f"{TEST_FILES_DIR}/lammps"
 
 
 class TestLammpsBox(PymatgenTest):
@@ -78,11 +77,11 @@ class TestLammpsBox(PymatgenTest):
 class TestLammpsData(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData.from_file(filename=f"{test_dir}/data.peptide")
-        cls.ethane = LammpsData.from_file(filename=f"{test_dir}/ethane.data")
-        cls.quartz = LammpsData.from_file(filename=f"{test_dir}/data.quartz", atom_style="atomic")
-        cls.virus = LammpsData.from_file(filename=f"{test_dir}/virus.data", atom_style="angle")
-        cls.tatb = LammpsData.from_file(filename=f"{test_dir}/tatb.data", atom_style="charge", sort_id=True)
+        cls.peptide = LammpsData.from_file(filename=f"{TEST_DIR}/data.peptide")
+        cls.ethane = LammpsData.from_file(filename=f"{TEST_DIR}/ethane.data")
+        cls.quartz = LammpsData.from_file(filename=f"{TEST_DIR}/data.quartz", atom_style="atomic")
+        cls.virus = LammpsData.from_file(filename=f"{TEST_DIR}/virus.data", atom_style="angle")
+        cls.tatb = LammpsData.from_file(filename=f"{TEST_DIR}/tatb.data", atom_style="charge", sort_id=True)
 
     def test_structure(self):
         quartz = self.quartz.structure
@@ -106,10 +105,10 @@ class TestLammpsData(PymatgenTest):
 
         co = Structure.from_spacegroup(194, Lattice.hexagonal(2.50078, 4.03333), ["Co"], [[1 / 3, 2 / 3, 1 / 4]])
         ld_co = LammpsData.from_structure(co)
-        assert ld_co.structure.composition.reduced_formula == "Co"
+        assert ld_co.structure.reduced_formula == "Co"
         ni = Structure.from_spacegroup(225, Lattice.cubic(3.50804), ["Ni"], [[0, 0, 0]])
         ld_ni = LammpsData.from_structure(ni)
-        assert ld_ni.structure.composition.reduced_formula == "Ni"
+        assert ld_ni.structure.reduced_formula == "Ni"
 
     def test_sort_structure(self):
         struct = Structure(Lattice.cubic(4), ["S", "Fe"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -280,7 +279,7 @@ class TestLammpsData(PymatgenTest):
 
     def test_disassemble(self):
         # general tests
-        c = LammpsData.from_file(f"{test_dir}/crambin.data")
+        c = LammpsData.from_file(f"{TEST_DIR}/crambin.data")
         _, c_ff, topos = c.disassemble()
         mass_info = [
             ("N1", 14.0067),
@@ -444,8 +443,8 @@ class TestLammpsData(PymatgenTest):
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
         ff = ForceField(mass.items(), non_bond_coeffs, topo_coeffs)
-        with gzip.open(f"{test_dir}/topologies_ice.json.gz") as f:
-            topo_dicts = json.load(f)
+        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz") as file:
+            topo_dicts = json.load(file)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
         box = LammpsBox([[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]])
         ice = LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=topologies)
@@ -646,7 +645,7 @@ class TestTopology(unittest.TestCase):
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class TestForceField(unittest.TestCase):
+class TestForceField(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         mass_info = [
@@ -655,7 +654,7 @@ class TestForceField(unittest.TestCase):
             ("C", Element("O")),
             ("D", 1.00794),
         ]
-        nonbond_coeffs = [
+        non_bond_coeffs = [
             [1, 1, 1.1225],
             [1, 1.175, 1.31894],
             [1, 1.55, 1.73988],
@@ -673,8 +672,8 @@ class TestForceField(unittest.TestCase):
                 {"coeffs": [50, 0.855906], "types": [("B", "C")]},
             ]
         }
-        cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs)
-        cls.ethane = ForceField.from_file(f"{test_dir}/ff_ethane.yaml")
+        cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=non_bond_coeffs, topo_coeffs=topo_coeffs)
+        cls.ethane = ForceField.from_file(f"{TEST_DIR}/ff_ethane.yaml")
 
     def test_init(self):
         v = self.virus
@@ -728,13 +727,12 @@ class TestForceField(unittest.TestCase):
 
     def test_to_file(self):
         filename = "ff_test.yaml"
-        v = self.virus
-        v.to_file(filename=filename)
+        self.virus.to_file(filename=f"{self.tmp_path}/{filename}")
         yaml = YAML()
-        with open(filename) as f:
-            d = yaml.load(f)
-        # assert d["mass_info"] == [list(m) for m in v.mass_info]
-        assert d["nonbond_coeffs"] == v.nonbond_coeffs
+        with open(filename) as file:
+            dct = yaml.load(file)
+        # assert dct["mass_info"] == [list(m) for m in v.mass_info]
+        assert dct["nonbond_coeffs"] == self.virus.nonbond_coeffs
 
     def test_from_file(self):
         e = self.ethane
@@ -752,17 +750,12 @@ class TestForceField(unittest.TestCase):
         assert "AngleAngle Coeffs" in e_tc["Improper Coeffs"][0]
 
     def test_from_dict(self):
-        d = self.ethane.as_dict()
-        json_str = json.dumps(d)
+        dct = self.ethane.as_dict()
+        json_str = json.dumps(dct)
         decoded = ForceField.from_dict(json.loads(json_str))
         assert decoded.mass_info == self.ethane.mass_info
         assert decoded.nonbond_coeffs == self.ethane.nonbond_coeffs
         assert decoded.topo_coeffs == self.ethane.topo_coeffs
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists("ff_test.yaml"):
-            os.remove("ff_test.yaml")
 
 
 class TestFunc(unittest.TestCase):
@@ -800,19 +793,19 @@ class TestFunc(unittest.TestCase):
 class TestCombinedData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ec = LammpsData.from_file(filename=f"{test_dir}/ec.data.gz")
-        cls.fec = LammpsData.from_file(filename=f"{test_dir}/fec.data.gz")
-        cls.li = LammpsData.from_file(filename=f"{test_dir}/li.data")
-        cls.li_minimal = LammpsData.from_file(filename=f"{test_dir}/li_minimal.data")
-        cls.coord = CombinedData.parse_xyz(filename=f"{test_dir}/ec_fec.xyz.gz")
-        cls.small_coord = CombinedData.parse_xyz(filename=f"{test_dir}/li_ec.xyz")
-        cls.small_coord_2 = CombinedData.parse_xyz(filename=f"{test_dir}/li_ec_2.xyz")
-        cls.small_coord_3 = CombinedData.parse_xyz(filename=f"{test_dir}/li_2.xyz")
+        cls.ec = LammpsData.from_file(filename=f"{TEST_DIR}/ec.data.gz")
+        cls.fec = LammpsData.from_file(filename=f"{TEST_DIR}/fec.data.gz")
+        cls.li = LammpsData.from_file(filename=f"{TEST_DIR}/li.data")
+        cls.li_minimal = LammpsData.from_file(filename=f"{TEST_DIR}/li_minimal.data")
+        cls.coord = CombinedData.parse_xyz(filename=f"{TEST_DIR}/ec_fec.xyz.gz")
+        cls.small_coord = CombinedData.parse_xyz(filename=f"{TEST_DIR}/li_ec.xyz")
+        cls.small_coord_2 = CombinedData.parse_xyz(filename=f"{TEST_DIR}/li_ec_2.xyz")
+        cls.small_coord_3 = CombinedData.parse_xyz(filename=f"{TEST_DIR}/li_2.xyz")
         cls.ec_fec1 = CombinedData.from_files(
-            f"{test_dir}/ec_fec.xyz.gz",
+            f"{TEST_DIR}/ec_fec.xyz.gz",
             [1200, 300],
-            f"{test_dir}/ec.data.gz",
-            f"{test_dir}/fec.data.gz",
+            f"{TEST_DIR}/ec.data.gz",
+            f"{TEST_DIR}/fec.data.gz",
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()

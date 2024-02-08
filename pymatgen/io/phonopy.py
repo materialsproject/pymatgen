@@ -34,13 +34,13 @@ def get_pmg_structure(phonopy_structure: PhonopyAtoms) -> Structure:
     frac_coords = phonopy_structure.scaled_positions
     symbols = phonopy_structure.symbols
     masses = phonopy_structure.masses
-    mms = getattr(phonopy_structure, "magnetic_moments", None) or [0] * len(symbols)
+    magmoms = getattr(phonopy_structure, "magnetic_moments", [0] * len(symbols))
 
     return Structure(
         lattice,
         symbols,
         frac_coords,
-        site_properties={"phonopy_masses": masses, "magnetic_moments": mms},
+        site_properties={"phonopy_masses": masses, "magnetic_moments": magmoms},
     )
 
 
@@ -58,6 +58,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
         symbols=symbols,
         cell=pmg_structure.lattice.matrix,
         scaled_positions=pmg_structure.frac_coords,
+        magnetic_moments=pmg_structure.site_properties.get("magmom"),
     )
 
 
@@ -222,15 +223,15 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
         partial_dos_path: path to the partial_dos.dat file.
         phonopy_yaml_path: path to the phonopy.yaml file.
     """
-    a = np.loadtxt(partial_dos_path).transpose()
-    d = loadfn(phonopy_yaml_path)
+    arr = np.loadtxt(partial_dos_path).transpose()
+    dct = loadfn(phonopy_yaml_path)
 
-    structure = get_structure_from_dict(d["primitive_cell"])
+    structure = get_structure_from_dict(dct["primitive_cell"])
 
-    total_dos = PhononDos(a[0], a[1:].sum(axis=0))
+    total_dos = PhononDos(arr[0], arr[1:].sum(axis=0))
 
     partial_doses = {}
-    for site, p_dos in zip(structure, a[1:]):
+    for site, p_dos in zip(structure, arr[1:]):
         partial_doses[site] = p_dos.tolist()
 
     return CompletePhononDos(structure, total_dos, partial_doses)

@@ -861,8 +861,8 @@ class SurfaceEnergyPlotter:
         # w.r.t. bulk. Label with formula if non-stoichiometric
         ucell_comp = self.ucell_entry.composition.reduced_composition
         if entry.adsorbates:
-            s = entry.cleaned_up_slab
-            clean_comp = s.composition.reduced_composition
+            struct = entry.cleaned_up_slab
+            clean_comp = struct.composition.reduced_composition
         else:
             clean_comp = entry.composition.reduced_composition
 
@@ -1250,7 +1250,7 @@ class SurfaceEnergyPlotter:
                 # Label the phases
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
-                label = entry.label if entry.label else entry.composition.reduced_formula
+                label = entry.label if entry.label else entry.reduced_formula
                 ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot

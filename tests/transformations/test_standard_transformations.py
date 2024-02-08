@@ -1,3 +1,5 @@
+# ruff: noqa: N806
+
 from __future__ import annotations
 
 import functools
@@ -43,13 +45,11 @@ enumlib_present = which("enum.x") and which("makestr.x")
 class TestRotationTransformations(unittest.TestCase):
     def setUp(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Si"] * 2, coords)
 
     def test_as_from_dict(self):
@@ -68,69 +68,61 @@ class TestRemoveSpeciesTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = RemoveSpeciesTransformation(["Li+"])
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
-        assert s.composition.formula == "O2"
+        struct = trafo.apply_transformation(struct)
+        assert struct.formula == "O2"
 
-        d = trafo.as_dict()
-        assert isinstance(RemoveSpeciesTransformation.from_dict(d), RemoveSpeciesTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(RemoveSpeciesTransformation.from_dict(dct), RemoveSpeciesTransformation)
 
 
 class TestSubstitutionTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": "S2-"})
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
-        assert s.composition.formula == "Na2 S2"
+        assert s.formula == "Na2 S2"
 
     def test_fractional_substitution(self):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": {"S2-": 0.5, "Se2-": 0.5}})
         # test the to and from dict on the nested dictionary
         trafo = SubstitutionTransformation.from_dict(trafo.as_dict())
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
-        assert s.composition.formula == "Na2 Se1 S1"
+        assert s.formula == "Na2 Se1 S1"
 
 
 class TestSupercellTransformation(unittest.TestCase):
     def setUp(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
         trafo = SupercellTransformation([[2, 1, 0], [0, 2, 0], [1, 0, 2]])
         struct = trafo.apply_transformation(self.struct)
-        assert struct.composition.formula == "Li16 O16"
+        assert struct.formula == "Li16 O16"
 
     def test_from_scaling_factors(self):
         scale_factors = [random.randint(1, 5) for i in range(3)]
@@ -180,19 +172,17 @@ class TestOxidationStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OxidationStateDecorationTransformation({"Li": 1, "O": -2})
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li", "Li", "O", "O"], coords)
         s = trafo.apply_transformation(struct)
         assert s[0].species_string == "Li+"
         assert s[2].species_string == "O2-"
-        d = trafo.as_dict()
-        assert isinstance(OxidationStateDecorationTransformation.from_dict(d), OxidationStateDecorationTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(OxidationStateDecorationTransformation.from_dict(dct), OxidationStateDecorationTransformation)
 
 
 class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
@@ -205,8 +195,8 @@ class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
 
     def test_as_from_dict(self):
         trafo = AutoOxiStateDecorationTransformation()
-        d = trafo.as_dict()
-        trafo = AutoOxiStateDecorationTransformation.from_dict(d)
+        dct = trafo.as_dict()
+        trafo = AutoOxiStateDecorationTransformation.from_dict(dct)
         assert trafo.analyzer.dist_scale_factor == 1.015
 
 
@@ -214,20 +204,18 @@ class TestOxidationStateRemovalTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OxidationStateRemovalTransformation()
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
         assert s[0].species_string == "Li"
         assert s[2].species_string == "O"
 
-        d = trafo.as_dict()
-        assert isinstance(OxidationStateRemovalTransformation.from_dict(d), OxidationStateRemovalTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(OxidationStateRemovalTransformation.from_dict(dct), OxidationStateRemovalTransformation)
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
@@ -235,18 +223,16 @@ class TestPartialRemoveSpecieTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "O2-"], coords)
         assert len(trafo.apply_transformation(struct, 100)) == 2
 
-        d = trafo.as_dict()
-        assert isinstance(PartialRemoveSpecieTransformation.from_dict(d), PartialRemoveSpecieTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(PartialRemoveSpecieTransformation.from_dict(dct), PartialRemoveSpecieTransformation)
 
     def test_apply_transformation_fast(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5)
@@ -276,13 +262,11 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OrderDisorderedStructureTransformation()
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
 
         struct = Structure(
             lattice,
@@ -314,15 +298,15 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
         assert trafo.lowest_energy_structure == output[0]["structure"]
 
         struct = Structure(lattice, [{"Si4+": 0.5}, {"Si4+": 0.5}, {"O2-": 0.5}, {"O2-": 0.5}], coords)
-        allstructs = trafo.apply_transformation(struct, 50)
-        assert len(allstructs) == 4
+        all_structs = trafo.apply_transformation(struct, 50)
+        assert len(all_structs) == 4
 
         struct = Structure(lattice, [{"Si4+": 0.333}, {"Si4+": 0.333}, {"Si4+": 0.333}, "O2-"], coords)
-        allstructs = trafo.apply_transformation(struct, 50)
-        assert len(allstructs) == 3
+        all_structs = trafo.apply_transformation(struct, 50)
+        assert len(all_structs) == 3
 
-        d = trafo.as_dict()
-        assert isinstance(OrderDisorderedStructureTransformation.from_dict(d), OrderDisorderedStructureTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(OrderDisorderedStructureTransformation.from_dict(dct), OrderDisorderedStructureTransformation)
 
     def test_no_oxidation(self):
         specie = {"Cu1+": 0.5, "Au2+": 0.5}
@@ -356,13 +340,11 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
     def test_best_first(self):
         trafo = OrderDisorderedStructureTransformation(algo=2)
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
 
         struct = Structure(
             lattice,
@@ -392,37 +374,33 @@ class TestPrimitiveCellTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
-        assert len(s) == 4
+        struct = trafo.apply_transformation(struct)
+        assert len(struct) == 4
 
-        with open(f"{TEST_FILES_DIR}/TiO2_super.json") as f:
-            s = json.load(f, cls=MontyDecoder)
-            prim = trafo.apply_transformation(s)
+        with open(f"{TEST_FILES_DIR}/TiO2_super.json") as file:
+            struct = json.load(file, cls=MontyDecoder)
+            prim = trafo.apply_transformation(struct)
             assert prim.formula == "Ti4 O8"
 
-        d = trafo.as_dict()
-        assert isinstance(PrimitiveCellTransformation.from_dict(d), PrimitiveCellTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(PrimitiveCellTransformation.from_dict(dct), PrimitiveCellTransformation)
 
 
 class TestConventionalCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = ConventionalCellTransformation()
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         conventional_struct = trafo.apply_transformation(struct)
         assert conventional_struct.lattice.alpha == 90
@@ -452,8 +430,8 @@ class TestPerturbStructureTransformation(unittest.TestCase):
         for idx, site in enumerate(transformed_struct):
             assert site.distance(struct[idx]) == approx(0.05)
 
-        d = trafo.as_dict()
-        assert isinstance(PerturbStructureTransformation.from_dict(d), PerturbStructureTransformation)
+        dct = trafo.as_dict()
+        assert isinstance(PerturbStructureTransformation.from_dict(dct), PerturbStructureTransformation)
 
         t2 = PerturbStructureTransformation(0.05, 0)
         transformed_s2 = t2.apply_transformation(struct)
@@ -461,8 +439,8 @@ class TestPerturbStructureTransformation(unittest.TestCase):
             assert site.distance(struct[idx]) <= 0.05
             assert site.distance(struct[idx]) >= 0
 
-        d = t2.as_dict()
-        assert isinstance(PerturbStructureTransformation.from_dict(d), PerturbStructureTransformation)
+        dct = t2.as_dict()
+        assert isinstance(PerturbStructureTransformation.from_dict(dct), PerturbStructureTransformation)
 
 
 class TestDeformStructureTransformation(unittest.TestCase):
@@ -490,8 +468,8 @@ class TestDeformStructureTransformation(unittest.TestCase):
         assert transformed_s.lattice.b == approx(3.84379750)
         assert transformed_s.lattice.c == approx(3.75022981)
 
-        d = json.loads(json.dumps(trafo.as_dict()))
-        assert isinstance(DeformStructureTransformation.from_dict(d), DeformStructureTransformation)
+        dct = json.loads(json.dumps(trafo.as_dict()))
+        assert isinstance(DeformStructureTransformation.from_dict(dct), DeformStructureTransformation)
 
 
 class TestDiscretizeOccupanciesTransformation(unittest.TestCase):

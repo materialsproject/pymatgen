@@ -125,7 +125,7 @@ class Lattice(MSONable):
 
     def copy(self):
         """Deep copy of self."""
-        return self.__class__(self.matrix.copy(), pbc=self.pbc)
+        return type(self)(self.matrix.copy(), pbc=self.pbc)
 
     @property
     def matrix(self) -> np.ndarray:
@@ -361,7 +361,7 @@ class Lattice(MSONable):
         return Lattice([vector_a, vector_b, vector_c], pbc)
 
     @classmethod
-    def from_dict(cls, d: dict, fmt: str | None = None, **kwargs):
+    def from_dict(cls, dct: dict, fmt: str | None = None, **kwargs):
         """Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
 
@@ -375,13 +375,13 @@ class Lattice(MSONable):
         if fmt == "abivars":
             from pymatgen.io.abinit.abiobjects import lattice_from_abivars
 
-            kwargs.update(d)
+            kwargs.update(dct)
             return lattice_from_abivars(cls=cls, **kwargs)
 
-        pbc = d.get("pbc", (True, True, True))
-        if "matrix" in d:
-            return cls(d["matrix"], pbc=pbc)
-        return cls.from_parameters(d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"], pbc=pbc)
+        pbc = dct.get("pbc", (True, True, True))
+        if "matrix" in dct:
+            return cls(dct["matrix"], pbc=pbc)
+        return cls.from_parameters(dct["a"], dct["b"], dct["c"], dct["alpha"], dct["beta"], dct["gamma"], pbc=pbc)
 
     @property
     def a(self) -> float:
@@ -1517,7 +1517,7 @@ class Lattice(MSONable):
         angles = self.angles
         right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [
-            i for i in range(3) if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol
+            idx for idx in range(3) if abs(angles[idx] - 60) < hex_angle_tol or abs(angles[idx] - 120) < hex_angle_tol
         ]
 
         return (

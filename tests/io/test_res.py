@@ -118,8 +118,8 @@ class TestAirssProvider:
 
 class TestSpin:
     def test_read_spin(self):
-        with open(res_coc) as f:
-            lines = f.readlines()
+        with open(res_coc) as file:
+            lines = file.readlines()
         # add spin to a line
         lines[25] = f"{lines[25][:-1]} -1.4\n"
         contents = "".join(lines)

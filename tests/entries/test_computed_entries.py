@@ -112,9 +112,9 @@ class TestComputedEntry(unittest.TestCase):
         assert self.entry3.energy_per_atom == approx(2.3 / 5)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
-        assert self.entry2.composition.reduced_formula == "Fe2O3"
-        assert self.entry5.composition.reduced_formula == "Fe2O3"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry2.reduced_formula == "Fe2O3"
+        assert self.entry5.reduced_formula == "Fe2O3"
         assert self.entry5.composition.get_reduced_formula_and_factor()[1] == 3
 
     def test_per_atom_props(self):
@@ -132,13 +132,13 @@ class TestComputedEntry(unittest.TestCase):
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry_formula = entry.normalize()
-        assert entry_formula.composition.formula == "Fe2 O3"
+        assert entry_formula.formula == "Fe2 O3"
         assert entry_formula.uncorrected_energy == approx(6.9 / 3)
         assert entry_formula.correction == approx(1 / 3)
         assert entry_formula.energy * 3 == approx(6.9 + 1)
         assert entry_formula.energy_adjustments[0].value == approx(1 / 3)
         entry_atom = entry.normalize("atom")
-        assert entry_atom.composition.formula == "Fe0.4 O0.6"
+        assert entry_atom.formula == "Fe0.4 O0.6"
         assert entry_atom.uncorrected_energy == approx(6.9 / 15)
         assert entry_atom.correction == approx(1 / 15)
         assert entry_atom.energy * 15 == approx(6.9 + 1)
@@ -249,7 +249,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert self.entry.energy == approx(-268.38319884)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
 
     def test_as_from_dict(self):
         dct = self.entry.as_dict()
@@ -453,10 +453,10 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_FILES_DIR}/Mn-O_entries.json") as f:
-            data = json.load(f)
-        with open(f"{TEST_FILES_DIR}/structure_CO2.json") as f:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(f))
+        with open(f"{TEST_FILES_DIR}/Mn-O_entries.json") as file:
+            data = json.load(file)
+        with open(f"{TEST_FILES_DIR}/structure_CO2.json") as file:
+            self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
@@ -469,8 +469,8 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             1500: -37.793417248809774,
             1800: -32.32513382051749,
         }
-        for t in self.temps:
-            assert self.entries_with_temps[t].energy == approx(energies[t])
+        for temp in self.temps:
+            assert self.entries_with_temps[temp].energy == approx(energies[temp])
 
     def test_interpolation(self):
         temp = 450

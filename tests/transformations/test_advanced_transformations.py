@@ -86,13 +86,11 @@ class TestSuperTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct, return_ranked_list=True)
 
@@ -124,13 +122,11 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
@@ -149,13 +145,11 @@ class TestChargeBalanceTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
 
@@ -172,8 +166,8 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             s = trans.apply_transformation(struct)
-            oxitrans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-            s = oxitrans.apply_transformation(s)
+            oxi_trans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
+            s = oxi_trans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
             assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
@@ -258,13 +252,11 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, ["O2-", "Li1+", "Li1+"], coords)
 
         outputs = trafo.apply_transformation(struct, return_ranked_list=True)
@@ -272,8 +264,8 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
 
     def test_as_dict(self):
         trafo = SubstitutionPredictorTransformation(threshold=2, alpha=-2, lambda_table=get_table())
-        d = trafo.as_dict()
-        trafo = SubstitutionPredictorTransformation.from_dict(d)
+        dct = trafo.as_dict()
+        trafo = SubstitutionPredictorTransformation.from_dict(dct)
         assert trafo.threshold == 2, "incorrect threshold passed through dict"
         assert trafo._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
 
@@ -302,8 +294,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8.remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -345,10 +336,10 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
-        d = trans.as_dict()
+        dct = trans.as_dict()
         # Check json encodability
-        _ = json.dumps(d)
-        trans = MagOrderingTransformation.from_dict(d)
+        _ = json.dumps(dct)
+        trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
 
         assert isinstance(trans.energy_model, SymmetryModel)
@@ -543,10 +534,10 @@ class TestDopingTransformation(PymatgenTest):
 
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
-        d = trans.as_dict()
+        dct = trans.as_dict()
         # Check json encodability
-        _ = json.dumps(d)
-        trans = DopingTransformation.from_dict(d)
+        _ = json.dumps(dct)
+        trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"
         assert trans.max_structures_per_enum == 1
 
@@ -726,7 +717,7 @@ class TestAddAdsorbateTransformation(PymatgenTest):
         slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
         out = trans.apply_transformation(slab)
 
-        assert out.composition.reduced_formula == "Pt4CO"
+        assert out.reduced_formula == "Pt4CO"
 
 
 class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
@@ -736,7 +727,7 @@ class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
         slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
         out = trans.apply_transformation(slab)
 
-        assert out.composition.reduced_formula == "Pt3Au"
+        assert out.reduced_formula == "Pt3Au"
 
 
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")

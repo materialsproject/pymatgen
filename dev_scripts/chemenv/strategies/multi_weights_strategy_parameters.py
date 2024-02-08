@@ -269,8 +269,8 @@ if __name__ == "__main__":
         "+-------------------------------------------------------------+\n"
     )
 
-    with open("ce_pairs.json") as f:
-        ce_pairs = json.load(f)
+    with open("ce_pairs.json") as file:
+        ce_pairs = json.load(file)
     self_weight_max_csms: dict[str, list[float]] = {}
     self_weight_max_csms_per_cn: dict[str, list[float]] = {}
     all_self_max_csms = []

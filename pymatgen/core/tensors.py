@@ -110,7 +110,7 @@ class Tensor(np.ndarray, MSONable):
         Args:
             symm_op (SymmOp): a symmetry operation to apply to the tensor
         """
-        return self.__class__(symm_op.transform_tensor(self))
+        return type(self)(symm_op.transform_tensor(self))
 
     def rotate(self, matrix, tol: float = 1e-3):
         """Applies a rotation directly, and tests input matrix to ensure a valid
@@ -257,7 +257,7 @@ class Tensor(np.ndarray, MSONable):
         Returns (Tensor):
             rounded tensor of same type
         """
-        return self.__class__(np.round(self, decimals=decimals))
+        return type(self)(np.round(self, decimals=decimals))
 
     @property
     def symmetrized(self):
@@ -628,7 +628,7 @@ class Tensor(np.ndarray, MSONable):
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
             warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}")
-        return self.__class__(test_new)
+        return type(self)(test_new)
 
     def as_dict(self, voigt: bool = False) -> dict:
         """Serializes the tensor object.
@@ -689,7 +689,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             TensorCollection where small values are set to 0.
         """
-        return self.__class__([t.zeroed(tol) for t in self])
+        return type(self)([tensor.zeroed(tol) for tensor in self])
 
     def transform(self, symm_op):
         """Transforms TensorCollection with a symmetry operation.
@@ -699,7 +699,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             TensorCollection.
         """
-        return self.__class__([t.transform(symm_op) for t in self])
+        return type(self)([tensor.transform(symm_op) for tensor in self])
 
     def rotate(self, matrix, tol: float = 1e-3):
         """Rotates TensorCollection.
@@ -710,12 +710,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             TensorCollection.
         """
-        return self.__class__([t.rotate(matrix, tol) for t in self])
+        return type(self)([tensor.rotate(matrix, tol) for tensor in self])
 
     @property
     def symmetrized(self):
         """TensorCollection where all tensors are symmetrized."""
-        return self.__class__([t.symmetrized for t in self])
+        return type(self)([tensor.symmetrized for tensor in self])
 
     def is_symmetric(self, tol: float = 1e-5):
         """:param tol: tolerance
@@ -723,7 +723,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             Whether all tensors are symmetric.
         """
-        return all(t.is_symmetric(tol) for t in self)
+        return all(tensor.is_symmetric(tol) for tensor in self)
 
     def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
         """Fits all tensors to a Structure.
@@ -734,7 +734,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             TensorCollection.
         """
-        return self.__class__([t.fit_to_structure(structure, symprec) for t in self])
+        return type(self)([tensor.fit_to_structure(structure, symprec) for tensor in self])
 
     def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
         """:param structure: Structure
@@ -743,17 +743,17 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             Whether all tensors are fitted to Structure.
         """
-        return all(t.is_fit_to_structure(structure, tol) for t in self)
+        return all(tensor.is_fit_to_structure(structure, tol) for tensor in self)
 
     @property
     def voigt(self):
         """TensorCollection where all tensors are in Voigt form."""
-        return [t.voigt for t in self]
+        return [tensor.voigt for tensor in self]
 
     @property
     def ranks(self):
         """Ranks for all tensors."""
-        return [t.rank for t in self]
+        return [tensor.rank for tensor in self]
 
     def is_voigt_symmetric(self, tol: float = 1e-6):
         """:param tol: tolerance
@@ -761,7 +761,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             Whether all tensors are voigt symmetric.
         """
-        return all(t.is_voigt_symmetric(tol) for t in self)
+        return all(tensor.is_voigt_symmetric(tol) for tensor in self)
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
@@ -785,7 +785,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             TensorCollection.
         """
-        return self.__class__([t.convert_to_ieee(structure, initial_fit, refine_rotation) for t in self])
+        return type(self)([tensor.convert_to_ieee(structure, initial_fit, refine_rotation) for tensor in self])
 
     def round(self, *args, **kwargs):
         """Round all tensors.
@@ -796,12 +796,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         Returns:
             TensorCollection.
         """
-        return self.__class__([t.round(*args, **kwargs) for t in self])
+        return type(self)([tensor.round(*args, **kwargs) for tensor in self])
 
     @property
     def voigt_symmetrized(self):
         """TensorCollection where all tensors are voigt symmetrized."""
-        return self.__class__([t.voigt_symmetrized for t in self])
+        return type(self)([tensor.voigt_symmetrized for tensor in self])
 
     def as_dict(self, voigt=False):
         """:param voigt: Whether to use Voigt form.
@@ -813,25 +813,25 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "tensor_list": [t.tolist() for t in tensor_list],
+            "tensor_list": [tensor.tolist() for tensor in tensor_list],
         }
         if voigt:
             dct["voigt"] = voigt
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> TensorCollection:
         """Creates TensorCollection from dict.
 
-        :param d: dict
+        :param dct: dict
 
         Returns:
             TensorCollection
         """
-        voigt = d.get("voigt")
+        voigt = dct.get("voigt")
         if voigt:
-            return cls.from_voigt(d["tensor_list"])
-        return cls(d["tensor_list"])
+            return cls.from_voigt(dct["tensor_list"])
+        return cls(dct["tensor_list"])
 
 
 class SquareTensor(Tensor):

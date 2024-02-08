@@ -68,16 +68,16 @@ class Cohp(MSONable):
             cohp_str = "COBI"
         else:
             cohp_str = "COHP"
-        header = ["Energy", cohp_str + "Up"]
+        header = ["Energy", f"{cohp_str}Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
-            header.append(cohp_str + "Down")
+            header.append(f"{cohp_str}Down")
             data.append(self.cohp[Spin.down])
         if self.icohp:
-            header.append("I" + cohp_str + "Up")
+            header.append(f"I{cohp_str}Up")
             data.append(self.icohp[Spin.up])
             if Spin.down in self.cohp:
-                header.append("I" + cohp_str + "Down")
+                header.append(f"I{cohp_str}Down")
                 data.append(self.icohp[Spin.down])
         format_header = "#" + " ".join("{:15s}" for __ in header)
         format_data = " ".join("{:.5f}" for __ in header)
@@ -797,7 +797,6 @@ class IcohpValue(MSONable):
             are_cobis: if True, this are COBIs
             orbitals: {[str(Orbital1)-str(Orbital2)]: {"icohp":{Spin.up: icohpvalue for spin.up, Spin.down:
                 icohpvalue for spin.down}, "orbitals":[Orbital1, Orbital2]}}.
-
         """
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
@@ -938,7 +937,6 @@ class IcohpValue(MSONable):
 
         Returns:
             {"str(Orbital1)-str(Ortibal2)": icohp value in eV}.
-
         """
         orbital_icohp = {}
         for orb, item in self._orbitals.items():

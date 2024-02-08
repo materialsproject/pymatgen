@@ -671,6 +671,13 @@ developers:
     first_name: Maarten
     last_name: de Jong
     orcid: 0000-0001-9945-1941
+  - affiliations: [MS1P]
+    first_name: Andrey
+    last_name: Sobolev
+  - affiliations: [University of Arizona]
+    first_name: Thomas
+    last_name: Purcell
+    orcid: 0000-0003-4564-7206
 contributors: []
 sponsoring_organizations: []
 contributing_organizations: [University of California, San Diego]

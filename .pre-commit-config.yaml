@@ -8,7 +8,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.11
+    rev: v0.2.1
     hooks:
       - id: ruff
         args: [--fix, --unsafe-fixes]
@@ -47,7 +47,7 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.38.0
+    rev: v0.39.0
     hooks:
       - id: markdownlint
         # MD013: line too long
@@ -58,7 +58,7 @@ repos:
         args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.7.1
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]

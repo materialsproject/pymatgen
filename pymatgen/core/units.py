@@ -292,12 +292,6 @@ class FloatWithUnit(float):
     Error = UnitError
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        """Use from_str instead."""
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, s):
         """Parse string to FloatWithUnit.
 
@@ -526,7 +520,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __sub__(self, other):
         if hasattr(other, "unit_type"):
@@ -536,7 +530,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
         # TODO Here we have the most important difference between FloatWithUnit and
@@ -550,31 +544,31 @@ class ArrayWithUnit(np.ndarray):
         # bit misleading.
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
-            return self.__class__(
+            return type(self)(
                 np.array(self) * np.array(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
         # Cannot use super since it returns an instance of self.__class__
         # while here we want a bare numpy array.
-        return self.__class__(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
+        return type(self)(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
 
     def __rmul__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(
+            return type(self)(
                 np.array(self) * np.array(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return self.__class__(np.array(self) * np.array(other), unit=self.unit * other.unit)
+        return type(self)(np.array(self) * np.array(other), unit=self.unit * other.unit)
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
-        return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)
+            return type(self)(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
+        return type(self)(np.array(self) / np.array(other), unit=self.unit / other.unit)
 
     def __neg__(self):
-        return self.__class__(-np.array(self), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(-np.array(self), unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
         """Conversion to a new_unit.
@@ -591,7 +585,7 @@ class ArrayWithUnit(np.ndarray):
         >>> e.to("eV")
         array([ 27.21138386,  29.93252225]) eV
         """
-        return self.__class__(
+        return type(self)(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type,
             unit=new_unit,

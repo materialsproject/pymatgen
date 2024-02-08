@@ -6,6 +6,113 @@ nav_order: 4
 
 # Changelog
 
+## v2024.2.8
+
+### 🐛 Bug Fixes
+
+* Fix `Vasprun.get_potcars` search method; tweak fake POTCARs by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3587
+
+### 🛠 Enhancements
+
+* Aims input sets by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3482
+* Add `SiteCollection.reduced_formula` property by @janosh in https://github.com/materialsproject/pymatgen/pull/3610
+* Add `Entry.(formula|reduced_formula)` by @janosh in https://github.com/materialsproject/pymatgen/pull/3611
+* VASP IO `copy()` methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3602
+
+### 📖 Documentation
+
+* Adding FHI-aims inputs developers by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3592
+
+### 🧹 House-Keeping
+
+* chore: fix a typo by @VsevolodX in https://github.com/materialsproject/pymatgen/pull/3609
+
+### 🧪 Tests
+
+* Add tests for the New Vasp input sets by @Zhuoying in https://github.com/materialsproject/pymatgen/pull/3576
+
+### 🏥 Package Health
+
+* Switch macOS wheel building to new M1 runners by @janosh in https://github.com/materialsproject/pymatgen/pull/3596
+
+### 🤷‍♂️ Other Changes
+
+* Fix text formatting in `bug_report.yaml` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3589
+* Minor update to avoid deprecation warning by @kavanase in https://github.com/materialsproject/pymatgen/pull/3601
+
+## New Contributors
+
+* @VsevolodX made their first contribution in https://github.com/materialsproject/pymatgen/pull/3609
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.1.27...v2024.2.8
+
+## v2024.1.26
+
+### 🐛 Bug Fixes
+
+* Fix label propagation in `Symmetry.from_spacegroup` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3527
+* Bug fix: SpectrumPlotter.add_spectra by @minhsueh in https://github.com/materialsproject/pymatgen/pull/3529
+* Fix bug in SQSTransformation by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3541
+* Fix failing CI due to broken BoltzTraP2 install by @janosh in https://github.com/materialsproject/pymatgen/pull/3543
+* Enforce `zval` to be an integer to avoid improper syntax in `.cri` file by @wladerer in https://github.com/materialsproject/pymatgen/pull/3502
+* Fix MaterialsProjectCompatibility run type handling for GGA+U by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/3540
+* Accept `Path` objects as `filename` in `IStructure.to()` by @janosh in https://github.com/materialsproject/pymatgen/pull/3553
+* Retain `Structure.properties` in `structure_from_abivars()`/`structure_to_abivars()` round trip by @janosh in https://github.com/materialsproject/pymatgen/pull/3552
+* Support `magmoms` in `get_phonopy_structure()` by @tomdemeyere in https://github.com/materialsproject/pymatgen/pull/3555
+* Fix `ValueError: Invalid fmt` with `Structure.to(fmt='yml')` by @janosh in https://github.com/materialsproject/pymatgen/pull/3557
+* Improve CIF checking, support for isotopes, and correct handling of new VASP 6.4.2 POSCAR format incl. slashes in header by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3542
+* Deprecate `Structure.ntypesp` replaced by `Structure.n_elems` by @janosh in https://github.com/materialsproject/pymatgen/pull/3562
+* Ruff fixes by @janosh in https://github.com/materialsproject/pymatgen/pull/3564
+* Fix highly-nested parens when formula parsing in `Composition` by @janosh in https://github.com/materialsproject/pymatgen/pull/3569
+* Fix floating point imprecision error in ordering property of CollinearMagneticStructureAnalyzer by @kaueltzen in https://github.com/materialsproject/pymatgen/pull/3574
+* Support parsing of "final_energy" in Q-Chem 6.1.1 by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3580
+
+### 🛠 Enhancements
+
+* Add GitHub Issue Templates by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3528
+* Improve `PhononBandStructure.has_imaginary_gamma_freq()` by checking for negative freqs at all q-points close to Gamma by @janosh in https://github.com/materialsproject/pymatgen/pull/3530
+* Add default issue template labels  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3531
+* Add functionality to read ASE *.traj file in Trajectory class method from_file() by @exenGT in https://github.com/materialsproject/pymatgen/pull/3422
+* Add `PhononDos.r2_score` method by @janosh in https://github.com/materialsproject/pymatgen/pull/3535
+* Add codespace container for reproducing issues by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3537
+* Phonon convenience imports by @janosh in https://github.com/materialsproject/pymatgen/pull/3544
+* Add diffusive thermal conductivity model proposed by Agne et al. by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3546
+* Add flag `write_site_properties = False` in `CifWriter` for writing `Structure.site_properties` as `_atom_site_{prop}`  by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3550
+* Add `pymatgen.io.pwmat` module by @lhycms in https://github.com/materialsproject/pymatgen/pull/3512
+* Lazy import `pandas` in `Structure.as_dataframe()` to improve startup speed by @janosh in https://github.com/materialsproject/pymatgen/pull/3568
+* Return `self` in `SiteCollection` spin/oxi state add/remove methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3573
+* Added threshold_ordering parameter to CollinearMagneticStructureAnalyzer in addition to PR #3574 by @kaueltzen in https://github.com/materialsproject/pymatgen/pull/3577
+
+### 🧹 House-Keeping
+
+* Pass file IO modes as kwarg by @janosh in https://github.com/materialsproject/pymatgen/pull/3560
+* Remove deprecated `(to|from|as|get)_string` methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3561
+
+### 🧪 Tests
+
+* Improve handling of Vasprun POTCAR search, expanded fake POTCAR library for VASP I/O tests by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3491
+* Add test for `NEBAnalysis.get_plot()` by @janosh in https://github.com/materialsproject/pymatgen/pull/3570
+* `tests/io/aims` use `numpy.testing.assert_allclose` and `pytest.MonkeyPatch` by @janosh in https://github.com/materialsproject/pymatgen/pull/3575
+
+### 💥 Breaking Changes
+
+* Breaking: remove single-use `PolarizationLattice` which inherited from `Structure` (antipattern) by @janosh in https://github.com/materialsproject/pymatgen/pull/3585
+
+### 🤷‍♂️ Other Changes
+
+* Standardise and update VASP input sets by @utf in https://github.com/materialsproject/pymatgen/pull/3484
+
+## New Contributors
+
+* @DanielYang59 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3528
+* @minhsueh made their first contribution in https://github.com/materialsproject/pymatgen/pull/3529
+* @exenGT made their first contribution in https://github.com/materialsproject/pymatgen/pull/3422
+* @wladerer made their first contribution in https://github.com/materialsproject/pymatgen/pull/3502
+* @tomdemeyere made their first contribution in https://github.com/materialsproject/pymatgen/pull/3555
+* @lhycms made their first contribution in https://github.com/materialsproject/pymatgen/pull/3512
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2023.12.18...v2024.1.26
+
 ## v2023.12.18
 
 ### 🐛 Bug Fixes
@@ -1627,7 +1734,7 @@ you are acknowledged appropriately by filling out the linked form.
 
 ## v2018.4.6
 
-* Updated debye temperature formulation (Joey Montoya)
+* Updated Debye temperature formulation (Joey Montoya)
 * Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
 * Improved Pourbaix code (Joey Montoya)
 * Local env code improvements (Nils)

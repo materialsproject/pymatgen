@@ -509,7 +509,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """Write a json file for the phononwebsite:
         http://henriquemiranda.github.io/phononwebsite.
         """
-        with open(filename, "w") as file:
+        with open(filename, mode="w") as file:
             json.dump(self.as_phononwebsite(), file)
 
     def as_phononwebsite(self) -> dict:

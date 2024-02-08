@@ -146,11 +146,9 @@ class HeisenbergMapper:
         unique_site_ids = {}
         wyckoff_ids = {}
 
-        i = 0
-        for indices, symbol in zip(equivalent_indices, wyckoff_symbols):
-            unique_site_ids[tuple(indices)] = i
-            wyckoff_ids[i] = symbol
-            i += 1
+        for idx, (indices, symbol) in enumerate(zip(equivalent_indices, wyckoff_symbols)):
+            unique_site_ids[tuple(indices)] = idx
+            wyckoff_ids[idx] = symbol
             for index in indices:
                 wyckoff[index] = symbol
 
@@ -625,7 +623,7 @@ class HeisenbergMapper:
             HeisenbergModel: MSONable object.
         """
         # Original formula unit with nonmagnetic ions
-        hm_formula = str(self.ordered_structures_[0].composition.reduced_formula)
+        hm_formula = str(self.ordered_structures_[0].reduced_formula)
 
         hm_structures = self.ordered_structures
         hm_energies = self.energies

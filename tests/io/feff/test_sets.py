@@ -52,7 +52,7 @@ TITLE sites: 4
 
     def test_get_feff_pot(self):
         potential = str(self.mp_xanes.potential)
-        dct, dr = Potential.pot_dict_from_string(potential)
+        dct, dr = Potential.pot_dict_from_str(potential)
         assert dct["Co"] == 1, "Wrong symbols read in for Potential"
         assert dr == {0: "O", 1: "Co", 2: "O"}
 

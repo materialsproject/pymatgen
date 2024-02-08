@@ -1092,9 +1092,9 @@ class StructureMatcher(MSONable):
             struct2 (Structure): Structure to transform.
 
         Returns:
-            supercell (numpy.ndarray(3, 3)): supercell matrix
-            vector (numpy.ndarray(3)): fractional translation vector
-            mapping (list(int or None)):
+            supercell (np.array(3, 3)): supercell matrix
+            vector (np.array(3)): fractional translation vector
+            mapping (list[int | None]):
                 The first len(struct1) items of the mapping vector are the
                 indices of struct1's corresponding sites in struct2 (or None
                 if there is no corresponding site), and the other items are

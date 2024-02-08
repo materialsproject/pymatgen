@@ -49,14 +49,14 @@ __date__ = "August 17, 2017"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as f:
-    default_op_params = yaml.load(f)
+with open(f"{module_dir}/op_params.yaml") as file:
+    default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as f:
-    cn_opt_params = yaml.load(f)
+with open(f"{module_dir}/cn_opt_params.yaml") as file:
+    cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as fp:
-    _ion_radii = json.load(fp)
+with open(f"{module_dir}/ionic_radii.json") as file:
+    _ion_radii = json.load(file)
 
 
 class ValenceIonicRadiusEvaluator:
@@ -68,7 +68,7 @@ class ValenceIonicRadiusEvaluator:
     def __init__(self, structure: Structure) -> None:
         """
         Args:
-            structure: pymatgen.core.structure.Structure.
+            structure: pymatgen Structure.
         """
         self._structure = structure.copy()
         self._valences = self._get_valences()
@@ -766,11 +766,11 @@ class VoronoiNN(NearNeighbors):
                 cell_info = self._extract_cell_info(0, neighbors, targets, voro, self.compute_adj_neighbors)
                 break
 
-            except RuntimeError as e:
+            except RuntimeError as exc:
                 if cutoff >= max_cutoff:
-                    if e.args and "vertex" in e.args[0]:
+                    if exc.args and "vertex" in exc.args[0]:
                         # pass through the error raised by _extract_cell_info
-                        raise e
+                        raise exc
                     raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
@@ -1211,9 +1211,9 @@ class JmolNN(NearNeighbors):
 
         # Load elemental radii table
         bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
-        with open(bonds_file) as f:
+        with open(bonds_file) as file:
             yaml = YAML()
-            self.el_radius = yaml.load(f)
+            self.el_radius = yaml.load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -2279,19 +2279,19 @@ class LocalStructOrderParams:
                 pruned using the get_nn method from the
                 VoronoiNN class.
         """
-        for t in types:
-            if t not in LocalStructOrderParams.__supported_types:
-                raise ValueError("Unknown order parameter type (" + t + ")!")
+        for typ in types:
+            if typ not in LocalStructOrderParams.__supported_types:
+                raise ValueError(f"Unknown order parameter type ({typ})!")
         self._types = tuple(types)
 
         self._comp_azi = False
         self._params = []
-        for i, t in enumerate(self._types):
-            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None else None
-            if parameters is None or parameters[i] is None:
-                self._params.append(d)
+        for idx, typ in enumerate(self._types):
+            dct = deepcopy(default_op_params[typ]) if default_op_params[typ] is not None else None
+            if parameters is None or parameters[idx] is None:
+                self._params.append(dct)
             else:
-                self._params.append(deepcopy(parameters[i]))
+                self._params.append(deepcopy(parameters[idx]))
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -2450,36 +2450,36 @@ class LocalStructOrderParams:
 
         # Y_2_-2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_2_2[i] * self._cos_n_p[2][i]
-            imag -= pre_y_2_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
+            imag -= pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_2_-1
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_2_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_2_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real += pre_y_2_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_0
         real = imag = 0.0
-        for i in nnn_range:
-            real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][i] - 1.0)
+        for idx in nnn_range:
+            real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][idx] - 1.0)
         acc += real * real
 
         # Y_2_1
         real = imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_2_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_2_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real -= pre_y_2_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_2_2[i] * self._cos_n_p[2][i]
-            imag += pre_y_2_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
+            imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         return sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
@@ -2528,64 +2528,64 @@ class LocalStructOrderParams:
 
         # Y_4_-4
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_4[i] * self._cos_n_p[4][i]
-            imag -= pre_y_4_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
+            imag -= pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_4_-3
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_4_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real += pre_y_4_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_-2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_2[i] * self._cos_n_p[2][i]
-            imag -= pre_y_4_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
+            imag -= pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_-1
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_4_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real += pre_y_4_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_0
         real = imag = 0.0
-        for i in nnn_range:
-            real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][i] - 30 * self._pow_cos_t[2][i] + 3.0)
+        for idx in nnn_range:
+            real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][idx] - 30 * self._pow_cos_t[2][idx] + 3.0)
         acc += real * real
 
         # Y_4_1
         real = imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_4_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_4_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real -= pre_y_4_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_2[i] * self._cos_n_p[2][i]
-            imag += pre_y_4_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
+            imag += pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_3
         real = imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_4_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_4_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real -= pre_y_4_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_4
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_4[i] * self._cos_n_p[4][i]
-            imag += pre_y_4_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
+            imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         return sqrt(4 * pi * acc / (9 * float(nnn * nnn)))
@@ -3923,20 +3923,20 @@ class CrystalNN(NearNeighbors):
             for entry in nn:
                 r2 = _get_radius(entry["site"])
                 if r1 > 0 and r2 > 0:
-                    d = r1 + r2
+                    diameter = r1 + r2
                 else:
                     warnings.warn(
                         "CrystalNN: cannot locate an appropriate radius, "
                         "covalent or atomic radii will be used, this can lead "
                         "to non-optimal results."
                     )
-                    d = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
+                    diameter = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
 
                 dist = np.linalg.norm(structure[n].coords - entry["site"].coords)
                 dist_weight: float = 0
 
-                cutoff_low = d + self.distance_cutoffs[0]
-                cutoff_high = d + self.distance_cutoffs[1]
+                cutoff_low = diameter + self.distance_cutoffs[0]
+                cutoff_high = diameter + self.distance_cutoffs[1]
 
                 if dist <= cutoff_low:
                     dist_weight = 1

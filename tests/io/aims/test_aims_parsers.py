@@ -1,18 +1,21 @@
-# flake8: noqa
-import numpy as np
-from pymatgen.io.aims.parsers import (
-    AimsParseError,
-    AimsOutChunk,
-    AimsOutHeaderChunk,
-    AimsOutCalcChunk,
-    EV_PER_A3_TO_KBAR,
-    LINE_NOT_FOUND,
-)
-from pymatgen.core.tensors import Tensor
+from __future__ import annotations
+
 import gzip
 from pathlib import Path
 
+import numpy as np
 import pytest
+from numpy.testing import assert_allclose
+
+from pymatgen.core.tensors import Tensor
+from pymatgen.io.aims.parsers import (
+    EV_PER_A3_TO_KBAR,
+    LINE_NOT_FOUND,
+    AimsOutCalcChunk,
+    AimsOutChunk,
+    AimsOutHeaderChunk,
+    AimsParseError,
+)
 
 eps_hp = 1e-15  # The epsilon value used to compare numbers that are high-precision
 eps_lp = 1e-7  # The epsilon value used to compare numbers that are low-precision
@@ -20,7 +23,7 @@ eps_lp = 1e-7  # The epsilon value used to compare numbers that are low-precisio
 parser_file_dir = Path(__file__).parent / "parser_checks"
 
 
-@pytest.fixture
+@pytest.fixture()
 def default_chunk():
     lines = ["TEST", "A", "TEST", "| Number of atoms: 200 atoms"]
     return AimsOutChunk(lines)
@@ -47,7 +50,7 @@ def test_search_parse_scalar(default_chunk):
     assert default_chunk.parse_scalar("n_electrons") is None
 
 
-@pytest.fixture
+@pytest.fixture()
 def empty_header_chunk():
     return AimsOutHeaderChunk([])
 
@@ -86,7 +89,7 @@ def test_default_header_k_point_weights(empty_header_chunk):
     assert empty_header_chunk.k_point_weights is None
 
 
-@pytest.fixture
+@pytest.fixture()
 def initial_lattice():
     return np.array(
         [
@@ -97,9 +100,9 @@ def initial_lattice():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def header_chunk():
-    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", "rt") as hc_file:
+    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", mode="rt") as hc_file:
         lines = hc_file.readlines()
 
     for ll, line in enumerate(lines):
@@ -127,16 +130,13 @@ def test_header_n_spins(header_chunk):
 def test_header_initial_structure(header_chunk, initial_lattice):
     initial_positions = np.array([[0.000, 1.000, 2.000], [2.703, 3.703, 4.703]])
     assert len(header_chunk.initial_structure) == 2
-    assert np.allclose(
-        header_chunk.initial_structure.lattice.matrix,
-        initial_lattice,
-    )
-    assert np.allclose(header_chunk.initial_structure.cart_coords, initial_positions)
-    assert np.all(["Na", "Cl"] == [sp.symbol for sp in header_chunk.initial_structure.species])
+    assert_allclose(header_chunk.initial_structure.lattice.matrix, initial_lattice)
+    assert_allclose(header_chunk.initial_structure.cart_coords, initial_positions, atol=1e-12)
+    assert [sp.symbol for sp in header_chunk.initial_structure.species] == ["Na", "Cl"]
 
 
 def test_header_initial_lattice(header_chunk, initial_lattice):
-    assert np.allclose(header_chunk.initial_lattice.matrix, initial_lattice)
+    assert_allclose(header_chunk.initial_lattice.matrix, initial_lattice)
 
 
 def test_header_electronic_temperature(header_chunk):
@@ -155,7 +155,7 @@ def test_header_n_k_points(header_chunk):
     assert header_chunk.n_k_points == 8
 
 
-@pytest.fixture
+@pytest.fixture()
 def k_points():
     return np.array(
         [
@@ -174,11 +174,11 @@ def k_points():
 def test_header_k_point_weights(
     header_chunk,
 ):
-    assert np.allclose(header_chunk.k_point_weights, np.full((8), 0.125))
+    assert_allclose(header_chunk.k_point_weights, np.full((8), 0.125))
 
 
 def test_header_k_points(header_chunk, k_points):
-    assert np.allclose(header_chunk.k_points, k_points)
+    assert_allclose(header_chunk.k_points, k_points)
 
 
 def test_header_header_summary(header_chunk, k_points):
@@ -198,12 +198,12 @@ def test_header_header_summary(header_chunk, k_points):
     }
     for key, val in header_chunk.header_summary.items():
         if isinstance(val, np.ndarray):
-            assert np.allclose(val, header_summary[key])
+            assert_allclose(val, header_summary[key])
         else:
             assert val == header_summary[key]
 
 
-@pytest.fixture
+@pytest.fixture()
 def empty_calc_chunk(header_chunk):
     return AimsOutCalcChunk([], header_chunk)
 
@@ -225,17 +225,17 @@ def test_header_transfer_n_spins(empty_calc_chunk):
 
 
 def test_header_transfer_initial_lattice(empty_calc_chunk, initial_lattice):
-    assert np.allclose(empty_calc_chunk.initial_lattice.matrix, initial_lattice)
+    assert_allclose(empty_calc_chunk.initial_lattice.matrix, initial_lattice)
 
 
 def test_header_transfer_initial_structure(empty_calc_chunk, initial_lattice):
     initial_positions = np.array([[0.000, 1.000, 2.000], [2.703, 3.703, 4.703]])
 
-    assert np.allclose(empty_calc_chunk.initial_structure.lattice.matrix, empty_calc_chunk.initial_lattice.matrix)
+    assert_allclose(empty_calc_chunk.initial_structure.lattice.matrix, empty_calc_chunk.initial_lattice.matrix)
     assert len(empty_calc_chunk.initial_structure) == 2
-    assert np.allclose(empty_calc_chunk.initial_structure.lattice.matrix, initial_lattice)
-    assert np.allclose(empty_calc_chunk.initial_structure.cart_coords, initial_positions)
-    assert np.all(["Na", "Cl"] == [sp.symbol for sp in empty_calc_chunk.initial_structure.species])
+    assert_allclose(empty_calc_chunk.initial_structure.lattice.matrix, initial_lattice)
+    assert_allclose(empty_calc_chunk.initial_structure.cart_coords, initial_positions, atol=1e-12)
+    assert [sp.symbol for sp in empty_calc_chunk.initial_structure.species] == ["Na", "Cl"]
 
 
 def test_header_transfer_electronic_temperature(empty_calc_chunk):
@@ -247,20 +247,20 @@ def test_header_transfer_n_k_points(empty_calc_chunk):
 
 
 def test_header_transfer_k_point_weights(empty_calc_chunk):
-    assert np.allclose(empty_calc_chunk.k_point_weights, np.full((8), 0.125))
+    assert_allclose(empty_calc_chunk.k_point_weights, np.full((8), 0.125))
 
 
 def test_header_transfer_k_points(empty_calc_chunk, k_points):
-    assert np.allclose(empty_calc_chunk.k_points, k_points)
+    assert_allclose(empty_calc_chunk.k_points, k_points)
 
 
 def test_default_calc_energy_raises_error(empty_calc_chunk):
     with pytest.raises(AimsParseError, match="No energy is associated with the structure."):
-        getattr(empty_calc_chunk, "energy")
+        _ = empty_calc_chunk.energy
 
 
 @pytest.mark.parametrize(
-    "attrname",
+    "attr",
     [
         "forces",
         "stresses",
@@ -276,8 +276,8 @@ def test_default_calc_energy_raises_error(empty_calc_chunk):
         "hirshfeld_dipole",
     ],
 )
-def test_chunk_defaults_none(attrname, empty_calc_chunk):
-    assert getattr(empty_calc_chunk, attrname) is None
+def test_chunk_defaults_none(attr, empty_calc_chunk):
+    assert getattr(empty_calc_chunk, attr) is None
 
 
 def test_default_calc_is_metallic(empty_calc_chunk):
@@ -288,20 +288,20 @@ def test_default_calc_converged(empty_calc_chunk):
     assert not empty_calc_chunk.converged
 
 
-@pytest.fixture
+@pytest.fixture()
 def calc_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
     for ll, line in enumerate(lines):
         lines[ll] = line.strip()
     return AimsOutCalcChunk(lines, header_chunk)
 
 
-@pytest.fixture
+@pytest.fixture()
 def numerical_stress_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
     for ll, line in enumerate(lines):
         lines[ll] = line.strip()
@@ -312,18 +312,18 @@ def test_calc_structure(calc_chunk, initial_lattice):
     initial_positions = np.array([[0.000, 1.000, 2.000], [2.703, 3.703, 4.703]])
 
     assert len(calc_chunk.structure.species) == 2
-    assert np.allclose(calc_chunk.structure.lattice.matrix, initial_lattice)
-    assert np.allclose(calc_chunk.structure.cart_coords, initial_positions)
-    assert np.all(["Na", "Cl"] == [sp.symbol for sp in calc_chunk.structure.species])
+    assert_allclose(calc_chunk.structure.lattice.matrix, initial_lattice)
+    assert_allclose(calc_chunk.structure.cart_coords, initial_positions, atol=1e-12)
+    assert [sp.symbol for sp in calc_chunk.structure.species] == ["Na", "Cl"]
 
 
 def test_calc_forces(calc_chunk):
     forces = np.array([[1.0, 2.0, 3.0], [6.0, 5.0, 4.0]])
-    assert np.allclose(calc_chunk.forces, forces)
+    assert_allclose(calc_chunk.forces, forces)
 
     # Different because of the constraints
-    assert np.allclose(calc_chunk.structure.site_properties["force"], forces)
-    assert np.allclose(calc_chunk.results["forces"], forces)
+    assert_allclose(calc_chunk.structure.site_properties["force"], forces)
+    assert_allclose(calc_chunk.results["forces"], forces)
 
 
 def test_calc_stresses(calc_chunk):
@@ -333,23 +333,23 @@ def test_calc_stresses(calc_chunk):
             Tensor.from_voigt([10.0, 20.0, 30.0, 60.0, 50.0, 40.0]),
         ]
     )
-    assert np.allclose(calc_chunk.stresses, stresses)
-    assert np.allclose(calc_chunk.structure.site_properties["atomic_virial_stress"], stresses)
-    assert np.allclose(calc_chunk.results["stresses"], stresses)
+    assert_allclose(calc_chunk.stresses, stresses)
+    assert_allclose(calc_chunk.structure.site_properties["atomic_virial_stress"], stresses)
+    assert_allclose(calc_chunk.results["stresses"], stresses)
 
 
 def test_calc_stress(calc_chunk):
     stress = EV_PER_A3_TO_KBAR * np.array([[1.0, 2.0, 3.0], [2.0, 5.0, 6.0], [3.0, 6.0, 7.0]])
-    assert np.allclose(calc_chunk.stress, stress)
-    assert np.allclose(calc_chunk.structure.properties["stress"], stress)
-    assert np.allclose(calc_chunk.results["stress"], stress)
+    assert_allclose(calc_chunk.stress, stress)
+    assert_allclose(calc_chunk.structure.properties["stress"], stress)
+    assert_allclose(calc_chunk.results["stress"], stress)
 
 
 def test_calc_num_stress(numerical_stress_chunk):
     stress = EV_PER_A3_TO_KBAR * np.array([[1.0, 2.0, 3.0], [2.0, 5.0, 6.0], [3.0, 6.0, 7.0]])
-    assert np.allclose(numerical_stress_chunk.stress, stress)
-    assert np.allclose(numerical_stress_chunk.structure.properties["stress"], stress)
-    assert np.allclose(numerical_stress_chunk.results["stress"], stress)
+    assert_allclose(numerical_stress_chunk.stress, stress)
+    assert_allclose(numerical_stress_chunk.structure.properties["stress"], stress)
+    assert_allclose(numerical_stress_chunk.results["stress"], stress)
 
 
 def test_calc_free_energy(calc_chunk):
@@ -399,30 +399,30 @@ def test_calc_converged(calc_chunk):
 
 def test_calc_hirshfeld_charges(calc_chunk):
     hirshfeld_charges = [0.20898543, -0.20840994]
-    assert np.allclose(calc_chunk.hirshfeld_charges, hirshfeld_charges)
-    assert np.allclose(calc_chunk.results["hirshfeld_charges"], hirshfeld_charges)
+    assert_allclose(calc_chunk.hirshfeld_charges, hirshfeld_charges)
+    assert_allclose(calc_chunk.results["hirshfeld_charges"], hirshfeld_charges)
 
 
 def test_calc_hirshfeld_volumes(calc_chunk):
     hirshfeld_volumes = [73.39467444, 62.86011074]
-    assert np.allclose(calc_chunk.hirshfeld_volumes, hirshfeld_volumes)
-    assert np.allclose(calc_chunk.results["hirshfeld_volumes"], hirshfeld_volumes)
+    assert_allclose(calc_chunk.hirshfeld_volumes, hirshfeld_volumes)
+    assert_allclose(calc_chunk.results["hirshfeld_volumes"], hirshfeld_volumes)
 
 
 def test_calc_hirshfeld_atomic_dipoles(calc_chunk):
     hirshfeld_atomic_dipoles = np.zeros((2, 3))
-    assert np.allclose(calc_chunk.hirshfeld_atomic_dipoles, hirshfeld_atomic_dipoles)
-    assert np.allclose(calc_chunk.results["hirshfeld_atomic_dipoles"], hirshfeld_atomic_dipoles)
+    assert_allclose(calc_chunk.hirshfeld_atomic_dipoles, hirshfeld_atomic_dipoles)
+    assert_allclose(calc_chunk.results["hirshfeld_atomic_dipoles"], hirshfeld_atomic_dipoles)
 
 
 def test_calc_hirshfeld_dipole(calc_chunk):
     assert calc_chunk.hirshfeld_dipole is None
 
 
-@pytest.fixture
+@pytest.fixture()
 def molecular_header_chunk():
-    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
     for ll, line in enumerate(lines):
         lines[ll] = line.strip()
@@ -431,16 +431,11 @@ def molecular_header_chunk():
 
 
 @pytest.mark.parametrize(
-    "attrname",
-    [
-        "k_points",
-        "k_point_weights",
-        "initial_lattice",
-        "n_k_points",
-    ],
+    "attr_name",
+    ["k_points", "k_point_weights", "initial_lattice", "n_k_points"],
 )
-def test_chunk_molecular_header_defaults_none(attrname, molecular_header_chunk):
-    assert getattr(molecular_header_chunk, attrname) is None
+def test_chunk_molecular_header_defaults_none(attr_name, molecular_header_chunk):
+    assert getattr(molecular_header_chunk, attr_name) is None
 
 
 def test_molecular_header_n_bands(molecular_header_chunk):
@@ -449,38 +444,32 @@ def test_molecular_header_n_bands(molecular_header_chunk):
 
 def test_molecular_header_initial_structure(molecular_header_chunk, molecular_positions):
     assert len(molecular_header_chunk.initial_structure) == 3
-    assert np.all(["O", "H", "H"] == [sp.symbol for sp in molecular_header_chunk.initial_structure.species])
-    assert np.allclose(
+    assert [sp.symbol for sp in molecular_header_chunk.initial_structure.species] == ["O", "H", "H"]
+    assert_allclose(
         molecular_header_chunk.initial_structure.cart_coords,
-        np.array(
-            [
-                [0, 0, 0],
-                [0.95840000, 0, 0],
-                [-0.24000000, 0.92790000, 0],
-            ]
-        ),
+        [[0, 0, 0], [0.95840000, 0, 0], [-0.24000000, 0.92790000, 0]],
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def molecular_calc_chunk(molecular_header_chunk):
-    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", "rt") as fd:
-        lines = fd.readlines()
+    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", mode="rt") as file:
+        lines = file.readlines()
 
-    for ll, line in enumerate(lines):
-        lines[ll] = line.strip()
+    for idx, line in enumerate(lines):
+        lines[idx] = line.strip()
     return AimsOutCalcChunk(lines, molecular_header_chunk)
 
 
-@pytest.fixture
+@pytest.fixture()
 def molecular_positions():
     return np.array([[-0.00191785, -0.00243279, 0], [0.97071531, -0.00756333, 0], [-0.25039746, 0.93789612, 0]])
 
 
 def test_molecular_calc_atoms(molecular_calc_chunk, molecular_positions):
     assert len(molecular_calc_chunk.structure.species) == 3
-    assert np.allclose(molecular_calc_chunk.structure.cart_coords, molecular_positions)
-    assert np.all(["O", "H", "H"] == [sp.symbol for sp in molecular_calc_chunk.structure.species])
+    assert_allclose(molecular_calc_chunk.structure.cart_coords, molecular_positions)
+    assert [sp.symbol for sp in molecular_calc_chunk.structure.species] == ["O", "H", "H"]
 
 
 def test_molecular_calc_forces(molecular_calc_chunk):
@@ -491,9 +480,9 @@ def test_molecular_calc_forces(molecular_calc_chunk):
             [-0.393544598907207e-03, -0.110498764272267e-03, -0.973556547939183e-27],
         ]
     )
-    assert np.allclose(molecular_calc_chunk.forces, forces)
-    assert np.allclose(molecular_calc_chunk.structure.site_properties["force"], forces)
-    assert np.allclose(molecular_calc_chunk.results["forces"], forces)
+    assert_allclose(molecular_calc_chunk.forces, forces)
+    assert_allclose(molecular_calc_chunk.structure.site_properties["force"], forces)
+    assert_allclose(molecular_calc_chunk.results["forces"], forces)
 
 
 @pytest.mark.parametrize("attrname", ["stresses", "stress", "magmom", "E_f"])
@@ -523,9 +512,9 @@ def test_molecular_calc_n_iter(molecular_calc_chunk):
 
 def test_molecular_calc_dipole(molecular_calc_chunk):
     dipole = [0.260286493869765, 0.336152447755231, 0.470003778119121e-15]
-    assert np.allclose(molecular_calc_chunk.dipole, dipole)
-    assert np.allclose(molecular_calc_chunk.structure.properties["dipole"], dipole)
-    assert np.allclose(molecular_calc_chunk.results["dipole"], dipole)
+    assert_allclose(molecular_calc_chunk.dipole, dipole)
+    assert_allclose(molecular_calc_chunk.structure.properties["dipole"], dipole)
+    assert_allclose(molecular_calc_chunk.results["dipole"], dipole)
 
 
 def test_molecular_calc_is_metallic(molecular_calc_chunk):
@@ -538,22 +527,22 @@ def test_molecular_calc_converged(molecular_calc_chunk):
 
 def test_molecular_calc_hirshfeld_charges(molecular_calc_chunk):
     molecular_hirshfeld_charges = np.array([-0.32053200, 0.16022630, 0.16020375])
-    assert np.allclose(molecular_calc_chunk.hirshfeld_charges, molecular_hirshfeld_charges)
-    assert np.allclose(molecular_calc_chunk.results["hirshfeld_charges"], molecular_hirshfeld_charges)
+    assert_allclose(molecular_calc_chunk.hirshfeld_charges, molecular_hirshfeld_charges)
+    assert_allclose(molecular_calc_chunk.results["hirshfeld_charges"], molecular_hirshfeld_charges)
 
 
 def test_molecular_calc_hirshfeld_volumes(molecular_calc_chunk):
     hirshfeld_volumes = np.array([21.83060659, 6.07674041, 6.07684447])
-    assert np.allclose(molecular_calc_chunk.hirshfeld_volumes, hirshfeld_volumes)
-    assert np.allclose(molecular_calc_chunk.results["hirshfeld_volumes"], hirshfeld_volumes)
+    assert_allclose(molecular_calc_chunk.hirshfeld_volumes, hirshfeld_volumes)
+    assert_allclose(molecular_calc_chunk.results["hirshfeld_volumes"], hirshfeld_volumes)
 
 
 def test_molecular_calc_hirshfeld_atomic_dipoles(molecular_calc_chunk):
     hirshfeld_atomic_dipoles = np.array(
         [[0.04249319, 0.05486053, 0], [0.13710134, -0.00105126, 0], [-0.03534982, 0.13248706, 0]]
     )
-    assert np.allclose(molecular_calc_chunk.hirshfeld_atomic_dipoles, hirshfeld_atomic_dipoles)
-    assert np.allclose(
+    assert_allclose(molecular_calc_chunk.hirshfeld_atomic_dipoles, hirshfeld_atomic_dipoles)
+    assert_allclose(
         molecular_calc_chunk.results["hirshfeld_atomic_dipoles"],
         hirshfeld_atomic_dipoles,
     )
@@ -563,5 +552,5 @@ def test_molecular_calc_hirshfeld_dipole(molecular_calc_chunk, molecular_positio
     molecular_hirshfeld_charges = np.array([-0.32053200, 0.16022630, 0.16020375])
     hirshfeld_dipole = np.sum(molecular_hirshfeld_charges.reshape((-1, 1)) * molecular_positions, axis=1)
 
-    assert np.allclose(molecular_calc_chunk.hirshfeld_dipole, hirshfeld_dipole)
-    assert np.allclose(molecular_calc_chunk.results["hirshfeld_dipole"], hirshfeld_dipole)
+    assert_allclose(molecular_calc_chunk.hirshfeld_dipole, hirshfeld_dipole)
+    assert_allclose(molecular_calc_chunk.results["hirshfeld_dipole"], hirshfeld_dipole)

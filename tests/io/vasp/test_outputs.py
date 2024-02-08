@@ -40,7 +40,7 @@ from pymatgen.io.vasp.outputs import (
     Xdatcar,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 try:
     import h5py
@@ -240,8 +240,8 @@ class TestVasprun(PymatgenTest):
 
         assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
 
-        assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasp_run.atomic_symbols
-        assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
+        assert vasp_run.atomic_symbols == ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
+        assert vasp_run.final_structure.reduced_formula == "LiFe4(PO4)4"
         assert vasp_run.incar is not None, "Incar cannot be read"
         assert vasp_run.kpoints is not None, "Kpoints cannot be read"
         assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"
@@ -283,9 +283,9 @@ class TestVasprun(PymatgenTest):
         assert vasprun_ggau.is_hubbard
         assert vasprun_ggau.hubbards["Fe"] == 4.3
         assert vasprun_ggau.projected_eigenvalues[Spin.up][0][0][96][0] == approx(0.0032)
-        d = vasprun_ggau.as_dict()
-        assert d["elements"] == ["Fe", "Li", "O", "P"]
-        assert d["nelements"] == 4
+        dct = vasprun_ggau.as_dict()
+        assert dct["elements"] == ["Fe", "Li", "O", "P"]
+        assert dct["nelements"] == 4
 
         entry = vasp_run.get_computed_entry(inc_structure=True)
         assert entry.entry_id.startswith("vasprun")
@@ -617,13 +617,13 @@ class TestVasprun(PymatgenTest):
             expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
         vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
         assert vasp_run.potcar_spec == expected_spec
 
-        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
@@ -668,7 +668,7 @@ class TestVasprun(PymatgenTest):
 
     def test_charged_structure(self):
         vpath = f"{TEST_FILES_DIR}/vasprun.charged.xml"
-        potcar_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
+        potcar_path = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 8) == 9
@@ -704,6 +704,25 @@ class TestVasprun(PymatgenTest):
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0]
         assert props[3][1]
+
+    def test_parse_potcar_cwd_relative(self):
+        # Test to ensure that common use cases of vasprun parsing work
+        # in the current working directory using relative paths,
+        # either when leading ./ is specified or not for vasprun.xml
+        # See gh-3586
+        copyfile(f"{TEST_FILES_DIR}/vasprun.xml.Al", "vasprun.xml")
+
+        potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
+        copyfile(potcar_path, "POTCAR.gz")
+
+        potcar = Potcar.from_file(potcar_path)
+        for leading_path in ("", "./"):
+            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml"), parse_potcar_file=True)
+            # Note that the TITEL is not updated in Vasprun.potcar_spec
+            # Since the fake POTCARs modify the TITEL (to indicate fakeness), can't compare
+            for ipot in range(len(potcar)):
+                assert vrun.potcar_spec[ipot]["hash"] == potcar[ipot].md5_header_hash
+                assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
 
 
 class TestOutcar(PymatgenTest):
@@ -859,11 +878,11 @@ class TestOutcar(PymatgenTest):
     def test_pseudo_zval(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        assert {"Ba": 10.00, "Ti": 10.00, "O": 6.00} == outcar.zval_dict
+        assert outcar.zval_dict == {"Ba": 10.00, "Ti": 10.00, "O": 6.00}
 
         filepath = f"{TEST_FILES_DIR}/OUTCAR.LaSnNO2.polar"
         outcar = Outcar(filepath)
-        assert {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0} == outcar.zval_dict
+        assert outcar.zval_dict == {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0}
 
     def test_dielectric(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR.dielectric"
@@ -1301,8 +1320,8 @@ class TestBSVasprun(PymatgenTest):
         assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
-        d = vasprun.as_dict()
-        assert "eigenvalues" in d["output"]
+        dct = vasprun.as_dict()
+        assert "eigenvalues" in dct["output"]
 
 
 class TestOszicar(PymatgenTest):
@@ -1344,7 +1363,7 @@ class TestChgcar(PymatgenTest):
         cls.chgcar_fe3o4 = Chgcar.from_file(filepath)
 
         filepath = f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz"
-        cls.chgcar_NiO_SOC = Chgcar.from_file(filepath)
+        cls.chgcar_NiO_soc = Chgcar.from_file(filepath)
 
     def test_init(self):
         assert self.chgcar_no_spin.get_integrated_diff(0, 2)[0, 1] == approx(0)
@@ -1368,22 +1387,22 @@ class TestChgcar(PymatgenTest):
                     assert line == "augmentation occupancies   1  15\n"
 
     def test_soc_chgcar(self):
-        assert set(self.chgcar_NiO_SOC.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
-        assert self.chgcar_NiO_SOC.is_soc
-        assert self.chgcar_NiO_SOC.data["diff"].shape == self.chgcar_NiO_SOC.data["diff_y"].shape
+        assert set(self.chgcar_NiO_soc.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
+        assert self.chgcar_NiO_soc.is_soc
+        assert self.chgcar_NiO_soc.data["diff"].shape == self.chgcar_NiO_soc.data["diff_y"].shape
 
         # check our construction of chg.data['diff'] makes sense
         # this has been checked visually too and seems reasonable
-        assert abs(self.chgcar_NiO_SOC.data["diff"][0][0][0]) == np.linalg.norm(
-            [self.chgcar_NiO_SOC.data[f"diff_{key}"][0][0][0] for key in "xyz"]
+        assert abs(self.chgcar_NiO_soc.data["diff"][0][0][0]) == np.linalg.norm(
+            [self.chgcar_NiO_soc.data[f"diff_{key}"][0][0][0] for key in "xyz"]
         )
 
         # and that the net magnetization is about zero
         # note: we get ~ 0.08 here, seems a little high compared to
         # vasp output, but might be due to chgcar limitations?
-        assert self.chgcar_NiO_SOC.net_magnetization == approx(0.0, abs=1e-0)
+        assert self.chgcar_NiO_soc.net_magnetization == approx(0.0, abs=1e-0)
 
-        self.chgcar_NiO_SOC.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg_soc")
+        self.chgcar_NiO_soc.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg_soc")
         chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
 
@@ -1392,15 +1411,15 @@ class TestChgcar(PymatgenTest):
         chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
-        with h5py.File(out_path, "r") as f:
-            assert_allclose(f["vdata"]["total"], chgcar.data["total"])
-            assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
-            assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
-            assert_allclose(f["fcoords"], chgcar.structure.frac_coords)
-            for z in f["Z"]:
+        with h5py.File(out_path, mode="r") as dct:
+            assert_allclose(dct["vdata"]["total"], chgcar.data["total"])
+            assert_allclose(dct["vdata"]["diff"], chgcar.data["diff"])
+            assert_allclose(dct["lattice"], chgcar.structure.lattice.matrix)
+            assert_allclose(dct["fcoords"], chgcar.structure.frac_coords)
+            for z in dct["Z"]:
                 assert z in [Element.Ni.Z, Element.O.Z]
 
-            for sp in f["species"]:
+            for sp in dct["species"]:
                 assert sp in [b"Ni", b"O"]
 
         chgcar2 = Chgcar.from_hdf5(out_path)
@@ -1431,11 +1450,11 @@ class TestChgcar(PymatgenTest):
             self.chgcar_spin + self.chgcar_no_spin
 
     def test_as_dict_and_from_dict(self):
-        d = self.chgcar_NiO_SOC.as_dict()
-        chgcar_from_dict = Chgcar.from_dict(d)
-        assert_allclose(self.chgcar_NiO_SOC.data["total"], chgcar_from_dict.data["total"])
+        dct = self.chgcar_NiO_soc.as_dict()
+        chgcar_from_dict = Chgcar.from_dict(dct)
+        assert_allclose(self.chgcar_NiO_soc.data["total"], chgcar_from_dict.data["total"])
         assert_allclose(
-            self.chgcar_NiO_SOC.structure.lattice.matrix,
+            self.chgcar_NiO_soc.structure.lattice.matrix,
             chgcar_from_dict.structure.lattice.matrix,
         )
 
@@ -1555,15 +1574,15 @@ class TestXdatcar(PymatgenTest):
 class TestDynmat(PymatgenTest):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/DYNMAT"
-        d = Dynmat(filepath)
-        assert d.nspecs == 2
-        assert d.natoms == 6
-        assert d.ndisps == 3
-        assert_allclose(d.masses, [63.546, 196.966])
-        assert 4 in d.data
-        assert 2 in d.data[4]
-        assert_allclose(d.data[4][2]["dispvec"], [0.0, 0.05, 0.0])
-        assert_allclose(d.data[4][2]["dynmat"][3], [0.055046, -0.298080, 0.0])
+        dct = Dynmat(filepath)
+        assert dct.nspecs == 2
+        assert dct.natoms == 6
+        assert dct.ndisps == 3
+        assert_allclose(dct.masses, [63.546, 196.966])
+        assert 4 in dct.data
+        assert 2 in dct.data[4]
+        assert_allclose(dct.data[4][2]["dispvec"], [0.0, 0.05, 0.0])
+        assert_allclose(dct.data[4][2]["dynmat"][3], [0.055046, -0.298080, 0.0])
         # TODO: test get_phonon_frequencies once cross-checked
 
 
@@ -1888,8 +1907,8 @@ class TestWaveder(PymatgenTest):
         wder_ref = np.loadtxt(f"{TEST_FILES_DIR}/WAVEDERF.Si", skiprows=1)
 
         def _check(wder):
-            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as f:
-                first_line = [int(a) for a in f.readline().split()]
+            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as file:
+                first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
             for i in range(10):

@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import scipy.constants as const
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -59,8 +58,7 @@ POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
 class Poscar(MSONable):
-    """
-    Object for representing the data in a POSCAR or CONTCAR file.
+    """Object for representing the data in a POSCAR or CONTCAR file.
 
     Attributes:
         structure: Associated Structure.
@@ -276,13 +274,8 @@ class Poscar(MSONable):
                     )
                 except Exception:
                     names = None
-        with zopen(filename, "rt") as f:
-            return cls.from_str(f.read(), names, read_velocities=read_velocities)
-
-    @classmethod
-    @deprecated(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
     def from_str(cls, data, default_names=None, read_velocities=True) -> Poscar:
@@ -346,7 +339,7 @@ class Poscar(MSONable):
             ipos = 6
         except ValueError:
             vasp5_symbols = True
-            symbols = lines[5].split()
+            symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with vasp appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -494,7 +487,7 @@ class Poscar(MSONable):
                 # First line in chunk is a key in CONTCAR
                 # Second line is POTIM
                 # Third line is the thermostat parameters
-                predictor_corrector_preamble = lines[0] + "\n" + lines[1] + "\n" + lines[2]
+                predictor_corrector_preamble = f"{lines[0]}\n{lines[1]}\n{lines[2]}"
                 # Rest is three sets of parameters, each set contains
                 # x, y, z predictor-corrector parameters for every atom in order
                 lines = lines[3:]
@@ -516,10 +509,6 @@ class Poscar(MSONable):
             predictor_corrector_preamble=predictor_corrector_preamble,
             lattice_velocities=lattice_velocities,
         )
-
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
 
     def get_str(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
@@ -611,10 +600,10 @@ class Poscar(MSONable):
     def write_file(self, filename: PathLike, **kwargs):
         """
         Writes POSCAR to a file. The supported kwargs are the same as those for
-        the Poscar.get_string method and are passed through directly.
+        the Poscar.get_str method and are passed through directly.
         """
-        with zopen(filename, "wt") as f:
-            f.write(self.get_str(**kwargs))
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -630,20 +619,20 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> Poscar:
+    def from_dict(cls, dct: dict) -> Poscar:
         """
-        :param d: Dict representation.
+        :param dct: Dict representation.
 
         Returns:
             Poscar
         """
         return Poscar(
-            Structure.from_dict(d["structure"]),
-            comment=d["comment"],
-            selective_dynamics=d["selective_dynamics"],
-            true_names=d["true_names"],
-            velocities=d.get("velocities"),
-            predictor_corrector=d.get("predictor_corrector"),
+            Structure.from_dict(dct["structure"]),
+            comment=dct["comment"],
+            selective_dynamics=dct["selective_dynamics"],
+            true_names=dct["true_names"],
+            velocities=dct.get("velocities"),
+            predictor_corrector=dct.get("predictor_corrector"),
         )
 
     def set_temperature(self, temperature: float):
@@ -719,8 +708,8 @@ class Incar(dict, MSONable):
                 params.get("LSORBIT") or params.get("LNONCOLLINEAR")
             ):
                 val = []
-                for i in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][i * 3 : (i + 1) * 3])
+                for idx in range(len(params["MAGMOM"]) // 3):
+                    val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
                 params["MAGMOM"] = val
 
             self.update(params)
@@ -744,20 +733,20 @@ class Incar(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d) -> Incar:
+    def from_dict(cls, dct: dict[str, Any]) -> Incar:
         """
-        :param d: Dict representation.
+        Args:
+            dct (dict): Serialized Incar
 
         Returns:
             Incar
         """
-        if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
-            d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
-        return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
+        if dct.get("MAGMOM") and isinstance(dct["MAGMOM"][0], dict):
+            dct["MAGMOM"] = [Magmom.from_dict(m) for m in dct["MAGMOM"]]
+        return Incar({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
+    def copy(self):
+        return type(self)(self)
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
@@ -771,30 +760,28 @@ class Incar(dict, MSONable):
             pretty (bool): Set to True for pretty aligned output. Defaults
                 to False.
         """
-        keys = list(self)
-        if sort_keys:
-            keys = sorted(keys)
+        keys = sorted(self) if sort_keys else list(self)
         lines = []
-        for k in keys:
-            if k == "MAGMOM" and isinstance(self[k], list):
+        for key in keys:
+            if key == "MAGMOM" and isinstance(self[key], list):
                 value = []
 
-                if isinstance(self[k][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
-                    value.append(" ".join(str(i) for j in self[k] for i in j))
+                if isinstance(self[key][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
+                    value.append(" ".join(str(i) for j in self[key] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
-                    for m, g in itertools.groupby(self[k]):
+                    for m, g in itertools.groupby(self[key]):
                         value.append(f"3*{len(tuple(g))}*{m}")
                 else:
                     # float() to ensure backwards compatibility between
                     # float magmoms and Magmom objects
-                    for m, g in itertools.groupby(self[k], key=float):
+                    for m, g in itertools.groupby(self[key], key=float):
                         value.append(f"{len(tuple(g))}*{m}")
 
-                lines.append([k, " ".join(value)])
-            elif isinstance(self[k], list):
-                lines.append([k, " ".join(map(str, self[k]))])
+                lines.append([key, " ".join(value)])
+            elif isinstance(self[key], list):
+                lines.append([key, " ".join(map(str, self[key]))])
             else:
-                lines.append([k, self[k]])
+                lines.append([key, self[key]])
 
         if pretty:
             return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
@@ -809,8 +796,8 @@ class Incar(dict, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Incar:
@@ -822,13 +809,8 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        with zopen(filename, "rt") as f:
-            return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     @classmethod
     def from_str(cls, string: str) -> Incar:
@@ -1024,11 +1006,6 @@ class KpointsSupportedModes(Enum):
 
     def __str__(self):
         return str(self.name)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, mode: str) -> KpointsSupportedModes:
@@ -1374,6 +1351,14 @@ class Kpoints(MSONable):
             num_kpts=int(divisions),
         )
 
+    def copy(self):
+        return self.from_dict(self.as_dict())
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Kpoints):
+            return NotImplemented
+        return self.as_dict() == other.as_dict()
+
     @classmethod
     def from_file(cls, filename):
         """
@@ -1385,13 +1370,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename, "rt") as f:
-            return cls.from_str(f.read())
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     @classmethod
     def from_str(cls, string):
@@ -1447,8 +1427,8 @@ class Kpoints(MSONable):
             kpts = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
-            for i in range(4, len(lines)):
-                line = lines[i]
+            for idx in range(4, len(lines)):
+                line = lines[idx]
                 m = patt.match(line)
                 if m:
                     kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
@@ -1471,8 +1451,8 @@ class Kpoints(MSONable):
         tet_weight = 0
         tet_connections = None
 
-        for i in range(3, 3 + num_kpts):
-            tokens = lines[i].split()
+        for idx in range(3, 3 + num_kpts):
+            tokens = lines[idx].split()
             kpts.append([float(j) for j in tokens[0:3]])
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
@@ -1486,8 +1466,8 @@ class Kpoints(MSONable):
                 tet_number = int(tokens[0])
                 tet_weight = float(tokens[1])
                 tet_connections = []
-                for i in range(5 + num_kpts, 5 + num_kpts + tet_number):
-                    tokens = lines[i].split()
+                for idx in range(5 + num_kpts, 5 + num_kpts + tet_number):
+                    tokens = lines[idx].split()
                     tet_connections.append((int(tokens[0]), [int(tokens[j]) for j in range(1, 5)]))
         except IndexError:
             pass
@@ -1511,8 +1491,8 @@ class Kpoints(MSONable):
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))
 
     def __repr__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
@@ -1711,7 +1691,7 @@ class PotcarSingle:
     )
 
     # used for POTCAR validation
-    potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
+    _potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
 
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
@@ -1810,7 +1790,7 @@ class PotcarSingle:
             )
 
     def __str__(self) -> str:
-        return self.data + "\n"
+        return f"{self.data}\n"
 
     @property
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
@@ -1829,19 +1809,30 @@ class PotcarSingle:
         return config
 
     def write_file(self, filename: str) -> None:
-        """
-        Write PotcarSingle to a file.
+        """Write PotcarSingle to a file.
 
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(str(self))
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PotcarSingle):
+            return NotImplemented
+        return self.data == other.data and self.keywords == other.keywords
+
+    def copy(self) -> PotcarSingle:
+        """Returns a copy of the PotcarSingle.
+
+        Returns:
+            PotcarSingle
+        """
+        return PotcarSingle(self.data, symbol=self.symbol)
 
     @classmethod
     def from_file(cls, filename: str) -> PotcarSingle:
-        """
-        Reads PotcarSingle from file.
+        """Reads PotcarSingle from file.
 
         :param filename: Filename.
 
@@ -1852,7 +1843,7 @@ class PotcarSingle:
         symbol = match.group(0) if match else ""
 
         try:
-            with zopen(filename, "rt") as file:
+            with zopen(filename, mode="rt") as file:
                 return cls(file.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
@@ -1862,8 +1853,7 @@ class PotcarSingle:
 
     @classmethod
     def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
-        """
-        Makes a PotcarSingle from a symbol and functional.
+        """Makes a PotcarSingle from a symbol and functional.
 
         Args:
             symbol (str): Symbol, e.g., Li_sv
@@ -1995,7 +1985,7 @@ class PotcarSingle:
 
         identity: dict[str, list] = {"potcar_functionals": [], "potcar_symbols": []}
         for func in self.functional_dir:
-            for ref_psp in self.potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
+            for ref_psp in self._potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
 
@@ -2259,9 +2249,9 @@ class PotcarSingle:
         # Thus we have to look for matches in all POTCAR dirs, not just the ones with
         # consistent values of LEXCH
         for func in self.functional_dir:
-            for titel_no_spc in self.potcar_summary_stats[func]:
+            for titel_no_spc in self._potcar_summary_stats[func]:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
-                    for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
+                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
                             possible_potcar_matches.append(
                                 {
@@ -2378,13 +2368,12 @@ class PotcarSingle:
     def __repr__(self) -> str:
         cls_name = type(self).__name__
         symbol, functional = self.symbol, self.functional
-        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 
 def _gen_potcar_summary_stats(
-    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str = POTCAR_STATS_PATH
+    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
     This function solely intended to be used for PMG development to regenerate the
@@ -2440,7 +2429,10 @@ def _gen_potcar_summary_stats(
                 }
             )
 
-    dumpfn(new_summary_stats, summary_stats_filename)
+    if summary_stats_filename:
+        dumpfn(new_summary_stats, summary_stats_filename)
+
+    return new_summary_stats
 
 
 class Potcar(list, MSONable):
@@ -2456,7 +2448,7 @@ class Potcar(list, MSONable):
         symbols: Sequence[str] | None = None,
         functional: str | None = None,
         sym_potcar_map: dict[str, str] | None = None,
-    ):
+    ) -> None:
         """
         Args:
             symbols (list[str]): Element symbols for POTCAR. This should correspond
@@ -2479,8 +2471,8 @@ class Potcar(list, MSONable):
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
 
-    def __iter__(self) -> Iterator[PotcarSingle]:  # __iter__ only needed to supply type hint
-        # so for psingle in Potcar() is correctly inferred as PotcarSingle
+    def __iter__(self) -> Iterator[PotcarSingle]:  # boilerplate code. only here to supply
+        # type hint so `for psingle in Potcar()` is correctly inferred as PotcarSingle
         return super().__iter__()
 
     def as_dict(self):
@@ -2512,8 +2504,8 @@ class Potcar(list, MSONable):
         Returns:
             Potcar
         """
-        with zopen(filename, "rt") as f:
-            fdata = f.read()
+        with zopen(filename, mode="rt") as file:
+            fdata = file.read()
         potcar = cls()
 
         functionals = []
@@ -2537,8 +2529,8 @@ class Potcar(list, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))
 
     @property
     def symbols(self):
@@ -2581,7 +2573,15 @@ class Potcar(list, MSONable):
 class VaspInput(dict, MSONable):
     """Class to contain a set of vasp input objects corresponding to a run."""
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
+    def __init__(
+        self,
+        incar: Incar,
+        kpoints: Kpoints | None,
+        poscar: Poscar,
+        potcar: Potcar | None,
+        optional_files: dict[PathLike, object] | None = None,
+        **kwargs,
+    ) -> None:
         """
         Initializes a VaspInput object with the given input files.
 
@@ -2602,19 +2602,19 @@ class VaspInput(dict, MSONable):
 
     def __str__(self):
         output = []
-        for k, v in self.items():
-            output.extend((k, str(v), ""))
+        for key, val in self.items():
+            output.extend((key, str(val), ""))
         return "\n".join(output)
 
     def as_dict(self):
         """MSONable dict."""
-        dct = {k: v.as_dict() for k, v in self.items()}
+        dct = {key: val.as_dict() for key, val in self.items()}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         :param d: Dict representation.
 
@@ -2622,13 +2622,13 @@ class VaspInput(dict, MSONable):
             VaspInput
         """
         dec = MontyDecoder()
-        sub_d = {"optional_files": {}}
-        for k, v in d.items():
-            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
-                sub_d[k.lower()] = dec.process_decoded(v)
-            elif k not in ["@module", "@class"]:
-                sub_d["optional_files"][k] = dec.process_decoded(v)
-        return cls(**sub_d)
+        sub_dct = {"optional_files": {}}
+        for key, val in dct.items():
+            if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+                sub_dct[key.lower()] = dec.process_decoded(val)
+            elif key not in ["@module", "@class"]:
+                sub_dct["optional_files"][key] = dec.process_decoded(val)
+        return cls(**sub_dct)
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -2644,8 +2644,8 @@ class VaspInput(dict, MSONable):
             os.makedirs(output_dir, exist_ok=True)
         for k, v in self.items():
             if v is not None:
-                with zopen(os.path.join(output_dir, k), "wt") as f:
-                    f.write(str(v))
+                with zopen(os.path.join(output_dir, k), mode="wt") as file:
+                    file.write(str(v))
 
     @classmethod
     def from_directory(cls, input_dir, optional_files=None):
@@ -2660,7 +2660,7 @@ class VaspInput(dict, MSONable):
                 dict of {filename: Object type}. Object type must have a
                 static method from_file.
         """
-        sub_d = {}
+        sub_dct = {}
         for fname, ftype in [
             ("INCAR", Incar),
             ("KPOINTS", Kpoints),
@@ -2669,15 +2669,21 @@ class VaspInput(dict, MSONable):
         ]:
             try:
                 full_zpath = zpath(os.path.join(input_dir, fname))
-                sub_d[fname.lower()] = ftype.from_file(full_zpath)
+                sub_dct[fname.lower()] = ftype.from_file(full_zpath)
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
-                sub_d[fname.lower()] = None
+                sub_dct[fname.lower()] = None
 
-        sub_d["optional_files"] = {}
+        sub_dct["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
-        return cls(**sub_d)
+                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
+        return cls(**sub_dct)
+
+    def copy(self, deep: bool = True):
+        """Deep copy of VaspInput."""
+        if deep:
+            return self.from_dict(self.as_dict())
+        return type(self)(**{key.lower(): val for key, val in self.items()})
 
     def run_vasp(
         self,
@@ -2702,7 +2708,8 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir), open(output_file, "w", encoding="utf-8") as stdout_file, open(
-            err_file, "w", encoding="utf-8", buffering=1
+
+        with cd(run_dir), open(output_file, mode="w", encoding="utf-8") as stdout_file, open(
+            err_file, mode="w", encoding="utf-8", buffering=1
         ) as stderr_file:
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)

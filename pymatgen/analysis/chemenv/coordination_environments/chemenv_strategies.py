@@ -451,11 +451,11 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct) -> AbstractChemenvStrategy:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the SimpleAbundanceChemenvStrategy object
+        :param dct: dict representation of the SimpleAbundanceChemenvStrategy object
 
         Returns:
             StructureEnvironments object.
@@ -819,21 +819,21 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> SimplestChemenvStrategy:
         """
         Reconstructs the SimplestChemenvStrategy object from a dict representation of the SimplestChemenvStrategy object
         created using the as_dict method.
-        :param d: dict representation of the SimplestChemenvStrategy object
+        :param dct: dict representation of the SimplestChemenvStrategy object
 
         Returns:
             StructureEnvironments object.
         """
         return cls(
-            distance_cutoff=d["distance_cutoff"],
-            angle_cutoff=d["angle_cutoff"],
-            additional_condition=d["additional_condition"],
-            continuous_symmetry_measure_cutoff=d["continuous_symmetry_measure_cutoff"],
-            symmetry_measure_type=d["symmetry_measure_type"],
+            distance_cutoff=dct["distance_cutoff"],
+            angle_cutoff=dct["angle_cutoff"],
+            additional_condition=dct["additional_condition"],
+            continuous_symmetry_measure_cutoff=dct["continuous_symmetry_measure_cutoff"],
+            symmetry_measure_type=dct["symmetry_measure_type"],
         )
 
 
@@ -1017,16 +1017,16 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> SimpleAbundanceChemenvStrategy:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the SimpleAbundanceChemenvStrategy object
+        :param dct: dict representation of the SimpleAbundanceChemenvStrategy object
 
         Returns:
             StructureEnvironments object.
         """
-        return cls(additional_condition=d["additional_condition"])
+        return cls(additional_condition=dct["additional_condition"])
 
 
 class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
@@ -1062,7 +1062,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         :param max_csm:
         :param symmetry_measure_type:
         """
-        super.__init__(
+        super().__init__(
             self,
             structure_environments,
             additional_condition=additional_condition,
@@ -1185,21 +1185,21 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         )
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct) -> TargetedPenaltiedAbundanceChemenvStrategy:
         """
         Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
         TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object
+        :param dct: dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object
 
         Returns:
             TargetedPenaltiedAbundanceChemenvStrategy object.
         """
         return cls(
-            additional_condition=d["additional_condition"],
-            max_nabundant=d["max_nabundant"],
-            target_environments=d["target_environments"],
-            target_penalty_type=d["target_penalty_type"],
-            max_csm=d["max_csm"],
+            additional_condition=dct["additional_condition"],
+            max_nabundant=dct["max_nabundant"],
+            target_environments=dct["target_environments"],
+            target_penalty_type=dct["target_penalty_type"],
+            max_csm=dct["max_csm"],
         )
 
 
@@ -2812,20 +2812,20 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct) -> WeightedNbSetChemenvStrategy:
         """
         Reconstructs the WeightedNbSetChemenvStrategy object from a dict representation of the
         WeightedNbSetChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the WeightedNbSetChemenvStrategy object
+        :param dct: dict representation of the WeightedNbSetChemenvStrategy object
 
         Returns:
             WeightedNbSetChemenvStrategy object.
         """
         return cls(
-            additional_condition=d["additional_condition"],
-            symmetry_measure_type=d["symmetry_measure_type"],
-            nb_set_weights=d["nb_set_weights"],
-            ce_estimator=d["ce_estimator"],
+            additional_condition=dct["additional_condition"],
+            symmetry_measure_type=dct["symmetry_measure_type"],
+            nb_set_weights=dct["nb_set_weights"],
+            ce_estimator=dct["ce_estimator"],
         )
 
 
@@ -2985,35 +2985,35 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct) -> MultiWeightsChemenvStrategy:
         """
         Reconstructs the MultiWeightsChemenvStrategy object from a dict representation of the
         MultipleAbundanceChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the MultiWeightsChemenvStrategy object
+        :param dct: dict representation of the MultiWeightsChemenvStrategy object
 
         Returns:
             MultiWeightsChemenvStrategy object.
         """
-        if d["normalized_angle_distance_weight"] is not None:
-            nad_w = NormalizedAngleDistanceNbSetWeight.from_dict(d["normalized_angle_distance_weight"])
+        if dct["normalized_angle_distance_weight"] is not None:
+            nad_w = NormalizedAngleDistanceNbSetWeight.from_dict(dct["normalized_angle_distance_weight"])
         else:
             nad_w = None
         return cls(
-            additional_condition=d["additional_condition"],
-            symmetry_measure_type=d["symmetry_measure_type"],
-            dist_ang_area_weight=DistanceAngleAreaNbSetWeight.from_dict(d["dist_ang_area_weight"])
-            if d["dist_ang_area_weight"] is not None
+            additional_condition=dct["additional_condition"],
+            symmetry_measure_type=dct["symmetry_measure_type"],
+            dist_ang_area_weight=DistanceAngleAreaNbSetWeight.from_dict(dct["dist_ang_area_weight"])
+            if dct["dist_ang_area_weight"] is not None
             else None,
-            self_csm_weight=SelfCSMNbSetWeight.from_dict(d["self_csm_weight"])
-            if d["self_csm_weight"] is not None
+            self_csm_weight=SelfCSMNbSetWeight.from_dict(dct["self_csm_weight"])
+            if dct["self_csm_weight"] is not None
             else None,
-            delta_csm_weight=DeltaCSMNbSetWeight.from_dict(d["delta_csm_weight"])
-            if d["delta_csm_weight"] is not None
+            delta_csm_weight=DeltaCSMNbSetWeight.from_dict(dct["delta_csm_weight"])
+            if dct["delta_csm_weight"] is not None
             else None,
-            cn_bias_weight=CNBiasNbSetWeight.from_dict(d["cn_bias_weight"])
-            if d["cn_bias_weight"] is not None
+            cn_bias_weight=CNBiasNbSetWeight.from_dict(dct["cn_bias_weight"])
+            if dct["cn_bias_weight"] is not None
             else None,
-            angle_weight=AngleNbSetWeight.from_dict(d["angle_weight"]) if d["angle_weight"] is not None else None,
+            angle_weight=AngleNbSetWeight.from_dict(dct["angle_weight"]) if dct["angle_weight"] is not None else None,
             normalized_angle_distance_weight=nad_w,
-            ce_estimator=d["ce_estimator"],
+            ce_estimator=dct["ce_estimator"],
         )

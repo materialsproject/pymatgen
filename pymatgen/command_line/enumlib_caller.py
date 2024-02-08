@@ -270,8 +270,8 @@ class EnumlibAdaptor:
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", "w") as f:
-            f.write("\n".join(output))
+        with open("struct_enum.in", mode="w") as file:
+            file.write("\n".join(output))
 
     def _run_multienum(self):
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
@@ -353,8 +353,8 @@ class EnumlibAdaptor:
             inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as f:
-                data = f.read()
+            with open(file) as file:
+                data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_str(data, self.index_species)

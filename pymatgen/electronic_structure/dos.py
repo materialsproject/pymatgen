@@ -495,9 +495,9 @@ class FermiDos(Dos, MSONable):
         """
         try:
             return self.get_fermi(concentration, temperature, **kwargs)
-        except ValueError as e:
+        except ValueError as exc:
             if warn:
-                warnings.warn(str(e))
+                warnings.warn(str(exc))
 
             if abs(concentration) < c_ref:
                 if abs(concentration) < 1e-10:

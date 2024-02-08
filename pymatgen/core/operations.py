@@ -411,10 +411,6 @@ class SymmOp(MSONable):
             "tolerance": self.tol,
         }
 
-    @np.deprecate(message="Use as_xyz_str instead")
-    def as_xyz_string(self, *args, **kwargs):  # noqa: D102
-        return self.as_xyz_str(*args, **kwargs)
-
     def as_xyz_str(self) -> str:
         """Returns a string of the form 'x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', etc.
         Only works for integer rotation matrices.
@@ -424,11 +420,6 @@ class SymmOp(MSONable):
             warnings.warn("Rotation matrix should be integer")
 
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
-
-    @classmethod
-    @np.deprecate(message="Use from_xyz_str instead")
-    def from_xyz_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_xyz_str(*args, **kwargs)
 
     @classmethod
     def from_xyz_str(cls, xyz_str: str) -> SymmOp:
@@ -460,13 +451,13 @@ class SymmOp(MSONable):
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, d) -> SymmOp:
-        """:param d: dict
+    def from_dict(cls, dct) -> SymmOp:
+        """:param dct: dict
 
         Returns:
             SymmOp from dict representation.
         """
-        return cls(d["matrix"], d["tolerance"])
+        return cls(dct["matrix"], dct["tolerance"])
 
 
 class MagSymmOp(SymmOp):
@@ -501,7 +492,7 @@ class MagSymmOp(SymmOp):
         )
 
     def __str__(self) -> str:
-        return self.as_xyzt_string()
+        return self.as_xyzt_str()
 
     def __repr__(self) -> str:
         output = [
@@ -584,36 +575,27 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @classmethod
-    @np.deprecate(message="Use from_xyzt_str instead")
-    def from_xyzt_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_xyzt_str(*args, **kwargs)
-
-    @classmethod
-    def from_xyzt_str(cls, xyzt_string: str) -> MagSymmOp:
+    def from_xyzt_str(cls, xyzt_str: str) -> MagSymmOp:
         """
         Args:
-            xyzt_string (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
+            xyzt_str (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
                 '-2y+1/2, 3x+1/2, z-y+1/2, +1', etc.
 
         Returns:
             MagSymmOp object
         """
-        symm_op = SymmOp.from_xyz_string(xyzt_string.rsplit(",", 1)[0])
+        symm_op = SymmOp.from_xyz_str(xyzt_str.rsplit(",", 1)[0])
         try:
-            time_reversal = int(xyzt_string.rsplit(",", 1)[1])
+            time_reversal = int(xyzt_str.rsplit(",", 1)[1])
         except Exception:
             raise Exception("Time reversal operator could not be parsed.")
         return cls.from_symmop(symm_op, time_reversal)
-
-    @np.deprecate(message="Use as_xyzt_str instead")
-    def as_xyzt_string(self, *args, **kwargs):  # noqa: D102
-        return self.as_xyzt_str(*args, **kwargs)
 
     def as_xyzt_str(self) -> str:
         """Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
-        xyzt_string = SymmOp.as_xyz_string(self)
+        xyzt_string = SymmOp.as_xyz_str(self)
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
@@ -627,10 +609,10 @@ class MagSymmOp(SymmOp):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> MagSymmOp:
-        """:param d: dict
+    def from_dict(cls, dct: dict) -> MagSymmOp:
+        """:param dct: dict
 
         Returns:
             MagneticSymmOp from dict representation.
         """
-        return cls(d["matrix"], tol=d["tolerance"], time_reversal=d["time_reversal"])
+        return cls(dct["matrix"], tol=dct["tolerance"], time_reversal=dct["time_reversal"])
