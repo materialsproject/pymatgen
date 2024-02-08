@@ -1770,7 +1770,7 @@ class PotcarSingle:
             )
 
     def __str__(self) -> str:
-        return self.data + "\n"
+        return f"{self.data}\n"
 
     @property
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
@@ -2341,7 +2341,6 @@ class PotcarSingle:
     def __repr__(self) -> str:
         cls_name = type(self).__name__
         symbol, functional = self.symbol, self.functional
-        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
