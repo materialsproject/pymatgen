@@ -2162,7 +2162,7 @@ class MVLGBSet(DictSet):
     Class for writing a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
-        structure(Structure): provide the structure
+        structure (Structure): provide the structure
         k_product: Kpoint number * length for a & b directions, also for c direction in
             bulk calculations. Default to 40.
         slab_mode (bool): Defaults to False. Use default (False) for a bulk supercell.

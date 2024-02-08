@@ -476,7 +476,7 @@ class AimsControlIn(MSONable):
             fmt (str): The format string to apply to the value
 
         Returns:
-            The line to add to the control.in file
+            str: The line to add to the control.in file
         """
         return f"{key:35s}{fmt % value}\n"
 
