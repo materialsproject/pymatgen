@@ -112,9 +112,9 @@ class TestComputedEntry(unittest.TestCase):
         assert self.entry3.energy_per_atom == approx(2.3 / 5)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
-        assert self.entry2.composition.reduced_formula == "Fe2O3"
-        assert self.entry5.composition.reduced_formula == "Fe2O3"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry2.reduced_formula == "Fe2O3"
+        assert self.entry5.reduced_formula == "Fe2O3"
         assert self.entry5.composition.get_reduced_formula_and_factor()[1] == 3
 
     def test_per_atom_props(self):
@@ -249,7 +249,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert self.entry.energy == approx(-268.38319884)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
 
     def test_as_from_dict(self):
         dct = self.entry.as_dict()

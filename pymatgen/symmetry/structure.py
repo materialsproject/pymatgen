@@ -102,7 +102,7 @@ class SymmetrizedStructure(Structure):
         outs = [
             "SymmetrizedStructure",
             f"Full Formula ({self.composition.formula})",
-            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"Reduced Formula: {self.reduced_formula}",
             f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
             f"abc   : {' '.join(to_str(val) for val in self.lattice.abc)}",
             f"angles: {' '.join(to_str(val) for val in self.lattice.angles)}",

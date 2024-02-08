@@ -116,7 +116,7 @@ class ChemicalPotentialDiagram(MSONable):
         self.elements = sorted({els for e in self.entries for els in e.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
-        self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
+        self._entry_dict = {e.reduced_formula: e for e in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
         self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 
@@ -211,13 +211,13 @@ class ChemicalPotentialDiagram(MSONable):
         interior_point = np.min(self.lims, axis=1) + 1e-1
         hs_int = HalfspaceIntersection(hs_hyperplanes, interior_point)
 
-        domains = {entry.composition.reduced_formula: [] for entry in entries}  # type: ignore
+        domains = {entry.reduced_formula: [] for entry in entries}  # type: ignore
 
         for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
             for v in facet:
                 if v < len(entries):
                     this_entry = entries[v]
-                    formula = this_entry.composition.reduced_formula
+                    formula = this_entry.reduced_formula
                     domains[formula].append(intersection)
 
         return {k: np.array(v) for k, v in domains.items() if v}
@@ -283,7 +283,7 @@ class ChemicalPotentialDiagram(MSONable):
             entry = self.entry_dict[formula]
             anno_formula = formula
             if hasattr(entry, "original_entry"):
-                anno_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.reduced_formula
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
@@ -355,7 +355,7 @@ class ChemicalPotentialDiagram(MSONable):
 
             anno_formula = formula
             if hasattr(entry, "original_entry"):
-                anno_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.reduced_formula
 
             annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
@@ -548,7 +548,7 @@ class ChemicalPotentialDiagram(MSONable):
         el_refs = {}
         min_entries = []
 
-        for formula, group in groupby(entries, key=lambda e: e.composition.reduced_formula):
+        for formula, group in groupby(entries, key=lambda e: e.reduced_formula):
             comp = Composition(formula)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
             if comp.is_element:

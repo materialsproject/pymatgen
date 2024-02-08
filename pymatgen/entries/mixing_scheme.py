@@ -384,7 +384,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 return adjustments
 
             # for run_type_2, determine whether there is a run_type_2 ground state at this composition
-            df_slice = mixing_state_data[mixing_state_data["formula"] == entry.composition.reduced_formula]
+            df_slice = mixing_state_data[mixing_state_data["formula"] == entry.reduced_formula]
 
             if any(df_slice[df_slice["is_stable_1"]]["entry_id_2"].notna()):
                 # there is a run_type_2 entry corresponding to the run_type_1 ground state
@@ -586,7 +586,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 )
                 continue
 
-            formula = entry.composition.reduced_formula
+            formula = entry.reduced_formula
             if entry_id is None:
                 warnings.warn(
                     f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
@@ -718,7 +718,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     @staticmethod
     def display_entries(entries):
         """Generate a pretty printout of key properties of a list of ComputedEntry."""
-        entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
+        entries = sorted(entries, key=lambda e: (e.reduced_formula, e.energy_per_atom))
         try:
             pd = PhaseDiagram(entries)
         except ValueError:
@@ -730,7 +730,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         )
         for e in entries:
             print(
-                f"{e.entry_id:<12}{e.composition.reduced_formula:<12}{e.structure.get_space_group_info()[0]:<12}"
+                f"{e.entry_id:<12}{e.reduced_formula:<12}{e.structure.get_space_group_info()[0]:<12}"
                 f"{e.parameters['run_type']:<10}{e.energy_per_atom:<8.3f}"
                 f"{e.correction / e.composition.num_atoms:<9.3f} {pd.get_e_above_hull(e):<9.3f}"
             )

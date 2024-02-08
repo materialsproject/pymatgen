@@ -425,7 +425,7 @@ def label_termination(slab: Structure) -> str:
 
     if n == 1:
         # Clustering does not work when there is only one data point.
-        form = slab.composition.reduced_formula
+        form = slab.reduced_formula
         sp_symbol = SpacegroupAnalyzer(slab, symprec=0.1).get_space_group_symbol()
         return f"{form}_{sp_symbol}_{len(slab)}"
 
@@ -456,7 +456,7 @@ def label_termination(slab: Structure) -> str:
     top_plane = Structure.from_sites(top_plane_sites)
 
     sp_symbol = SpacegroupAnalyzer(top_plane, symprec=0.1).get_space_group_symbol()
-    form = top_plane.composition.reduced_formula
+    form = top_plane.reduced_formula
     return f"{form}_{sp_symbol}_{len(top_plane)}"
 
 

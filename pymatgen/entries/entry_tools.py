@@ -46,13 +46,13 @@ def _perform_grouping(args):
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(f"Reference tid = {unmatched[0][0].entry_id}, formula = {ref_host.formula}")
-        ref_formula = ref_host.composition.reduced_formula
+        ref_formula = ref_host.reduced_formula
         logger.info(f"Reference host = {ref_formula}")
         matches = [unmatched[0]]
         for idx in range(1, len(unmatched)):
             test_host = unmatched[idx][1]
             logger.info(f"Testing tid = {unmatched[idx][0].entry_id}, formula = {test_host.formula}")
-            test_formula = test_host.composition.reduced_formula
+            test_formula = test_host.reduced_formula
             logger.info(f"Test host = {test_formula}")
             matcher = StructureMatcher(
                 ltol=ltol,
@@ -176,8 +176,8 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
     entry_groups = []
-    entries = sorted(entries, key=lambda e: e.composition.reduced_formula)
-    for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+    entries = sorted(entries, key=lambda e: e.reduced_formula)
+    for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula):
         group = list(g)
         if sort_by_e_per_atom:
             group = sorted(group, key=lambda e: e.energy_per_atom)
@@ -238,9 +238,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """A set containing only the entries that are ground states, i.e., the lowest energy
         per atom entry at each composition.
         """
-        entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
+        entries = sorted(self.entries, key=lambda e: e.reduced_formula)
         ground_states = set()
-        for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+        for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         return ground_states
 

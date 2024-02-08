@@ -163,7 +163,7 @@ class TestMPResterOld(PymatgenTest):
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
         assert isinstance(entry, ComputedEntry)
-        assert entry.composition.reduced_formula == "LiFePO4"
+        assert entry.reduced_formula == "LiFePO4"
 
         with pytest.raises(MPRestError, match="material_id = 'mp-2022' does not exist"):
             self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
@@ -218,7 +218,7 @@ class TestMPResterOld(PymatgenTest):
         entries = self.rester.get_entries("TiO2")
         assert len(entries) > 1
         for entry in entries:
-            assert entry.composition.reduced_formula == "TiO2"
+            assert entry.reduced_formula == "TiO2"
 
         entries = self.rester.get_entries("TiO2", inc_structure=True)
         assert len(entries) > 1
@@ -321,7 +321,7 @@ class TestMPResterOld(PymatgenTest):
                 entry_id=f"mod_{entry.entry_id}",
             )
             for entry in entries
-            if entry.composition.reduced_formula == "Fe2O3"
+            if entry.reduced_formula == "Fe2O3"
         ]
         rester_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
@@ -649,7 +649,7 @@ class TestMPResterNewBasic:
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
         assert isinstance(entry, ComputedEntry)
-        assert entry.composition.reduced_formula == "LiFePO4"
+        assert entry.reduced_formula == "LiFePO4"
 
         with pytest.raises(IndexError, match="list index out of range"):
             self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
@@ -696,7 +696,7 @@ class TestMPResterNewBasic:
     #     entries = self.rester.get_entries("TiO2")
     #     assert len(entries) > 1
     #     for entry in entries:
-    #         assert entry.composition.reduced_formula == "TiO2"
+    #         assert entry.reduced_formula == "TiO2"
     #
     #     entries = self.rester.get_entries("TiO2", inc_structure=True)
     #     assert len(entries) > 1
@@ -762,7 +762,7 @@ class TestMPResterNewBasic:
     #             entry_id=f"mod_{entry.entry_id}",
     #         )
     #         for entry in entries
-    #         if entry.composition.reduced_formula == "Fe2O3"
+    #         if entry.reduced_formula == "Fe2O3"
     #     ]
     #     rester_ehulls = self.rester.get_stability(modified_entries)
     #     all_entries = entries + modified_entries
