@@ -241,8 +241,8 @@ class ChemicalPotentialDiagram(MSONable):
         """
         data = np.array(
             [
-                [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
-                for e in self._min_entries
+                [entry.composition.get_atomic_fraction(el) for el in self.elements] + [entry.energy_per_atom]
+                for entry in self._min_entries
             ]
         )
         vec = [self.el_refs[el].energy_per_atom for el in self.elements] + [-1]
@@ -254,7 +254,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         hyperplanes = data[inds]
         hyperplanes[:, -1] = hyperplanes[:, -1] * -1
-        hyperplane_entries = [self._min_entries[i] for i in inds]
+        hyperplane_entries = [self._min_entries[idx] for idx in inds]
 
         return hyperplanes, hyperplane_entries
 

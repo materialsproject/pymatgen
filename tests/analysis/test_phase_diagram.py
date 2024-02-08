@@ -74,9 +74,9 @@ class TestPDEntry(unittest.TestCase):
         assert not self.gp_entry.is_element
 
     def test_as_from_dict(self):
-        d = self.entry.as_dict()
+        dct = self.entry.as_dict()
         gpd = self.gp_entry.as_dict()
-        entry = PDEntry.from_dict(d)
+        entry = PDEntry.from_dict(dct)
 
         assert entry.name == "mp-757614"
         assert entry.energy_per_atom == 53.0 / 4
@@ -84,7 +84,7 @@ class TestPDEntry(unittest.TestCase):
         assert gp_entry.name == "mp-757614"
         assert gp_entry.energy_per_atom == 50.0 / 2
 
-        d_anon = d.copy()
+        d_anon = dct.copy()
         del d_anon["name"]
         try:
             entry = PDEntry.from_dict(d_anon)
