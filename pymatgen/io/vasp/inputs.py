@@ -2562,9 +2562,9 @@ class VaspInput(dict, MSONable):
     def __init__(
         self,
         incar: Incar,
-        kpoints: Kpoints,
+        kpoints: Kpoints | None,
         poscar: Poscar,
-        potcar: Potcar,
+        potcar: Potcar | None,
         optional_files: dict[PathLike, object] | None = None,
         **kwargs,
     ) -> None:
