@@ -426,7 +426,7 @@ class Section(MSONable):
                 return v
         return default
 
-    def update(self, d: dict, strict=False):
+    def update(self, dct: dict, strict=False):
         """
         Update the Section according to a dictionary argument. This is most useful
         for providing user-override settings to default parameters. As you pass a
@@ -450,7 +450,7 @@ class Section(MSONable):
             strict (bool): If true, only update existing sections and keywords. If false, allow
                 new sections and keywords. Default: False
         """
-        Section._update(self, d, strict=strict)
+        Section._update(self, dct, strict=strict)
 
     @staticmethod
     def _update(d1, d2, strict=False):
@@ -475,17 +475,17 @@ class Section(MSONable):
             else:
                 raise TypeError(f"Unrecognized type: {type(v)}")
 
-    def set(self, d: dict):
+    def set(self, dct: dict):
         """Alias for update. Used by custodian."""
-        self.update(d)
+        self.update(dct)
 
-    def safeset(self, d: dict):
+    def safeset(self, dct: dict):
         """Alias for update with strict (no insertions). Used by custodian."""
-        self.update(d, strict=True)
+        self.update(dct, strict=True)
 
-    def unset(self, d: dict):
+    def unset(self, dct: dict):
         """Dict based deletion. Used by custodian."""
-        for k, v in d.items():
+        for k, v in dct.items():
             if isinstance(v, (str, float, int, bool)):
                 del self[k][v]
             elif isinstance(v, (Keyword, Section, KeywordList, SectionList)):
@@ -495,15 +495,15 @@ class Section(MSONable):
             else:
                 TypeError("Can only add sections or keywords.")
 
-    def inc(self, d: dict):
+    def inc(self, dct: dict):
         """Mongo style dict modification. Include."""
-        for k, v in d.items():
-            if isinstance(v, (str, float, bool, int, list)):
-                v = Keyword(k, v)
-            if isinstance(v, (Keyword, Section, KeywordList, SectionList)):
-                self.add(v)
-            elif isinstance(v, dict):
-                self[k].inc(v)
+        for key, val in dct.items():
+            if isinstance(val, (str, float, bool, int, list)):
+                val = Keyword(key, val)
+            if isinstance(val, (Keyword, Section, KeywordList, SectionList)):
+                self.add(val)
+            elif isinstance(val, dict):
+                self[key].inc(val)
             else:
                 TypeError("Can only add sections or keywords.")
 
@@ -536,15 +536,14 @@ class Section(MSONable):
 
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
-
         """
         _path = path.split("/")
         if _path[0].upper() == self.name.upper():
             _path = _path[1:]
-        s = self
+        sec_str = self
         for p in _path:
-            s = s.get_section(p)
-        return s
+            sec_str = sec_str.get_section(p)
+        return sec_str
 
     def get_str(self) -> str:
         """Get string representation of Section."""
@@ -575,7 +574,7 @@ class Section(MSONable):
                 string += "\t" * (indent + 1) + v.get_str() + "\n"
         for v in d.subsections.values():
             string += v._get_str(v, indent + 1)
-        string += "\t" * indent + "&END " + d.name + "\n"
+        string += "\t" * indent + f"&END {d.name}\n"
 
         return string
 
@@ -690,10 +689,10 @@ class Cp2kInput(Section):
 
     def get_str(self):
         """Get string representation of the Cp2kInput."""
-        s = ""
+        string = ""
         for v in self.subsections.values():
-            s += v.get_str()
-        return s
+            string += v.get_str()
+        return string
 
     @classmethod
     def _from_dict(cls, d):
@@ -709,10 +708,10 @@ class Cp2kInput(Section):
         )
 
     @classmethod
-    def from_file(cls, file: str):
+    def from_file(cls, filename: str):
         """Initialize from a file."""
-        with zopen(file, mode="rt") as f:
-            txt = preprocessor(f.read(), os.path.dirname(f.name))
+        with zopen(filename, mode="rt") as file:
+            txt = preprocessor(file.read(), os.path.dirname(file.name))
             return cls.from_str(txt)
 
     @classmethod
@@ -764,7 +763,7 @@ class Cp2kInput(Section):
                         self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
                 else:
                     self.by_path(current).insert(s)
-                current = current + "/" + alias if alias else current + "/" + name
+                current = f"{current}/{alias or name}"
             else:
                 kwd = Keyword.from_str(line)
                 tmp = self.by_path(current).get(kwd.name)
@@ -796,8 +795,8 @@ class Cp2kInput(Section):
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
-        with open(filepath, mode="w") as f:
-            f.write(self.get_str())
+        with open(filepath, mode="w") as file:
+            file.write(self.get_str())
 
 
 class Global(Section):
@@ -2730,12 +2729,12 @@ class DataFile(MSONable):
     objects: Sequence | None = None
 
     @classmethod
-    def from_file(cls, fn):
+    def from_file(cls, filename):
         """Load from a file."""
-        with open(fn) as f:
-            data = cls.from_str(f.read())
+        with open(filename) as file:
+            data = cls.from_str(file.read())
             for obj in data.objects:
-                obj.filename = fn
+                obj.filename = filename
             return data
 
     @classmethod
@@ -2743,10 +2742,10 @@ class DataFile(MSONable):
         """Initialize from a string."""
         raise NotImplementedError
 
-    def write_file(self, fn):
+    def write_file(self, filename):
         """Write to a file."""
-        with open(fn, mode="w") as f:
-            f.write(self.get_str())
+        with open(filename, mode="w") as file:
+            file.write(self.get_str())
 
     def get_str(self) -> str:
         """Get string representation."""

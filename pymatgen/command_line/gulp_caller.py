@@ -317,7 +317,7 @@ class GulpIO:
         structure.
 
         Args:
-            structure: pymatgen.core.structure.Structure object
+            structure: pymatgen Structure object
             potential: String specifying the type of potential used
             kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
@@ -375,7 +375,7 @@ class GulpIO:
         from library.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
             keywords: GULP first line keywords.
             library (Default=None): File containing the species and potential.
             uc (Default=True): Unit Cell Flag.
@@ -401,7 +401,7 @@ class GulpIO:
                J. Mater Chem., 4, 831-837 (1994)
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
             val_dict (Needed if structure is not charge neutral): {El:valence}
                 dict, where El is element.
         """
@@ -462,7 +462,7 @@ class GulpIO:
         """Gets a GULP input with Tersoff potential for an oxide structure.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
             periodic (Default=False): Flag denoting whether periodic
                 boundary conditions are used
             library (Default=None): File containing the species and potential.
@@ -487,7 +487,7 @@ class GulpIO:
         """Generate the species, Tersoff potential lines for an oxide structure.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen Structure
         """
         bv = BVAnalyzer()
         el = [site.specie.symbol for site in structure]
@@ -702,7 +702,7 @@ def get_energy_tersoff(structure, gulp_cmd="gulp"):
     """Compute the energy of a structure using Tersoff potential.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         gulp_cmd: GULP command if not in standard place
     """
     gio = GulpIO()
@@ -716,7 +716,7 @@ def get_energy_buckingham(structure, gulp_cmd="gulp", keywords=("optimise", "con
     """Compute the energy of a structure using Buckingham potential.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         gulp_cmd: GULP command if not in standard place
         keywords: GULP first line keywords
         valence_dict: {El: valence}. Needed if the structure is not charge
@@ -733,7 +733,7 @@ def get_energy_relax_structure_buckingham(structure, gulp_cmd="gulp", keywords=(
     """Relax a structure and compute the energy using Buckingham potential.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         gulp_cmd: GULP command if not in standard place
         keywords: GULP first line keywords
         valence_dict: {El: valence}. Needed if the structure is not charge

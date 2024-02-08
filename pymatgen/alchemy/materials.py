@@ -82,13 +82,12 @@ class TransformedStructure(MSONable):
         """
         if len(self._undone) == 0:
             raise IndexError("No more changes to redo")
-        h, s = self._undone.pop()
-        self.history.append(h)
-        self.final_structure = s
+        hist, struct = self._undone.pop()
+        self.history.append(hist)
+        self.final_structure = struct
 
     def __getattr__(self, name) -> Any:
-        struct = object.__getattribute__(self, "final_structure")
-        return getattr(struct, name)
+        return getattr(self.final_structure, name)
 
     def __len__(self) -> int:
         return len(self.history)
@@ -206,8 +205,8 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
-        with open(f"{output_dir}/transformations.json", mode="w") as fp:
-            json.dump(self.as_dict(), fp)
+        with open(f"{output_dir}/transformations.json", mode="w") as file:
+            json.dump(self.as_dict(), file)
 
     def __str__(self) -> str:
         output = ["Current structure", "------------", str(self.final_structure), "\nHistory", "------------"]

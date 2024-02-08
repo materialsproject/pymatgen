@@ -106,8 +106,8 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     def as_dataframe(self):
         """
@@ -126,7 +126,7 @@ class XYZ:
         return df_xyz
 
     def _frame_str(self, frame_mol):
-        output = [str(len(frame_mol)), frame_mol.composition.formula]
+        output = [str(len(frame_mol)), frame_mol.formula]
         prec = self.precision
         fmt = f"{{}} {{:.{prec}f}} {{:.{prec}f}} {{:.{prec}f}}"
         for site in frame_mol:
@@ -143,5 +143,5 @@ class XYZ:
         Args:
             filename (str): File name of output file.
         """
-        with zopen(filename, mode="wt") as f:
-            f.write(str(self))
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self))

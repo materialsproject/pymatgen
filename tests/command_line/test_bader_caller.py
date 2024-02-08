@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 from shutil import which
@@ -60,17 +59,17 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-        test_dir = f"{TEST_FILES_DIR}/bader"
-        copy_r(test_dir, self.tmp_path)
-        analysis = BaderAnalysis(cube_filename=os.path.join(test_dir, "elec.cube.gz"))
+        TEST_DIR = f"{TEST_FILES_DIR}/bader"
+        copy_r(TEST_DIR, self.tmp_path)
+        analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
 
     def test_from_path(self):
-        test_dir = f"{TEST_FILES_DIR}/bader"
+        TEST_DIR = f"{TEST_FILES_DIR}/bader"
         # we need to create two copies of input files since monty decompressing files
         # deletes the compressed version which can't happen twice in same directory
-        copy_r(test_dir, direct_dir := f"{self.tmp_path}/direct")
-        copy_r(test_dir, from_path_dir := f"{self.tmp_path}/from_path")
+        copy_r(TEST_DIR, direct_dir := f"{self.tmp_path}/direct")
+        copy_r(TEST_DIR, from_path_dir := f"{self.tmp_path}/from_path")
         chgcar_path = f"{direct_dir}/CHGCAR.gz"
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
 

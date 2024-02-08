@@ -55,7 +55,7 @@ class LammpsDump(MSONable):
             string (str): Input string.
         """
         lines = string.split("\n")
-        timestep = int(lines[1])
+        time_step = int(lines[1])
         n_atoms = int(lines[3])
         box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
         bounds = box_arr[:, :2]
@@ -68,10 +68,10 @@ class LammpsDump(MSONable):
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
         data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
-        return cls(timestep, n_atoms, box, data)
+        return cls(time_step, n_atoms, box, data)
 
     @classmethod
-    def from_dict(cls, d: dict) -> LammpsDump:
+    def from_dict(cls, dct: dict) -> LammpsDump:
         """
         Args:
             d (dict): Dict representation.
@@ -79,9 +79,9 @@ class LammpsDump(MSONable):
         Returns:
             LammpsDump
         """
-        items = {"timestep": d["timestep"], "natoms": d["natoms"]}
-        items["box"] = LammpsBox.from_dict(d["box"])
-        items["data"] = pd.read_json(d["data"], orient="split")
+        items = {"timestep": dct["timestep"], "natoms": dct["natoms"]}
+        items["box"] = LammpsBox.from_dict(dct["box"])
+        items["data"] = pd.read_json(dct["data"], orient="split")
         return cls(**items)
 
     def as_dict(self) -> dict[str, Any]:
@@ -113,10 +113,10 @@ def parse_lammps_dumps(file_pattern):
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
-    for fname in files:
-        with zopen(fname, mode="rt") as f:
+    for filename in files:
+        with zopen(filename, mode="rt") as file:
             dump_cache = []
-            for line in f:
+            for line in file:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
                         yield LammpsDump.from_str("".join(dump_cache))
@@ -143,8 +143,8 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
     """
-    with zopen(filename, mode="rt") as f:
-        lines = f.readlines()
+    with zopen(filename, mode="rt") as file:
+        lines = file.readlines()
     begin_flag = (
         "Memory usage per processor =",
         "Per MPI rank memory allocation (min/avg/max) =",

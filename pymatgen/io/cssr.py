@@ -92,5 +92,5 @@ class Cssr:
         Returns:
             Cssr object.
         """
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())

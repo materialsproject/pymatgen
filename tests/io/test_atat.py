@@ -7,7 +7,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.atat import Mcsqs
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/mcsqs"
+TEST_DIR = f"{TEST_FILES_DIR}/mcsqs"
 
 
 class TestAtat(PymatgenTest):
@@ -62,7 +62,7 @@ class TestAtat(PymatgenTest):
 
         mcsqs = Mcsqs.structure_from_str(test_string)
 
-        assert mcsqs.composition.formula == "Sr3 Ca5 Mn7 Fe1 O24"
+        assert mcsqs.formula == "Sr3 Ca5 Mn7 Fe1 O24"
         assert mcsqs.lattice.a == approx(2.2360679775)
         assert mcsqs.lattice.b == approx(2.2360679775)
         assert mcsqs.lattice.c == approx(1.73205080757)
@@ -87,10 +87,10 @@ class TestAtat(PymatgenTest):
 
     def test_mcsqs_cif_nacl(self):
         # CIF file from str2cif (utility distributed with atat)
-        struct_from_cif = Structure.from_file(f"{test_dir}/bestsqs_nacl.cif")
+        struct_from_cif = Structure.from_file(f"{TEST_DIR}/bestsqs_nacl.cif")
 
         # output file directly from mcsqs
-        struct_from_out = Structure.from_file(f"{test_dir}/bestsqs_nacl.out")
+        struct_from_out = Structure.from_file(f"{TEST_DIR}/bestsqs_nacl.out")
 
         assert struct_from_cif.matches(struct_from_out)
         assert_allclose(
@@ -101,10 +101,10 @@ class TestAtat(PymatgenTest):
 
     def test_mcsqs_cif_pzt(self):
         # CIF file from str2cif (utility distributed with atat)
-        struct_from_cif = Structure.from_file(f"{test_dir}/bestsqs_pzt.cif")
+        struct_from_cif = Structure.from_file(f"{TEST_DIR}/bestsqs_pzt.cif")
 
         # output file directly from mcsqs
-        struct_from_out = Structure.from_file(f"{test_dir}/bestsqs_pzt.out")
+        struct_from_out = Structure.from_file(f"{TEST_DIR}/bestsqs_pzt.out")
 
         assert struct_from_cif.matches(struct_from_out)
         assert_allclose(

@@ -367,16 +367,16 @@ class Reaction(BalancedReaction):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): from as_dict().
+            dct (dict): from as_dict().
 
         Returns:
-            A Reaction object.
+            Reaction
         """
-        reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
-        products = [Composition(sym_amt) for sym_amt in d["products"]]
+        reactants = [*map(Composition, dct["reactants"])]
+        products = [*map(Composition, dct["products"])]
         return cls(reactants, products)
 
 
@@ -430,7 +430,7 @@ class ComputedReaction(Reaction):
         entries = []
         for c in self._all_comp:
             for e in self._all_entries:
-                if e.composition.reduced_formula == c.reduced_formula:
+                if e.reduced_formula == c.reduced_formula:
                     entries.append(e)
                     break
         return entries

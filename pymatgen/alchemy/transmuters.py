@@ -268,8 +268,8 @@ class CifTransmuter(StandardTransmuter):
             extend_collection: Same meaning as in __init__.
         """
         cif_files = []
-        for fname in filenames:
-            with open(fname) as file:
+        for filename in filenames:
+            with open(filename) as file:
                 cif_files.append(file.read())
         return cls(
             "\n".join(cif_files),

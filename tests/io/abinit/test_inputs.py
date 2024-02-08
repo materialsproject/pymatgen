@@ -20,17 +20,17 @@ from pymatgen.io.abinit.inputs import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-_test_dir = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 
 def abiref_file(filename):
     """Return absolute path to filename in ~pymatgen/tests/files/abinit."""
-    return os.path.join(_test_dir, filename)
+    return os.path.join(TEST_DIR, filename)
 
 
 def abiref_files(*filenames):
     """Return list of absolute paths to filenames in ~pymatgen/tests/files/abinit."""
-    return [os.path.join(_test_dir, f) for f in filenames]
+    return [os.path.join(TEST_DIR, f) for f in filenames]
 
 
 class AbinitInputTestCase(PymatgenTest):
@@ -152,7 +152,7 @@ class AbinitInputTestCase(PymatgenTest):
 
     def test_helper_functions(self):
         """Testing BasicAbinitInput helper functions."""
-        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=_test_dir)
+        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=TEST_DIR)
 
         inp.set_kmesh(ngkpt=(1, 2, 3), shiftk=(1, 2, 3, 4, 5, 6))
         assert inp["kptopt"] == 1

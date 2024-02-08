@@ -52,15 +52,12 @@ class AimsOutput(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """Create a dict representation of the outputs for MSONable."""
-        d: dict[str, Any] = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-        }
+        dct: dict[str, Any] = {"@module": type(self).__module__, "@class": type(self).__name__}
 
-        d["results"] = self._results
-        d["metadata"] = self._metadata
-        d["structure_summary"] = self._structure_summary
-        return d
+        dct["results"] = self._results
+        dct["metadata"] = self._metadata
+        dct["structure_summary"] = self._structure_summary
+        return dct
 
     @classmethod
     def from_outfile(cls, outfile: str | Path) -> AimsOutput:
@@ -93,16 +90,16 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> AimsOutput:
+    def from_dict(cls, dct: dict[str, Any]) -> AimsOutput:
         """Construct an AimsOutput from a dictionary.
 
         Args:
-            d (dict[str, Any]): The dictionary used to create AimsOutput
+            dct (dict[str, Any]): The dictionary used to create AimsOutput
 
         Returns:
-            The AimsOutput for d
+            AimsOutput
         """
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in dct.items() if not k.startswith("@")}
         for struct in decoded["results"]:
             struct.properties = {k: MontyDecoder().process_decoded(v) for k, v in struct.properties.items()}
 

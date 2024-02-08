@@ -69,8 +69,8 @@ class TestSubstitutionPredictor(unittest.TestCase):
         assert result["probability"] == approx(cond_prob)
         assert set(result["substitutions"].values()) != {"Na+", "Cl-"}
 
-        c = Composition({"Ag2+": 1, "Cl-": 2})
-        result = sp.composition_prediction(c, to_this_composition=True)[2]
-        assert set(result["substitutions"].values()) == set(c.elements)
-        result = sp.composition_prediction(c, to_this_composition=False)[2]
-        assert set(result["substitutions"]) == set(c.elements)
+        comp = Composition({"Ag2+": 1, "Cl-": 2})
+        result = sp.composition_prediction(comp, to_this_composition=True)[2]
+        assert set(result["substitutions"].values()) == set(comp.elements)
+        result = sp.composition_prediction(comp, to_this_composition=False)[2]
+        assert set(result["substitutions"]) == set(comp.elements)

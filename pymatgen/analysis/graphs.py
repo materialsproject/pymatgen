@@ -486,7 +486,6 @@ class StructureGraph(MSONable):
         """
         Gives each node a "specie" and a "coords" attribute, updated with the
         current species and coordinates.
-
         """
         species = {}
         coords = {}
@@ -1290,11 +1289,11 @@ class StructureGraph(MSONable):
         return out
 
     def __repr__(self):
-        s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure!r}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_str(self.graph)
-        return s
+        out = "Structure Graph"
+        out += f"\nStructure: \n{self.structure!r}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_str(self.graph)
+        return out
 
     def __len__(self):
         """length of Structure / number of nodes in graph"""
@@ -1833,7 +1832,6 @@ class MoleculeGraph(MSONable):
         """
         Replicates molecule site properties (specie, coords, etc.) in the
         MoleculeGraph.
-
         """
         species = {}
         coords = {}
@@ -2048,7 +2046,6 @@ class MoleculeGraph(MSONable):
         """
         Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
-
         """
         self.set_node_attributes()
 

@@ -13,13 +13,13 @@ __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __email__ = "xil110@eng.ucsd.edu"
 __date__ = "07/30/18"
 
-test_dir = f"{TEST_FILES_DIR}/grain_boundary"
+TEST_DIR = f"{TEST_FILES_DIR}/grain_boundary"
 
 
 class TestGrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
+        cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
@@ -107,17 +107,17 @@ class TestGrainBoundary(PymatgenTest):
 class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.Cu_prim = Structure.from_file(f"{test_dir}/Cu_mp-30_primitive.cif")
+        cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
-        cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
+        cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         cls.GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
-        cls.Be = Structure.from_file(f"{test_dir}/Be_mp-87_conventional_standard.cif")
+        cls.Be = Structure.from_file(f"{TEST_DIR}/Be_mp-87_conventional_standard.cif")
         cls.GB_Be = GrainBoundaryGenerator(cls.Be)
-        cls.Pa = Structure.from_file(f"{test_dir}/Pa_mp-62_conventional_standard.cif")
+        cls.Pa = Structure.from_file(f"{TEST_DIR}/Pa_mp-62_conventional_standard.cif")
         cls.GB_Pa = GrainBoundaryGenerator(cls.Pa)
-        cls.Br = Structure.from_file(f"{test_dir}/Br_mp-23154_conventional_standard.cif")
+        cls.Br = Structure.from_file(f"{TEST_DIR}/Br_mp-23154_conventional_standard.cif")
         cls.GB_Br = GrainBoundaryGenerator(cls.Br)
-        cls.Bi = Structure.from_file(f"{test_dir}/Bi_mp-23152_primitive.cif")
+        cls.Bi = Structure.from_file(f"{TEST_DIR}/Bi_mp-23152_primitive.cif")
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
 
     def test_gb_from_parameters(self):

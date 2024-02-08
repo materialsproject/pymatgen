@@ -630,8 +630,8 @@ class LammpsInputFile(InputFile):
             LammpsInputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self) -> str:
         return self.get_str()
@@ -921,8 +921,8 @@ class LammpsRun(MSONable):
                 placeholders.
         """
         template_path = os.path.join(template_dir, "md.template")
-        with open(template_path) as f:
-            script_template = f.read()
+        with open(template_path) as file:
+            script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
         settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
         script_filename = "in.md"
@@ -1035,8 +1035,8 @@ def write_lammps_inputs(
         ...
         ... run             $nsteps'''
         >>> write_lammps_inputs('.', eam_template, settings={'temperature': 1600.0, 'nsteps': 100})
-        >>> with open('in.lammps') as f:
-        ...     script = f.read()
+        >>> with open('in.lammps') as file:
+        ...     script = file.read()
         ...
         >>> print(script)
         units           metal
@@ -1066,8 +1066,8 @@ def write_lammps_inputs(
     input_script = template.safe_substitute(**variables)
     if make_dir_if_not_present:
         os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, script_filename), mode="w") as f:
-        f.write(input_script)
+    with open(os.path.join(output_dir, script_filename), mode="w") as file:
+        file.write(input_script)
     read_data = re.search(r"read_data\s+(.*)\n", input_script)
     if read_data:
         data_filename = read_data.group(1).split()[0]

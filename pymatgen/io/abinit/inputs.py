@@ -849,7 +849,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
-        items = [(k, self[k]) for k in keys]
+        items = [(key, self[key]) for key in keys]
         if with_structure:
             items.extend(list(aobj.structure_to_abivars(self.structure).items()))
 
@@ -858,18 +858,18 @@ class BasicAbinitInput(AbstractInput, MSONable):
             vname = name + post
             app(str(InputVariable(vname, value)))
 
-        s = "\n".join(lines)
+        out = "\n".join(lines)
         if not with_pseudos:
-            return s
+            return out
 
         # Add JSON section with pseudo potentials.
         ppinfo = ["\n\n\n#<JSON>"]
-        d = {"pseudos": [p.as_dict() for p in self.pseudos]}
-        ppinfo.extend(json.dumps(d, indent=4).splitlines())
+        psp_dict = {"pseudos": [p.as_dict() for p in self.pseudos]}
+        ppinfo.extend(json.dumps(psp_dict, indent=4).splitlines())
         ppinfo.append("</JSON>")
 
-        s += "\n#".join(ppinfo)
-        return s
+        out += "\n#".join(ppinfo)
+        return out
 
     @property
     def comment(self):
@@ -1144,7 +1144,7 @@ class BasicMultiDataset:
         return iter(self._inputs)
 
     def __getattr__(self, name):
-        _inputs = object.__getattribute__(self, "_inputs")
+        _inputs = self.__getattribute__("_inputs")
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(

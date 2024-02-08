@@ -302,7 +302,7 @@ class LammpsData(MSONable):
         if "nx" in atoms.columns:
             atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
-        ld_copy = self.__class__(self.box, masses, atoms)
+        ld_copy = type(self)(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
@@ -473,8 +473,8 @@ class LammpsData(MSONable):
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
         """
-        with open(filename, mode="w") as f:
-            f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
+        with open(filename, mode="w") as file:
+            file.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
         self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
@@ -563,10 +563,10 @@ class LammpsData(MSONable):
                 }
                 ff_df = self.force_field[kw]
                 for t in ff_df.itertuples(index=True, name=None):
-                    d = {"coeffs": list(t[1:]), "types": []}
+                    coeffs_dict = {"coeffs": list(t[1:]), "types": []}
                     if class2_coeffs:
-                        d.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
-                    topo_coeffs[kw].append(d)
+                        coeffs_dict.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
+                    topo_coeffs[kw].append(coeffs_dict)
 
         if self.topology:
 
@@ -591,8 +591,8 @@ class LammpsData(MSONable):
 
         if any(topo_coeffs):
             for v in topo_coeffs.values():
-                for d in v:
-                    d["types"] = list(set(d["types"]))
+                for coeffs_dict in v:
+                    coeffs_dict["types"] = list(set(coeffs_dict["types"]))
 
         ff = ForceField(
             mass_info=mass_info,
@@ -639,8 +639,8 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, mode="rt") as f:
-            lines = f.readlines()
+        with zopen(filename, mode="rt") as file:
+            lines = file.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
@@ -1182,14 +1182,14 @@ class ForceField(MSONable):
         Args:
             filename (str): Filename.
         """
-        d = {
+        dct = {
             "mass_info": self.mass_info,
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        with open(filename, mode="w") as f:
+        with open(filename, mode="w") as file:
             yaml = YAML()
-            yaml.dump(d, f)
+            yaml.dump(dct, file)
 
     @classmethod
     def from_file(cls, filename: str) -> ForceField:
@@ -1199,25 +1199,25 @@ class ForceField(MSONable):
         Args:
             filename (str): Filename.
         """
-        with open(filename) as f:
+        with open(filename) as file:
             yaml = YAML()
-            d = yaml.load(f)
+            d = yaml.load(file)
         return cls.from_dict(d)
 
     @classmethod
-    def from_dict(cls, d: dict) -> ForceField:
+    def from_dict(cls, dct: dict) -> ForceField:
         """
         Constructor that reads in a dictionary.
 
         Args:
             d (dict): Dictionary to read.
         """
-        d["mass_info"] = [tuple(m) for m in d["mass_info"]]
-        if d.get("topo_coeffs"):
-            for v in d["topo_coeffs"].values():
+        dct["mass_info"] = [tuple(m) for m in dct["mass_info"]]
+        if dct.get("topo_coeffs"):
+            for v in dct["topo_coeffs"].values():
                 for c in v:
                     c["types"] = [tuple(t) for t in c["types"]]
-        return cls(d["mass_info"], d["nonbond_coeffs"], d["topo_coeffs"])
+        return cls(dct["mass_info"], dct["nonbond_coeffs"], dct["topo_coeffs"])
 
 
 class CombinedData(LammpsData):
@@ -1389,8 +1389,8 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, mode="rt") as f:
-            lines = f.readlines()
+        with zopen(filename, mode="rt") as file:
+            lines = file.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
         df = pd.read_csv(

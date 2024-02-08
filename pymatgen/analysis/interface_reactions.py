@@ -304,7 +304,7 @@ class InterfacialReactivity(MSONable):
 
         reactants = self._get_reactants(x)
 
-        product = [Composition(k.name) for k, v in decomp.items()]
+        product = [Composition(entry.name) for entry in decomp]
         reaction = Reaction(reactants, product)
 
         x_original = self._get_original_composition_ratio(reaction)
@@ -695,7 +695,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
     def _get_reactants(self, x: float) -> list[Composition]:
         """Returns a list of relevant reactant compositions given an x coordinate."""
         reactants = super()._get_reactants(x)
-        reactants += [Composition(e.symbol) for e, v in self.pd.chempots.items()]
+        reactants += [Composition(entry.symbol) for entry in self.pd.chempots]
 
         return reactants
 

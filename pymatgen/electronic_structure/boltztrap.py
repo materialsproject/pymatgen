@@ -254,9 +254,9 @@ class BoltztrapRunner(MSONable):
 
         :param output_file: Filename
         """
-        with open(output_file, mode="w") as f:
-            f.write("test\n")
-            f.write(f"{len(self._bs.kpoints)}\n")
+        with open(output_file, mode="w") as file:
+            file.write("test\n")
+            file.write(f"{len(self._bs.kpoints)}\n")
 
             if self.run_type == "FERMI":
                 sign = -1.0 if self.cond_band else 1.0
@@ -269,9 +269,9 @@ class BoltztrapRunner(MSONable):
                         ).to("Ry")
                     )
                     a, b, c = kpt.frac_coords
-                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
+                    file.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
                     for e in eigs:
-                        f.write(f"{sign * float(e):18.8f}\n")
+                        file.write(f"{sign * float(e):18.8f}\n")
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -296,10 +296,10 @@ class BoltztrapRunner(MSONable):
                         eigs.insert(0, self._ll)
                         eigs.append(self._hl)
                     a, b, c = kpt.frac_coords
-                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
+                    file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
 
                     for e in eigs:
-                        f.write(f"{float(e):18.8f}\n")
+                        file.write(f"{float(e):18.8f}\n")
 
     def write_struct(self, output_file) -> None:
         """Writes the structure to an output file.
@@ -313,9 +313,9 @@ class BoltztrapRunner(MSONable):
 
         with open(output_file, mode="w") as file:
             if self._symprec is not None:
-                file.write(f"{self._bs.structure.composition.formula} {sym.get_space_group_symbol()}\n")
+                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")
             elif self._symprec is None:
-                file.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
+                file.write(f"{self._bs.structure.formula} symmetries disabled\n")
 
             file.write(
                 "\n".join(
@@ -351,7 +351,7 @@ class BoltztrapRunner(MSONable):
                 "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
                 "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                "10,'boltztrap.energy" + so + "',         'old',    "
+                f"10,'boltztrap.energy{so}',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
@@ -374,7 +374,7 @@ class BoltztrapRunner(MSONable):
             for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
                     with open(f"{output_file_proj}_{site_nb}_{o}", mode="w") as file:
-                        file.write(self._bs.structure.composition.formula + "\n")
+                        file.write(self._bs.structure.formula + "\n")
                         file.write(str(len(self._bs.kpoints)) + "\n")
                         for i, kpt in enumerate(self._bs.kpoints):
                             tmp_proj = []
@@ -400,7 +400,7 @@ class BoltztrapRunner(MSONable):
                 "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
                 "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                "10,'boltztrap.energy" + so + "',         'old',    "
+                f"10,'boltztrap.energy{so}',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"

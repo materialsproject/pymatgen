@@ -13,7 +13,7 @@ from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, c
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir_mol = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/molecules"
 
 
 class TestSpacegroupAnalyzer(PymatgenTest):
@@ -208,9 +208,9 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
         # Check copying
         assert symm_struct.copy() == symm_struct
-        d = symm_struct.as_dict()
+        dct = symm_struct.as_dict()
 
-        ss = SymmetrizedStructure.from_dict(d)
+        ss = SymmetrizedStructure.from_dict(dct)
         assert ss.wyckoff_symbols[0] == "16h"
         assert str(ss).startswith("SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: ")
 
@@ -471,7 +471,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         pg_analyzer = PointGroupAnalyzer(PF6)
         assert pg_analyzer.sch_symbol == "Oh"
         assert len(pg_analyzer.get_pointgroup()) == 48
-        mol = Molecule.from_file(f"{test_dir_mol}/c60.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/c60.xyz")
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "Ih"
 
@@ -492,7 +492,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert pg_analyzer.sch_symbol == "Oh"
 
     def test_tricky(self):
-        mol = Molecule.from_file(f"{test_dir_mol}/dh.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/dh.xyz")
         pg_analyzer = PointGroupAnalyzer(mol, 0.1)
         assert pg_analyzer.sch_symbol == "D*h"
 
@@ -546,7 +546,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         pg_analyzer = PointGroupAnalyzer(NH3)
         assert pg_analyzer.sch_symbol == "C3v"
         assert len(pg_analyzer.get_pointgroup()) == 6
-        cs2 = Molecule.from_file(f"{test_dir_mol}/Carbon_Disulfide.xyz")
+        cs2 = Molecule.from_file(f"{TEST_DIR}/Carbon_Disulfide.xyz")
         pg_analyzer = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
         assert pg_analyzer.sch_symbol == "C2v"
 
@@ -557,7 +557,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         pg_analyzer = PointGroupAnalyzer(BF3)
         assert pg_analyzer.sch_symbol == "D3h"
         assert len(pg_analyzer.get_pointgroup()) == 12
-        mol = Molecule.from_file(f"{test_dir_mol}/b12h12.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/b12h12.xyz")
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "Ih"
 

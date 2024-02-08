@@ -636,7 +636,7 @@ class _MPResterLegacy:
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
             ion = Ion.from_formula(i_d["Name"])
-            refs = [e for e in ion_ref_entries if e.composition.reduced_formula == i_d["Reference Solid"]]
+            refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
@@ -992,30 +992,28 @@ class _MPResterLegacy:
             return self._make_request("/query", payload=payload, method="POST", mp_decode=mp_decode)
 
         data = []
-        mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
+        mids = [dct["material_id"] for dct in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
         progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
             chunk_criteria.update({"material_id": {"$in": chunk}})
-            num_tries = 0
-            while num_tries < max_tries_per_chunk:
+            n_tries = 0
+            while n_tries < max_tries_per_chunk:
                 try:
-                    data.extend(
-                        self.query(
-                            chunk_criteria,
-                            properties,
-                            chunk_size=0,
-                            mp_decode=mp_decode,
-                        )
+                    data += self.query(
+                        chunk_criteria,
+                        properties,
+                        chunk_size=0,
+                        mp_decode=mp_decode,
                     )
                     break
-                except MPRestError as e:
-                    match = re.search(r"error status code (\d+)", str(e))
+                except MPRestError as exc:
+                    match = re.search(r"error status code (\d+)", str(exc))
                     if match:
                         if not match.group(1).startswith("5"):
-                            raise e
-                        num_tries += 1
+                            raise exc
+                        n_tries += 1
                         print(
                             "Unknown server error. Trying again in five "
                             f"seconds (will try at most {max_tries_per_chunk} times)..."
@@ -1633,12 +1631,12 @@ class _MPResterLegacy:
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
             for f in itertools.product(*parts):
-                c = Composition("".join(f))
-                if len(c) == n_elements:
+                comp = Composition("".join(f))
+                if len(comp) == n_elements:
                     # Check for valid Elements in keys.
-                    for e in c:
-                        Element(e.symbol)
-                    all_formulas.add(c.reduced_formula)
+                    for elem in comp:
+                        Element(elem.symbol)
+                    all_formulas.add(comp.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(tokens) == 1:
