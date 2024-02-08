@@ -467,7 +467,7 @@ class AbinitHeader(AttrDict):
         """
         from pprint import pformat
 
-        s = pformat(self, **kwargs)
+        header_str = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join([marquee(title, mark="="), s])
-        return s
+            return "\n".join([marquee(title, mark="="), header_str])
+        return header_str
