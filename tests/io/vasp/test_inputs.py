@@ -917,24 +917,31 @@ Cartesian
 
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
-        k = Kpoints.from_file(file_name)
-        dct = k.as_dict()
+        kpts = Kpoints.from_file(file_name)
+        dct = kpts.as_dict()
 
         json.dumps(dct)
         # This doesn't work
         k2 = Kpoints.from_dict(dct)
-        assert k.kpts == k2.kpts
-        assert k.style == k2.style
-        assert k.kpts_shift == k2.kpts_shift
-        assert k.num_kpts == k2.num_kpts
+        assert kpts.kpts == k2.kpts
+        assert kpts.style == k2.style
+        assert kpts.kpts_shift == k2.kpts_shift
+        assert kpts.num_kpts == k2.num_kpts
 
     def test_pickle(self):
-        k = Kpoints.gamma_automatic()
-        pickle.dumps(k)
+        kpts = Kpoints.gamma_automatic()
+        pickle.dumps(kpts)
+
+    def test_copy(self):
+        kpts = Kpoints.gamma_automatic()
+        kpt_copy = kpts.copy()
+        assert kpts == kpt_copy
+        kpt_copy.style = Kpoints.supported_modes.Monkhorst
+        assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
         # struct = PymatgenTest.get_structure("Li2O")
-        p = Poscar.from_str(
+        poscar = Poscar.from_str(
             """Al1
 1.0
 2.473329 0.000000 1.427977
@@ -945,7 +952,7 @@ Al
 direct
 0.000000 0.000000 0.000000 Al"""
         )
-        kpoints = Kpoints.automatic_density(p.structure, 1000)
+        kpoints = Kpoints.automatic_density(poscar.structure, 1000)
         assert_allclose(kpoints.kpts[0], [10, 10, 10])
 
     def test_automatic_density_by_lengths(self):

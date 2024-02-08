@@ -1331,7 +1331,9 @@ class Kpoints(MSONable):
     def copy(self):
         return self.from_dict(self.as_dict())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Kpoints):
+            return NotImplemented
         return self.as_dict() == other.as_dict()
 
     @classmethod
@@ -1787,8 +1789,7 @@ class PotcarSingle:
         return config
 
     def write_file(self, filename: str) -> None:
-        """
-        Write PotcarSingle to a file.
+        """Write PotcarSingle to a file.
 
         Args:
             filename (str): Filename to write to.
@@ -1798,8 +1799,7 @@ class PotcarSingle:
 
     @classmethod
     def from_file(cls, filename: str) -> PotcarSingle:
-        """
-        Reads PotcarSingle from file.
+        """Reads PotcarSingle from file.
 
         :param filename: Filename.
 
@@ -1820,8 +1820,7 @@ class PotcarSingle:
 
     @classmethod
     def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
-        """
-        Makes a PotcarSingle from a symbol and functional.
+        """Makes a PotcarSingle from a symbol and functional.
 
         Args:
             symbol (str): Symbol, e.g., Li_sv
@@ -2446,8 +2445,8 @@ class Potcar(list, MSONable):
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
 
-    def __iter__(self) -> Iterator[PotcarSingle]:  # __iter__ only needed to supply type hint
-        # so for psingle in Potcar() is correctly inferred as PotcarSingle
+    def __iter__(self) -> Iterator[PotcarSingle]:  # boilerplate code. only here to supply
+        # type hint so `for psingle in Potcar()` is correctly inferred as PotcarSingle
         return super().__iter__()
 
     def as_dict(self):
