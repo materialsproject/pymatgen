@@ -428,14 +428,10 @@ class Poscar(MSONable):
             if has_selective_dynamics:
                 # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
-                    warnings.warn(
-                        "Selective dynamics values must be either 'T' or 'F'.",
-                        BadPoscarWarning
-                        )
+                    warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
 
                 # Warn when elements contains Fluorine (F) (#3539)
-                if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 \
-                        and "F" in tokens[3:7]:
+                if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
                     warnings.warn(
                         "Selective dynamics toggled with Fluorine element detected. Make sure the 4th-6th entry each position line is selective dynamics info.",
                         BadPoscarWarning,
@@ -446,9 +442,8 @@ class Poscar(MSONable):
         # Warn when ALL degrees of freedom relaxed (#3539)
         if has_selective_dynamics and all(all(i is True for i in in_list) for in_list in selective_dynamics):
             warnings.warn(
-                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
-                BadPoscarWarning
-                )
+                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.", BadPoscarWarning
+            )
 
         struct = Structure(
             lattice,
