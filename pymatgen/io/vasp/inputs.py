@@ -1797,6 +1797,19 @@ class PotcarSingle:
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PotcarSingle):
+            return NotImplemented
+        return self.data == other.data and self.keywords == other.keywords
+
+    def copy(self) -> PotcarSingle:
+        """Returns a copy of the PotcarSingle.
+
+        Returns:
+            PotcarSingle
+        """
+        return PotcarSingle(self.data, symbol=self.symbol)
+
     @classmethod
     def from_file(cls, filename: str) -> PotcarSingle:
         """Reads PotcarSingle from file.
@@ -2421,7 +2434,7 @@ class Potcar(list, MSONable):
         symbols: Sequence[str] | None = None,
         functional: str | None = None,
         sym_potcar_map: dict[str, str] | None = None,
-    ):
+    ) -> None:
         """
         Args:
             symbols (list[str]): Element symbols for POTCAR. This should correspond
