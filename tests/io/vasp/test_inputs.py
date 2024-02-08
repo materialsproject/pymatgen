@@ -932,6 +932,17 @@ Cartesian
         kpts = Kpoints.gamma_automatic()
         pickle.dumps(kpts)
 
+    def test_eq(self):
+        auto_g_kpts = Kpoints.gamma_automatic()
+        assert auto_g_kpts == auto_g_kpts
+        assert auto_g_kpts == Kpoints.gamma_automatic()
+        file_kpts = Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        assert file_kpts == Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        assert auto_g_kpts != file_kpts
+        auto_m_kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        assert auto_m_kpts == Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        assert auto_g_kpts != auto_m_kpts
+
     def test_copy(self):
         kpts = Kpoints.gamma_automatic()
         kpt_copy = kpts.copy()
