@@ -820,18 +820,18 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> TensorCollection:
         """Creates TensorCollection from dict.
 
-        :param d: dict
+        :param dct: dict
 
         Returns:
             TensorCollection
         """
-        voigt = d.get("voigt")
+        voigt = dct.get("voigt")
         if voigt:
-            return cls.from_voigt(d["tensor_list"])
-        return cls(d["tensor_list"])
+            return cls.from_voigt(dct["tensor_list"])
+        return cls(dct["tensor_list"])
 
 
 class SquareTensor(Tensor):

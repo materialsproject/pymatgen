@@ -106,7 +106,7 @@ class TestIStructure(PymatgenTest):
 
     def test_as_dataframe(self):
         df_struct = self.propertied_structure.as_dataframe()
-        assert df_struct.attrs["Reduced Formula"] == self.propertied_structure.composition.reduced_formula
+        assert df_struct.attrs["Reduced Formula"] == self.propertied_structure.reduced_formula
         assert df_struct.shape == (2, 8)
         assert list(df_struct) == ["Species", *"abcxyz", "magmom"]
         assert list(df_struct["magmom"]) == [5, -5]
@@ -159,6 +159,12 @@ class TestIStructure(PymatgenTest):
         assert self.propertied_structure.alphabetical_formula == "Si2"
         assert self.V2O3.alphabetical_formula == "O6 V4"
 
+    def test_reduced_formula(self):
+        assert self.struct.reduced_formula == "Si"
+        assert self.labeled_structure.reduced_formula == "Si"
+        assert self.propertied_structure.reduced_formula == "Si"
+        assert self.V2O3.reduced_formula == "V2O3"
+
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]
@@ -166,7 +172,7 @@ class TestIStructure(PymatgenTest):
     def test_specie_init(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
-        assert struct.composition.formula == "Mg0.8 O1"
+        assert struct.formula == "Mg0.8 O1"
 
     def test_get_sorted_structure(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -189,7 +195,7 @@ class TestIStructure(PymatgenTest):
     def test_fractional_occupations(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
-        assert struct.composition.formula == "Mg0.8 O1"
+        assert struct.formula == "Mg0.8 O1"
         assert not struct.is_ordered
 
     def test_labeled_structure(self):

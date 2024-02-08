@@ -82,13 +82,12 @@ class TransformedStructure(MSONable):
         """
         if len(self._undone) == 0:
             raise IndexError("No more changes to redo")
-        h, s = self._undone.pop()
-        self.history.append(h)
-        self.final_structure = s
+        hist, struct = self._undone.pop()
+        self.history.append(hist)
+        self.final_structure = struct
 
     def __getattr__(self, name) -> Any:
-        struct = object.__getattribute__(self, "final_structure")
-        return getattr(struct, name)
+        return getattr(self.final_structure, name)
 
     def __len__(self) -> int:
         return len(self.history)

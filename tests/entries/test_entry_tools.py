@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from itertools import starmap
+
 import pytest
 from monty.serialization import dumpfn, loadfn
 
@@ -20,13 +22,10 @@ class TestFunc(PymatgenTest):
 
     def test_group_entries_by_composition(self):
         entries = [
-            ComputedEntry("Na", -2),
-            ComputedEntry("Na", -5),
-            ComputedEntry("Cl", -1),
-            ComputedEntry("Cl", -10),
-            ComputedEntry("NaCl", -20),
-            ComputedEntry("NaCl", -21),
-            ComputedEntry("Na2Cl2", -50),
+            *starmap(
+                ComputedEntry,
+                [("Na", -2), ("Na", -5), ("Cl", -1), ("Cl", -10), ("NaCl", -20), ("NaCl", -21), ("Na2Cl2", -50)],
+            )
         ]
 
         groups = group_entries_by_composition(entries)

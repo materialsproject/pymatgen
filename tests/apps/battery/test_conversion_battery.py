@@ -137,7 +137,7 @@ class TestConversionElectrode(unittest.TestCase):
             for step, vpair in enumerate(CE.voltage_pairs):
                 # entries_charge/entries_discharge attributes should return entries equal with the expected
                 composite_dict = self.expected_composite[formula]
-                for attri in ["entries_charge", "entries_discharge"]:
+                for attr in ["entries_charge", "entries_discharge"]:
                     # composite at each discharge step, of which entry object is simplified to reduced formula
-                    entries_formula_list = [entry.composition.reduced_formula for entry in getattr(vpair, attri)]
-                    assert entries_formula_list == composite_dict[attri][step]
+                    entries_formula_list = [entry.reduced_formula for entry in getattr(vpair, attr)]
+                    assert entries_formula_list == composite_dict[attr][step]

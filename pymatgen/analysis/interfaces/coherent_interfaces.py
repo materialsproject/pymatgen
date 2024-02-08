@@ -129,7 +129,7 @@ class CoherentInterfaceBuilder:
         film_slabs = film_sg.get_slabs()
         sub_slabs = sub_sg.get_slabs()
 
-        film_shits = [s.shift for s in film_slabs]
+        film_shifts = [s.shift for s in film_slabs]
         film_terminations = [label_termination(s) for s in film_slabs]
 
         sub_shifts = [s.shift for s in sub_slabs]
@@ -138,7 +138,7 @@ class CoherentInterfaceBuilder:
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
             for (film_label, film_shift), (sub_label, sub_shift) in product(
-                zip(film_terminations, film_shits), zip(sub_terminations, sub_shifts)
+                zip(film_terminations, film_shifts), zip(sub_terminations, sub_shifts)
             )
         }
         self.terminations = list(self._terminations)

@@ -155,7 +155,7 @@ class CollinearMagneticStructureAnalyzer:
             try:
                 structure = trans.apply_transformation(structure)
             except ValueError:
-                warnings.warn(f"Could not assign valences for {structure.composition.reduced_formula}")
+                warnings.warn(f"Could not assign valences for {structure.reduced_formula}")
 
         # check to see if structure has magnetic moments
         # on site properties or species spin properties,
@@ -324,10 +324,10 @@ class CollinearMagneticStructureAnalyzer:
                 # round magmoms to these extrema
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
 
-            except Exception as e:
+            except Exception as exc:
                 # TODO: typically a singular matrix warning, investigate this
                 warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
-                warnings.warn(str(e))
+                warnings.warn(str(exc))
 
             # and finally round roughly to the number of significant figures in our kde width
             num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
@@ -681,7 +681,7 @@ class MagneticStructureEnumerator:
         self.ordered_structures: list[Structure] = []
         self.ordered_structure_origins: list[str] = []
 
-        formula = structure.composition.reduced_formula
+        formula = structure.reduced_formula
 
         # to process disordered magnetic structures, first make an
         # ordered approximation
@@ -758,7 +758,7 @@ class MagneticStructureEnumerator:
         Returns:
             dict: A dict of a transformation class instance (values) and name of enumeration strategy (keys)
         """
-        formula = structure.composition.reduced_formula
+        formula = structure.reduced_formula
         transformations: dict[str, MagOrderingTransformation] = {}
 
         # analyzer is used to obtain information on sanitized input

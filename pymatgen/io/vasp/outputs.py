@@ -1211,12 +1211,12 @@ class Vasprun(MSONable):
             try:
                 return str(Element(symbol))
             # vasprun.xml uses X instead of Xe for xenon
-            except ValueError as e:
+            except ValueError as exc:
                 if symbol == "X":
                     return "Xe"
                 if symbol == "r":
                     return "Zr"
-                raise e
+                raise exc
 
         elem.clear()
         return [parse_atomic_symbol(sym) for sym in atomic_symbols], potcar_symbols

@@ -105,10 +105,10 @@ class TestLammpsData(PymatgenTest):
 
         co = Structure.from_spacegroup(194, Lattice.hexagonal(2.50078, 4.03333), ["Co"], [[1 / 3, 2 / 3, 1 / 4]])
         ld_co = LammpsData.from_structure(co)
-        assert ld_co.structure.composition.reduced_formula == "Co"
+        assert ld_co.structure.reduced_formula == "Co"
         ni = Structure.from_spacegroup(225, Lattice.cubic(3.50804), ["Ni"], [[0, 0, 0]])
         ld_ni = LammpsData.from_structure(ni)
-        assert ld_ni.structure.composition.reduced_formula == "Ni"
+        assert ld_ni.structure.reduced_formula == "Ni"
 
     def test_sort_structure(self):
         struct = Structure(Lattice.cubic(4), ["S", "Fe"], [[0, 0, 0], [0.5, 0.5, 0.5]])

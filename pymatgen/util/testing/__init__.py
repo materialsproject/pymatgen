@@ -18,14 +18,14 @@ import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core import SETTINGS, Structure
+from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).absolute().parent
-STRUCTURES_DIR = MODULE_DIR / "structures"
-TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+STRUCTURES_DIR = MODULE_DIR / ".." / "structures"
+TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/tests/files"))
 # fake POTCARs have original header information, meaning properties like number of electrons,
 # nuclear charge, core radii, etc. are unchanged (important for testing) while values of the and
 # pseudopotential kinetic energy corrections are scrambled to avoid VASP copyright infringement
@@ -36,7 +36,7 @@ class PymatgenTest(unittest.TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     # dict of lazily-loaded test structures (initialized to None)
-    TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = {key: None for key in STRUCTURES_DIR.glob("*")}
+    TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = dict.fromkeys(STRUCTURES_DIR.glob("*"))
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -138,5 +138,5 @@ class PymatgenTest(unittest.TestCase):
         """
         if test_is_subclass:
             assert isinstance(obj, MSONable)
-        assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
+        assert obj.as_dict() == type(obj).from_dict(obj.as_dict()).as_dict()
         json.loads(obj.to_json(), cls=MontyDecoder)

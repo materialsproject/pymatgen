@@ -645,12 +645,10 @@ class AbinitHeader(dict):
 
     def __getattr__(self, name):
         try:
-            # Default behavior
-            return super().__getattribute__(name)
+            return super().__getattribute__(name)  # this is just default behavior
         except AttributeError:
             try:
-                # Try in the dictionary.
-                return self[name]
+                return self[name]  # if above failed, try the dictionary
             except KeyError as exc:
                 raise AttributeError(str(exc))
 

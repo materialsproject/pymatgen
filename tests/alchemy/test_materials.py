@@ -28,7 +28,7 @@ class TestTransformedStructure(PymatgenTest):
     def test_append_transformation(self):
         trafo = SubstitutionTransformation({"Fe": "Mn"})
         self.trans.append_transformation(trafo)
-        assert self.trans.final_structure.composition.reduced_formula == "NaMnPO4"
+        assert self.trans.final_structure.reduced_formula == "NaMnPO4"
         assert len(self.trans.structures) == 3
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
@@ -55,7 +55,7 @@ class TestTransformedStructure(PymatgenTest):
         assert len(self.trans.structures) == 2
 
     def test_final_structure(self):
-        assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
+        assert self.trans.final_structure.reduced_formula == "NaFePO4"
 
     def test_from_dict(self):
         with open(f"{TEST_FILES_DIR}/transformations.json") as file:
@@ -64,7 +64,7 @@ class TestTransformedStructure(PymatgenTest):
         ts = TransformedStructure.from_dict(dct)
         ts.other_parameters["author"] = "Will"
         ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
-        assert ts.final_structure.composition.reduced_formula == "MnPO4"
+        assert ts.final_structure.reduced_formula == "MnPO4"
         assert ts.other_parameters == {"author": "Will", "tags": ["test"]}
 
     def test_undo_and_redo_last_change(self):
@@ -73,17 +73,17 @@ class TestTransformedStructure(PymatgenTest):
             SubstitutionTransformation({"Fe": "Mn"}),
         ]
         ts = TransformedStructure(self.structure, trans)
-        assert ts.final_structure.composition.reduced_formula == "NaMnPO4"
+        assert ts.final_structure.reduced_formula == "NaMnPO4"
         ts.undo_last_change()
-        assert ts.final_structure.composition.reduced_formula == "NaFePO4"
+        assert ts.final_structure.reduced_formula == "NaFePO4"
         ts.undo_last_change()
-        assert ts.final_structure.composition.reduced_formula == "LiFePO4"
+        assert ts.final_structure.reduced_formula == "LiFePO4"
         with pytest.raises(IndexError, match="No more changes to undo"):
             ts.undo_last_change()
         ts.redo_next_change()
-        assert ts.final_structure.composition.reduced_formula == "NaFePO4"
+        assert ts.final_structure.reduced_formula == "NaFePO4"
         ts.redo_next_change()
-        assert ts.final_structure.composition.reduced_formula == "NaMnPO4"
+        assert ts.final_structure.reduced_formula == "NaMnPO4"
         with pytest.raises(IndexError, match="No more changes to redo"):
             ts.redo_next_change()
         # Make sure that this works with filters.

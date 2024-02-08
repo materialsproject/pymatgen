@@ -179,16 +179,16 @@ class PeriodicNeighbor(PeriodicSite):
         return super(Site, self).as_dict()
 
     @classmethod
-    def from_dict(cls, d: dict) -> PeriodicNeighbor:  # type: ignore
+    def from_dict(cls, dct: dict) -> PeriodicNeighbor:  # type: ignore
         """Returns a PeriodicNeighbor from a dict.
 
         Args:
-            d: MSONable dict format.
+            dct: MSONable dict format.
 
         Returns:
             PeriodicNeighbor
         """
-        return super(Site, cls).from_dict(d)
+        return super(Site, cls).from_dict(dct)
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
@@ -368,6 +368,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def alphabetical_formula(self) -> str:
         """Returns the formula as a string."""
         return self.composition.alphabetical_formula
+
+    @property
+    def reduced_formula(self) -> str:
+        """Returns the reduced formula as a string."""
+        return self.composition.reduced_formula
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:

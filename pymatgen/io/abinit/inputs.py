@@ -1144,7 +1144,7 @@ class BasicMultiDataset:
         return iter(self._inputs)
 
     def __getattr__(self, name):
-        _inputs = object.__getattribute__(self, "_inputs")
+        _inputs = self.__getattribute__("_inputs")
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(
