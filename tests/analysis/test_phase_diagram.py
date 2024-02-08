@@ -65,6 +65,14 @@ class TestPDEntry(unittest.TestCase):
         expected_comp = Composition("LiFe")
         assert comp == expected_comp
 
+    def test_formula(self):
+        assert self.entry.formula == "Li1 Fe1 O2"
+        assert self.gp_entry.formula == "Li1 Fe1 O2"
+
+    def test_reduced_formula(self):
+        assert self.entry.reduced_formula == "LiFeO2"
+        assert self.gp_entry.reduced_formula == "LiFeO2"
+
     def test_elements(self):
         expected_elements = list(map(Element, ["Li", "Fe", "O"]))
         assert self.entry.elements == expected_elements
