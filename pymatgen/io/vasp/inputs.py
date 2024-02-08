@@ -706,16 +706,17 @@ class Incar(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d) -> Incar:
+    def from_dict(cls, dct: dict[str, Any]) -> Incar:
         """
-        :param d: Dict representation.
+        Args:
+            dct (dict): Serialized Incar
 
         Returns:
             Incar
         """
-        if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
-            d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
-        return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
+        if dct.get("MAGMOM") and isinstance(dct["MAGMOM"][0], dict):
+            dct["MAGMOM"] = [Magmom.from_dict(m) for m in dct["MAGMOM"]]
+        return Incar({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def copy(self):
         return type(self)(self)
@@ -732,30 +733,28 @@ class Incar(dict, MSONable):
             pretty (bool): Set to True for pretty aligned output. Defaults
                 to False.
         """
-        keys = list(self)
-        if sort_keys:
-            keys = sorted(keys)
+        keys = sorted(self) if sort_keys else list(self)
         lines = []
-        for k in keys:
-            if k == "MAGMOM" and isinstance(self[k], list):
+        for key in keys:
+            if key == "MAGMOM" and isinstance(self[key], list):
                 value = []
 
-                if isinstance(self[k][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
-                    value.append(" ".join(str(i) for j in self[k] for i in j))
+                if isinstance(self[key][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
+                    value.append(" ".join(str(i) for j in self[key] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
-                    for m, g in itertools.groupby(self[k]):
+                    for m, g in itertools.groupby(self[key]):
                         value.append(f"3*{len(tuple(g))}*{m}")
                 else:
                     # float() to ensure backwards compatibility between
                     # float magmoms and Magmom objects
-                    for m, g in itertools.groupby(self[k], key=float):
+                    for m, g in itertools.groupby(self[key], key=float):
                         value.append(f"{len(tuple(g))}*{m}")
 
-                lines.append([k, " ".join(value)])
-            elif isinstance(self[k], list):
-                lines.append([k, " ".join(map(str, self[k]))])
+                lines.append([key, " ".join(value)])
+            elif isinstance(self[key], list):
+                lines.append([key, " ".join(map(str, self[key]))])
             else:
-                lines.append([k, self[k]])
+                lines.append([key, self[key]])
 
         if pretty:
             return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))

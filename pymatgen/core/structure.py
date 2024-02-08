@@ -2524,11 +2524,11 @@ class IStructure(SiteCollection, MSONable):
         data = []
         props = self.site_properties
         keys = sorted(props)
-        for i, site in enumerate(self):
-            row = [str(i), site.species_string]
+        for idx, site in enumerate(self):
+            row = [str(idx), site.species_string]
             row.extend([to_str(j) for j in site.frac_coords])
-            for k in keys:
-                row.append(props[k][i])
+            for key in keys:
+                row.append(props[key][idx])
             data.append(row)
         outs.append(
             tabulate(

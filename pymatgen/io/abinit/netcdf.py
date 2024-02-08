@@ -218,19 +218,19 @@ class NetcdfReader:
         Read a list of variables/dimensions from file. If a key is not present the corresponding
         entry in the output dictionary is set to None.
         """
-        od = dict_cls()
-        for k in keys:
+        dct = dict_cls()
+        for key in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(k, path=path)
+                dct[key] = self.read_value(key, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(k, path=path)
+                    dct[key] = self.read_dimvalue(key, path=path)
                 except self.Error:
-                    od[k] = None
+                    dct[key] = None
 
-        return od
+        return dct
 
 
 class EtsfReader(NetcdfReader):
