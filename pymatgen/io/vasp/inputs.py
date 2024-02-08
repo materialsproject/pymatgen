@@ -434,8 +434,8 @@ class Poscar(MSONable):
                 if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
                     warnings.warn(
                         (
-                            "Fluorine element detected with selective dynamics. "
-                            "Ensure 4th-6th entries on each line are right."
+                            "Selective dynamics toggled with Fluorine element detected. "
+                            "Make sure the 4th-6th entry each position line is selective dynamics info."
                         ),
                         BadPoscarWarning,
                     )
