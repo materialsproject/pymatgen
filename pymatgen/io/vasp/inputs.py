@@ -1328,6 +1328,12 @@ class Kpoints(MSONable):
             num_kpts=int(divisions),
         )
 
+    def copy(self):
+        return self.from_dict(self.as_dict())
+
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+
     @classmethod
     def from_file(cls, filename):
         """
@@ -1396,8 +1402,8 @@ class Kpoints(MSONable):
             kpts = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
-            for i in range(4, len(lines)):
-                line = lines[i]
+            for idx in range(4, len(lines)):
+                line = lines[idx]
                 m = patt.match(line)
                 if m:
                     kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
@@ -1420,8 +1426,8 @@ class Kpoints(MSONable):
         tet_weight = 0
         tet_connections = None
 
-        for i in range(3, 3 + num_kpts):
-            tokens = lines[i].split()
+        for idx in range(3, 3 + num_kpts):
+            tokens = lines[idx].split()
             kpts.append([float(j) for j in tokens[0:3]])
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
@@ -1435,8 +1441,8 @@ class Kpoints(MSONable):
                 tet_number = int(tokens[0])
                 tet_weight = float(tokens[1])
                 tet_connections = []
-                for i in range(5 + num_kpts, 5 + num_kpts + tet_number):
-                    tokens = lines[i].split()
+                for idx in range(5 + num_kpts, 5 + num_kpts + tet_number):
+                    tokens = lines[idx].split()
                     tet_connections.append((int(tokens[0]), [int(tokens[j]) for j in range(1, 5)]))
         except IndexError:
             pass
