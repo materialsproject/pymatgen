@@ -6,6 +6,46 @@ nav_order: 4
 
 # Changelog
 
+## v2024.2.8
+
+### 🐛 Bug Fixes
+
+* Fix `Vasprun.get_potcars` search method; tweak fake POTCARs by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3587
+
+### 🛠 Enhancements
+
+* Aims input sets by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3482
+* Add `SiteCollection.reduced_formula` property by @janosh in https://github.com/materialsproject/pymatgen/pull/3610
+* Add `Entry.(formula|reduced_formula)` by @janosh in https://github.com/materialsproject/pymatgen/pull/3611
+* VASP IO `copy()` methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3602
+
+### 📖 Documentation
+
+* Adding FHI-aims inputs developers by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3592
+
+### 🧹 House-Keeping
+
+* chore: fix a typo by @VsevolodX in https://github.com/materialsproject/pymatgen/pull/3609
+
+### 🧪 Tests
+
+* Add tests for the New Vasp input sets by @Zhuoying in https://github.com/materialsproject/pymatgen/pull/3576
+
+### 🏥 Package Health
+
+* Switch macOS wheel building to new M1 runners by @janosh in https://github.com/materialsproject/pymatgen/pull/3596
+
+### 🤷‍♂️ Other Changes
+
+* Fix text formatting in `bug_report.yaml` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3589
+* Minor update to avoid deprecation warning by @kavanase in https://github.com/materialsproject/pymatgen/pull/3601
+
+## New Contributors
+
+* @VsevolodX made their first contribution in https://github.com/materialsproject/pymatgen/pull/3609
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.1.27...v2024.2.8
+
 ## v2024.1.26
 
 ### 🐛 Bug Fixes

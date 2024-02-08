@@ -849,7 +849,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
-        items = [(k, self[k]) for k in keys]
+        items = [(key, self[key]) for key in keys]
         if with_structure:
             items.extend(list(aobj.structure_to_abivars(self.structure).items()))
 

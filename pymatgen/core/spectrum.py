@@ -136,7 +136,7 @@ class Spectrum(MSONable):
         Returns:
             Copy of Spectrum object.
         """
-        return self.__class__(self.x, self.y, *self._args, **self._kwargs)
+        return type(self)(self.x, self.y, *self._args, **self._kwargs)
 
     def __add__(self, other):
         """Add two Spectrum object together. Checks that x scales are the same.
@@ -150,7 +150,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y + other.y, *self._args, **self._kwargs)
+        return type(self)(self.x, self.y + other.y, *self._args, **self._kwargs)
 
     def __sub__(self, other):
         """Subtract one Spectrum object from another. Checks that x scales are
@@ -165,7 +165,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y - other.y, *self._args, **self._kwargs)
+        return type(self)(self.x, self.y - other.y, *self._args, **self._kwargs)
 
     def __mul__(self, other):
         """Scale the Spectrum's y values.
@@ -176,7 +176,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values scaled
         """
-        return self.__class__(self.x, other * self.y, *self._args, **self._kwargs)
+        return type(self)(self.x, other * self.y, *self._args, **self._kwargs)
 
     __rmul__ = __mul__
 
@@ -189,7 +189,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
+        return type(self)(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
         """True division of y.
@@ -200,7 +200,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__floordiv__(other), *self._args, **self._kwargs)
+        return type(self)(self.x, self.y.__floordiv__(other), *self._args, **self._kwargs)
 
     __div__ = __truediv__
 

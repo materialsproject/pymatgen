@@ -462,7 +462,6 @@ class AimsControlIn(MSONable):
 
         Args:
             parameters (dict[str, Any]): The new set of parameters to use
-
         """
         self._parameters = parameters
         if "output" not in self._parameters:

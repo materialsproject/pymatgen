@@ -420,10 +420,10 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s = f"occopt {self.occopt} # {self.mode} Smearing\n"
+        string = f"occopt {self.occopt} # {self.mode} Smearing\n"
         if self.tsmear:
-            s += f"tsmear {self.tsmear}"
-        return s
+            string += f"tsmear {self.tsmear}"
+        return string
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("occopt", "tsmear")
