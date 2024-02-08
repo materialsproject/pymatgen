@@ -173,13 +173,11 @@ class SubstrateAnalyzer(ZSLGenerator):
         """
         # Generate miller indices if none specified for film
         if film_millers is None:
-            film_millers = sorted(get_symmetrically_distinct_miller_indices(self.film, self.film_max_miller))
+            film_millers = sorted(get_symmetrically_distinct_miller_indices(film, self.film_max_miller))
 
         # Generate miller indices if none specified for substrate
         if substrate_millers is None:
-            substrate_millers = sorted(
-                get_symmetrically_distinct_miller_indices(self.substrate, self.substrate_max_miller)
-            )
+            substrate_millers = sorted(get_symmetrically_distinct_miller_indices(substrate, self.substrate_max_miller))
 
         # Check each miller index combination
         surface_vector_sets = self.generate_surface_vectors(film, substrate, film_millers, substrate_millers)
