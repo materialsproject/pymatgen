@@ -1834,7 +1834,7 @@ class PotcarSingle:
         Returns:
             PotcarSingle
         """
-        match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", filename)
+        match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
         symbol = match.group(0) if match else ""
 
         try:
