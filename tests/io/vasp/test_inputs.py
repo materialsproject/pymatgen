@@ -1202,6 +1202,17 @@ class TestPotcarSingle(unittest.TestCase):
             == "7bcf5ad80200e5d74ba63b45d87825b31e6cae2bcd03cebda2f1cbec9870c1cf"
         )
 
+    def test_eq(self):
+        assert self.psingle_Mn_pv == self.psingle_Mn_pv
+        assert self.psingle_Fe == self.psingle_Fe
+        assert self.psingle_Mn_pv != self.psingle_Fe
+        assert self.psingle_Mn_pv != self.psingle_Fe_54
+
+    def test_copy(self):
+        psingle = self.psingle_Mn_pv.copy()
+        assert psingle == self.psingle_Mn_pv
+        assert psingle is not self.psingle_Mn_pv
+
 
 class TestPotcar(PymatgenTest):
     def setUp(self):
