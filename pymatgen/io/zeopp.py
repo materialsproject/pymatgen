@@ -199,7 +199,7 @@ class ZeoVoronoiXYZ(XYZ):
             return cls.from_str(file.read())
 
     def __str__(self) -> str:
-        output = [str(len(self._mols[0])), self._mols[0].composition.formula]
+        output = [str(len(self._mols[0])), self._mols[0].formula]
         prec = self.precision
         for site in self._mols[0]:
             x, y, z = site.coords

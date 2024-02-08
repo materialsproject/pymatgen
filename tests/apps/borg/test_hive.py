@@ -29,10 +29,10 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
             assert param in entry.parameters
         assert entry.data["efermi"] == approx(-6.62148548)
-        assert entry.composition.reduced_formula == "Xe"
+        assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         entry = self.structure_drone.assimilate(TEST_FILES_DIR)
-        assert entry.composition.reduced_formula == "Xe"
+        assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         assert isinstance(entry, ComputedStructureEntry)
         assert entry.structure is not None
@@ -84,10 +84,10 @@ class TestGaussianToComputedEntryDrone(unittest.TestCase):
         for p in ["corrections"]:
             assert p in entry.data
 
-        assert entry.composition.reduced_formula == "H4C"
+        assert entry.reduced_formula == "H4C"
         assert entry.energy == approx(-39.9768775602)
         entry = self.structure_drone.assimilate(test_file)
-        assert entry.composition.reduced_formula == "H4C"
+        assert entry.reduced_formula == "H4C"
         assert entry.energy == approx(-39.9768775602)
         assert isinstance(entry, ComputedStructureEntry)
         assert entry.structure is not None

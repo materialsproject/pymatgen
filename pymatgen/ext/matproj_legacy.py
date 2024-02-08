@@ -636,7 +636,7 @@ class _MPResterLegacy:
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
             ion = Ion.from_formula(i_d["Name"])
-            refs = [e for e in ion_ref_entries if e.composition.reduced_formula == i_d["Reference Solid"]]
+            refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]

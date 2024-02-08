@@ -75,7 +75,7 @@ class TestRemoveSpeciesTransformation(unittest.TestCase):
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         struct = trafo.apply_transformation(struct)
-        assert struct.composition.formula == "O2"
+        assert struct.formula == "O2"
 
         dct = trafo.as_dict()
         assert isinstance(RemoveSpeciesTransformation.from_dict(dct), RemoveSpeciesTransformation)
@@ -92,7 +92,7 @@ class TestSubstitutionTransformation(unittest.TestCase):
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
-        assert s.composition.formula == "Na2 S2"
+        assert s.formula == "Na2 S2"
 
     def test_fractional_substitution(self):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": {"S2-": 0.5, "Se2-": 0.5}})
@@ -106,7 +106,7 @@ class TestSubstitutionTransformation(unittest.TestCase):
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = trafo.apply_transformation(struct)
-        assert s.composition.formula == "Na2 Se1 S1"
+        assert s.formula == "Na2 Se1 S1"
 
 
 class TestSupercellTransformation(unittest.TestCase):
@@ -122,7 +122,7 @@ class TestSupercellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SupercellTransformation([[2, 1, 0], [0, 2, 0], [1, 0, 2]])
         struct = trafo.apply_transformation(self.struct)
-        assert struct.composition.formula == "Li16 O16"
+        assert struct.formula == "Li16 O16"
 
     def test_from_scaling_factors(self):
         scale_factors = [random.randint(1, 5) for i in range(3)]

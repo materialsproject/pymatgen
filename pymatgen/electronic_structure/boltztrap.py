@@ -313,9 +313,9 @@ class BoltztrapRunner(MSONable):
 
         with open(output_file, mode="w") as file:
             if self._symprec is not None:
-                file.write(f"{self._bs.structure.composition.formula} {sym.get_space_group_symbol()}\n")
+                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")
             elif self._symprec is None:
-                file.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
+                file.write(f"{self._bs.structure.formula} symmetries disabled\n")
 
             file.write(
                 "\n".join(
@@ -374,7 +374,7 @@ class BoltztrapRunner(MSONable):
             for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
                     with open(f"{output_file_proj}_{site_nb}_{o}", mode="w") as file:
-                        file.write(self._bs.structure.composition.formula + "\n")
+                        file.write(self._bs.structure.formula + "\n")
                         file.write(str(len(self._bs.kpoints)) + "\n")
                         for i, kpt in enumerate(self._bs.kpoints):
                             tmp_proj = []
