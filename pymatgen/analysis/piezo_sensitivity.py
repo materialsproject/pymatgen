@@ -229,7 +229,7 @@ class InternalStrainTensor:
         symmetry and the acoustic sum rule.
 
         Args:
-            max_force(float): maximum born effective charge value
+            max_force (float): maximum born effective charge value
 
         Return:
             InternalStrainTensor object

@@ -473,12 +473,12 @@ class AimsControlIn(MSONable):
         """Get the string needed to add a parameter to the control.in file
 
         Args:
-            key(str): The name of the input flag
-            value(Any): The value to be set for the flag
-            format(str): The format string to apply to the value
+            key (str): The name of the input flag
+            value (Any): The value to be set for the flag
+            format (str): The format string to apply to the value
 
         Returns:
-            The line to add to the control.in file
+            str: The line to add to the control.in file
         """
         return f"{key:35s}" + (format % value) + "\n"
 
