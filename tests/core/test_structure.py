@@ -172,7 +172,7 @@ class TestIStructure(PymatgenTest):
     def test_specie_init(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
-        assert struct.composition.formula == "Mg0.8 O1"
+        assert struct.formula == "Mg0.8 O1"
 
     def test_get_sorted_structure(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -195,7 +195,7 @@ class TestIStructure(PymatgenTest):
     def test_fractional_occupations(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
-        assert struct.composition.formula == "Mg0.8 O1"
+        assert struct.formula == "Mg0.8 O1"
         assert not struct.is_ordered
 
     def test_labeled_structure(self):

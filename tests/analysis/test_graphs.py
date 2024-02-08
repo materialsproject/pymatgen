@@ -438,7 +438,7 @@ from    to  to_image
         sg = StructureGraph.with_local_env_strategy(struct, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
-        assert molecules[0].composition.formula == "H3 C1"
+        assert molecules[0].formula == "H3 C1"
         assert len(molecules) == 1
 
         molecules = self.mos2_sg.get_subgraphs_as_molecules()

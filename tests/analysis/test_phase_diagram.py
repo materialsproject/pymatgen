@@ -422,9 +422,7 @@ class TestPhaseDiagram(PymatgenTest):
             ), "The number of decomposition phases can at most be equal to the number of components."
 
         # Just to test decomposition for a fictitious composition
-        actual = {
-            entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
-        }
+        actual = {entry.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()}
         expected = {
             "Fe2 O2": 0.0952380952380949,
             "Li1 Fe1 O2": 0.5714285714285714,

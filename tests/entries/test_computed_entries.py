@@ -132,13 +132,13 @@ class TestComputedEntry(unittest.TestCase):
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry_formula = entry.normalize()
-        assert entry_formula.composition.formula == "Fe2 O3"
+        assert entry_formula.formula == "Fe2 O3"
         assert entry_formula.uncorrected_energy == approx(6.9 / 3)
         assert entry_formula.correction == approx(1 / 3)
         assert entry_formula.energy * 3 == approx(6.9 + 1)
         assert entry_formula.energy_adjustments[0].value == approx(1 / 3)
         entry_atom = entry.normalize("atom")
-        assert entry_atom.composition.formula == "Fe0.4 O0.6"
+        assert entry_atom.formula == "Fe0.4 O0.6"
         assert entry_atom.uncorrected_energy == approx(6.9 / 15)
         assert entry_atom.correction == approx(1 / 15)
         assert entry_atom.energy * 15 == approx(6.9 + 1)

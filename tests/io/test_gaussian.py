@@ -97,7 +97,7 @@ EPS=12
     def test_from_file(self):
         filepath = f"{TEST_DIR}/MethylPyrrolidine_drawn.gjf"
         gau = GaussianInput.from_file(filepath)
-        assert gau.molecule.composition.formula == "H11 C5 N1"
+        assert gau.molecule.formula == "H11 C5 N1"
         assert "opt" in gau.route_parameters
         assert gau.route_parameters["geom"] == "connectivity"
         assert gau.functional == "b3lyp"
