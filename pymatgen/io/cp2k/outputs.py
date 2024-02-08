@@ -1047,7 +1047,7 @@ class Cp2kOutput:
                             if "Fermi" in line:
                                 efermi[-1][Spin.up] = float(line.split()[-1])
                                 break
-                            eigenvalues[-1]["occupied"][Spin.up].extend([Ha_to_eV * float(val) for val in line.split()])
+                            eigenvalues[-1]["occupied"][Spin.up] += [Ha_to_eV * float(val) for val in line.split()]
                         next(lines)
                         line = next(lines)
                         if " occupied subspace spin" in line:
@@ -1057,9 +1057,9 @@ class Cp2kOutput:
                                 if "Fermi" in line:
                                     efermi[-1][Spin.down] = float(line.split()[-1])
                                     break
-                                eigenvalues[-1]["occupied"][Spin.down].extend(
-                                    [Ha_to_eV * float(val) for val in line.split()]
-                                )
+                                eigenvalues[-1]["occupied"][Spin.down] += [
+                                    Ha_to_eV * float(val) for val in line.split()
+                                ]
                     if " unoccupied subspace spin" in line:
                         next(lines)
                         line = next(lines)
@@ -1072,9 +1072,9 @@ class Cp2kOutput:
                                 next(lines)
                                 next(lines)
                                 line = next(lines)
-                                eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                    [Ha_to_eV * float(line) for line in line.split()]
-                                )
+                                eigenvalues[-1]["unoccupied"][Spin.up] += [
+                                    Ha_to_eV * float(line) for line in line.split()
+                                ]
                                 next(lines)
                                 line = next(lines)
                                 break
@@ -1084,9 +1084,7 @@ class Cp2kOutput:
 
                             if "eigenvalues" in line.lower() or "HOMO" in line or "|" in line:
                                 break
-                            eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                [Ha_to_eV * float(val) for val in line.split()]
-                            )
+                            eigenvalues[-1]["unoccupied"][Spin.up] += [Ha_to_eV * float(val) for val in line.split()]
                             line = next(lines)
 
                         if " unoccupied subspace spin" in line:
@@ -1101,9 +1099,9 @@ class Cp2kOutput:
                                     next(lines)
                                     next(lines)
                                     line = next(lines)
-                                    eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [Ha_to_eV * float(line) for line in line.split()]
-                                    )
+                                    eigenvalues[-1]["unoccupied"][Spin.down] += [
+                                        Ha_to_eV * float(line) for line in line.split()
+                                    ]
                                     break
 
                                 if "convergence" in line:
@@ -1113,9 +1111,9 @@ class Cp2kOutput:
                                     next(lines)
                                     break
                                 try:
-                                    eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [Ha_to_eV * float(val) for val in line.split()]
-                                    )
+                                    eigenvalues[-1]["unoccupied"][Spin.down] += [
+                                        Ha_to_eV * float(val) for val in line.split()
+                                    ]
                                 except AttributeError:
                                     break
                                 line = next(lines)
@@ -1493,10 +1491,10 @@ class Cp2kOutput:
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
+        """Return a gaussian smeared DOS"""
         if not width:
             return densities
 
-        """Return a gaussian smeared DOS"""
         dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 

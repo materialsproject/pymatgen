@@ -249,7 +249,7 @@ def compute_environments(chemenv_configuration):
             with MPRester() as mpr:
                 structure = mpr.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
-        print(f"Computing environments for {structure.composition.reduced_formula} ... ")
+        print(f"Computing environments for {structure.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print("Computing environments finished")
         while True:

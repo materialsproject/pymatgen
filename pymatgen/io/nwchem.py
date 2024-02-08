@@ -276,7 +276,7 @@ $theory_spec
 
         elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
-            basis_set = {el: basis_set for el in elements}
+            basis_set = dict.fromkeys(elements, basis_set)
 
         return NwTask(
             charge,
@@ -702,8 +702,8 @@ class NwOutput:
         def fort2py(x):
             return x.replace("D", "e")
 
-        def isfloatstring(s):
-            return s.find(".") == -1
+        def isfloatstring(in_str):
+            return in_str.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False

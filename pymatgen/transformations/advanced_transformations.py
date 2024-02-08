@@ -1827,7 +1827,9 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         self.range_tol = range_tol
         self.dist_from_surf = dist_from_surf
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> list[dict] | Structure:
         """
         Args:
             structure: Must be a Slab structure

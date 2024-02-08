@@ -218,19 +218,19 @@ class NetcdfReader:
         Read a list of variables/dimensions from file. If a key is not present the corresponding
         entry in the output dictionary is set to None.
         """
-        od = dict_cls()
-        for k in keys:
+        dct = dict_cls()
+        for key in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(k, path=path)
+                dct[key] = self.read_value(key, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(k, path=path)
+                    dct[key] = self.read_dimvalue(key, path=path)
                 except self.Error:
-                    od[k] = None
+                    dct[key] = None
 
-        return od
+        return dct
 
 
 class EtsfReader(NetcdfReader):
@@ -344,7 +344,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
 
 class _H:
-    __slots__ = ("name", "doc", "etsf_name")
+    __slots__ = ("doc", "etsf_name", "name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
@@ -467,7 +467,7 @@ class AbinitHeader(AttrDict):
         """
         from pprint import pformat
 
-        s = pformat(self, **kwargs)
+        header_str = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join([marquee(title, mark="="), s])
-        return s
+            return "\n".join([marquee(title, mark="="), header_str])
+        return header_str

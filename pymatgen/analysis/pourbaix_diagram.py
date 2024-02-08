@@ -123,7 +123,7 @@ class PourbaixEntry(MSONable, Stringify):
     def name(self):
         """Get the name for entry."""
         if self.phase_type == "Solid":
-            return self.entry.composition.reduced_formula + "(s)"
+            return f"{self.entry.reduced_formula}(s)"
 
         return self.entry.name
 
@@ -251,7 +251,7 @@ class PourbaixEntry(MSONable, Stringify):
     def to_pretty_string(self) -> str:
         """A pretty string representation."""
         if self.phase_type == "Solid":
-            return f"{self.entry.composition.reduced_formula}(s)"
+            return f"{self.entry.reduced_formula}(s)"
 
         return self.entry.name
 
@@ -597,9 +597,9 @@ class PourbaixDiagram(MSONable):
 
         combos = []
         for facet in valid_facets:
-            for i in range(1, self.dim + 2):
+            for idx in range(1, self.dim + 2):
                 these_combos = []
-                for combo in itertools.combinations(facet, i):
+                for combo in itertools.combinations(facet, idx):
                     these_entries = [min_entries[i] for i in combo]
                     these_combos.append(frozenset(these_entries))
                 combos.append(these_combos)
@@ -607,17 +607,17 @@ class PourbaixDiagram(MSONable):
         all_combos = set(itertools.chain.from_iterable(combos))
 
         list_combos = []
-        for i in all_combos:
-            list_combos.append(list(i))
+        for idx in all_combos:
+            list_combos.append(list(idx))
         all_combos = list_combos
 
         multi_entries = []
 
         # Parallel processing of multi-entry generation
         if nproc is not None:
-            f = partial(self.process_multientry, prod_comp=tot_comp)
-            with Pool(nproc) as p:
-                multi_entries = list(p.imap(f, all_combos))
+            func = partial(self.process_multientry, prod_comp=tot_comp)
+            with Pool(nproc) as proc_pool:
+                multi_entries = list(proc_pool.imap(func, all_combos))
             multi_entries = list(filter(bool, multi_entries))
         else:
             # Serial processing of multi-entry generation
@@ -642,26 +642,26 @@ class PourbaixDiagram(MSONable):
             nproc (int): number of processes to be used in parallel
                 treatment of entry combos
         """
-        N = len(self._elt_comp)  # No. of elements
+        n_elems = len(self._elt_comp)  # No. of elements
         total_comp = Composition(self._elt_comp)
 
         # generate all combinations of compounds that have all elements
-        entry_combos = [itertools.combinations(entries, j + 1) for j in range(N)]
+        entry_combos = [itertools.combinations(entries, idx + 1) for idx in range(n_elems)]
         entry_combos = itertools.chain.from_iterable(entry_combos)
 
         entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition, entry_combos)
 
         # Generate and filter entries
         processed_entries = []
-        total = sum(comb(len(entries), j + 1) for j in range(N))
+        total = sum(comb(len(entries), idx + 1) for idx in range(n_elems))
         if total > 1e6:
             warnings.warn(f"Your Pourbaix diagram includes {total} entries and may take a long time to generate.")
 
         # Parallel processing of multi-entry generation
         if nproc is not None:
-            f = partial(self.process_multientry, prod_comp=total_comp)
-            with Pool(nproc) as p:
-                processed_entries = list(p.imap(f, entry_combos))
+            func = partial(self.process_multientry, prod_comp=total_comp)
+            with Pool(nproc) as proc_pool:
+                processed_entries = list(proc_pool.imap(func, entry_combos))
             processed_entries = list(filter(bool, processed_entries))
         # Serial processing of multi-entry generation
         else:

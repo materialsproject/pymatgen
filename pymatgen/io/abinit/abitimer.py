@@ -123,8 +123,8 @@ class AbinitTimerParser(collections.abc.Iterable):
                 self._read(file, filename)
                 read_ok.append(filename)
 
-            except self.Error as e:
-                logger.warning(f"exception while parsing file {filename}:\n{e}")
+            except self.Error as exc:
+                logger.warning(f"exception while parsing file {filename}:\n{exc}")
                 continue
 
             finally:
@@ -716,10 +716,11 @@ class AbinitTimer:
     def get_values(self, keys):
         """Return a list of values associated to a particular list of keys."""
         if isinstance(keys, str):
-            return [s.__dict__[keys] for s in self.sections]
+            return [sec.__dict__[keys] for sec in self.sections]
+
         values = []
-        for k in keys:
-            values.append([s.__dict__[k] for s in self.sections])
+        for key in keys:
+            values.append([sec.__dict__[key] for sec in self.sections])
         return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):

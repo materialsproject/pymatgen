@@ -416,7 +416,6 @@ class QCInput(InputFile):
 
         Returns:
             (str) Molecule template.
-
         """
         # TODO: add ghost atoms
         mol_list = []

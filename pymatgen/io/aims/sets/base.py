@@ -76,7 +76,7 @@ class AimsInputSet(InputSet):
         }
         updated_params = dict(**self._parameters)
         for prop in self._properties:
-            aims_name = property_flags.get(prop, None)
+            aims_name = property_flags.get(prop)
             if aims_name is not None:
                 updated_params[aims_name] = True
 

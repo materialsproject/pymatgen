@@ -302,7 +302,7 @@ class LammpsData(MSONable):
         if "nx" in atoms.columns:
             atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
-        ld_copy = self.__class__(self.box, masses, atoms)
+        ld_copy = type(self)(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
@@ -1205,19 +1205,19 @@ class ForceField(MSONable):
         return cls.from_dict(d)
 
     @classmethod
-    def from_dict(cls, d: dict) -> ForceField:
+    def from_dict(cls, dct: dict) -> ForceField:
         """
         Constructor that reads in a dictionary.
 
         Args:
             d (dict): Dictionary to read.
         """
-        d["mass_info"] = [tuple(m) for m in d["mass_info"]]
-        if d.get("topo_coeffs"):
-            for v in d["topo_coeffs"].values():
+        dct["mass_info"] = [tuple(m) for m in dct["mass_info"]]
+        if dct.get("topo_coeffs"):
+            for v in dct["topo_coeffs"].values():
                 for c in v:
                     c["types"] = [tuple(t) for t in c["types"]]
-        return cls(d["mass_info"], d["nonbond_coeffs"], d["topo_coeffs"])
+        return cls(dct["mass_info"], dct["nonbond_coeffs"], dct["topo_coeffs"])
 
 
 class CombinedData(LammpsData):

@@ -36,7 +36,7 @@ class PymatgenTest(unittest.TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     # dict of lazily-loaded test structures (initialized to None)
-    TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = {key: None for key in STRUCTURES_DIR.glob("*")}
+    TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = dict.fromkeys(STRUCTURES_DIR.glob("*"))
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -138,5 +138,5 @@ class PymatgenTest(unittest.TestCase):
         """
         if test_is_subclass:
             assert isinstance(obj, MSONable)
-        assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
+        assert obj.as_dict() == type(obj).from_dict(obj.as_dict()).as_dict()
         json.loads(obj.to_json(), cls=MontyDecoder)
