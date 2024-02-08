@@ -26,6 +26,7 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import Any
 
+    from _icet import _ClusterSpace
     from ase import Atoms
 
 
@@ -111,7 +112,9 @@ class IcetSQS:
             self.cutoffs_list.append(cluster_cutoffs[i])
 
         # For safety, enumeration works well on 1 core for ~< 24 sites/cell
-        # Beyond that, monte carlo is more efficient
+        # The bottleneck is **generation** of the structures via enumeration,
+        # less checking their SQS objective.
+        # Beyond ~24 sites/cell, monte carlo is more efficient
         sqs_method = sqs_method or ("enumeration" if self.scaling * len(self._structure) < 24 else "monte_carlo")
 
         # Default sqs_kwargs
@@ -120,7 +123,7 @@ class IcetSQS:
 
         unrecognized_kwargs = {key for key in self.sqs_kwargs if key not in self.sqs_kwarg_names[sqs_method]}
         if len(unrecognized_kwargs) > 0:
-            warnings.warn(f"Ignoring unrecognized icet kwargs: {', '.join(unrecognized_kwargs)}")
+            warnings.warn(f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}")
 
         self.sqs_kwargs = {
             key: value for key, value in self.sqs_kwargs.items() if key in self.sqs_kwarg_names[sqs_method]
@@ -199,7 +202,7 @@ class IcetSQS:
         ]
         return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
 
-    def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: ClusterSpace | None = None) -> float:
+    def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: _ClusterSpace | None = None) -> float:
         """
         Get the SQS objective function.
 
@@ -223,7 +226,7 @@ class IcetSQS:
             **self._sqs_obj_kwargs,
         )
 
-    def enumerate_sqs_structures(self, cluster_space: ClusterSpace | None = None) -> list:
+    def enumerate_sqs_structures(self, cluster_space: _ClusterSpace | None = None) -> list:
         """
         Generate an SQS by enumeration of all possible arrangements.
 
