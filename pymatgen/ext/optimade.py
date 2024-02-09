@@ -5,9 +5,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections import namedtuple
-from urllib.parse import urljoin
-from os.path import join
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 from tqdm import tqdm
