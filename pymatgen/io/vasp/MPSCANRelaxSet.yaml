@@ -10,9 +10,12 @@ INCAR:
   ENCUT: 680
   IBRION: 2
   ISIF: 3
+  ISMEAR: 0
   ISPIN: 2
+  KSPACING: 0.22
   LORBIT: 11
   LASPH: True
+  LELF: False
   LREAL: Auto
   LMIXTAU: True
   LCHARG: True # write CHGCAR
@@ -24,6 +27,7 @@ INCAR:
   NELM: 200
   NSW: 99
   PREC: Accurate
+  SIGMA: 0.05
 POTCAR_FUNCTIONAL: PBE_54
 POTCAR:
   Ac: Ac
