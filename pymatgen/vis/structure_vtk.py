@@ -299,7 +299,7 @@ class StructureVis:
                 camera.SetFocalPoint(struct.center_of_mass)
 
         self.structure = structure
-        self.title = struct.composition.formula
+        self.title = struct.formula
 
     def zoom(self, factor):
         """Zoom the camera view by a factor."""

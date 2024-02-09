@@ -536,15 +536,14 @@ class Section(MSONable):
 
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
-
         """
         _path = path.split("/")
         if _path[0].upper() == self.name.upper():
             _path = _path[1:]
-        s = self
+        sec_str = self
         for p in _path:
-            s = s.get_section(p)
-        return s
+            sec_str = sec_str.get_section(p)
+        return sec_str
 
     def get_str(self) -> str:
         """Get string representation of Section."""
@@ -690,10 +689,10 @@ class Cp2kInput(Section):
 
     def get_str(self):
         """Get string representation of the Cp2kInput."""
-        s = ""
+        string = ""
         for v in self.subsections.values():
-            s += v.get_str()
-        return s
+            string += v.get_str()
+        return string
 
     @classmethod
     def _from_dict(cls, d):

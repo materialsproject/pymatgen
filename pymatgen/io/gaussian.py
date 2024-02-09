@@ -144,7 +144,7 @@ class GaussianInput:
                 self.spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
             # Get a title from the molecule name
-            self.title = title or self._mol.composition.formula
+            self.title = title or self._mol.formula
         else:
             self.charge = charge
             self.spin_multiplicity = spin_multiplicity

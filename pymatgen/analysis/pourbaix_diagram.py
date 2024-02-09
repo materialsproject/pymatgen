@@ -123,7 +123,7 @@ class PourbaixEntry(MSONable, Stringify):
     def name(self):
         """Get the name for entry."""
         if self.phase_type == "Solid":
-            return self.entry.composition.reduced_formula + "(s)"
+            return f"{self.entry.reduced_formula}(s)"
 
         return self.entry.name
 
@@ -251,7 +251,7 @@ class PourbaixEntry(MSONable, Stringify):
     def to_pretty_string(self) -> str:
         """A pretty string representation."""
         if self.phase_type == "Solid":
-            return f"{self.entry.composition.reduced_formula}(s)"
+            return f"{self.entry.reduced_formula}(s)"
 
         return self.entry.name
 

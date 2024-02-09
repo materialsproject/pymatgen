@@ -2450,36 +2450,36 @@ class LocalStructOrderParams:
 
         # Y_2_-2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_2_2[i] * self._cos_n_p[2][i]
-            imag -= pre_y_2_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
+            imag -= pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_2_-1
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_2_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_2_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real += pre_y_2_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_0
         real = imag = 0.0
-        for i in nnn_range:
-            real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][i] - 1.0)
+        for idx in nnn_range:
+            real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][idx] - 1.0)
         acc += real * real
 
         # Y_2_1
         real = imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_2_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_2_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real -= pre_y_2_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_2_2[i] * self._cos_n_p[2][i]
-            imag += pre_y_2_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
+            imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         return sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
@@ -2528,64 +2528,64 @@ class LocalStructOrderParams:
 
         # Y_4_-4
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_4[i] * self._cos_n_p[4][i]
-            imag -= pre_y_4_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
+            imag -= pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_4_-3
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_4_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real += pre_y_4_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_-2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_2[i] * self._cos_n_p[2][i]
-            imag -= pre_y_4_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
+            imag -= pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_-1
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_4_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real += pre_y_4_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_0
         real = imag = 0.0
-        for i in nnn_range:
-            real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][i] - 30 * self._pow_cos_t[2][i] + 3.0)
+        for idx in nnn_range:
+            real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][idx] - 30 * self._pow_cos_t[2][idx] + 3.0)
         acc += real * real
 
         # Y_4_1
         real = imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_4_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_4_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real -= pre_y_4_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_2
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_2[i] * self._cos_n_p[2][i]
-            imag += pre_y_4_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
+            imag += pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_3
         real = imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_4_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_4_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real -= pre_y_4_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_4
         real = imag = 0.0
-        for i in nnn_range:
-            real += pre_y_4_4[i] * self._cos_n_p[4][i]
-            imag += pre_y_4_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
+            imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         return sqrt(4 * pi * acc / (9 * float(nnn * nnn)))

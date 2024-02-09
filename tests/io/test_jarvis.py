@@ -13,7 +13,7 @@ class TestJarvisAtomsAdaptor(unittest.TestCase):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         atoms = JarvisAtomsAdaptor.get_atoms(struct)
         jarvis_composition = atoms.composition.reduced_formula
-        assert jarvis_composition == struct.composition.reduced_formula
+        assert jarvis_composition == struct.reduced_formula
         assert atoms.lattice_mat is not None
         assert atoms.lattice_mat.any()
 

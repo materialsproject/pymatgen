@@ -414,7 +414,7 @@ class Trajectory(MSONable):
         self.to_positions()
 
         if system is None:
-            system = f"{self[0].composition.reduced_formula}"
+            system = f"{self[0].reduced_formula}"
 
         lines = []
         format_str = f"{{:.{significant_figures}f}}"
