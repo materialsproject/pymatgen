@@ -87,7 +87,10 @@ class TransformedStructure(MSONable):
         self.final_structure = struct
 
     def __getattr__(self, name) -> Any:
-        return getattr(self.final_structure, name)
+        # Don't try to replace this with: return getattr(self.final_structure, name)
+        # It will cause infinite recursion if name = "final_structure"
+        struct = object.__getattribute__(self, "final_structure")
+        return getattr(struct, name)
 
     def __len__(self) -> int:
         return len(self.history)
@@ -161,7 +164,9 @@ class TransformedStructure(MSONable):
         self.history.append(h_dict)
 
     def extend_transformations(
-        self, transformations: list[AbstractTransformation], return_alternatives: bool = False
+        self,
+        transformations: list[AbstractTransformation],
+        return_alternatives: bool = False,
     ) -> None:
         """Extends a sequence of transformations to the TransformedStructure.
 
@@ -209,7 +214,13 @@ class TransformedStructure(MSONable):
             json.dump(self.as_dict(), file)
 
     def __str__(self) -> str:
-        output = ["Current structure", "------------", str(self.final_structure), "\nHistory", "------------"]
+        output = [
+            "Current structure",
+            "------------",
+            str(self.final_structure),
+            "\nHistory",
+            "------------",
+        ]
         for hist in self.history:
             hist.pop("input_structure", None)
             output.append(str(hist))
@@ -290,7 +301,9 @@ class TransformedStructure(MSONable):
 
     @classmethod
     def from_poscar_str(
-        cls, poscar_string: str, transformations: list[AbstractTransformation] | None = None
+        cls,
+        poscar_string: str,
+        transformations: list[AbstractTransformation] | None = None,
     ) -> TransformedStructure:
         """Generates TransformedStructure from a poscar string.
 
