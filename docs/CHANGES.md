@@ -6,8 +6,6 @@ nav_order: 4
 
 # Changelog
 
-## v2024.2.1
-
 ### 🐛 Bug Fixes
 
 * Fix `Vasprun.get_potcars` search method; tweak fake POTCARs by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3587
@@ -31,8 +29,13 @@ nav_order: 4
 ### 🤷‍♂️ Other Changes
 
 * Fix text formatting in `bug_report.yaml` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3589
+* Minor update to avoid deprecation warning by @kavanase in https://github.com/materialsproject/pymatgen/pull/3601
 
-**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.1.27...v2024.2.1
+## New Contributors
+
+* @VsevolodX made their first contribution in https://github.com/materialsproject/pymatgen/pull/3609
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.1.27...v2024.2.8
 
 ## v2024.1.26
 
@@ -1722,7 +1725,7 @@ you are acknowledged appropriately by filling out the linked form.
 
 ## v2018.4.6
 
-* Updated debye temperature formulation (Joey Montoya)
+* Updated Debye temperature formulation (Joey Montoya)
 * Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
 * Improved Pourbaix code (Joey Montoya)
 * Local env code improvements (Nils)

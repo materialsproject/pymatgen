@@ -41,7 +41,7 @@ class TestStructureMatcher(PymatgenTest):
         s2.make_supercell((2, 1, 1))
         ss1 = m.get_s2_like_s1(s2, s1, include_ignored_species=True)
         assert ss1.lattice.a == approx(20.820740000000001)
-        assert ss1.composition.reduced_formula == "LiFePO4"
+        assert ss1.reduced_formula == "LiFePO4"
 
         assert {k.symbol: v.symbol for k, v in m.get_best_electronegativity_anonymous_mapping(s1, s2).items()} == {
             "Fe": "Fe",
@@ -319,7 +319,7 @@ class TestStructureMatcher(PymatgenTest):
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for group in groups:
-            formula = group[0].composition.reduced_formula
+            formula = group[0].reduced_formula
             assert len(group) == (2 if formula in ["Li2O", "LiFePO4"] else 1)
 
     def test_left_handed_lattice(self):

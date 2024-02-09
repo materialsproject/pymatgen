@@ -372,9 +372,9 @@ class EwaldSummation(MSONable):
 
         epoint = -(qs**2) * sqrt(self._eta / pi)
 
-        for i in range(n_sites):
+        for idx in range(n_sites):
             nf_coords, rij, js, _ = self._struct.lattice.get_points_in_sphere(
-                frac_coords, coords[i], self._rmax, zip_results=False
+                frac_coords, coords[idx], self._rmax, zip_results=False
             )
 
             # remove the rii term
@@ -383,7 +383,7 @@ class EwaldSummation(MSONable):
             rij = rij[inds]
             nf_coords = nf_coords[inds]
 
-            qi = qs[i]
+            qi = qs[idx]
             qj = qs[js]
 
             erfc_val = erfc(self._sqrt_eta * rij)
@@ -391,14 +391,14 @@ class EwaldSummation(MSONable):
 
             # insert new_ereals
             for key in range(n_sites):
-                e_real[key, i] = np.sum(new_ereals[js == key])
+                e_real[key, idx] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
                 nc_coords = self._struct.lattice.get_cartesian_coords(nf_coords)
 
                 fijpf = qj / rij**3 * (erfc_val + force_pf * rij * np.exp(-self._eta * rij**2))
-                forces[i] += np.sum(
-                    np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nc_coords) * qi * EwaldSummation.CONV_FACT,
+                forces[idx] += np.sum(
+                    np.expand_dims(fijpf, 1) * (np.array([coords[idx]]) - nc_coords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
                 )
 

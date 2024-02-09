@@ -462,7 +462,7 @@ class ElementBase(Enum):
                 "L": L_symbols.index(term[1]),
                 "J": float(term[2:]),
             }
-            for term in sum(term_symbols, [])
+            for term in sum(term_symbols, [])  # noqa: RUF017
         }
 
         multi = [int(item["multiplicity"]) for terms, item in term_symbol_flat.items()]

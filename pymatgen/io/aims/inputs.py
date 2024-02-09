@@ -462,7 +462,6 @@ class AimsControlIn(MSONable):
 
         Args:
             parameters (dict[str, Any]): The new set of parameters to use
-
         """
         self._parameters = parameters
         if "output" not in self._parameters:
@@ -477,7 +476,7 @@ class AimsControlIn(MSONable):
             fmt (str): The format string to apply to the value
 
         Returns:
-            The line to add to the control.in file
+            str: The line to add to the control.in file
         """
         return f"{key:35s}{fmt % value}\n"
 

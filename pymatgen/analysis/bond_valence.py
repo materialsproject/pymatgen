@@ -331,7 +331,7 @@ class BVAnalyzer:
                 for _ in valences[idx]:
                     tmp.append(n_site)
                     attrib.append(idx)
-            new_nsites = np.array(tmp)
+            new_n_sites = np.array(tmp)
             fractions = []
             elements = []
             for sites in equi_sites:
@@ -340,8 +340,8 @@ class BVAnalyzer:
                     fractions.append(occu)
             fractions = np.array(fractions, float)  # type: ignore[assignment]
             new_valences = [val for vals in valences for val in vals]
-            valence_min = np.array([min(i) for i in new_valences], float)
-            valence_max = np.array([max(i) for i in new_valences], float)
+            valence_min = np.array([min(val) for val in new_valences], float)
+            valence_max = np.array([max(val) for val in new_valences], float)
 
             self._n = 0
             self._best_score = 0
@@ -377,13 +377,13 @@ class BVAnalyzer:
                 i = len(assigned)
                 highest = valence_max.copy()
                 highest[:i] = assigned
-                highest *= new_nsites
+                highest *= new_n_sites
                 highest *= fractions
                 highest = np.sum(highest)
 
                 lowest = valence_min.copy()
                 lowest[:i] = assigned
-                lowest *= new_nsites
+                lowest *= new_n_sites
                 lowest *= fractions
                 lowest = np.sum(lowest)
 

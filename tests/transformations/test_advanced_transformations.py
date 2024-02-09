@@ -717,7 +717,7 @@ class TestAddAdsorbateTransformation(PymatgenTest):
         slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
         out = trans.apply_transformation(slab)
 
-        assert out.composition.reduced_formula == "Pt4CO"
+        assert out.reduced_formula == "Pt4CO"
 
 
 class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
@@ -727,7 +727,7 @@ class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
         slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
         out = trans.apply_transformation(slab)
 
-        assert out.composition.reduced_formula == "Pt3Au"
+        assert out.reduced_formula == "Pt3Au"
 
 
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")

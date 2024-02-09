@@ -302,7 +302,7 @@ class LammpsData(MSONable):
         if "nx" in atoms.columns:
             atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
-        ld_copy = self.__class__(self.box, masses, atoms)
+        ld_copy = type(self)(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]

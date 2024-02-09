@@ -126,7 +126,7 @@ class XYZ:
         return df_xyz
 
     def _frame_str(self, frame_mol):
-        output = [str(len(frame_mol)), frame_mol.composition.formula]
+        output = [str(len(frame_mol)), frame_mol.formula]
         prec = self.precision
         fmt = f"{{}} {{:.{prec}f}} {{:.{prec}f}} {{:.{prec}f}}"
         for site in frame_mol:

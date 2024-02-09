@@ -241,7 +241,7 @@ class TestVasprun(PymatgenTest):
         assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
 
         assert vasp_run.atomic_symbols == ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
-        assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
+        assert vasp_run.final_structure.reduced_formula == "LiFe4(PO4)4"
         assert vasp_run.incar is not None, "Incar cannot be read"
         assert vasp_run.kpoints is not None, "Kpoints cannot be read"
         assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"

@@ -430,7 +430,7 @@ class ComputedReaction(Reaction):
         entries = []
         for c in self._all_comp:
             for e in self._all_entries:
-                if e.composition.reduced_formula == c.reduced_formula:
+                if e.reduced_formula == c.reduced_formula:
                     entries.append(e)
                     break
         return entries

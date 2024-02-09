@@ -341,7 +341,7 @@ class Header(MSONable):
             f"TITLE comment: {self.comment}",
             f"TITLE Source:  {self.source}",
             f"TITLE Structure Summary:  {self.struct.composition.formula}",
-            f"TITLE Reduced formula:  {self.struct.composition.reduced_formula}",
+            f"TITLE Reduced formula:  {self.struct.reduced_formula}",
         ]
 
         if self.periodic:

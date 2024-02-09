@@ -186,7 +186,7 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
                     with zopen(os.path.join(output_dir, key), mode="wt") as file:
                         file.write(str(val))
         else:
-            vasp_input = self.get_vasp_input()
+            vasp_input = self.get_input_set()
             vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
         cif_name = ""
@@ -2162,7 +2162,7 @@ class MVLGBSet(DictSet):
     Class for writing a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
-        structure(Structure): provide the structure
+        structure (Structure): provide the structure
         k_product: Kpoint number * length for a & b directions, also for c direction in
             bulk calculations. Default to 40.
         slab_mode (bool): Defaults to False. Use default (False) for a bulk supercell.

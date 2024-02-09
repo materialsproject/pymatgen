@@ -1491,10 +1491,10 @@ class Cp2kOutput:
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
+        """Return a gaussian smeared DOS"""
         if not width:
             return densities
 
-        """Return a gaussian smeared DOS"""
         dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 

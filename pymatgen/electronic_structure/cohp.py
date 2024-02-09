@@ -797,7 +797,6 @@ class IcohpValue(MSONable):
             are_cobis: if True, this are COBIs
             orbitals: {[str(Orbital1)-str(Orbital2)]: {"icohp":{Spin.up: icohpvalue for spin.up, Spin.down:
                 icohpvalue for spin.down}, "orbitals":[Orbital1, Orbital2]}}.
-
         """
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
@@ -938,7 +937,6 @@ class IcohpValue(MSONable):
 
         Returns:
             {"str(Orbital1)-str(Ortibal2)": icohp value in eV}.
-
         """
         orbital_icohp = {}
         for orb, item in self._orbitals.items():

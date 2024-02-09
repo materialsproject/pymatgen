@@ -62,7 +62,7 @@ class TestAtat(PymatgenTest):
 
         mcsqs = Mcsqs.structure_from_str(test_string)
 
-        assert mcsqs.composition.formula == "Sr3 Ca5 Mn7 Fe1 O24"
+        assert mcsqs.formula == "Sr3 Ca5 Mn7 Fe1 O24"
         assert mcsqs.lattice.a == approx(2.2360679775)
         assert mcsqs.lattice.b == approx(2.2360679775)
         assert mcsqs.lattice.c == approx(1.73205080757)
