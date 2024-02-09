@@ -116,8 +116,8 @@ class ZSLGenerator(MSONable):
         lattices with a maximum area
 
         Args:
-            film_area(int): the unit cell area for the film
-            substrate_area(int): the unit cell area for the substrate
+            film_area (int): the unit cell area for the film
+            substrate_area (int): the unit cell area for the substrate
 
         Returns:
             transformation_sets: a set of transformation_sets defined as:

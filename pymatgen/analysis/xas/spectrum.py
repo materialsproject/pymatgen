@@ -96,7 +96,7 @@ class XAS(Spectrum):
 
         Args:
             other: Another XAS object.
-            num_samples(int): Number of samples for interpolation.
+            num_samples (int): Number of samples for interpolation.
             mode("XAFS" | "L23"): Either XAFS mode for stitching XANES and EXAFS
                 or L23 mode for stitching L2 and L3.
 

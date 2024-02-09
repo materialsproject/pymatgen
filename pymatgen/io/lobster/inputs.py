@@ -618,7 +618,7 @@ class Lobsterin(UserDict, MSONable):
         Will return the name of the species in the POTCAR.
 
         Args:
-            POTCAR_input(str): string to potcar file
+            POTCAR_input (str): string to potcar file
 
         Returns:
             list of the names of the species in string format
@@ -661,8 +661,8 @@ class Lobsterin(UserDict, MSONable):
         Will generate Lobsterin with standard settings.
 
         Args:
-            POSCAR_input(str): path to POSCAR
-            INCAR_input(str): path to INCAR
+            POSCAR_input (str): path to POSCAR
+            INCAR_input (str): path to INCAR
             POTCAR_input (str): path to POTCAR
             dict_for_basis (dict): can be provided: it should look the following:
                 dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
