@@ -23,8 +23,8 @@ class TestTransformedStructure(PymatgenTest):
     def setUp(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         self.structure = structure
-        trans = [SubstitutionTransformation({"Li": "Na"})]
-        self.trans = TransformedStructure(structure, trans)
+        trafos = [SubstitutionTransformation({"Li": "Na"})]
+        self.trans = TransformedStructure(structure, trafos)
 
     def test_append_transformation(self):
         trafo = SubstitutionTransformation({"Fe": "Mn"})
@@ -71,11 +71,11 @@ class TestTransformedStructure(PymatgenTest):
         assert ts.other_parameters == {"author": "Will", "tags": ["test"]}
 
     def test_undo_and_redo_last_change(self):
-        trans = [
+        trafos = [
             SubstitutionTransformation({"Li": "Na"}),
             SubstitutionTransformation({"Fe": "Mn"}),
         ]
-        ts = TransformedStructure(self.structure, trans)
+        ts = TransformedStructure(self.structure, trafos)
         assert ts.final_structure.reduced_formula == "NaMnPO4"
         ts.undo_last_change()
         assert ts.final_structure.reduced_formula == "NaFePO4"
