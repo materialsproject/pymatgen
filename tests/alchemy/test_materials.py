@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 
 import pytest
 
@@ -56,6 +57,8 @@ class TestTransformedStructure(PymatgenTest):
 
     def test_final_structure(self):
         assert self.trans.final_structure.reduced_formula == "NaFePO4"
+        # https://github.com/materialsproject/pymatgen/pull/3617
+        assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
         with open(f"{TEST_FILES_DIR}/transformations.json") as file:
