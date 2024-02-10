@@ -420,12 +420,12 @@ class Poscar(MSONable):
 
         # Read the atomic coordinates
         coords = []
-        selective_dynamics = [] if has_selective_dynamics else None
+        selective_dynamics: list[np.ndarray] | None = [] if has_selective_dynamics else None
         for i in range(n_sites):
             tokens = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
-            if has_selective_dynamics:
+            if selective_dynamics is not None:
                 # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
                     warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
@@ -443,7 +443,7 @@ class Poscar(MSONable):
                 selective_dynamics.append([value == "T" for value in tokens[3:6]])
 
         # Warn when ALL degrees of freedom relaxed (#3539)
-        if has_selective_dynamics and all(all(i is True for i in in_list) for in_list in selective_dynamics):
+        if selective_dynamics is not None and all(all(i is True for i in in_list) for in_list in selective_dynamics):
             warnings.warn(
                 "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.", BadPoscarWarning
             )
