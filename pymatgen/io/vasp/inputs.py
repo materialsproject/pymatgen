@@ -121,12 +121,12 @@ class Poscar(MSONable):
                 if not selective_dynamics.all():
                     site_properties["selective_dynamics"] = selective_dynamics
 
-            if velocities is not None:
+            if velocities:
                 velocities = np.array(velocities)
                 if velocities.any():
                     site_properties["velocities"] = velocities
 
-            if predictor_corrector is not None:
+            if predictor_corrector:
                 predictor_corrector = np.array(predictor_corrector)
                 if predictor_corrector.any():
                     site_properties["predictor_corrector"] = predictor_corrector
@@ -140,10 +140,12 @@ class Poscar(MSONable):
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
 
-            if lattice_velocities is not None and np.any(lattice_velocities):
+            if lattice_velocities and np.any(lattice_velocities):
                 self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
         else:
-            raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
+            raise ValueError(
+                "Disordered structure with partial occupancies cannot be converted into POSCAR!"
+            )
 
         self.temperature = -1.0
 
@@ -457,26 +459,26 @@ class Poscar(MSONable):
             coords_are_cartesian=cart,
         )
 
+        lattice_velocities = []
+        velocities = []
+        predictor_corrector = []
+        predictor_corrector_preamble = ""
+
         if read_velocities:
             # Parse the lattice velocities and current lattice, if present.
             # The header line should contain "Lattice velocities and vectors"
             # There is no space between the coordinates and this section, so
             # it appears in the lines of the first chunk
-            lattice_velocities = []
             if len(lines) > ipos + n_sites + 1 and lines[ipos + n_sites + 1].lower().startswith("l"):
                 for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]:
                     lattice_velocities.append([float(tok) for tok in line.split()])
 
             # Parse velocities if any
-            velocities = []
             if len(chunks) > 1:
                 for line in chunks[1].strip().split("\n"):
                     velocities.append([float(tok) for tok in line.split()])
 
             # Parse the predictor-corrector data
-            predictor_corrector = []
-            predictor_corrector_preamble = None
-
             if len(chunks) > 2:
                 lines = chunks[2].strip().split("\n")
                 # There are 3 sets of 3xN Predictor corrector parameters
@@ -494,8 +496,6 @@ class Poscar(MSONable):
                     d2 = [float(tok) for tok in lines[st + n_sites].split()]
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
-        else:
-            velocities = predictor_corrector = predictor_corrector_preamble = lattice_velocities = None
 
         return cls(
             struct,
