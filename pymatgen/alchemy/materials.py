@@ -17,11 +17,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
+from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.alchemy.filters import AbstractStructureFilter
-    from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 
 class TransformedStructure(MSONable):
@@ -35,7 +37,7 @@ class TransformedStructure(MSONable):
     def __init__(
         self,
         structure: Structure,
-        transformations: list[AbstractTransformation] | None = None,
+        transformations: AbstractTransformation | Sequence[AbstractTransformation] | None = None,
         history: list[AbstractTransformation | dict[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
@@ -43,8 +45,7 @@ class TransformedStructure(MSONable):
 
         Args:
             structure (Structure): Input structure
-            transformations (list[Transformation]): List of transformations to
-                apply.
+            transformations (list[Transformation]): List of transformations to apply.
             history (list[Transformation]): Previous history.
             other_parameters (dict): Additional parameters to be added.
         """
@@ -53,6 +54,8 @@ class TransformedStructure(MSONable):
         self.other_parameters = other_parameters or {}
         self._undone: list[tuple[AbstractTransformation | dict[str, Any], Structure]] = []
 
+        if isinstance(transformations, AbstractTransformation):
+            transformations = [transformations]
         transformations = transformations or []
         for trafo in transformations:
             self.append_transformation(trafo)
@@ -86,10 +89,9 @@ class TransformedStructure(MSONable):
         self.history.append(hist)
         self.final_structure = struct
 
-    def __getattr__(self, name) -> Any:
-        # Don't try to replace this with: return getattr(self.final_structure, name)
-        # It will cause infinite recursion if name = "final_structure"
-        struct = object.__getattribute__(self, "final_structure")
+    def __getattr__(self, name: str) -> Any:
+        # Don't use getattr(self.final_structure, name) here to avoid infinite recursion if name = "final_structure"
+        struct = self.__getattribute__("final_structure")
         return getattr(struct, name)
 
     def __len__(self) -> int:
