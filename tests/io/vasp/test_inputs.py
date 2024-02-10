@@ -491,7 +491,10 @@ Cartesian
 """
         with pytest.warns(
             BadPoscarWarning,
-            match="Selective dynamics toggled with Fluorine element detected. Make sure the 4th-6th entry each position line is selective dynamics info.",
+            match=(
+                "Selective dynamics toggled with Fluorine element detected. "
+                "Make sure the 4th-6th entry each position line is selective dynamics info."
+            ),
         ):
             Poscar.from_str(poscar_str_with_fluorine)
 
