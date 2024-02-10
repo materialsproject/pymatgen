@@ -312,7 +312,7 @@ class Poscar(MSONable):
             Poscar object.
         """
         # "^\s*$" doesn't match lines with no whitespace
-        chunks = re.split(r"\n\s*\n", data.rstrip(), flags=re.MULTILINE)
+        chunks: list[str] = re.split(r"\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         try:
             if chunks[0] == "":
                 chunks.pop(0)
@@ -321,7 +321,7 @@ class Poscar(MSONable):
             raise ValueError("Empty POSCAR")
 
         # Parse positions
-        lines = tuple(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+        lines = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
