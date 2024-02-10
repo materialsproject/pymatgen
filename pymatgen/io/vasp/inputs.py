@@ -143,9 +143,7 @@ class Poscar(MSONable):
             if lattice_velocities and np.any(lattice_velocities):
                 self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
         else:
-            raise ValueError(
-                "Disordered structure with partial occupancies cannot be converted into POSCAR!"
-            )
+            raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
         self.temperature = -1.0
 
