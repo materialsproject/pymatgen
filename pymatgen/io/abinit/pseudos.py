@@ -1625,8 +1625,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             pseudos = []
             for znum in iterator_from_slice(Z):
                 pseudos.extend(self._pseudos_with_z[znum])
-            return self.__class__(pseudos)
-        return self.__class__(self._pseudos_with_z[Z])
+            return type(self)(pseudos)
+        return type(self)(self._pseudos_with_z[Z])
 
     def __len__(self) -> int:
         return len(list(iter(self)))
@@ -1782,7 +1782,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
         if ret_list:
             return pseudos
-        return self.__class__(pseudos)
+        return type(self)(pseudos)
 
     def get_pseudos_for_structure(self, structure: Structure):
         """
@@ -1839,11 +1839,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
+        return type(self)([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
 
     def sort_by_z(self):
         """Return a new PseudoTable with pseudos sorted by Z."""
-        return self.__class__(sorted(self, key=lambda p: p.Z))
+        return type(self)(sorted(self, key=lambda p: p.Z))
 
     def select(self, condition) -> PseudoTable:
         """Select only those pseudopotentials for which condition is True.
@@ -1855,7 +1855,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         Returns:
             PseudoTable: New PseudoTable instance with pseudos for which condition is True.
         """
-        return self.__class__([p for p in self if condition(p)])
+        return type(self)([p for p in self if condition(p)])
 
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section. Return new class:`PseudoTable` object."""
@@ -1868,9 +1868,9 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         if not isinstance(rows, (list, tuple)):
             rows = [rows]
-        return self.__class__([p for p in self if p.element.row in rows])
+        return type(self)([p for p in self if p.element.row in rows])
 
     def select_family(self, family):
         """Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"."""
         # e.g element.is_alkaline
-        return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
+        return type(self)([p for p in self if getattr(p.element, "is_" + family)])

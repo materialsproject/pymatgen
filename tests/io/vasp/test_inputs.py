@@ -59,8 +59,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
 
 class TestPoscar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        comp = Structure.from_file(filepath).composition
+        comp = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
@@ -458,7 +457,7 @@ direct
         with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
-                    line = " ".join([x + "/" for x in line.split()]) + "\n"
+                    line = " ".join(f"{x}/" for x in line.split()) + "\n"
                 poscar_str += line
         poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.formula == "Li4 Fe4 P4 O16"
@@ -466,8 +465,7 @@ direct
 
 class TestIncar(PymatgenTest):
     def setUp(self):
-        file_name = f"{TEST_FILES_DIR}/INCAR"
-        self.incar = Incar.from_file(file_name)
+        self.incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
     def test_init(self):
         incar = self.incar
@@ -475,6 +473,15 @@ class TestIncar(PymatgenTest):
         assert incar["ALGO"] == "Damped", "Wrong Algo"
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
+
+    def test_copy(self):
+        incar2 = self.incar.copy()
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert incar2 == self.incar
+        # modify incar2 and check that incar1 is not modified
+        incar2["LDAU"] = "F"
+        assert incar2["LDAU"] is False
+        assert self.incar.get("LDAU") is None
 
     def test_diff(self):
         filepath1 = f"{TEST_FILES_DIR}/INCAR"
@@ -910,24 +917,42 @@ Cartesian
 
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
-        k = Kpoints.from_file(file_name)
-        dct = k.as_dict()
+        kpts = Kpoints.from_file(file_name)
+        dct = kpts.as_dict()
 
         json.dumps(dct)
         # This doesn't work
         k2 = Kpoints.from_dict(dct)
-        assert k.kpts == k2.kpts
-        assert k.style == k2.style
-        assert k.kpts_shift == k2.kpts_shift
-        assert k.num_kpts == k2.num_kpts
+        assert kpts.kpts == k2.kpts
+        assert kpts.style == k2.style
+        assert kpts.kpts_shift == k2.kpts_shift
+        assert kpts.num_kpts == k2.num_kpts
 
     def test_pickle(self):
-        k = Kpoints.gamma_automatic()
-        pickle.dumps(k)
+        kpts = Kpoints.gamma_automatic()
+        pickle.dumps(kpts)
+
+    def test_eq(self):
+        auto_g_kpts = Kpoints.gamma_automatic()
+        assert auto_g_kpts == auto_g_kpts
+        assert auto_g_kpts == Kpoints.gamma_automatic()
+        file_kpts = Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        assert file_kpts == Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        assert auto_g_kpts != file_kpts
+        auto_m_kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        assert auto_m_kpts == Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        assert auto_g_kpts != auto_m_kpts
+
+    def test_copy(self):
+        kpts = Kpoints.gamma_automatic()
+        kpt_copy = kpts.copy()
+        assert kpts == kpt_copy
+        kpt_copy.style = Kpoints.supported_modes.Monkhorst
+        assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
         # struct = PymatgenTest.get_structure("Li2O")
-        p = Poscar.from_str(
+        poscar = Poscar.from_str(
             """Al1
 1.0
 2.473329 0.000000 1.427977
@@ -938,7 +963,7 @@ Al
 direct
 0.000000 0.000000 0.000000 Al"""
         )
-        kpoints = Kpoints.automatic_density(p.structure, 1000)
+        kpoints = Kpoints.automatic_density(poscar.structure, 1000)
         assert_allclose(kpoints.kpts[0], [10, 10, 10])
 
     def test_automatic_density_by_lengths(self):
@@ -1177,6 +1202,17 @@ class TestPotcarSingle(unittest.TestCase):
             == "7bcf5ad80200e5d74ba63b45d87825b31e6cae2bcd03cebda2f1cbec9870c1cf"
         )
 
+    def test_eq(self):
+        assert self.psingle_Mn_pv == self.psingle_Mn_pv
+        assert self.psingle_Fe == self.psingle_Fe
+        assert self.psingle_Mn_pv != self.psingle_Fe
+        assert self.psingle_Mn_pv != self.psingle_Fe_54
+
+    def test_copy(self):
+        psingle = self.psingle_Mn_pv.copy()
+        assert psingle == self.psingle_Mn_pv
+        assert psingle is not self.psingle_Mn_pv
+
 
 class TestPotcar(PymatgenTest):
     def setUp(self):
@@ -1272,6 +1308,22 @@ class TestVaspInput(PymatgenTest):
         assert incar["NSW"] == 99
 
         assert {*os.listdir(tmp_dir)} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
+
+    def test_copy(self):
+        vasp_input2 = self.vasp_input.copy(deep=True)
+        assert isinstance(vasp_input2, VaspInput)
+        # make copy and original serialize to the same dict
+        assert vasp_input2.as_dict() == self.vasp_input.as_dict()
+        # modify the copy and make sure the original is not modified
+        vasp_input2["INCAR"]["NSW"] = 100
+        assert vasp_input2["INCAR"]["NSW"] == 100
+        assert self.vasp_input["INCAR"]["NSW"] == 99
+
+        # make a shallow copy and make sure the original is modified
+        vasp_input3 = self.vasp_input.copy(deep=False)
+        vasp_input3["INCAR"]["NSW"] = 100
+        assert vasp_input3["INCAR"]["NSW"] == 100
+        assert self.vasp_input["INCAR"]["NSW"] == 100
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])

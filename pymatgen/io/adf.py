@@ -113,13 +113,13 @@ class AdfKey(MSONable):
     def _options_string(self):
         """Return the option string."""
         if len(self.options) > 0:
-            s = ""
+            opt_str = ""
             for op in self.options:
                 if self._sized_op:
-                    s += f"{op[0]}={op[1]} "
+                    opt_str += f"{op[0]}={op[1]} "
                 else:
-                    s += f"{op} "
-            return s.strip()
+                    opt_str += f"{op} "
+            return opt_str.strip()
         return ""
 
     def is_block_key(self) -> bool:
@@ -145,27 +145,27 @@ class AdfKey(MSONable):
         If this key is 'Atoms' and the coordinates are in Cartesian form, a
         different string format will be used.
         """
-        s = f"{self.key}"
+        adf_str = f"{self.key}"
         if len(self.options) > 0:
-            s += f" {self._options_string()}"
-        s += "\n"
+            adf_str += f" {self._options_string()}"
+        adf_str += "\n"
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += (
+                    adf_str += (
                         f"{subkey.name:2s}  {subkey.options[0]: 14.8f}"
                         f"    {subkey.options[1]: 14.8f}    {subkey.options[2]: 14.8f}\n"
                     )
             else:
                 for subkey in self.subkeys:
-                    s += str(subkey)
+                    adf_str += str(subkey)
             if self.is_block_key():
-                s += "END\n"
+                adf_str += "END\n"
             else:
-                s += "subend\n"
+                adf_str += "subend\n"
         elif self.key.upper() in self._full_blocks:
-            s += "END\n"
-        return s
+            adf_str += "END\n"
+        return adf_str
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, AdfKey):

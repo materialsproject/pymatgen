@@ -623,7 +623,7 @@ class HeisenbergMapper:
             HeisenbergModel: MSONable object.
         """
         # Original formula unit with nonmagnetic ions
-        hm_formula = str(self.ordered_structures_[0].composition.reduced_formula)
+        hm_formula = str(self.ordered_structures_[0].reduced_formula)
 
         hm_structures = self.ordered_structures
         hm_energies = self.energies

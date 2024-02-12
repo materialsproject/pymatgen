@@ -125,7 +125,7 @@ class Lattice(MSONable):
 
     def copy(self):
         """Deep copy of self."""
-        return self.__class__(self.matrix.copy(), pbc=self.pbc)
+        return type(self)(self.matrix.copy(), pbc=self.pbc)
 
     @property
     def matrix(self) -> np.ndarray:
