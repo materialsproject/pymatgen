@@ -476,9 +476,9 @@ class PhaseDiagram(MSONable):
                 # Skip facets that include the extra point
                 if max(facet) == len(qhull_data) - 1:
                     continue
-                m = qhull_data[facet]
-                m[:, -1] = 1
-                if abs(np.linalg.det(m)) > 1e-14:
+                mat = qhull_data[facet]
+                mat[:, -1] = 1
+                if abs(np.linalg.det(mat)) > 1e-14:
                     final_facets.append(facet)
             facets = final_facets
 
@@ -654,8 +654,8 @@ class PhaseDiagram(MSONable):
         """
         comp_list = [self.qhull_entries[i].composition for i in facet]
         energy_list = [self.qhull_entries[i].energy_per_atom for i in facet]
-        m = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
-        chempots = np.linalg.solve(m, energy_list)
+        atom_frac_mat = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
+        chempots = np.linalg.solve(atom_frac_mat, energy_list)
 
         return dict(zip(self.elements, chempots))
 
@@ -756,7 +756,7 @@ class PhaseDiagram(MSONable):
             ValueError: If no valid decomposition exists in this phase diagram for given entry.
 
         Returns:
-            (decomp, energy_above_hull). The decomposition is provided
+            tuple[decomp, energy_above_hull]: The decomposition is provided
                 as a dict of {PDEntry: amount} where amount is the amount of the
                 fractional composition. Stable entries should have energy above
                 convex hull of 0. The energy is given per atom.
@@ -876,9 +876,9 @@ class PhaseDiagram(MSONable):
             **kwargs: Passed to get_decomp_and_e_above_hull.
 
         Returns:
-            (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
-            for all entries in the decomp reaction where amount is the amount of the
-            fractional composition. The phase separation energy is given per atom.
+            tuple[decomp, energy]: The decomposition  is given as a dict of {PDEntry, amount}
+                for all entries in the decomp reaction where amount is the amount of the
+                fractional composition. The phase separation energy is given per atom.
         """
         entry_frac = entry.composition.fractional_composition
         entry_elems = frozenset(entry_frac.elements)
