@@ -315,8 +315,7 @@ class Lobsterin(UserDict, MSONable):
         isym: int = -1,
         further_settings: dict | None = None,
     ):
-        """
-        Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
+        """Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
 
         Args:
@@ -334,7 +333,7 @@ class Lobsterin(UserDict, MSONable):
         elif isym == 0:
             incar["ISYM"] = 0
         else:
-            raise ValueError("ISYM has to be -1 or 0.")
+            raise ValueError(f"Got {isym=}, must be -1 or 0")
         incar["NSW"] = 0
         incar["LWAVE"] = True
         # get nbands from _get_nbands (use basis set that is inserted)
@@ -350,8 +349,7 @@ class Lobsterin(UserDict, MSONable):
         potcar_symbols: list,
         address_basis_file: str | None = None,
     ):
-        """
-        Get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
+        """Get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
 
         Args:
             structure (Structure): Structure object
@@ -380,9 +378,7 @@ class Lobsterin(UserDict, MSONable):
                     f"You have to provide the basis for {basis} manually. We don't have any information on this POTCAR."
                 )
             basis_functions.append(BASIS[basis].split())
-            to_join = f"{AtomTypes_Potcar[idx]!s} "
-            to_join2 = "".join(str(f"{e!s} ") for e in BASIS[basis].split())
-            list_forin.append(str(to_join + to_join2))
+            list_forin.append(f"{AtomTypes_Potcar[idx]!s} {BASIS[basis]}")
         return list_forin
 
     @staticmethod
@@ -539,7 +535,7 @@ class Lobsterin(UserDict, MSONable):
                     all_labels.append("")
 
         else:
-            raise ValueError("Only isym=-1 and isym=0 are allowed.")
+            raise ValueError(f"Got {isym=}, must be -1 or 0")
         # line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
