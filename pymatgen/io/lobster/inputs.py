@@ -270,7 +270,8 @@ class Lobsterin(UserDict, MSONable):
                     self[key] = entry
 
         filename = path
-        with open(filename, mode="w") as file:
+
+        with open(filename, mode="w", encoding="utf-8") as file:
             for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
@@ -314,8 +315,7 @@ class Lobsterin(UserDict, MSONable):
         isym: int = -1,
         further_settings: dict | None = None,
     ):
-        """
-        Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
+        """Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
 
         Args:
@@ -333,7 +333,7 @@ class Lobsterin(UserDict, MSONable):
         elif isym == 0:
             incar["ISYM"] = 0
         else:
-            ValueError("isym has to be -1 or 0.")
+            raise ValueError(f"Got {isym=}, must be -1 or 0")
         incar["NSW"] = 0
         incar["LWAVE"] = True
         # get nbands from _get_nbands (use basis set that is inserted)
@@ -349,9 +349,7 @@ class Lobsterin(UserDict, MSONable):
         potcar_symbols: list,
         address_basis_file: str | None = None,
     ):
-        """
-        Will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
-        #include this in lobsterin class.
+        """Get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
 
         Args:
             structure (Structure): Structure object
@@ -380,9 +378,7 @@ class Lobsterin(UserDict, MSONable):
                     f"You have to provide the basis for {basis} manually. We don't have any information on this POTCAR."
                 )
             basis_functions.append(BASIS[basis].split())
-            to_join = str(AtomTypes_Potcar[idx]) + " "
-            to_join2 = "".join(str(str(e) + " ") for e in BASIS[basis].split())
-            list_forin.append(str(to_join + to_join2))
+            list_forin.append(f"{AtomTypes_Potcar[idx]!s} {BASIS[basis]}")
         return list_forin
 
     @staticmethod
@@ -429,7 +425,8 @@ class Lobsterin(UserDict, MSONable):
         POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec: float = 0.01
     ):
         """
-        Writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath.
+        Writes a POSCAR with the standard primitive cell.
+        This is needed to arrive at the correct kpath.
 
         Args:
             POSCAR_input (str): filename of input POSCAR
@@ -461,8 +458,8 @@ class Lobsterin(UserDict, MSONable):
             KPOINTS_output (str): path to output KPOINTS
             reciprocal_density (int): Grid density
             isym (int): either -1 or 0. Current Lobster versions only allow -1.
-            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,
-                they will be generated from the reciprocal_density
+            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
+                Otherwise, they will be generated from the reciprocal_density
             input_grid (list): grid to generate the KPOINTS file
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
@@ -504,7 +501,6 @@ class Lobsterin(UserDict, MSONable):
         # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
-        # exit()
         # get the kpoints for the grid
         if isym == -1:
             kpts = []
@@ -539,7 +535,7 @@ class Lobsterin(UserDict, MSONable):
                     all_labels.append("")
 
         else:
-            ValueError("Only isym=-1 and isym=0 are allowed.")
+            raise ValueError(f"Got {isym=}, must be -1 or 0")
         # line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
@@ -556,7 +552,7 @@ class Lobsterin(UserDict, MSONable):
                 weights.append(0.0)
                 all_labels.append(labels[k])
         ISYM = isym
-        comment = f"{ISYM=}, grid: {mesh}" if not line_mode else f"{ISYM=}, grid: {mesh} plus kpoint path"
+        comment = f"{ISYM=}, grid: {mesh} plus kpoint path" if line_mode else f"{ISYM=}, grid: {mesh}"
 
         KpointObject = Kpoints(
             comment=comment,
@@ -588,8 +584,7 @@ class Lobsterin(UserDict, MSONable):
             # Remove all comments
             if not datum.startswith(("!", "#", "//")):
                 pattern = r"\b[^!#//]+"  # exclude comments after commands
-                matched_pattern = re.findall(pattern, datum)
-                if matched_pattern:
+                if matched_pattern := re.findall(pattern, datum):
                     raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
                     key_word = raw_datum.strip().split(" ")  # extract keyword
                     if len(key_word) > 1:
@@ -703,14 +698,15 @@ class Lobsterin(UserDict, MSONable):
         ]:
             raise ValueError("The option is not valid!")
 
-        Lobsterindict: dict[str, Any] = {}
-        # this basis set covers most elements
-        Lobsterindict["basisSet"] = "pbeVaspFit2015"
-        # energies around e-fermi
-        Lobsterindict["COHPstartEnergy"] = -35.0
-        Lobsterindict["COHPendEnergy"] = 5.0
+        Lobsterindict: dict[str, Any] = {
+            # this basis set covers most elements
+            "basisSet": "pbeVaspFit2015",
+            # energies around e-fermi
+            "COHPstartEnergy": -35.0,
+            "COHPendEnergy": 5.0,
+        }
 
-        if option in [
+        if option in {
             "standard",
             "standard_with_energy_range_from_vasprun",
             "onlycohp",
@@ -719,7 +715,7 @@ class Lobsterin(UserDict, MSONable):
             "onlycohpcoop",
             "onlycohpcoopcobi",
             "standard_with_fatband",
-        ]:
+        }:
             # every interaction with a distance of 6.0 is checked
             Lobsterindict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             # the projection is saved
@@ -856,9 +852,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
             for subset in itertools.combinations(basis_dict[el[0]]["variable"], L):
                 basis_dict[el[0]]["combinations"].append(" ".join([el[0]] + basis_dict[el[0]]["fixed"] + list(subset)))
 
-    list_basis = []
-    for item in basis_dict.values():
-        list_basis.append(item["combinations"])
+    list_basis = [item["combinations"] for item in basis_dict.values()]
 
     # get all combinations
     start_basis = list_basis[0]
