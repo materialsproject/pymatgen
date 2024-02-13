@@ -2269,8 +2269,10 @@ class IStructure(SiteCollection, MSONable):
                 lattice = Lattice(l_a)
             else:
                 lattice = self.lattice
-            fcoords = start_coords + x * vec
-            structs.append(type(self)(lattice, sp, fcoords, site_properties=self.site_properties, labels=self.labels))
+            frac_coords = start_coords + x * vec
+            structs.append(
+                type(self)(lattice, sp, frac_coords, site_properties=self.site_properties, labels=self.labels)
+            )
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -4151,12 +4153,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for idx in indices:
             site = self[idx]
             if frac_coords:
-                fcoords = site.frac_coords + vector
+                f_coords = site.frac_coords + vector
             else:
-                fcoords = self._lattice.get_fractional_coords(site.coords + vector)
+                f_coords = self._lattice.get_fractional_coords(site.coords + vector)
             if to_unit_cell:
-                fcoords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, fcoords)]
-            self[idx].frac_coords = fcoords
+                f_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, f_coords)]
+            self[idx].frac_coords = f_coords
 
     def rotate_sites(
         self,

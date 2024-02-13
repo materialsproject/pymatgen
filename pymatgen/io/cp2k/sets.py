@@ -226,11 +226,11 @@ class DftSet(Cp2kInput):
                 ot = False
 
         # Build the global section
-        g = Global(
+        global_sec = Global(
             project_name=self.kwargs.get("project_name", "CP2K"),
             run_type=self.kwargs.get("run_type", "ENERGY_FORCE"),
         )
-        self.insert(g)
+        self.insert(global_sec)
 
         # Build the QS Section
         qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))

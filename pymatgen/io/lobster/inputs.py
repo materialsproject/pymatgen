@@ -360,25 +360,23 @@ class Lobsterin(UserDict, MSONable):
         """
         if address_basis_file is None:
             address_basis_file = f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_standard.yaml"
-        Potcar_names = list(potcar_symbols)
+        potcar_names = list(potcar_symbols)
 
-        AtomTypes_Potcar = [name.split("_")[0] for name in Potcar_names]
+        atom_types_potcar = [name.split("_")[0] for name in potcar_names]
 
-        AtomTypes = structure.symbol_set
-
-        if set(AtomTypes) != set(AtomTypes_Potcar):
+        if set(structure.symbol_set) != set(atom_types_potcar):
             raise OSError("Your POSCAR does not correspond to your POTCAR!")
         BASIS = loadfn(address_basis_file)["BASIS"]
 
         basis_functions = []
         list_forin = []
-        for idx, basis in enumerate(Potcar_names):
+        for idx, basis in enumerate(potcar_names):
             if basis not in BASIS:
                 raise ValueError(
                     f"You have to provide the basis for {basis} manually. We don't have any information on this POTCAR."
                 )
             basis_functions.append(BASIS[basis].split())
-            list_forin.append(f"{AtomTypes_Potcar[idx]!s} {BASIS[basis]}")
+            list_forin.append(f"{atom_types_potcar[idx]} {BASIS[basis]}")
         return list_forin
 
     @staticmethod

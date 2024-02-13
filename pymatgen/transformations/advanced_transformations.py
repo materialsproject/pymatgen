@@ -892,7 +892,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         # remove duplicate structures and group according to energy model
-        m = StructureMatcher(comparator=SpinComparator())
+        matcher = StructureMatcher(comparator=SpinComparator())
 
         def key(struct: Structure) -> int:
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
@@ -900,7 +900,7 @@ class MagOrderingTransformation(AbstractTransformation):
         out = []
         for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):
             group = list(group)  # type: ignore
-            grouped = m.group_structures(group)
+            grouped = matcher.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
 
         self._all_structures = sorted(out, key=lambda dct: dct["energy"])
