@@ -165,10 +165,7 @@ def test_get_structure_mag():
 
     atoms = read(f"{TEST_FILES_DIR}/OUTCAR")
     structure = AseAtomsAdaptor.get_structure(atoms)
-    assert (
-        structure.site_properties["final_magmom"]
-        == atoms.get_magnetic_moments().tolist()
-    )
+    assert structure.site_properties["final_magmom"] == atoms.get_magnetic_moments().tolist()
     assert "magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
