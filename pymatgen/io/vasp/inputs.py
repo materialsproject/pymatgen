@@ -50,12 +50,6 @@ __copyright__ = "Copyright 2011, The Materials Project"
 logger = logging.getLogger(__name__)
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
-# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-# written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
-
 
 class Poscar(MSONable):
     """Object for representing the data in a POSCAR or CONTCAR file.
@@ -1599,6 +1593,13 @@ OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut",
 
 class UnknownPotcarWarning(UserWarning):
     """Warning raised when POTCAR hashes do not pass validation."""
+
+
+# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
+PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
+# written to some newer POTCARs by VASP
+VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
 class PotcarSingle:
