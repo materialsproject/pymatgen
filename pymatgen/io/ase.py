@@ -3,7 +3,6 @@ This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
 """
 
-
 from __future__ import annotations
 
 import warnings
@@ -12,16 +11,17 @@ from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
 import numpy as np
-
+from monty.json import MSONable
 from pymatgen.core.structure import Molecule, Structure
 
 if TYPE_CHECKING:
-    from numpy.typing import ArrayLike
+    from typing import Any
 
+    from numpy.typing import ArrayLike
     from pymatgen.core.structure import SiteCollection
 
 try:
-    from ase import Atoms
+    from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
     from ase.spacegroup import Spacegroup
@@ -38,25 +38,52 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
+class PMGAtoms(Atoms, MSONable):
+    """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
+
+    def as_dict(s: Atoms) -> dict[str, Any]:
+        from ase.io.jsonio import encode
+
+        # Normally, we would want to this to be a wrapper around atoms.todict() with @module and
+        # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
+        # to be used in a round-trip fashion and does not work properly with constraints.
+        # See ASE issue #1387.
+        return {"@module": "ase.atoms", "@class": "Atoms", "atoms_json": encode(s)}
+
+    def from_dict(d: dict[str, Any]) -> Atoms:
+        from ase.io.jsonio import decode
+
+        # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
+        # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
+        # to be used in a round-trip fashion and does not work properly with constraints.
+        # See ASE issue #1387.
+        return decode(d["atoms_json"])
+
+
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
     @staticmethod
-    def get_atoms(structure: SiteCollection, **kwargs) -> Atoms:
+    def get_atoms(
+        structure: SiteCollection, msonable: bool = True, **kwargs
+    ) -> PMGAtoms | Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
             structure (SiteCollection): pymatgen Structure or Molecule
+            msonable (bool): Whether to return a PMGAtoms object, which is MSONable.
             **kwargs: passed to the ASE Atoms constructor
 
         Returns:
             Atoms: ASE Atoms object
         """
         if not ase_loaded:
-            raise PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+            raise PackageNotFoundError(
+                "AseAtomsAdaptor requires the ASE package. Use `pip install ase`"
+            )
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 
@@ -70,7 +97,12 @@ class AseAtomsAdaptor:
             pbc = False
             cell = None
 
-        atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
+        atoms = Atoms(
+            symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs
+        )
+
+        if msonable:
+            atoms = PMGAtoms(atoms)
 
         if "tags" in structure.site_properties:
             atoms.set_tags(structure.site_properties["tags"])
@@ -112,7 +144,9 @@ class AseAtomsAdaptor:
             atoms.spin_multiplicity = structure.spin_multiplicity
 
         # Get the oxidation states from the structure
-        oxi_states: list[float | None] = [getattr(site.specie, "oxi_state", None) for site in structure]
+        oxi_states: list[float | None] = [
+            getattr(site.specie, "oxi_state", None) for site in structure
+        ]
 
         # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
         # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
@@ -142,7 +176,13 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in ["magmom", "charge", "final_magmom", "final_charge", "selective_dynamics"]:
+            if prop not in [
+                "magmom",
+                "charge",
+                "final_magmom",
+                "final_charge",
+                "selective_dynamics",
+            ]:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
@@ -154,7 +194,8 @@ class AseAtomsAdaptor:
         # Regenerate Spacegroup object from `.todict()` representation
         if isinstance(atoms.info.get("spacegroup"), dict):
             atoms.info["spacegroup"] = Spacegroup(
-                atoms.info["spacegroup"]["number"], setting=atoms.info["spacegroup"].get("setting", 1)
+                atoms.info["spacegroup"]["number"],
+                setting=atoms.info["spacegroup"].get("setting", 1),
             )
 
         # Atoms.calc <---> Structure.calc
@@ -173,7 +214,9 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs) -> Structure:
+    def get_structure(
+        atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs
+    ) -> Structure:
         """
         Returns pymatgen structure from ASE Atoms.
 
@@ -193,15 +236,24 @@ class AseAtomsAdaptor:
         tags = atoms.get_tags() if atoms.has("tags") else None
 
         # Get the (final) site magmoms and charges from the ASE Atoms object.
-        if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
+        if (
+            getattr(atoms, "calc", None) is not None
+            and getattr(atoms.calc, "results", None) is not None
+        ):
             charges = atoms.calc.results.get("charges")
             magmoms = atoms.calc.results.get("magmoms")
         else:
             magmoms = charges = None
 
         # Get the initial magmoms and charges from the ASE Atoms object.
-        initial_charges = atoms.get_initial_charges() if atoms.has("initial_charges") else None
-        initial_magmoms = atoms.get_initial_magnetic_moments() if atoms.has("initial_magmoms") else None
+        initial_charges = (
+            atoms.get_initial_charges() if atoms.has("initial_charges") else None
+        )
+        initial_magmoms = (
+            atoms.get_initial_magnetic_moments()
+            if atoms.has("initial_magmoms")
+            else None
+        )
         oxi_states = atoms.get_array("oxi_states") if atoms.has("oxi_states") else None
 
         # If the ASE Atoms object has constraints, make sure that they are of the
@@ -216,14 +268,22 @@ class AseAtomsAdaptor:
                 else:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
-                warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.", UserWarning)
-            sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
+                warnings.warn(
+                    "Only FixAtoms is supported by Pymatgen. Other constraints will not be set.",
+                    UserWarning,
+                )
+            sel_dyn = [
+                [False] * 3 if atom.index in constraint_indices else [True] * 3
+                for atom in atoms
+            ]
         else:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties
         # But first make sure `spacegroup` is JSON serializable
-        if atoms.info.get("spacegroup") and isinstance(atoms.info["spacegroup"], Spacegroup):
+        if atoms.info.get("spacegroup") and isinstance(
+            atoms.info["spacegroup"], Spacegroup
+        ):
             atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
         properties = getattr(atoms, "info", {})
 
@@ -232,7 +292,14 @@ class AseAtomsAdaptor:
         if cls == Molecule:
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
-            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, properties=properties, **cls_kwargs)
+            structure = cls(
+                lattice,
+                symbols,
+                positions,
+                coords_are_cartesian=True,
+                properties=properties,
+                **cls_kwargs,
+            )
 
         # Atoms.calc <---> Structure.calc
         if calc := getattr(atoms, "calc", None):
@@ -293,7 +360,9 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
+    def get_molecule(
+        atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs
+    ) -> Molecule:
         """
         Returns pymatgen molecule from ASE Atoms.
 
@@ -311,12 +380,20 @@ class AseAtomsAdaptor:
         try:
             charge = atoms.charge
         except AttributeError:
-            charge = round(np.sum(atoms.get_initial_charges())) if atoms.has("initial_charges") else 0
+            charge = (
+                round(np.sum(atoms.get_initial_charges()))
+                if atoms.has("initial_charges")
+                else 0
+            )
 
         try:
             spin_mult = atoms.spin_multiplicity
         except AttributeError:
-            spin_mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1 if atoms.has("initial_magmoms") else 1
+            spin_mult = (
+                round(np.sum(atoms.get_initial_magnetic_moments())) + 1
+                if atoms.has("initial_magmoms")
+                else 1
+            )
 
         molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 

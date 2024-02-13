@@ -8,7 +8,7 @@ from monty.json import MontyDecoder, jsanitize
 
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
-from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.ase import AseAtomsAdaptor, PMGAtoms
 from pymatgen.util.testing import TEST_FILES_DIR
 
 ase = pytest.importorskip("ase")
@@ -147,7 +147,10 @@ def test_get_structure():
     atoms = read(f"{TEST_FILES_DIR}/POSCAR_overlap")
     struct = AseAtomsAdaptor.get_structure(atoms)
     assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
-    with pytest.raises(StructureError, match=f"sites are less than {struct.DISTANCE_TOLERANCE} Angstrom apart"):
+    with pytest.raises(
+        StructureError,
+        match=f"sites are less than {struct.DISTANCE_TOLERANCE} Angstrom apart",
+    ):
         struct = AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
 
@@ -162,14 +165,22 @@ def test_get_structure_mag():
 
     atoms = read(f"{TEST_FILES_DIR}/OUTCAR")
     structure = AseAtomsAdaptor.get_structure(atoms)
-    assert structure.site_properties["final_magmom"] == atoms.get_magnetic_moments().tolist()
+    assert (
+        structure.site_properties["final_magmom"]
+        == atoms.get_magnetic_moments().tolist()
+    )
     assert "magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
 
 @pytest.mark.parametrize(
     "select_dyn",
-    [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
+    [
+        [True, True, True],
+        [False, False, False],
+        np.array([True, True, True]),
+        np.array([False, False, False]),
+    ],
 )
 def test_get_structure_dyn(select_dyn):
     atoms = read(f"{TEST_FILES_DIR}/POSCAR")
@@ -289,3 +300,25 @@ def test_back_forth_v4():
     # test document can be jsanitized and decoded
     dct = jsanitize(molecule, strict=True, enum_values=True)
     MontyDecoder().process_decoded(dct)
+
+
+def test_pmg_atoms():
+    from ase.io.jsonio import encode
+
+    atoms = read(f"{TEST_FILES_DIR}/OUTCAR")
+    ref = {"@module": "ase.atoms", "@class": "Atoms", "atoms_json": encode(atoms)}
+    pmgatoms = PMGAtoms(atoms)
+    assert pmgatoms.as_dict() == ref
+    assert PMGAtoms.from_dict(ref) == atoms
+
+
+def test_pmg_atoms_v2():
+    structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+
+    atoms = AseAtomsAdaptor.get_atoms(structure, msonable=True)
+    assert hasattr(atoms, "as_dict")
+    assert hasattr(atoms, "from_dict")
+
+    atoms = AseAtomsAdaptor.get_atoms(structure, msonable=False)
+    assert not hasattr(atoms, "as_dict")
+    assert not hasattr(atoms, "from_dict")
