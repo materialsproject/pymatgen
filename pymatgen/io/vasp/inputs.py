@@ -2387,12 +2387,12 @@ def _gen_potcar_summary_stats(
     """
     func_dir_exist: dict[str, str] = {}
     vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
-    for func, cpsp_dir in PotcarSingle.functional_dir.items():
-        cpsp_dir = f"{vasp_psp_dir}/{cpsp_dir}"
+    for func, func_dir in PotcarSingle.functional_dir.items():
+        cpsp_dir = f"{vasp_psp_dir}/{func_dir}"
         if os.path.isdir(cpsp_dir):
-            func_dir_exist[func] = cpsp_dir
+            func_dir_exist[func] = func_dir
         else:
-            warnings.warn(f"missing {cpsp_dir} POTCAR directory.")
+            warnings.warn(f"missing {func_dir} POTCAR directory")
 
     # use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
