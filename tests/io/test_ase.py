@@ -8,7 +8,7 @@ from monty.json import MontyDecoder, jsanitize
 
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
-from pymatgen.io.ase import AseAtomsAdaptor, PMGAtoms
+from pymatgen.io.ase import AseAtomsAdaptor, MSONableAtoms
 from pymatgen.util.testing import TEST_FILES_DIR
 
 ase = pytest.importorskip("ase")
@@ -299,17 +299,17 @@ def test_back_forth_v4():
     MontyDecoder().process_decoded(dct)
 
 
-def test_pmg_atoms():
+def test_msonable_atoms():
     from ase.io.jsonio import encode
 
     atoms = read(f"{TEST_FILES_DIR}/OUTCAR")
     ref = {"@module": "ase.atoms", "@class": "Atoms", "atoms_json": encode(atoms)}
-    pmgatoms = PMGAtoms(atoms)
-    assert pmgatoms.as_dict() == ref
-    assert PMGAtoms.from_dict(ref) == atoms
+    msonable_atoms = MSONableAtoms(atoms)
+    assert msonable_atoms.as_dict() == ref
+    assert MSONableAtoms.from_dict(ref) == atoms
 
 
-def test_pmg_atoms_v2():
+def test_msonable_atoms_v2():
     structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
     atoms = AseAtomsAdaptor.get_atoms(structure, msonable=True)
