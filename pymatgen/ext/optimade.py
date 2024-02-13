@@ -5,8 +5,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections import namedtuple
-from os.path import join
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 from tqdm import tqdm
@@ -316,7 +315,7 @@ class OptimadeRester:
         response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-            url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=!s}")
+            url = urljoin(resource, f"v1/structures?filter={optimade_filter}&{response_fields=!s}")
 
             try:
                 json = self._get_json(url)
@@ -450,7 +449,7 @@ class OptimadeRester:
             return None
 
         try:
-            url = join(provider_url, "v1/info")
+            url = urljoin(provider_url, "v1/info")
             provider_info_json = self._get_json(url)
         except Exception as exc:
             _logger.warning(f"Failed to parse {url} when validating: {exc}")
@@ -487,7 +486,7 @@ class OptimadeRester:
             Provider objects.
         """
         try:
-            url = join(provider_url, "v1/links")
+            url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
         except Exception as exc:
             _logger.error(f"Failed to parse {url} when following links: {exc}")
