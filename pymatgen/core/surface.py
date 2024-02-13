@@ -900,9 +900,9 @@ class SlabGenerator:
         frac_coords[:, 2] = frac_coords[:, 2] / n_layers
         all_coords = []
         for idx in range(n_layers_slab):
-            frac_coords = frac_coords.copy()
-            frac_coords[:, 2] += idx / n_layers
-            all_coords.extend(frac_coords)
+            f_coords = frac_coords.copy()
+            f_coords[:, 2] += idx / n_layers
+            all_coords.extend(f_coords)
 
         slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
