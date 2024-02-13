@@ -332,12 +332,12 @@ class BSPlotter:
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i, t in enumerate(temp_ticks):
-            if i == 0:
+        for idx, t in enumerate(temp_ticks):
+            if idx == 0:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
-            elif t[1] == temp_ticks[i - 1][1]:
+            elif t[1] == temp_ticks[idx - 1][1]:
                 logger.debug(f"Skipping label {t[1]}")
             else:
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
@@ -348,18 +348,18 @@ class BSPlotter:
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(ticks["label"])):
-            if ticks["label"][i] is not None:
+        for idx, label in enumerate(ticks["label"]):
+            if label is not None:
                 # don't print the same label twice
-                if i != 0:
-                    if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
+                if idx != 0:
+                    if label == ticks["label"][idx - 1]:
+                        logger.debug(f"already print label... skipping label {ticks['label'][idx]}")
                     else:
-                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        ax.axvline(ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {ticks['distance'][idx]} for label {ticks['label'][idx]}")
+                        ax.axvline(ticks["distance"][idx], color="k")
                 else:
-                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                    ax.axvline(ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {ticks['distance'][idx]} for label {ticks['label'][idx]}")
+                    ax.axvline(ticks["distance"][idx], color="k")
         return ax
 
     @staticmethod
@@ -381,10 +381,10 @@ class BSPlotter:
         scaled_distances = []
 
         for br, br2 in zip(bs_ref.branches, bs.branches):
-            s = br["start_index"]
-            e = br["end_index"]
-            max_d = bs_ref.distance[e]
-            min_d = bs_ref.distance[s]
+            start = br["start_index"]
+            end = br["end_index"]
+            max_d = bs_ref.distance[end]
+            min_d = bs_ref.distance[start]
             s2 = br2["start_index"]
             e2 = br2["end_index"]
             np = e2 - s2

@@ -1296,9 +1296,8 @@ class ChemicalPotential(dict, MSONable):
             composition (Composition): input composition
             strict (bool): Whether all potentials must be specified
         """
-        if strict and set(composition) > set(self):
-            s = set(composition) - set(self)
-            raise ValueError(f"Potentials not specified for {s}")
+        if strict and (missing := set(composition) - set(self)):
+            raise ValueError(f"Potentials not specified for {missing}")
         return sum(self.get(key, 0) * val for key, val in composition.items())
 
     def __repr__(self) -> str:

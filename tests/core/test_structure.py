@@ -2033,9 +2033,9 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert mol.properties == {"test_properties": "test"}
 
     def test_default_dict_attrs(self):
-        d = self.mol.as_dict()
-        assert d["charge"] == 0
-        assert d["spin_multiplicity"] == 1
+        dct = self.mol.as_dict()
+        assert dct["charge"] == 0
+        assert dct["spin_multiplicity"] == 1
 
     def test_to_from_file_str(self):
         self.mol.properties["test_prop"] = 42
@@ -2164,8 +2164,8 @@ class TestMolecule(PymatgenTest):
 
     def test_as_from_dict(self):
         self.mol.append("X", [2, 0, 0])
-        d = self.mol.as_dict()
-        mol2 = Molecule.from_dict(d)
+        dct = self.mol.as_dict()
+        mol2 = Molecule.from_dict(dct)
         assert isinstance(mol2, Molecule)
         self.assert_msonable(self.mol)
 

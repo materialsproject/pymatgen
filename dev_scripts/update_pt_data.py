@@ -75,9 +75,9 @@ def parse_ionic_radii():
 
         ionic_radii = {}
         for j in range(3, len(tokens)):
-            m = re.match(r"^\s*([0-9\.]+)", tokens[j])
-            if m:
-                ionic_radii[int(header[j])] = float(m.group(1))
+            match = re.match(r"^\s*([0-9\.]+)", tokens[j])
+            if match:
+                ionic_radii[int(header[j])] = float(match.group(1))
 
         if el in data:
             data[el]["Ionic_radii" + suffix] = ionic_radii

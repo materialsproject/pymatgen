@@ -389,10 +389,10 @@ from    to  to_image
         assert pdfs == expected_pdfs
 
     def test_as_from_dict(self):
-        d = self.mos2_sg.as_dict()
-        sg = StructureGraph.from_dict(d)
-        d2 = sg.as_dict()
-        assert d == d2
+        dct = self.mos2_sg.as_dict()
+        struct_graph = StructureGraph.from_dict(dct)
+        d2 = struct_graph.as_dict()
+        assert dct == d2
 
     def test_from_local_env_and_equality_and_diff(self):
         nn = MinimumDistanceNN()
@@ -891,10 +891,10 @@ class TestMoleculeGraph(unittest.TestCase):
         assert eth_copy_repl.get_coordination_of_site(5) == 3
 
     def test_as_from_dict(self):
-        d = self.cyclohexene.as_dict()
-        mg = MoleculeGraph.from_dict(d)
-        d2 = mg.as_dict()
-        assert str(d) == str(d2)
+        dct = self.cyclohexene.as_dict()
+        mg = MoleculeGraph.from_dict(dct)
+        dct2 = mg.as_dict()
+        assert str(dct) == str(dct2)
 
     def test_sort(self):
         sg = copy.deepcopy(self.ethylene)

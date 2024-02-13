@@ -4043,7 +4043,7 @@ class CrystalNN(NearNeighbors):
             idx: (float) index of starting bond weight
 
         Returns:
-            (float) integral of portion of unit semicircle
+            float: integral of portion of unit semicircle
         """
         r = 1
 

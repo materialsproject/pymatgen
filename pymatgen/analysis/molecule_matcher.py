@@ -58,13 +58,12 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object.
 
         Returns:
-            (list1, list2) if uniform atom order is found. list1 and list2
-            are for mol1 and mol2, respectively. Their length equal
-            to the number of atoms. They represents the uniform atom order
-            of the two molecules. The value of each element is the original
-            atom index in mol1 or mol2 of the current atom in uniform atom
-            order.
-            (None, None) if uniform atom is not available.
+            tuple[list1, list2]: if uniform atom order is found. list1 and list2
+                are for mol1 and mol2, respectively. Their length equal
+                to the number of atoms. They represents the uniform atom order
+                of the two molecules. The value of each element is the original
+                atom index in mol1 or mol2 of the current atom in uniform atom order.
+                (None, None) if uniform atom is not available.
         """
 
     @abc.abstractmethod
@@ -118,13 +117,12 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object.
 
         Returns:
-            (list1, list2) if uniform atom order is found. list1 and list2
-            are for mol1 and mol2, respectively. Their length equal
-            to the number of atoms. They represents the uniform atom order
-            of the two molecules. The value of each element is the original
-            atom index in mol1 or mol2 of the current atom in uniform atom
-            order.
-            (None, None) if uniform atom is not available.
+            tuple[list1, list2]: if uniform atom order is found. list1 and list2
+                are for mol1 and mol2, respectively. Their length equal
+                to the number of atoms. They represents the uniform atom order
+                of the two molecules. The value of each element is the original
+                atom index in mol1 or mol2 of the current atom in uniform atom order.
+                (None, None) if uniform atom is not available.
         """
         ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
         ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol

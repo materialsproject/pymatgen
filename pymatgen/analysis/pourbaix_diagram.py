@@ -382,8 +382,8 @@ def ion_or_solid_comp_object(formula):
     Returns:
         Composition/Ion object
     """
-    m = re.search(r"\[([^\[\]]+)\]|\(aq\)", formula)
-    if m:
+    match = re.search(r"\[([^\[\]]+)\]|\(aq\)", formula)
+    if match:
         comp_obj = Ion.from_formula(formula)
     elif re.search(r"\(s\)", formula):
         comp_obj = Composition(formula[:-3])
@@ -849,7 +849,7 @@ class PourbaixDiagram(MSONable):
             V (float or [float]): V at which to find the hull energy
 
         Returns:
-            (float or [float]) minimum Pourbaix energy at conditions
+            np.array: minimum Pourbaix energy at conditions
         """
         all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
         return np.min(all_gs, axis=0)
@@ -863,9 +863,8 @@ class PourbaixDiagram(MSONable):
             V (float): V at a given condition
 
         Returns:
-            (PourbaixEntry or MultiEntry): Pourbaix or multi-entry
-                corresponding ot the minimum energy entry at a given
-                pH, V condition
+            PourbaixEntry | MultiEntry: Pourbaix or multi-entry
+                corresponding to the minimum energy entry at a given pH, V condition
         """
         all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
         return self.stable_entries[np.argmin(all_gs)]
