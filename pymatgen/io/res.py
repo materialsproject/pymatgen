@@ -397,7 +397,7 @@ class AirssProvider(ResProvider):
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
         super().__init__(res)
         if self._res.TITL is None:
-            raise ResError(f"{self.__class__} can only be constructed from a res file with a valid TITL entry.")
+            raise ResError(f"{type(self).__name__} can only be constructed from a res file with a valid TITL entry.")
         if parse_rems not in ["gentle", "strict"]:
             raise ValueError(f"{parse_rems} not valid, must be either 'gentle' or 'strict'.")
         self._TITL = self._res.TITL  # alias for the object so it is guarded by the None check
