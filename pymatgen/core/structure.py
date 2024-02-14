@@ -4626,7 +4626,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def set_charge_and_spin(self, charge: float, spin_multiplicity: int | None = None) -> None:
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: int | None = None) -> Molecule:
         """Set the charge and spin multiplicity.
 
         Args:
@@ -4635,6 +4635,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 Defaults to None, which means that the spin multiplicity is
                 set to 1 if the molecule has no unpaired electrons and to 2
                 if there are unpaired electrons.
+
+        Returns:
+            Molecule: self with new charge and spin multiplicity set.
         """
         self._charge = charge
         n_electrons = 0.0
@@ -4653,6 +4656,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
+
+        return self
 
     def insert(  # type: ignore
         self,
@@ -4686,11 +4691,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def remove_species(self, species: Sequence[SpeciesLike]) -> None:
+    def remove_species(self, species: Sequence[SpeciesLike]) -> Molecule:
         """Remove all occurrences of a species from a molecule.
 
         Args:
             species: Species to remove.
+
+        Returns:
+            Molecule: self with species removed.
         """
         new_sites = []
         species = [get_el_sp(sp) for sp in species]
@@ -4699,16 +4707,21 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             if len(new_sp_occu) > 0:
                 new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties, label=site.label))
         self.sites = new_sites
+        return self
 
-    def remove_sites(self, indices: Sequence[int]) -> None:
+    def remove_sites(self, indices: Sequence[int]) -> Molecule:
         """Delete sites with at indices.
 
         Args:
             indices: Sequence of indices of sites to delete.
+
+        Returns:
+            Molecule: self with sites removed.
         """
         self.sites = [self[idx] for idx in range(len(self)) if idx not in indices]
+        return self
 
-    def translate_sites(self, indices: Sequence[int] | None = None, vector: ArrayLike | None = None) -> None:
+    def translate_sites(self, indices: Sequence[int] | None = None, vector: ArrayLike | None = None) -> Molecule:
         """Translate specific sites by some vector, keeping the sites within the
         unit cell.
 
@@ -4716,6 +4729,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             indices (list): List of site indices on which to perform the
                 translation.
             vector (3x1 array): Translation vector for sites.
+
+        Returns:
+            Molecule: self with translated sites.
         """
         if indices is None:
             indices = range(len(self))
@@ -4725,6 +4741,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             site = self[idx]
             new_site = Site(site.species, site.coords + vector, properties=site.properties, label=site.label)
             self[idx] = new_site
+        return self
 
     def rotate_sites(
         self,
@@ -4732,7 +4749,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         theta: float = 0.0,
         axis: ArrayLike | None = None,
         anchor: ArrayLike | None = None,
-    ) -> None:
+    ) -> Molecule:
         """Rotate specific sites by some angle around vector at anchor.
 
         Args:
@@ -4741,6 +4758,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             theta (float): Angle in radians
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
+
+        Returns:
+            Molecule: self with rotated sites.
         """
         if indices is None:
             indices = range(len(self))
@@ -4764,13 +4784,17 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             new_site = Site(site.species, s, properties=site.properties, label=site.label)
             self[idx] = new_site
 
-    def perturb(self, distance: float) -> None:
+        return self
+
+    def perturb(self, distance: float) -> Molecule:
         """Performs a random perturbation of the sites in a structure to break
         symmetries.
 
         Args:
-            distance (float): Distance in angstroms by which to perturb each
-                site.
+            distance (float): Distance in angstroms by which to perturb each site.
+
+        Returns:
+            Molecule: self with perturbed sites.
         """
 
         def get_rand_vec():
@@ -4782,11 +4806,16 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for idx in range(len(self)):
             self.translate_sites([idx], get_rand_vec())
 
-    def apply_operation(self, symmop: SymmOp) -> None:
+        return self
+
+    def apply_operation(self, symmop: SymmOp) -> Molecule:
         """Apply a symmetry operation to the molecule.
 
         Args:
             symmop (SymmOp): Symmetry operation to apply.
+
+        Returns:
+            Molecule: self after symmetry operation.
         """
 
         def operate_site(site):
@@ -4795,7 +4824,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         self.sites = [operate_site(site) for site in self]
 
-    def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> None:
+        return self
+
+    def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> Molecule:
         """Substitute atom at index with a functional group.
 
         Args:
@@ -4816,6 +4847,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             bond_order (int): A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
+
+        Returns:
+            Molecule: self after substitution.
         """
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
@@ -4881,6 +4915,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # group.
         del self[index]
         self._sites += list(functional_group[1:])
+        return self
 
     def relax(
         self,
