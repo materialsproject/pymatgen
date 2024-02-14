@@ -4115,13 +4115,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
         struct.lattice = new_lattice
         return struct
 
-    def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
+    def sort(self, key: Callable | None = None, reverse: bool = False) -> Structure:
         """Sort a structure in place. The parameters have the same meaning as in
-        list.sort. By default, sites are sorted by the electronegativity of
+        list.sort(). By default, sites are sorted by the electronegativity of
         the species. The difference between this method and
         get_sorted_structure (which also works in IStructure) is that the
-        latter returns a new Structure, while this just sorts the Structure
-        in place.
+        latter returns a new Structure, while this modifies the original.
 
         Args:
             key: Specifies a function of one argument that is used to extract
@@ -4129,14 +4128,18 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 default value is None (compare the elements directly).
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
+
+        Returns:
+            Structure: Sorted structure.
         """
         self._sites.sort(key=key, reverse=reverse)
+        return self
 
     def translate_sites(
         self, indices: int | Sequence[int], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True
-    ) -> None:
+    ) -> Structure:
         """Translate specific sites by some vector, keeping the sites within the
-        unit cell.
+        unit cell. Modifies the structure in place.
 
         Args:
             indices: Integer or List of site indices on which to perform the
@@ -4146,6 +4149,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 Cartesian coordinates.
             to_unit_cell (bool): Whether new sites are transformed to unit
                 cell
+
+        Returns:
+            Structure: self with translated sites.
         """
         if not isinstance(indices, collections.abc.Iterable):
             indices = [indices]
@@ -4160,6 +4166,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 f_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, f_coords)]
             self[idx].frac_coords = f_coords
 
+        return self
+
     def rotate_sites(
         self,
         indices: list[int] | None = None,
@@ -4167,8 +4175,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         axis: ArrayLike | None = None,
         anchor: ArrayLike | None = None,
         to_unit_cell: bool = True,
-    ) -> None:
-        """Rotate specific sites by some angle around vector at anchor.
+    ) -> Structure:
+        """Rotate specific sites by some angle around vector at anchor. Modifies
+        the structure in place.
 
         Args:
             indices (list): List of site indices on which to perform the
@@ -4176,8 +4185,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
             theta (float): Angle in radians
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
-            to_unit_cell (bool): Whether new sites are transformed to unit
-                cell
+            to_unit_cell (bool): Whether new sites are transformed to unit cell
+
+        Returns:
+            Structure: self with rotated sites.
         """
         if indices is None:
             indices = list(range(len(self)))
@@ -4209,9 +4220,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
             )
             self[idx] = new_site
 
-    def perturb(self, distance: float, min_distance: float | None = None) -> None:
+        return self
+
+    def perturb(self, distance: float, min_distance: float | None = None) -> Structure:
         """Performs a random perturbation of the sites in a structure to break
-        symmetries.
+        symmetries. Modifies the structure in place.
 
         Args:
             distance (float): Distance in angstroms by which to perturb each
@@ -4220,6 +4233,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 be equal amplitude. If int or float, perturb each site a
                 distance drawn from the uniform distribution between
                 'min_distance' and 'distance'.
+
+        Returns:
+            Structure: self with perturbed sites.
         """
 
         def get_rand_vec():
@@ -4233,6 +4249,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         for idx in range(len(self._sites)):
             self.translate_sites([idx], get_rand_vec(), frac_coords=False)
+
+        return self
 
     def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
         """Create a supercell.
@@ -4270,16 +4288,21 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> None:
+    def scale_lattice(self, volume: float) -> Structure:
         """Performs a scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
         Args:
             volume (float): New volume of the unit cell in A^3.
+
+        Returns:
+            Structure: self with scaled lattice.
         """
         self.lattice = self._lattice.scale(volume)
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> None:
+        return self
+
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Structure:
         """Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
 
@@ -4289,6 +4312,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 deleted. "sum" means the occupancies are summed for the sites.
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
+
+        Returns:
+            Structure: self with merged sites.
         """
         dist_mat = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
@@ -4318,14 +4344,19 @@ class Structure(IStructure, collections.abc.MutableSequence):
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
+        return self
 
-    def set_charge(self, new_charge: float = 0.0) -> None:
+    def set_charge(self, new_charge: float = 0.0) -> Structure:
         """Sets the overall structure charge.
 
         Args:
             new_charge (float): new charge to set
+
+        Returns:
+            Structure: self with new charge set.
         """
         self._charge = new_charge
+        return self
 
     def relax(
         self,
@@ -4396,7 +4427,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 specified. For example, if it is a cubic prototype, only a needs to be specified.
 
         Returns:
-            Structure
+            Structure: with given prototype and species.
         """
         prototype = prototype.lower()
         try:
