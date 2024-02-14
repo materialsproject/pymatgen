@@ -415,8 +415,8 @@ class Slab(Structure):
     @property
     def surface_area(self):
         """Calculates the surface area of the slab."""
-        m = self.lattice.matrix
-        return np.linalg.norm(np.cross(m[0], m[1]))
+        matrix = self.lattice.matrix
+        return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @property
     def center_of_mass(self):
@@ -424,7 +424,7 @@ class Slab(Structure):
         weights = [s.species.weight for s in self]
         return np.average(self.frac_coords, weights=weights, axis=0)
 
-    def add_adsorbate_atom(self, indices, specie, distance) -> None:
+    def add_adsorbate_atom(self, indices, specie, distance) -> Slab:
         """Gets the structure of single atom adsorption.
         slab structure from the Slab class(in [0, 0, 1]).
 
@@ -435,13 +435,18 @@ class Slab(Structure):
             specie (Species/Element/str): adsorbed atom species
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
+
+        Returns:
+            Slab: self with adsorbed atom.
         """
-        # Let's do the work in Cartesian coords
-        center = np.sum([self[i].coords for i in indices], axis=0) / len(indices)
+        # Let's work in Cartesian coords
+        center = np.sum([self[idx].coords for idx in indices], axis=0) / len(indices)
 
         coords = center + self.normal * distance / np.linalg.norm(self.normal)
 
         self.append(specie, coords, coords_are_cartesian=True)
+
+        return self
 
     def __str__(self) -> str:
         def to_str(x) -> str:
