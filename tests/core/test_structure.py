@@ -1116,7 +1116,7 @@ class TestStructure(PymatgenTest):
         assert returned is struct_specie
         assert struct_elem == struct_specie, "Oxidation state remover failed"
 
-    def test_add_oxidation_states_by_guess(self):
+    def test_add_oxidation_state_by_guess(self):
         struct = PymatgenTest.get_structure("Li2O")
         returned = struct.add_oxidation_state_by_guess()
         assert returned is struct
