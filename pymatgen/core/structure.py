@@ -232,6 +232,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Distance between sites at index i and index j.
         """
+        raise NotImplementedError
 
     @property
     def distance_matrix(self) -> np.ndarray:
