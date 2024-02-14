@@ -2108,17 +2108,20 @@ class TestMolecule(PymatgenTest):
 
     def test_insert_remove_append(self):
         mol = self.mol
-        mol.insert(1, "O", [0.5, 0.5, 0.5])
+        returned = mol.insert(1, "O", [0.5, 0.5, 0.5])
+        assert returned is mol
         assert mol.formula == "H4 C1 O1"
         del mol[2]
         assert mol.formula == "H3 C1 O1"
         mol.set_charge_and_spin(0)
         assert mol.spin_multiplicity == 2
-        mol.append("N", [1, 1, 1])
+        returned = mol.append("N", [1, 1, 1])
+        assert returned is mol
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError, match="unhashable type: 'Molecule'"):
             _ = {mol: 1}
-        mol.remove_sites([0, 1])
+        returned = mol.remove_sites([0, 1])
+        assert returned is mol
         assert mol.formula == "H3 N1"
 
     def test_from_sites(self):
@@ -2129,18 +2132,21 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        returned = self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert returned is self.mol
         assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
-        self.mol.rotate_sites(theta=np.radians(30))
+        returned = self.mol.rotate_sites(theta=np.radians(30))
+        assert returned is self.mol
         assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
     def test_replace(self):
         self.mol[0] = "Ge"
         assert self.mol.formula == "Ge1 H4"
 
-        self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
+        returned = self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
+        assert returned is self.mol
         assert self.mol.formula == "Si0.5 Ge0.5 H4"
 
         # this should change the .5Si .5Ge sites to .75Si .25Ge
@@ -2155,15 +2161,17 @@ class TestMolecule(PymatgenTest):
         for idx, site in enumerate(pre_perturbation_sites):
             assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
 
-    def test_add_site_property(self):
-        self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+    def test_add_remove_site_property(self):
+        returned = self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+        assert returned is self.mol
         assert self.mol[0].charge == 4.1
         assert self.mol[1].charge == -2
 
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
         assert self.mol[0].charge == 4.1
         assert self.mol[0].magmom == 3
-        self.mol.remove_site_property("magmom")
+        returned = self.mol.remove_site_property("magmom")
+        assert returned is self.mol
 
         # test ValueError when values have wrong length
         with pytest.raises(ValueError, match=r"len\(values\)=2 must equal sites in structure=5"):
@@ -2181,7 +2189,8 @@ class TestMolecule(PymatgenTest):
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
-        self.mol.apply_operation(op)
+        returned = self.mol.apply_operation(op)
+        assert returned is self.mol
         assert_allclose(self.mol[2].coords, [0, 1.026719, -0.363000], atol=1e-12)
 
     def test_substitute(self):
@@ -2193,7 +2202,8 @@ class TestMolecule(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         sub = Molecule(["X", "C", "H", "H", "H"], coords)
-        self.mol.substitute(1, sub)
+        returned = self.mol.substitute(1, sub)
+        assert returned is self.mol
         assert self.mol.get_distance(0, 4) == approx(1.54)
         f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
         self.mol.substitute(2, f)
@@ -2252,14 +2262,17 @@ class TestMolecule(PymatgenTest):
         coords = [[0, 0, 0], [0, 0, 1.089000], [1.026719, 0, -0.363000], [-0.513360, -0.889165, -0.363000]]
         expected_msg = "Charge of 0 and spin multiplicity of 1 is not possible for this molecule"
         with pytest.raises(ValueError, match=expected_msg):
-            mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+            Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
         with pytest.raises(ValueError, match=expected_msg):
             mol_valid.set_charge_and_spin(0, 1)
-        mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
+
+    def test_set_charge_and_spin(self):
+        mol = Molecule.from_dict(self.mol.as_dict() | dict(charge=0, spin_multiplicity=1, charge_spin_check=False))
         assert mol.spin_multiplicity == 1
         assert mol.charge == 0
-        mol.set_charge_and_spin(0, 3)
+        returned = mol.set_charge_and_spin(0, 3)
+        assert returned is mol
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
 
