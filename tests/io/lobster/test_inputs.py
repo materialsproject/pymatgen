@@ -7,6 +7,7 @@ import unittest
 
 import numpy as np
 import pytest
+from monty.json import jsanitize
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
@@ -814,6 +815,14 @@ class TestCharge(PymatgenTest):
         }
         s2 = Structure.from_dict(structure_dict2)
         assert s2 == self.charge2.get_structure_with_charges(f"{TEST_FILES_DIR}/POSCAR.MnO")
+
+    def test_as_dict(self):
+        msonable_dict = self.charge2.as_dict()
+        assert msonable_dict["Loewdin"] == self.charge2.Loewdin
+        assert msonable_dict["Mulliken"] == self.charge2.Mulliken
+        assert msonable_dict["num_atoms"] == self.charge2.num_atoms
+        assert msonable_dict["types"] == self.charge2.types
+        assert msonable_dict["atomlist"] == self.charge2.atomlist
 
 
 class TestLobsterout(PymatgenTest):
@@ -2062,6 +2071,11 @@ class TestBandoverlaps(unittest.TestCase):
             number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
+    def test_as_dict(self):
+        msonable_dict = self.bandoverlaps1.as_dict()
+        assert msonable_dict["has_good_quality_maxDeviation"] == self.bandoverlaps1.has_good_quality_maxDeviation()
+        assert msonable_dict["bandoverlapsdict"] == jsanitize(self.bandoverlaps1.bandoverlapsdict, strict=True)
+
 
 class TestGrosspop(unittest.TestCase):
     def setUp(self):
@@ -2178,6 +2192,10 @@ class TestGrosspop(unittest.TestCase):
 
         new_structure = self.grosspop1.get_structure_with_total_grosspop(f"{TEST_FILES_DIR}/cohp/POSCAR.SiO2")
         assert_allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
+
+    def test_as_dict(self):
+        msonable_dict = self.grosspop1.as_dict()
+        assert msonable_dict["list_dict_grosspop"] == self.grosspop1.list_dict_grosspop
 
 
 class TestUtils(PymatgenTest):
@@ -2330,6 +2348,17 @@ class TestSitePotentials(PymatgenTest):
         assert structure.site_properties["Loewdin Site Potentials (eV)"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
         assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
 
+    def test_as_dict(self):
+        msonable_dict = self.sitepotential.as_dict()
+        assert msonable_dict["num_atoms"] == 5
+        assert msonable_dict["ewald_splitting"] == approx(3.14)
+        assert msonable_dict["types"] == ["La", "Ta", "N", "N", "O"]
+        assert msonable_dict["atomlist"] == ["La1", "Ta2", "N3", "N4", "O5"]
+        assert msonable_dict["madelungenergies_Mulliken"] == approx(-40.02)
+        assert msonable_dict["madelungenergies_Loewdin"] == approx(-28.64)
+        assert msonable_dict["sitepotentials_Loewdin"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
+        assert msonable_dict["sitepotentials_Mulliken"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
+
 
 class TestMadelungEnergies(PymatgenTest):
     def setUp(self) -> None:
@@ -2339,6 +2368,12 @@ class TestMadelungEnergies(PymatgenTest):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
         assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
+
+    def test_as_dict(self):
+        msonable_dict = self.madelungenergies.as_dict()
+        assert msonable_dict["ewald_splitting"] == approx(3.14)
+        assert msonable_dict["madelungenergies_Mulliken"] == approx(-40.02)
+        assert msonable_dict["madelungenergies_Loewdin"] == approx(-28.64)
 
 
 class TestLobsterMatrices(PymatgenTest):
