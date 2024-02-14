@@ -40,7 +40,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
-class MSONableAtoms(Atoms, MSONable):
+class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
 
     def as_dict(s: Atoms) -> dict[str, Any]:
@@ -68,13 +68,13 @@ class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
     @staticmethod
-    def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONableAtoms | Atoms:
+    def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONAtoms | Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
             structure (SiteCollection): pymatgen Structure or Molecule
-            msonable (bool): Whether to return an MSONableAtoms object, which is MSONable.
+            msonable (bool): Whether to return an MSONAtoms object, which is MSONable.
             **kwargs: passed to the ASE Atoms constructor
 
         Returns:
@@ -98,7 +98,7 @@ class AseAtomsAdaptor:
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
         if msonable:
-            atoms = MSONableAtoms(atoms)
+            atoms = MSONAtoms(atoms)
 
         if "tags" in structure.site_properties:
             atoms.set_tags(structure.site_properties["tags"])
