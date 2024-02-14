@@ -26,6 +26,7 @@ try:
     from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
+    from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
     ase_loaded = True
@@ -44,22 +45,18 @@ class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
 
     def as_dict(s: Atoms) -> dict[str, Any]:
-        from ase.io.jsonio import encode
-
         # Normally, we would want to this to be a wrapper around atoms.todict() with @module and
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        return {"@module": "ase.atoms", "@class": "Atoms", "atoms_json": encode(s)}
+        return {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": encode(s)}
 
-    def from_dict(d: dict[str, Any]) -> Atoms:
-        from ase.io.jsonio import decode
-
+    def from_dict(d: dict[str, Any]) -> MSONAtoms:
         # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        return decode(d["atoms_json"])
+        return MSONAtoms(decode(d["atoms_json"]))
 
 
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
