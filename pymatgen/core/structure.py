@@ -427,20 +427,20 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """Returns dihedral angle specified by four sites.
 
         Args:
-            i: 1st site index
-            j: 2nd site index
-            k: 3rd site index
-            l: 4th site index
+            i (int): 1st site index
+            j (int): 2nd site index
+            k (int): 3rd site index
+            l (int): 4th site index
 
         Returns:
             Dihedral angle in degrees.
         """
-        v1 = self[k].coords - self[l].coords
-        v2 = self[j].coords - self[k].coords
-        v3 = self[i].coords - self[j].coords
-        v23 = np.cross(v2, v3)
-        v12 = np.cross(v1, v2)
-        return math.degrees(math.atan2(np.linalg.norm(v2) * np.dot(v1, v23), np.dot(v12, v23)))
+        vec1 = self[k].coords - self[l].coords
+        vec2 = self[j].coords - self[k].coords
+        vec3 = self[i].coords - self[j].coords
+        vec23 = np.cross(vec2, vec3)
+        vec12 = np.cross(vec1, vec2)
+        return math.degrees(math.atan2(np.linalg.norm(vec2) * np.dot(vec1, vec23), np.dot(vec12, vec23)))
 
     def is_valid(self, tol: float = DISTANCE_TOLERANCE) -> bool:
         """True if SiteCollection does not contain atoms that are too close
@@ -482,7 +482,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """Reads in SiteCollection from a filename."""
         raise NotImplementedError
 
-    def add_site_property(self, property_name: str, values: Sequence | np.ndarray) -> None:
+    def add_site_property(self, property_name: str, values: Sequence | np.ndarray) -> SiteCollection:
         """Adds a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.
@@ -498,20 +498,30 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         Raises:
             ValueError: if len(values) != number of sites.
+
+        Returns:
+            SiteCollection: self with site property added.
         """
         if len(values) != len(self):
             raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
         for site, val in zip(self, values):
             site.properties[property_name] = val
 
-    def remove_site_property(self, property_name: str) -> None:
+        return self
+
+    def remove_site_property(self, property_name: str) -> SiteCollection:
         """Removes a property to a site.
 
         Args:
             property_name (str): The name of the property to remove.
+
+        Returns:
+            SiteCollection: self with property removed.
         """
         for site in self:
             del site.properties[property_name]
+
+        return self
 
     def replace_species(
         self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]], in_place: bool = True
@@ -552,7 +562,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         return site_coll
 
-    def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> None:
+    def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> SiteCollection:
         """Add oxidation states.
 
         Args:
@@ -561,6 +571,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         Raises:
             ValueError if oxidation states are not specified for all elements.
+
+        Returns:
+            SiteCollection: self with oxidation states.
         """
         missing = {el.symbol for el in self.composition} - {*oxidation_states}
         if missing:
@@ -571,12 +584,20 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_sp[Species(el.symbol, oxidation_states[el.symbol])] = occu
             site.species = Composition(new_sp)
 
-    def add_oxidation_state_by_site(self, oxidation_states: list[float]) -> None:
+        return self
+
+    def add_oxidation_state_by_site(self, oxidation_states: list[float]) -> SiteCollection:
         """Add oxidation states to a structure by site.
 
         Args:
             oxidation_states (list[float]): List of oxidation states.
                 E.g. [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+
+        Raises:
+            ValueError if oxidation states are not specified for all sites.
+
+        Returns:
+            SiteCollection: self with oxidation states.
         """
         if len(oxidation_states) != len(self):
             raise ValueError(
@@ -589,6 +610,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 sym = el.symbol
                 new_sp[Species(sym, ox)] = occu
             site.species = Composition(new_sp)
+
+        return self
 
     def remove_oxidation_states(self) -> SiteCollection:
         """Removes oxidation states from a structure."""
