@@ -8,7 +8,7 @@ from monty.json import MontyDecoder, jsanitize
 
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
-from pymatgen.io.ase import AseAtomsAdaptor, MSONableAtoms
+from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
 from pymatgen.util.testing import TEST_FILES_DIR
 
 ase = pytest.importorskip("ase")
@@ -304,9 +304,9 @@ def test_msonable_atoms():
 
     atoms = read(f"{TEST_FILES_DIR}/OUTCAR")
     ref = {"@module": "ase.atoms", "@class": "Atoms", "atoms_json": encode(atoms)}
-    msonable_atoms = MSONableAtoms(atoms)
+    msonable_atoms = MSONAtoms(atoms)
     assert msonable_atoms.as_dict() == ref
-    assert MSONableAtoms.from_dict(ref) == atoms
+    assert MSONAtoms.from_dict(ref) == atoms
 
 
 def test_msonable_atoms_v2():
