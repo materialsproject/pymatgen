@@ -41,7 +41,7 @@ Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
 The SI units must have factor 1.
 """
-BASE_UNITS = {
+BASE_UNITS: dict[str, dict] = {
     "length": {
         "m": 1,
         "km": 1000,
@@ -129,7 +129,7 @@ DERIVED_UNITS: dict[str, dict] = {
     "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-ALL_UNITS: dict[str, dict] = BASE_UNITS | DERIVED_UNITS
+ALL_UNITS: dict[str, dict] = BASE_UNITS | DERIVED_UNITS  # type: ignore[operator]
 SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).

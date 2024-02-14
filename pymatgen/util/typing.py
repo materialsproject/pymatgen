@@ -28,7 +28,7 @@ CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
 
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
 EntryLike = Union[
-    dict[str, Any],
+    dict[str, Any],  # type: ignore[misc]
     "Entry",
     "PDEntry",
     "ComputedEntry",

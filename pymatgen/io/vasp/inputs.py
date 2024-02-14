@@ -873,6 +873,7 @@ class Incar(dict, MSONable):
             "LDAUTYPE",
             "IVDW",
         )
+        lowerstr_keys = ("ML_MODE",)
 
         def smart_int_or_float(num_str):
             if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
@@ -903,6 +904,9 @@ class Incar(dict, MSONable):
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))  # type: ignore
+
+            if key in lowerstr_keys:
+                return val.strip().lower()
 
         except ValueError:
             pass
@@ -2153,7 +2157,8 @@ class PotcarSingle:
         """md5 hash of the entire PotcarSingle."""
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5 = hashlib.new("md5", usedforsecurity=False)  # type: ignore[call-arg]
+        # hashlib.md5(usedforsecurity=False) is py39+
         md5.update(self.data.encode("utf-8"))
         return md5.hexdigest()
 
@@ -2191,7 +2196,8 @@ class PotcarSingle:
         self.hash_str = hash_str
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5 = hashlib.new("md5", usedforsecurity=False)  # type: ignore[call-arg]
+        # hashlib.md5(usedforsecurity=False) is py39+
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
