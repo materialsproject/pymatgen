@@ -525,6 +525,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
             in_place (bool): Whether to perform the substitution in place or modify a copy.
                 Defaults to True.
+
+        Returns:
+            SiteCollection: self or new SiteCollection (depending on in_place) with species replaced.
         """
         site_coll = self if in_place else self.copy()
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
