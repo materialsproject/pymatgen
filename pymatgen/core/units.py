@@ -41,7 +41,7 @@ Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
 The SI units must have factor 1.
 """
-BASE_UNITS = {
+BASE_UNITS: dict[str, dict] = {
     "length": {
         "m": 1,
         "km": 1000,
