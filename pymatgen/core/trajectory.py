@@ -23,9 +23,9 @@ __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
 
-Vector3D = tuple[float, float, float]  # type: ignore[misc]
-Matrix3D = tuple[Vector3D, Vector3D, Vector3D]  # type: ignore[misc]
-SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]  # type: ignore[misc]
+Vector3D = tuple[float, float, float]
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
+SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
