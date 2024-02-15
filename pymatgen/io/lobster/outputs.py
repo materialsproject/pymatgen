@@ -675,28 +675,52 @@ class Charge(MSONable):
         num_atoms (int): Number of atoms in CHARGE.lobster.
     """
 
-    def __init__(self, filename: str = "CHARGE.lobster"):
+    def __init__(
+        self,
+        filename: str = "CHARGE.lobster",
+        num_atoms: int | None = None,
+        atomlist: list[str] | None = None,
+        types: list[str] | None = None,
+        mulliken: list[float] | None = None,
+        loewdin: list[float] | None = None,
+    ):
         """
         Args:
             filename: filename for the CHARGE file, typically "CHARGE.lobster".
+            num_atoms: number of atoms in the structure
+            atomlist: list of atoms in the structure
+            types: list of unique species in the structure
+            mulliken: list of Mulliken charges
+            loewdin: list of Loewdin charges
         """
-        with zopen(filename, mode="rt") as file:
-            data = file.read().split("\n")[3:-3]
-        if len(data) == 0:
-            raise OSError("CHARGES file contains no data.")
-
+        if loewdin is None:
+            loewdin = []
+        if mulliken is None:
+            mulliken = []
+        if types is None:
+            types = []
+        if atomlist is None:
+            atomlist = []
         self._filename = filename
-        self.num_atoms = len(data)
-        self.atomlist: list[str] = []
-        self.types: list[str] = []
-        self.Mulliken: list[float] = []
-        self.Loewdin: list[float] = []
-        for atom in range(self.num_atoms):
-            line = data[atom].split()
-            self.atomlist.append(line[1] + line[0])
-            self.types.append(line[1])
-            self.Mulliken.append(float(line[2]))
-            self.Loewdin.append(float(line[3]))
+        self.num_atoms = num_atoms
+        self.types = types
+        self.atomlist = atomlist
+        self.mulliken = mulliken
+        self.loewdin = loewdin
+
+        if self.num_atoms is None:
+            with zopen(filename, mode="rt") as file:
+                data = file.read().split("\n")[3:-3]
+            if len(data) == 0:
+                raise OSError("CHARGES file contains no data.")
+
+            self.num_atoms = len(data)
+            for atom in range(self.num_atoms):
+                line = data[atom].split()
+                self.atomlist.append(line[1] + line[0])
+                self.types.append(line[1])
+                self.mulliken.append(float(line[2]))
+                self.loewdin.append(float(line[3]))
 
     def get_structure_with_charges(self, structure_filename):
         """
@@ -709,25 +733,10 @@ class Charge(MSONable):
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        Mulliken = self.Mulliken
-        Loewdin = self.Loewdin
-        site_properties = {"Mulliken Charges": Mulliken, "Loewdin Charges": Loewdin}
+        mulliken = self.mulliken
+        loewdin = self.loewdin
+        site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
         return struct.copy(site_properties=site_properties)
-
-    def as_dict(self) -> dict:
-        """
-        Returns:
-            MSONable dict.
-        """
-        dct = {
-            "filename": self._filename,
-            "num_atoms": self.num_atoms,
-            "atomlist": self.atomlist,
-            "types": self.types,
-            "Mulliken": self.Mulliken,
-            "Loewdin": self.Loewdin,
-        }
-        return jsanitize(dct, strict=True)
 
 
 class Lobsterout:
