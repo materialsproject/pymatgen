@@ -1591,10 +1591,6 @@ Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
 OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
 
 
-class UnknownPotcarWarning(UserWarning):
-    """Warning raised when POTCAR hashes do not pass validation."""
-
-
 # hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
 # written to some newer POTCARs by VASP
@@ -2569,6 +2565,10 @@ class Potcar(list, MSONable):
             self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
         else:
             self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
+
+
+class UnknownPotcarWarning(UserWarning):
+    """Warning raised when POTCAR hashes do not pass validation."""
 
 
 class VaspInput(dict, MSONable):
