@@ -670,8 +670,8 @@ class Charge(MSONable):
     Attributes:
         atomlist (list[str]): List of atoms in CHARGE.lobster.
         types (list[str]): List of types of atoms in CHARGE.lobster.
-        Mulliken (list[float]): List of Mulliken charges of atoms in CHARGE.lobster.
-        Loewdin (list[float]): List of Loewdin charges of atoms in CHARGE.Loewdin.
+        mulliken (list[float]): List of Mulliken charges of atoms in CHARGE.lobster.
+        loewdin (list[float]): List of Loewdin charges of atoms in CHARGE.Loewdin.
         num_atoms (int): Number of atoms in CHARGE.lobster.
     """
 
@@ -737,6 +737,16 @@ class Charge(MSONable):
         loewdin = self.loewdin
         site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
         return struct.copy(site_properties=site_properties)
+
+    @property
+    def Mulliken(self):
+        warnings.warn("`Mulliken` attribute is deprecated. Use `mulliken` instead.", DeprecationWarning, stacklevel=2)
+        return self.mulliken
+
+    @property
+    def Loewdin(self):
+        warnings.warn("`Loewdin` attribute is deprecated. Use `loewdin` instead.", DeprecationWarning, stacklevel=2)
+        return self.loewdin
 
 
 class Lobsterout:
