@@ -771,8 +771,8 @@ class TestCharge(PymatgenTest):
         atomlist = ["O1", "Mn2"]
         types = ["O", "Mn"]
         num_atoms = 2
-        assert charge_Mulliken == self.charge2.Mulliken
-        assert charge_Loewdin == self.charge2.Loewdin
+        assert charge_Mulliken == self.charge2.mulliken
+        assert charge_Loewdin == self.charge2.loewdin
         assert atomlist == self.charge2.atomlist
         assert types == self.charge2.types
         assert num_atoms == self.charge2.num_atoms
@@ -818,8 +818,8 @@ class TestCharge(PymatgenTest):
 
     def test_as_dict(self):
         msonable_dict = self.charge2.as_dict()
-        assert msonable_dict["Loewdin"] == self.charge2.Loewdin
-        assert msonable_dict["Mulliken"] == self.charge2.Mulliken
+        assert msonable_dict["loewdin"] == self.charge2.loewdin
+        assert msonable_dict["mulliken"] == self.charge2.mulliken
         assert msonable_dict["num_atoms"] == self.charge2.num_atoms
         assert msonable_dict["types"] == self.charge2.types
         assert msonable_dict["atomlist"] == self.charge2.atomlist
