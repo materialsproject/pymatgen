@@ -956,7 +956,7 @@ class Incar(dict, MSONable):
             params[key] = val
         return Incar(params)
 
-    def check_params(self):
+    def check_params(self) -> None:
         """Check INCAR for invalid tags or values.
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
