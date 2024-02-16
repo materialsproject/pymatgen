@@ -109,7 +109,8 @@ class TestSlab(PymatgenTest):
             0,
             self.zno55.scale_factor,
         )
-        zno_slab.add_adsorbate_atom([1], "H", 1)
+        returned = zno_slab.add_adsorbate_atom([1], "H", 1)
+        assert returned == zno_slab
 
         assert len(zno_slab) == 9
         assert str(zno_slab[8].specie) == "H"
