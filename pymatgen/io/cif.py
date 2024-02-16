@@ -1341,8 +1341,9 @@ class CifParser:
                 cif_formula = cif_as_dict[head_key][key]
                 break
 
-        if cif_formula is None and cif_as_dict[head_key].get("_atom_site_type_symbol"):
-            cif_formula = " ".join(cif_as_dict[head_key]["_atom_site_type_symbol"])
+        if cif_formula is None:
+            self.warnings.append("Skipping composition sanity checks because CIF does not contain formula keys.")
+            return None
 
         try:
             cif_composition = Composition(cif_formula)
