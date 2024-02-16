@@ -591,7 +591,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """Json friendly dict representation."""
+        """JSON friendly dict representation."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__

@@ -400,8 +400,8 @@ class TestCifIO(PymatgenTest):
             "SH": "S",
         }
 
-        for e in Element:
-            name = e.name
+        for elem in Element:
+            name = elem.name
             test_cases[name] = name
             if len(name) == 2:
                 test_cases[name.upper()] = name
@@ -470,9 +470,9 @@ loop_
         writer = CifWriter(struct, symprec=0.1)
 
         cif = CifParser.from_str(str(writer))
-        m = StructureMatcher()
+        matcher = StructureMatcher()
 
-        assert m.fit(cif.parse_structures()[0], struct)
+        assert matcher.fit(cif.parse_structures()[0], struct)
 
         # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
         #     assert l1.strip() == l2.strip()
@@ -481,12 +481,12 @@ loop_
         writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_str(str(writer)).parse_structures()[0]
 
-        assert m.fit(struct, s2)
+        assert matcher.fit(struct, s2)
 
         struct = self.get_structure("Li2O")
         writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_str(str(writer)).parse_structures()[0]
-        assert m.fit(struct, s2)
+        assert matcher.fit(struct, s2)
 
         # test angle tolerance.
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")

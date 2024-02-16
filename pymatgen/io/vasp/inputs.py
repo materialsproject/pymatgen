@@ -121,12 +121,12 @@ class Poscar(MSONable):
                 if not selective_dynamics.all():
                     site_properties["selective_dynamics"] = selective_dynamics
 
-            if velocities is not None:
+            if velocities:
                 velocities = np.array(velocities)
                 if velocities.any():
                     site_properties["velocities"] = velocities
 
-            if predictor_corrector is not None:
+            if predictor_corrector:
                 predictor_corrector = np.array(predictor_corrector)
                 if predictor_corrector.any():
                     site_properties["predictor_corrector"] = predictor_corrector
@@ -140,7 +140,7 @@ class Poscar(MSONable):
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
 
-            if lattice_velocities is not None and np.any(lattice_velocities):
+            if lattice_velocities and np.any(lattice_velocities):
                 self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
         else:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
@@ -219,7 +219,7 @@ class Poscar(MSONable):
             value = np.array(value)
             dim = value.shape
             if dim[1] != 3 or dim[0] != len(self.structure):
-                raise ValueError(name + " array must be same length as the structure.")
+                raise ValueError(f"{name} array must be same length as the structure.")
             value = value.tolist()
         super().__setattr__(name, value)
 
@@ -242,9 +242,9 @@ class Poscar(MSONable):
 
         If all else fails, the code will just assign the first n elements in
         increasing atomic number, where n is the number of species, to the
-        Poscar. For example, H, He, Li, .... This will ensure at least a
-        unique element is assigned to each site and any analysis that does not
-        require specific elemental properties should work fine.
+        Poscar, where a warning would be issued. For example, H, He, Li, ....
+        This will ensure at least a unique element is assigned to each site and
+        any analysis that does not require specific elemental properties should work.
 
         Args:
             filename (str): File name containing Poscar data.
@@ -269,13 +269,16 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
+                    warnings.warn(
+                        "Cannot determine elements in POSCAR. Falling back to manual assignment.", BadPoscarWarning
+                    )
                 except Exception:
                     names = None
         with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    def from_str(cls, data, default_names=None, read_velocities=True):
+    def from_str(cls, data, default_names=None, read_velocities=True) -> Poscar:
         """
         Reads a Poscar from a string.
 
@@ -309,7 +312,7 @@ class Poscar(MSONable):
             Poscar object.
         """
         # "^\s*$" doesn't match lines with no whitespace
-        chunks = re.split(r"\n\s*\n", data.rstrip(), flags=re.MULTILINE)
+        chunks: list[str] = re.split(r"\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         try:
             if chunks[0] == "":
                 chunks.pop(0)
@@ -318,7 +321,7 @@ class Poscar(MSONable):
             raise ValueError("Empty POSCAR")
 
         # Parse positions
-        lines = tuple(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+        lines = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -338,23 +341,21 @@ class Poscar(MSONable):
             vasp5_symbols = True
             symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
 
-            """
-            Atoms and number of atoms in POSCAR written with vasp appear on
-            multiple lines when atoms of the same type are not grouped together
-            and more than 20 groups are then defined ...
-            Example :
-            Cr16 Fe35 Ni2
-               1.00000000000000
-                 8.5415010000000002   -0.0077670000000000   -0.0007960000000000
-                -0.0077730000000000    8.5224019999999996    0.0105580000000000
-                -0.0007970000000000    0.0105720000000000    8.5356889999999996
-               Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
-               Fe   Ni   Fe   Cr   Fe
-                 1   1   2   4   2   1   1   1     2     1     1     1     4     1     1     1     5     3     6     1
-                 2   1   3   2   5
-            Direct
-              ...
-            """
+            # Atoms and number of atoms in POSCAR written with vasp appear on
+            # multiple lines when atoms of the same type are not grouped together
+            # and more than 20 groups are then defined ...
+            # Example :
+            # Cr16 Fe35 Ni2
+            #    1.00000000000000
+            #      8.5415010000000002   -0.0077670000000000   -0.0007960000000000
+            #     -0.0077730000000000    8.5224019999999996    0.0105580000000000
+            #     -0.0007970000000000    0.0105720000000000    8.5356889999999996
+            #    Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
+            #    Fe   Ni   Fe   Cr   Fe
+            #      1   1   2   4   2   1   1   1     2     1     1     1     4     1     1     1     5     3     6     1
+            #      2   1   3   2   5
+            # Direct
+            #   ...
             n_lines_symbols = 1
             for n_lines_symbols in range(1, 11):
                 try:
@@ -398,7 +399,7 @@ class Poscar(MSONable):
                 pass
 
         if not vasp5_symbols:
-            ind = 3 if not has_selective_dynamics else 6
+            ind = 6 if has_selective_dynamics else 3
             try:
                 # Check if names are appended at the end of the coordinates.
                 atomic_symbols = [line.split()[ind] for line in lines[ipos + 1 : ipos + 1 + n_sites]]
@@ -412,16 +413,41 @@ class Poscar(MSONable):
                 for i, nat in enumerate(n_atoms):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * nat)
-                warnings.warn(f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.")
-        # read the atomic coordinates
+                warnings.warn(
+                    f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
+                    BadPoscarWarning,
+                )
+
+        # Read the atomic coordinates
         coords = []
-        selective_dynamics = [] if has_selective_dynamics else None
+        selective_dynamics: list[np.ndarray] | None = [] if has_selective_dynamics else None
         for i in range(n_sites):
             tokens = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
-            if has_selective_dynamics:
-                selective_dynamics.append([tok.upper()[0] == "T" for tok in tokens[3:6]])
+            if selective_dynamics is not None:
+                # Warn when values contain suspicious entries
+                if any(value not in {"T", "F"} for value in tokens[3:6]):
+                    warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
+
+                # Warn when elements contains Fluorine (F) (#3539)
+                if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
+                    warnings.warn(
+                        (
+                            "Selective dynamics toggled with Fluorine element detected. "
+                            "Make sure the 4th-6th entry each position line is selective dynamics info."
+                        ),
+                        BadPoscarWarning,
+                    )
+
+                selective_dynamics.append([value == "T" for value in tokens[3:6]])
+
+        # Warn when ALL degrees of freedom relaxed (#3539)
+        if selective_dynamics is not None and all(all(i is True for i in in_list) for in_list in selective_dynamics):
+            warnings.warn(
+                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.", BadPoscarWarning
+            )
+
         struct = Structure(
             lattice,
             atomic_symbols,
@@ -431,26 +457,26 @@ class Poscar(MSONable):
             coords_are_cartesian=cart,
         )
 
+        lattice_velocities = []
+        velocities = []
+        predictor_corrector = []
+        predictor_corrector_preamble = ""
+
         if read_velocities:
             # Parse the lattice velocities and current lattice, if present.
             # The header line should contain "Lattice velocities and vectors"
             # There is no space between the coordinates and this section, so
             # it appears in the lines of the first chunk
-            lattice_velocities = []
             if len(lines) > ipos + n_sites + 1 and lines[ipos + n_sites + 1].lower().startswith("l"):
                 for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]:
                     lattice_velocities.append([float(tok) for tok in line.split()])
 
             # Parse velocities if any
-            velocities = []
             if len(chunks) > 1:
                 for line in chunks[1].strip().split("\n"):
                     velocities.append([float(tok) for tok in line.split()])
 
             # Parse the predictor-corrector data
-            predictor_corrector = []
-            predictor_corrector_preamble = None
-
             if len(chunks) > 2:
                 lines = chunks[2].strip().split("\n")
                 # There are 3 sets of 3xN Predictor corrector parameters
@@ -468,8 +494,6 @@ class Poscar(MSONable):
                     d2 = [float(tok) for tok in lines[st + n_sites].split()]
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
-        else:
-            velocities = predictor_corrector = predictor_corrector_preamble = lattice_velocities = None
 
         return cls(
             struct,
@@ -520,25 +544,23 @@ class Poscar(MSONable):
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
 
-        selective_dynamics = self.selective_dynamics
         for i, site in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join(format_str.format(c) for c in coords)
-            if selective_dynamics is not None:
-                sd = ["T" if j else "F" for j in selective_dynamics[i]]
+            if self.selective_dynamics is not None:
+                sd = ["T" if j else "F" for j in self.selective_dynamics[i]]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
-            line += " " + site.species_string
+            line += f" {site.species_string}"
             lines.append(line)
 
         if self.lattice_velocities is not None:
             try:
-                lines.append("Lattice velocities and vectors")
-                lines.append("  1")
+                lines.extend(["Lattice velocities and vectors", "  1"])
                 for velo in self.lattice_velocities:
                     # VASP is strict about the format when reading this quantity
                     lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
-                warnings.warn("Lattice velocities are missing or corrupted.")
+                warnings.warn("Lattice velocities are missing or corrupted.", BadPoscarWarning)
 
         if self.velocities:
             try:
@@ -546,7 +568,7 @@ class Poscar(MSONable):
                 for velo in self.velocities:
                     lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
-                warnings.warn("Velocities are missing or corrupted.")
+                warnings.warn("Velocities are missing or corrupted.", BadPoscarWarning)
 
         if self.predictor_corrector:
             lines.append("")
@@ -558,7 +580,8 @@ class Poscar(MSONable):
                         lines.append(" ".join(format_str.format(i) for i in z))
             else:
                 warnings.warn(
-                    "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data."
+                    "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
+                    BadPoscarWarning,
                 )
 
         return "\n".join(lines) + "\n"
@@ -652,12 +675,12 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
-with open(f"{module_dir}/incar_parameters.json") as json_file:
+class BadPoscarWarning(UserWarning):
+    """Warning class for bad POSCAR entries."""
+
+
+with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") as json_file:
     incar_params = json.loads(json_file.read())
-
-
-class BadIncarWarning(UserWarning):
-    """Warning class for bad Incar parameters."""
 
 
 class Incar(dict, MSONable):
@@ -799,8 +822,7 @@ class Incar(dict, MSONable):
         params = {}
         for line in lines:
             for sline in line.split(";"):
-                m = re.match(r"(\w+)\s*=\s*(.*)", sline.strip())
-                if m:
+                if m := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key = m.group(1).strip()
                     val = m.group(2).strip()
                     val = Incar.proc_val(key, val)
@@ -851,6 +873,7 @@ class Incar(dict, MSONable):
             "LDAUTYPE",
             "IVDW",
         )
+        lower_str_keys = ("ML_MODE",)
 
         def smart_int_or_float(num_str):
             if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
@@ -881,6 +904,9 @@ class Incar(dict, MSONable):
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))  # type: ignore
+
+            if key in lower_str_keys:
+                return val.strip().lower()
 
         except ValueError:
             pass
@@ -946,29 +972,26 @@ class Incar(dict, MSONable):
 
     def check_params(self):
         """
-        Raises a warning for nonsensical or non-existent INCAR tags and
-        parameters. If a keyword doesn't exist (e.g. there's a typo in a
-        keyword), your calculation will still run, however VASP will ignore the
-        parameter without letting you know, hence why we have this Incar method.
+        Raise a warning for nonexistent INCAR tags or invalid values.
+        If a tag doesn't exist (e.g. typo), calculation will still run,
+        however VASP will ignore the tag without letting you know.
         """
-        for key, val in self.items():
-            # First check if this parameter even exists
-            if key not in incar_params:
-                warnings.warn(f"Cannot find {key} in the list of INCAR flags", BadIncarWarning, stacklevel=2)
+        for tag, val in self.items():
+            # First check if this tag exists
+            if tag not in incar_params:
+                warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
 
-            if key in incar_params:
-                if type(incar_params[key]).__name__ == "str":
-                    # Now we check if this is an appropriate parameter type
-                    if incar_params[key] == "float":
-                        if not type(val) not in ["float", "int"]:
-                            warnings.warn(f"{key}: {val} is not real", BadIncarWarning, stacklevel=2)
-                    elif type(val).__name__ != incar_params[key]:
-                        warnings.warn(f"{key}: {val} is not a {incar_params[key]}", BadIncarWarning, stacklevel=2)
+            # Now check if the tag type is appropriate
+            elif isinstance(incar_params[tag], str) and type(val).__name__ != incar_params[tag]:
+                warnings.warn(f"{tag}: {val} is not a {incar_params[tag]}", BadIncarWarning, stacklevel=2)
 
-                # if we have a list of possible parameters, check
-                # if the user given parameter is in this list
-                elif type(incar_params[key]).__name__ == "list" and val not in incar_params[key]:
-                    warnings.warn(f"{key}: Cannot find {val} in the list of parameters", BadIncarWarning, stacklevel=2)
+            # Check if the given value is in the list
+            elif isinstance(incar_params[tag], list) and val not in incar_params[tag]:
+                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+
+
+class BadIncarWarning(UserWarning):
+    """Warning class for bad INCAR parameters."""
 
 
 class KpointsSupportedModes(Enum):
@@ -1479,7 +1502,7 @@ class Kpoints(MSONable):
         for idx, kpt in enumerate(self.kpts):
             lines.append(" ".join(map(str, kpt)))
             if style == "l":
-                lines[-1] += " ! " + self.labels[idx]
+                lines[-1] += f" ! {self.labels[idx]}"
                 if idx % 2 == 1:
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
@@ -1553,10 +1576,9 @@ class Kpoints(MSONable):
 
 
 def _parse_bool(s):
-    m = re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s)
-    if m:
-        return m.group(1) in ["T", "t"]
-    raise ValueError(s + " should be a boolean type!")
+    if m := re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s):
+        return m[1] in ["T", "t"]
+    raise ValueError(f"{s} should be a boolean type!")
 
 
 def _parse_float(s):
@@ -1594,13 +1616,11 @@ class PotcarSingle:
     are raised if a POTCAR hash fails validation.
     """
 
-    """
-    NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
-        the original (univie) releases include no SHA256 hashes nor COPYR fields
-        in the PSCTR/header field.
-    We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
-    The newer release is indicated as PBE_52_W_HASH, etc.
-    """
+    # NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
+    #     the original (univie) releases include no SHA256 hashes nor COPYR fields
+    #     in the PSCTR/header field.
+    # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
+    # The newer release is indicated as PBE_52_W_HASH, etc.
     functional_dir = dict(
         PBE="POT_GGA_PAW_PBE",
         PBE_52="POT_GGA_PAW_PBE_52",
@@ -1986,11 +2006,11 @@ class PotcarSingle:
                     identity["potcar_functionals"].append(func)
                     identity["potcar_symbols"].append(ref_psp["symbol"])
 
-        for key in identity:
-            if len(identity[key]) == 0:
+        for key, values in identity.items():
+            if len(values) == 0:
                 # the two keys are set simultaneously, either key being zero indicates no match
                 return [], []
-            identity[key] = list(set(identity[key]))
+            identity[key] = list(set(values))
 
         return identity["potcar_functionals"], identity["potcar_symbols"]
 
@@ -2107,9 +2127,7 @@ class PotcarSingle:
         else:
             raise ValueError(f"Bad {mode=}. Choose 'data' or 'file'.")
 
-        identity = hash_db.get(potcar_hash)
-
-        if identity:
+        if identity := hash_db.get(potcar_hash):
             # convert the potcar_functionals from the .json dict into the functional
             # keys that pymatgen uses
             potcar_functionals = [*{mapping_dict[i]["pymatgen_key"] for i in identity["potcar_functionals"]}]
@@ -2224,14 +2242,12 @@ class PotcarSingle:
         """
 
         possible_potcar_matches = []
-        """
-        Some POTCARs have an LEXCH (functional used to generate the POTCAR)
-        with the expected functional, e.g., the C_d POTCAR for PBE is actually an
-        LDA pseudopotential.
+        # Some POTCARs have an LEXCH (functional used to generate the POTCAR)
+        # with the expected functional, e.g., the C_d POTCAR for PBE is actually an
+        # LDA pseudopotential.
 
-        Thus we have to look for matches in all POTCAR dirs, not just the ones with
-        consistent values of LEXCH
-        """
+        # Thus we have to look for matches in all POTCAR dirs, not just the ones with
+        # consistent values of LEXCH
         for func in self.functional_dir:
             for titel_no_spc in self._potcar_summary_stats[func]:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
@@ -2252,20 +2268,18 @@ class PotcarSingle:
             """
             input_str = input_str.strip()
 
-            if input_str.lower() in ("t", "f", "true", "false"):
+            if input_str.lower() in {"t", "f", "true", "false"}:
                 return input_str[0].lower() == "t"
 
             if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
                 if "." in input_str:
-                    """
-                    NB: fortran style floats always include a decimal point.
-                        While you can set, e.g., x = 1E4, you cannot print/write x without
-                        a decimal point:
-                            `write(6,*) x`          -->   `10000.0000` in stdout
-                            `write(6,'(E10.0)') x`  -->   segfault
-                        The (E10.0) means write an exponential-format number with 10
-                            characters before the decimal, and 0 characters after
-                    """
+                    # NB: fortran style floats always include a decimal point.
+                    #     While you can set, e.g., x = 1E4, you cannot print/write x without
+                    #     a decimal point:
+                    #         `write(6,*) x`          -->   `10000.0000` in stdout
+                    #         `write(6,'(E10.0)') x`  -->   segfault
+                    #     The (E10.0) means write an exponential-format number with 10
+                    #         characters before the decimal, and 0 characters after
                     return float(input_str)
                 return int(input_str)
             try:
@@ -2295,7 +2309,7 @@ class PotcarSingle:
             elif isinstance(val, (float, int)):
                 keyword_vals.append(val)
             elif hasattr(val, "__len__"):
-                keyword_vals += [num for num in val if (isinstance(num, (float, int)))]
+                keyword_vals += [num for num in val if isinstance(num, (float, int))]
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""
@@ -2377,24 +2391,24 @@ def _gen_potcar_summary_stats(
     """
     func_dir_exist: dict[str, str] = {}
     vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
-    for func in PotcarSingle.functional_dir:
-        cpsp_dir = f"{vasp_psp_dir}/{PotcarSingle.functional_dir[func]}"
+    for func, func_dir in PotcarSingle.functional_dir.items():
+        cpsp_dir = f"{vasp_psp_dir}/{func_dir}"
         if os.path.isdir(cpsp_dir):
-            func_dir_exist[func] = PotcarSingle.functional_dir[func]
+            func_dir_exist[func] = func_dir
         else:
-            warnings.warn(f"missing {PotcarSingle.functional_dir[func]} POTCAR directory")
+            warnings.warn(f"missing {func_dir} POTCAR directory")
 
     # use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
     # use append = False to completely regenerate the summary stats dict
     new_summary_stats = loadfn(summary_stats_filename) if append else {}
 
-    for func in func_dir_exist:
+    for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
 
         potcar_list = [
-            *glob(f"{vasp_psp_dir}/{func_dir_exist[func]}/POTCAR*"),
-            *glob(f"{vasp_psp_dir}/{func_dir_exist[func]}/*/POTCAR*"),
+            *glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*"),
+            *glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*"),
         ]
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
@@ -2694,7 +2708,8 @@ class VaspInput(dict, MSONable):
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
-        with cd(run_dir), open(output_file, mode="w") as stdout_file, open(
-            err_file, mode="w", buffering=1
+
+        with cd(run_dir), open(output_file, mode="w", encoding="utf-8") as stdout_file, open(
+            err_file, mode="w", encoding="utf-8", buffering=1
         ) as stderr_file:
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)

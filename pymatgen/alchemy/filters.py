@@ -341,9 +341,8 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         """
         sp1_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp1]
         sp2_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp2]
-        fcoords = structure.frac_coords
-        fcoords1 = fcoords[sp1_indices, :]
-        fcoords2 = fcoords[sp2_indices, :]
+        frac_coords1 = structure.frac_coords[sp1_indices, :]
+        frac_coords2 = structure.frac_coords[sp2_indices, :]
         lattice = structure.lattice
-        dists = lattice.get_all_distances(fcoords1, fcoords2)
+        dists = lattice.get_all_distances(frac_coords1, frac_coords2)
         return all(any(row) for row in dists < self.max_dist)

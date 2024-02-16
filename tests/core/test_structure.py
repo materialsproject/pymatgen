@@ -946,17 +946,17 @@ class TestStructure(PymatgenTest):
             _ = {self.struct: 1}
 
     def test_sort(self):
-        struct = self.struct
-        struct[0] = "F"
-        struct.sort()
-        assert struct[0].species_string == "Si"
-        assert struct[1].species_string == "F"
-        struct.sort(key=lambda site: site.species_string)
-        assert struct[0].species_string == "F"
-        assert struct[1].species_string == "Si"
-        struct.sort(key=lambda site: site.species_string, reverse=True)
-        assert struct[0].species_string == "Si"
-        assert struct[1].species_string == "F"
+        self.struct[0] = "F"
+        returned = self.struct.sort()
+        assert returned is self.struct
+        assert self.struct[0].species_string == "Si"
+        assert self.struct[1].species_string == "F"
+        self.struct.sort(key=lambda site: site.species_string)
+        assert self.struct[0].species_string == "F"
+        assert self.struct[1].species_string == "Si"
+        self.struct.sort(key=lambda site: site.species_string, reverse=True)
+        assert self.struct[0].species_string == "Si"
+        assert self.struct[1].species_string == "F"
 
     def test_replace_species(self):
         struct = self.struct
@@ -1027,13 +1027,15 @@ class TestStructure(PymatgenTest):
 
     def test_add_remove_site_property(self):
         struct = self.struct
-        struct.add_site_property("charge", [4.1, -5])
+        returned = struct.add_site_property("charge", [4.1, -5])
+        assert returned is struct
         assert struct[0].charge == 4.1
         assert struct[1].charge == -5
         struct.add_site_property("magmom", [3, 2])
         assert struct[0].charge == 4.1
         assert struct[0].magmom == 3
-        struct.remove_site_property("magmom")
+        returned = struct.remove_site_property("magmom")
+        assert returned is struct
         with pytest.raises(AttributeError, match="attr='magmom' not found on PeriodicSite"):
             _ = struct[0].magmom
 
@@ -1066,7 +1068,8 @@ class TestStructure(PymatgenTest):
     def test_perturb(self):
         dist = 0.1
         pre_perturbation_sites = self.struct.copy()
-        self.struct.perturb(distance=dist)
+        returned = self.struct.perturb(distance=dist)
+        assert returned is self.struct
         post_perturbation_sites = self.struct.sites
 
         for idx, site in enumerate(pre_perturbation_sites):
@@ -1080,9 +1083,10 @@ class TestStructure(PymatgenTest):
             assert site.distance(post_perturbation_sites2[idx]) <= dist
             assert site.distance(post_perturbation_sites2[idx]) >= 0
 
-    def test_add_oxidation_states_by_element(self):
+    def test_add_oxidation_state_by_element(self):
         oxidation_states = {"Si": -4}
-        self.struct.add_oxidation_state_by_element(oxidation_states)
+        returned = self.struct.add_oxidation_state_by_element(oxidation_states)
+        assert returned is self.struct
         for site in self.struct:
             for specie in site.species:
                 assert specie.oxi_state == oxidation_states[specie.symbol], "Wrong oxidation state assigned!"
@@ -1091,7 +1095,8 @@ class TestStructure(PymatgenTest):
             self.struct.add_oxidation_state_by_element(oxidation_states)
 
     def test_add_oxidation_states_by_site(self):
-        self.struct.add_oxidation_state_by_site([2, -4])
+        returned = self.struct.add_oxidation_state_by_site([2, -4])
+        assert returned is self.struct
         assert self.struct[0].specie.oxi_state == 2
         with pytest.raises(
             ValueError, match="Oxidation states of all sites must be specified, expected 2 values, got 1"
@@ -1107,14 +1112,14 @@ class TestStructure(PymatgenTest):
         lattice = Lattice.cubic(10)
         struct_elem = Structure(lattice, [co_elem, o_elem], coords)
         struct_specie = Structure(lattice, [co_specie, o_specie], coords)
-        struct_out = struct_specie.remove_oxidation_states()
-        assert struct_out is struct_specie
+        returned = struct_specie.remove_oxidation_states()
+        assert returned is struct_specie
         assert struct_elem == struct_specie, "Oxidation state remover failed"
 
-    def test_add_oxidation_states_by_guess(self):
+    def test_add_oxidation_state_by_guess(self):
         struct = PymatgenTest.get_structure("Li2O")
-        struct_with_oxi = struct.add_oxidation_state_by_guess()
-        assert struct_with_oxi is struct
+        returned = struct.add_oxidation_state_by_guess()
+        assert returned is struct
         expected = [Species("Li", 1), Species("O", -2)]
         for site in struct:
             assert site.specie in expected
@@ -1146,7 +1151,8 @@ class TestStructure(PymatgenTest):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         struct = self.struct.copy()
-        struct.apply_operation(op)
+        returned = struct.apply_operation(op)
+        assert returned is struct
         assert_allclose(
             struct.lattice.matrix,
             [[0, 3.840198, 0], [-3.325710, 1.920099, 0], [2.217138, -0, 3.135509]],
@@ -1161,7 +1167,8 @@ class TestStructure(PymatgenTest):
     def test_apply_strain(self):
         struct = self.struct
         initial_coord = struct[1].coords
-        struct.apply_strain(0.01)
+        returned = struct.apply_strain(0.01)
+        assert returned is struct
         assert approx(struct.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
         assert_allclose(struct[1].coords, initial_coord * 1.01)
         a1, b1, c1 = struct.lattice.abc
@@ -1182,7 +1189,8 @@ class TestStructure(PymatgenTest):
 
     def test_scale_lattice(self):
         initial_coord = self.struct[1].coords
-        self.struct.scale_lattice(self.struct.volume * 1.01**3)
+        returned = self.struct.scale_lattice(self.struct.volume * 1.01**3)
+        assert returned is self.struct
         assert_allclose(
             self.struct.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516),
@@ -1190,7 +1198,8 @@ class TestStructure(PymatgenTest):
         assert_allclose(self.struct[1].coords, initial_coord * 1.01)
 
     def test_translate_sites(self):
-        self.struct.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
+        returned = self.struct.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
+        assert returned is self.struct
         assert_allclose(self.struct.frac_coords[0], [0.5, 0.5, 0.5])
 
         self.struct.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=False)
@@ -1214,12 +1223,13 @@ class TestStructure(PymatgenTest):
         assert self.struct == original_struct
 
     def test_rotate_sites(self):
-        self.struct.rotate_sites(
+        returned = self.struct.rotate_sites(
             indices=[1],
             theta=2.0 * np.pi / 3.0,
             anchor=self.struct[0].coords,
             to_unit_cell=False,
         )
+        assert returned is self.struct
         assert_allclose(self.struct.frac_coords[1], [-1.25, 1.5, 0.75], atol=1e-6)
         self.struct.rotate_sites(
             indices=[1],
@@ -2033,9 +2043,9 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert mol.properties == {"test_properties": "test"}
 
     def test_default_dict_attrs(self):
-        d = self.mol.as_dict()
-        assert d["charge"] == 0
-        assert d["spin_multiplicity"] == 1
+        dct = self.mol.as_dict()
+        assert dct["charge"] == 0
+        assert dct["spin_multiplicity"] == 1
 
     def test_to_from_file_str(self):
         self.mol.properties["test_prop"] = 42
@@ -2098,17 +2108,20 @@ class TestMolecule(PymatgenTest):
 
     def test_insert_remove_append(self):
         mol = self.mol
-        mol.insert(1, "O", [0.5, 0.5, 0.5])
+        returned = mol.insert(1, "O", [0.5, 0.5, 0.5])
+        assert returned is mol
         assert mol.formula == "H4 C1 O1"
         del mol[2]
         assert mol.formula == "H3 C1 O1"
         mol.set_charge_and_spin(0)
         assert mol.spin_multiplicity == 2
-        mol.append("N", [1, 1, 1])
+        returned = mol.append("N", [1, 1, 1])
+        assert returned is mol
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError, match="unhashable type: 'Molecule'"):
             _ = {mol: 1}
-        mol.remove_sites([0, 1])
+        returned = mol.remove_sites([0, 1])
+        assert returned is mol
         assert mol.formula == "H3 N1"
 
     def test_from_sites(self):
@@ -2119,18 +2132,21 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        returned = self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert returned is self.mol
         assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
-        self.mol.rotate_sites(theta=np.radians(30))
+        returned = self.mol.rotate_sites(theta=np.radians(30))
+        assert returned is self.mol
         assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
     def test_replace(self):
         self.mol[0] = "Ge"
         assert self.mol.formula == "Ge1 H4"
 
-        self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
+        returned = self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
+        assert returned is self.mol
         assert self.mol.formula == "Si0.5 Ge0.5 H4"
 
         # this should change the .5Si .5Ge sites to .75Si .25Ge
@@ -2145,15 +2161,17 @@ class TestMolecule(PymatgenTest):
         for idx, site in enumerate(pre_perturbation_sites):
             assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
 
-    def test_add_site_property(self):
-        self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+    def test_add_remove_site_property(self):
+        returned = self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+        assert returned is self.mol
         assert self.mol[0].charge == 4.1
         assert self.mol[1].charge == -2
 
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
         assert self.mol[0].charge == 4.1
         assert self.mol[0].magmom == 3
-        self.mol.remove_site_property("magmom")
+        returned = self.mol.remove_site_property("magmom")
+        assert returned is self.mol
 
         # test ValueError when values have wrong length
         with pytest.raises(ValueError, match=r"len\(values\)=2 must equal sites in structure=5"):
@@ -2164,14 +2182,15 @@ class TestMolecule(PymatgenTest):
 
     def test_as_from_dict(self):
         self.mol.append("X", [2, 0, 0])
-        d = self.mol.as_dict()
-        mol2 = Molecule.from_dict(d)
+        dct = self.mol.as_dict()
+        mol2 = Molecule.from_dict(dct)
         assert isinstance(mol2, Molecule)
         self.assert_msonable(self.mol)
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
-        self.mol.apply_operation(op)
+        returned = self.mol.apply_operation(op)
+        assert returned is self.mol
         assert_allclose(self.mol[2].coords, [0, 1.026719, -0.363000], atol=1e-12)
 
     def test_substitute(self):
@@ -2183,7 +2202,8 @@ class TestMolecule(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         sub = Molecule(["X", "C", "H", "H", "H"], coords)
-        self.mol.substitute(1, sub)
+        returned = self.mol.substitute(1, sub)
+        assert returned is self.mol
         assert self.mol.get_distance(0, 4) == approx(1.54)
         f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
         self.mol.substitute(2, f)
@@ -2242,14 +2262,17 @@ class TestMolecule(PymatgenTest):
         coords = [[0, 0, 0], [0, 0, 1.089000], [1.026719, 0, -0.363000], [-0.513360, -0.889165, -0.363000]]
         expected_msg = "Charge of 0 and spin multiplicity of 1 is not possible for this molecule"
         with pytest.raises(ValueError, match=expected_msg):
-            mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+            Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
         with pytest.raises(ValueError, match=expected_msg):
             mol_valid.set_charge_and_spin(0, 1)
-        mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
+
+    def test_set_charge_and_spin(self):
+        mol = Molecule.from_dict(self.mol.as_dict() | dict(charge=0, spin_multiplicity=1, charge_spin_check=False))
         assert mol.spin_multiplicity == 1
         assert mol.charge == 0
-        mol.set_charge_and_spin(0, 3)
+        returned = mol.set_charge_and_spin(0, 3)
+        assert returned is mol
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
 
