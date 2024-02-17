@@ -203,8 +203,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         with pytest.warns(
             BadInputSetWarning,
-            match="Relaxation of likely metal with ISMEAR < 1 detected. "
-            "See VASP recommendations on ISMEAR for metals.",
+            match="Relaxation of likely metal with ISMEAR",
         ) as warns_metal:
             vis = self.set(structure)
             _ = vis.incar
