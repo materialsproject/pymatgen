@@ -743,9 +743,9 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
+        if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and (incar.get("ISMEAR", 1) < 0 or (incar.get("ISMEAR", 1) == 1 and incar.get("SIGMA", 0.2) > 0.05)):
             warnings.warn(
-                "Relaxation of likely metal with ISMEAR < 1 detected. See VASP "
+                "Relaxation of likely metal with ISMEAR < 0 or ISMEAR = 1 with a small SIGMA detected. See VASP "
                 "recommendations on ISMEAR for metals.",
                 BadInputSetWarning,
             )
