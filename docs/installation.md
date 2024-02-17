@@ -154,52 +154,39 @@ pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 ```
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
-you extracted the downloaded VASP pseudopotential files. Typically, it has
-the following format:
+you extracted the downloaded VASP pseudopotential files, and `<MY_PSP>` is the
+desired location where you would like to store the Pymatgen-compatible pseudopotential
+files. Typically, the `<EXTRACTED_VASP_POTCAR>` directory has the following format:
 
 ```
- - <EXTRACTED_VASP_POTCAR>
- |- POT_GGA_PAW_PBE
- ||- Ac_s
- |||-POTCAR
- |||-...
-```
-
-or:
-
-```
- - <EXTRACTED_VASP_POTCAR>
- |- potpaw_PBE
- ||- Ac_s
- |||-POTCAR
- |||-...
-```
-
-and follow the instructions. If you have done it correctly, you should get a
-resources directory with the following directory structure::
-
-```
-- psp_resources
-|- POT_GGA_PAW_PBE
-||- POTCAR.Ac_s.gz
-||- POTCAR.Ac.gz
-||- POTCAR.Ag.gz
+potpaw_PBE.54
+├── Ac
+│   ├── POTCAR
+│   └── PSCTR
+├── Ag
+│   ├── POTCAR
+│   └── PSCTR
 ...
-|- POT_GGA_PAW_PW91
-...
+
+If you have done it correctly, your newly generated directory given by `<MY_PSP>` shoul
+have the following directory structure:
+
+```
+<MY_PSP>
+├── POT_GGA_PAW_PBE_54
+│   ├── POTCAR.Ac.gz
+│   ├── POTCAR.Ag.gz
+    ...
 ```
 
-After generating the resources directory, you should add a VASP_PSP_DIR config
-variable pointing to the generated directory and you should then be
-able to generate POTCARs:
+After generating the resources directory, you should add the directory
+to your Pymatgen configuration file as follows:
 
 ```bash
 pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
 ```
 
-If you are using newer sets of pseudopotential files from VASP, the directory
-names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
-add a default functional specification as follows:
+If desired, you may specify a default functional specification as follows:
 
 ```bash
 pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
