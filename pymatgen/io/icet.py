@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import multiprocessing as multiproc
 import warnings
-from importlib.metadata import PackageNotFoundError
 from string import ascii_uppercase
 from time import time
 from typing import TYPE_CHECKING
+
+from monty.dev import requires
 
 from pymatgen.command_line.mcsqs_caller import Sqs
 from pymatgen.core import Structure
@@ -16,11 +17,8 @@ try:
     from icet.tools import enumerate_structures
     from icet.tools.structure_generation import _get_sqs_cluster_vector, _validate_concentrations, generate_sqs
     from mchammer.calculators import compare_cluster_vectors
-
-    loaded_icet = True
-
 except ImportError:
-    loaded_icet = False
+    ClusterSpace = None
 
 
 if TYPE_CHECKING:
@@ -30,6 +28,7 @@ if TYPE_CHECKING:
     from ase import Atoms
 
 
+@requires(ClusterSpace is not None, "IcetSQS requires the icet package. Use `pip install icet`")
 class IcetSQS:
     """Interface to the icet library of SQS structure generation tools."""
 
@@ -67,25 +66,21 @@ class IcetSQS:
         Instantiate an IcetSQS interface.
 
         Args:
-            structure (pymatgen Structure) : disordered structure to compute SQS
-            scaling (int) : SQS supercell contains scaling * len(structure) sites
-            instances (int) : number of parallel SQS jobs to run
-            cluster_cutoffs (dict) : dict of cluster size (pairs, triplets, ...) and
+            structure (Structure): disordered structure to compute SQS
+            scaling (int): SQS supercell contains scaling * len(structure) sites
+            instances (int): number of parallel SQS jobs to run
+            cluster_cutoffs (dict): dict of cluster size (pairs, triplets, ...) and
                 the size of the cluster
         Kwargs:
-            sqs_method (str or None) : if a str, one of ("enumeration", "monte_carlo")
+            sqs_method (str or None): if a str, one of ("enumeration", "monte_carlo")
                 If None, default to "enumeration" for a supercell of < 24 sites, and
                 "monte carlo" otherwise.
-            sqs_kwargs (dict) : kwargs to pass to the icet SQS generators.
+            sqs_kwargs (dict): kwargs to pass to the icet SQS generators.
                 See self.sqs_kwarg_names for possible options.
 
         Returns:
             None
         """
-
-        if not loaded_icet:
-            raise PackageNotFoundError("IcetSQS requires the icet package. Use `pip install icet`.")
-
         self._structure = structure
         self.scaling = scaling
         self.instances = instances or multiproc.cpu_count()

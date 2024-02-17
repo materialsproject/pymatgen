@@ -1909,24 +1909,23 @@ class SQSTransformation(AbstractTransformation):
                     specifies that the supercell should have dimensions 2a x b x c
             cluster_size_and_shell (Optional[Dict[int, int]]): Dictionary of cluster interactions with entries in
                 the form number of atoms: nearest neighbor shell
-        Keyword Args:
-            search_time (float):
-                If sqs_method == "mcsqs", the time spent looking for the ideal SQS in minutes (default: 60)
-            directory (str): Directory to run mcsqs calculation and store files (default: None
+            search_time (float, optional): If sqs_method == "mcsqs", the time spent looking for the ideal SQS
+                in minutes (default: 60)
+            directory (str, optional): Directory to run mcsqs calculation and store files (default: None
                 runs calculations in a temp directory)
-            instances (int): Specifies the number of parallel instances of mcsqs to run
+            instances (int, optional): Specifies the number of parallel instances of mcsqs to run
                 (default: number of cpu cores detected by Python)
-            temperature (float): Monte Carlo temperature (default: 1), "T" in atat code
-            wr (float): Weight assigned to range of perfect correlation match in objective
+            temperature (float, optional): Monte Carlo temperature (default: 1), "T" in atat code
+            wr (float, optional): Weight assigned to range of perfect correlation match in objective
                 function (default = 1)
-            wn (float): Multiplicative decrease in weight per additional point in cluster (default: 1)
-            wd (float): Exponent of decay in weight as function of cluster diameter (default: 0)
-            tol (float): Tolerance for matching correlations (default: 1e-3)
+            wn (float, optional): Multiplicative decrease in weight per additional point in cluster (default: 1)
+            wd (float, optional): Exponent of decay in weight as function of cluster diameter (default: 0)
+            tol (float, optional): Tolerance for matching correlations (default: 1e-3)
             icet_sqs_kwargs (dict) : If icet is used for the SQS search, kwargs to pass to
                 pymatgen.io.icet.IcetSQS
-            best_only (bool): only return structures with lowest objective function
-            remove_duplicate_structures (bool): only return unique structures
-            reduction_algo (str): The lattice reduction algorithm to use.
+            best_only (bool, optional): only return structures with lowest objective function
+            remove_duplicate_structures (bool, optional): only return unique structures
+            reduction_algo (str, optional): The lattice reduction algorithm to use.
                 One of "niggli" or "LLL". Passing False does not reduce structure.
             sqs_method (str): One of "mcsqs" (MCSQS method from ATAT), "icet-enumeration"
                 (enumeration of all possible SQS structures of a given size with icet),
@@ -1960,11 +1959,11 @@ class SQSTransformation(AbstractTransformation):
         Returns:
             maximum nearest neighbor distance, in angstroms
         """
-        mdnn = MinimumDistanceNN()
+        min_dist_nn = MinimumDistanceNN()
         distances = []
 
         for site_num, site in enumerate(struct):
-            shell_info = mdnn.get_nn_shell_info(struct, site_num, shell)
+            shell_info = min_dist_nn.get_nn_shell_info(struct, site_num, shell)
             for entry in shell_info:
                 image = entry["image"]
                 distance = site.distance(struct[entry["site_index"]], jimage=image)
@@ -2024,7 +2023,7 @@ class SQSTransformation(AbstractTransformation):
             pymatgen Structure which is an SQS of the input structure
         """
         if return_ranked_list and self.instances is None:
-            raise ValueError("SQSTransformation has no instances, so cannot return a ranked list")
+            raise ValueError(f"{type(self).__name__} has no instances, so cannot return a ranked list")
         if (
             isinstance(return_ranked_list, int)
             and isinstance(self.instances, int)
@@ -2053,12 +2052,11 @@ class SQSTransformation(AbstractTransformation):
             )
 
         elif self.sqs_method.startswith("icet-"):
-            if not isinstance(self.scaling, int):
-                raise ValueError(f"icet can only scale the input cell by an integer factor, not {self.scaling}.")
-            icet_defaults = {
-                "optimality_weight": self.wr,
-                "T_start": self.temperature,
-            }
+            if not isinstance(self.scaling, int) or self.scaling < 1:
+                raise ValueError(
+                    f"icet can only scale the input cell by a positive integer factor, not {self.scaling}."
+                )
+            icet_defaults = {"optimality_weight": self.wr, "T_start": self.temperature}
             for key in icet_defaults:
                 self.icet_sqs_kwargs[key] = self.icet_sqs_kwargs.get(key, icet_defaults[key])
 
@@ -2095,8 +2093,8 @@ class SQSTransformation(AbstractTransformation):
                 reduction_algo=False does not reduce structure.
 
         Returns:
-            list of dicts of the form {'structure': Structure, 'objective_function': ...}, unless run in serial
-                (returns a single structure Sqs.bestsqs)
+            list[dict[str, Structure | Callable]]: of the form {'structure': Structure, 'objective_function': ...},
+                unless run in serial (returns a single structure Sqs.bestsqs)
         """
         if not return_ranked_list:
             return_struct = sqs.bestsqs
