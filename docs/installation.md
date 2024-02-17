@@ -179,8 +179,8 @@ have the following directory structure:
     ...
 ```
 
-After generating the resources directory, you should add the directory
-to your Pymatgen configuration file as follows:
+After the `<MY_PSP>` directory is generated, you should add it to your Pymatgen configuration
+file as follows:
 
 ```bash
 pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
