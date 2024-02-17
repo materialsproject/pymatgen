@@ -154,9 +154,9 @@ pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 ```
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the path to the extracted VASP pseudopotential
-files, and `<MY_PSP>` is the desired path where you would like to store the newly generated
-Pymatgen-compatible pseudopotential files. Typically, the `<EXTRACTED_VASP_POTCAR>`
-directory has the following format:
+files as-obtained from VASP, and `<MY_PSP>` is the desired path where you would like to
+store the reformatted, Pymatgen-compatible pseudopotential files. Typically, the
+`<EXTRACTED_VASP_POTCAR>` directory has the following format:
 
 ```
 potpaw_PBE.54
