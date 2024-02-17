@@ -186,14 +186,21 @@ to your Pymatgen configuration file as follows:
 pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
 ```
 
-If desired, you may specify a default functional specification as follows:
+In practice, this entire process might look something like the following:
+
+```bash
+pmg config -p /path/to/pseudos/potcar_PBE.54/ /path/to/pseudos/pmg_potcars/
+pmg config -p /path/to/pseudos/potcar_LDA.54/ /path/to/pseudos/pmg_potcars/
+pmg config --add PMG_VASP_PSP_DIR pmg_potcars
+```
+
+If desired, you may specify a default version and type of pseudopotentials as follows:
 
 ```bash
 pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
 ```
 
-You can also use this to specify whatever functional you would like to use by
-default in pymatgen, e.g., LDA_52, PW91, etc. Type::
+For additional options, run the help command:
 
 ```bash
 pmg potcar -h
