@@ -168,7 +168,7 @@ potpaw_PBE.54
 │   └── PSCTR
 ...
 
-If you have done it correctly, your newly generated directory given by `<MY_PSP>` shoul
+If you have done it correctly, your newly generated directory given by `<MY_PSP>` should
 have the following directory structure:
 
 ```
