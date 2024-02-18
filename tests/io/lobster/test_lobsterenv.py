@@ -10,8 +10,9 @@ from pytest import approx
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Element
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.cohp import Cohp
+from pymatgen.electronic_structure.cohp import Cohp, CompleteCohp
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -32,7 +33,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
         self.chem_env_lobster1 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=1,
         )
@@ -40,7 +41,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         # all bonds
         self.chem_env_lobster0 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=0,
         )
@@ -48,7 +49,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         # only cation-cation, anion-anion bonds
         self.chem_env_lobster5 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=5,
         )
@@ -56,7 +57,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         # only cation-cation bonds
         self.chem_env_lobster6 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=6,
         )
@@ -64,21 +65,21 @@ class TestLobsterNeighbors(unittest.TestCase):
         # 2,3,4 are not tested so far
         self.chem_env_lobster2 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=2,
         )
 
         self.chem_env_lobster3 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=3,
         )
 
         self.chem_env_lobster4 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=4,
         )
@@ -86,49 +87,49 @@ class TestLobsterNeighbors(unittest.TestCase):
         # search for other testcase where 2,3,4 arrive at different results
         self.chem_env_lobster0_second = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             additional_condition=0,
         )
         self.chem_env_lobster1_second = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             additional_condition=1,
         )
 
         self.chem_env_lobster2_second = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             additional_condition=2,
         )
 
         self.chem_env_lobster5_second = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             additional_condition=5,
         )
 
         self.chem_env_lobster5_second_percentage = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             additional_condition=5,
-            perc_strength_ICOHP=1.0,
+            perc_strength_icohp=1.0,
         )
 
         self.chem_env_lobster6_second = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             additional_condition=6,
         )
         # coop / cobi
         self.chem_env_lobster1_coop_NaCl = LobsterNeighbors(
             are_coops=True,
-            filename_ICOHP=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
+            filename_icohp=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaCl.gz"),
             additional_condition=1,
             noise_cutoff=None,
@@ -136,7 +137,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
         self.chem_env_lobster1_cobi_NaCl = LobsterNeighbors(
             are_coops=True,
-            filename_ICOHP=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
+            filename_icohp=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaCl.gz"),
             additional_condition=1,
             noise_cutoff=None,
@@ -144,7 +145,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
         self.chem_env_lobster1_cobi_mp470 = LobsterNeighbors(
             are_coops=True,
-            filename_ICOHP=f"{TEST_DIR}/ICOBILIST.lobster.mp_470.gz",
+            filename_icohp=f"{TEST_DIR}/ICOBILIST.lobster.mp_470.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_470.gz"),
             additional_condition=1,
         )
@@ -152,111 +153,125 @@ class TestLobsterNeighbors(unittest.TestCase):
         # TODO: use charge instead of valence
         self.chem_env_lobster1_charges = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=1,
         )
         self.chem_env_lobster1_charges_noisecutoff = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_632319.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_632319.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_632319.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp_632319.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp_632319.gz",
             additional_condition=1,
-            perc_strength_ICOHP=0.05,
+            perc_strength_icohp=0.05,
             noise_cutoff=0.1,
         )
         self.chem_env_lobster1_charges_wo_noisecutoff = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_632319.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_632319.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_632319.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp_632319.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp_632319.gz",
             additional_condition=1,
-            perc_strength_ICOHP=0.05,
+            perc_strength_icohp=0.05,
             noise_cutoff=None,
         )
         self.chem_env_lobster1_charges_loewdin = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=1,
             which_charge="Loewdin",
         )
         self.chem_env_lobster6_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=6,
             adapt_extremum_to_add_cond=True,
         )
         self.chem_env_lobster5_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=5,
             adapt_extremum_to_add_cond=True,
         )
         self.chem_env_lobster4_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=4,
             adapt_extremum_to_add_cond=True,
         )
         self.chem_env_lobster3_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=3,
             adapt_extremum_to_add_cond=True,
         )
         self.chem_env_lobster2_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=2,
             adapt_extremum_to_add_cond=True,
         )
         self.chem_env_lobster1_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=1,
             adapt_extremum_to_add_cond=True,
         )
 
         self.chem_env_lobster0_charges_additional_condition = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
         self.chem_env_lobster0_NaSi = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.NaSi.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.NaSi.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaSi.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.NaSi.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.NaSi.gz",
+            additional_condition=0,
+            adapt_extremum_to_add_cond=True,
+        )
+        # Test LobsterNeighbors using pymatgen objects
+        self.obj_icohp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.NaSi.gz")
+        self.obj_charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.NaSi.gz")
+        self.chem_env_w_obj = LobsterNeighbors(
+            filename_icohp=None,
+            are_coops=False,
+            obj_icohp=self.obj_icohp,
+            obj_charge=self.obj_charge,
+            structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaSi.gz"),
+            valences_from_charges=True,
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.NaSi.gz",
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
@@ -267,7 +282,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         ):
             _ = LobsterNeighbors(
                 are_coops=False,
-                filename_ICOHP=f"{TEST_DIR}/../ICOHPLIST.lobster",
+                filename_icohp=f"{TEST_DIR}/../ICOHPLIST.lobster",
                 structure=Structure.from_file(f"{TEST_DIR}/../POSCAR"),
                 valences_from_charges=False,
                 additional_condition=1,
@@ -277,7 +292,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         ):
             _ = LobsterNeighbors(
                 are_coops=False,
-                filename_ICOHP=f"{TEST_DIR}/../ICOHPLIST.lobster",
+                filename_icohp=f"{TEST_DIR}/../ICOHPLIST.lobster",
                 structure=Structure.from_file(f"{TEST_DIR}/../POSCAR"),
                 valences_from_charges=False,
                 additional_condition=1,
@@ -290,20 +305,20 @@ class TestLobsterNeighbors(unittest.TestCase):
         ):
             LobsterNeighbors(
                 are_coops=False,
-                filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+                filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
                 structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
                 valences_from_charges=True,
-                filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+                filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
                 additional_condition=10,
             )
 
     def test_set_limits(self):
         test = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
             additional_condition=1,
             limits=[-100000, 0],
         )
@@ -611,10 +626,10 @@ class TestLobsterNeighbors(unittest.TestCase):
     def test_extended_structure_graph(self):
         self.chem_env_lobsterNaCl = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.NaCl.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.NaCl.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaCl.gz"),
             valences_from_charges=True,
-            filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.NaCl.gz",
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.NaCl.gz",
             filename_blist_sg1=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             filename_blist_sg2=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
             add_additional_data_sg=True,
@@ -639,10 +654,10 @@ class TestLobsterNeighbors(unittest.TestCase):
         with pytest.raises(ValueError, match="Algorithm can only work with ICOOPs, ICOBIs"):
             self.chem_env_lobsterNaCl = LobsterNeighbors(
                 are_coops=False,
-                filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.NaCl.gz",
+                filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.NaCl.gz",
                 structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaCl.gz"),
                 valences_from_charges=True,
-                filename_CHARGE=f"{TEST_DIR}/CHARGE.lobster.NaCl.gz",
+                filename_charge=f"{TEST_DIR}/CHARGE.lobster.NaCl.gz",
                 filename_blist_sg1=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
                 filename_blist_sg2=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
                 add_additional_data_sg=True,
@@ -703,7 +718,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
         chemenv_here = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp-7000.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-7000.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp-7000.gz"),
             additional_condition=1,
         )
@@ -737,13 +752,13 @@ class TestLobsterNeighbors(unittest.TestCase):
     def test_get_info_cohps_to_neighbors(self):
         chem_env_lobster1 = LobsterNeighbors(
             are_coops=False,
-            filename_ICOHP=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190_2.gz",
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190_2.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=1,
         )
         cohpcar_lobster_mp_190 = f"{TEST_DIR}/COHPCAR.lobster.mp-190.gz"
         plot_label, summed_cohpcar_mp_190 = chem_env_lobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
         )
@@ -751,7 +766,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert isinstance(summed_cohpcar_mp_190, Cohp)
 
         coph_thing = chem_env_lobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
@@ -762,7 +777,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
         # summed_spin_channel
         coph_thing = chem_env_lobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
@@ -771,7 +786,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert coph_thing.icohp[Spin.up][300] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
         plot_label, summed_cohpcar_mp_190_Te = chem_env_lobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["Te"],
         )
@@ -780,14 +795,26 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert summed_cohpcar_mp_190_Te is None
 
         plot_label, _summed_cohpcar_NaSi = self.chem_env_lobster0_NaSi.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
+            path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
             isites=[8],
             onlycation_isites=False,
             only_bonds_to=["Na"],
         )
         assert plot_label == "1 x Na-Si (per bond)"
+
+        obj_cohpcar = CompleteCohp.from_file(
+            filename=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz", fmt="LOBSTER", structure_file=f"{TEST_DIR}/POSCAR.NaSi.gz"
+        )
+        plot_label_obj, _summed_cohpcar_NaSi_obj = self.chem_env_w_obj.get_info_cohps_to_neighbors(
+            obj_cohpcar=obj_cohpcar,
+            isites=[8],
+            onlycation_isites=False,
+            only_bonds_to=["Na"],
+        )
+        assert plot_label_obj == "1 x Na-Si (per bond)"
+
         info = self.chem_env_lobster0_NaSi.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
+            path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
             isites=[8],
             onlycation_isites=False,
             only_bonds_to=["Si"],
@@ -795,14 +822,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert info == "3 x Si-Si (per bond)"
 
         chem_env_lobster1.plot_cohps_of_neighbors(
-            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
             summed_spin_channels=True,
         )
 
         chem_env_lobster1.plot_cohps_of_neighbors(
-            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
             summed_spin_channels=True,
@@ -814,7 +841,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chem_env_lobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=cohpcar_lobster_mp_190,
+                path_to_cohpcar=cohpcar_lobster_mp_190,
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,
@@ -823,7 +850,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chem_env_lobster2.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=cohpcar_lobster_mp_190,
+                path_to_cohpcar=cohpcar_lobster_mp_190,
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,
