@@ -560,7 +560,7 @@ class NearNeighbors:
         """
         if isinstance(site, PeriodicNeighbor):
             return site.image
-        
+
         original_site = structure[NearNeighbors._get_original_site(structure, site)]
         image = np.around(np.subtract(site.frac_coords, original_site.frac_coords))
         return tuple(image.astype(int))
@@ -572,7 +572,7 @@ class NearNeighbors:
         """
         if isinstance(site, PeriodicNeighbor):
             return site.index
-        
+
         if isinstance(structure, (IStructure, Structure)):
             for i, s in enumerate(structure):
                 if site.is_periodic_image(s):
