@@ -543,7 +543,7 @@ class NearNeighbors:
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(structure, site):
+    def _get_image(structure: Structure, site: Site) -> tuple[int, int, int]:
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite and Structure.
 
@@ -552,11 +552,11 @@ class NearNeighbors:
         Note that this method takes O(number of sites) due to searching an original site.
 
         Args:
-            structure: Structure Object
-            site: PeriodicSite Object
+            structure (Structure): Structure Object
+            site (Site): PeriodicSite Object
 
         Returns:
-            image: ((int)*3) Lattice image
+            tuple[int, int , int] Lattice image
         """
         if isinstance(site, PeriodicNeighbor):
             return site.image
@@ -566,7 +566,7 @@ class NearNeighbors:
         return tuple(image.astype(int))
 
     @staticmethod
-    def _get_original_site(structure, site):
+    def _get_original_site(structure: Structure, site: Site) -> int:
         """Private convenience method for get_nn_info,
         gives original site index from ProvidedPeriodicSite.
         """
@@ -574,14 +574,14 @@ class NearNeighbors:
             return site.index
 
         if isinstance(structure, (IStructure, Structure)):
-            for i, s in enumerate(structure):
-                if site.is_periodic_image(s):
-                    return i
+            for idx, site in enumerate(structure):
+                if site.is_periodic_image(site):
+                    return idx
         else:
-            for i, s in enumerate(structure):
-                if site == s:
-                    return i
-        raise Exception("Site not found!")
+            for idx, site in enumerate(structure):
+                if site == site:
+                    return idx
+        raise ValueError("Site not found in structure")
 
     def get_bonded_structure(
         self,
