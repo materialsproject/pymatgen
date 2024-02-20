@@ -57,17 +57,19 @@ class LobsterNeighbors(NearNeighbors):
     def __init__(
         self,
         structure: Structure,
-        filename_ICOHP: str = "ICOHPLIST.lobster",
+        filename_icohp: str | None = "ICOHPLIST.lobster",
+        obj_icohp: Icohplist | None = None,
         are_coops: bool = False,
         are_cobis: bool = False,
         valences: list[float] | None = None,
         limits: tuple[float, float] | None = None,
         additional_condition: int = 0,
         only_bonds_to: list[str] | None = None,
-        perc_strength_ICOHP: float = 0.15,
+        perc_strength_icohp: float = 0.15,
         noise_cutoff: float = 0.1,
         valences_from_charges: bool = False,
-        filename_CHARGE: str | None = None,
+        filename_charge: str | None = None,
+        obj_charge: Charge | None = None,
         which_charge: str = "Mulliken",
         adapt_extremum_to_add_cond: bool = False,
         add_additional_data_sg: bool = False,
@@ -79,7 +81,8 @@ class LobsterNeighbors(NearNeighbors):
         """
 
         Args:
-            filename_ICOHP: (str) Path to ICOHPLIST.lobster or ICOOPLIST.lobster or ICOBILIST.lobster
+            filename_icohp: (str) Path to ICOHPLIST.lobster or ICOOPLIST.lobster or ICOBILIST.lobster
+            obj_icohp: Icohplist object
             structure: (Structure) typically constructed by Structure.from_file("POSCAR")
             are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
                 ICOHPLIST.lobster so far
@@ -95,13 +98,14 @@ class LobsterNeighbors(NearNeighbors):
                 DO_NOT_CONSIDER_ANION_CATION_BONDS=5
                 ONLY_CATION_CATION_BONDS=6
             only_bonds_to: (list[str]) will only consider bonds to certain elements (e.g. ["O"] for oxygen)
-            perc_strength_ICOHP: if no limits are given, this will decide which icohps will still be considered (
+            perc_strength_icohp: if no limits are given, this will decide which icohps will still be considered (
             relative to
             the strongest ICOHP (ICOOP or ICOBI)
             noise_cutoff: if provided hardcodes the lower limit of icohps considered
             valences_from_charges: if True and path to CHARGE.lobster is provided, will use Lobster charges (
             Mulliken) instead of valences
-            filename_CHARGE: (str) Path to Charge.lobster
+            filename_charge: (str) Path to Charge.lobster
+            obj_charge: Charge object
             which_charge: (str) "Mulliken" or "Loewdin"
             adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
             additional condition
@@ -113,7 +117,12 @@ class LobsterNeighbors(NearNeighbors):
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
                 e.g., "icoop" or "icobi".
         """
-        self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_ICOHP)
+        if filename_icohp is not None:
+            self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)
+        elif obj_icohp is not None:
+            self.ICOHP = obj_icohp
+        else:
+            raise ValueError("Please provide either filename_icohp or obj_icohp")
         self.Icohpcollection = self.ICOHP.icohpcollection
         self.structure = structure
         self.limits = limits
@@ -167,8 +176,10 @@ class LobsterNeighbors(NearNeighbors):
         # will read in valences, will prefer manual setting of valences
         self.valences: list[float] | None
         if valences is None:
-            if valences_from_charges and filename_CHARGE is not None:
-                chg = Charge(filename=filename_CHARGE)
+            if valences_from_charges and filename_charge is not None:
+                chg = Charge(filename=filename_charge)
+            if valences_from_charges and obj_charge is not None:
+                chg = obj_charge
                 if which_charge == "Mulliken":
                     self.valences = chg.Mulliken
                 elif which_charge == "Loewdin":
@@ -199,7 +210,7 @@ class LobsterNeighbors(NearNeighbors):
             upperlimit=self.upperlimit,
             only_bonds_to=only_bonds_to,
             additional_condition=self.additional_condition,
-            perc_strength_ICOHP=perc_strength_ICOHP,
+            perc_strength_icohp=perc_strength_icohp,
             adapt_extremum_to_add_cond=adapt_extremum_to_add_cond,
         )
 
@@ -235,7 +246,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n, use_weights=False):
+    def get_nn_info(self, structure: Structure, n, use_weights: bool = False):
         """
         Get coordination number, CN, of site with index n in structure.
 
@@ -408,21 +419,24 @@ class LobsterNeighbors(NearNeighbors):
 
     def plot_cohps_of_neighbors(
         self,
-        path_to_COHPCAR="COHPCAR.lobster",
-        isites=None,
-        onlycation_isites=True,
-        only_bonds_to=None,
-        per_bond=False,
-        summed_spin_channels=False,
+        path_to_cohpcar: str | None = "COHPCAR.lobster",
+        obj_cohpcar: CompleteCohp | None = None,
+        isites: list[int] | None = None,
+        onlycation_isites: bool = True,
+        only_bonds_to: list[str] | None = None,
+        per_bond: bool = False,
+        summed_spin_channels: bool = False,
         xlim=None,
         ylim=(-10, 6),
-        integrated=False,
+        integrated: bool = False,
     ):
         """
         Will plot summed cohps or cobis or coops
         (please be careful in the spin polarized case (plots might overlap (exactly!)).
 
         Args:
+            path_to_cohpcar: str, path to COHPCAR or COOPCAR or COBICAR
+            obj_cohpcar: CompleteCohp object
             isites: list of site ids, if isite==[], all isites will be used to add the icohps of the neighbors
             onlycation_isites: bool, will only use cations, if isite==[]
             only_bonds_to: list of str, only anions in this list will be considered
@@ -442,7 +456,8 @@ class LobsterNeighbors(NearNeighbors):
         cp = CohpPlotter(are_cobis=self.are_cobis, are_coops=self.are_coops)
 
         plotlabel, summed_cohp = self.get_info_cohps_to_neighbors(
-            path_to_COHPCAR,
+            path_to_cohpcar,
+            obj_cohpcar,
             isites,
             only_bonds_to,
             onlycation_isites,
@@ -462,19 +477,21 @@ class LobsterNeighbors(NearNeighbors):
 
     def get_info_cohps_to_neighbors(
         self,
-        path_to_COHPCAR="COHPCAR.lobster",
-        isites=None,
-        only_bonds_to=None,
-        onlycation_isites=True,
-        per_bond=True,
-        summed_spin_channels=False,
+        path_to_cohpcar: str | None = "COHPCAR.lobster",
+        obj_cohpcar: CompleteCohp | None = None,
+        isites: list[int] | None = None,
+        only_bonds_to: list[str] | None = None,
+        onlycation_isites: bool = True,
+        per_bond: bool = True,
+        summed_spin_channels: bool = False,
     ):
         """
         Return info about the cohps (coops or cobis) as a summed cohp object and a label
         from all sites mentioned in isites with neighbors.
 
         Args:
-            path_to_COHPCAR: str, path to COHPCAR or COOPCAR or COBICAR
+            path_to_cohpcar: str, path to COHPCAR or COOPCAR or COBICAR
+            obj_cohpcar: CompleteCohp object
             isites: list of int that indicate the number of the site
             only_bonds_to: list of str, e.g. ["O"] to only show cohps of anything to oxygen
             onlycation_isites: if isites=None, only cation sites will be returned
@@ -493,16 +510,21 @@ class LobsterNeighbors(NearNeighbors):
         with tempfile.TemporaryDirectory() as t:
             path = f"{t}/POSCAR.vasp"
 
-            self.structure.to(filename=path, fmt="POSCAR")
+            self.structure.to(filename=path, fmt="poscar")
 
             if not hasattr(self, "completecohp"):
-                self.completecohp = CompleteCohp.from_file(
-                    fmt="LOBSTER",
-                    filename=path_to_COHPCAR,
-                    structure_file=path,
-                    are_coops=self.are_coops,
-                    are_cobis=self.are_cobis,
-                )
+                if path_to_cohpcar is not None and obj_cohpcar is None:
+                    self.completecohp = CompleteCohp.from_file(
+                        fmt="LOBSTER",
+                        filename=path_to_cohpcar,
+                        structure_file=path,
+                        are_coops=self.are_coops,
+                        are_cobis=self.are_cobis,
+                    )
+                elif obj_cohpcar is not None:
+                    self.completecohp = obj_cohpcar
+                else:
+                    raise ValueError("Please provide either path_to_cohpcar or obj_cohpcar")
 
         # will check that the number of bonds in ICOHPLIST and COHPCAR are identical
         # further checks could be implemented
@@ -681,9 +703,9 @@ class LobsterNeighbors(NearNeighbors):
         lowerlimit,
         upperlimit,
         only_bonds_to=None,
-        additional_condition=0,
-        perc_strength_ICOHP=0.15,
-        adapt_extremum_to_add_cond=False,
+        additional_condition: int = 0,
+        perc_strength_icohp: float = 0.15,
+        adapt_extremum_to_add_cond: bool = False,
     ) -> None:
         """
         Args:
@@ -693,7 +715,7 @@ class LobsterNeighbors(NearNeighbors):
             neighbors
             only_bonds_to: restricts the types of bonds that will be considered
             additional_condition: Additional condition for the evaluation
-            perc_strength_ICOHP: will be used to determine how strong the ICOHPs (percentage*strongest ICOHP) will be
+            perc_strength_icohp: will be used to determine how strong the ICOHPs (percentage*strongest ICOHP) will be
             that are still considered for the evaluation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
             extremum.
@@ -702,7 +724,7 @@ class LobsterNeighbors(NearNeighbors):
         if lowerlimit is None and upperlimit is None:
             lowerlimit, upperlimit = self._get_limit_from_extremum(
                 self.Icohpcollection,
-                percentage=perc_strength_ICOHP,
+                percentage=perc_strength_icohp,
                 adapt_extremum_to_add_cond=adapt_extremum_to_add_cond,
                 additional_condition=additional_condition,
             )

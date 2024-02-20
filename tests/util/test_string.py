@@ -91,28 +91,28 @@ class TestFunc(unittest.TestCase):
         assert charge_string(0) == "(aq)"
 
     def test_transformation_to_str(self):
-        m = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         t = [0, 0, 0]
-        s = "x,y,z"
+        xyz = "x,y,z"
         ms = "mx,my,mz"
         abc = "a,b,c"
-        assert s == transformation_to_string(m, t)
-        assert ms == transformation_to_string(m, t, c="m")
-        assert abc == transformation_to_string(m, t, components=("a", "b", "c"))
+        assert xyz == transformation_to_string(matrix, t)
+        assert ms == transformation_to_string(matrix, t, c="m")
+        assert abc == transformation_to_string(matrix, t, components=("a", "b", "c"))
 
-        m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         t = [11, 12, 13]
-        s = "x+2y+3z+11,4x+5y+6z+12,7x+8y+9z+13"
-        assert s == transformation_to_string(m, t)
+        xyz = "x+2y+3z+11,4x+5y+6z+12,7x+8y+9z+13"
+        assert xyz == transformation_to_string(matrix, t)
 
-        m = [
+        matrix = [
             [-1 / 2, -2 / 3, -3 / 4],
             [-5 / 6, -6 / 7, -7 / 8],
             [-8 / 9, -9 / 10, -10 / 11],
         ]
         t = [-11 / 12, -12 / 13, -13 / 14]
-        s = "-x/2-2y/3-3z/4-11/12,-5x/6-6y/7-7z/8-12/13,-8x/9-9y/10-10z/11-13/14"
-        assert s == transformation_to_string(m, t)
+        xyz = "-x/2-2y/3-3z/4-11/12,-5x/6-6y/7-7z/8-12/13,-8x/9-9y/10-10z/11-13/14"
+        assert xyz == transformation_to_string(matrix, t)
 
     def test_disordered_formula(self):
         disordered_struct = Structure(

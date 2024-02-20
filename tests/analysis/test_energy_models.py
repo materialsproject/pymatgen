@@ -33,39 +33,38 @@ class TestEwaldElectrostaticModel(unittest.TestCase):
         assert m.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 
     def test_as_from_dict(self):
-        m = EwaldElectrostaticModel()
-        d = m.as_dict()
-        assert isinstance(EwaldElectrostaticModel.from_dict(d), EwaldElectrostaticModel)
+        model = EwaldElectrostaticModel()
+        dct = model.as_dict()
+        restored = EwaldElectrostaticModel.from_dict(dct)
+        assert isinstance(restored, EwaldElectrostaticModel)
 
 
 class TestSymmetryModel(unittest.TestCase):
     def test_get_energy(self):
-        m = SymmetryModel()
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
-        assert m.get_energy(s2) == approx(-225)
+        model = SymmetryModel()
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        assert model.get_energy(struct) == approx(-225)
 
     def test_as_from_dict(self):
-        m = SymmetryModel(symprec=0.2)
-        d = m.as_dict()
-        o = SymmetryModel.from_dict(d)
-        assert isinstance(o, SymmetryModel)
-        assert o.symprec == approx(0.2)
+        model = SymmetryModel(symprec=0.2)
+        restored = SymmetryModel.from_dict(model.as_dict())
+        assert isinstance(restored, SymmetryModel)
+        assert restored.symprec == approx(0.2)
 
 
 class TestIsingModel(unittest.TestCase):
     def test_get_energy(self):
-        m = IsingModel(5, 6)
+        model = IsingModel(5, 6)
 
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         struct.replace_species({"Fe": Species("Fe", 2, spin=4)})
-        assert m.get_energy(struct) == approx(172.81260515787977)
+        assert model.get_energy(struct) == approx(172.81260515787977)
         struct[4] = Species("Fe", 2, spin=-4)
         struct[5] = Species("Fe", 2, spin=-4)
-        assert m.get_energy(struct) == approx(51.97424405382921)
+        assert model.get_energy(struct) == approx(51.97424405382921)
 
     def test_as_from_dict(self):
-        m = IsingModel(5, 4)
-        d = m.as_dict()
-        o = IsingModel.from_dict(d)
-        assert isinstance(o, IsingModel)
-        assert o.j == approx(5)
+        model = IsingModel(5, 4)
+        restored = IsingModel.from_dict(model.as_dict())
+        assert isinstance(restored, IsingModel)
+        assert restored.j == approx(5)

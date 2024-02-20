@@ -23,6 +23,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     POTCAR_STATS_PATH,
     BadIncarWarning,
+    BadPoscarWarning,
     Incar,
     Kpoints,
     KpointsSupportedModes,
@@ -449,6 +450,76 @@ direct
             [False, False, False],
         ]
 
+    def test_invalid_selective_dynamics(self):
+        """
+        Check invalid selective dynamics info. The POSCAR string
+        'invalid_poscar_str' represents a case with incorrect
+        placement of selective dynamics information (Comment like 'Si' should
+        be followed by selective dynamics values 'T' or 'F').
+        """
+        invalid_poscar_str = """POSCAR with invalid selective dynamics info
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 Si T T F
+3.840198   1.50000000   2.35163175 F T T F
+"""
+        with pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either 'T' or 'F'."):
+            Poscar.from_str(invalid_poscar_str)
+
+    def test_selective_dynamics_with_fluorine(self):
+        """
+        Check ambiguous selective dynamics info when Fluorine(F) is
+        included and position lines include comments.
+        """
+        poscar_str_with_fluorine = """Selective dynamics toggled with Fluorine
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 Si T T F
+3.840198   1.50000000   2.35163175 F T T F
+"""
+        with pytest.warns(
+            BadPoscarWarning,
+            match=(
+                "Selective dynamics toggled with Fluorine element detected. "
+                "Make sure the 4th-6th entry each position line is selective dynamics info."
+            ),
+        ):
+            Poscar.from_str(poscar_str_with_fluorine)
+
+    def test_all_DOFs_relaxed(self):
+        """
+        A warning should be issued when selective dynamics is toggled
+        while ALL degrees of freedom are relaxed.
+        """
+        poscar_str_all_dof_relaxed = """All degrees of freedom relaxed
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si O
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 T T T
+3.840198   1.50000000   2.35163175 T T T
+"""
+        with pytest.warns(
+            BadPoscarWarning, match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed."
+        ):
+            Poscar.from_str(poscar_str_all_dof_relaxed)
+
     def test_vasp_6_4_2_format(self):
         # As of vasp 6.4.2, when using POTCARs with SHAs, there can
         # be a slash in the element names
@@ -762,53 +833,36 @@ SIGMA = 0.1"""
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
+        assert Incar.proc_val("ML_MODE", "train") == "train"
+        assert Incar.proc_val("ML_MODE", "RUN") == "run"
+        assert Incar.proc_val("ALGO", "fast") == "Fast"
 
     def test_check_params(self):
-        # Triggers warnings when running into nonsensical parameters
+        # Triggers warnings when running into invalid parameters
         with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
                     "ALGO": "Normal",
                     "AMIN": 0.01,
-                    "AMIX": 0.2,
-                    "BMIX": 0.001,
-                    "EDIFF": 5 + 1j,  # EDIFF needs to be real
-                    "EDIFFG": -0.01,
-                    "ENCUT": 520,
-                    "IBRION": 2,
                     "ICHARG": 1,
-                    "ISIF": 9,
-                    "ISMEAR": 1,
-                    "ISPIN": 2,
-                    "LASPH": 5,  # Should be a bool
-                    "LORBIT": 11,
-                    "LREAL": "Auto",
-                    "LWAVE": False,
                     "MAGMOM": [1, 2, 4, 5],
-                    "METAGGA": "SCAM",  # spelling mistake
-                    "NELM": 200,
-                    "NPAR": 4,
-                    "NSW": 99,
-                    "PREC": "Accurate",
-                    "SIGMA": 0.2,
-                    "NBAND": 250,  # spelling mistake
-                    "PHON_TLIST": "is_a_str",  # this parameter should be a list
-                    "LATTICE_CONSTRAINTS": [
-                        True,
-                        False,
-                        "f",
-                    ],  # Should be a list of bools
-                    "M_CONSTR": [True, 1, "string"],  # Should be a list of real numbers
+                    "NBAND": 250,  # typo in tag
+                    "METAGGA": "SCAM",  # typo in value
+                    "EDIFF": 5 + 1j,  # value should be a float
+                    "ISIF": 9,  # value out of range
+                    "LASPH": 5,  # value should be bool
+                    "PHON_TLIST": "is_a_str",  # value should be a list
                 }
             )
             incar.check_params()
 
-        assert "ISIF: Cannot find 9 in the list of parameters" in record[0].message.args
-        assert "LASPH: 5 is not a bool" in record[1].message.args
-        assert "METAGGA: Cannot find SCAM in the list of parameters" in record[2].message.args
-        assert "Cannot find NBAND in the list of INCAR flags" in record[3].message.args
-        assert "PHON_TLIST: is_a_str is not a list" in record[4].message.args
+        assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
+        assert record[1].message.args[0] == "METAGGA: Cannot find SCAM in the list of values"
+        assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
+        assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
+        assert record[4].message.args[0] == "LASPH: 5 is not a bool"
+        assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
 
 
 class TestKpointsSupportedModes:

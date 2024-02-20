@@ -793,16 +793,14 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
-"""
-Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
-instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
-When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
-require CorrectionsList.
+# Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
+# instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
+# When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
+# require CorrectionsList.
 
-This was particularly helpful for the AqueousCorrection class. The new system gives complete
-flexibility to process entries however needed inside the get_adjustments() method, rather than
-having to create a list of separate correction classes.
-"""
+# This was particularly helpful for the AqueousCorrection class. The new system gives complete
+# flexibility to process entries however needed inside the get_adjustments() method, rather than
+# having to create a list of separate correction classes.
 
 
 @cached_class

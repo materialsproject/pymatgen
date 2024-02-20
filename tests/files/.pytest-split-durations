@@ -1036,7 +1036,7 @@
     "tests/core/test_structure.py::TestMolecule::test_translate_sites": 0.0019293749937787652,
     "tests/core/test_structure.py::TestNeighbor::test_msonable": 0.0021466249600052834,
     "tests/core/test_structure.py::TestNeighbor::test_neighbor_labels": 0.0014545419835485518,
-    "tests/core/test_structure.py::TestStructure::test_add_oxidation_states_by_element": 0.06694620900088921,
+    "tests/core/test_structure.py::TestStructure::test_add_oxidation_state_by_element": 0.06694620900088921,
     "tests/core/test_structure.py::TestStructure::test_add_oxidation_states_by_guess": 0.002574582991655916,
     "tests/core/test_structure.py::TestStructure::test_add_oxidation_states_by_site": 0.0022316250251606107,
     "tests/core/test_structure.py::TestStructure::test_add_remove_site_property": 0.002218457986600697,

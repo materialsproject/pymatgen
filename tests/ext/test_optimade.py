@@ -9,16 +9,14 @@ from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    website_down = requests.get("https://materialsproject.org").status_code != 200
+    # 403 is returned when server detects bot-like behavior
+    website_down = requests.get("https://materialsproject.org").status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
     website_down = True
 
 
 class TestOptimade(PymatgenTest):
-    @unittest.skipIf(
-        not SETTINGS.get("PMG_MAPI_KEY") or website_down,
-        "PMG_MAPI_KEY environment variable not set or MP is down.",
-    )
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY") or website_down, "PMG_MAPI_KEY env var not set or MP is down.")
     def test_get_structures_mp(self):
         with OptimadeRester("mp") as optimade:
             structs = optimade.get_structures(elements=["Ga", "N"], nelements=2)
@@ -36,10 +34,7 @@ class TestOptimade(PymatgenTest):
                     raw_filter_structs["mp"]
                 ), f"Raw filter {_filter} did not return the same number of results as the query builder."
 
-    @unittest.skipIf(
-        not SETTINGS.get("PMG_MAPI_KEY") or website_down,
-        "PMG_MAPI_KEY environment variable not set or MP is down.",
-    )
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY") or website_down, "PMG_MAPI_KEY env var not set or MP is down.")
     def test_get_snls_mp(self):
         base_query = dict(elements=["Ga", "N"], nelements=2, nsites=[2, 6])
         with OptimadeRester("mp") as optimade:
