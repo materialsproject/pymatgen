@@ -6,8 +6,6 @@ from string import ascii_uppercase
 from time import time
 from typing import TYPE_CHECKING
 
-from monty.dev import requires
-
 from pymatgen.command_line.mcsqs_caller import Sqs
 from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -28,7 +26,6 @@ if TYPE_CHECKING:
     from ase import Atoms
 
 
-@requires(ClusterSpace is not None, "IcetSQS requires the icet package. Use `pip install icet`")
 class IcetSQS:
     """Interface to the icet library of SQS structure generation tools."""
 
@@ -81,6 +78,9 @@ class IcetSQS:
         Returns:
             None
         """
+        if ClusterSpace is None:
+            raise ImportError("IcetSQS requires the icet package. Use `pip install icet`")
+
         self._structure = structure
         self.scaling = scaling
         self.instances = instances or multiproc.cpu_count()
@@ -311,11 +311,6 @@ class IcetSQS:
                 best_sqs = {"structure": structure, "objective_function": objective}
         output_list.append(best_sqs)
 
-    def monte_carlo_sqs_structures(self) -> list:
-        """Run `self.instances` Monte Carlo SQS search with Icet."""
-        with multiproc.Pool(self.instances) as pool:
-            return pool.starmap(self._single_monte_carlo_sqs_run, [() for _ in range(self.instances)])
-
     def _single_monte_carlo_sqs_run(self):
         """Run a single Monte Carlo SQS search with Icet."""
         cluster_space = self._get_cluster_space()
@@ -329,3 +324,8 @@ class IcetSQS:
             "structure": sqs_structure,
             "objective_function": self.get_icet_sqs_obj(sqs_structure, cluster_space=cluster_space),
         }
+
+    def monte_carlo_sqs_structures(self) -> list:
+        """Run `self.instances` Monte Carlo SQS search with Icet."""
+        with multiproc.Pool(self.instances) as pool:
+            return pool.starmap(self._single_monte_carlo_sqs_run, [() for _ in range(self.instances)])

@@ -14,7 +14,7 @@ from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io.icet import loaded_icet
+from pymatgen.io.icet import ClusterSpace
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -644,10 +644,26 @@ class TestSQSTransformation(PymatgenTest):
         assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
-@unittest.skipIf(not loaded_icet, "icet not installed.")
+@unittest.skipIf(ClusterSpace is None, "icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
     stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
+
+    def test_icet_import(self):
+        from pymatgen.io import icet as icet_interface
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            monkeypatch.setattr(icet_interface, "ClusterSpace", None)
+
+            with pytest.raises(ImportError):
+                icet_interface.IcetSQS(
+                    structure=self.stored_run["disordered_structure"],
+                    scaling=self.scaling,
+                    instances=None,
+                    cluster_cutoffs={
+                        2: 5.0,
+                    },
+                )
 
     def test_enumeration(self):
         sqs = SQSTransformation(
