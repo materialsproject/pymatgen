@@ -1501,9 +1501,8 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             PeriodicNeighbor
         """
-        site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
-        for frac_coord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
+        for frac_coord, dist, i, img in self._lattice.get_points_in_sphere(self.frac_coords, pt, r):
             nn_site = PeriodicNeighbor(
                 self[i].species,
                 frac_coord,
