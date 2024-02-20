@@ -574,12 +574,12 @@ class NearNeighbors:
             return site.index
 
         if isinstance(structure, (IStructure, Structure)):
-            for idx, site in enumerate(structure):
-                if site.is_periodic_image(site):
+            for idx, struc_site in enumerate(structure):
+                if site.is_periodic_image(struc_site):
                     return idx
         else:
-            for idx, site in enumerate(structure):
-                if site == site:
+            for idx, struc_site in enumerate(structure):
+                if site == struc_site:
                     return idx
         raise ValueError("Site not found in structure")
 
