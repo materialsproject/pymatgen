@@ -2210,7 +2210,7 @@
     "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_hubbard_off_and_ediff_override": 0.004546375945210457,
     "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_incar_lmaxmix": 0.008337250037584454,
     "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_lda_potcar": 0.035044250020291656,
-    "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_metal_check": 0.006276416010223329,
+    "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_warnings": 0.006276416010223329,
     "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_nelect": 1.6427247499814257,
     "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_poscar": 0.006406874977983534,
     "tests/io/vasp/test_sets.py::TestMITMPRelaxSet::test_potcar_special_defaults": 0.008440207981038839,
