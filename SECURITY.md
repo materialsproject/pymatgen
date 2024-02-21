@@ -6,7 +6,7 @@ We only provide active support for the [latest release](https://pypi.org/project
 
 ## Reporting a Vulnerability
 
-Please submit any vulnerabilities or bug reports via [GitHub issues](https://github.com/materialsproject/pymatgen/issues).
+Please submit any vulnerabilities or bug reports via [GitHub private vulnerability reporting](https://github.com/materialsproject/pymatgen/security/advisories/new).
 
 ## Previously Known Vulnerabilities
 
