@@ -178,7 +178,11 @@ class LobsterNeighbors(NearNeighbors):
         if valences is None:
             if valences_from_charges and filename_charge is not None:
                 chg = Charge(filename=filename_charge)
-            if valences_from_charges and obj_charge is not None:
+                if which_charge == "Mulliken":
+                    self.valences = chg.Mulliken
+                elif which_charge == "Loewdin":
+                    self.valences = chg.Loewdin
+            elif valences_from_charges and obj_charge is not None:
                 chg = obj_charge
                 if which_charge == "Mulliken":
                     self.valences = chg.Mulliken
