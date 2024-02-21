@@ -868,39 +868,5 @@ class TestLobsterNeighbors(unittest.TestCase):
     def test_valences(self):
         assert self.chem_env_lobster1_charges_noisecutoff.valences == [0.75, -0.75]  # Mulliken
         assert self.chem_env_lobster1_charges_loewdin.valences == [0.27, 0.27, 0.27, 0.27, -0.54, -0.54]
-        assert self.chem_env_w_obj.valences == [
-            0.67,
-            0.67,
-            0.67,
-            0.67,
-            0.7,
-            0.7,
-            0.7,
-            0.7,
-            -0.7,
-            -0.7,
-            -0.7,
-            -0.7,
-            -0.68,
-            -0.68,
-            -0.68,
-            -0.68,
-        ]  # charge_obj
-        assert self.chem_env_lobster_NaSi_wo_charges.valences == [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            -1,
-            -1,
-            -1,
-            -1,
-            -1,
-            -1,
-            -1,
-            -1,
-        ]  # BVA
+        assert self.chem_env_w_obj.valences == [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4  # charge_obj
+        assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA
