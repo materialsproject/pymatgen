@@ -49,7 +49,7 @@ class TestStress(PymatgenTest):
         assert list(self.symm_stress.voigt) == [0.51, 5.14, 5.33, 5.07, 2.42, 2.29]
 
         with pytest.warns(
-            UserWarning, match="Tensor is not symmetric, information may be lost in voigt conversion"
+            UserWarning, match="Tensor is not symmetric, information may be lost in Voigt conversion"
         ) as warns:
             _ = self.non_symm.voigt
         assert len(warns) == 1

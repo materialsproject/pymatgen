@@ -467,16 +467,15 @@ class InterfacialReactivity(MSONable):
             The lowest entry energy among entries matching the composition.
         """
         candidate = [
-            i.energy_per_atom
-            for i in pd.qhull_entries
-            if i.composition.fractional_composition == composition.fractional_composition
+            entry.energy_per_atom
+            for entry in pd.qhull_entries
+            if entry.composition.fractional_composition == composition.fractional_composition
         ]
 
         if not candidate:
             warnings.warn(
                 f"The reactant {composition.reduced_formula} has no matching entry with negative formation"
-                " energy, instead convex hull energy for this"
-                " composition will be used for reaction energy calculation. "
+                " energy, instead convex hull energy for this composition will be used for reaction energy calculation."
             )
             return pd.get_hull_energy(composition)
         min_entry_energy = min(candidate)
