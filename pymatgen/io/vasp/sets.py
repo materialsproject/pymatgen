@@ -743,15 +743,23 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
+        ismear = incar.get("ISMEAR", 1)
+        sigma = incar.get("SIGMA", 0.2)
         if (
-            all(k.is_metal for k in structure.composition)
+            all(elem.is_metal for elem in structure.composition)
             and incar.get("NSW", 0) > 0
-            and (incar.get("ISMEAR", 1) < 0 or (incar.get("ISMEAR", 1) == 0 and incar.get("SIGMA", 0.2) > 0.05))
+            and (ismear < 0 or (ismear == 0 and sigma > 0.05))
         ):
+            ismear_docs = "https://www.vasp.at/wiki/index.php/ISMEAR"
+            msg = ""
+            if ismear < 0:
+                msg = f"Relaxation of likely metal with ISMEAR < 0 ({ismear})."
+            elif ismear == 0 and sigma > 0.05:
+                msg = f"ISMEAR = 0 with a small SIGMA ({sigma}) detected."
             warnings.warn(
-                "Relaxation of likely metal with ISMEAR < 0 or ISMEAR = 1 with a small SIGMA detected. See VASP "
-                "recommendations on ISMEAR for metals.",
+                f"{msg} See VASP recommendations on ISMEAR for metals ({ismear_docs}).",
                 BadInputSetWarning,
+                stacklevel=1,
             )
 
         return incar
