@@ -198,23 +198,33 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert vis.as_dict()["structure"] is not None
         assert "structure" not in vis.as_dict(verbosity=1)
 
-    def test_metal_check(self):
+    def test_warnings(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
-        with pytest.warns(
-            BadInputSetWarning,
-            match="Relaxation of likely metal with ISMEAR < 1 detected. "
-            "See VASP recommendations on ISMEAR for metals.",
-        ) as warns_metal:
-            vis = self.set(structure)
+        vis = self.set(structure)
+        with pytest.warns(BadInputSetWarning) as warns_metal:
             _ = vis.incar
         assert len(warns_metal) == 1
+        vasp_docs_link = "See VASP recommendations on ISMEAR for metals (https://www.vasp.at/wiki/index.php/ISMEAR)."
+        assert (
+            str(warns_metal[0].message)
+            == f"Relaxation of likely metal with ISMEAR < 0 ({vis.incar['ISMEAR']}). {vasp_docs_link}"
+        )
+
+        # test different warning for ismear == 0 and sigma > 0.05
+        vis = self.set(structure, user_incar_settings={"ISMEAR": 0, "SIGMA": 0.1})
+        with pytest.warns(BadInputSetWarning) as warns_metal:
+            _ = vis.incar
+        assert len(warns_metal) == 1
+        assert (
+            str(warns_metal[0].message)
+            == f"ISMEAR = 0 with a small SIGMA ({vis.incar['SIGMA']}) detected. {vasp_docs_link}"
+        )
 
         with pytest.warns(
             BadInputSetWarning,
             match="Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
-            "generates an adequate number of KPOINTS, lower KSPACING, or "
-            "set ISMEAR = 0",
+            "generates an adequate number of KPOINTS, lower KSPACING, or set ISMEAR = 0",
         ) as warns_kspacing:
             vis = self.set(structure, user_incar_settings={"KSPACING": 1, "ISMEAR": -5})
             _ = vis.incar
