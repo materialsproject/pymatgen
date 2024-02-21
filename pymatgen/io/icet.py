@@ -160,8 +160,8 @@ class IcetSQS:
         """
 
         sqs_structures = self.sqs_getter()
-        for ientry in range(len(sqs_structures)):
-            sqs_structures[ientry]["structure"] = AseAtomsAdaptor.get_structure(sqs_structures[ientry]["structure"])
+        for idx in range(len(sqs_structures)):
+            sqs_structures[idx]["structure"] = AseAtomsAdaptor.get_structure(sqs_structures[idx]["structure"])
         sqs_structures = sorted(sqs_structures, key=lambda entry: entry["objective_function"])
 
         return Sqs(
@@ -185,19 +185,17 @@ class IcetSQS:
                 }
         """
         uppercase_letters = list(ascii_uppercase)
-        iletter = 0
+        idx = 0
         self.composition: dict[str, dict] = {}
-        for isite in range(len(self._structure)):
-            site_comp = self._structure.sites[isite].species.as_dict()
+        for idx, site in enumerate(self._structure):
+            site_comp = site.species.as_dict()
             if site_comp not in self.composition.values():
-                self.composition[uppercase_letters[iletter]] = site_comp
-                iletter += 1
+                self.composition[uppercase_letters[idx]] = site_comp
+                idx += 1
 
     def _get_cluster_space(self) -> ClusterSpace:
         """Generate the ClusterSpace object for icet."""
-        chemical_symbols = [
-            list(self._structure.sites[isite].species.as_dict()) for isite in range(self._structure.num_sites)
-        ]
+        chemical_symbols = [list(site.species.as_dict()) for site in self._structure]
         return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: _ClusterSpace | None = None) -> float:
@@ -235,10 +233,9 @@ class IcetSQS:
             cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
 
         Returns:
-            list : a list of dicts of the form:
-                {
-                    "structure": < SQS structure >,
-                    "objective_function": < SQS objective function>
+            list : a list of dicts of the form: {
+                    "structure": SQS structure,
+                    "objective_function": SQS objective function,
                 }
         """
 
@@ -246,8 +243,8 @@ class IcetSQS:
         # restricted enumeration
         cr: dict[str, tuple] = {}
         cluster_space = cluster_space or self._get_cluster_space()
-        sublattices = cluster_space.get_sublattices(cluster_space.primitive_structure)
-        for sl in sublattices:
+        sub_lattices = cluster_space.get_sublattices(cluster_space.primitive_structure)
+        for sl in sub_lattices:
             mult_factor = len(sl.indices) / len(cluster_space.primitive_structure)
             if sl.symbol in self.target_concentrations:
                 sl_conc = self.target_concentrations[sl.symbol]
@@ -273,21 +270,18 @@ class IcetSQS:
 
         structures = enumerate_structures(prim, sizes, cluster_space.chemical_symbols, concentration_restrictions=cr)
         chunks: list[list[Atoms]] = [[] for _ in range(self.instances)]
-        iproc = 0
+        proc_idx = 0
         for structure in structures:
-            chunks[iproc].append(structure)
-            iproc = (iproc + 1) % self.instances
+            chunks[proc_idx].append(structure)
+            proc_idx = (proc_idx + 1) % self.instances
 
         manager = multiproc.Manager()
         working_list = manager.list()
         processes = []
-        for iproc in range(self.instances):
+        for proc_idx in range(self.instances):
             process = multiproc.Process(
                 target=self._get_best_sqs_from_list,
-                args=(
-                    chunks[iproc],
-                    working_list,
-                ),
+                args=(chunks[proc_idx], working_list),
             )
             processes.append(process)
             process.start()
