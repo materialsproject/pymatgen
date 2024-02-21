@@ -8,6 +8,8 @@ nav_order: 4
 
 ## v2024.2.20
 
+This release addresses an important security issue that might affect some users of pymatgen who are parsing untrusted user input, for example a server using pymatgen to parse a user-uploaded CIF file. More information is available in the associated [CVE](https://github.com/materialsproject/pymatgen/security/advisories/GHSA-vgv8-5cpj-qj2f). Thank you to [William Khem-Marquez (@SteakEnthusiast)](https://github.com/SteakEnthusiast) for the discovery and responsible disclosure of this issue.
+
 ### 🐛 Bug Fixes
 * Revert back `TransformedStructure.__getattr__` by @mjwen in https://github.com/materialsproject/pymatgen/pull/3617
 * Fixed Incar object to allow for ML_MODE vasp tag by @davidwaroquiers in https://github.com/materialsproject/pymatgen/pull/3625
