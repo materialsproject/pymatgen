@@ -873,6 +873,7 @@ class Incar(dict, MSONable):
             "LDAUTYPE",
             "IVDW",
         )
+        lower_str_keys = ("ML_MODE",)
 
         def smart_int_or_float(num_str):
             if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
@@ -903,6 +904,9 @@ class Incar(dict, MSONable):
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))  # type: ignore
+
+            if key in lower_str_keys:
+                return val.strip().lower()
 
         except ValueError:
             pass
