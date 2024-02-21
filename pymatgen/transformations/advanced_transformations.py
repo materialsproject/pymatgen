@@ -2056,9 +2056,8 @@ class SQSTransformation(AbstractTransformation):
                 raise ValueError(
                     f"icet can only scale the input cell by a positive integer factor, not {self.scaling}."
                 )
-            icet_defaults = {"optimality_weight": self.wr, "T_start": self.temperature}
-            for key in icet_defaults:
-                self.icet_sqs_kwargs[key] = self.icet_sqs_kwargs.get(key, icet_defaults[key])
+            self.icet_sqs_kwargs.setdefault("optimality_weight", self.wr)
+            self.icet_sqs_kwargs.setdefault("T_start", self.temperature)
 
             sqs = IcetSQS(
                 structure=structure,

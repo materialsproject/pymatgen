@@ -650,19 +650,17 @@ class TestSQSTransformationIcet(PymatgenTest):
     scaling: int = 8
 
     def test_icet_import(self):
-        from pymatgen.io import icet as icet_interface
+        from pymatgen.io import icet as icet_mod
 
         with pytest.MonkeyPatch.context() as monkeypatch:
-            monkeypatch.setattr(icet_interface, "ClusterSpace", None)
+            monkeypatch.setattr(icet_mod, "ClusterSpace", None)
 
             with pytest.raises(ImportError):
-                icet_interface.IcetSQS(
+                icet_mod.IcetSQS(
                     structure=self.stored_run["disordered_structure"],
                     scaling=self.scaling,
                     instances=None,
-                    cluster_cutoffs={
-                        2: 5.0,
-                    },
+                    cluster_cutoffs={2: 5.0},
                 )
 
     def test_enumeration(self):
@@ -690,8 +688,8 @@ class TestSQSTransformationIcet(PymatgenTest):
         assert len(sqs_output) == 1
         assert isinstance(sqs_output[0], dict)
         expected_types = {"structure": Structure, "objective_function": float}
-        for key, value in expected_types.items():
-            assert isinstance(sqs_output[0][key], value)
+        for key, val in expected_types.items():
+            assert isinstance(sqs_output[0][key], val)
 
 
 class TestCubicSupercellTransformation(PymatgenTest):
