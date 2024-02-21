@@ -27,7 +27,10 @@ if TYPE_CHECKING:
 
 
 class IcetSQS:
-    """Interface to the icet library of SQS structure generation tools."""
+    """Interface to the Icet library of SQS structure generation tools.
+
+    https://icet.materialsmodeling.org
+    """
 
     sqs_kwarg_names: dict[str, tuple[str, ...]] = {
         "monte_carlo": (
