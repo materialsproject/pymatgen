@@ -6,6 +6,44 @@ nav_order: 4
 
 # Changelog
 
+## v2024.2.20
+
+This release addresses an important security issue that might affect some users of pymatgen who are parsing untrusted user input, for example a server using pymatgen to parse a user-uploaded CIF file. More information is available in the associated [CVE](https://github.com/materialsproject/pymatgen/security/advisories/GHSA-vgv8-5cpj-qj2f). Thank you to [William Khem-Marquez (@SteakEnthusiast)](https://github.com/SteakEnthusiast) for the discovery and responsible disclosure of this issue.
+
+### 🐛 Bug Fixes
+* Revert back `TransformedStructure.__getattr__` by @mjwen in https://github.com/materialsproject/pymatgen/pull/3617
+* Fixed Incar object to allow for ML_MODE vasp tag by @davidwaroquiers in https://github.com/materialsproject/pymatgen/pull/3625
+* Add missing `MPSCANRelaxSet.yaml` parameters and alphabetize by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3615
+* Fix `bader_analysis_from_path` using warning as file path and reinstate test by @janosh in https://github.com/materialsproject/pymatgen/pull/3632
+
+### 🛠 Enhancements
+* Breaking: fix SubstrateAnalyzer film + substrate vectors not using original crystal coordinates by @jinlhr542 in https://github.com/materialsproject/pymatgen/pull/3572
+* Handle invalid selective dynamics info in POSCAR by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3539
+* Return `self` from all `SiteCollection/Structure/Molecule` in-place modification methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3623
+* Make the POTCAR setup instructions clearer by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3630
+
+### 🧹 House-Keeping
+* Refactors + types + fix doc string returns to use Google format by @janosh in https://github.com/materialsproject/pymatgen/pull/3620
+
+### 🚀 Performance
+* Speeding up `get_nn_info` in local_env.py by @ftherrien in https://github.com/materialsproject/pymatgen/pull/3635
+
+### 💥 Breaking Changes
+* Lobsterenv improvements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3624
+
+### 🤷‍♂️ Other Changes
+* Fix URL joining in OptimadeRester by @rdamaral in https://github.com/materialsproject/pymatgen/pull/3613
+* Create a `CODEOWNERS` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3616
+* Adds support for an `MSONAtoms` class that's an `MSONable` form of an ASE `Atoms` object by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3619
+* Lobster io improvements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3627
+
+## New Contributors
+* @jinlhr542 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3572
+* @rdamaral made their first contribution in https://github.com/materialsproject/pymatgen/pull/3613
+* @ftherrien made their first contribution in https://github.com/materialsproject/pymatgen/pull/3635
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.2.8...v2024.2.20
+
 ## v2024.2.8
 
 ### 🐛 Bug Fixes

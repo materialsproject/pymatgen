@@ -261,6 +261,15 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
+        self.chem_env_lobster_NaSi_wo_charges = LobsterNeighbors(
+            are_coops=False,
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.NaSi.gz",
+            structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaSi.gz"),
+            valences_from_charges=False,
+            filename_charge=None,
+            additional_condition=0,
+            adapt_extremum_to_add_cond=True,
+        )
         # Test LobsterNeighbors using pymatgen objects
         self.obj_icohp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.NaSi.gz")
         self.obj_charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.NaSi.gz")
@@ -855,3 +864,9 @@ class TestLobsterNeighbors(unittest.TestCase):
                 only_bonds_to=None,
                 per_bond=False,
             )
+
+    def test_valences(self):
+        assert self.chem_env_lobster1_charges_noisecutoff.valences == [0.75, -0.75]  # Mulliken
+        assert self.chem_env_lobster1_charges_loewdin.valences == [0.27, 0.27, 0.27, 0.27, -0.54, -0.54]
+        assert self.chem_env_w_obj.valences == [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4  # charge_obj
+        assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA

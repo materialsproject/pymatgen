@@ -1,5 +1,4 @@
-name: Release
-# Runs the complete test suite before making a PyPI release
+name: Release # makes PyPI releases
 
 on:
   release:

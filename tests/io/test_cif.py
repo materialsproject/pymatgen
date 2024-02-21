@@ -761,9 +761,13 @@ loop_
     def test_replacing_finite_precision_frac_coords(self):
         cif = f"{TEST_FILES_DIR}/cif_finite_precision_frac_coord_error.cif"
         parser = CifParser(cif)
-        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
-        with pytest.warns(UserWarning, match=warn_msg):
+        with pytest.warns(UserWarning) as record:
             struct = parser.parse_structures()[0]
+
+        assert len(record) == 3
+        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
+        assert warn_msg in str(record[-1])
+
         assert str(struct.composition) == "N5+72"
         assert warn_msg in parser.warnings
 
