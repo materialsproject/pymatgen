@@ -3434,13 +3434,13 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """Simple object for reading a LOCPOT file."""
 
-    def __init__(self, poscar, data):
+    def __init__(self, poscar, data, **kwargs):
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
             data: Actual data.
         """
-        super().__init__(poscar.structure, data)
+        super().__init__(poscar.structure, data, **kwargs)
         self.name = poscar.comment
 
     @classmethod
