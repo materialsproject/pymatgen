@@ -1349,6 +1349,11 @@ class TestLocpot(PymatgenTest):
         assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
 
+        # make sure locpot constructor works with data_aug=None
+        (poscar, data, _) = Locpot.parse_file(filepath)
+        l2 = Locpot(poscar=poscar, data=data, data_aug=None)
+        assert len(l2.data_aug) == 0
+
 
 class TestChgcar(PymatgenTest):
     @classmethod
