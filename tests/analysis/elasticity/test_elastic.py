@@ -181,6 +181,7 @@ class TestElasticTensor(PymatgenTest):
         ) as warns:
             ElasticTensor(non_symm)
         assert len(warns) == 1
+
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
         with pytest.raises(ValueError, match="ElasticTensor input must be rank 4"):
