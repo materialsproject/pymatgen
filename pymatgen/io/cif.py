@@ -1313,13 +1313,6 @@ class CifParser:
     def check(self, structure: Structure) -> str | None:
         """Check whether a structure constructed from CIF passes sanity checks.
 
-        Args:
-            structure (Structure) : structure created from CIF
-
-        Returns:
-            str | None: If any check fails, on output, returns a human-readable str for the
-                reason why (e.g., which elements are missing). Returns None if all checks pass.
-
         Checks:
             - Composition from CIF is valid
             - CIF composition contains only valid elements
@@ -1329,6 +1322,13 @@ class CifParser:
             -  CIF and structure have same relative stoichiometry. Thus
                 if CIF reports stoichiometry LiFeO, and the structure has
                 composition (LiFeO)4, this check passes.
+
+        Args:
+            structure (Structure) : structure created from CIF
+
+        Returns:
+            str | None: If any check fails, on output, returns a human-readable str for the
+                reason why (e.g., which elements are missing). Returns None if all checks pass.
         """
         failure_reason = None
 
@@ -1336,16 +1336,16 @@ class CifParser:
         head_key = next(iter(cif_as_dict))
 
         cif_formula = None
-        cif_stoich = True
+        check_stoichiometry = True
         for key in ("_chemical_formula_sum", "_chemical_formula_structural"):
             if cif_as_dict[head_key].get(key):
                 cif_formula = cif_as_dict[head_key][key]
                 break
 
         # In case of missing CIF formula keys, get non-stoichiometric formula from
-        # unique sites and skip relative stoichiometry check
+        # unique sites and skip relative stoichiometry check (added in gh-3628)
         if cif_formula is None and cif_as_dict[head_key].get("_atom_site_type_symbol"):
-            cif_stoich = False
+            check_stoichiometry = False
             cif_formula = " ".join(cif_as_dict[head_key]["_atom_site_type_symbol"])
 
         try:
@@ -1374,8 +1374,8 @@ class CifParser:
             failure_reason = f"Missing elements {missing_str} {addendum}"
 
         elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
-            if cif_stoich:
-                # Check that stoichiometry is same, i.e., same relative ratios of elements
+            if check_stoichiometry:
+                # Check that CIF/PMG stoichiometry has same relative ratios of elements
                 ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
                 same_stoich = all(
@@ -1387,7 +1387,7 @@ class CifParser:
                 if not same_stoich:
                     failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
             else:
-                self.warnings.append("Skipping relative stoichiometry check because CIF does not contain formula keys.")
+                self.warnings += ["Skipping relative stoichiometry check because CIF does not contain formula keys."]
 
         return failure_reason
 
