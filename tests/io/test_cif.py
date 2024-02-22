@@ -933,6 +933,12 @@ Si1 Si 0 0 0 1 0.0
         failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
         assert failure_reason == "'X' is not a valid Element"
 
+    def test_skipping_relative_stoichiometry_check(self):
+        cif = CifParser(f"{TEST_FILES_DIR}/Li10GeP2S12.cif")
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/Li10GeP2S12.cif"))
+        assert failure_reason is None
+        assert "Skipping relative stoichiometry check because CIF does not contain formula keys." in cif.warnings
+
     def test_cif_writer_site_properties(self):
         # check CifWriter(write_site_properties=True) adds Structure site properties to
         # CIF with _atom_site_ prefix
