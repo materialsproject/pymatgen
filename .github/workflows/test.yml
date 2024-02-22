@@ -66,26 +66,38 @@ jobs:
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
 
+      - name: Install pymatgen and mandatory testing dependencies only
+        run: |
+          micromamba activate pmg
+
+          uv pip install -e '.[dev]'
+
+      - name: pytest split ${{ matrix.split }}
+        run: |
+          micromamba activate pmg
+          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+
       - name: Install ubuntu-only conda dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
           micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
 
-      - name: Install pymatgen and dependencies
+      - name: Install all optional dependencies with workarounds
         run: |
-          micromamba activate pmg
-          # TODO remove temporary fix. added since uv install torch is flaky.
-          # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          pip install torch
+            micromamba activate pmg
 
-          uv pip install numpy cython
+            # TODO remove temporary fix. added since uv install torch is flaky.
+            # track https://github.com/astral-sh/uv/issues/1921 for resolution
+            pip install torch
 
-          uv pip install --editable '.[dev,optional]'
+            uv pip install numpy cython
 
-          # TODO remove next line installing ase from main branch when FrechetCellFilter is released
-          uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
+            uv pip install --editable '.[dev,optional]'
 
-      - name: pytest split ${{ matrix.split }}
+            # TODO remove next line installing ase from main branch when FrechetCellFilter is released
+            uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
+
+      - name: Optional deps - pytest split ${{ matrix.split }}
         run: |
           micromamba activate pmg
           pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
