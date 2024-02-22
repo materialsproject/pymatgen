@@ -41,22 +41,29 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
-class MSONAtoms(Atoms, MSONable):
-    """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
+if ase_loaded:
 
-    def as_dict(s: Atoms) -> dict[str, Any]:
-        # Normally, we would want to this to be a wrapper around atoms.todict() with @module and
-        # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
-        # to be used in a round-trip fashion and does not work properly with constraints.
-        # See ASE issue #1387.
-        return {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": encode(s)}
+    class MSONAtoms(Atoms, MSONable):
+        """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
 
-    def from_dict(d: dict[str, Any]) -> MSONAtoms:
-        # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
-        # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
-        # to be used in a round-trip fashion and does not work properly with constraints.
-        # See ASE issue #1387.
-        return MSONAtoms(decode(d["atoms_json"]))
+        def as_dict(s: Atoms) -> dict[str, Any]:
+            # Normally, we would want to this to be a wrapper around atoms.todict() with @module and
+            # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
+            # to be used in a round-trip fashion and does not work properly with constraints.
+            # See ASE issue #1387.
+            return {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": encode(s)}
+
+        def from_dict(d: dict[str, Any]) -> MSONAtoms:
+            # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
+            # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
+            # to be used in a round-trip fashion and does not work properly with constraints.
+            # See ASE issue #1387.
+            return MSONAtoms(decode(d["atoms_json"]))
+else:
+
+    class MSONAtoms(MSONable): # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            raise PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
 
 
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
