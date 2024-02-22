@@ -62,3 +62,8 @@ repos:
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.351
+    hooks:
+    - id: pyright
