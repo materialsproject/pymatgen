@@ -61,7 +61,7 @@ if ase_loaded:
             return MSONAtoms(decode(d["atoms_json"]))
 else:
 
-    class MSONAtoms(MSONable): # type: ignore[no-redef]
+    class MSONAtoms(MSONable):  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
             raise PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
 
