@@ -1492,27 +1492,26 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             pt (3x1 array): Cartesian coordinates of center of sphere.
-            r (float): Radius of sphere.
+            r (float): Radius of sphere in Angstrom.
             include_index (bool): Whether the non-supercell site index
-                is included in the returned data
+                is included in the returned data.
             include_image (bool): Whether to include the supercell image
-                is included in the returned data
+                is included in the returned data.
 
         Returns:
             PeriodicNeighbor
         """
-        site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
-        for frac_coord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
+        for frac_coord, dist, idx, img in self._lattice.get_points_in_sphere(self.frac_coords, pt, r):
             nn_site = PeriodicNeighbor(
-                self[i].species,
+                self[idx].species,
                 frac_coord,
                 self._lattice,
-                properties=self[i].properties,
+                properties=self[idx].properties,
                 nn_distance=dist,
                 image=img,  # type: ignore
-                index=i,
-                label=self[i].label,
+                index=idx,
+                label=self[idx].label,
             )
             neighbors.append(nn_site)
         return neighbors
