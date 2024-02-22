@@ -1336,14 +1336,17 @@ class CifParser:
         head_key = next(iter(cif_as_dict))
 
         cif_formula = None
+        cif_stoich = True
         for key in ("_chemical_formula_sum", "_chemical_formula_structural"):
             if cif_as_dict[head_key].get(key):
                 cif_formula = cif_as_dict[head_key][key]
                 break
 
-        if cif_formula is None:
-            self.warnings.append("Skipping composition sanity checks because CIF does not contain formula keys.")
-            return None
+        # In case of missing CIF formula keys, get non-stoichiometric formula from
+        # unique sites and skip relative stoichiometry check
+        if cif_formula is None and cif_as_dict[head_key].get("_atom_site_type_symbol"):
+            cif_stoich = False
+            cif_formula = " ".join(cif_as_dict[head_key]["_atom_site_type_symbol"])
 
         try:
             cif_composition = Composition(cif_formula)
@@ -1371,17 +1374,20 @@ class CifParser:
             failure_reason = f"Missing elements {missing_str} {addendum}"
 
         elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
-            # Check that stoichiometry is same, i.e., same relative ratios of elements
-            ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
+            if cif_stoich:
+                # Check that stoichiometry is same, i.e., same relative ratios of elements
+                ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
-            same_stoich = all(
-                abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
-                for elt_a in orig_comp_elts
-                for elt_b in orig_comp_elts
-            )
+                same_stoich = all(
+                    abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
+                    for elt_a in orig_comp_elts
+                    for elt_b in orig_comp_elts
+                )
 
-            if not same_stoich:
-                failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
+                if not same_stoich:
+                    failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
+            else:
+                self.warnings.append("Skipping relative stoichiometry check because CIF does not contain formula keys.")
 
         return failure_reason
 
