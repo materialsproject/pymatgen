@@ -193,6 +193,7 @@ class TestCifIO(PymatgenTest):
 
         with open(f"{TEST_FILES_DIR}/FePO4.cif") as cif_file:
             cif_str = cif_file.read()
+
         parser = CifParser.from_str(cif_str)
         struct = parser.parse_structures(primitive=False)[0]
         assert struct.formula == "Fe4 P4 O16"
@@ -935,9 +936,11 @@ Si1 Si 0 0 0 1 0.0
 
     def test_skipping_relative_stoichiometry_check(self):
         cif = CifParser(f"{TEST_FILES_DIR}/Li10GeP2S12.cif")
-        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/Li10GeP2S12.cif"))
+        struct = cif.parse_structures()[0]
+        failure_reason = cif.check(struct)
         assert failure_reason is None
-        assert "Skipping relative stoichiometry check because CIF does not contain formula keys." in cif.warnings
+        assert len(cif.warnings) == 2
+        assert cif.warnings[-1] == "Skipping relative stoichiometry check because CIF does not contain formula keys."
 
     def test_cif_writer_site_properties(self):
         # check CifWriter(write_site_properties=True) adds Structure site properties to
