@@ -94,7 +94,7 @@ jobs:
       - name: Install only mandatory dependencies
         run: |
           python -m pip install numpy cython
-          python -m pip install -e .
+          python -m pip install -e '.[dev]'
 
       - name: Run tests with mandatory deps only - pytest split ${{ matrix.split }}
         run: |
