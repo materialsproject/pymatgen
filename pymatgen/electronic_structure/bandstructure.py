@@ -108,6 +108,16 @@ class Kpoint(MSONable):
         """Returns a string with fractional, Cartesian coordinates and label."""
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
+    def __eq__(self, other: object) -> bool:
+        """Check if two kpoints are equal."""
+        if not isinstance(other, Kpoint):
+            return NotImplemented
+        return (
+            np.allclose(self.frac_coords, other.frac_coords)
+            and self.lattice == other.lattice
+            and self.label == other.label
+        )
+
     def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of a kpoint."""
         return {
