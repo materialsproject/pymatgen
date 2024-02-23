@@ -472,6 +472,6 @@ class AbinitHeader(AttrDict):
             return "\n".join([marquee(title, mark="="), header_str])
         return header_str
 
-    # This is to maintain backward compatibility
-    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS,
+    # to_string alias required for backwards compatibility
+    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
     to_string = to_str
