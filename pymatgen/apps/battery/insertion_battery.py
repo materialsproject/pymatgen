@@ -345,8 +345,8 @@ class InsertionElectrode(AbstractElectrode):
         return dct
 
     def __repr__(self):
-        chg_form = self.fully_charged_entry.composition.reduced_formula
-        dischg_form = self.fully_discharged_entry.composition.reduced_formula
+        chg_form = self.fully_charged_entry.reduced_formula
+        dischg_form = self.fully_discharged_entry.reduced_formula
         return (
             f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}\n"
             f"Avg. volt. = {self.get_average_voltage()} V\n"
@@ -500,7 +500,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            f"Insertion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"Insertion voltage pair with working ion {self.working_ion_entry.reduced_formula}",
             f"V = {self.voltage}, mAh = {self.mAh}",
             f"mass_charge = {self.mass_charge}, mass_discharge = {self.mass_discharge}",
             f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",

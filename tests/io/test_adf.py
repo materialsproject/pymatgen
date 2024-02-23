@@ -83,8 +83,8 @@ def readfile(file_object):
     """
     if hasattr(file_object, "read"):
         return file_object.read()
-    with open(file_object) as f:
-        return f.read()
+    with open(file_object) as file:
+        return file.read()
 
 
 class TestAdfKey:

@@ -298,7 +298,7 @@ class AdsorbateSiteFinder:
             sites = [site + distance * np.asarray(self.mvec) for site in sites]
 
             ads_sites[key] = sites
-        ads_sites["all"] = sum(ads_sites.values(), [])
+        ads_sites["all"] = sum(ads_sites.values(), [])  # noqa: RUF017
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):
@@ -582,7 +582,7 @@ class AdsorbateSiteFinder:
 
         for idx, site in enumerate(sym_slab):
             if dist - range_tol < site.frac_coords[2] < dist + range_tol and (
-                target_species and site.species_string in target_species or not target_species
+                (target_species and site.species_string in target_species) or not target_species
             ):
                 substituted_slabs.append(substitute(site, idx))
 

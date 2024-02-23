@@ -113,10 +113,10 @@ class ChemicalPotentialDiagram(MSONable):
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = sorted({els for e in self.entries for els in e.elements})
+        self.elements = sorted({els for ent in self.entries for els in ent.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
-        self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
+        self._entry_dict = {ent.reduced_formula: ent for ent in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
         self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 
@@ -211,13 +211,13 @@ class ChemicalPotentialDiagram(MSONable):
         interior_point = np.min(self.lims, axis=1) + 1e-1
         hs_int = HalfspaceIntersection(hs_hyperplanes, interior_point)
 
-        domains = {entry.composition.reduced_formula: [] for entry in entries}  # type: ignore
+        domains = {entry.reduced_formula: [] for entry in entries}  # type: ignore
 
         for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
             for v in facet:
                 if v < len(entries):
                     this_entry = entries[v]
-                    formula = this_entry.composition.reduced_formula
+                    formula = this_entry.reduced_formula
                     domains[formula].append(intersection)
 
         return {k: np.array(v) for k, v in domains.items() if v}
@@ -241,8 +241,8 @@ class ChemicalPotentialDiagram(MSONable):
         """
         data = np.array(
             [
-                [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
-                for e in self._min_entries
+                [entry.composition.get_atomic_fraction(el) for el in self.elements] + [entry.energy_per_atom]
+                for entry in self._min_entries
             ]
         )
         vec = [self.el_refs[el].energy_per_atom for el in self.elements] + [-1]
@@ -254,7 +254,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         hyperplanes = data[inds]
         hyperplanes[:, -1] = hyperplanes[:, -1] * -1
-        hyperplane_entries = [self._min_entries[i] for i in inds]
+        hyperplane_entries = [self._min_entries[idx] for idx in inds]
 
         return hyperplanes, hyperplane_entries
 
@@ -283,7 +283,7 @@ class ChemicalPotentialDiagram(MSONable):
             entry = self.entry_dict[formula]
             anno_formula = formula
             if hasattr(entry, "original_entry"):
-                anno_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.reduced_formula
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
@@ -355,7 +355,7 @@ class ChemicalPotentialDiagram(MSONable):
 
             anno_formula = formula
             if hasattr(entry, "original_entry"):
-                anno_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.reduced_formula
 
             annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
@@ -548,12 +548,11 @@ class ChemicalPotentialDiagram(MSONable):
         el_refs = {}
         min_entries = []
 
-        for c, g in groupby(entries, key=lambda e: e.composition.reduced_formula):
-            c = Composition(c)
-            group = list(g)
+        for formula, group in groupby(entries, key=lambda e: e.reduced_formula):
+            comp = Composition(formula)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
+            if comp.is_element:
+                el_refs[comp.elements[0]] = min_entry
             min_entries.append(min_entry)
 
         return min_entries, el_refs

@@ -73,7 +73,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     def __getattr__(self, attr):
         # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
-        props = object.__getattribute__(self, "properties")
+        props = self.__getattribute__("properties")
         if attr in props:
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")

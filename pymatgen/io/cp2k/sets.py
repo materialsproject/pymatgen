@@ -226,11 +226,11 @@ class DftSet(Cp2kInput):
                 ot = False
 
         # Build the global section
-        g = Global(
+        global_sec = Global(
             project_name=self.kwargs.get("project_name", "CP2K"),
             run_type=self.kwargs.get("run_type", "ENERGY_FORCE"),
         )
-        self.insert(g)
+        self.insert(global_sec)
 
         # Build the QS Section
         qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
@@ -405,9 +405,9 @@ class DftSet(Cp2kInput):
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as file:
                     yaml = YAML(typ="unsafe", pure=True)
-                    DATA = yaml.load(f)
+                    DATA = yaml.load(file)
                     if not DATA.get("basis_sets"):
                         raise ValueError(f"No standard basis sets available in data directory for {el}")
                     if not DATA.get("potentials"):

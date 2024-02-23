@@ -313,8 +313,7 @@ class EwaldSummation(MSONable):
         S(G) = sum_{k=1,N} q_k exp(-i G.r_k)
         S(G)S(-G) = |S(G)|**2.
 
-        This method is heavily vectorized to utilize numpy's C backend for
-        speed.
+        This method is heavily vectorized to utilize numpy's C backend for speed.
         """
         n_sites = len(self._struct)
         prefactor = 2 * pi / self._vol
@@ -324,7 +323,7 @@ class EwaldSummation(MSONable):
         rcp_latt = self._struct.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self._gmax)
 
-        frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
+        frac_coords = [frac_coords for (frac_coords, dist, _idx, _img) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
         g2s = np.sum(gs**2, 1)
@@ -334,28 +333,28 @@ class EwaldSummation(MSONable):
         oxi_states = np.array(self._oxi_states)
 
         # create array where q_2[i,j] is qi * qj
-        qiqj = oxi_states[None, :] * oxi_states[:, None]
+        qi_qj = oxi_states[None, :] * oxi_states[:, None]
 
         # calculate the structure factor
         s_reals = np.sum(oxi_states[None, :] * np.cos(grs), 1)
         s_imags = np.sum(oxi_states[None, :] * np.sin(grs), 1)
 
-        for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
+        for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             m = (gr[None, :] + pi / 4) - gr[:, None]
             np.sin(m, m)
-            m *= expval / g2
+            m *= exp_val / g2
 
             e_recip += m
 
             if self._compute_forces:
-                pref = 2 * expval / g2 * oxi_states
-                factor = prefactor * pref * (sreal * np.sin(gr) - simag * np.cos(gr))
+                pref = 2 * exp_val / g2 * oxi_states
+                factor = prefactor * pref * (s_real * np.sin(gr) - s_imag * np.cos(gr))
 
                 forces += factor[:, None] * g[None, :]
 
         forces *= EwaldSummation.CONV_FACT
-        e_recip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2**0.5
+        e_recip *= prefactor * EwaldSummation.CONV_FACT * qi_qj * 2**0.5
         return e_recip, forces
 
     def _calc_real_and_point(self):
@@ -370,11 +369,11 @@ class EwaldSummation(MSONable):
 
         qs = np.array(self._oxi_states)
 
-        epoint = -(qs**2) * sqrt(self._eta / pi)
+        e_point = -(qs**2) * sqrt(self._eta / pi)
 
-        for i in range(n_sites):
+        for idx in range(n_sites):
             nf_coords, rij, js, _ = self._struct.lattice.get_points_in_sphere(
-                frac_coords, coords[i], self._rmax, zip_results=False
+                frac_coords, coords[idx], self._rmax, zip_results=False
             )
 
             # remove the rii term
@@ -383,7 +382,7 @@ class EwaldSummation(MSONable):
             rij = rij[inds]
             nf_coords = nf_coords[inds]
 
-            qi = qs[i]
+            qi = qs[idx]
             qj = qs[js]
 
             erfc_val = erfc(self._sqrt_eta * rij)
@@ -391,20 +390,20 @@ class EwaldSummation(MSONable):
 
             # insert new_ereals
             for key in range(n_sites):
-                e_real[key, i] = np.sum(new_ereals[js == key])
+                e_real[key, idx] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
                 nc_coords = self._struct.lattice.get_cartesian_coords(nf_coords)
 
                 fijpf = qj / rij**3 * (erfc_val + force_pf * rij * np.exp(-self._eta * rij**2))
-                forces[i] += np.sum(
-                    np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nc_coords) * qi * EwaldSummation.CONV_FACT,
+                forces[idx] += np.sum(
+                    np.expand_dims(fijpf, 1) * (np.array([coords[idx]]) - nc_coords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
                 )
 
         e_real *= 0.5 * EwaldSummation.CONV_FACT
-        epoint *= EwaldSummation.CONV_FACT
-        return e_real, epoint, forces
+        e_point *= EwaldSummation.CONV_FACT
+        return e_real, e_point, forces
 
     @property
     def eta(self):
@@ -423,7 +422,7 @@ class EwaldSummation(MSONable):
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """
-        Json-serialization dict representation of EwaldSummation.
+        JSON-serialization dict representation of EwaldSummation.
 
         Args:
             verbosity (int): Verbosity level. Default of 0 only includes the
@@ -445,7 +444,7 @@ class EwaldSummation(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, dct: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
@@ -456,20 +455,20 @@ class EwaldSummation(MSONable):
             EwaldSummation: class instance
         """
         summation = cls(
-            structure=Structure.from_dict(d["structure"]),
-            real_space_cut=d["real_space_cut"],
-            recip_space_cut=d["recip_space_cut"],
-            eta=d["eta"],
-            acc_factor=d["acc_factor"],
-            compute_forces=d["compute_forces"],
+            structure=Structure.from_dict(dct["structure"]),
+            real_space_cut=dct["real_space_cut"],
+            recip_space_cut=dct["recip_space_cut"],
+            eta=dct["eta"],
+            acc_factor=dct["acc_factor"],
+            compute_forces=dct["compute_forces"],
         )
 
         # set previously computed private attributes
-        if d["_recip"] is not None:
-            summation._recip = np.array(d["_recip"])
-            summation._real = np.array(d["_real"])
-            summation._point = np.array(d["_point"])
-            summation._forces = np.array(d["_forces"])
+        if dct["_recip"] is not None:
+            summation._recip = np.array(dct["_recip"])
+            summation._real = np.array(dct["_real"])
+            summation._point = np.array(dct["_point"])
+            summation._forces = np.array(dct["_forces"])
             summation._initialized = True
 
         return summation

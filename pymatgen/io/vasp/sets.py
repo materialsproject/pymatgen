@@ -186,7 +186,7 @@ class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
                     with zopen(os.path.join(output_dir, key), mode="wt") as file:
                         file.write(str(val))
         else:
-            vasp_input = self.get_vasp_input()
+            vasp_input = self.get_input_set()
             vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
         cif_name = ""
@@ -398,7 +398,7 @@ class DictSet(VaspInputSet):
             )
 
         if self.vdw:
-            vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+            vdw_par = loadfn(MODULE_DIR / "vdW_parameters.yaml")
             try:
                 self._config_dict["INCAR"].update(vdw_par[self.vdw])
             except KeyError:
@@ -747,11 +747,23 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
+        ismear = incar.get("ISMEAR", 1)
+        sigma = incar.get("SIGMA", 0.2)
+        if (
+            all(elem.is_metal for elem in structure.composition)
+            and incar.get("NSW", 0) > 0
+            and (ismear < 0 or (ismear == 0 and sigma > 0.05))
+        ):
+            ismear_docs = "https://www.vasp.at/wiki/index.php/ISMEAR"
+            msg = ""
+            if ismear < 0:
+                msg = f"Relaxation of likely metal with ISMEAR < 0 ({ismear})."
+            elif ismear == 0 and sigma > 0.05:
+                msg = f"ISMEAR = 0 with a small SIGMA ({sigma}) detected."
             warnings.warn(
-                "Relaxation of likely metal with ISMEAR < 1 detected. See VASP "
-                "recommendations on ISMEAR for metals.",
+                f"{msg} See VASP recommendations on ISMEAR for metals ({ismear_docs}).",
                 BadInputSetWarning,
+                stacklevel=1,
             )
 
         return incar
@@ -1688,12 +1700,15 @@ class MPNonSCFSet(DictSet):
         """Perform inputset validation."""
         super().__post_init__()
 
-        self.mode = self.mode.lower()
+        mode = self.mode = self.mode.lower()
 
-        if self.mode not in ["line", "uniform", "boltztrap"]:
-            raise ValueError("Supported modes for NonSCF runs are 'line', 'uniform' and 'boltztrap!")
+        valid_modes = ("line", "uniform", "boltztrap")
+        if mode not in valid_modes:
+            raise ValueError(
+                f"Invalid {mode=}. Supported modes for NonSCF runs are {', '.join(map(repr, valid_modes))}"
+            )
 
-        if (self.mode.lower() != "uniform" or self.nedos < 2000) and self.optics:
+        if (mode != "uniform" or self.nedos < 2000) and self.optics:
             warnings.warn("It is recommended to use Uniform mode with a high NEDOS for optics calculations.")
 
         if self.standardize:
@@ -2022,10 +2037,10 @@ class MVLGWSet(DictSet):
     def __post_init__(self):
         """Validate input settings."""
         super().__post_init__()
-        self.mode = self.mode.upper()
+        self.mode = mode = self.mode.upper()
 
-        if self.mode not in MVLGWSet.SUPPORTED_MODES:
-            raise ValueError(f"{self.mode} not one of the support modes : {MVLGWSet.SUPPORTED_MODES}")
+        if mode not in MVLGWSet.SUPPORTED_MODES:
+            raise ValueError(f"Invalid {mode=}, supported modes are {', '.join(map(repr, MVLGWSet.SUPPORTED_MODES))}")
 
     @property
     def kpoints_updates(self) -> dict:
@@ -2163,7 +2178,7 @@ class MVLGBSet(DictSet):
     Class for writing a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
-        structure(Structure): provide the structure
+        structure (Structure): provide the structure
         k_product: Kpoint number * length for a & b directions, also for c direction in
             bulk calculations. Default to 40.
         slab_mode (bool): Defaults to False. Use default (False) for a bulk supercell.
@@ -2263,7 +2278,7 @@ class MITNEBSet(DictSet):
             **kwargs: Other kwargs supported by DictSet.
         """
         if len(structures) < 3:
-            raise ValueError("You need at least 3 structures for an NEB.")
+            raise ValueError(f"You need at least 3 structures for an NEB, got {len(structures)}")
         kwargs["sort_structure"] = False
         super().__init__(structures[0], MITRelaxSet.CONFIG, **kwargs)
         self.structures = self._process_structures(structures)

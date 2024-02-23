@@ -58,8 +58,8 @@ class SubstitutionProbability:
         else:
             module_dir = os.path.dirname(__file__)
             json_file = f"{module_dir}/data/lambda.json"
-            with open(json_file) as f:
-                self._lambda_table = json.load(f)
+            with open(json_file) as file:
+                self._lambda_table = json.load(file)
 
         # build map of specie pairs to lambdas
         self.alpha = alpha

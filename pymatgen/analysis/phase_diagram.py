@@ -78,12 +78,12 @@ class PDEntry(Entry):
             attribute: Optional attribute of the entry. Must be MSONable.
         """
         super().__init__(composition, energy)
-        self.name = name or self.composition.reduced_formula
+        self.name = name or self.reduced_formula
         self.attribute = attribute
 
     def __repr__(self):
         name = ""
-        if self.name != self.composition.reduced_formula:
+        if self.name != self.reduced_formula:
             name = f" ({self.name})"
         return f"{type(self).__name__} : {self.composition}{name} with energy = {self.energy:.4f}"
 
@@ -476,9 +476,9 @@ class PhaseDiagram(MSONable):
                 # Skip facets that include the extra point
                 if max(facet) == len(qhull_data) - 1:
                     continue
-                m = qhull_data[facet]
-                m[:, -1] = 1
-                if abs(np.linalg.det(m)) > 1e-14:
+                mat = qhull_data[facet]
+                mat[:, -1] = 1
+                if abs(np.linalg.det(mat)) > 1e-14:
                     final_facets.append(facet)
             facets = final_facets
 
@@ -654,8 +654,8 @@ class PhaseDiagram(MSONable):
         """
         comp_list = [self.qhull_entries[i].composition for i in facet]
         energy_list = [self.qhull_entries[i].energy_per_atom for i in facet]
-        m = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
-        chempots = np.linalg.solve(m, energy_list)
+        atom_frac_mat = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
+        chempots = np.linalg.solve(atom_frac_mat, energy_list)
 
         return dict(zip(self.elements, chempots))
 
@@ -756,7 +756,7 @@ class PhaseDiagram(MSONable):
             ValueError: If no valid decomposition exists in this phase diagram for given entry.
 
         Returns:
-            (decomp, energy_above_hull). The decomposition is provided
+            tuple[decomp, energy_above_hull]: The decomposition is provided
                 as a dict of {PDEntry: amount} where amount is the amount of the
                 fractional composition. Stable entries should have energy above
                 convex hull of 0. The energy is given per atom.
@@ -876,9 +876,9 @@ class PhaseDiagram(MSONable):
             **kwargs: Passed to get_decomp_and_e_above_hull.
 
         Returns:
-            (decomp, energy). The decomposition  is given as a dict of {PDEntry, amount}
-            for all entries in the decomp reaction where amount is the amount of the
-            fractional composition. The phase separation energy is given per atom.
+            tuple[decomp, energy]: The decomposition  is given as a dict of {PDEntry, amount}
+                for all entries in the decomp reaction where amount is the amount of the
+                fractional composition. The phase separation energy is given per atom.
         """
         entry_frac = entry.composition.fractional_composition
         entry_elems = frozenset(entry_frac.elements)
@@ -1095,7 +1095,7 @@ class PhaseDiagram(MSONable):
         num_atoms = n1 + (n2 - n1) * x_unnormalized
         cs *= num_atoms[:, None]
 
-        return [Composition((c, v) for c, v in zip(pd_els, m)) for m in cs]
+        return [Composition((elem, val) for elem, val in zip(pd_els, m)) for m in cs]
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
@@ -1175,7 +1175,7 @@ class PhaseDiagram(MSONable):
         if referenced:
             el_energies = {el: self.el_refs[el].energy_per_atom for el in elements}
         else:
-            el_energies = {el: 0 for el in elements}
+            el_energies = dict.fromkeys(elements, 0)
 
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self.elements)))]
@@ -1776,9 +1776,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
         try:
             pd = self.get_pd_for_entry(comp)
             return pd.get_decomposition(comp)
-        except ValueError as e:
+        except ValueError as exc:
             # NOTE warn when stitching across pds is being used
-            warnings.warn(f"{e} Using SLSQP to find decomposition")
+            warnings.warn(f"{exc} Using SLSQP to find decomposition")
             competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 
@@ -1898,13 +1898,13 @@ class ReactionDiagram:
             all_entries ([ComputedEntry]): All other entries to be
                 considered in the analysis. Note that corrections, if any,
                 must already be pre-applied.
-            tol (float): Tolerance to be used to determine validity of reaction.
-            float_fmt (str): Formatting string to be applied to all floats.
-                Determines number of decimal places in reaction string.
+            tol (float): Tolerance to be used to determine validity of reaction. Defaults to 1e-4.
+            float_fmt (str): Formatting string to be applied to all floats. Determines
+                number of decimal places in reaction string. Defaults to "%.4f".
         """
         elem_set = set()
-        for e in [entry1, entry2]:
-            elem_set.update([el.symbol for el in e.elements])
+        for ent in [entry1, entry2]:
+            elem_set.update([el.symbol for el in ent.elements])
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -1916,10 +1916,7 @@ class ReactionDiagram:
         logger.debug(f"{len(all_entries)} total entries.")
 
         pd = PhaseDiagram([*all_entries, entry1, entry2])
-        terminal_formulas = [
-            entry1.composition.reduced_formula,
-            entry2.composition.reduced_formula,
-        ]
+        terminal_formulas = [entry1.reduced_formula, entry2.reduced_formula]
 
         logger.debug(f"{len(pd.stable_entries)} stable entries")
         logger.debug(f"{len(pd.facets)} facets")
@@ -1935,13 +1932,13 @@ class ReactionDiagram:
             for face in itertools.combinations(facet, len(facet) - 1):
                 face_entries = [pd.qhull_entries[i] for i in face]
 
-                if any(e.composition.reduced_formula in terminal_formulas for e in face_entries):
+                if any(e.reduced_formula in terminal_formulas for e in face_entries):
                     continue
 
                 try:
                     mat = []
-                    for e in face_entries:
-                        mat.append([e.composition.get_atomic_fraction(el) for el in elements])
+                    for ent in face_entries:
+                        mat.append([ent.composition.get_atomic_fraction(el) for el in elements])
                     mat.append(comp_vec2 - comp_vec1)
                     matrix = np.array(mat).T
                     coeffs = np.linalg.solve(matrix, comp_vec2)
@@ -1968,12 +1965,12 @@ class ReactionDiagram:
 
                         energy = -(x * entry1.energy_per_atom + (1 - x) * entry2.energy_per_atom)
 
-                        for c, e in zip(coeffs[:-1], face_entries):
+                        for c, ent in zip(coeffs[:-1], face_entries):
                             if c > tol:
-                                r = e.composition.reduced_composition
+                                r = ent.composition.reduced_composition
                                 products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
-                                product_entries.append((c, e))
-                                energy += c * e.energy_per_atom
+                                product_entries.append((c, ent))
+                                energy += c * ent.energy_per_atom
 
                         rxn_str += " + ".join(products)
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
@@ -1985,10 +1982,10 @@ class ReactionDiagram:
                         entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
-                    form_1 = entry1.composition.reduced_formula
-                    form_2 = entry2.composition.reduced_formula
+                    form_1 = entry1.reduced_formula
+                    form_2 = entry2.reduced_formula
                     logger.debug(f"Reactants = {form_1}, {form_2}")
-                    logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
+                    logger.debug(f"Products = {', '.join([e.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
 
@@ -1996,9 +1993,9 @@ class ReactionDiagram:
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = {}
-        for i, e in enumerate(rxn_entries):
-            self.labels[str(i + 1)] = e.attribute
-            e.name = str(i + 1)
+        for i, ent in enumerate(rxn_entries):
+            self.labels[str(i + 1)] = ent.attribute
+            ent.name = str(i + 1)
         self.all_entries = all_entries
         self.pd = pd
 
@@ -2019,8 +2016,8 @@ class ReactionDiagram:
         return CompoundPhaseDiagram(
             [*self.rxn_entries, entry1, entry2],
             [
-                Composition(entry1.composition.reduced_formula),
-                Composition(entry2.composition.reduced_formula),
+                Composition(entry1.reduced_formula),
+                Composition(entry2.reduced_formula),
             ],
             normalize_terminal_compositions=False,
         )
@@ -2617,7 +2614,7 @@ class PDPlotter:
                 el_ref = self._pd.el_refs[el]
                 clean_formula = str(el_ref.elements[0])
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
-                    clean_formula = htmlify(el_ref.original_entry.composition.reduced_formula)
+                    clean_formula = htmlify(el_ref.original_entry.reduced_formula)
 
                 layout["ternary"][axis + "axis"]["title"] = {
                     "text": clean_formula,
@@ -2715,9 +2712,7 @@ class PDPlotter:
                 b = []
                 c = []
 
-                e0, e1, e2 = sorted(
-                    (pd.qhull_entries[facet[idx]] for idx in range(3)), key=lambda x: x.composition.reduced_formula
-                )
+                e0, e1, e2 = sorted((pd.qhull_entries[facet[idx]] for idx in range(3)), key=lambda x: x.reduced_formula)
                 a = [e0.composition[el_a], e1.composition[el_a], e2.composition[el_a]]
                 b = [e0.composition[el_b], e1.composition[el_b], e2.composition[el_b]]
                 c = [e0.composition[el_c], e1.composition[el_c], e2.composition[el_c]]
@@ -2726,7 +2721,7 @@ class PDPlotter:
                 for e in (e0, e1, e2):
                     if hasattr(e, "original_entry"):
                         e = e.original_entry
-                    e_strs.append(htmlify(e.composition.reduced_formula))
+                    e_strs.append(htmlify(e.reduced_formula))
 
                 name = f"{e_strs[0]}—{e_strs[1]}—{e_strs[2]}"
 

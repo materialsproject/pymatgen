@@ -165,8 +165,8 @@ class OutFermi(MSONable):
             filename (PathLike): The absolute path of OUT.FERMI file.
         """
         self.filename: PathLike = filename
-        with zopen(self.filename, "rt") as f:
-            self._e_fermi: float = np.round(float(f.readline().split()[-2].strip()), 3)
+        with zopen(self.filename, "rt") as file:
+            self._e_fermi: float = np.round(float(file.readline().split()[-2].strip()), 3)
 
     @property
     def e_fermi(self) -> float:

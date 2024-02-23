@@ -486,7 +486,6 @@ class StructureGraph(MSONable):
         """
         Gives each node a "specie" and a "coords" attribute, updated with the
         current species and coordinates.
-
         """
         species = {}
         coords = {}
@@ -1251,12 +1250,12 @@ class StructureGraph(MSONable):
         return self.__mul__(other)
 
     @classmethod
-    def _edges_to_str(cls, g):
+    def _edges_to_str(cls, g) -> str:
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
         edge_weight_name = g.graph["edge_weight_name"]
         if edge_weight_name:
-            print_weights = ["weight"]
+            print_weights = True
             edge_label = g.graph["edge_weight_name"]
             edge_weight_units = g.graph["edge_weight_units"]
             if edge_weight_units:
@@ -1266,7 +1265,7 @@ class StructureGraph(MSONable):
         else:
             print_weights = False
 
-        s = header + "\n" + header_line + "\n"
+        out = f"{header}\n{header_line}\n"
 
         edges = list(g.edges(data=True))
 
@@ -1275,12 +1274,12 @@ class StructureGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
 
-        return s
+        return out
 
     def __str__(self):
         out = "Structure Graph"
@@ -1290,11 +1289,11 @@ class StructureGraph(MSONable):
         return out
 
     def __repr__(self):
-        s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure!r}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_str(self.graph)
-        return s
+        out = "Structure Graph"
+        out += f"\nStructure: \n{self.structure!r}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_str(self.graph)
+        return out
 
     def __len__(self):
         """length of Structure / number of nodes in graph"""
@@ -1833,7 +1832,6 @@ class MoleculeGraph(MSONable):
         """
         Replicates molecule site properties (specie, coords, etc.) in the
         MoleculeGraph.
-
         """
         species = {}
         coords = {}
@@ -2048,7 +2046,6 @@ class MoleculeGraph(MSONable):
         """
         Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
-
         """
         self.set_node_attributes()
 

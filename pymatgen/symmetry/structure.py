@@ -96,16 +96,13 @@ class SymmetrizedStructure(Structure):
         return str(self)
 
     def __str__(self) -> str:
-        def to_str(x):
-            return f"{x:>10.6f}"
-
         outs = [
             "SymmetrizedStructure",
-            f"Full Formula ({self.composition.formula})",
-            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"Full Formula ({self.formula})",
+            f"Reduced Formula: {self.reduced_formula}",
             f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
-            f"abc   : {' '.join(to_str(val) for val in self.lattice.abc)}",
-            f"angles: {' '.join(to_str(val) for val in self.lattice.angles)}",
+            f"abc   : {' '.join(f'{val:>10.6f}' for val in self.lattice.abc)}",
+            f"angles: {' '.join(f'{val:>10.6f}' for val in self.lattice.angles)}",
         ]
 
         if self._charge:
@@ -117,10 +114,10 @@ class SymmetrizedStructure(Structure):
         for idx, sites in enumerate(self.equivalent_sites):
             site = sites[0]
             row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
+            row.extend([f"{j:>10.6f}" for j in site.frac_coords])
             row.append(self.wyckoff_symbols[idx])
-            for k in keys:
-                row.append(props[k][idx])
+            for key in keys:
+                row.append(props[key][idx])
             data.append(row)
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys]))
         return "\n".join(outs)

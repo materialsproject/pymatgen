@@ -95,7 +95,7 @@ class PackmolSet(InputSet):
         Args:
             directory (str | Path): Directory to read input files from.
         """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        raise NotImplementedError(f"from_directory has not been implemented in {cls.__name__}")
 
 
 class PackmolBoxGen(InputGenerator):

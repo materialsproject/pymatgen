@@ -239,7 +239,8 @@ class Trajectory(MSONable):
         if (
             self.lattice is None  # is molecules
             and trajectory.lattice is not None  # is structures
-            or self.lattice is not None  # is structures
+        ) or (
+            self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
             raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
@@ -413,7 +414,7 @@ class Trajectory(MSONable):
         self.to_positions()
 
         if system is None:
-            system = f"{self[0].composition.reduced_formula}"
+            system = f"{self[0].reduced_formula}"
 
         lines = []
         format_str = f"{{:.{significant_figures}f}}"
@@ -422,19 +423,19 @@ class Trajectory(MSONable):
         syms = [site.specie.symbol for site in self[0]]
         n_atoms = [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
-        for si, coords in enumerate(self.coords):
+        for idx, coords in enumerate(self.coords):
             # Only print out the info block if
-            if si == 0 or not self.constant_lattice:
+            if idx == 0 or not self.constant_lattice:
                 lines.extend([system, "1.0"])
 
-                _lattice = self.lattice if self.constant_lattice else self.lattice[si]  # type: ignore
+                _lattice = self.lattice if self.constant_lattice else self.lattice[idx]  # type: ignore
 
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')
 
                 lines.extend((" ".join(site_symbols), " ".join(map(str, n_atoms))))
 
-            lines.append(f"Direct configuration=     {si + 1}")
+            lines.append(f"Direct configuration=     {idx + 1}")
 
             for coord, specie in zip(coords, self.species):
                 line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
@@ -442,8 +443,8 @@ class Trajectory(MSONable):
 
         xdatcar_string = "\n".join(lines) + "\n"
 
-        with zopen(filename, mode="wt") as f:
-            f.write(xdatcar_string)
+        with zopen(filename, mode="wt") as file:
+            file.write(xdatcar_string)
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""

@@ -112,23 +112,23 @@ class AbinitTimerParser(collections.abc.Iterable):
             filenames = [filenames]
 
         read_ok = []
-        for fname in filenames:
+        for filename in filenames:
             try:
-                fh = open(fname)  # noqa: SIM115
+                file = open(filename)  # noqa: SIM115
             except OSError:
-                logger.warning(f"Cannot open file {fname}")
+                logger.warning(f"Cannot open file {filename}")
                 continue
 
             try:
-                self._read(fh, fname)
-                read_ok.append(fname)
+                self._read(file, filename)
+                read_ok.append(filename)
 
-            except self.Error as e:
-                logger.warning(f"exception while parsing file {fname}:\n{e}")
+            except self.Error as exc:
+                logger.warning(f"exception while parsing file {filename}:\n{exc}")
                 continue
 
             finally:
-                fh.close()
+                file.close()
 
         # Add read_ok to the list of files that have been parsed.
         self._filenames.extend(read_ok)
@@ -279,7 +279,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         for sect_name in self.section_names():
             ref_sect = ref_t.get_section(sect_name)
-            sects = [t.get_section(sect_name) for t in timers]
+            sects = [timer.get_section(sect_name) for timer in timers]
             try:
                 ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
                 wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
@@ -384,7 +384,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.grid(visible=True)
 
         # Set xticks and labels.
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -468,7 +468,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
@@ -608,7 +608,7 @@ class AbinitTimerSection:
         string = ""
 
         if with_header:
-            string += "# " + " ".join(at for at in AbinitTimerSection.FIELDS) + "\n"
+            string += f"# {' '.join(at for at in AbinitTimerSection.FIELDS)}\n"
 
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
@@ -716,10 +716,11 @@ class AbinitTimer:
     def get_values(self, keys):
         """Return a list of values associated to a particular list of keys."""
         if isinstance(keys, str):
-            return [s.__dict__[keys] for s in self.sections]
+            return [sec.__dict__[keys] for sec in self.sections]
+
         values = []
-        for k in keys:
-            values.append([s.__dict__[k] for s in self.sections])
+        for key in keys:
+            values.append([sec.__dict__[key] for sec in self.sections])
         return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):

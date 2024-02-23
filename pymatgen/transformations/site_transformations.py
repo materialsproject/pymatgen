@@ -276,8 +276,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         Args:
             indices:
-                A list of list of indices.
-                e.g. [[0, 1], [2, 3, 4, 5]]
+                A list of list of indices, e.g. [[0, 1], [2, 3, 4, 5]].
             fractions:
                 The corresponding fractions to remove. Must be same length as
                 indices. e.g., [0.5, 0.25]
@@ -303,7 +302,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         to_delete = []
 
         total_removals = sum(num_remove_dict.values())
-        removed = {k: 0 for k in num_remove_dict}
+        removed = dict.fromkeys(num_remove_dict, 0)
         for _ in range(total_removals):
             max_idx = None
             max_ene = float("-inf")
@@ -330,9 +329,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Performing complete ordering...")
         all_structures: list[dict[str, float | Structure]] = []
         symprec = 0.2
-        spga = SpacegroupAnalyzer(structure, symprec=symprec)
-        self.logger.debug(f"Symmetry of structure is determined to be {spga.get_space_group_symbol()}.")
-        sg = spga.get_space_group_operations()
+        spg_analyzer = SpacegroupAnalyzer(structure, symprec=symprec)
+        self.logger.debug(f"Symmetry of structure is determined to be {spg_analyzer.get_space_group_symbol()}.")
+        sg = spg_analyzer.get_space_group_operations()
         tested_sites: list[list[PeriodicSite]] = []
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
@@ -342,8 +341,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
-        count = 0
-        for all_indices in itertools.product(*all_combis):
+        for idx, all_indices in enumerate(itertools.product(*all_combis), 1):
             sites_to_remove = []
             indices_list = []
             for indices in all_indices:
@@ -353,8 +351,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             s_new.remove_sites(indices_list)
             energy = ewald_sum.compute_partial_energy(indices_list)
             already_tested = False
-            for idx, t_sites in enumerate(tested_sites):
-                t_energy = all_structures[idx]["energy"]
+            for ii, t_sites in enumerate(tested_sites):
+                t_energy = all_structures[ii]["energy"]
                 if abs((energy - t_energy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
                     sites_to_remove, t_sites, symm_prec=symprec
                 ):
@@ -364,18 +362,17 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 tested_sites.append(sites_to_remove)
                 all_structures.append({"structure": s_new, "energy": energy})
 
-            count += 1
-            if count % 10 == 0:
-                timenow = time.perf_counter()
-                self.logger.debug(f"{count} structures, {timenow - start_time:.2f} seconds.")
-                self.logger.debug(f"Average time per combi = {(timenow - start_time) / count} seconds")
+            if idx % 10 == 0:
+                now = time.perf_counter()
+                self.logger.debug(f"{idx} structures, {now - start_time:.2f} seconds.")
+                self.logger.debug(f"Average time per combi = {(now - start_time) / idx} seconds")
                 self.logger.debug(f"{len(all_structures)} symmetrically distinct structures found.")
 
         self.logger.debug(f"Total symmetrically distinct structures found = {len(all_structures)}")
         return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
-        """This method uses the matrix form of ewaldsum to calculate the ewald
+        """This method uses the matrix form of Ewald sum to calculate the ewald
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter
@@ -386,13 +383,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
 
-        ewaldmatrix = EwaldSummation(structure).total_energy_matrix
+        ewald_matrix = EwaldSummation(structure).total_energy_matrix
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
         m_list = [[0, num, list(indices), None] for indices, num in num_remove_dict.items()]
 
         self.logger.debug("Calling EwaldMinimizer...")
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+        minimizer = EwaldMinimizer(ewald_matrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
 
         all_structures = []
@@ -411,13 +408,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                     struct.replace(manipulation[0], manipulation[1])
             struct.remove_sites(del_indices)
             struct = struct.get_sorted_structure()
-            all_structures.append(
-                {
-                    "energy": output[0],
-                    "energy_above_minimum": (output[0] - lowest_energy) / num_atoms,
-                    "structure": struct,
-                }
-            )
+            e_above_min = (output[0] - lowest_energy) / num_atoms
+            all_structures.append({"energy": output[0], "energy_above_minimum": e_above_min, "structure": struct})
 
         return all_structures
 
@@ -454,7 +446,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             transmuted structure class.
         """
         num_remove_dict = {}
-        total_combis = 0
+        total_combos = 0
         for indices, frac in zip(self.indices, self.fractions):
             num_to_remove = len(indices) * frac
             if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
@@ -462,11 +454,11 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
             n = len(indices)
-            total_combis += int(
+            total_combos += int(
                 round(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
             )
 
-        self.logger.debug(f"Total combinations = {total_combis}")
+        self.logger.debug(f"Total combinations = {total_combos}")
 
         try:
             num_to_return = int(return_ranked_list)
@@ -494,7 +486,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     @property
-    def inverse(self):
+    def inverse(self) -> None:
         """Return: None."""
         return
 
@@ -524,10 +516,10 @@ class AddSitePropertyTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites properties added.
         """
-        new_structure = structure.copy()
+        new_struct = structure.copy()
         for prop in self.site_properties:
-            new_structure.add_site_property(prop, self.site_properties[prop])
-        return new_structure
+            new_struct.add_site_property(prop, self.site_properties[prop])
+        return new_struct
 
     @property
     def inverse(self):
@@ -545,14 +537,14 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
     point defect.
     """
 
-    def __init__(self, site_index, displacement=0.1, nn_only=False):
+    def __init__(self, site_index: int, displacement: float = 0.1, nn_only: bool = False) -> None:
         """
         Args:
             site_index (int): index of the site in structure to place at the center of the distortion (will
                 not be distorted). This index must be provided before the structure is provided in
                 apply_transformation in order to keep in line with the base class.
             displacement (float): distance to perturb the atoms around the objective site
-            nn_only (bool): Whether or not to perturb beyond the nearest neighbors. If True, then only the
+            nn_only (bool): Whether to perturb beyond the nearest neighbors. If True, then only the
                 nearest neighbors will be perturbed, leaving the other sites undisturbed. If False, then
                 the nearest neighbors will receive the full displacement, and then subsequent sites will receive
                 a displacement=0.1 / r, where r is the distance each site to the origin site. For small displacements,
@@ -575,25 +567,28 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         structure = structure.copy()
         site = structure[self.site_index]
 
-        def f(x, r, r0):
+        def displace_dist(x, r, r0):
             return x * r0 / r
 
         r0 = max(site.distance(_["site"]) for _ in MinimumDistanceNN().get_nn_info(structure, self.site_index))
         if hasattr(structure, "lattice"):
-            m = structure.lattice.matrix
-            m = (abs(m) > 1e-5) * m
-            a, b, c = m[0], m[1], m[2]
+            latt_mat = structure.lattice.matrix
+            latt_mat = (abs(latt_mat) > 1e-5) * latt_mat  # round small values to 0
+            a, b, c = latt_mat[0], latt_mat[1], latt_mat[2]
             x = abs(np.dot(a, np.cross(b, c)) / np.linalg.norm(np.cross(b, c)))
             y = abs(np.dot(b, np.cross(a, c)) / np.linalg.norm(np.cross(a, c)))
             z = abs(np.dot(c, np.cross(a, b)) / np.linalg.norm(np.cross(a, b)))
-            rmax = np.floor(min([x, y, z]) / 2)
+            r_max = np.floor(min([x, y, z]) / 2)
         else:
-            rmax = np.max(structure.distance_matrix)
+            r_max = np.max(structure.distance_matrix)
 
-        for vals in structure.get_neighbors(site, r=r0 if self.nn_only else rmax):
+        for vals in structure.get_neighbors(site, r=r0 if self.nn_only else r_max):
             site2, distance, index = vals[:3]
-            v = site2.coords - site.coords
-            kwargs = {"indices": [index], "vector": v * f(self.displacement, distance, r0) / np.linalg.norm(v)}
+            vec = site2.coords - site.coords
+            kwargs = {
+                "indices": [index],
+                "vector": vec * displace_dist(self.displacement, distance, r0) / np.linalg.norm(vec),
+            }
             if hasattr(structure, "lattice"):
                 kwargs["frac_coords"] = False
             structure.translate_sites(**kwargs)

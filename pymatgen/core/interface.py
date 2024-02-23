@@ -19,7 +19,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 class Interface(Structure):
     """This class stores data for defining an interface between two structures.
-    It is a subclass of pymatgen.core.structure.Structure.
+    It is a subclass of pymatgen Structure.
     """
 
     def __init__(
@@ -282,21 +282,21 @@ class Interface(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
-        """:param d: dict
+    def from_dict(cls, dct: dict) -> Interface:  # type: ignore[override]
+        """:param dct: dict
 
         Returns:
             Creates slab from dict.
         """
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        lattice = Lattice.from_dict(dct["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
         struct = Structure.from_sites(sites)
 
         optional = {
-            "in_plane_offset": d.get("in_plane_offset"),
-            "gap": d.get("gap"),
-            "vacuum_over_film": d.get("vacuum_over_film"),
-            "interface_properties": d.get("interface_properties"),
+            "in_plane_offset": dct.get("in_plane_offset"),
+            "gap": dct.get("gap"),
+            "vacuum_over_film": dct.get("vacuum_over_film"),
+            "interface_properties": dct.get("interface_properties"),
         }
         return Interface(
             lattice=lattice,
@@ -425,7 +425,7 @@ def label_termination(slab: Structure) -> str:
 
     if n == 1:
         # Clustering does not work when there is only one data point.
-        form = slab.composition.reduced_formula
+        form = slab.reduced_formula
         sp_symbol = SpacegroupAnalyzer(slab, symprec=0.1).get_space_group_symbol()
         return f"{form}_{sp_symbol}_{len(slab)}"
 
@@ -456,7 +456,7 @@ def label_termination(slab: Structure) -> str:
     top_plane = Structure.from_sites(top_plane_sites)
 
     sp_symbol = SpacegroupAnalyzer(top_plane, symprec=0.1).get_space_group_symbol()
-    form = top_plane.composition.reduced_formula
+    form = top_plane.reduced_formula
     return f"{form}_{sp_symbol}_{len(top_plane)}"
 
 

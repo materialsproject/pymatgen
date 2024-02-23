@@ -112,7 +112,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
             znucl=13,
         )
 
-    `xred` can be replaced with `xcart` or `xangst`.
+    xred can be replaced with xcart or xangst.
     """
     kwargs.update(dict(*args))
     cls = cls or Structure
@@ -158,7 +158,6 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=coords_are_cartesian,
-        properties=kwargs.get("properties"),
     )
 
 
@@ -251,7 +250,6 @@ def structure_to_abivars(
         "typat": typat,
         "znucl": znucl_type,
         "xred": x_red,
-        "properties": structure.properties,
     }
 
     # Add info on the lattice.
@@ -295,20 +293,19 @@ def contract(string):
     old = tokens[0]
     count = [[1, old]]
 
-    for t in tokens[1:]:
-        if t == old:
+    for tok in tokens[1:]:
+        if tok == old:
             count[-1][0] += 1
         else:
-            old = t
-            count.append([1, t])
+            old = tok
+            count.append([1, tok])
 
     return " ".join(f"{c}*{t}" for c, t in count)
 
 
 class AbivarAble(metaclass=abc.ABCMeta):
     """
-    An `AbivarAble` object provides a method `to_abivars`
-    that returns a dictionary with the abinit variables.
+    An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
 
     @abc.abstractmethod
@@ -369,17 +366,13 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
         # Assume a string with mode
         try:
-            return _mode2spinvars[obj]
+            return _mode_to_spin_vars[obj]
         except KeyError:
             raise KeyError(f"Wrong value for spin_mode: {obj}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
-        return {
-            "nsppol": self.nsppol,
-            "nspinor": self.nspinor,
-            "nspden": self.nspden,
-        }
+        return {"nsppol": self.nsppol, "nspinor": self.nspinor, "nspden": self.nspden}
 
     def as_dict(self):
         """Convert object to dict."""
@@ -394,7 +387,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
 
 # An handy Multiton
-_mode2spinvars = {
+_mode_to_spin_vars = {
     "unpolarized": SpinMode("unpolarized", 1, 1, 1),
     "polarized": SpinMode("polarized", 2, 1, 2),
     "afm": SpinMode("afm", 1, 1, 2),
@@ -425,10 +418,10 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s = f"occopt {self.occopt} # {self.mode} Smearing\n"
+        string = f"occopt {self.occopt} # {self.mode} Smearing\n"
         if self.tsmear:
-            s += f"tsmear {self.tsmear}"
-        return s
+            string += f"tsmear {self.tsmear}"
+        return string
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("occopt", "tsmear")
@@ -596,7 +589,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """Json friendly dict representation."""
+        """JSON friendly dict representation."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -610,16 +603,16 @@ class Electrons(AbivarAble, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Build object from dictionary."""
-        d = d.copy()
-        d.pop("@module", None)
-        d.pop("@class", None)
+        dct = dct.copy()
+        dct.pop("@module", None)
+        dct.pop("@class", None)
         dec = MontyDecoder()
-        d["spin_mode"] = dec.process_decoded(d["spin_mode"])
-        d["smearing"] = dec.process_decoded(d["smearing"])
-        d["algorithm"] = dec.process_decoded(d["algorithm"]) if d["algorithm"] else None
-        return cls(**d)
+        dct["spin_mode"] = dec.process_decoded(dct["spin_mode"])
+        dct["smearing"] = dec.process_decoded(dct["smearing"])
+        dct["algorithm"] = dec.process_decoded(dct["algorithm"]) if dct["algorithm"] else None
+        return cls(**dct)
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""

@@ -21,8 +21,8 @@ class TestReaction(unittest.TestCase):
         assert str(rxn) == "2 Fe + 1.5 O2 -> Fe2O3"
         assert rxn.normalized_repr == "4 Fe + 3 O2 -> 2 Fe2O3"
 
-        d = rxn.as_dict()
-        rxn = Reaction.from_dict(d)
+        dct = rxn.as_dict()
+        rxn = Reaction.from_dict(dct)
         repr_str, factor = rxn.normalized_repr_and_factor()
         assert repr_str == "4 Fe + 3 O2 -> 2 Fe2O3"
         assert factor == approx(2)
@@ -237,8 +237,8 @@ class TestReaction(unittest.TestCase):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
         rxn = Reaction(reactants, products)
-        d = rxn.as_dict()
-        rxn = Reaction.from_dict(d)
+        dct = rxn.as_dict()
+        rxn = Reaction.from_dict(dct)
         assert rxn.normalized_repr == "4 Fe + 3 O2 -> 2 Fe2O3"
 
     def test_underdetermined(self):
@@ -304,8 +304,8 @@ class TestBalancedReaction(unittest.TestCase):
         rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
         rxn = BalancedReaction(rct, prod)
-        d = rxn.as_dict()
-        new_rxn = BalancedReaction.from_dict(d)
+        dct = rxn.as_dict()
+        new_rxn = BalancedReaction.from_dict(dct)
         for comp in new_rxn.all_comp:
             assert new_rxn.get_coeff(comp) == rxn.get_coeff(comp)
 
@@ -366,8 +366,8 @@ class TestComputedReaction(unittest.TestCase):
             },
         ]
         entries = [ComputedEntry.from_dict(entry) for entry in dct]
-        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
-        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
+        reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         self.rxn = ComputedReaction(reactants, prods)
 
@@ -432,8 +432,8 @@ class TestComputedReaction(unittest.TestCase):
             },
         ]
         entries = [ComputedEntry.from_dict(e) for e in d]
-        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
-        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
+        reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(reactants, prods)
         assert rxn_with_uncertainty.calculated_reaction_energy_uncertainty == approx(0.5 * 0.0744)
@@ -503,8 +503,8 @@ class TestComputedReaction(unittest.TestCase):
             },
         ]
         entries = [ComputedEntry.from_dict(e) for e in d]
-        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
-        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
+        reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(reactants, prods)
         assert isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
@@ -513,12 +513,12 @@ class TestComputedReaction(unittest.TestCase):
         assert str(self.rxn) == "2 Li + O2 -> Li2O2"
 
     def test_as_from_dict(self):
-        d = self.rxn.as_dict()
-        new_rxn = ComputedReaction.from_dict(d)
+        dct = self.rxn.as_dict()
+        new_rxn = ComputedReaction.from_dict(dct)
         assert str(new_rxn) == "2 Li + O2 -> Li2O2"
 
     def test_all_entries(self):
-        for c, e in zip(self.rxn.coeffs, self.rxn.all_entries):
-            if c > 0:
-                assert e.composition.reduced_formula == "Li2O2"
-                assert e.energy == approx(-959.64693323)
+        for coeff, entry in zip(self.rxn.coeffs, self.rxn.all_entries):
+            if coeff > 0:
+                assert entry.reduced_formula == "Li2O2"
+                assert entry.energy == approx(-959.64693323)

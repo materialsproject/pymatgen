@@ -58,8 +58,7 @@ class TestGulpCaller(unittest.TestCase):
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
         gc = GulpCaller()
 
-        """Some inherent checks are in the run_gulp function itself.
-        They should be sufficient for raising errors."""
+        # some inherent checks are in the run_gulp function itself. should be sufficient for raising errors
         gc.run(gin)
 
     def test_decimal(self):
@@ -245,8 +244,8 @@ class TestGulpIO(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_FILES_DIR}/example21.gout") as fp:
-            out_str = fp.read()
+        with open(f"{TEST_FILES_DIR}/example21.gout") as file:
+            out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8

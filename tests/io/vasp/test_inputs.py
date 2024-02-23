@@ -6,6 +6,7 @@ import os
 import pickle
 import re
 import unittest
+from shutil import copyfile
 
 import numpy as np
 import pytest
@@ -22,6 +23,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     POTCAR_STATS_PATH,
     BadIncarWarning,
+    BadPoscarWarning,
     Incar,
     Kpoints,
     KpointsSupportedModes,
@@ -58,8 +60,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
 
 class TestPoscar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        comp = Structure.from_file(filepath).composition
+        comp = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
@@ -184,8 +185,8 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_str(poscar_string)
-        d = poscar.as_dict()
-        poscar2 = Poscar.from_dict(d)
+        dct = poscar.as_dict()
+        poscar2 = Poscar.from_dict(dct)
         assert poscar2.comment == "Test3"
         assert all(poscar2.selective_dynamics[0])
         assert not all(poscar2.selective_dynamics[1])
@@ -417,8 +418,13 @@ direct
         assert_allclose(poscar.structure.lattice.abc, poscar.structure.lattice.abc, 5)
 
     def test_selective_dynamics(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR.Fe3O4"
-        poscar = Poscar.from_file(filepath)
+        # Previously, this test relied on the existence of a file named POTCAR
+        # that was sorted to the top of a list of POTCARs for the test to work.
+        # That's far too brittle - isolating requisite files here
+        copyfile(f"{TEST_FILES_DIR}/POSCAR.Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{TEST_FILES_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        poscar = Poscar.from_file(tmp_poscar_path)
         structure = poscar.structure
 
         # Fix bottom half
@@ -444,6 +450,76 @@ direct
             [False, False, False],
         ]
 
+    def test_invalid_selective_dynamics(self):
+        """
+        Check invalid selective dynamics info. The POSCAR string
+        'invalid_poscar_str' represents a case with incorrect
+        placement of selective dynamics information (Comment like 'Si' should
+        be followed by selective dynamics values 'T' or 'F').
+        """
+        invalid_poscar_str = """POSCAR with invalid selective dynamics info
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 Si T T F
+3.840198   1.50000000   2.35163175 F T T F
+"""
+        with pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either 'T' or 'F'."):
+            Poscar.from_str(invalid_poscar_str)
+
+    def test_selective_dynamics_with_fluorine(self):
+        """
+        Check ambiguous selective dynamics info when Fluorine(F) is
+        included and position lines include comments.
+        """
+        poscar_str_with_fluorine = """Selective dynamics toggled with Fluorine
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 Si T T F
+3.840198   1.50000000   2.35163175 F T T F
+"""
+        with pytest.warns(
+            BadPoscarWarning,
+            match=(
+                "Selective dynamics toggled with Fluorine element detected. "
+                "Make sure the 4th-6th entry each position line is selective dynamics info."
+            ),
+        ):
+            Poscar.from_str(poscar_str_with_fluorine)
+
+    def test_all_DOFs_relaxed(self):
+        """
+        A warning should be issued when selective dynamics is toggled
+        while ALL degrees of freedom are relaxed.
+        """
+        poscar_str_all_dof_relaxed = """All degrees of freedom relaxed
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si O
+1 1
+Selective dynamics
+Cartesian
+0.000000   0.00000000   0.00000000 T T T
+3.840198   1.50000000   2.35163175 T T T
+"""
+        with pytest.warns(
+            BadPoscarWarning, match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed."
+        ):
+            Poscar.from_str(poscar_str_all_dof_relaxed)
+
     def test_vasp_6_4_2_format(self):
         # As of vasp 6.4.2, when using POTCARs with SHAs, there can
         # be a slash in the element names
@@ -452,7 +528,7 @@ direct
         with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
-                    line = " ".join([x + "/" for x in line.split()]) + "\n"
+                    line = " ".join(f"{x}/" for x in line.split()) + "\n"
                 poscar_str += line
         poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.formula == "Li4 Fe4 P4 O16"
@@ -460,8 +536,7 @@ direct
 
 class TestIncar(PymatgenTest):
     def setUp(self):
-        file_name = f"{TEST_FILES_DIR}/INCAR"
-        self.incar = Incar.from_file(file_name)
+        self.incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
     def test_init(self):
         incar = self.incar
@@ -469,6 +544,15 @@ class TestIncar(PymatgenTest):
         assert incar["ALGO"] == "Damped", "Wrong Algo"
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
+
+    def test_copy(self):
+        incar2 = self.incar.copy()
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert incar2 == self.incar
+        # modify incar2 and check that incar1 is not modified
+        incar2["LDAU"] = "F"
+        assert incar2["LDAU"] is False
+        assert self.incar.get("LDAU") is None
 
     def test_diff(self):
         filepath1 = f"{TEST_FILES_DIR}/INCAR"
@@ -619,11 +703,11 @@ class TestIncar(PymatgenTest):
         }
 
     def test_as_dict_and_from_dict(self):
-        d = self.incar.as_dict()
-        incar2 = Incar.from_dict(d)
+        dct = self.incar.as_dict()
+        incar2 = Incar.from_dict(dct)
         assert self.incar == incar2
-        d["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
-        incar3 = Incar.from_dict(d)
+        dct["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
+        incar3 = Incar.from_dict(dct)
         assert incar3["MAGMOM"] == [Magmom([1, 2, 3])]
 
     def test_write(self):
@@ -749,53 +833,36 @@ SIGMA = 0.1"""
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
+        assert Incar.proc_val("ML_MODE", "train") == "train"
+        assert Incar.proc_val("ML_MODE", "RUN") == "run"
+        assert Incar.proc_val("ALGO", "fast") == "Fast"
 
     def test_check_params(self):
-        # Triggers warnings when running into nonsensical parameters
+        # Triggers warnings when running into invalid parameters
         with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
                     "ALGO": "Normal",
                     "AMIN": 0.01,
-                    "AMIX": 0.2,
-                    "BMIX": 0.001,
-                    "EDIFF": 5 + 1j,  # EDIFF needs to be real
-                    "EDIFFG": -0.01,
-                    "ENCUT": 520,
-                    "IBRION": 2,
                     "ICHARG": 1,
-                    "ISIF": 9,
-                    "ISMEAR": 1,
-                    "ISPIN": 2,
-                    "LASPH": 5,  # Should be a bool
-                    "LORBIT": 11,
-                    "LREAL": "Auto",
-                    "LWAVE": False,
                     "MAGMOM": [1, 2, 4, 5],
-                    "METAGGA": "SCAM",  # spelling mistake
-                    "NELM": 200,
-                    "NPAR": 4,
-                    "NSW": 99,
-                    "PREC": "Accurate",
-                    "SIGMA": 0.2,
-                    "NBAND": 250,  # spelling mistake
-                    "PHON_TLIST": "is_a_str",  # this parameter should be a list
-                    "LATTICE_CONSTRAINTS": [
-                        True,
-                        False,
-                        "f",
-                    ],  # Should be a list of bools
-                    "M_CONSTR": [True, 1, "string"],  # Should be a list of real numbers
+                    "NBAND": 250,  # typo in tag
+                    "METAGGA": "SCAM",  # typo in value
+                    "EDIFF": 5 + 1j,  # value should be a float
+                    "ISIF": 9,  # value out of range
+                    "LASPH": 5,  # value should be bool
+                    "PHON_TLIST": "is_a_str",  # value should be a list
                 }
             )
             incar.check_params()
 
-        assert "ISIF: Cannot find 9 in the list of parameters" in record[0].message.args
-        assert "LASPH: 5 is not a bool" in record[1].message.args
-        assert "METAGGA: Cannot find SCAM in the list of parameters" in record[2].message.args
-        assert "Cannot find NBAND in the list of INCAR flags" in record[3].message.args
-        assert "PHON_TLIST: is_a_str is not a list" in record[4].message.args
+        assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
+        assert record[1].message.args[0] == "METAGGA: Cannot find SCAM in the list of values"
+        assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
+        assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
+        assert record[4].message.args[0] == "LASPH: 5 is not a bool"
+        assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
 
 
 class TestKpointsSupportedModes:
@@ -904,24 +971,42 @@ Cartesian
 
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
-        k = Kpoints.from_file(file_name)
-        d = k.as_dict()
+        kpts = Kpoints.from_file(file_name)
+        dct = kpts.as_dict()
 
-        json.dumps(d)
+        json.dumps(dct)
         # This doesn't work
-        k2 = Kpoints.from_dict(d)
-        assert k.kpts == k2.kpts
-        assert k.style == k2.style
-        assert k.kpts_shift == k2.kpts_shift
-        assert k.num_kpts == k2.num_kpts
+        k2 = Kpoints.from_dict(dct)
+        assert kpts.kpts == k2.kpts
+        assert kpts.style == k2.style
+        assert kpts.kpts_shift == k2.kpts_shift
+        assert kpts.num_kpts == k2.num_kpts
 
     def test_pickle(self):
-        k = Kpoints.gamma_automatic()
-        pickle.dumps(k)
+        kpts = Kpoints.gamma_automatic()
+        pickle.dumps(kpts)
+
+    def test_eq(self):
+        auto_g_kpts = Kpoints.gamma_automatic()
+        assert auto_g_kpts == auto_g_kpts
+        assert auto_g_kpts == Kpoints.gamma_automatic()
+        file_kpts = Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        assert file_kpts == Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        assert auto_g_kpts != file_kpts
+        auto_m_kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        assert auto_m_kpts == Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        assert auto_g_kpts != auto_m_kpts
+
+    def test_copy(self):
+        kpts = Kpoints.gamma_automatic()
+        kpt_copy = kpts.copy()
+        assert kpts == kpt_copy
+        kpt_copy.style = Kpoints.supported_modes.Monkhorst
+        assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
         # struct = PymatgenTest.get_structure("Li2O")
-        p = Poscar.from_str(
+        poscar = Poscar.from_str(
             """Al1
 1.0
 2.473329 0.000000 1.427977
@@ -932,7 +1017,7 @@ Al
 direct
 0.000000 0.000000 0.000000 Al"""
         )
-        kpoints = Kpoints.automatic_density(p.structure, 1000)
+        kpoints = Kpoints.automatic_density(poscar.structure, 1000)
         assert_allclose(kpoints.kpts[0], [10, 10, 10])
 
     def test_automatic_density_by_lengths(self):
@@ -1014,7 +1099,7 @@ class TestPotcarSingle(unittest.TestCase):
             "RPACOR": 2.08,
             "RWIGS": 1.323,
             "STEP": [25.286, 0.183],
-            "TITEL": "PAW_PBE Mn_pv 07Sep2000 FAKE",
+            "TITEL": "PAW_PBE Mn_pv 07Sep2000",
             "VRHFIN": "Mn: 3p4s3d",
             "ZVAL": 13.0,
         }
@@ -1149,27 +1234,38 @@ class TestPotcarSingle(unittest.TestCase):
     def test_repr(self):
         assert (
             repr(self.psingle_Mn_pv)
-            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000 FAKE', "
+            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000', "
             "VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
 
     def test_hash(self):
-        assert self.psingle_Mn_pv.md5_header_hash == "12ebca66d185118322f2ebbc73d270f9"
-        assert self.psingle_Fe.md5_header_hash == "ea98d3eb45e34957a2e8cd200a61f7ac"
+        assert self.psingle_Mn_pv.md5_header_hash == "b45747d8ceeee91c3b27e8484db32f5a"
+        assert self.psingle_Fe.md5_header_hash == "adcc7d2abffa088eccc74948a68235d6"
 
     def test_potcar_file_hash(self):
-        assert self.psingle_Mn_pv.md5_computed_file_hash == "2111214d926135f3b288d2910b5fce34"
-        assert self.psingle_Fe.md5_computed_file_hash == "78662b23c58f9920cbdc73cc3b3209ef"
+        assert self.psingle_Mn_pv.md5_computed_file_hash == "e66e5662ec6e46d6f10ce0bb07b3b742"
+        assert self.psingle_Fe.md5_computed_file_hash == "ae761615a0734cc5a2a1db0d5919f12d"
 
     def test_sha256_file_hash(self):
         assert (
             self.psingle_Mn_pv.sha256_computed_file_hash
-            == "e6c4708d01062e0a622db6d7da4b6938e6b68c10de797b9840cf9e5d1fd3376c"
+            == "3890fe92124e18500817b565a6048a317968613e226ab7b7c2a2d4ca62451e3a"
         )
         assert (
             self.psingle_Fe.sha256_computed_file_hash
-            == "5223977ca296a1581d7828a561e5418f32be8ebd1715caf0dc43bbcae2c7c9b4"
+            == "7bcf5ad80200e5d74ba63b45d87825b31e6cae2bcd03cebda2f1cbec9870c1cf"
         )
+
+    def test_eq(self):
+        assert self.psingle_Mn_pv == self.psingle_Mn_pv
+        assert self.psingle_Fe == self.psingle_Fe
+        assert self.psingle_Mn_pv != self.psingle_Fe
+        assert self.psingle_Mn_pv != self.psingle_Fe_54
+
+    def test_copy(self):
+        psingle = self.psingle_Mn_pv.copy()
+        assert psingle == self.psingle_Mn_pv
+        assert psingle is not self.psingle_Mn_pv
 
 
 class TestPotcar(PymatgenTest):
@@ -1195,8 +1291,8 @@ class TestPotcar(PymatgenTest):
         assert potcar.symbols == ["Fe_pv"], "Wrong symbols read in for POTCAR"
 
     def test_as_from_dict(self):
-        d = self.potcar.as_dict()
-        potcar = Potcar.from_dict(d)
+        dct = self.potcar.as_dict()
+        potcar = Potcar.from_dict(dct)
         assert potcar.symbols == ["Fe", "P", "O"]
 
     def test_write(self):
@@ -1253,8 +1349,8 @@ class TestVaspInput(PymatgenTest):
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
     def test_as_from_dict(self):
-        d = self.vasp_input.as_dict()
-        vasp_input = VaspInput.from_dict(d)
+        dct = self.vasp_input.as_dict()
+        vasp_input = VaspInput.from_dict(dct)
         comp = vasp_input["POSCAR"].structure.composition
         assert comp == Composition("Fe4P4O16")
 
@@ -1267,14 +1363,41 @@ class TestVaspInput(PymatgenTest):
 
         assert {*os.listdir(tmp_dir)} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
 
+    def test_copy(self):
+        vasp_input2 = self.vasp_input.copy(deep=True)
+        assert isinstance(vasp_input2, VaspInput)
+        # make copy and original serialize to the same dict
+        assert vasp_input2.as_dict() == self.vasp_input.as_dict()
+        # modify the copy and make sure the original is not modified
+        vasp_input2["INCAR"]["NSW"] = 100
+        assert vasp_input2["INCAR"]["NSW"] == 100
+        assert self.vasp_input["INCAR"]["NSW"] == 99
+
+        # make a shallow copy and make sure the original is modified
+        vasp_input3 = self.vasp_input.copy(deep=False)
+        vasp_input3["INCAR"]["NSW"] = 100
+        assert vasp_input3["INCAR"]["NSW"] == 100
+        assert self.vasp_input["INCAR"]["NSW"] == 100
+
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
-        with open("vasp.out") as f:
-            output = f.read()
+        with open("vasp.out") as file:
+            output = file.read()
             assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
-        vi = VaspInput.from_directory(TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
+        # Previously, this test relied on the existence of a file named POTCAR
+        # that was sorted to the top of a list of POTCARs for the test to work.
+        # That's far too brittle - isolating requisite files here
+        for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
+            copyfile(f"{TEST_FILES_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
+
+        Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
+
+        copyfile(f"{TEST_FILES_DIR}/CONTCAR.Li2O", f"{self.tmp_path}/CONTCAR.Li2O")
+
+        vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR.Li2O": Poscar})
+
         assert vi["INCAR"]["ALGO"] == "Damped"
         assert "CONTCAR.Li2O" in vi
         dct = vi.as_dict()

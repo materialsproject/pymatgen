@@ -98,8 +98,8 @@ class InputFile(MSONable):
             InputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     def __str__(self) -> str:
         return self.get_str()
@@ -144,21 +144,21 @@ class InputSet(MSONable, MutableMapping):
         raise AttributeError(f"'{type(self).__name__}' object has no attribute {key!r}")
 
     def __copy__(self) -> InputSet:
-        cls = self.__class__
+        cls = type(self)
         new_instance = cls.__new__(cls)
 
-        for k, v in self.__dict__.items():
-            setattr(new_instance, k, v)
+        for key, val in self.__dict__.items():
+            setattr(new_instance, key, val)
 
         return new_instance
 
     def __deepcopy__(self, memo: dict[int, InputSet]) -> InputSet:
-        cls = self.__class__
+        cls = type(self)
         new_instance = cls.__new__(cls)
         memo[id(self)] = new_instance
 
-        for k, v in self.__dict__.items():
-            setattr(new_instance, k, copy.deepcopy(v, memo))
+        for key, val in self.__dict__.items():
+            setattr(new_instance, key, copy.deepcopy(val, memo))
 
         return new_instance
 
@@ -168,7 +168,7 @@ class InputSet(MSONable, MutableMapping):
     def __iter__(self) -> Iterator[str | Path]:
         return iter(self.inputs)
 
-    def __getitem__(self, key) -> str | InputFile | slice:
+    def __getitem__(self, key: str | Path) -> str | InputFile | slice:
         return self.inputs[key]
 
     def __setitem__(self, key: str | Path, value: str | InputFile) -> None:
@@ -211,8 +211,8 @@ class InputSet(MSONable, MutableMapping):
             if isinstance(contents, InputFile):
                 contents.write_file(file_path)
             else:
-                with zopen(file_path, mode="wt") as f:
-                    f.write(str(contents))
+                with zopen(file_path, mode="wt") as file:
+                    file.write(str(contents))
 
         if zip_inputs:
             filename = path / f"{type(self).__name__}.zip"
@@ -233,7 +233,7 @@ class InputSet(MSONable, MutableMapping):
         Args:
             directory: Directory to read input files from
         """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        raise NotImplementedError(f"from_directory has not been implemented in {cls.__name__}")
 
     def validate(self) -> bool:
         """
@@ -242,7 +242,7 @@ class InputSet(MSONable, MutableMapping):
 
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
-        raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
+        raise NotImplementedError(f".validate() has not been implemented in {type(self).__name__}")
 
 
 class InputGenerator(MSONable):

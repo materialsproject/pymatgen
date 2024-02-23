@@ -450,7 +450,7 @@ class ElasticTensor(NthOrderElasticTensor):
         )
         sp_dict: dict[str, float | Structure | None]
         if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
-            sp_dict = {prop: None for prop in s_props}
+            sp_dict = dict.fromkeys(s_props)
         else:
             sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
         sp_dict["structure"] = structure
@@ -722,7 +722,7 @@ class ElasticTensorExpansion(TensorCollection):
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
-            raise ValueError("Mode must be debye or dulong-petit")
+            raise ValueError(f"{mode=} must be debye or dulong-petit")
         tgt = self.get_tgt(temperature, structure)
         alpha = np.einsum("ijkl,ij", soec.compliance_tensor, tgt)
         alpha *= cv / (1e9 * v0 * 6.022e23)
@@ -741,7 +741,6 @@ class ElasticTensorExpansion(TensorCollection):
         ce_exp.append(np.einsum(ein_string, -ce_exp[-1], self[1], ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
             # Four terms in the Fourth-Order compliance tensor
-
             einstring_1 = "pqab,cdij,efkl,ghmn,abcdefgh"
             tensors_1 = [ce_exp[0]] * 4 + [self[-1]]
             temp = -np.einsum(einstring_1, *tensors_1)
@@ -1002,9 +1001,9 @@ def generate_pseudo(strain_states, order=3):
             difference derivative of the stress with respect to the strain state
         absent_syms: symbols of the tensor absent from the PI expression
     """
-    s = sp.Symbol("s")
+    symb = sp.Symbol("s")
     nstates = len(strain_states)
-    ni = np.array(strain_states) * s
+    ni = np.array(strain_states) * symb
     pseudo_inverses, absent_symbols = [], []
     for degree in range(2, order + 1):
         cvec, carr = get_symbol_list(degree)
@@ -1015,14 +1014,14 @@ def generate_pseudo(strain_states, order=3):
             for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
             exps /= math.factorial(degree - 1)
-            sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
+            sarr[n] = [sp.diff(exp, symb, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_symbols = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
         absent_symbols += [set(cvec) - present_symbols]
-        m = np.zeros((6 * nstates, len(cvec)))
+        pseudo_mat = np.zeros((6 * nstates, len(cvec)))
         for n, c in enumerate(cvec):
-            m[:, n] = v_diff(svec, c)
-        pseudo_inverses.append(np.linalg.pinv(m))
+            pseudo_mat[:, n] = v_diff(svec, c)
+        pseudo_inverses.append(np.linalg.pinv(pseudo_mat))
     return pseudo_inverses, absent_symbols
 
 

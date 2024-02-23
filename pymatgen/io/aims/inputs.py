@@ -172,11 +172,11 @@ class AimsGeometryIn(MSONable):
             raise ValueError(f"geometry.in file exists in {directory}")
 
         with open(f"{directory}/geometry.in", mode="w") as file:
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")
             file.write(f"# {time.asctime()}\n")
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(self.content)
             file.write("\n")
 
@@ -306,14 +306,13 @@ class AimsCube(MSONable):
             ValueError: If any of the inputs is invalid
         """
         split_type = self.type.split()
+        cube_type = split_type[0]
         if split_type[0] in ALLOWED_AIMS_CUBE_TYPES:
             if len(split_type) > 1:
-                msg = f"Cube of type {split_type[0]} can not have a state associated with it"
-                raise ValueError(msg)
+                raise ValueError(f"{cube_type=} can not have a state associated with it")
         elif split_type[0] in ALLOWED_AIMS_CUBE_TYPES_STATE:
             if len(split_type) != 2:
-                msg = f"Cube of type {split_type[0]} must have a state associated with it"
-                raise ValueError(msg)
+                raise ValueError(f"{cube_type=} must have a state associated with it")
         else:
             raise ValueError("Cube type undefined")
 
@@ -463,24 +462,98 @@ class AimsControlIn(MSONable):
 
         Args:
             parameters (dict[str, Any]): The new set of parameters to use
-
         """
         self._parameters = parameters
         if "output" not in self._parameters:
             self._parameters["output"] = []
 
-    def get_aims_control_parameter_str(self, key: str, value: Any, format: str) -> str:
+    def get_aims_control_parameter_str(self, key: str, value: Any, fmt: str) -> str:
         """Get the string needed to add a parameter to the control.in file
 
         Args:
-            key(str): The name of the input flag
-            value(Any): The value to be set for the flag
-            format(str): The format string to apply to the value
+            key (str): The name of the input flag
+            value (Any): The value to be set for the flag
+            fmt (str): The format string to apply to the value
 
         Returns:
-            The line to add to the control.in file
+            str: The line to add to the control.in file
         """
-        return f"{key:35s}" + (format % value) + "\n"
+        return f"{key:35s}{fmt % value}\n"
+
+    def get_content(
+        self, structure: Structure | Molecule, verbose_header: bool = False, directory: str | Path | None = None
+    ) -> str:
+        """Get the content of the file
+
+        Args:
+            structure (Structure or Molecule): The structure to write the input
+                file for
+            verbose_header (bool): If True print the input option dictionary
+            directory: str | Path | None = The directory for the calculation,
+
+        Returns:
+            str: The content of the file for a given structure
+        """
+        parameters = deepcopy(self._parameters)
+
+        if directory is None:
+            directory = ""
+
+        lim = "#" + "=" * 79
+        content = ""
+
+        if parameters["xc"] == "LDA":
+            parameters["xc"] = "pw-lda"
+
+        cubes = parameters.pop("cubes", None)
+
+        if verbose_header:
+            content += "# \n# List of parameters used to initialize the calculator:"
+            for param, val in parameters.items():
+                s = f"#     {param}:{val}\n"
+                content += s
+        content += lim + "\n"
+
+        assert not ("smearing" in parameters and "occupation_type" in parameters)
+
+        for key, value in parameters.items():
+            if key in ["species_dir", "plus_u"]:
+                continue
+            if key == "smearing":
+                name = parameters["smearing"][0].lower()
+                if name == "fermi-dirac":
+                    name = "fermi"
+                width = parameters["smearing"][1]
+                if name == "methfessel-paxton":
+                    order = parameters["smearing"][2]
+                    order = " %d" % order
+                else:
+                    order = ""
+
+                content += self.get_aims_control_parameter_str("occupation_type", (name, width, order), "%s %f%s")
+            elif key == "output":
+                for output_type in value:
+                    content += self.get_aims_control_parameter_str(key, output_type, "%s")
+            elif key == "vdw_correction_hirshfeld" and value:
+                content += self.get_aims_control_parameter_str(key, "", "%s")
+            elif isinstance(value, bool):
+                content += self.get_aims_control_parameter_str(key, str(value).lower(), ".%s.")
+            elif isinstance(value, (tuple, list)):
+                content += self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s")
+            elif isinstance(value, str):
+                content += self.get_aims_control_parameter_str(key, value, "%s")
+            else:
+                content += self.get_aims_control_parameter_str(key, value, "%r")
+
+        if cubes:
+            for cube in cubes:
+                content += cube.control_block
+
+        content += lim + "\n\n"
+        species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
+        content += self.get_species_block(structure, species_dir)
+
+        return content
 
     def write_file(
         self,
@@ -508,72 +581,21 @@ class AimsControlIn(MSONable):
         if (Path(directory) / "control.in").exists() and not overwrite:
             raise ValueError(f"control.in file already in {directory}")
 
-        lim = "#" + "=" * 79
-
         if isinstance(structure, Structure) and (
             "k_grid" not in self._parameters and "k_grid_density" not in self._parameters
         ):
             raise ValueError("k-grid must be defined for periodic systems")
 
-        parameters = deepcopy(self._parameters)
+        content = self.get_content(structure, verbose_header)
 
         with open(f"{directory}/control.in", mode="w") as file:
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")
             file.write(f"# {time.asctime()}\n")
-            file.write("#" + "=" * 72 + "\n")
+            file.write(f"#{'=' * 72}\n")
 
-            if parameters["xc"] == "LDA":
-                parameters["xc"] = "pw-lda"
-
-            cubes = parameters.pop("cubes", None)
-
-            if verbose_header:
-                file.write("# \n# List of parameters used to initialize the calculator:")
-                for param, val in parameters.items():
-                    s = f"#     {param}:{val}\n"
-                    file.write(s)
-            file.write(lim + "\n")
-
-            assert not ("smearing" in parameters and "occupation_type" in parameters)
-
-            for key, value in parameters.items():
-                if key in ["species_dir", "plus_u"]:
-                    continue
-                if key == "smearing":
-                    name = parameters["smearing"][0].lower()
-                    if name == "fermi-dirac":
-                        name = "fermi"
-                    width = parameters["smearing"][1]
-                    if name == "methfessel-paxton":
-                        order = parameters["smearing"][2]
-                        order = " %d" % order
-                    else:
-                        order = ""
-
-                    file.write(self.get_aims_control_parameter_str("occupation_type", (name, width, order), "%s %f%s"))
-                elif key == "output":
-                    for output_type in value:
-                        file.write(self.get_aims_control_parameter_str(key, output_type, "%s"))
-                elif key == "vdw_correction_hirshfeld" and value:
-                    file.write(self.get_aims_control_parameter_str(key, "", "%s"))
-                elif isinstance(value, bool):
-                    file.write(self.get_aims_control_parameter_str(key, str(value).lower(), ".%s."))
-                elif isinstance(value, (tuple, list)):
-                    file.write(self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s"))
-                elif isinstance(value, str):
-                    file.write(self.get_aims_control_parameter_str(key, value, "%s"))
-                else:
-                    file.write(self.get_aims_control_parameter_str(key, value, "%r"))
-
-            if cubes:
-                for cube in cubes:
-                    file.write(cube.control_block)
-
-            file.write(lim + "\n\n")
-            species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
-            file.write(self.get_species_block(structure, species_dir))
+            file.write(content)
 
     def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
         """Get the basis set information for a structure

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 from shutil import which
@@ -60,17 +59,17 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-        test_dir = f"{TEST_FILES_DIR}/bader"
-        copy_r(test_dir, self.tmp_path)
-        analysis = BaderAnalysis(cube_filename=os.path.join(test_dir, "elec.cube.gz"))
+        TEST_DIR = f"{TEST_FILES_DIR}/bader"
+        copy_r(TEST_DIR, self.tmp_path)
+        analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
 
     def test_from_path(self):
-        test_dir = f"{TEST_FILES_DIR}/bader"
+        TEST_DIR = f"{TEST_FILES_DIR}/bader"
         # we need to create two copies of input files since monty decompressing files
         # deletes the compressed version which can't happen twice in same directory
-        copy_r(test_dir, direct_dir := f"{self.tmp_path}/direct")
-        copy_r(test_dir, from_path_dir := f"{self.tmp_path}/from_path")
+        copy_r(TEST_DIR, direct_dir := f"{self.tmp_path}/direct")
+        copy_r(TEST_DIR, from_path_dir := f"{self.tmp_path}/from_path")
         chgcar_path = f"{direct_dir}/CHGCAR.gz"
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
 
@@ -84,24 +83,23 @@ class TestBaderAnalysis(PymatgenTest):
             elif key == "charge":
                 assert_allclose(val, val_from_path, atol=1e-5)
 
-    def test_automatic_runner(self):
-        pytest.skip("raises RuntimeError: bader exits with return code 24")
+    def test_bader_analysis_from_path(self):
         summary = bader_analysis_from_path(f"{TEST_FILES_DIR}/bader")
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {
-            'magmom': [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292,
-                       0.370516, 0.36292, 0.36292, 0.36292, 0.36292, 0.36292, 0.370516],
-            'min_dist': [0.835789, 0.92947, 0.92947, 0.973007, 0.92947, 0.835789, 0.94067,
-                         0.817381, 0.94067, 0.94067, 0.94067, 0.94067, 0.94067, 0.817381],
-            'vacuum_charge': 0.0,
-            'vacuum_volume': 0.0,
-            'atomic_volume': [9.922887, 8.175158, 8.175158, 9.265802, 8.175158, 9.923233, 12.382546,
-                              12.566972, 12.382546, 12.382546, 12.382546, 12.382546, 12.382546, 12.566972],
-            'charge': [12.248132, 12.26177, 12.26177, 12.600596, 12.26177, 12.248143, 7.267303,
-                       7.256998, 7.267303, 7.267303, 7.267303, 7.267303, 7.267303, 7.256998],
-            'bader_version': 1.0,
-            'reference_used': True
+            "magmom": [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292, 0.370516, 0.36292,
+                0.36292, 0.36292, 0.36292, 0.36292, 0.370516],
+            "min_dist": [0.835789, 0.92947, 0.92947, 0.973007, 0.92947, 0.835789, 0.94067, 0.817381, 0.94067,
+                0.94067, 0.94067, 0.94067, 0.94067, 0.817381],
+            "vacuum_charge": 0.0,
+            "vacuum_volume": 0.0,
+            "atomic_volume": [9.922887, 8.175158, 8.175158, 9.265802, 8.175158, 9.923233, 12.382546, 12.566972,
+                12.382546, 12.382546, 12.382546, 12.382546, 12.382546, 12.566972],
+            "charge": [12.248132, 12.26177, 12.26177, 12.600596, 12.26177, 12.248143, 7.267303, 7.256998,
+                7.267303, 7.267303, 7.267303, 7.267303, 7.267303, 7.256998],
+            "bader_version": 1.0,
+            "reference_used": True,
         }
         """
         assert set(summary) == {
@@ -129,7 +127,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.atomic_densities) == len(analysis.chgcar.structure)
 
         assert np.sum(analysis.chgcar.data["total"]) == approx(
-            np.sum([np.sum(d["data"]) for d in analysis.atomic_densities])
+            np.sum([dct["data"] for dct in analysis.atomic_densities])
         )
 
     def test_missing_file_bader_exe_path(self):

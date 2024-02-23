@@ -22,9 +22,9 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestStructureMatcher(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
-            entries = json.load(fp, cls=MontyDecoder)
-        self.struct_list = [e.structure for e in entries]
+        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
+            entries = json.load(file, cls=MontyDecoder)
+        self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
             Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O"),
@@ -33,27 +33,29 @@ class TestStructureMatcher(PymatgenTest):
     def test_ignore_species(self):
         s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         s2 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
-        m = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
-        assert m.fit(s1, s2)
-        assert m.fit_anonymous(s1, s2)
-        groups = m.group_structures([s1, s2])
+        matcher = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
+        assert matcher.fit(s1, s2)
+        assert matcher.fit_anonymous(s1, s2)
+        groups = matcher.group_structures([s1, s2])
         assert len(groups) == 1
         s2.make_supercell((2, 1, 1))
-        ss1 = m.get_s2_like_s1(s2, s1, include_ignored_species=True)
+        ss1 = matcher.get_s2_like_s1(s2, s1, include_ignored_species=True)
         assert ss1.lattice.a == approx(20.820740000000001)
-        assert ss1.composition.reduced_formula == "LiFePO4"
+        assert ss1.reduced_formula == "LiFePO4"
 
-        assert {k.symbol: v.symbol for k, v in m.get_best_electronegativity_anonymous_mapping(s1, s2).items()} == {
+        assert {
+            k.symbol: v.symbol for k, v in matcher.get_best_electronegativity_anonymous_mapping(s1, s2).items()
+        } == {
             "Fe": "Fe",
             "P": "P",
             "O": "O",
         }
 
     def test_get_supercell_size(self):
-        latt = Lattice.cubic(1)
-        l2 = Lattice.cubic(0.9)
-        s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu", "Ag"], [[0] * 3] * 5)
-        s2 = Structure(l2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
+        latt1 = Lattice.cubic(1)
+        latt2 = Lattice.cubic(0.9)
+        s1 = Structure(latt1, ["Mg", "Cu", "Ag", "Cu", "Ag"], [[0] * 3] * 5)
+        s2 = Structure(latt2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
 
         sm = StructureMatcher(supercell_size="volume")
         assert sm._get_supercell_size(s1, s2) == (1, True)
@@ -245,7 +247,7 @@ class TestStructureMatcher(PymatgenTest):
         self.struct_list[1].translate_sites([0], [-0.4, -0.4, -0.2], frac_coords=True)
         # random.shuffle(editor._sites)
         assert sm.fit(self.struct_list[0], self.struct_list[1])
-        # Test FrameworkComporator
+        # Test FrameworkComparator
         sm2 = StructureMatcher(comparator=FrameworkComparator())
         lfp = self.get_structure("LiFePO4")
         nfp = self.get_structure("NaFePO4")
@@ -257,41 +259,36 @@ class TestStructureMatcher(PymatgenTest):
         assert sm.get_rms_anonymous(lfp, nfp)[0] == approx(0.060895871160262717)
 
         # Test partial occupancies.
-        s1 = Structure(
+        struct1 = Structure(
             Lattice.cubic(3),
             [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
             [[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]],
         )
-        s2 = Structure(
+        struct2 = Structure(
             Lattice.cubic(3),
             [{"Fe": 0.25}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.75}],
             [[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]],
         )
-        assert not sm.fit(s1, s2)
-        assert not sm.fit(s2, s1)
-        s2 = Structure(
+        assert not sm.fit(struct1, struct2)
+        assert not sm.fit(struct2, struct1)
+        struct2 = Structure(
             Lattice.cubic(3),
             [{"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5}],
             [[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]],
         )
-        assert sm.fit_anonymous(s1, s2)
+        assert sm.fit_anonymous(struct1, struct2)
 
-        assert sm.get_rms_anonymous(s1, s2)[0] == approx(0)
+        assert sm.get_rms_anonymous(struct1, struct2)[0] == approx(0)
 
         # test symmetric
-        sm_coarse = sm = StructureMatcher(
-            comparator=ElementComparator(),
-            ltol=0.6,
-            stol=0.6,
-            angle_tol=6,
-        )
+        sm_coarse = sm = StructureMatcher(comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6)
 
-        s1 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s1.vasp")
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s2.vasp")
-        assert sm_coarse.fit(s1, s2)
-        assert sm_coarse.fit(s2, s1) is False
-        assert sm_coarse.fit(s1, s2, symmetric=True) is False
-        assert sm_coarse.fit(s2, s1, symmetric=True) is False
+        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s1.vasp")
+        struct2 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s2.vasp")
+        assert sm_coarse.fit(struct1, struct2)
+        assert sm_coarse.fit(struct2, struct1) is False
+        assert sm_coarse.fit(struct1, struct2, symmetric=True) is False
+        assert sm_coarse.fit(struct2, struct1, symmetric=True) is False
 
     def test_oxi(self):
         """Test oxidation state removal matching."""
@@ -324,7 +321,7 @@ class TestStructureMatcher(PymatgenTest):
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for group in groups:
-            formula = group[0].composition.reduced_formula
+            formula = group[0].reduced_formula
             assert len(group) == (2 if formula in ["Li2O", "LiFePO4"] else 1)
 
     def test_left_handed_lattice(self):
@@ -342,9 +339,9 @@ class TestStructureMatcher(PymatgenTest):
             scale=False,
             comparator=FrameworkComparator(),
         )
-        d = sm.as_dict()
-        sm2 = StructureMatcher.from_dict(d)
-        assert sm2.as_dict() == d
+        dct = sm.as_dict()
+        sm2 = StructureMatcher.from_dict(dct)
+        assert sm2.as_dict() == dct
 
     def test_no_scaling(self):
         sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator())
@@ -425,7 +422,7 @@ class TestStructureMatcher(PymatgenTest):
         s1 = Structure(latt, ["Si", "Si"], [[0, 0, 0.1], [0, 0, 0.2]])
         s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [0, 0.1, -0.95]])
 
-        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
+        s1, s2, fu, _s1_supercell = sm._preprocess(s1, s2, niggli=False)
 
         match = sm._strict_match(s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False)
         scale_matrix = match[2]

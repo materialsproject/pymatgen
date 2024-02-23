@@ -365,8 +365,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        d = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
-        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
+        el_amt_dict = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
+        formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
@@ -544,6 +544,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise ValueError(f"Invalid {formula=}")
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
+        # square brackets are used in formulas to denote coordination complexes (gh-3583)
+        formula = formula.replace("[", "(")
+        formula = formula.replace("]", ")")
 
         def get_sym_dict(form: str, factor: float) -> dict[str, float]:
             sym_dict: dict[str, float] = collections.defaultdict(float)
@@ -558,15 +561,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 raise ValueError(f"{form} is an invalid formula!")
             return sym_dict
 
-        m = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
-        if m:
+        match = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
+        while match:
             factor = 1.0
-            if m.group(2) != "":
-                factor = float(m.group(2))
-            unit_sym_dict = get_sym_dict(m.group(1), factor)
+            if match.group(2) != "":
+                factor = float(match.group(2))
+            unit_sym_dict = get_sym_dict(match.group(1), factor)
             expanded_sym = "".join(f"{el}{amt}" for el, amt in unit_sym_dict.items())
-            expanded_formula = formula.replace(m.group(), expanded_sym)
-            return self._parse_formula(expanded_formula)
+            expanded_formula = formula.replace(match.group(), expanded_sym, 1)
+            formula = expanded_formula
+            match = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
         return get_sym_dict(formula, 1)
 
     @property
@@ -581,14 +585,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
-        for e, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
+        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
             if amt == 1:
                 amt_str = ""
             elif abs(amt % 1) < 1e-8:
                 amt_str = str(int(amt))
             else:
                 amt_str = str(amt)
-            anon += f"{e}{amt_str}"
+            anon += f"{elem}{amt_str}"
         return anon
 
     @property
@@ -1008,7 +1012,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo), key=lambda pair: pair[0], reverse=True
+                        zip(all_scores, all_sols, all_oxid_combo),
+                        key=lambda pair: pair[0],
+                        reverse=True,
                     )
                 )
             )
@@ -1290,9 +1296,8 @@ class ChemicalPotential(dict, MSONable):
             composition (Composition): input composition
             strict (bool): Whether all potentials must be specified
         """
-        if strict and set(composition) > set(self):
-            s = set(composition) - set(self)
-            raise ValueError(f"Potentials not specified for {s}")
+        if strict and (missing := set(composition) - set(self)):
+            raise ValueError(f"Potentials not specified for {missing}")
         return sum(self.get(key, 0) * val for key, val in composition.items())
 
     def __repr__(self) -> str:

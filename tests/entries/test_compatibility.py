@@ -439,8 +439,8 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
                 ],
             },
         )
-        d = compat.get_explanation_dict(entry)
-        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
+        dct = compat.get_explanation_dict(entry)
+        assert dct["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -461,14 +461,14 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
                 ],
             },
         )
-        c = compat.get_corrections_dict(entry)[0]
-        assert c["MP Anion Correction"] == approx(-2.10687)
-        assert c["MP Advanced Correction"] == approx(-5.466)
+        comp = compat.get_corrections_dict(entry)[0]
+        assert comp["MP Anion Correction"] == approx(-2.10687)
+        assert comp["MP Advanced Correction"] == approx(-5.466)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c = gga_compat.get_corrections_dict(entry)[0]
-        assert "MP Advanced Correction" not in c
+        comp = gga_compat.get_corrections_dict(entry)[0]
+        assert "MP Advanced Correction" not in comp
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
@@ -936,12 +936,12 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         }
         entry = ComputedEntry.from_dict(entry)
 
-        c = compat.process_entry(entry)
-        assert "MP2020 anion correction (oxide)" in [ea.name for ea in c.energy_adjustments]
-        assert "MP2020 GGA/GGA+U mixing correction (Fe)" in [ea.name for ea in c.energy_adjustments]
-        assert "MP2020 GGA/GGA+U mixing correction (Co)" in [ea.name for ea in c.energy_adjustments]
+        processed = compat.process_entry(entry)
+        assert "MP2020 anion correction (oxide)" in [ea.name for ea in processed.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction (Fe)" in [ea.name for ea in processed.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction (Co)" in [ea.name for ea in processed.energy_adjustments]
 
-        for ea in c.energy_adjustments:
+        for ea in processed.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
                 assert ea.value == approx(-2.256 * 4)
                 assert ea.uncertainty == approx(0.0101 * 4)
@@ -954,8 +954,8 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c = gga_compat.process_entry(entry)
-        assert "MP2020 GGA/GGA+U mixing correction" not in [ea.name for ea in c.energy_adjustments]
+        processed = gga_compat.process_entry(entry)
+        assert "MP2020 GGA/GGA+U mixing correction" not in [ea.name for ea in processed.energy_adjustments]
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
@@ -1312,8 +1312,8 @@ class TestMITCompatibility(unittest.TestCase):
                 ],
             },
         )
-        d = compat.get_explanation_dict(entry)
-        assert d["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
+        dct = compat.get_explanation_dict(entry)
+        assert dct["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()

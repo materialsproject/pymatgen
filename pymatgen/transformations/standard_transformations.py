@@ -181,9 +181,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         Returns:
             Non-oxidation state decorated Structure.
         """
-        struct = structure.copy()
-        struct.remove_oxidation_states()
-        return struct
+        return structure.copy().remove_oxidation_states()
 
     @property
     def inverse(self):
@@ -471,8 +469,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     state decorated for Ewald sum to be computed. No attempt is made to perform
     symmetry determination to reduce the number of combinations.
 
-    Hence, attempting to performing ordering on a large number of disordered
-    sites may be extremely expensive. The time scales approximately with the
+    Hence, attempting to order a large number of disordered sites can be extremely
+    expensive. The time scales approximately with the
     number of possible combinations. The algorithm can currently compute
     approximately 5,000,000 permutations per minute.
 
@@ -486,10 +484,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     these will be treated separately if the difference is above a threshold
     tolerance. currently this is .1
 
-    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
-    4, 5, 6, 7 then 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+    For example, if a fraction of .25 Li is on sites 0, 1, 2, 3  and .5 on sites
+    4, 5, 6, 7 then 1 site from [0, 1, 2, 3] will be filled and 2 sites from [4, 5, 6, 7]
     will be filled, even though a lower energy combination might be found by
-    putting all lithium in sites [4,5,6,7].
+    putting all lithium in sites [4, 5, 6, 7].
 
     USE WITH CARE.
     """
@@ -611,7 +609,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
-            s_copy = struct.copy()
+            struct_copy = struct.copy()
             # do deletions afterwards because they screw up the indices of the
             # structure
             del_indices = []
@@ -619,17 +617,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    s_copy[manipulation[0]] = manipulation[1]
-            s_copy.remove_sites(del_indices)
+                    struct_copy[manipulation[0]] = manipulation[1]
+            struct_copy.remove_sites(del_indices)
 
             if self.no_oxi_states:
-                s_copy.remove_oxidation_states()
+                struct_copy.remove_oxidation_states()
 
             self._all_structures.append(
                 {
                     "energy": output[0],
                     "energy_above_minimum": (output[0] - lowest_energy) / num_atoms,
-                    "structure": s_copy.get_sorted_structure(),
+                    "structure": struct_copy.get_sorted_structure(),
                 }
             )
 

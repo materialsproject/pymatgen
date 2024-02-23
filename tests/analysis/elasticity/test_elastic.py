@@ -66,10 +66,10 @@ class TestElasticTensor(PymatgenTest):
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
         filepath = f"{TEST_FILES_DIR}/Sn_def_stress.json"
-        with open(filepath) as f:
-            self.def_stress_dict = json.load(f)
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.toec_dict = json.load(f)
+        with open(filepath) as file:
+            self.def_stress_dict = json.load(file)
+        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+            self.toec_dict = json.load(file)
         self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
@@ -181,6 +181,7 @@ class TestElasticTensor(PymatgenTest):
         ) as warns:
             ElasticTensor(non_symm)
         assert len(warns) == 1
+
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
         with pytest.raises(ValueError, match="ElasticTensor input must be rank 4"):
@@ -255,8 +256,8 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.data_dict = json.load(f)
+        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+            self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = self.data_dict["C2_raw"]
@@ -356,8 +357,8 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.data_dict = json.load(f)
+        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+            self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = NthOrderElasticTensor.from_voigt(self.data_dict["C2_raw"])
@@ -395,8 +396,8 @@ class TestDiffFit(PymatgenTest):
     """Tests various functions related to diff fitting."""
 
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.data_dict = json.load(f)
+        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+            self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
 
@@ -470,7 +471,7 @@ class TestDiffFit(PymatgenTest):
         # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced)
         c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
-        c2, c3, c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
+        c2, c3, _c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
         c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)
         c2_red, c3_red = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3)
         assert_allclose(c2.voigt, self.data_dict["C2_raw"], atol=1e-5)

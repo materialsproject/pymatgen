@@ -73,15 +73,15 @@ def get_structure_from_dict(dct):
     frac_coords = []
     masses = []
     if "points" in dct:
-        for p in dct["points"]:
-            species.append(p["symbol"])
-            frac_coords.append(p["coordinates"])
-            masses.append(p["mass"])
+        for pt in dct["points"]:
+            species.append(pt["symbol"])
+            frac_coords.append(pt["coordinates"])
+            masses.append(pt["mass"])
     elif "atoms" in dct:
-        for p in dct["atoms"]:
-            species.append(p["symbol"])
-            frac_coords.append(p["position"])
-            masses.append(p["mass"])
+        for pt in dct["atoms"]:
+            species.append(pt["symbol"])
+            frac_coords.append(pt["position"])
+            masses.append(pt["mass"])
     else:
         raise ValueError("The dict does not contain structural information")
 
@@ -223,15 +223,15 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
         partial_dos_path: path to the partial_dos.dat file.
         phonopy_yaml_path: path to the phonopy.yaml file.
     """
-    a = np.loadtxt(partial_dos_path).transpose()
-    d = loadfn(phonopy_yaml_path)
+    arr = np.loadtxt(partial_dos_path).transpose()
+    dct = loadfn(phonopy_yaml_path)
 
-    structure = get_structure_from_dict(d["primitive_cell"])
+    structure = get_structure_from_dict(dct["primitive_cell"])
 
-    total_dos = PhononDos(a[0], a[1:].sum(axis=0))
+    total_dos = PhononDos(arr[0], arr[1:].sum(axis=0))
 
     partial_doses = {}
-    for site, p_dos in zip(structure, a[1:]):
+    for site, p_dos in zip(structure, arr[1:]):
         partial_doses[site] = p_dos.tolist()
 
     return CompletePhononDos(structure, total_dos, partial_doses)

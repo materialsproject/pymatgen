@@ -4,8 +4,8 @@ import gzip
 import json
 from pathlib import Path
 
-import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
+from numpy.testing import assert_allclose
 
 from pymatgen.core import Structure
 from pymatgen.io.aims.outputs import AimsOutput
@@ -16,14 +16,14 @@ outfile_dir = Path(__file__).parent / "output_files"
 def comp_images(test, ref):
     assert test.species == ref.species
     if isinstance(test, Structure):
-        assert np.allclose(test.lattice.matrix, ref.lattice.matrix)
-    assert np.allclose(test.cart_coords, ref.cart_coords)
+        assert_allclose(test.lattice.matrix, ref.lattice.matrix)
+    assert_allclose(test.cart_coords, ref.cart_coords, atol=1e-12)
 
     for key, val in test.site_properties.items():
-        assert np.allclose(val, ref.site_properties[key])
+        assert_allclose(val, ref.site_properties[key])
 
     for key, val in test.properties.items():
-        assert np.allclose(val, ref.properties[key])
+        assert_allclose(val, ref.properties[key])
 
 
 def test_aims_output_si():

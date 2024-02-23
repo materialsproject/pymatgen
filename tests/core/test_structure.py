@@ -105,9 +105,12 @@ class TestIStructure(PymatgenTest):
         assert sqs[0].formula == "Mn8 Fe8"
 
     def test_as_dataframe(self):
-        df = self.propertied_structure.as_dataframe()
-        assert df.attrs["Reduced Formula"] == self.propertied_structure.composition.reduced_formula
-        assert df.shape == (2, 8)
+        df_struct = self.propertied_structure.as_dataframe()
+        assert df_struct.attrs["Reduced Formula"] == self.propertied_structure.reduced_formula
+        assert df_struct.shape == (2, 8)
+        assert list(df_struct) == ["Species", *"abcxyz", "magmom"]
+        assert list(df_struct["magmom"]) == [5, -5]
+        assert list(map(str, df_struct["Species"])) == ["Si1", "Si1"]
 
     def test_equal(self):
         struct = self.struct
@@ -156,6 +159,12 @@ class TestIStructure(PymatgenTest):
         assert self.propertied_structure.alphabetical_formula == "Si2"
         assert self.V2O3.alphabetical_formula == "O6 V4"
 
+    def test_reduced_formula(self):
+        assert self.struct.reduced_formula == "Si"
+        assert self.labeled_structure.reduced_formula == "Si"
+        assert self.propertied_structure.reduced_formula == "Si"
+        assert self.V2O3.reduced_formula == "V2O3"
+
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]
@@ -163,7 +172,7 @@ class TestIStructure(PymatgenTest):
     def test_specie_init(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
-        assert struct.composition.formula == "Mg0.8 O1"
+        assert struct.formula == "Mg0.8 O1"
 
     def test_get_sorted_structure(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -186,7 +195,7 @@ class TestIStructure(PymatgenTest):
     def test_fractional_occupations(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
-        assert struct.composition.formula == "Mg0.8 O1"
+        assert struct.formula == "Mg0.8 O1"
         assert not struct.is_ordered
 
     def test_labeled_structure(self):
@@ -751,7 +760,7 @@ Direct
         r_b2 = offsets2[1]
         assert sym_ops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
         assert sym_ops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
-        c_indices3, p_indices3, offsets3, distances3, s_indices3, sym_ops3 = s2.get_symmetric_neighbor_list(
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, _sym_ops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
@@ -780,11 +789,11 @@ Direct
         )
         all_nn = struct.get_all_neighbors(1e-5, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
         all_nn = struct.get_all_neighbors(0, include_index=True)
         assert len(all_nn) == len(struct)
-        assert [] == all_nn[0]
+        assert all_nn[0] == []
 
     def test_coincide_sites(self):
         struct = Structure(
@@ -794,24 +803,25 @@ Direct
             coords_are_cartesian=True,
         )
         all_nn = struct.get_all_neighbors(1e-5, include_index=True)
-        assert [len(i) for i in all_nn] == [0, 0, 0]
+        assert [len(lst) for lst in all_nn] == [0, 0, 0]
 
     def test_get_all_neighbors_equal(self):
+        struct = Structure(
+            Lattice.cubic(2),
+            ["Li", "Li", "Li", "Si"],
+            [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
+        )
         with pytest.warns(FutureWarning, match="get_all_neighbors_old is deprecated"):
-            struct = Structure(
-                Lattice.cubic(2),
-                ["Li", "Li", "Li", "Si"],
-                [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
-            )
             nn_traditional = struct.get_all_neighbors_old(4, include_index=True, include_image=True, include_site=True)
-            nn_cell_lists = struct.get_all_neighbors(4, include_index=True, include_image=True)
 
-            for i in range(4):
-                assert len(nn_traditional[i]) == len(nn_cell_lists[i])
-                norm = np.linalg.norm(
-                    np.array(sorted(j[1] for j in nn_traditional[i])) - np.array(sorted(j[1] for j in nn_cell_lists[i]))
-                )
-                assert norm < 1e-3
+        nn_cell_lists = struct.get_all_neighbors(4, include_index=True, include_image=True)
+
+        for idx in range(4):
+            assert len(nn_traditional[idx]) == len(nn_cell_lists[idx])
+            norm = np.linalg.norm(
+                np.array(sorted(j[1] for j in nn_traditional[idx])) - np.array(sorted(j[1] for j in nn_cell_lists[idx]))
+            )
+            assert norm < 1e-3
 
     def test_get_dist_matrix(self):
         ans = [[0.0, 2.3516318], [2.3516318, 0.0]]
@@ -937,17 +947,17 @@ class TestStructure(PymatgenTest):
             _ = {self.struct: 1}
 
     def test_sort(self):
-        struct = self.struct
-        struct[0] = "F"
-        struct.sort()
-        assert struct[0].species_string == "Si"
-        assert struct[1].species_string == "F"
-        struct.sort(key=lambda site: site.species_string)
-        assert struct[0].species_string == "F"
-        assert struct[1].species_string == "Si"
-        struct.sort(key=lambda site: site.species_string, reverse=True)
-        assert struct[0].species_string == "Si"
-        assert struct[1].species_string == "F"
+        self.struct[0] = "F"
+        returned = self.struct.sort()
+        assert returned is self.struct
+        assert self.struct[0].species_string == "Si"
+        assert self.struct[1].species_string == "F"
+        self.struct.sort(key=lambda site: site.species_string)
+        assert self.struct[0].species_string == "F"
+        assert self.struct[1].species_string == "Si"
+        self.struct.sort(key=lambda site: site.species_string, reverse=True)
+        assert self.struct[0].species_string == "Si"
+        assert self.struct[1].species_string == "F"
 
     def test_replace_species(self):
         struct = self.struct
@@ -1018,13 +1028,15 @@ class TestStructure(PymatgenTest):
 
     def test_add_remove_site_property(self):
         struct = self.struct
-        struct.add_site_property("charge", [4.1, -5])
+        returned = struct.add_site_property("charge", [4.1, -5])
+        assert returned is struct
         assert struct[0].charge == 4.1
         assert struct[1].charge == -5
         struct.add_site_property("magmom", [3, 2])
         assert struct[0].charge == 4.1
         assert struct[0].magmom == 3
-        struct.remove_site_property("magmom")
+        returned = struct.remove_site_property("magmom")
+        assert returned is struct
         with pytest.raises(AttributeError, match="attr='magmom' not found on PeriodicSite"):
             _ = struct[0].magmom
 
@@ -1057,7 +1069,8 @@ class TestStructure(PymatgenTest):
     def test_perturb(self):
         dist = 0.1
         pre_perturbation_sites = self.struct.copy()
-        self.struct.perturb(distance=dist)
+        returned = self.struct.perturb(distance=dist)
+        assert returned is self.struct
         post_perturbation_sites = self.struct.sites
 
         for idx, site in enumerate(pre_perturbation_sites):
@@ -1071,9 +1084,10 @@ class TestStructure(PymatgenTest):
             assert site.distance(post_perturbation_sites2[idx]) <= dist
             assert site.distance(post_perturbation_sites2[idx]) >= 0
 
-    def test_add_oxidation_states_by_element(self):
+    def test_add_oxidation_state_by_element(self):
         oxidation_states = {"Si": -4}
-        self.struct.add_oxidation_state_by_element(oxidation_states)
+        returned = self.struct.add_oxidation_state_by_element(oxidation_states)
+        assert returned is self.struct
         for site in self.struct:
             for specie in site.species:
                 assert specie.oxi_state == oxidation_states[specie.symbol], "Wrong oxidation state assigned!"
@@ -1082,7 +1096,8 @@ class TestStructure(PymatgenTest):
             self.struct.add_oxidation_state_by_element(oxidation_states)
 
     def test_add_oxidation_states_by_site(self):
-        self.struct.add_oxidation_state_by_site([2, -4])
+        returned = self.struct.add_oxidation_state_by_site([2, -4])
+        assert returned is self.struct
         assert self.struct[0].specie.oxi_state == 2
         with pytest.raises(
             ValueError, match="Oxidation states of all sites must be specified, expected 2 values, got 1"
@@ -1096,14 +1111,16 @@ class TestStructure(PymatgenTest):
         o_specie = Species("O", -2)
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice.cubic(10)
-        s_elem = Structure(lattice, [co_elem, o_elem], coords)
-        s_specie = Structure(lattice, [co_specie, o_specie], coords)
-        s_specie.remove_oxidation_states()
-        assert s_elem == s_specie, "Oxidation state remover failed"
+        struct_elem = Structure(lattice, [co_elem, o_elem], coords)
+        struct_specie = Structure(lattice, [co_specie, o_specie], coords)
+        returned = struct_specie.remove_oxidation_states()
+        assert returned is struct_specie
+        assert struct_elem == struct_specie, "Oxidation state remover failed"
 
-    def test_add_oxidation_states_by_guess(self):
+    def test_add_oxidation_state_by_guess(self):
         struct = PymatgenTest.get_structure("Li2O")
-        struct.add_oxidation_state_by_guess()
+        returned = struct.add_oxidation_state_by_guess()
+        assert returned is struct
         expected = [Species("Li", 1), Species("O", -2)]
         for site in struct:
             assert site.specie in expected
@@ -1115,23 +1132,28 @@ class TestStructure(PymatgenTest):
         nio = Structure.from_spacegroup(225, latt, species, coords)
 
         # should do nothing, but not fail
-        nio.remove_spin()
+        nio1 = nio.remove_spin()
+        assert nio1 is nio
 
         spins = {"Ni": 5}
-        nio.add_spin_by_element(spins)
+        nio2 = nio.add_spin_by_element(spins)
+        assert nio2 is nio
         assert nio[0].specie.spin == 5, "Failed to add spin states"
 
-        nio.remove_spin()
+        nio3 = nio.remove_spin()
+        assert nio3 is nio
         assert nio[0].specie.spin is None
 
         spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
-        nio.add_spin_by_site(spins)
+        nio4 = nio.add_spin_by_site(spins)
+        assert nio4 is nio
         assert nio[1].specie.spin == -5, "Failed to add spin states"
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         struct = self.struct.copy()
-        struct.apply_operation(op)
+        returned = struct.apply_operation(op)
+        assert returned is struct
         assert_allclose(
             struct.lattice.matrix,
             [[0, 3.840198, 0], [-3.325710, 1.920099, 0], [2.217138, -0, 3.135509]],
@@ -1146,7 +1168,8 @@ class TestStructure(PymatgenTest):
     def test_apply_strain(self):
         struct = self.struct
         initial_coord = struct[1].coords
-        struct.apply_strain(0.01)
+        returned = struct.apply_strain(0.01)
+        assert returned is struct
         assert approx(struct.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
         assert_allclose(struct[1].coords, initial_coord * 1.01)
         a1, b1, c1 = struct.lattice.abc
@@ -1167,7 +1190,8 @@ class TestStructure(PymatgenTest):
 
     def test_scale_lattice(self):
         initial_coord = self.struct[1].coords
-        self.struct.scale_lattice(self.struct.volume * 1.01**3)
+        returned = self.struct.scale_lattice(self.struct.volume * 1.01**3)
+        assert returned is self.struct
         assert_allclose(
             self.struct.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516),
@@ -1175,7 +1199,8 @@ class TestStructure(PymatgenTest):
         assert_allclose(self.struct[1].coords, initial_coord * 1.01)
 
     def test_translate_sites(self):
-        self.struct.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
+        returned = self.struct.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
+        assert returned is self.struct
         assert_allclose(self.struct.frac_coords[0], [0.5, 0.5, 0.5])
 
         self.struct.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=False)
@@ -1199,12 +1224,13 @@ class TestStructure(PymatgenTest):
         assert self.struct == original_struct
 
     def test_rotate_sites(self):
-        self.struct.rotate_sites(
+        returned = self.struct.rotate_sites(
             indices=[1],
             theta=2.0 * np.pi / 3.0,
             anchor=self.struct[0].coords,
             to_unit_cell=False,
         )
+        assert returned is self.struct
         assert_allclose(self.struct.frac_coords[1], [-1.25, 1.5, 0.75], atol=1e-6)
         self.struct.rotate_sites(
             indices=[1],
@@ -1281,9 +1307,14 @@ class TestStructure(PymatgenTest):
 
     def test_to_from_abivars(self):
         """Test as_dict, from_dict with fmt == abivars."""
-        dct = self.struct.as_dict(fmt="abivars")
+        # Properties are not supported if fmt="abivars" as its not a serialization protocol
+        # but a format that allows one to get a dict with the abinit variables defining the structure.
+        struct = self.struct.copy()
+        struct.properties = {}
+        dct = struct.as_dict(fmt="abivars")
+        assert "properties" not in dct
         s2 = Structure.from_dict(dct, fmt="abivars")
-        assert s2 == self.struct
+        assert s2 == struct
         assert isinstance(s2, Structure)
 
     def test_to_from_file_str(self):
@@ -2018,9 +2049,9 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert mol.properties == {"test_properties": "test"}
 
     def test_default_dict_attrs(self):
-        d = self.mol.as_dict()
-        assert d["charge"] == 0
-        assert d["spin_multiplicity"] == 1
+        dct = self.mol.as_dict()
+        assert dct["charge"] == 0
+        assert dct["spin_multiplicity"] == 1
 
     def test_to_from_file_str(self):
         self.mol.properties["test_prop"] = 42
@@ -2083,17 +2114,20 @@ class TestMolecule(PymatgenTest):
 
     def test_insert_remove_append(self):
         mol = self.mol
-        mol.insert(1, "O", [0.5, 0.5, 0.5])
+        returned = mol.insert(1, "O", [0.5, 0.5, 0.5])
+        assert returned is mol
         assert mol.formula == "H4 C1 O1"
         del mol[2]
         assert mol.formula == "H3 C1 O1"
         mol.set_charge_and_spin(0)
         assert mol.spin_multiplicity == 2
-        mol.append("N", [1, 1, 1])
+        returned = mol.append("N", [1, 1, 1])
+        assert returned is mol
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError, match="unhashable type: 'Molecule'"):
             _ = {mol: 1}
-        mol.remove_sites([0, 1])
+        returned = mol.remove_sites([0, 1])
+        assert returned is mol
         assert mol.formula == "H3 N1"
 
     def test_from_sites(self):
@@ -2104,54 +2138,65 @@ class TestMolecule(PymatgenTest):
             Molecule.from_sites([])
 
     def test_translate_sites(self):
-        self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        returned = self.mol.translate_sites([0, 1], translation := (0.5, 0.5, 0.5))
+        assert returned is self.mol
         assert tuple(self.mol.cart_coords[0]) == translation
 
     def test_rotate_sites(self):
-        self.mol.rotate_sites(theta=np.radians(30))
+        returned = self.mol.rotate_sites(theta=np.radians(30))
+        assert returned is self.mol
         assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
     def test_replace(self):
         self.mol[0] = "Ge"
         assert self.mol.formula == "Ge1 H4"
 
-        self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
+        returned = self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
+        assert returned is self.mol
         assert self.mol.formula == "Si0.5 Ge0.5 H4"
 
         # this should change the .5Si .5Ge sites to .75Si .25Ge
         self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5, Element("Si"): 0.5}})
         assert self.mol.formula == "Si0.75 Ge0.25 H4"
 
-        d = 0.1
+        dist = 0.1
         pre_perturbation_sites = self.mol.sites[:]
-        self.mol.perturb(distance=d)
+        self.mol.perturb(distance=dist)
         post_perturbation_sites = self.mol.sites
 
-        for i, x in enumerate(pre_perturbation_sites):
-            assert x.distance(post_perturbation_sites[i]) == approx(d), "Bad perturbation distance"
+        for idx, site in enumerate(pre_perturbation_sites):
+            assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
 
-    def test_add_site_property(self):
-        self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+    def test_add_remove_site_property(self):
+        returned = self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+        assert returned is self.mol
         assert self.mol[0].charge == 4.1
         assert self.mol[1].charge == -2
 
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
         assert self.mol[0].charge == 4.1
         assert self.mol[0].magmom == 3
-        self.mol.remove_site_property("magmom")
+        returned = self.mol.remove_site_property("magmom")
+        assert returned is self.mol
+
+        # test ValueError when values have wrong length
+        with pytest.raises(ValueError, match=r"len\(values\)=2 must equal sites in structure=5"):
+            self.mol.add_site_property("charge", [4, 2])
+
         with pytest.raises(AttributeError, match="attr='magmom' not found on Site"):
             _ = self.mol[0].magmom
 
     def test_as_from_dict(self):
         self.mol.append("X", [2, 0, 0])
-        d = self.mol.as_dict()
-        mol2 = Molecule.from_dict(d)
+        dct = self.mol.as_dict()
+        mol2 = Molecule.from_dict(dct)
         assert isinstance(mol2, Molecule)
         self.assert_msonable(self.mol)
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
-        self.mol.apply_operation(op)
+        returned = self.mol.apply_operation(op)
+        assert returned is self.mol
         assert_allclose(self.mol[2].coords, [0, 1.026719, -0.363000], atol=1e-12)
 
     def test_substitute(self):
@@ -2163,7 +2208,8 @@ class TestMolecule(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         sub = Molecule(["X", "C", "H", "H", "H"], coords)
-        self.mol.substitute(1, sub)
+        returned = self.mol.substitute(1, sub)
+        assert returned is self.mol
         assert self.mol.get_distance(0, 4) == approx(1.54)
         f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
         self.mol.substitute(2, f)
@@ -2222,14 +2268,17 @@ class TestMolecule(PymatgenTest):
         coords = [[0, 0, 0], [0, 0, 1.089000], [1.026719, 0, -0.363000], [-0.513360, -0.889165, -0.363000]]
         expected_msg = "Charge of 0 and spin multiplicity of 1 is not possible for this molecule"
         with pytest.raises(ValueError, match=expected_msg):
-            mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
+            Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
         with pytest.raises(ValueError, match=expected_msg):
             mol_valid.set_charge_and_spin(0, 1)
-        mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
+
+    def test_set_charge_and_spin(self):
+        mol = Molecule.from_dict(self.mol.as_dict() | dict(charge=0, spin_multiplicity=1, charge_spin_check=False))
         assert mol.spin_multiplicity == 1
         assert mol.charge == 0
-        mol.set_charge_and_spin(0, 3)
+        returned = mol.set_charge_and_spin(0, 3)
+        assert returned is mol
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
 

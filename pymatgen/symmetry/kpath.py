@@ -113,15 +113,13 @@ class KPathBase(metaclass=abc.ABCMeta):
                 if nb == 0:
                     continue
                 sym_point_labels.extend([b[i - 1]] + [""] * (nb - 1) + [b[i]])
-                list_k_points.extend(
-                    [
-                        self._rec_lattice.get_cartesian_coords(start)
-                        + float(i)
-                        / float(nb)
-                        * (self._rec_lattice.get_cartesian_coords(end) - self._rec_lattice.get_cartesian_coords(start))
-                        for i in range(nb + 1)
-                    ]
-                )
+                list_k_points += [
+                    self._rec_lattice.get_cartesian_coords(start)
+                    + float(i)
+                    / float(nb)
+                    * (self._rec_lattice.get_cartesian_coords(end) - self._rec_lattice.get_cartesian_coords(start))
+                    for i in range(nb + 1)
+                ]
         if coords_are_cartesian:
             return list_k_points, sym_point_labels
 

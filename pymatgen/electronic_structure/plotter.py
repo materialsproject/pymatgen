@@ -332,12 +332,12 @@ class BSPlotter:
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i, t in enumerate(temp_ticks):
-            if i == 0:
+        for idx, t in enumerate(temp_ticks):
+            if idx == 0:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
-            elif t[1] == temp_ticks[i - 1][1]:
+            elif t[1] == temp_ticks[idx - 1][1]:
                 logger.debug(f"Skipping label {t[1]}")
             else:
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
@@ -348,18 +348,18 @@ class BSPlotter:
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(ticks["label"])):
-            if ticks["label"][i] is not None:
+        for idx, label in enumerate(ticks["label"]):
+            if label is not None:
                 # don't print the same label twice
-                if i != 0:
-                    if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
+                if idx != 0:
+                    if label == ticks["label"][idx - 1]:
+                        logger.debug(f"already print label... skipping label {ticks['label'][idx]}")
                     else:
-                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        ax.axvline(ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {ticks['distance'][idx]} for label {ticks['label'][idx]}")
+                        ax.axvline(ticks["distance"][idx], color="k")
                 else:
-                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                    ax.axvline(ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {ticks['distance'][idx]} for label {ticks['label'][idx]}")
+                    ax.axvline(ticks["distance"][idx], color="k")
         return ax
 
     @staticmethod
@@ -381,10 +381,10 @@ class BSPlotter:
         scaled_distances = []
 
         for br, br2 in zip(bs_ref.branches, bs.branches):
-            s = br["start_index"]
-            e = br["end_index"]
-            max_d = bs_ref.distance[e]
-            min_d = bs_ref.distance[s]
+            start = br["start_index"]
+            end = br["end_index"]
+            max_d = bs_ref.distance[end]
+            min_d = bs_ref.distance[start]
             s2 = br2["start_index"]
             e2 = br2["end_index"]
             np = e2 - s2
@@ -766,7 +766,7 @@ class BSPlotter:
             # add latex $$
             for idx, label in enumerate(labels):
                 if label.startswith("\\") or "_" in label:
-                    labels[idx] = "$" + label + "$"
+                    labels[idx] = f"${label}$"
 
             # If next branch is not continuous,
             # join the first lbl to the previous tick label
@@ -774,7 +774,7 @@ class BSPlotter:
             # otherwise add to ticks list both new labels.
             # Similar for distances.
             if ticks and labels[0] != ticks[-1]:
-                ticks[-1] += "$\\mid$" + labels[0]
+                ticks[-1] += f"$\\mid${labels[0]}"
                 ticks.append(labels[1])
                 distance.append(bs.distance[end])
             else:
@@ -807,15 +807,15 @@ class BSPlotter:
                 if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
+                        label1 = f"${label1}$"
                     label0 = previous_label
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
                 elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"${c.label}$")
                 else:
                     tick_labels.append(c.label)
                 previous_label = c.label
@@ -3047,13 +3047,13 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(sbk["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 sbk_temp = []
                 for temp in tlist:
-                    sbk_temp.append(sbk[dt][temp][d])
+                    sbk_temp.append(sbk[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3064,13 +3064,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "lower right" if i == 0 else "best"
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3100,13 +3099,13 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(cond["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 cond_temp = []
                 for temp in tlist:
-                    cond_temp.append(cond[dt][temp][d])
+                    cond_temp.append(cond[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, cond_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
@@ -3117,13 +3116,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3154,13 +3152,13 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(pf["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 pf_temp = []
                 for temp in tlist:
-                    pf_temp.append(pf[dt][temp][d])
+                    pf_temp.append(pf[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3171,13 +3169,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3209,13 +3206,13 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(zt["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 zt_temp = []
                 for temp in tlist:
-                    zt_temp.append(zt[dt][temp][d])
+                    zt_temp.append(zt[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, zt_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
@@ -3226,13 +3223,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("zT", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3261,23 +3257,22 @@ class BoltztrapPlotter:
         ax_main = pretty_plot(22, 14)
         tlist = sorted(eff_mass["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, dt in enumerate(["n", "p"]):
+        for idx, doping_type in enumerate(["n", "p"]):
             ax = plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
-                em_temp = [eff_mass[dt][temp][d] for temp in tlist]
+                dop_idx = self._bz.doping[doping_type].index(dop)
+                em_temp = [eff_mass[doping_type][temp][dop_idx] for temp in tlist]
                 if output == "average":
                     ax.plot(tlist, em_temp, marker="s", label=f"{dop} $cm^{{-3}}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(tlist, list(zip(*em_temp))[xyz], marker="s", label=f"{xyz} {dop} $cm^{{-3}}$")
-            ax.set_title(dt + "-type", fontsize=20)
+            ax.set_title(f"{doping_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.tick_params(labelsize=25)
 
@@ -4122,7 +4117,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
     for k, coords in labels.items():
         label = k
         if k.startswith("\\") or k.find("_") != -1:
-            label = "$" + k + "$"
+            label = f"${k}$"
         off = 0.01
         if coords_are_cartesian:
             coords = np.array(coords)

@@ -14,6 +14,7 @@ from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.io.icet import ClusterSpace
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -264,8 +265,8 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
 
     def test_as_dict(self):
         trafo = SubstitutionPredictorTransformation(threshold=2, alpha=-2, lambda_table=get_table())
-        d = trafo.as_dict()
-        trafo = SubstitutionPredictorTransformation.from_dict(d)
+        dct = trafo.as_dict()
+        trafo = SubstitutionPredictorTransformation.from_dict(dct)
         assert trafo.threshold == 2, "incorrect threshold passed through dict"
         assert trafo._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
 
@@ -294,8 +295,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
-        self.Li8Fe2NiCoO8.remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -337,10 +337,10 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
-        d = trans.as_dict()
+        dct = trans.as_dict()
         # Check json encodability
-        _ = json.dumps(d)
-        trans = MagOrderingTransformation.from_dict(d)
+        _ = json.dumps(dct)
+        trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
 
         assert isinstance(trans.energy_model, SymmetryModel)
@@ -535,10 +535,10 @@ class TestDopingTransformation(PymatgenTest):
 
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
-        d = trans.as_dict()
+        dct = trans.as_dict()
         # Check json encodability
-        _ = json.dumps(d)
-        trans = DopingTransformation.from_dict(d)
+        _ = json.dumps(dct)
+        trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"
         assert trans.max_structures_per_enum == 1
 
@@ -644,6 +644,54 @@ class TestSQSTransformation(PymatgenTest):
         assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
+@unittest.skipIf(ClusterSpace is None, "icet not installed.")
+class TestSQSTransformationIcet(PymatgenTest):
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    scaling: int = 8
+
+    def test_icet_import(self):
+        from pymatgen.io import icet as icet_mod
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            monkeypatch.setattr(icet_mod, "ClusterSpace", None)
+
+            with pytest.raises(ImportError):
+                icet_mod.IcetSQS(
+                    structure=self.stored_run["disordered_structure"],
+                    scaling=self.scaling,
+                    instances=None,
+                    cluster_cutoffs={2: 5.0},
+                )
+
+    def test_enumeration(self):
+        sqs = SQSTransformation(
+            scaling=self.scaling,
+            sqs_method="icet-enumeration",
+            instances=2,
+            best_only=False,
+        )
+        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+        for key in ("structure", "objective_function"):
+            assert sqs_structure[0][key] == self.stored_run[key]
+
+    def test_monte_carlo(self):
+        sqs = SQSTransformation(
+            scaling=self.scaling, sqs_method="icet-monte_carlo", icet_sqs_kwargs={"n_steps": 5}, instances=2
+        )
+        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=False)
+        assert isinstance(sqs_structure, Structure)
+        assert len(sqs_structure) == self.scaling * len(self.stored_run["disordered_structure"])
+
+        sqs_output = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+
+        assert isinstance(sqs_output, list)
+        assert len(sqs_output) == 1
+        assert isinstance(sqs_output[0], dict)
+        expected_types = {"structure": Structure, "objective_function": float}
+        for key, val in expected_types.items():
+            assert isinstance(sqs_output[0][key], val)
+
+
 class TestCubicSupercellTransformation(PymatgenTest):
     def test_apply_transformation(self):
         structure = self.get_structure("TlBiSe2")
@@ -718,7 +766,7 @@ class TestAddAdsorbateTransformation(PymatgenTest):
         slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
         out = trans.apply_transformation(slab)
 
-        assert out.composition.reduced_formula == "Pt4CO"
+        assert out.reduced_formula == "Pt4CO"
 
 
 class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
@@ -728,7 +776,7 @@ class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
         slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
         out = trans.apply_transformation(slab)
 
-        assert out.composition.reduced_formula == "Pt3Au"
+        assert out.reduced_formula == "Pt3Au"
 
 
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
