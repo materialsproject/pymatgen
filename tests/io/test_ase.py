@@ -335,3 +335,14 @@ def test_msonable_atoms():
     assert not hasattr(atoms, "as_dict")
     assert not hasattr(atoms, "from_dict")
     assert isinstance(atoms, ase.Atoms)
+
+
+@pytest.mark.skipif(ase is not None, reason="ase is present")
+def test_no_ase_err():
+    from importlib.metadata import PackageNotFoundError
+
+    import pymatgen.io.ase
+
+    expected_msg = str(pymatgen.io.ase.no_ase_err)
+    with pytest.raises(PackageNotFoundError, match=expected_msg):
+        pymatgen.io.ase.MSONAtoms()
