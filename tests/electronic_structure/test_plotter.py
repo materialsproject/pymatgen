@@ -193,9 +193,9 @@ class TestBSPlotterProjected(unittest.TestCase):
     def test_methods(self):
         # Minimal baseline testing for get_plot. not a true test. Just checks that
         # it can actually execute.
-        self.plotter.get_elt_projected_plots()
-        self.plotter.get_elt_projected_plots_color()
-        self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
+        self.plotter_Cu2O.get_elt_projected_plots()
+        self.plotter_Cu2O.get_elt_projected_plots_color()
+        self.plotter_Cu2O.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
         ax = self.plotter_Cu2O.get_projected_plots_dots_patom_pmorb(
             {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
             {"Cu": [3, 5], "O": [1]},
