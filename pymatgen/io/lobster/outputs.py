@@ -907,8 +907,11 @@ class Lobsterout(MSONable):
                 and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
             )
         else:
-            for key in kwargs:
-                setattr(self, key, kwargs[key])
+            for attribute in kwargs:
+                if attribute in self.INIT_ATTRIBUTES_DEFAULTS:
+                    setattr(self, attribute, kwargs[attribute])
+                else:
+                    raise ValueError(f"{attribute} is not a valid attribute for Lobsterout")
 
     def get_doc(self):
         """Returns: LobsterDict with all the information stored in lobsterout."""
