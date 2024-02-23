@@ -48,6 +48,7 @@ from pymatgen.io.vasp.sets import (
     MVLRelax52Set,
     MVLScanRelaxSet,
     MVLSlabSet,
+    VaspInputGenerator,
     VaspInputSet,
     batch_write_input,
     get_structure_from_prev_run,
@@ -537,7 +538,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         dct = mp_user_set.as_dict()
         val = dec.process_decoded(dct)
-        # assert isinstance(val, MPVaspInputSet)
+        assert isinstance(val, VaspInputSet)
         assert val.user_incar_settings["MAGMOM"] == {"Fe": 10, "S": -5, "Mn3+": 100}
 
     def test_hubbard_off_and_ediff_override(self):
@@ -2037,6 +2038,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert absorption_rpa.incar["NBANDS"] == 48
         assert absorption_rpa.incar["NKREDX"] == 13
         assert absorption_rpa.incar["ALGO"] == "Chi"
+
         assert absorption_rpa.incar["LREAL"] is False
         assert "LOPTICS" not in absorption_rpa.incar
         assert "LWAVE" not in absorption_rpa.incar
@@ -2072,3 +2074,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert vasp_input.incar["ALGO"] == "Chi"
         assert vasp_input.incar["NBANDS"] == 48
         assert vasp_input.incar["GGA"] == "Ps"
+
+
+def test_vasp_input_set_alias():
+    assert VaspInputSet is VaspInputGenerator
