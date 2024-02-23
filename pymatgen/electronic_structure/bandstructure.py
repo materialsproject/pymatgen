@@ -108,6 +108,16 @@ class Kpoint(MSONable):
         """Returns a string with fractional, Cartesian coordinates and label."""
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
+    def __eq__(self, other: object) -> bool:
+        """Check if two kpoints are equal."""
+        if not isinstance(other, Kpoint):
+            return NotImplemented
+        return (
+            np.allclose(self.frac_coords, other.frac_coords)
+            and self.lattice == other.lattice
+            and self.label == other.label
+        )
+
     def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of a kpoint."""
         return {
@@ -142,14 +152,14 @@ class BandStructure:
         lattice_rec (Lattice): The reciprocal lattice of the band structure.
         efermi (float): The Fermi energy.
         is_spin_polarized (bool): True if the band structure is spin-polarized.
-        bands (dict): The energy eigenvalues as a {spin: ndarray}. Note that the use of an
-            ndarray is necessary for computational as well as memory efficiency due to the large
-            amount of numerical data. The indices of the ndarray are [band_index, kpoint_index].
+        bands (dict): The energy eigenvalues as a {spin: array}. Note that the use of an
+            array is necessary for computational as well as memory efficiency due to the large
+            amount of numerical data. The indices of the array are [band_index, kpoint_index].
         nb_bands (int): Returns the number of bands in the band structure.
         structure (Structure): Returns the structure.
-        projections (dict): The projections as a {spin: ndarray}. Note that the use of an
-            ndarray is necessary for computational as well as memory efficiency due to the large
-            amount of numerical data. The indices of the ndarray are [band_index, kpoint_index,
+        projections (dict): The projections as a {spin: array}. Note that the use of an
+            array is necessary for computational as well as memory efficiency due to the large
+            amount of numerical data. The indices of the array are [band_index, kpoint_index,
             orbital_index, ion_index].
     """
 
@@ -184,8 +194,8 @@ class BandStructure:
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
                 provide projections to the band structure
-            projections: dict of orbital projections as {spin: ndarray}. The
-                indices of the ndarrayare [band_index, kpoint_index, orbital_index,
+            projections: dict of orbital projections as {spin: array}. The
+                indices of the array are [band_index, kpoint_index, orbital_index,
                 ion_index].If the band structure is not spin polarized, we only
                 store one data set under Spin.up.
         """
@@ -363,22 +373,21 @@ class BandStructure:
         """Returns data about the CBM.
 
         Returns:
-            {"band_index","kpoint_index","kpoint","energy"}
-            - "band_index": A dict with spin keys pointing to a list of the
-            indices of the band containing the CBM (please note that you
-            can have several bands sharing the CBM) {Spin.up:[],
-            Spin.down:[]}
-            - "kpoint_index": The list of indices in self.kpoints for the
-            kpoint CBM. Please note that there can be several
-            kpoint_indices relating to the same kpoint (e.g., Gamma can
-            occur at different spots in the band structure line plot)
-            - "kpoint": The kpoint (as a kpoint object)
-            - "energy": The energy of the CBM
-            - "projections": The projections along sites and orbitals of the
-            CBM if any projection data is available (else it is an empty
-            dictionary). The format is similar to the projections field in
-            BandStructure: {spin:{'Orbital': [proj]}} where the array
-            [proj] is ordered according to the sites in structure
+            dict[str, Any]: with keys band_index, kpoint_index, kpoint, energy.
+                - "band_index": A dict with spin keys pointing to a list of the
+                indices of the band containing the CBM (please note that you
+                can have several bands sharing the CBM) {Spin.up:[], Spin.down:[]}
+                - "kpoint_index": The list of indices in self.kpoints for the
+                kpoint CBM. Please note that there can be several
+                kpoint_indices relating to the same kpoint (e.g., Gamma can
+                occur at different spots in the band structure line plot)
+                - "kpoint": The kpoint (as a kpoint object)
+                - "energy": The energy of the CBM
+                - "projections": The projections along sites and orbitals of the
+                CBM if any projection data is available (else it is an empty
+                dictionary). The format is similar to the projections field in
+                BandStructure: {spin:{'Orbital': [proj]}} where the array
+                [proj] is ordered according to the sites in structure
         """
         if self.is_metal():
             return {
@@ -710,8 +719,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
                 provide projections to the band structure.
-            projections: dict of orbital projections as {spin: ndarray}. The
-                indices of the ndarray are [band_index, kpoint_index, orbital_index,
+            projections: dict of orbital projections as {spin: array}. The
+                indices of the array are [band_index, kpoint_index, orbital_index,
                 ion_index].If the band structure is not spin polarized, we only
                 store one data set under Spin.up.
         """
