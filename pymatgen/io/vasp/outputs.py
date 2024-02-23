@@ -140,48 +140,21 @@ def _vasprun_float(flt: float | str) -> float:
         raise exc
 
 
-class _ElectronicPropertiesContainer(MSONable):
-    """
-    Simple container class for KPOINTS_OPT data in Vasprun.
+@dataclass
+class KpointOptProps:
+    """Simple container class to store KPOINTS_OPT data in a separate namespace. Used by Vasprun."""
 
-    tdos (Dos)
-    idos (Dos)
-    pdos (list)
-    efermi (float)
-    eigenvalues (dict)
-    projected_eigenvalues (dict)
-    projected_magnetisation (np.array)
-    kpoints (Kpoints)
-    actual_kpoints (list)
-    actual_kpoints_weights (list)
-    dos_has_errors (bool)
-    """
-
-    def __init__(
-        self,
-        tdos: Dos | None = None,
-        idos: Dos | None = None,
-        pdos: list | None = None,
-        efermi: float | None = None,
-        eigenvalues: dict | None = None,
-        projected_eigenvalues: dict | None = None,
-        projected_magnetisation: np.array | None = None,
-        kpoints: Kpoints | None = None,
-        actual_kpoints: list | None = None,
-        actual_kpoints_weights: list | None = None,
-        dos_has_errors: bool | None = None,
-    ) -> None:
-        self.tdos = tdos
-        self.idos = idos
-        self.pdos = pdos
-        self.efermi = efermi
-        self.eigenvalues = eigenvalues
-        self.projected_eigenvalues = projected_eigenvalues
-        self.projected_magnetisation = projected_magnetisation
-        self.kpoints = kpoints
-        self.actual_kpoints = actual_kpoints
-        self.actual_kpoints_weights = actual_kpoints_weights
-        self.dos_has_errors = None
+    tdos: Dos | None = None
+    idos: Dos | None = None
+    pdos: list | None = None
+    efermi: float | None = None
+    eigenvalues: dict | None = None
+    projected_eigenvalues: dict | None = None
+    projected_magnetisation: np.array | None = None
+    kpoints: Kpoints | None = None
+    actual_kpoints: list | None = None
+    actual_kpoints_weights: list | None = None
+    dos_has_errors: bool | None = None
 
 
 class Vasprun(MSONable):
