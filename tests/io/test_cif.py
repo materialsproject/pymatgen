@@ -193,6 +193,7 @@ class TestCifIO(PymatgenTest):
 
         with open(f"{TEST_FILES_DIR}/FePO4.cif") as cif_file:
             cif_str = cif_file.read()
+
         parser = CifParser.from_str(cif_str)
         struct = parser.parse_structures(primitive=False)[0]
         assert struct.formula == "Fe4 P4 O16"
@@ -400,8 +401,8 @@ class TestCifIO(PymatgenTest):
             "SH": "S",
         }
 
-        for e in Element:
-            name = e.name
+        for elem in Element:
+            name = elem.name
             test_cases[name] = name
             if len(name) == 2:
                 test_cases[name.upper()] = name
@@ -470,9 +471,9 @@ loop_
         writer = CifWriter(struct, symprec=0.1)
 
         cif = CifParser.from_str(str(writer))
-        m = StructureMatcher()
+        matcher = StructureMatcher()
 
-        assert m.fit(cif.parse_structures()[0], struct)
+        assert matcher.fit(cif.parse_structures()[0], struct)
 
         # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
         #     assert l1.strip() == l2.strip()
@@ -481,12 +482,12 @@ loop_
         writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_str(str(writer)).parse_structures()[0]
 
-        assert m.fit(struct, s2)
+        assert matcher.fit(struct, s2)
 
         struct = self.get_structure("Li2O")
         writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_str(str(writer)).parse_structures()[0]
-        assert m.fit(struct, s2)
+        assert matcher.fit(struct, s2)
 
         # test angle tolerance.
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
@@ -761,9 +762,13 @@ loop_
     def test_replacing_finite_precision_frac_coords(self):
         cif = f"{TEST_FILES_DIR}/cif_finite_precision_frac_coord_error.cif"
         parser = CifParser(cif)
-        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
-        with pytest.warns(UserWarning, match=warn_msg):
+        with pytest.warns(UserWarning) as record:
             struct = parser.parse_structures()[0]
+
+        assert len(record) == 3
+        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
+        assert warn_msg in str(record[-1])
+
         assert str(struct.composition) == "N5+72"
         assert warn_msg in parser.warnings
 
@@ -928,6 +933,14 @@ Si1 Si 0 0 0 1 0.0
         cif = CifParser(test_cif_file)
         failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
         assert failure_reason == "'X' is not a valid Element"
+
+    def test_skipping_relative_stoichiometry_check(self):
+        cif = CifParser(f"{TEST_FILES_DIR}/Li10GeP2S12.cif")
+        struct = cif.parse_structures()[0]
+        failure_reason = cif.check(struct)
+        assert failure_reason is None
+        assert len(cif.warnings) == 2
+        assert cif.warnings[-1] == "Skipping relative stoichiometry check because CIF does not contain formula keys."
 
     def test_cif_writer_site_properties(self):
         # check CifWriter(write_site_properties=True) adds Structure site properties to

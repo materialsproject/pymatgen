@@ -24,7 +24,7 @@ class TestStructureMatcher(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
-        self.struct_list = [e.structure for e in entries]
+        self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
             Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O"),
@@ -33,17 +33,19 @@ class TestStructureMatcher(PymatgenTest):
     def test_ignore_species(self):
         s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         s2 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
-        m = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
-        assert m.fit(s1, s2)
-        assert m.fit_anonymous(s1, s2)
-        groups = m.group_structures([s1, s2])
+        matcher = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
+        assert matcher.fit(s1, s2)
+        assert matcher.fit_anonymous(s1, s2)
+        groups = matcher.group_structures([s1, s2])
         assert len(groups) == 1
         s2.make_supercell((2, 1, 1))
-        ss1 = m.get_s2_like_s1(s2, s1, include_ignored_species=True)
+        ss1 = matcher.get_s2_like_s1(s2, s1, include_ignored_species=True)
         assert ss1.lattice.a == approx(20.820740000000001)
         assert ss1.reduced_formula == "LiFePO4"
 
-        assert {k.symbol: v.symbol for k, v in m.get_best_electronegativity_anonymous_mapping(s1, s2).items()} == {
+        assert {
+            k.symbol: v.symbol for k, v in matcher.get_best_electronegativity_anonymous_mapping(s1, s2).items()
+        } == {
             "Fe": "Fe",
             "P": "P",
             "O": "O",

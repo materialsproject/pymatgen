@@ -456,12 +456,12 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(traj, written_traj)
 
     def test_as_from_dict(self):
-        d = self.traj.as_dict()
-        traj = Trajectory.from_dict(d)
+        dct = self.traj.as_dict()
+        traj = Trajectory.from_dict(dct)
         assert isinstance(traj, Trajectory)
 
-        d = self.traj_mols.as_dict()
-        traj = Trajectory.from_dict(d)
+        dct = self.traj_mols.as_dict()
+        traj = Trajectory.from_dict(dct)
         assert isinstance(traj, Trajectory)
 
     def test_xdatcar_write(self):

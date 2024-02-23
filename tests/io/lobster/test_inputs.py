@@ -11,6 +11,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
     Bandoverlaps,
@@ -549,6 +550,16 @@ class TestIcohplist(unittest.TestCase):
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
+    def test_msonable(self):
+        dict_data = self.icobi_orbitalwise_spinpolarized.as_dict()
+        icohplist_from_dict = Icohplist.from_dict(dict_data)
+        all_attributes = vars(self.icobi_orbitalwise_spinpolarized)
+        for attr_name, attr_value in all_attributes.items():
+            if isinstance(attr_value, IcohpCollection):
+                assert getattr(icohplist_from_dict, attr_name).as_dict() == attr_value.as_dict()
+            else:
+                assert getattr(icohplist_from_dict, attr_name) == attr_value
+
 
 class TestNciCobiList(unittest.TestCase):
     def setUp(self):
@@ -814,6 +825,13 @@ class TestCharge(PymatgenTest):
         }
         s2 = Structure.from_dict(structure_dict2)
         assert s2 == self.charge2.get_structure_with_charges(f"{TEST_FILES_DIR}/POSCAR.MnO")
+
+    def test_msonable(self):
+        dict_data = self.charge2.as_dict()
+        charge_from_dict = Charge.from_dict(dict_data)
+        all_attributes = vars(self.charge2)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(charge_from_dict, attr_name) == attr_value
 
 
 class TestLobsterout(PymatgenTest):
@@ -2062,6 +2080,13 @@ class TestBandoverlaps(unittest.TestCase):
             number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
+    def test_msonable(self):
+        dict_data = self.bandoverlaps2_new.as_dict()
+        bandoverlaps_from_dict = Bandoverlaps.from_dict(dict_data)
+        all_attributes = vars(self.bandoverlaps2_new)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(bandoverlaps_from_dict, attr_name) == attr_value
+
 
 class TestGrosspop(unittest.TestCase):
     def setUp(self):
@@ -2178,6 +2203,13 @@ class TestGrosspop(unittest.TestCase):
 
         new_structure = self.grosspop1.get_structure_with_total_grosspop(f"{TEST_FILES_DIR}/cohp/POSCAR.SiO2")
         assert_allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
+
+    def test_msonable(self):
+        dict_data = self.grosspop1.as_dict()
+        grosspop_from_dict = Grosspop.from_dict(dict_data)
+        all_attributes = vars(self.grosspop1)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(grosspop_from_dict, attr_name) == attr_value
 
 
 class TestUtils(PymatgenTest):
@@ -2330,6 +2362,13 @@ class TestSitePotentials(PymatgenTest):
         assert structure.site_properties["Loewdin Site Potentials (eV)"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
         assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
 
+    def test_msonable(self):
+        dict_data = self.sitepotential.as_dict()
+        sitepotential_from_dict = SitePotential.from_dict(dict_data)
+        all_attributes = vars(self.sitepotential)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(sitepotential_from_dict, attr_name) == attr_value
+
 
 class TestMadelungEnergies(PymatgenTest):
     def setUp(self) -> None:
@@ -2339,6 +2378,13 @@ class TestMadelungEnergies(PymatgenTest):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
         assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
+
+    def test_msonable(self):
+        dict_data = self.madelungenergies.as_dict()
+        madelung_from_dict = MadelungEnergies.from_dict(dict_data)
+        all_attributes = vars(self.madelungenergies)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(madelung_from_dict, attr_name) == attr_value
 
 
 class TestLobsterMatrices(PymatgenTest):

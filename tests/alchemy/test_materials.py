@@ -97,17 +97,22 @@ class TestTransformedStructure(PymatgenTest):
 
     def test_as_dict(self):
         self.trans.set_parameter("author", "will")
-        d = self.trans.as_dict()
-        assert "last_modified" in d
-        assert "history" in d
-        assert "author" in d["other_parameters"]
-        assert Structure.from_dict(d).formula == "Na4 Fe4 P4 O16"
+        dct = self.trans.as_dict()
+        assert "last_modified" in dct
+        assert "history" in dct
+        assert "author" in dct["other_parameters"]
+        assert Structure.from_dict(dct).formula == "Na4 Fe4 P4 O16"
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
         with pytest.warns(UserWarning) as warns:
             snl = self.trans.to_snl([("will", "will@test.com")])
+
         assert len(warns) == 1, "Warning not raised on type conversion with other_parameters"
+        assert (
+            str(warns[0].message)
+            == "Data in TransformedStructure.other_parameters discarded during type conversion to SNL"
+        )
 
         ts = TransformedStructure.from_snl(snl)
         assert ts.history[-1]["@class"] == "SubstitutionTransformation"

@@ -1312,7 +1312,7 @@ class Lattice(MSONable):
                 [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds, image
+                frac_coords, dists, inds, image
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres
@@ -1371,7 +1371,7 @@ class Lattice(MSONable):
                 [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds, image
+                frac_coords, dists, inds, image
         """
         cart_coords = self.get_cartesian_coords(frac_points)
         neighbors = get_points_in_spheres(
@@ -1428,7 +1428,7 @@ class Lattice(MSONable):
                 [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds, image
+                frac_coords, dists, inds, image
         """
         if self.pbc != (True, True, True):
             raise RuntimeError("get_points_in_sphere_old does not support partial periodic boundary conditions")
@@ -1444,7 +1444,7 @@ class Lattice(MSONable):
 
         # Prepare the list of output atoms
         n = len(frac_points)  # type: ignore
-        fcoords = np.array(frac_points) % 1
+        frac_coords = np.array(frac_points) % 1
         indices = np.arange(n)
 
         # Generate all possible images that could be within `r` of `center`
@@ -1459,10 +1459,10 @@ class Lattice(MSONable):
         images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
 
         # Generate the coordinates of all atoms within these images
-        shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
+        shifted_coords = frac_coords[:, None, None, None, :] + images[None, :, :, :, :]
 
         # Determine distance from `center`
-        cart_coords = self.get_cartesian_coords(fcoords)
+        cart_coords = self.get_cartesian_coords(frac_coords)
         cart_images = self.get_cartesian_coords(images)
         coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]
         coords -= center[None, None, None, None, :]
@@ -1541,8 +1541,8 @@ class Lattice(MSONable):
         returned.
 
         Args:
-            frac_coords1 (3x1 array): Reference fcoords to get distance from.
-            frac_coords2 (3x1 array): fcoords to get distance from.
+            frac_coords1 (3x1 array): Reference frac_coords to get distance from.
+            frac_coords2 (3x1 array): frac_coords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,

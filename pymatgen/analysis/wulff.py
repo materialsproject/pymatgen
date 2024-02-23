@@ -623,27 +623,27 @@ class WulffShape:
         return azim, elev
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """Volume of the Wulff shape."""
         return self.wulff_convex.volume
 
     @property
-    def miller_area_dict(self):
+    def miller_area_dict(self) -> dict[tuple, float]:
         """Returns {hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
-    def miller_energy_dict(self):
+    def miller_energy_dict(self) -> dict[tuple, float]:
         """Returns {hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property
-    def surface_area(self):
+    def surface_area(self) -> float:
         """Total surface area of Wulff shape."""
         return sum(self.miller_area_dict.values())
 
     @property
-    def weighted_surface_energy(self):
+    def weighted_surface_energy(self) -> float:
         """
         Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl).
@@ -651,7 +651,7 @@ class WulffShape:
         return self.total_surface_energy / self.surface_area
 
     @property
-    def area_fraction_dict(self):
+    def area_fraction_dict(self) -> dict[tuple, float]:
         """
         Returns:
             dict: {hkl: area_hkl/total area on wulff}.
@@ -659,13 +659,12 @@ class WulffShape:
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
     @property
-    def anisotropy(self):
+    def anisotropy(self) -> float:
         """
         Returns:
-            (float) Coefficient of Variation from weighted surface energy
-            The ideal sphere is 0.
+            float: Coefficient of Variation from weighted surface energy. The ideal sphere is 0.
         """
-        square_diff_energy = 0
+        square_diff_energy = 0.0
         weighted_energy = self.weighted_surface_energy
         area_frac_dict = self.area_fraction_dict
         miller_energy_dict = self.miller_energy_dict
@@ -675,7 +674,7 @@ class WulffShape:
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property
-    def shape_factor(self):
+    def shape_factor(self) -> float:
         """
         This is useful for determining the critical nucleus size.
         A large shape factor indicates great anisotropy.
@@ -683,30 +682,29 @@ class WulffShape:
             of Materials. (John Wiley & Sons, 2005), p.461.
 
         Returns:
-            (float) Shape factor.
+            float: Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))
 
     @property
-    def effective_radius(self):
+    def effective_radius(self) -> float:
         """
-        Radius of the Wulffshape when the
-        Wulffshape is approximated as a sphere.
+        Radius of the WulffShape when the WulffShape is approximated as a sphere.
 
         Returns:
-            (float) radius.
+            float: radius.
         """
         return ((3 / 4) * (self.volume / np.pi)) ** (1 / 3)
 
     @property
-    def total_surface_energy(self):
+    def total_surface_energy(self) -> float:
         """
         Total surface energy of the Wulff shape.
 
         Returns:
-            (float) sum(surface_energy_hkl * area_hkl)
+            float: sum(surface_energy_hkl * area_hkl)
         """
-        tot_surface_energy = 0
+        tot_surface_energy = 0.0
         for hkl, energy in self.miller_energy_dict.items():
             tot_surface_energy += energy * self.miller_area_dict[hkl]
         return tot_surface_energy

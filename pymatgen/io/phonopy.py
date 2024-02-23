@@ -73,15 +73,15 @@ def get_structure_from_dict(dct):
     frac_coords = []
     masses = []
     if "points" in dct:
-        for p in dct["points"]:
-            species.append(p["symbol"])
-            frac_coords.append(p["coordinates"])
-            masses.append(p["mass"])
+        for pt in dct["points"]:
+            species.append(pt["symbol"])
+            frac_coords.append(pt["coordinates"])
+            masses.append(pt["mass"])
     elif "atoms" in dct:
-        for p in dct["atoms"]:
-            species.append(p["symbol"])
-            frac_coords.append(p["position"])
-            masses.append(p["mass"])
+        for pt in dct["atoms"]:
+            species.append(pt["symbol"])
+            frac_coords.append(pt["position"])
+            masses.append(pt["mass"])
     else:
         raise ValueError("The dict does not contain structural information")
 

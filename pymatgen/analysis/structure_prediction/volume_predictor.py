@@ -61,8 +61,8 @@ class RLSVolumePredictor:
             a float value of the predicted volume
         """
         if self.check_isostructural:
-            m = StructureMatcher()
-            mapping = m.get_best_electronegativity_anonymous_mapping(structure, ref_structure)
+            matcher = StructureMatcher()
+            mapping = matcher.get_best_electronegativity_anonymous_mapping(structure, ref_structure)
             if mapping is None:
                 raise ValueError("Input structures do not match!")
 

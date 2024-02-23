@@ -335,12 +335,12 @@ class TestTensor(PymatgenTest):
 
     def test_serialization(self):
         # Test base serialize-deserialize
-        d = self.symm_rank2.as_dict()
-        new = Tensor.from_dict(d)
+        dct = self.symm_rank2.as_dict()
+        new = Tensor.from_dict(dct)
         assert_allclose(new, self.symm_rank2)
 
-        d = self.symm_rank3.as_dict(voigt=True)
-        new = Tensor.from_dict(d)
+        dct = self.symm_rank3.as_dict(voigt=True)
+        new = Tensor.from_dict(dct)
         assert_allclose(new, self.symm_rank3)
 
     def test_projection_methods(self):

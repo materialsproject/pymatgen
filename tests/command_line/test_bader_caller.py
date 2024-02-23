@@ -83,24 +83,23 @@ class TestBaderAnalysis(PymatgenTest):
             elif key == "charge":
                 assert_allclose(val, val_from_path, atol=1e-5)
 
-    def test_automatic_runner(self):
-        pytest.skip("raises RuntimeError: bader exits with return code 24")
+    def test_bader_analysis_from_path(self):
         summary = bader_analysis_from_path(f"{TEST_FILES_DIR}/bader")
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {
-            'magmom': [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292,
-                       0.370516, 0.36292, 0.36292, 0.36292, 0.36292, 0.36292, 0.370516],
-            'min_dist': [0.835789, 0.92947, 0.92947, 0.973007, 0.92947, 0.835789, 0.94067,
-                         0.817381, 0.94067, 0.94067, 0.94067, 0.94067, 0.94067, 0.817381],
-            'vacuum_charge': 0.0,
-            'vacuum_volume': 0.0,
-            'atomic_volume': [9.922887, 8.175158, 8.175158, 9.265802, 8.175158, 9.923233, 12.382546,
-                              12.566972, 12.382546, 12.382546, 12.382546, 12.382546, 12.382546, 12.566972],
-            'charge': [12.248132, 12.26177, 12.26177, 12.600596, 12.26177, 12.248143, 7.267303,
-                       7.256998, 7.267303, 7.267303, 7.267303, 7.267303, 7.267303, 7.256998],
-            'bader_version': 1.0,
-            'reference_used': True
+            "magmom": [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292, 0.370516, 0.36292,
+                0.36292, 0.36292, 0.36292, 0.36292, 0.370516],
+            "min_dist": [0.835789, 0.92947, 0.92947, 0.973007, 0.92947, 0.835789, 0.94067, 0.817381, 0.94067,
+                0.94067, 0.94067, 0.94067, 0.94067, 0.817381],
+            "vacuum_charge": 0.0,
+            "vacuum_volume": 0.0,
+            "atomic_volume": [9.922887, 8.175158, 8.175158, 9.265802, 8.175158, 9.923233, 12.382546, 12.566972,
+                12.382546, 12.382546, 12.382546, 12.382546, 12.382546, 12.566972],
+            "charge": [12.248132, 12.26177, 12.26177, 12.600596, 12.26177, 12.248143, 7.267303, 7.256998,
+                7.267303, 7.267303, 7.267303, 7.267303, 7.267303, 7.256998],
+            "bader_version": 1.0,
+            "reference_used": True,
         }
         """
         assert set(summary) == {
@@ -128,7 +127,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.atomic_densities) == len(analysis.chgcar.structure)
 
         assert np.sum(analysis.chgcar.data["total"]) == approx(
-            np.sum([np.sum(d["data"]) for d in analysis.atomic_densities])
+            np.sum([dct["data"] for dct in analysis.atomic_densities])
         )
 
     def test_missing_file_bader_exe_path(self):

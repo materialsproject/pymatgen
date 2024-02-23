@@ -1216,7 +1216,7 @@ class Species(MSONable, Stringify):
         return Species(self.symbol, self.oxi_state, spin=self._spin)
 
     def as_dict(self) -> dict:
-        """Json-able dictionary representation."""
+        """JSON-able dictionary representation."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
