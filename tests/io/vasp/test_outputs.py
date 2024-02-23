@@ -712,7 +712,7 @@ class TestVasprun(PymatgenTest):
     def test_kpoints_opt(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
-        kpt_opt_props = vasp_run.kpoint_opt_props
+        kpt_opt_props = vasp_run.kpoints_opt_props
         # Check the k-points were read correctly.
         assert len(vasp_run.actual_kpoints) == 10
         assert len(vasp_run.actual_kpoints_weights) == 10
