@@ -727,9 +727,9 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.projected_eigenvalues[Spin.up].shape == (10, 24, 8, 9)
         assert kpt_opt_props.projected_eigenvalues[Spin.up].shape == (100, 24, 8, 9)
         assert vasp_run.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0492)
-        assert kpt_opt_props.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # I think these zeroes are a bug in VASP (maybe my VASP) transcribing from PROCAR_OPT to vasprun.xml
         # No matter. The point of the parser is to read what's in the file.
+        assert kpt_opt_props.projected_eigenvalues[Spin.up][0, 1, 0, 0] == approx(0.0000)
         # Test as_dict
         vasp_run_dct = vasp_run.as_dict()
         assert vasp_run_dct["input"]["nkpoints_opt"] == 100
@@ -1406,9 +1406,8 @@ class TestBSVasprun(PymatgenTest):
         # is to test the parser, not VASP.
         projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
         assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
-        d = vasp_run.as_dict()
-        assert "eigenvalues" in d["output"]
-        assert "eigenvalues_kpoints_opt" in d["output"]
+        vrun_dct = vasp_run.as_dict()
+        assert {*vrun_dct["output"]} >= {"eigenvalues", "eigenvalues_kpoints_opt"}
 
 
 class TestOszicar(PymatgenTest):

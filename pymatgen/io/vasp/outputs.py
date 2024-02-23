@@ -150,7 +150,7 @@ class KpointOptProps:
     efermi: float | None = None
     eigenvalues: dict | None = None
     projected_eigenvalues: dict | None = None
-    projected_magnetisation: np.array | None = None
+    projected_magnetisation: np.ndarray | None = None
     kpoints: Kpoints | None = None
     actual_kpoints: list | None = None
     actual_kpoints_weights: list | None = None
