@@ -158,7 +158,6 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=coords_are_cartesian,
-        properties=kwargs.get("properties"),
     )
 
 
@@ -251,7 +250,6 @@ def structure_to_abivars(
         "typat": typat,
         "znucl": znucl_type,
         "xred": x_red,
-        "properties": structure.properties,
     }
 
     # Add info on the lattice.
