@@ -52,7 +52,7 @@ class TestVasprun(PymatgenTest):
     def test_vasprun_ml(self):
         # Test for ML MD simulation
         # The trajectory data is stored in md_data
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md.gz")
         assert len(vasp_run.md_data) == 100
         for frame in vasp_run.md_data:
             assert "structure" in frame
@@ -72,10 +72,10 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged_ionic
 
     def test_bad_random_seed(self):
-        _ = Vasprun(f"{TEST_FILES_DIR}/vasprun.bad_random_seed.xml")
+        _ = Vasprun(f"{TEST_FILES_DIR}/vasprun.bad_random_seed.xml.gz")
 
     def test_multiple_dielectric(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.GW0.xml")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.GW0.xml.gz")
         assert len(vasp_run.other_dielectric) == 3
 
     def test_charge_charge_dielectric(self):
@@ -85,7 +85,7 @@ class TestVasprun(PymatgenTest):
         See the comments in `linear_optics.F` for details.
         """
         vasp_run = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.dielectric_5.4.4",
+            f"{TEST_FILES_DIR}/vasprun.xml.dielectric_5.4.4.gz",
             parse_potcar_file=False,
         )
         assert vasp_run.dielectric is not None
@@ -104,56 +104,56 @@ class TestVasprun(PymatgenTest):
 
     def test_bad_vasprun(self):
         with pytest.raises(ElementTree.ParseError):
-            Vasprun(f"{TEST_FILES_DIR}/bad_vasprun.xml")
+            Vasprun(f"{TEST_FILES_DIR}/bad_vasprun.xml.gz")
 
         with pytest.warns(
             UserWarning,
             match="XML is malformed. Parsing has stopped but partial data is available",
         ):
-            vasp_run = Vasprun(f"{TEST_FILES_DIR}/bad_vasprun.xml", exception_on_bad_xml=False)
+            vasp_run = Vasprun(f"{TEST_FILES_DIR}/bad_vasprun.xml.gz", exception_on_bad_xml=False)
         assert len(vasp_run.ionic_steps) == 1
         assert vasp_run.final_energy == approx(-269.00551374)
 
     def test_runtype(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.GW0.xml")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.GW0.xml.gz")
         assert vasp_run.run_type in "HF"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.pbesol_vdw")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.pbesol_vdw.gz")
         assert vasp_run.run_type in "PBEsol+vdW-DFT-D3-BJ"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.hse06")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.hse06.gz")
         assert vasp_run.run_type in "HSE06"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.scan_rvv10")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.scan_rvv10.gz")
         assert vasp_run.run_type in "SCAN+rVV10"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dfpt.ionic")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dfpt.ionic.gz")
         assert vasp_run.run_type in "GGA"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dfpt")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dfpt.gz")
         assert vasp_run.run_type in "GGA+U"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.r2scan")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.r2scan.gz")
         assert vasp_run.run_type in "R2SCAN"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.scan")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.scan.gz")
         assert vasp_run.run_type in "SCAN"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.pbesol")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.pbesol.gz")
         assert vasp_run.run_type in "PBEsol"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.rscan")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.rscan.gz")
         assert vasp_run.run_type in "RSCAN"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.random")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.random.gz")
         assert vasp_run.run_type in "RANDOMFUNCTIONAL"
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.unknown")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.unknown.gz")
         with pytest.warns(UserWarning, match="Unknown run type!"):
             assert vasp_run.run_type in "unknown"
 
     def test_vdw(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.vdw")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.vdw.gz")
         assert vasp_run.final_energy == approx(-9.78310677)
 
     def test_energies(self):
@@ -174,7 +174,7 @@ class TestVasprun(PymatgenTest):
         assert o.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml.nonlm"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.nonlm.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasp_run.complete_dos.pdos[vasp_run.final_structure[0]])
         assert OrbitalType.s in orbs
@@ -221,7 +221,7 @@ class TestVasprun(PymatgenTest):
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
         assert ratio == approx(vasp_run.final_structure.volume)  # the site data should not change
 
-        filepath2 = f"{TEST_FILES_DIR}/lifepo4.xml"
+        filepath2 = f"{TEST_FILES_DIR}/lifepo4.xml.gz"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
         total_sc_steps = sum(len(i["electronic_steps"]) for i in vasp_run.ionic_steps)
         assert len(vasp_run.ionic_steps) == 29
@@ -302,7 +302,7 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_unconverged.converged
 
     def test_dfpt(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.gz"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
         assert vasprun_dfpt.epsilon_static[0][0] == approx(3.26105533)
         assert vasprun_dfpt.epsilon_static[0][1] == approx(-0.00459066)
@@ -317,7 +317,7 @@ class TestVasprun(PymatgenTest):
         assert entry.uncorrected_energy + entry.correction == approx(entry.energy)
 
     def test_dfpt_ionic(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.ionic"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.ionic.gz"
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
         assert vasprun_dfpt_ionic.epsilon_ionic[0][0] == approx(515.73485838)
         assert vasprun_dfpt_ionic.epsilon_ionic[0][1] == approx(-0.00263523)
@@ -547,7 +547,7 @@ class TestVasprun(PymatgenTest):
         assert bs.get_branch(0)[0]["end_index"] == 0
 
     def test_projected_magnetisation(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.lvel.Si2H.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun.lvel.Si2H.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True)
         assert vasp_run.projected_magnetisation is not None
         assert vasp_run.projected_magnetisation.shape == (76, 240, 4, 9, 3)
@@ -686,7 +686,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_structure.charge == -1
 
     def test_kpointset_electronvelocities(self):
-        vpath = f"{TEST_FILES_DIR}/vasprun.lvel.Si2H.xml"
+        vpath = f"{TEST_FILES_DIR}/vasprun.lvel.Si2H.xml.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         assert vasp_run.eigenvalues[Spin.up].shape[0] == len(vasp_run.actual_kpoints)
 
