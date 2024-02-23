@@ -1255,6 +1255,17 @@ class TestLobsterout(PymatgenTest):
                 elif isinstance(item, (list, dict)):
                     assert item == comparedict[key]
 
+    def test_msonable_implementation(self):
+        dict_data = self.lobsterout_normal.as_dict()
+        lobsterout_from_dict = Lobsterout.from_dict(dict_data)
+        assert dict_data == lobsterout_from_dict.as_dict()
+        # test initialization with empty attributes (ensure file is not read again)
+        dict_data_empty = self.lobsterout_doscar_lso.INIT_ATTRIBUTES_DEFAULTS
+        lobsterout_empty_init_dict = Lobsterout.from_dict(dict_data_empty).as_dict()
+        for attribute in lobsterout_empty_init_dict:
+            if "@" not in attribute:
+                assert dict_data_empty[attribute] == lobsterout_empty_init_dict[attribute]
+
 
 class TestFatband(PymatgenTest):
     def setUp(self):
