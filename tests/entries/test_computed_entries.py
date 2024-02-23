@@ -24,7 +24,7 @@ from pymatgen.entries.computed_entries import (
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
 
-filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
 vasp_run = Vasprun(filepath)
 
 

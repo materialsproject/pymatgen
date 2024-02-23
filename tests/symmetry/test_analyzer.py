@@ -609,7 +609,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
                 assert i == approx(w)
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 

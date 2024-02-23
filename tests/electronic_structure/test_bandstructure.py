@@ -256,7 +256,7 @@ class TestReconstructBandStructure(PymatgenTest):
 
     def test_vasprun_bs(self):
         bsv = BSVasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml",
+            f"{TEST_FILES_DIR}/vasprun.xml.gz",
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )

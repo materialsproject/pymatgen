@@ -7,7 +7,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class XPSTestCase(PymatgenTest):
     def test_from_dos(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.LiF")
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.LiF.gz")
         dos = vasp_run.complete_dos
         xps = XPS.from_dos(dos)
         assert len(xps) == 301
