@@ -1307,9 +1307,14 @@ class TestStructure(PymatgenTest):
 
     def test_to_from_abivars(self):
         """Test as_dict, from_dict with fmt == abivars."""
-        dct = self.struct.as_dict(fmt="abivars")
+        # Properties are not supported if fmt="abivars" as its not a serialization protocol
+        # but a format that allows one to get a dict with the abinit variables defining the structure.
+        struct = self.struct.copy()
+        struct.properties = {}
+        dct = struct.as_dict(fmt="abivars")
+        assert "properties" not in dct
         s2 = Structure.from_dict(dct, fmt="abivars")
-        assert s2 == self.struct
+        assert s2 == struct
         assert isinstance(s2, Structure)
 
     def test_to_from_file_str(self):

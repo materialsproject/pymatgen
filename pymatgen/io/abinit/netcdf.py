@@ -471,3 +471,7 @@ class AbinitHeader(AttrDict):
         if title is not None:
             return "\n".join([marquee(title, mark="="), header_str])
         return header_str
+
+    # to_string alias required for backwards compatibility
+    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
+    to_string = to_str

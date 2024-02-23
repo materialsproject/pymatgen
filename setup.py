@@ -25,7 +25,7 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
-    version="2024.2.20",
+    version="2024.2.23",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
