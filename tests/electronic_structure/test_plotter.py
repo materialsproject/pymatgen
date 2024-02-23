@@ -7,6 +7,7 @@ from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -182,19 +183,29 @@ class TestBSPlotterProjected(unittest.TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
-            self.bs = BandStructureSymmLine.from_dict(dct)
-            self.plotter = BSPlotterProjected(self.bs)
+        self.bs_Cu2O = BandStructureSymmLine.from_dict(dct)
+        self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
-    # Minimal baseline testing for get_plot. not a true test. Just checks that
-    # it can actually execute.
+        with open(f"{TEST_FILES_DIR}/boltztrap2/PbTe_bandstructure.json") as file:
+            dct = json.load(file)
+        self.bs_PbTe = BandStructureSymmLine.from_dict(dct)
+
     def test_methods(self):
+        # Minimal baseline testing for get_plot. not a true test. Just checks that
+        # it can actually execute.
         self.plotter.get_elt_projected_plots()
         self.plotter.get_elt_projected_plots_color()
         self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
-        self.plotter.get_projected_plots_dots_patom_pmorb(
+        ax = self.plotter_Cu2O.get_projected_plots_dots_patom_pmorb(
             {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
             {"Cu": [3, 5], "O": [1]},
         )
+        assert isinstance(ax, plt.Axes)
+        assert len(ax.get_lines()) == 44_127
+        assert ax.get_ylim() == pytest.approx((-4.0, 4.5047))
+
+        with pytest.raises(ValueError, match="try to plot projections on a band structure without any"):
+            self.plotter_PbTe = BSPlotterProjected(self.bs_PbTe)
 
 
 class TestBSDOSPlotter(unittest.TestCase):
