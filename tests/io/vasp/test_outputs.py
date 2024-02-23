@@ -100,7 +100,7 @@ class TestVasprun(PymatgenTest):
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with pytest.raises(NotImplementedError, match="This vasprun.xml has >2 unlabelled dielectric functions"):
-            Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dielectric_bad")
+            Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dielectric_bad.gz")
 
     def test_bad_vasprun(self):
         with pytest.raises(ElementTree.ParseError):
@@ -180,7 +180,7 @@ class TestVasprun(PymatgenTest):
         assert OrbitalType.s in orbs
 
     def test_standard(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
 
         # Test NELM parsing
@@ -292,8 +292,8 @@ class TestVasprun(PymatgenTest):
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
     def test_unconverged(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml.unconverged"
-        with pytest.warns(UnconvergedVASPWarning, match="vasprun.xml.unconverged is an unconverged VASP run") as warns:
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.unconverged.gz"
+        with pytest.warns(UnconvergedVASPWarning, match="vasprun.xml.unconverged.gz is an unconverged VASP run") as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert len(warns) == 1
 
@@ -324,7 +324,7 @@ class TestVasprun(PymatgenTest):
         assert vasprun_dfpt_ionic.epsilon_ionic[2][2] == approx(19.02110169)
 
     def test_dfpt_unconverged(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.unconverged"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.dfpt.unconverged.gz"
         vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert not vasprun_dfpt_unconverged.converged_electronic
         assert vasprun_dfpt_unconverged.converged_ionic
@@ -336,16 +336,16 @@ class TestVasprun(PymatgenTest):
         assert vasprun_chi.incar.get("ALGO", ""), "CHI"
 
     def test_uniform(self):
-        vasprun_uniform = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.uniform", parse_potcar_file=False)
+        vasprun_uniform = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.uniform.gz", parse_potcar_file=False)
         assert vasprun_uniform.kpoints.style == Kpoints.supported_modes.Reciprocal
 
     def test_no_projected(self):
-        vasprun_no_pdos = Vasprun(f"{TEST_FILES_DIR}/Li_no_projected.xml", parse_potcar_file=False)
+        vasprun_no_pdos = Vasprun(f"{TEST_FILES_DIR}/Li_no_projected.xml.gz", parse_potcar_file=False)
         assert vasprun_no_pdos.complete_dos is not None
         assert not vasprun_no_pdos.dos_has_errors
 
     def test_dielectric(self):
-        vasprun_diel = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dielectric", parse_potcar_file=False)
+        vasprun_diel = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dielectric.gz", parse_potcar_file=False)
         assert approx(vasprun_diel.dielectric[0][10]) == 0.4294
         assert approx(vasprun_diel.dielectric[1][51][0]) == 19.941
         assert approx(vasprun_diel.dielectric[1][51][1]) == 19.941
@@ -359,7 +359,7 @@ class TestVasprun(PymatgenTest):
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
         vasprun_diel = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.dielectric_6.0.8",
+            f"{TEST_FILES_DIR}/vasprun.xml.dielectric_6.0.8.gz",
             parse_potcar_file=False,
         )
         assert approx(vasprun_diel.dielectric[0][10]) == 0.4338
@@ -377,7 +377,7 @@ class TestVasprun(PymatgenTest):
 
     def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.optical_transitions",
+            f"{TEST_FILES_DIR}/vasprun.xml.optical_transitions.gz",
             parse_potcar_file=False,
         )
         assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
@@ -394,7 +394,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_optical.optical_transition[56][1]) == 0.001
 
     def test_force_constants(self):
-        vasprun_fc = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dfpt.phonon", parse_potcar_file=False)
+        vasprun_fc = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dfpt.phonon.gz", parse_potcar_file=False)
         assert vasprun_fc.force_constants.shape == (16, 16, 3, 3)
         assert_allclose(
             vasprun_fc.force_constants[8, 9],
@@ -442,19 +442,19 @@ class TestVasprun(PymatgenTest):
         )
 
     def test_xe(self):
-        vr = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.xe", parse_potcar_file=False)
+        vr = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.xe.gz", parse_potcar_file=False)
         assert vr.atomic_symbols == ["Xe"]
 
     def test_invalid_element(self):
         with pytest.raises(ValueError, match="'Z' is not a valid Element"):
-            Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.wrong_sp")
+            Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.wrong_sp.gz")
 
     def test_selective_dynamics(self):
         vsd = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.indirect.gz")
         assert list(vsd.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
 
     def test_as_dict(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         # Test that as_dict() is json-serializable
         assert json.dumps(vasp_run.as_dict()) is not None
@@ -462,7 +462,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.as_dict()["input"]["nkpoints"] == 24
 
     def test_get_band_structure(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun_Si_bands.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun_Si_bands.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
         bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
@@ -482,10 +482,10 @@ class TestVasprun(PymatgenTest):
         assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
         # Test compressed files case 1: compressed KPOINTS in current dir
-        copyfile(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml", "vasprun.xml")
+        copyfile(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml.gz", "vasprun.xml.gz")
 
         # Check for error if no KPOINTS file
-        vasp_run = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
+        vasp_run = Vasprun("vasprun.xml.gz", parse_projected_eigen=True, parse_potcar_file=False)
         with pytest.raises(
             VaspParseError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
         ):
@@ -501,10 +501,7 @@ class TestVasprun(PymatgenTest):
         # Test compressed files case 2: compressed vasprun in another dir
         os.mkdir("deeper")
         copyfile(f"{TEST_FILES_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
-        with open(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
-            os.path.join("deeper", "vasprun.xml.gz"), "wb"
-        ) as f_out:
-            copyfileobj(f_in, f_out)
+        copyfile(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml.gz", Path("deeper") / "vasprun.xml.gz")
         vasp_run = Vasprun(
             os.path.join("deeper", "vasprun.xml.gz"),
             parse_projected_eigen=True,
@@ -528,7 +525,7 @@ class TestVasprun(PymatgenTest):
 
         # test self-consistent band structure calculation for non-hybrid functionals
         vasp_run = Vasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml.force_hybrid_like_calc",
+            f"{TEST_FILES_DIR}/vasprun.xml.force_hybrid_like_calc.gz",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
@@ -555,7 +552,7 @@ class TestVasprun(PymatgenTest):
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
-        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.LiF")
+        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.LiF.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
@@ -563,7 +560,7 @@ class TestVasprun(PymatgenTest):
         assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 2 - E_fermi crosses a band but bandgap=0
-        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.Al")
+        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.Al.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
@@ -571,7 +568,7 @@ class TestVasprun(PymatgenTest):
         assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 3 - E_fermi crosses a band in an insulator
-        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.LiH_bad_efermi")
+        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.LiH_bad_efermi.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi != approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
@@ -588,7 +585,7 @@ class TestVasprun(PymatgenTest):
     def test_float_overflow(self):
         # test we interpret VASP's *********** for overflowed values as NaNs
         # https://github.com/materialsproject/pymatgen/pull/3452
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml.sc_overflow"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.sc_overflow.gz"
         with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun"):
             vasp_run = Vasprun(filepath)
         first_ionic_step = vasp_run.ionic_steps[0]
@@ -598,7 +595,7 @@ class TestVasprun(PymatgenTest):
         assert np.isnan(first_ionic_step["forces"]).any()
 
     def test_update_potcar(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
         potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
 
@@ -627,7 +624,7 @@ class TestVasprun(PymatgenTest):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=True)
         assert [spec["titel"] for spec in vasp_run.potcar_spec] == [
             "PAW_PBE Li 17Jan2003",
@@ -638,7 +635,7 @@ class TestVasprun(PymatgenTest):
         ]
 
     def test_potcar_not_found(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
         # Ensure no potcar is found and nothing is updated
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
@@ -667,7 +664,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged
 
     def test_charged_structure(self):
-        vpath = f"{TEST_FILES_DIR}/vasprun.charged.xml"
+        vpath = f"{TEST_FILES_DIR}/vasprun.charged.xml.gz"
         potcar_path = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
@@ -676,7 +673,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.initial_structure.charge == -1
         assert vasp_run.final_structure.charge == -1
 
-        vpath = f"{TEST_FILES_DIR}/vasprun.split.charged.xml"
+        vpath = f"{TEST_FILES_DIR}/vasprun.split.charged.xml.gz"
         potcar_path = f"{TEST_FILES_DIR}/POTCAR.split.charged.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
@@ -710,14 +707,14 @@ class TestVasprun(PymatgenTest):
         # in the current working directory using relative paths,
         # either when leading ./ is specified or not for vasprun.xml
         # See gh-3586
-        copyfile(f"{TEST_FILES_DIR}/vasprun.xml.Al", "vasprun.xml")
+        copyfile(f"{TEST_FILES_DIR}/vasprun.xml.Al.gz", "vasprun.xml.gz")
 
         potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
         copyfile(potcar_path, "POTCAR.gz")
 
         potcar = Potcar.from_file(potcar_path)
         for leading_path in ("", "./"):
-            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml"), parse_potcar_file=True)
+            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml.gz"), parse_potcar_file=True)
             # Note that the TITEL is not updated in Vasprun.potcar_spec
             # Since the fake POTCARs modify the TITEL (to indicate fakeness), can't compare
             for ipot in range(len(potcar)):
@@ -1307,7 +1304,7 @@ class TestOutcar(PymatgenTest):
 
 class TestBSVasprun(PymatgenTest):
     def test_get_band_structure(self):
-        filepath = f"{TEST_FILES_DIR}/vasprun_Si_bands.xml"
+        filepath = f"{TEST_FILES_DIR}/vasprun_Si_bands.xml.gz"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
         bs = vasprun.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
         cbm = bs.get_cbm()

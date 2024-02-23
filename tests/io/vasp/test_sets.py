@@ -1077,7 +1077,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
 class TestMagmomLdau(PymatgenTest):
     def test_structure_from_prev_run(self):
-        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.magmom_ldau")
+        vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.magmom_ldau.gz")
         structure = vrun.final_structure
         poscar = Poscar(structure)
         structure_decorated = get_structure_from_prev_run(vrun)
