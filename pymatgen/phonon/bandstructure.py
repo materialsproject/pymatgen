@@ -65,7 +65,7 @@ class PhononBandStructure(MSONable):
 
     def __init__(
         self,
-        qpoints: list[Kpoint],
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         lattice: Lattice,
         nac_frequencies: Sequence[Sequence] | None = None,
@@ -127,7 +127,7 @@ class PhononBandStructure(MSONable):
                         q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian
                     )
             self.qpoints += [Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian)]
-        self.bands = frequencies
+        self.bands = np.asarray(frequencies)
         self.nb_bands = len(self.bands)
         self.nb_qpoints = len(self.qpoints)
 
@@ -342,7 +342,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def __init__(
         self,
-        qpoints: list[Kpoint],
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         lattice: Lattice,
         has_nac: bool = False,
@@ -394,7 +394,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return f"{type(self).__name__}({bands=}, {labels=})"
 
     def _reuse_init(
-        self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: list[Kpoint]
+        self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: Sequence[Kpoint]
     ) -> None:
         self.distance = []
         self.branches = []
@@ -642,7 +642,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eigendisplacements = (
             np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
         )
-        struct = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
             dct["qpoints"],
             np.array(dct["bands"]),
@@ -650,5 +649,17 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             dct["has_nac"],
             eigendisplacements,
             dct["labels_dict"],
-            structure=struct,
+            structure=Structure.from_dict(dct["structure"]) if "structure" in dct else None,
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PhononBandStructureSymmLine):
+            return NotImplemented
+        return (
+            self.bands.shape == other.bands.shape
+            and np.allclose(self.bands, other.bands)
+            and self.lattice_rec == other.lattice_rec
+            # and self.qpoints == other.qpoints
+            and self.labels_dict == other.labels_dict
+            and self.structure == other.structure
         )
