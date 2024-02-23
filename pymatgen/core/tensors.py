@@ -324,7 +324,7 @@ class Tensor(np.ndarray, MSONable):
         for ind, v in this_voigt_map.items():
             v_matrix[v] = self[ind]
         if not self.is_voigt_symmetric():
-            warnings.warn("Tensor is not symmetric, information may be lost in voigt conversion.")
+            warnings.warn("Tensor is not symmetric, information may be lost in Voigt conversion.")
         return v_matrix * self._vscale
 
     def is_voigt_symmetric(self, tol: float = 1e-6) -> bool:

@@ -144,7 +144,7 @@ class InputSet(MSONable, MutableMapping):
         raise AttributeError(f"'{type(self).__name__}' object has no attribute {key!r}")
 
     def __copy__(self) -> InputSet:
-        cls = self.__class__
+        cls = type(self)
         new_instance = cls.__new__(cls)
 
         for key, val in self.__dict__.items():
@@ -153,7 +153,7 @@ class InputSet(MSONable, MutableMapping):
         return new_instance
 
     def __deepcopy__(self, memo: dict[int, InputSet]) -> InputSet:
-        cls = self.__class__
+        cls = type(self)
         new_instance = cls.__new__(cls)
         memo[id(self)] = new_instance
 
@@ -233,7 +233,7 @@ class InputSet(MSONable, MutableMapping):
         Args:
             directory: Directory to read input files from
         """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        raise NotImplementedError(f"from_directory has not been implemented in {cls.__name__}")
 
     def validate(self) -> bool:
         """
@@ -242,7 +242,7 @@ class InputSet(MSONable, MutableMapping):
 
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
-        raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
+        raise NotImplementedError(f".validate() has not been implemented in {type(self).__name__}")
 
 
 class InputGenerator(MSONable):

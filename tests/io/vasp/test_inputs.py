@@ -833,6 +833,9 @@ SIGMA = 0.1"""
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
+        assert Incar.proc_val("ML_MODE", "train") == "train"
+        assert Incar.proc_val("ML_MODE", "RUN") == "run"
+        assert Incar.proc_val("ALGO", "fast") == "Fast"
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters

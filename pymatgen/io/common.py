@@ -33,21 +33,23 @@ class VolumetricData(MSONable):
         ngridpts (int): Total number of grid points in volumetric data.
     """
 
-    def __init__(self, structure: Structure, data, distance_matrix=None, data_aug=None):
+    def __init__(
+        self, structure: Structure, data: np.ndarray, distance_matrix: np.ndarray = None, data_aug: np.ndarray = None
+    ) -> None:
         """
         Typically, this constructor is not used directly and the static
         from_file constructor is used. This constructor is designed to allow
         summation and other operations between VolumetricData objects.
 
         Args:
-            structure: Structure associated with the volumetric data
-            data: Actual volumetric data. If the data is provided as in list format,
+            structure (Structure): associated with the volumetric data
+            data (np.array): Actual volumetric data. If the data is provided as in list format,
                 it will be converted into an np.array automatically
-            data_aug: Any extra information associated with volumetric data
-                (typically augmentation charges)
-            distance_matrix: A pre-computed distance matrix if available.
+            distance_matrix (np.array): A pre-computed distance matrix if available.
                 Useful so pass distance_matrices between sums,
                 short-circuiting an otherwise expensive operation.
+            data_aug (np.array): Any extra information associated with volumetric data
+                (typically augmentation charges)
         """
         self.structure = structure
         self.is_spin_polarized = len(data) >= 2

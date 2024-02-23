@@ -3251,7 +3251,7 @@ class VolumetricData(BaseVolumetricData):
     """
 
     @staticmethod
-    def parse_file(filename):
+    def parse_file(filename: str) -> tuple[Poscar, dict, dict]:
         """
         Convenience method to parse a generic volumetric data file in the vasp
         like format. Used by subclasses for parsing file.
@@ -3260,17 +3260,17 @@ class VolumetricData(BaseVolumetricData):
             filename (str): Path of file to parse
 
         Returns:
-            (poscar, data)
+            tuple[Poscar, dict, dict]: Poscar object, data dict, data_aug dict
         """
-
         poscar_read = False
-        poscar_string = []
-        dataset = []
-        all_dataset = []
+        poscar_string: list[str] = []
+        dataset: np.ndarray = np.zeros((1, 1, 1))
+        all_dataset: list[np.ndarray] = []
         # for holding any strings in input that are not Poscar
         # or VolumetricData (typically augmentation charges)
-        all_dataset_aug = {}
-        dim = dimline = None
+        all_dataset_aug: dict[int, list[str]] = {}
+        dim: list[int] = []
+        dimline = ""
         read_dataset = False
         ngrid_pts = 0
         data_count = 0
@@ -3354,7 +3354,7 @@ class VolumetricData(BaseVolumetricData):
             else:
                 data = {"total": all_dataset[0]}
                 data_aug = {"total": all_dataset_aug.get(0)}
-            return poscar, data, data_aug
+            return poscar, data, data_aug  # type: ignore[return-value]
 
     def write_file(self, file_name: str | Path, vasp4_compatible: bool = False) -> None:
         """
@@ -3434,13 +3434,13 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """Simple object for reading a LOCPOT file."""
 
-    def __init__(self, poscar, data):
+    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs) -> None:
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
-            data: Actual data.
+            data (np.ndarray): Actual data.
         """
-        super().__init__(poscar.structure, data)
+        super().__init__(poscar.structure, data, **kwargs)
         self.name = poscar.comment
 
     @classmethod
@@ -3453,7 +3453,7 @@ class Locpot(VolumetricData):
         Returns:
             Locpot
         """
-        (poscar, data, _data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, _data_aug = VolumetricData.parse_file(filename)
         return cls(poscar, data, **kwargs)
 
 

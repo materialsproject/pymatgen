@@ -115,7 +115,7 @@ class TestSetChangeCheck(PymatgenTest):
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
             "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
             "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
-            "MPSCANRelaxSet.yaml": "2d31ee637cb5d4d96f2e0aba3772a52cbcceb348",
+            "MPSCANRelaxSet.yaml": "167668225129002b49dc3550c04659869b9b9e47",
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
@@ -198,23 +198,33 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert vis.as_dict()["structure"] is not None
         assert "structure" not in vis.as_dict(verbosity=1)
 
-    def test_metal_check(self):
+    def test_warnings(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
-        with pytest.warns(
-            BadInputSetWarning,
-            match="Relaxation of likely metal with ISMEAR < 1 detected. "
-            "See VASP recommendations on ISMEAR for metals.",
-        ) as warns_metal:
-            vis = self.set(structure)
+        vis = self.set(structure)
+        with pytest.warns(BadInputSetWarning) as warns_metal:
             _ = vis.incar
         assert len(warns_metal) == 1
+        vasp_docs_link = "See VASP recommendations on ISMEAR for metals (https://www.vasp.at/wiki/index.php/ISMEAR)."
+        assert (
+            str(warns_metal[0].message)
+            == f"Relaxation of likely metal with ISMEAR < 0 ({vis.incar['ISMEAR']}). {vasp_docs_link}"
+        )
+
+        # test different warning for ismear == 0 and sigma > 0.05
+        vis = self.set(structure, user_incar_settings={"ISMEAR": 0, "SIGMA": 0.1})
+        with pytest.warns(BadInputSetWarning) as warns_metal:
+            _ = vis.incar
+        assert len(warns_metal) == 1
+        assert (
+            str(warns_metal[0].message)
+            == f"ISMEAR = 0 with a small SIGMA ({vis.incar['SIGMA']}) detected. {vasp_docs_link}"
+        )
 
         with pytest.warns(
             BadInputSetWarning,
             match="Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
-            "generates an adequate number of KPOINTS, lower KSPACING, or "
-            "set ISMEAR = 0",
+            "generates an adequate number of KPOINTS, lower KSPACING, or set ISMEAR = 0",
         ) as warns_kspacing:
             vis = self.set(structure, user_incar_settings={"KSPACING": 1, "ISMEAR": -5})
             _ = vis.incar
