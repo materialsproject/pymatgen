@@ -313,7 +313,7 @@ def find_rotation(points_distorted, points_perfect):
         The rotation matrix.
     """
     H = np.matmul(points_distorted.T, points_perfect)
-    U, S, Vt = svd(H)
+    U, _S, Vt = svd(H)
     return np.matmul(Vt.T, U.T)
 
 
@@ -1947,8 +1947,7 @@ class LocalGeometryFinder:
                 sep2 = separation_indices[2]
             # separation_perm = list(sep0)
             ordind = local_plane.project_and_to2dim_ordered_indices(inp)
-            # separation_perm.extend(
-            #     [separation_indices[1][ii] for ii in ordind])
+            # separation_perm.extend([separation_indices[1][ii] for ii in ordind])
             inp1 = separation_indices[1].take(ordind)
             # separation_perm.extend(sep2)
             separation_perm = np.concatenate((sep0, inp1, sep2))

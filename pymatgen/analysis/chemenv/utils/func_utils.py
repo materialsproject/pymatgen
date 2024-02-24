@@ -36,7 +36,7 @@ class AbstractRatioFunction:
         """
         if function not in self.ALLOWED_FUNCTIONS:
             raise ValueError(f"{function=!r} is not allowed in RatioFunction of type {type(self).__name__}")
-        self.eval = object.__getattribute__(self, function)
+        self.eval = getattr(self, function)
         self.function = function
         self.setup_parameters(options_dict=options_dict)
 

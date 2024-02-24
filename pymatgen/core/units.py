@@ -41,7 +41,7 @@ Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
 The SI units must have factor 1.
 """
-BASE_UNITS = {
+BASE_UNITS: dict[str, dict] = {
     "length": {
         "m": 1,
         "km": 1000,
@@ -163,7 +163,7 @@ class Unit(collections.abc.Mapping):
 
     Error = UnitError
 
-    def __init__(self, unit_def):
+    def __init__(self, unit_def) -> None:
         """Constructs a unit.
 
         Args:
@@ -174,13 +174,13 @@ class Unit(collections.abc.Mapping):
                 space-separated.
         """
         if isinstance(unit_def, str):
-            unit = collections.defaultdict(int)
+            unit: dict[str, int] = collections.defaultdict(int)
 
-            for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
-                p = m.group(2)
-                p = 1 if not p else int(p)
-                k = m.group(1)
-                unit[k] += p
+            for match in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
+                val = match.group(2)
+                val = 1 if not val else int(val)
+                key = match.group(1)
+                unit[key] += val
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
         self._unit = _check_mappings(unit)
@@ -213,7 +213,7 @@ class Unit(collections.abc.Mapping):
     def __len__(self) -> int:
         return len(self._unit)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         sorted_keys = sorted(self._unit, key=lambda k: (-self._unit[k], k))
         return " ".join(
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
@@ -292,12 +292,6 @@ class FloatWithUnit(float):
     Error = UnitError
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        """Use from_str instead."""
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
     def from_str(cls, s):
         """Parse string to FloatWithUnit.
 
@@ -328,7 +322,7 @@ class FloatWithUnit(float):
         new._unit_type = unit_type
         return new
 
-    def __init__(self, val, unit, unit_type=None):
+    def __init__(self, val, unit, unit_type=None) -> None:
         """Initializes a float with unit.
 
         Args:
@@ -341,7 +335,7 @@ class FloatWithUnit(float):
         self._unit = Unit(unit)
         self._unit_type = unit_type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{super().__str__()} {self._unit}"
 
     def __add__(self, other):
@@ -413,7 +407,7 @@ class FloatWithUnit(float):
         return self._unit_type
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> Unit:
         """The unit, e.g., "eV"."""
         return self._unit
 
@@ -512,10 +506,10 @@ class ArrayWithUnit(np.ndarray):
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{np.array(self)!r} {self.unit}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{np.array(self)} {self.unit}"
 
     def __add__(self, other):
@@ -526,7 +520,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __sub__(self, other):
         if hasattr(other, "unit_type"):
@@ -536,7 +530,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
         # TODO Here we have the most important difference between FloatWithUnit and
@@ -550,31 +544,31 @@ class ArrayWithUnit(np.ndarray):
         # bit misleading.
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
-            return self.__class__(
+            return type(self)(
                 np.array(self) * np.array(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
         # Cannot use super since it returns an instance of self.__class__
         # while here we want a bare numpy array.
-        return self.__class__(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
+        return type(self)(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
 
     def __rmul__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(
+            return type(self)(
                 np.array(self) * np.array(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return self.__class__(np.array(self) * np.array(other), unit=self.unit * other.unit)
+        return type(self)(np.array(self) * np.array(other), unit=self.unit * other.unit)
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
-        return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)
+            return type(self)(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
+        return type(self)(np.array(self) / np.array(other), unit=self.unit / other.unit)
 
     def __neg__(self):
-        return self.__class__(-np.array(self), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(-np.array(self), unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
         """Conversion to a new_unit.
@@ -591,7 +585,7 @@ class ArrayWithUnit(np.ndarray):
         >>> e.to("eV")
         array([ 27.21138386,  29.93252225]) eV
         """
-        return self.__class__(
+        return type(self)(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type,
             unit=new_unit,

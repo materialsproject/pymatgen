@@ -226,11 +226,11 @@ class DftSet(Cp2kInput):
                 ot = False
 
         # Build the global section
-        g = Global(
+        global_sec = Global(
             project_name=self.kwargs.get("project_name", "CP2K"),
             run_type=self.kwargs.get("run_type", "ENERGY_FORCE"),
         )
-        self.insert(g)
+        self.insert(global_sec)
 
         # Build the QS Section
         qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
@@ -405,9 +405,9 @@ class DftSet(Cp2kInput):
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as file:
                     yaml = YAML(typ="unsafe", pure=True)
-                    DATA = yaml.load(f)
+                    DATA = yaml.load(file)
                     if not DATA.get("basis_sets"):
                         raise ValueError(f"No standard basis sets available in data directory for {el}")
                     if not DATA.get("potentials"):
@@ -1230,12 +1230,9 @@ class DftSet(Cp2kInput):
         if isinstance(structure, Structure):
             subsys.insert(Cell(structure.lattice))
         else:
-            x = max(structure.cart_coords[:, 0])
-            y = max(structure.cart_coords[:, 1])
-            z = max(structure.cart_coords[:, 2])
-            x = x if x else 1
-            y = y if y else 1
-            z = z if z else 1
+            x = max(*structure.cart_coords[:, 0], 1)
+            y = max(*structure.cart_coords[:, 1], 1)
+            z = max(*structure.cart_coords[:, 2], 1)
             cell = Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
             cell.add(Keyword("PERIODIC", "NONE"))
             subsys.insert(cell)

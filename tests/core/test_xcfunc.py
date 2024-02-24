@@ -38,9 +38,9 @@ class TestLibxcFunc(PymatgenTest):
         assert XcFunc.asxc(ixc_11) is ixc_11
         assert XcFunc.asxc("PBE") == ixc_11
 
-        d = {ixc_11: ixc_11.name}
-        assert "PBE" in d
-        assert ixc_11 in d
+        dct = {ixc_11: ixc_11.name}
+        assert "PBE" in dct
+        assert ixc_11 in dct
 
         # Test if object can be serialized with Pickle.
         self.serialize_with_pickle(ixc_11)

@@ -14,10 +14,10 @@ class TestQuasiRRHO(unittest.TestCase):
     """Test class for QuasiRRHO"""
 
     def setUp(self):
-        test_dir = TEST_FILES_DIR
-        self.gout = GaussianOutput(f"{test_dir}/molecules/quasirrho_gaufreq.log")
-        self.linear_gout = GaussianOutput(f"{test_dir}/molecules/co2.log.gz")
-        self.qout = QCOutput(f"{test_dir}/molecules/new_qchem_files/Frequency_no_equal.qout")
+        TEST_DIR = TEST_FILES_DIR
+        self.gout = GaussianOutput(f"{TEST_DIR}/molecules/quasirrho_gaufreq.log")
+        self.linear_gout = GaussianOutput(f"{TEST_DIR}/molecules/co2.log.gz")
+        self.qout = QCOutput(f"{TEST_DIR}/molecules/new_qchem_files/Frequency_no_equal.qout")
 
     def test_qrrho_gaussian(self):
         """

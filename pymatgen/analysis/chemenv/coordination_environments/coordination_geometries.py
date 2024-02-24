@@ -397,7 +397,7 @@ class CoordinationGeometry:
             """
             if hints_info["csm"] > self.options["csm_max"]:
                 return []
-            return object.__getattribute__(self, f"{self.hints_type}_hints")(hints_info)
+            return getattr(self, f"{self.hints_type}_hints")(hints_info)
 
         def single_cap_hints(self, hints_info):
             """Return hints for an additional neighbors set, i.e. the voronoi indices that

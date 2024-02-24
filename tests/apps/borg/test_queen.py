@@ -11,9 +11,6 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
 __date__ = "Mar 18, 2012"
 
 
@@ -22,7 +19,7 @@ class TestBorgQueen(unittest.TestCase):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, TEST_FILES_DIR, 1)
         data = self.queen.get_data()
-        assert len(data) == 15
+        assert len(data) == 16
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

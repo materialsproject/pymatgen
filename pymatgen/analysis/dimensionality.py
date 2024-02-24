@@ -338,11 +338,11 @@ def get_dimensionality_cheon(
         structure = structure_raw
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-    max1, min1, clusters1 = find_clusters(structure, connected_list1)
+    max1, min1, _clusters1 = find_clusters(structure, connected_list1)
     if larger_cell:
         structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-        max3, min3, clusters3 = find_clusters(structure, connected_list3)
+        max3, min3, _clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
             dim = "0D" if max3 == max1 else "intercalated molecule"
         else:
@@ -354,7 +354,7 @@ def get_dimensionality_cheon(
     else:
         structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
         connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-        max2, min2, clusters2 = find_clusters(structure, connected_list2)
+        max2, min2, _clusters2 = find_clusters(structure, connected_list2)
         if min2 == 1:
             dim = "intercalated ion"
         elif min2 == min1:
@@ -367,7 +367,7 @@ def get_dimensionality_cheon(
                 structure = copy.copy(structure_save)
                 structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-                max3, min3, clusters3 = find_clusters(structure, connected_list3)
+                max3, min3, _clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
                     dim = "0D" if max3 == max2 else "intercalated molecule"
                 else:

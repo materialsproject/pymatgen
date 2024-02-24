@@ -32,7 +32,7 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
 
     def test_init(self):
         for test_string, test_Pp in zip(self.test_strings, self.test_Pps):
-            jft = JonesFaithfulTransformation.from_transformation_string(test_string)
+            jft = JonesFaithfulTransformation.from_transformation_str(test_string)
             jft2 = JonesFaithfulTransformation(test_Pp[0], test_Pp[1])
             assert_allclose(jft.P, jft2.P)
             assert_allclose(jft.p, jft2.p)
@@ -41,7 +41,7 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
 
     def test_inverse(self):
         for test_string in self.test_strings:
-            jft = JonesFaithfulTransformation.from_transformation_string(test_string)
+            jft = JonesFaithfulTransformation.from_transformation_str(test_string)
             assert jft == jft.inverse.inverse
             assert jft.transformation_string == jft.inverse.inverse.transformation_string
 
@@ -80,7 +80,7 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
         # http://cryst.ehu.es/cryst/get_gen.html
 
         # Fm-3m
-        input_symmops = """x,y,z
+        input_symm_ops = """x,y,z
 -x,-y,z
 -x,y,-z
 x,-y,-z
@@ -130,7 +130,7 @@ z,-y,-x
 z,y,x"""
 
         # Fm-3m transformed by (a-b,a+b,2c;0,0,1/2)
-        ref_transformed_symmops = """x,y,z
+        ref_transformed_symm_ops = """x,y,z
 -x,-y,z
 -y,-x,-z+1/2
 y,x,-z+1/2
@@ -179,12 +179,12 @@ y,-x,-z+1/2
 -1/2x+1/2y+z+1/4,1/2x-1/2y+z+1/4,-1/2x-1/2y+3/4
 1/2x-1/2y+z+1/4,-1/2x+1/2y+z+1/4,1/2x+1/2y+3/4"""
 
-        jft = JonesFaithfulTransformation.from_transformation_string(self.test_strings[1])
+        jft = JonesFaithfulTransformation.from_transformation_str(self.test_strings[1])
 
-        input_symmops = [SymmOp.from_xyz_string(s) for s in input_symmops.split()]
-        ref_transformed_symmops = [SymmOp.from_xyz_string(s) for s in ref_transformed_symmops.split()]
+        input_symm_ops = [SymmOp.from_xyz_str(s) for s in input_symm_ops.split()]
+        ref_transformed_symm_ops = [SymmOp.from_xyz_str(s) for s in ref_transformed_symm_ops.split()]
 
-        transformed_symmops = [jft.transform_symmop(op) for op in input_symmops]
+        transformed_symm_ops = [jft.transform_symmop(op) for op in input_symm_ops]
 
-        for transformed_op, ref_transformed_op in zip(transformed_symmops, ref_transformed_symmops):
+        for transformed_op, ref_transformed_op in zip(transformed_symm_ops, ref_transformed_symm_ops):
             assert transformed_op == ref_transformed_op

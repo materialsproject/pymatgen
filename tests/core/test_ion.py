@@ -23,12 +23,12 @@ class TestIon(unittest.TestCase):
         self.comp.append(Ion.from_formula("NaOH(aq)"))
 
     def test_init(self):
-        c = Composition({"Fe": 4, "O": 16, "P": 4})
+        comp = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
-        assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
-        f = {1: 1, 8: 1}
+        assert Ion(comp, charge).formula == "Fe4 P4 O16 +4"
+        formula_dict = {1: 1, 8: 1}
         charge = -1
-        assert Ion(Composition(f), charge).formula == "H1 O1 -1"
+        assert Ion(Composition(formula_dict), charge).formula == "H1 O1 -1"
         assert Ion(Composition(S=2, O=3), -2).formula == "S2 O3 -2"
 
     def test_charge_from_formula(self):
@@ -152,15 +152,15 @@ class TestIon(unittest.TestCase):
         assert Ion.from_dict(sym_dict).reduced_formula == "PO4[-2]", "Creation form sym_amount dictionary failed!"
 
     def test_as_dict(self):
-        c = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
-        d = c.as_dict()
+        ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
+        dct = ion.as_dict()
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1.0}
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        d = c.to_reduced_dict
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        dct = ion.to_reduced_dict
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
         random_z = random.randint(1, 92)

@@ -495,7 +495,7 @@ class DetailedVoronoiContainer(MSONable):
                     ap2 = angle_bounds[iap]
                 if ap2 < minang or ap1 > maxang:
                     continue
-                intersection, interror = rectangle_surface_intersection(
+                intersection, _interror = rectangle_surface_intersection(
                     rectangle=((d1, d2), (ap1, ap2)),
                     f_lower=f_lower,
                     f_upper=f_upper,

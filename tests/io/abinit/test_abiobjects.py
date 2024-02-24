@@ -97,6 +97,7 @@ class TestLatticeFromAbivars(PymatgenTest):
         assert_array_equal(enf_vars["znucl"], enforce_znucl)
         assert_array_equal(enf_vars["typat"], enforce_typat)
         assert_array_equal(def_vars["xred"], enf_vars["xred"])
+        assert "properties" not in enf_vars
 
         assert [s.symbol for s in species_by_znucl(gan)] == ["Ga", "N"]
 

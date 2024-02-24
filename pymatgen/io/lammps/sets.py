@@ -96,4 +96,4 @@ class LammpsInputSet(InputSet):
         input set. Can be as simple or as complex as desired.
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
-        raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
+        raise NotImplementedError(f".validate() has not been implemented in {type(self).__name__}")

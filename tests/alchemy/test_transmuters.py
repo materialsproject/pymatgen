@@ -13,9 +13,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestCifTransmuter(PymatgenTest):
     def test_init(self):
-        trans = []
-        trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
-        tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/MultiStructure.cif"], trans)
+        trafos = [SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"})]
+        tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/MultiStructure.cif"], trafos)
         assert len(tsc) == 2
         expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
@@ -25,13 +24,12 @@ class TestCifTransmuter(PymatgenTest):
 
 class TestPoscarTransmuter(PymatgenTest):
     def test_init(self):
-        trans = []
-        trans.append(SubstitutionTransformation({"Fe": "Mn"}))
-        tsc = PoscarTransmuter.from_filenames([f"{TEST_FILES_DIR}/POSCAR", f"{TEST_FILES_DIR}/POSCAR"], trans)
+        trafos = [SubstitutionTransformation({"Fe": "Mn"})]
+        tsc = PoscarTransmuter.from_filenames([f"{TEST_FILES_DIR}/POSCAR", f"{TEST_FILES_DIR}/POSCAR"], trafos)
         assert len(tsc) == 2
         expected = {"Mn", "O", "P"}
-        for s in tsc:
-            els = {el.symbol for el in s.final_structure.elements}
+        for substitution in tsc:
+            els = {el.symbol for el in substitution.final_structure.elements}
             assert expected == els
 
     def test_transmuter(self):

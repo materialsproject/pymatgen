@@ -228,7 +228,7 @@ class TestTEMCalculator(PymatgenTest):
         points = tem_calc.generate_points(-2, 2)
         structure = self.get_structure("Si")
         positions = tem_calc.get_positions(structure, points)
-        assert [0, 0] == positions[(0, 0, 0)].tolist()
+        assert positions[(0, 0, 0)].tolist() == [0, 0]
         # Test silicon diffraction data spot rough positions:
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
         assert_allclose([1, 0], positions[(-1, 0, 0)], atol=1)

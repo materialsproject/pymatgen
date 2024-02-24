@@ -6,6 +6,8 @@ import re
 from fractions import Fraction
 
 import numpy as np
+from sympy import Matrix
+from sympy.parsing.sympy_parser import parse_expr
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
@@ -27,7 +29,7 @@ class JonesFaithfulTransformation:
         """Transform between settings using matrix P and origin shift vector p,
         using same notation as reference.
 
-        Should initialize using `from_transformation_string` in Jones
+        Should initialize using from_transformation_str in Jones
         faithful notation, given by a string specifying both a
         transformation matrix and an origin shift, with parts delimited
         by a semi-colon. Best shown by example:
@@ -49,15 +51,9 @@ class JonesFaithfulTransformation:
         See: International Tables for Crystallography (2016). Vol. A,
         Chapter 1.5, pp. 75-106.
         """
-        # using capital letters in violation of PEP8 to
-        # be consistent with variables in supplied reference,
-        # for easier debugging in future
+        # using capital letters in violation of PEP8 to be consistent with variables
+        # in supplied reference, for easier debugging in future
         self._P, self._p = P, p
-
-    @classmethod
-    @np.deprecate(message="Use from_transformation_str instead")
-    def from_transformation_string(cls, *args, **kwargs):  # noqa: D102
-        return cls.from_transformation_str(*args, **kwargs)
 
     @classmethod
     def from_transformation_str(cls, transformation_string="a,b,c;0,0,0"):
@@ -105,21 +101,29 @@ class JonesFaithfulTransformation:
             b_change, o_shift = transformation_string.split(";")
             basis_change = b_change.split(",")
             origin_shift = o_shift.split(",")
+
             # add implicit multiplication symbols
             basis_change = [
                 re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.X)
                 for string in basis_change
             ]
-            # should be fine to use eval here but be mindful for security
-            # reasons
-            # see http://lybniz2.sourceforge.net/safeeval.html
-            # could replace with regex? or sympy expression?
-            P = np.array([eval(x, {"__builtins__": None}, {"a": a, "b": b, "c": c}) for x in basis_change])
-            P = P.transpose()  # by convention
+
+            # basic input sanitation
+            allowed_chars = "0123456789+-*/.abc()"
+            basis_change = ["".join([c for c in string if c in allowed_chars]) for string in basis_change]
+
+            # requires round-trip to sympy to evaluate
+            # (alternatively, `numexpr` looks like a nice solution but requires an additional dependency)
+            basis_change = [
+                parse_expr(string).subs({"a": Matrix(a), "b": Matrix(b), "c": Matrix(c)}) for string in basis_change
+            ]
+            # convert back to numpy, perform transpose by convention
+            P = np.array(basis_change, dtype=float).T[0]
+
             p = [float(Fraction(x)) for x in origin_shift]
             return P, p
-        except Exception:
-            raise ValueError("Failed to parse transformation string.")
+        except Exception as exc:
+            raise ValueError(f"Failed to parse transformation string: {exc}")
 
     @property
     def P(self) -> list[list[float]]:

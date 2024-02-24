@@ -172,17 +172,17 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             a = obj(...)
             self.assert(...)
         """
-        a = EnergyArray(1.1, "eV")
-        b = a.to("Ha")
-        assert (b) == approx(0.0404242579378)
-        c = EnergyArray(3.14, "J")
-        assert (c.to("eV")) == approx(1.9598338493806797e19)
+        e_in_ev = EnergyArray(1.1, "eV")
+        e_in_ha = e_in_ev.to("Ha")
+        assert e_in_ha == approx(0.0404242579378)
+        e_in_j = EnergyArray(3.14, "J")
+        assert (e_in_j.to("eV")) == approx(1.9598338493806797e19)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
-        d = EnergyArray(1, "Ha")
-        assert (a + d) == approx(28.311386245987997)
-        assert (a - d) == approx(-26.111386245987994)
-        assert float(a + 1) == 2.1
+        e2_in_ha = EnergyArray(1, "Ha")
+        assert (e_in_ev + e2_in_ha) == approx(28.311386245987997)
+        assert (e_in_ev - e2_in_ha) == approx(-26.111386245987994)
+        assert float(e_in_ev + 1) == 2.1
 
     def test_time(self):
         """

@@ -60,6 +60,16 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self._composition
 
     @property
+    def formula(self) -> str:
+        """The formula of the entry."""
+        return self._composition.formula
+
+    @property
+    def reduced_formula(self) -> str:
+        """The reduced formula of the entry."""
+        return self._composition.reduced_formula
+
+    @property
     @abstractmethod
     def energy(self) -> float:
         """The energy of the entry."""

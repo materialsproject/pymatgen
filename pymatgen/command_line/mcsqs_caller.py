@@ -91,8 +91,8 @@ def run_mcsqs(
 
     else:
         # Set supercell to identity (will make supercell with pymatgen)
-        with open("sqscell.out", "w") as f:
-            f.write("1\n1 0 0\n0 1 0\n0 0 1\n")
+        with open("sqscell.out", mode="w") as file:
+            file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
         structure = structure * scaling
         mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {num_atoms}"]
 
@@ -183,8 +183,8 @@ def _parse_sqs_path(path) -> Sqs:
         best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
-    with open(path / "bestcorr.out") as f:
-        lines = f.readlines()
+    with open(path / "bestcorr.out") as file:
+        lines = file.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
     objective_function: float | str
@@ -193,15 +193,15 @@ def _parse_sqs_path(path) -> Sqs:
     # Get all SQS structures and objective functions
     all_sqs = []
 
-    for i in range(detected_instances):
-        sqs_out = f"bestsqs{i + 1}.out"
-        sqs_cif = f"bestsqs{i + 1}.cif"
-        corr_out = f"bestcorr{i + 1}.out"
+    for idx in range(detected_instances):
+        sqs_out = f"bestsqs{idx + 1}.out"
+        sqs_cif = f"bestsqs{idx + 1}.cif"
+        corr_out = f"bestcorr{idx + 1}.out"
         with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
             p.communicate()
         sqs = Structure.from_file(path / sqs_out)
-        with open(path / corr_out) as f:
-            lines = f.readlines()
+        with open(path / corr_out) as file:
+            lines = file.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
         obj: float | str
@@ -234,8 +234,8 @@ def _parse_clusters(filename):
                 num_possible_species: int
                 cluster_function: float
     """
-    with open(filename) as f:
-        lines = f.readlines()
+    with open(filename) as file:
+        lines = file.readlines()
 
     clusters = []
     cluster_block = []

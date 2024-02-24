@@ -225,8 +225,8 @@ class VampireCaller:
 
         self.mat_id_dict = mat_id_dict
 
-        with open(mat_file_name, "w") as f:
-            f.write(mat_file)
+        with open(mat_file_name, mode="w") as file:
+            file.write(mat_file)
 
     def _create_input(self):
         structure = self.structure
@@ -296,8 +296,8 @@ class VampireCaller:
 
         input_script = "\n".join(input_script)
 
-        with open("input", "w") as f:
-            f.write(input_script)
+        with open("input", mode="w") as file:
+            file.write(input_script)
 
     def _create_ucf(self):
         structure = self.structure
@@ -330,12 +330,12 @@ class VampireCaller:
 
         # J_ij exchange interaction matrix
         sgraph = self.sgraph
-        ninter = 0
+        n_inter = 0
         for idx in range(len(sgraph.graph.nodes)):
-            ninter += sgraph.get_coordination_of_site(idx)
+            n_inter += sgraph.get_coordination_of_site(idx)
 
         ucf += ["# Interactions"]
-        ucf += [f"{ninter} isotropic"]
+        ucf += [f"{n_inter} isotropic"]
 
         iid = 0  # counts number of interaction
         for idx in range(len(sgraph.graph.nodes)):
@@ -363,8 +363,8 @@ class VampireCaller:
         ucf = "\n".join(ucf)
         ucf_file_name = mat_name + ".ucf"
 
-        with open(ucf_file_name, "w") as f:
-            f.write(ucf)
+        with open(ucf_file_name, mode="w") as file:
+            file.write(ucf)
 
     @staticmethod
     def parse_stdout(vamp_stdout, n_mats: int) -> tuple:

@@ -38,7 +38,7 @@ class SOCSpillage:
     @staticmethod
     def orth(A):
         """Helper function to create orthonormal basis."""
-        u, s, vh = np.linalg.svd(A, full_matrices=False)
+        u, s, _vh = np.linalg.svd(A, full_matrices=False)
         M, N = A.shape
         eps = np.finfo(float).eps
         tol = max(M, N) * np.amax(s) * eps
@@ -168,9 +168,9 @@ class SOCSpillage:
                             t = so.coeffs[nk2 - 1][n1 - 1].flatten()
                             Vso[0 : vs // 2, n1 - 1] = t[0 : vs // 2]
                             Vso[vs // 2 : vs, n1 - 1] = t[n_so // 2 : n_so // 2 + vs // 2]
-                        Qnoso, num_noso = self.orth(Vnoso)  # make orthonormal basis?
+                        Qnoso, _num_noso = self.orth(Vnoso)  # make orthonormal basis?
 
-                        Qso, num_so = self.orth(Vso)
+                        Qso, _num_so = self.orth(Vso)
 
                         gamma_k.append(nelec_tot)
                         a = []

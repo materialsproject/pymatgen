@@ -45,16 +45,16 @@ def test_graph_hash():
 
     from emmet.core.graph_hashing import weisfeiler_lehman_graph_hash
 
-    G1 = nx.Graph()
+    g1 = nx.Graph()
     edges = [(1, 2, {"label": "A"}), (2, 3, {"label": "A"}), (3, 1, {"label": "A"}), (1, 4, {"label": "B"})]
-    G1.add_edges_from(edges)
-    G2 = nx.Graph()
+    g1.add_edges_from(edges)
+    g2 = nx.Graph()
     edges = [(5, 6, {"label": "B"}), (6, 7, {"label": "A"}), (7, 5, {"label": "A"}), (7, 8, {"label": "A"})]
-    G2.add_edges_from(edges)
+    g2.add_edges_from(edges)
 
-    assert weisfeiler_lehman_graph_hash(G1) == weisfeiler_lehman_graph_hash(G2)
-    assert weisfeiler_lehman_graph_hash(G1, edge_attr="label") == "c653d85538bcf041d88c011f4f905f10"
-    assert weisfeiler_lehman_graph_hash(G2, edge_attr="label") == "3dcd84af1ca855d0eff3c978d88e7ec7"
+    assert weisfeiler_lehman_graph_hash(g1) == weisfeiler_lehman_graph_hash(g2)
+    assert weisfeiler_lehman_graph_hash(g1, edge_attr="label") == "c653d85538bcf041d88c011f4f905f10"
+    assert weisfeiler_lehman_graph_hash(g2, edge_attr="label") == "3dcd84af1ca855d0eff3c978d88e7ec7"
 
 
 def test_subgraph_hashes():
@@ -62,13 +62,13 @@ def test_subgraph_hashes():
 
     from emmet.core.graph_hashing import weisfeiler_lehman_subgraph_hashes
 
-    G1 = nx.Graph()
-    G1.add_edges_from([(1, 2), (2, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 7)])
-    G2 = nx.Graph()
-    G2.add_edges_from([(1, 3), (2, 3), (1, 6), (1, 5), (4, 6)])
+    g1 = nx.Graph()
+    g1.add_edges_from([(1, 2), (2, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 7)])
+    g2 = nx.Graph()
+    g2.add_edges_from([(1, 3), (2, 3), (1, 6), (1, 5), (4, 6)])
 
-    g1_hashes = weisfeiler_lehman_subgraph_hashes(G1, iterations=3, digest_size=8)
-    g2_hashes = weisfeiler_lehman_subgraph_hashes(G2, iterations=3, digest_size=8)
+    g1_hashes = weisfeiler_lehman_subgraph_hashes(g1, iterations=3, digest_size=8)
+    g2_hashes = weisfeiler_lehman_subgraph_hashes(g2, iterations=3, digest_size=8)
 
     assert g1_hashes[1] == ["a93b64973cfc8897", "db1b43ae35a1878f", "57872a7d2059c1c0"]
     assert g2_hashes[5] == ["a93b64973cfc8897", "db1b43ae35a1878f", "1716d2a4012fa4bc"]

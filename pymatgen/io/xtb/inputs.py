@@ -59,8 +59,8 @@ class CRESTInput(MSONable):
                 reference_fnm=self.coords_filename,
                 constraints=self.constraints,
             )
-            with open(".constrains", "w") as f:
-                f.write(constrains_string)
+            with open(".constrains", mode="w") as file:
+                file.write(constrains_string)
 
     @staticmethod
     def constrains_template(molecule, reference_fnm, constraints) -> str:

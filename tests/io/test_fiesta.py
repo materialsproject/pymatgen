@@ -47,7 +47,7 @@ class TestFiestaInput(unittest.TestCase):
         cell_in = FiestaInput(mol)
         assert cell_in.molecule.spin_multiplicity == 1
 
-    def test_str_and_from_string(self):
+    def test_str_and_from_str(self):
         ans = (
             "# number of atoms and species\n   5    2\n# number of valence bands\n    5\n"
             "# number of points and spacing in eV for correlation grid\n    14    0.500\n"

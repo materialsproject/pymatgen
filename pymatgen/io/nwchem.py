@@ -276,7 +276,7 @@ $theory_spec
 
         elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
-            basis_set = {el: basis_set for el in elements}
+            basis_set = dict.fromkeys(elements, basis_set)
 
         return NwTask(
             charge,
@@ -375,8 +375,8 @@ class NwInput(MSONable):
         for site in self._mol:
             out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
         out.append("end\n")
-        for t in self.tasks:
-            out.extend((str(t), ""))
+        for task in self.tasks:
+            out.extend((str(task), ""))
         return "\n".join(out)
 
     def write_file(self, filename):
@@ -384,15 +384,15 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, "w") as f:
-            f.write(str(self))
+        with zopen(filename, mode="w") as file:
+            file.write(str(self))
 
     def as_dict(self):
         """Returns: MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
-            "tasks": [t.as_dict() for t in self.tasks],
-            "directives": [list(t) for t in self.directives],
+            "tasks": [task.as_dict() for task in self.tasks],
+            "directives": [list(task) for task in self.directives],
             "geometry_options": list(self.geometry_options),
             "symmetry_options": self.symmetry_options,
             "memory_options": self.memory_options,
@@ -415,11 +415,6 @@ class NwInput(MSONable):
             symmetry_options=d["symmetry_options"],
             memory_options=d["memory_options"],
         )
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string_input):
@@ -527,8 +522,8 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        with zopen(filename) as f:
-            return cls.from_str(f.read())
+        with zopen(filename) as file:
+            return cls.from_str(file.read())
 
 
 class NwInputError(Exception):
@@ -550,8 +545,8 @@ class NwOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            data = f.read()
+        with zopen(filename) as file:
+            data = file.read()
 
         chunks = re.split(r"NWChem Input Module", data)
         if re.search(r"CITATION", chunks[-1]):
@@ -707,8 +702,8 @@ class NwOutput:
         def fort2py(x):
             return x.replace("D", "e")
 
-        def isfloatstring(s):
-            return s.find(".") == -1
+        def isfloatstring(in_str):
+            return in_str.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False

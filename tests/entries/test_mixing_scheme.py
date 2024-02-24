@@ -660,7 +660,7 @@ def ms_all_scan_novel(ms_complete):
 @pytest.fixture()
 def ms_incomplete_gga_all_scan(ms_complete):
     """Mixing state with an incomplete GGA phase diagram."""
-    gga_entries = [e for e in ms_complete.gga_entries if e.composition.reduced_formula != "Sn"]
+    gga_entries = [e for e in ms_complete.gga_entries if e.reduced_formula != "Sn"]
     scan_entries = ms_complete.scan_entries
 
     row_list = [

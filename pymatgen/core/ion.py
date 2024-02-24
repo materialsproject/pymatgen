@@ -19,7 +19,7 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition, charge=0.0, _properties=None):
+    def __init__(self, composition, charge=0.0, _properties=None) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
@@ -136,8 +136,8 @@ class Ion(Composition, MSONable, Stringify):
                 nH2O = int(nO) if nH >= 2 * nO else int(nH) // 2
                 comp = self.composition - nH2O * Composition("H2O")
 
-        d = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
+        (formula, factor) = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")
@@ -303,10 +303,10 @@ class Ion(Composition, MSONable, Stringify):
     def __hash__(self) -> int:
         return hash((self.composition, self.charge))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.formula
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Ion: " + self.formula
 
     def to_pretty_string(self) -> str:

@@ -1,0 +1,179 @@
+           1           1
+ PRECISION  = AUTO       
+ JOB       = SCF
+ IN.PSP1   = H.SG15.PBE.UPF
+ IN.ATOM   = atom.config         
+ CONVERGENCE  = EASY
+ ACCURACY  = NORM
+ VFF_DETAIL =   1   500  0.50000000E-02     30.00000     4.00000     0.00000     1.00000  
+ EGG_DETAIL =            3           3           3
+ SPIN      =   1
+ CONSTRAINT_MAG =           0
+ RANDOM_SEED=           0
+ QIJ_DETAIL =   0  1
+ SCF_MIX = CHARGE
+ PWSCF_OUTPUT     =  F
+ Ecut      =    50.0000000000000     
+ Ecut2     =    100.000000000000     
+ Ecut2L    =    100.000000000000     
+ EcutP    =    50.0000000000000     
+ N123_METH =            0
+ N123      =   125   125   125
+ NS123     =    40    40    40
+ N123L     =   125   125   125
+ STRESS_CORR =   0.100000E+01  0.000000E+00  0.200000E+01  0.000000E+00
+ XCFUNCTIONAL = PBE
+ HSE_DETAIL    =      1.00000000    1     0.00000000    6 1 1
+ RELAX_HSE    =    20   0.50000E-01     2
+ VDW       = NONE
+ LONDON_S6      =   0.000000000000000E+000
+ LONDON_C6(1)      =   -1.00000000000000     
+ LONDON_RCUT      =   0.000000000000000E+000
+ DFTD3_S6        =   0.000000000000000E+000
+ DFTD3_RS6        =   0.000000000000000E+000
+ DFTD3_S18        =   0.000000000000000E+000
+ DFTD3_RS18        =   0.000000000000000E+000
+ DFTD3_ALPHA6        =   0.000000000000000E+000
+ DFTD3_VERSION        =            0
+ DFTD3_3BODY        =  F
+ COULOMB   =    0
+ IN.WG     =  F
+ OUT.WG    =  T
+ IN.RHO    =  F
+ OUT.RHOATOM =  F
+ OUT.RHO   =  T
+ IN.VR     =  F
+ OUT.VR    =  T
+ OUT.ELF   =  F  1.000000000000000E-004
+ IN.VEXT   =  F
+ OUT.VATOM   =  F
+ OUT.FORCE =  F
+ OUT.STRESS =  F
+ IN.KPT    =  F
+ IN.SYMM   =  F
+ SYMM_PREC =    0.10000E-04
+ MP_N123 =      1      1      1      0      0      0      0
+ NUM_KPT =            1
+ USE_GAUSSIAN =   F
+ IN.GAUSSIANOPT =   F
+ OUT.GAUSSIAN =   F
+ OUT.GTH2UPF =   F
+ CHARGE_DECOMP = F
+ ENERGY_DECOMP = F 
+ IN.SOLVENT =  F
+ NUM_ELECTRON =   1.00000000000000     
+ FIX_FERMI =   F  0.000000E+00  0.000000E+00  0.000000E+00
+ IN.NONSCF    =  F
+ NUM_BAND  =    10
+ OUT.REAL.RHOWF_SP= 0
+ WG_ERROR  =   1.000000000000000E-004
+ E_ERROR   =   2.721138602000000E-006
+ RHO_ERROR =   5.000000000000000E-005
+ RHO_RELATIVE_ERROR      =   0.000000000000000E+000
+ FORCE_RELATIVE_ERROR     =   0.000000000000000E+000
+ MIN_SCF_ITER     =            1
+ MAX_SCF_ITER     =          100
+ SYS_TYPE   =            1
+ PULAY_MIX_OPT =     30  1  0       1.00000       0.00000
+ PULAY_METRIC_Q0 =       -1.00000
+ IN.OCC    =  F          -1
+ IN.CC    =  F
+ IN.OCC_ADIA    =  F
+ SCF_ITER0_1 =      1        4    3    0.0000     0.02500    1
+ SCF_ITER0_2 =      1        4    3    1.0000     0.02500    1
+ SCF_ITER1_1 =       100        4    3    1.0000     0.02500    1
+ NONLOCAL  =  2
+ FLAG_CYLINDER =            0
+ IN.A_FIELD =  F       0.00000       0.00000       0.00000
+ RCUT      =    3.00000000000000     
+ IN.PSP_RCUT1 =   3.00000000000000     
+ MD_VV_SCALE =    100
+ LDAU_PSP1   =           -1  2.721138638331097E-009  2.721138638331097E-009  eV
+ NUM_BLOCKED_PSI=  F
+ WF_STORE2DISK  =            0
+ NUM_DOS_GRID =         4000
+ DOS_GAUSSIAN_BROADENING =   5.000000000000000E-002
+ NMAP_MAX =        50000
+ KERK_AMIN =   0.300000000000000     
+ KERK_AMIX =   0.400000000000000     
+ KERK_AMIX_MAG =   0.400000000000000     
+ KERK_BMIX =   0.500000000000000     
+ KERK_BMIX_MAG =   1.000000000000000E-005
+ LDAU_MIX =   0.700000000000000     
+ PULAY_WEIGHT_SPIN =    1.00000000000000     
+ PULAY_WEIGHT_NS =    1.00000000000000     
+ OUT.MLMD    =  F
+ NUM_MPI_PER_GPU =     1
+ SET_OUT_FERMI_POS =  F           0
+ E_FINITE =  F   0.00000E+00   0.00000E+00   0.00000E+00
+ MLINE_EIGEN =      1
+ 
+ ------------------------------------------------
+ total number of K-point:           1
+   0.00000     0.00000    0.00000     1.00000            
+ ------------------------------------------------
+ 
+ 
+ *********************************************
+ *********** end of etot.input report ********
+ minimum n1,n2,n3 from Ecut2
+     120.304      120.304      120.304
+ minimum n1L,n2L,n3L from Ecut2L
+     120.304      120.304      120.304
+ *********************************************
+ 
+ 
+Weighted average num_of_PW for all kpoint=                       322453.000
+ ************************************
+ E_Hxc(eV)        3.045744482582087E-002
+ E_ion(eV)        -22.5336126606063     
+ E_Coul(eV)        6.86355141964587     
+ E_Hxc+E_ion(eV)  -22.5031552157805     
+ NONSCF     1          AVE_STATE_ERROR=        NaN
+ iter=   2   ave_lin=  1.0  iCGmth=   3
+ Ef(eV)               = 0.6604678E+01
+ err of ug            = 0.2314E+00
+ dv_ave, drho_tot     = 0.0000E+00 0.1964E+01
+ E_tot(eV)            = 0.57606321046393E+00    0.5761E+00
+ -------------------------------------------
+ E_Fermi(eV)=   6.60467768724351     
+ ---------------------------------------------------
+ Ef(eV)               = 0.6604678E+01
+ dvE, dvE(n)-dvE(n-1) = 0.0000E+00 0.0000E+00
+ dv_ave, drho_tot     = 0.0000E+00 0.1964E+01
+ err of ug            = 0.2314E+00
+ ---------------------------------------------------
+ ending_scf_reason = niter reached           2
+ Ewald        = -.10214019366036E+01
+ Alpha        = 0.88909458523198E-04
+ E_extV       = 0.00000000000000E+00    0.0000E+00
+ E_NSC        = 0.66046817078844E+01    0.6605E+01
+ E[-rho*V_Hxc]= -.50031018177599E+01    -.4973E+01
+ E_Hxc        = 0.30457444825821E-01    0.3046E-01
+ -TS          = -.34661097341390E-01    -.3466E-01
+ E_tot(eV)    = 0.57606321046393E+00    0.5761E+00
+ E_tot(Ryd)   = 0.42339865381391E-01    0.2117E-01
+ ---------------------------------------------------
+ ---------------------------------------------------
+ E_Hart,E_xc,E_ion =0.68635514196459E+01  -.68330939748200E+01  -.22533612660606E+02
+ E_Hxc+E_ion       =-.22503155215780E+02
+ E_kin+E_nonloc    =0.24135192550731E+02
+ E_rhoVext,E_IVext     =0.00000000000000E+00  0.00000000000000E+00
+ E_psiV,E_dDrho =-.20947431630908E+00  0.00000000000000E+00
+ ave(vtot):v0 =-.20352776862184E+00
+ ave(V_ion_s(or p,d))=ave(V_Hatree)=0; ave(Vtot)=ave(V_xc)=v0
+ ---------------------------------------------------
+ *********************************
+ Eigen energies are values after setting ave(Vtot)=0
+ For Vtot=V_ion+V_Hartree+V_xc, and
+ ave(V_ion+V_Hatree)=0, ave(V_xc).ne.0:  E=E+v0
+ *********************************
+iislda,kpt=   1,    1      0.000000     0.000000     0.000000             kpoint in xyz unit 
+ err of each states, A.U
+  0.138865E+01     0.137393E+01     0.138732E+01     0.139225E+01     0.140007E+01
+  0.138916E+01     0.140217E+01     0.140501E+01     0.140086E+01     0.139656E+01
+ eigen energies, in eV 
+      6.604678         6.907668         6.991905         7.074478         7.130352
+      7.423136         7.505018         7.698112         7.988332         8.097967
+ *********************************
+ total computation time (sec)=   18.7991583552212     

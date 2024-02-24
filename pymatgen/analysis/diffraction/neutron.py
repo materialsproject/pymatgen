@@ -26,9 +26,9 @@ __maintainer__ = "Yuta Suzuki"
 __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
-with open(os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")) as file:
     # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
-    ATOMIC_SCATTERING_LEN = json.load(f)
+    ATOMIC_SCATTERING_LEN = json.load(file)
 
 
 class NDCalculator(AbstractDiffractionPatternCalculator):
@@ -103,13 +103,13 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of coeffs, fcoords and occus. This is
+        # Create a flattened array of coeffs, frac_coords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
         # later. Note that these are not necessarily the same size as the
         # structure as each partially occupied specie occupies its own
         # position in the flattened array.
         _coeffs = []
-        _fcoords = []
+        _frac_coords = []
         _occus = []
         _dwfactors = []
 
@@ -123,11 +123,11 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                     )
                 _coeffs.append(c)
                 _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                _fcoords.append(site.frac_coords)
+                _frac_coords.append(site.frac_coords)
                 _occus.append(occu)
 
         coeffs = np.array(_coeffs)
-        fcoords = np.array(_fcoords)
+        frac_coords = np.array(_frac_coords)
         occus = np.array(_occus)
         dwfactors = np.array(_dwfactors)
         peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
@@ -151,7 +151,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
-                g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
+                g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
 
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).

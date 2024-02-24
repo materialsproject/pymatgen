@@ -1015,7 +1015,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
     # If SCF is not converged then do not treat the next chunk_end_line as a
     # new chunk until after the SCF is re-initialized
     ignore_chunk_end_line = False
-    line_iter = lines.__iter__()
+    line_iter = iter(lines)
     while True:
         try:
             line = next(line_iter).strip()  # Raises StopIteration on empty file
@@ -1095,11 +1095,11 @@ def read_aims_header_info(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(filename, "rt") as fd:
-                content = fd.read()
+            with gzip.open(filename, mode="rt") as file:
+                content = file.read()
         else:
-            with open(filename) as fd:
-                content = fd.read()
+            with open(filename) as file:
+                content = file.read()
 
     if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")
@@ -1155,11 +1155,11 @@ def read_aims_output(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(path, "rt") as fd:
-                content = fd.read()
+            with gzip.open(path, mode="rt") as file:
+                content = file.read()
         else:
-            with open(path) as fd:
-                content = fd.read()
+            with open(path) as file:
+                content = file.read()
 
     if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")

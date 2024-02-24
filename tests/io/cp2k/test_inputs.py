@@ -181,8 +181,8 @@ class TestInput(PymatgenTest):
         assert "[Ha]" in kwd.get_str()
 
     def test_coords(self):
-        for strucs in [nonsense_struct, Si_structure, molecule]:
-            coords = Coord(strucs)
+        for struct in [nonsense_struct, Si_structure, molecule]:
+            coords = Coord(struct)
             for c in coords.keywords.values():
                 assert isinstance(c, (Keyword, KeywordList))
 

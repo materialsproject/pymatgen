@@ -48,7 +48,7 @@ class TestReadWriteChemenv(PymatgenTest):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        with open(f"{self.tmp_path}/se.json", "w") as file:
+        with open(f"{self.tmp_path}/se.json", mode="w") as file:
             json.dump(se.as_dict(), file)
 
         with open(f"{self.tmp_path}/se.json") as file:
@@ -63,7 +63,7 @@ class TestReadWriteChemenv(PymatgenTest):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        with open(f"{self.tmp_path}/lse.json", "w") as file:
+        with open(f"{self.tmp_path}/lse.json", mode="w") as file:
             json.dump(lse.as_dict(), file, default=lambda obj: getattr(obj, "tolist", lambda: obj)())
 
         with open(f"{self.tmp_path}/lse.json") as file:
@@ -226,7 +226,7 @@ class TestReadWriteChemenv(PymatgenTest):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        with open(f"{self.tmp_path}/se.json", "w") as file:
+        with open(f"{self.tmp_path}/se.json", mode="w") as file:
             json.dump(detailed_voronoi_container.as_dict(), file)
 
         with open(f"{self.tmp_path}/se.json") as file:

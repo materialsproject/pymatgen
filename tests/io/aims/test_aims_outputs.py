@@ -4,8 +4,8 @@ import gzip
 import json
 from pathlib import Path
 
-import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
+from numpy.testing import assert_allclose
 
 from pymatgen.core import Structure
 from pymatgen.io.aims.outputs import AimsOutput
@@ -16,14 +16,14 @@ outfile_dir = Path(__file__).parent / "output_files"
 def comp_images(test, ref):
     assert test.species == ref.species
     if isinstance(test, Structure):
-        assert np.allclose(test.lattice.matrix, ref.lattice.matrix)
-    assert np.allclose(test.cart_coords, ref.cart_coords)
+        assert_allclose(test.lattice.matrix, ref.lattice.matrix)
+    assert_allclose(test.cart_coords, ref.cart_coords, atol=1e-12)
 
     for key, val in test.site_properties.items():
-        assert np.allclose(val, ref.site_properties[key])
+        assert_allclose(val, ref.site_properties[key])
 
     for key, val in test.properties.items():
-        assert np.allclose(val, ref.properties[key])
+        assert_allclose(val, ref.properties[key])
 
 
 def test_aims_output_si():
@@ -41,7 +41,7 @@ def test_aims_output_si():
 
 def test_aims_output_h2o():
     h2o = AimsOutput.from_outfile(f"{outfile_dir}/h2o.out.gz")
-    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", "rt") as ref_file:
+    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", mode="rt") as ref_file:
         h2o_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert h2o_ref.metadata == h2o.metadata
@@ -53,10 +53,10 @@ def test_aims_output_h2o():
 
 
 def test_aims_output_si_str():
-    with gzip.open(f"{outfile_dir}/si.out.gz", "rt") as si_out:
+    with gzip.open(f"{outfile_dir}/si.out.gz", mode="rt") as si_out:
         si = AimsOutput.from_str(si_out.read())
 
-    with gzip.open(f"{outfile_dir}/si_ref.json.gz", "rt") as ref_file:
+    with gzip.open(f"{outfile_dir}/si_ref.json.gz", mode="rt") as ref_file:
         si_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert si_ref.metadata == si.metadata
@@ -68,10 +68,10 @@ def test_aims_output_si_str():
 
 
 def test_aims_output_h2o_str():
-    with gzip.open(f"{outfile_dir}/h2o.out.gz", "rt") as h2o_out:
+    with gzip.open(f"{outfile_dir}/h2o.out.gz", mode="rt") as h2o_out:
         h2o = AimsOutput.from_str(h2o_out.read())
 
-    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", "rt") as ref_file:
+    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", mode="rt") as ref_file:
         h2o_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert h2o_ref.metadata == h2o.metadata
@@ -101,7 +101,7 @@ def test_aims_output_h2o_dict():
     h2o = AimsOutput.from_outfile(f"{outfile_dir}/h2o.out.gz")
     h2o = json.loads(json.dumps(h2o.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
 
-    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", "rt") as ref_file:
+    with gzip.open(f"{outfile_dir}/h2o_ref.json.gz", mode="rt") as ref_file:
         h2o_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert h2o_ref.metadata == h2o.metadata

@@ -89,14 +89,14 @@ class CoherentInterfaceBuilder:
 
         for match in self.zsl_matches:
             xform = get_2d_transform(film_vectors, match.film_vectors)
-            strain, rot = polar(xform)
+            strain, _rot = polar(xform)
             (
                 assert_allclose(strain, np.round(strain), atol=1e-12),
                 "Film lattice vectors changed during ZSL match, check your ZSL Generator parameters",
             )
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
-            strain, rot = polar(xform)
+            strain, _rot = polar(xform)
             (
                 assert_allclose(strain, strain.astype(int), atol=1e-12),
                 "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters",
@@ -129,7 +129,7 @@ class CoherentInterfaceBuilder:
         film_slabs = film_sg.get_slabs()
         sub_slabs = sub_sg.get_slabs()
 
-        film_shits = [s.shift for s in film_slabs]
+        film_shifts = [s.shift for s in film_slabs]
         film_terminations = [label_termination(s) for s in film_slabs]
 
         sub_shifts = [s.shift for s in sub_slabs]
@@ -138,7 +138,7 @@ class CoherentInterfaceBuilder:
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
             for (film_label, film_shift), (sub_label, sub_shift) in product(
-                zip(film_terminations, film_shits), zip(sub_terminations, sub_shifts)
+                zip(film_terminations, film_shifts), zip(sub_terminations, sub_shifts)
             )
         }
         self.terminations = list(self._terminations)

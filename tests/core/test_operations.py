@@ -174,8 +174,8 @@ class SymmOpTestCase(PymatgenTest):
         assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[1]
 
     def test_as_from_dict(self):
-        d = self.op.as_dict()
-        op = SymmOp.from_dict(d)
+        dct = self.op.as_dict()
+        op = SymmOp.from_dict(dct)
         point = np.random.rand(3)
         new_coord = self.op.operate(point)
         assert op.are_symmetrically_related(point, new_coord)

@@ -11,8 +11,7 @@ from pytest import approx
 
 import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
     ReconstructionGenerator,
     Slab,
@@ -110,7 +109,8 @@ class TestSlab(PymatgenTest):
             0,
             self.zno55.scale_factor,
         )
-        zno_slab.add_adsorbate_atom([1], "H", 1)
+        returned = zno_slab.add_adsorbate_atom([1], "H", 1)
+        assert returned == zno_slab
 
         assert len(zno_slab) == 9
         assert str(zno_slab[8].specie) == "H"
@@ -130,8 +130,8 @@ class TestSlab(PymatgenTest):
         self.zno55.get_primitive_structure()
 
     def test_as_from_dict(self):
-        d = self.zno55.as_dict()
-        obj = Slab.from_dict(d)
+        dct = self.zno55.as_dict()
+        obj = Slab.from_dict(dct)
         assert obj.miller_index == (1, 0, 0)
 
     def test_dipole_and_is_polar(self):
@@ -400,7 +400,7 @@ class TestSlabGenerator(PymatgenTest):
                     random.randint(0, 6),
                 )
             gen = SlabGenerator(struct, miller, 10, 10)
-            a, b, c = gen.oriented_unit_cell.lattice.matrix
+            a, b, _c = gen.oriented_unit_cell.lattice.matrix
             assert np.dot(a, gen._normal) == approx(0)
             assert np.dot(b, gen._normal) == approx(0)
 
@@ -432,7 +432,7 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
         # Test orthogonality of some internal variables.
-        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        a, b, _c = gen.oriented_unit_cell.lattice.matrix
         assert np.dot(a, gen._normal) == approx(0)
         assert np.dot(b, gen._normal) == approx(0)
 
@@ -460,7 +460,7 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         assert len(lco) == 1
-        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        a, b, _c = gen.oriented_unit_cell.lattice.matrix
         assert np.dot(a, gen._normal) == approx(0)
         assert np.dot(b, gen._normal) == approx(0)
 
@@ -611,12 +611,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Fe = Structure.from_spacegroup("Im-3m", latt, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
-        with open(
-            os.path.join(
-                os.path.abspath(os.path.dirname(pymatgen.core.__file__)),
-                "reconstructions_archive.json",
-            )
-        ) as data_file:
+        pmg_core_dir = os.path.dirname(pymatgen.core.__file__)
+        with open(f"{pmg_core_dir}/reconstructions_archive.json") as data_file:
             self.rec_archive = json.load(data_file)
 
     def test_build_slab(self):
@@ -673,26 +669,26 @@ class ReconstructionGeneratorTests(PymatgenTest):
     def test_previous_reconstructions(self):
         # Test to see if we generated all reconstruction types correctly and nothing changes
 
-        m = StructureMatcher()
-        for n in self.rec_archive:
-            if "base_reconstruction" in self.rec_archive[n]:
-                arch = self.rec_archive[self.rec_archive[n]["base_reconstruction"]]
+        match = StructureMatcher()
+        for idx in self.rec_archive:
+            if "base_reconstruction" in self.rec_archive[idx]:
+                arch = self.rec_archive[self.rec_archive[idx]["base_reconstruction"]]
                 sg = arch["spacegroup"]["symbol"]
             else:
-                sg = self.rec_archive[n]["spacegroup"]["symbol"]
+                sg = self.rec_archive[idx]["spacegroup"]["symbol"]
             if sg == "Fm-3m":
-                rec = ReconstructionGenerator(self.Ni, 20, 20, n)
+                rec = ReconstructionGenerator(self.Ni, 20, 20, idx)
                 el = self.Ni[0].species_string
             elif sg == "Im-3m":
-                rec = ReconstructionGenerator(self.Fe, 20, 20, n)
+                rec = ReconstructionGenerator(self.Fe, 20, 20, idx)
                 el = self.Fe[0].species_string
             elif sg == "Fd-3m":
-                rec = ReconstructionGenerator(self.Si, 20, 20, n)
+                rec = ReconstructionGenerator(self.Si, 20, 20, idx)
                 el = self.Si[0].species_string
 
             slabs = rec.build_slabs()
-            struct = Structure.from_file(f"{TEST_FILES_DIR}/surface_tests/reconstructions/{el}_{n}.cif")
-            assert any(len(m.group_structures([struct, slab])) == 1 for slab in slabs)
+            struct = Structure.from_file(f"{TEST_FILES_DIR}/surface_tests/reconstructions/{el}_{idx}.cif")
+            assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
 class MillerIndexFinderTests(PymatgenTest):

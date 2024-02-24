@@ -11,20 +11,20 @@ from numpy.testing import assert_allclose
 from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
 from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = f"{TEST_FILES_DIR}/lammps"
+TEST_DIR = f"{TEST_FILES_DIR}/lammps"
 
 
 class TestLammpsDump(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open(f"{test_dir}/dump.rdx_wc.100") as f:
-            rdx_str = f.read()
+        with open(f"{TEST_DIR}/dump.rdx_wc.100") as file:
+            rdx_str = file.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)
-        with open(f"{test_dir}/dump.tatb") as f:
-            tatb_str = f.read()
+        with open(f"{TEST_DIR}/dump.tatb") as file:
+            tatb_str = file.read()
         cls.tatb = LammpsDump.from_str(string=tatb_str)
 
-    def test_from_string(self):
+    def test_from_str(self):
         assert self.rdx.timestep == 100
         assert self.rdx.natoms == 21
         np.testing.assert_array_equal(self.rdx.box.bounds, np.array([(35, 48)] * 3))
@@ -57,13 +57,13 @@ class TestLammpsDump(unittest.TestCase):
 class TestFunc(unittest.TestCase):
     def test_parse_lammps_dumps(self):
         # gzipped
-        rdx_10_pattern = f"{test_dir}/dump.rdx.gz"
+        rdx_10_pattern = f"{TEST_DIR}/dump.rdx.gz"
         rdx_10 = list(parse_lammps_dumps(file_pattern=rdx_10_pattern))
         timesteps_10 = [d.timestep for d in rdx_10]
         np.testing.assert_array_equal(timesteps_10, np.arange(0, 101, 10))
         assert rdx_10[-1].data.shape == (21, 5)
         # wildcard
-        rdx_25_pattern = f"{test_dir}{os.path.sep}dump.rdx_wc.*"
+        rdx_25_pattern = f"{TEST_DIR}{os.path.sep}dump.rdx_wc.*"
         rdx_25 = list(parse_lammps_dumps(file_pattern=rdx_25_pattern))
         timesteps_25 = [d.timestep for d in rdx_25]
         np.testing.assert_array_equal(timesteps_25, np.arange(0, 101, 25))
@@ -71,7 +71,7 @@ class TestFunc(unittest.TestCase):
 
     def test_parse_lammps_log(self):
         comb_file = "log.5Oct16.comb.Si.elastic.g++.1.gz"
-        comb = parse_lammps_log(filename=os.path.join(test_dir, comb_file))
+        comb = parse_lammps_log(filename=os.path.join(TEST_DIR, comb_file))
         assert len(comb) == 6
         # first comb run
         comb0 = comb[0]
@@ -107,7 +107,7 @@ class TestFunc(unittest.TestCase):
         assert_allclose(comb_1.iloc[[0, -1], [0, -3]], comb_1_data)
 
         ehex_file = "log.13Oct16.ehex.g++.8.gz"
-        ehex = parse_lammps_log(filename=os.path.join(test_dir, ehex_file))
+        ehex = parse_lammps_log(filename=os.path.join(TEST_DIR, ehex_file))
         assert len(ehex) == 3
         ehex0, ehex1, ehex2 = ehex
         # ehex run #1
@@ -136,7 +136,7 @@ class TestFunc(unittest.TestCase):
         assert_allclose(ehex2.iloc[[0, -1]], ehex2_data)
 
         peptide_file = "log.5Oct16.peptide.g++.1.gz"
-        peptide = parse_lammps_log(filename=os.path.join(test_dir, peptide_file))
+        peptide = parse_lammps_log(filename=os.path.join(TEST_DIR, peptide_file))
         peptide0 = peptide[0]
         np.testing.assert_array_equal(
             [

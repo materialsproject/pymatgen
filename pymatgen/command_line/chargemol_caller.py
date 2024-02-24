@@ -395,8 +395,8 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", "w") as fh:
-            fh.write(lines)
+        with open("job_control.txt", mode="w") as file:
+            file.write(lines)
 
     @staticmethod
     def _get_dipole_info(filepath):

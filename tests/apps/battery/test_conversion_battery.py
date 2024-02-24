@@ -100,14 +100,14 @@ class TestConversionElectrode(unittest.TestCase):
 
             # try to export/import a voltage pair via a dict
             pair = c.voltage_pairs[0]
-            d = pair.as_dict()
-            pair2 = ConversionVoltagePair.from_dict(d)
+            dct = pair.as_dict()
+            pair2 = ConversionVoltagePair.from_dict(dct)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
                 assert getattr(pair, prop) == getattr(pair2, prop), 2
 
             # try to create an electrode from a dict and test methods
-            d = c.as_dict()
-            electrode = ConversionElectrode.from_dict(d)
+            dct = c.as_dict()
+            electrode = ConversionElectrode.from_dict(dct)
             for k, v in p.items():
                 assert getattr(electrode, "get_" + k)() == approx(v, abs=1e-2)
 
@@ -121,14 +121,14 @@ class TestConversionElectrode(unittest.TestCase):
         )
 
     def test_summary(self):
-        kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
+        key_map = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
         for f in self.formulas:
             c = self.conversion_electrodes[f]["CE"]
-            d = c.get_summary_dict()
+            dct = c.get_summary_dict()
             p = self.expected_properties[f]
             for k, v in p.items():
-                summary_key = kmap.get(k, k)
-                assert d[summary_key] == approx(v, abs=1e-2)
+                summary_key = key_map.get(k, k)
+                assert dct[summary_key] == approx(v, abs=1e-2)
 
     def test_composite(self):
         # check entries in charged/discharged state
@@ -137,7 +137,7 @@ class TestConversionElectrode(unittest.TestCase):
             for step, vpair in enumerate(CE.voltage_pairs):
                 # entries_charge/entries_discharge attributes should return entries equal with the expected
                 composite_dict = self.expected_composite[formula]
-                for attri in ["entries_charge", "entries_discharge"]:
+                for attr in ["entries_charge", "entries_discharge"]:
                     # composite at each discharge step, of which entry object is simplified to reduced formula
-                    entries_formula_list = [entry.composition.reduced_formula for entry in getattr(vpair, attri)]
-                    assert entries_formula_list == composite_dict[attri][step]
+                    entries_formula_list = [entry.reduced_formula for entry in getattr(vpair, attr)]
+                    assert entries_formula_list == composite_dict[attr][step]

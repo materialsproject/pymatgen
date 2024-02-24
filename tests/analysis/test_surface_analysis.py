@@ -326,20 +326,20 @@ class TestNanoscaleStability(PymatgenTest):
         # polymorph above the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r + 10, from_sphere_area=True)
+        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r + 10, from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r + 10, from_sphere_area=True)
+        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r + 10, from_sphere_area=True)
         assert gfcc > ghcp
 
         # fcc phase of La particle should be the stable
         # polymorph below the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r - 10, from_sphere_area=True)
+        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r - 10, from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r - 10, from_sphere_area=True)
+        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r - 10, from_sphere_area=True)
         assert gfcc < ghcp
 
     def test_scaled_wulff(self):

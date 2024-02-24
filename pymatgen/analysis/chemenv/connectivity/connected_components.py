@@ -33,7 +33,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         c = Circle(pos[n], radius=0.02, alpha=0.5)
         ax.add_patch(c)
         env_graph.node[n]["patch"] = c
-        x, y = pos[n]
+        _x, _y = pos[n]
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None
@@ -743,7 +743,7 @@ class ConnectedComponent(MSONable):
         return centered_connected_subgraph
 
     @staticmethod
-    def _edgekey_to_edgedictkey(key):
+    def _edge_key_to_edge_dict_key(key):
         if isinstance(key, int):
             return str(key)
         if isinstance(key, str):
@@ -817,7 +817,7 @@ class ConnectedComponent(MSONable):
                 in2 = node2stringindex[n2]
                 new_dict_of_dicts[in1][in2] = {}
                 for ie, edge_data in edges_dict.items():
-                    ied = self._edgekey_to_edgedictkey(ie)
+                    ied = self._edge_key_to_edge_dict_key(ie)
                     new_dict_of_dicts[in1][in2][ied] = jsanitize(edge_data)
         return {
             "@module": type(self).__module__,

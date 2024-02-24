@@ -58,10 +58,6 @@ class LMTOCtrl:
         """String representation of the CTRL file."""
         return self.get_str()
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, sigfigs=8) -> str:
         """
         Generates the string representation of the CTRL file. This is
@@ -137,8 +133,8 @@ class LMTOCtrl:
         Writes a CTRL file with structure, HEADER, and VERS that can be
         used as input for lmhart.run.
         """
-        with zopen(filename, "wt") as f:
-            f.write(self.get_str(**kwargs))
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(**kwargs))
 
     @classmethod
     def from_file(cls, filename="CTRL", **kwargs):
@@ -151,14 +147,9 @@ class LMTOCtrl:
         Returns:
             An LMTOCtrl object.
         """
-        with zopen(filename, "rt") as f:
-            contents = f.read()
+        with zopen(filename, mode="rt") as file:
+            contents = file.read()
         return LMTOCtrl.from_str(contents, **kwargs)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     @no_type_check
@@ -301,8 +292,8 @@ class LMTOCopl:
               eV, set to True. Defaults to False for energies in Ry.
         """
         # COPL files have an extra trailing blank line
-        with zopen(filename, "rt") as f:
-            contents = f.read().split("\n")[:-1]
+        with zopen(filename, mode="rt") as file:
+            contents = file.read().split("\n")[:-1]
         # The parameters line is the second line in a COPL file. It
         # contains all parameters that are needed to map the file.
         parameters = contents[1].split()

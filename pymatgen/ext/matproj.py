@@ -147,7 +147,7 @@ class _MPResterBasic:
             params.extend((f"_fields={fields}", "_all_fields=False"))
         get = "&".join(params)
         logger.info(f"query={get}")
-        return self.request(f"materials/summary?{get}", payload=criteria)
+        return self.request(f"materials/summary/?{get}", payload=criteria)
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """
@@ -161,7 +161,7 @@ class _MPResterBasic:
             List of dict of summary docs.
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary?{get}", payload=criteria)
+        return self.request(f"materials/summary/?{get}", payload=criteria)
 
     def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
         """
@@ -175,7 +175,7 @@ class _MPResterBasic:
             Dict
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary/{material_id}?{get}")[0]
+        return self.request(f"materials/summary/{material_id}/?{get}")[0]
 
     get_doc = get_summary_by_material_id
 
@@ -226,7 +226,7 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "structure"
-        resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
+        resp = self.request(f"materials/summary/{material_id}/?_fields={prop}")
         structure = resp[0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
@@ -248,7 +248,7 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "initial_structures"
-        resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
+        resp = self.request(f"materials/summary/{material_id}/?_fields={prop}")
         structures = resp[0][prop]
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
@@ -299,7 +299,7 @@ class _MPResterBasic:
             query = f"formula={criteria}"
 
         entries = []
-        r = self.request(f"materials/thermo?_fields=entries&{query}")
+        r = self.request(f"materials/thermo/?_fields=entries&{query}")
         for d in r:
             entries.extend(d["entries"].values())
 

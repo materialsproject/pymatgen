@@ -118,10 +118,10 @@ class DielectricFunctionCalculator(MSONable):
             for dtype in dtypes:
                 try:
                     return Waveder.from_binary(f"{directory}/WAVEDER", data_type=dtype)
-                except ValueError as e:
-                    if "reshape" in str(e):
+                except ValueError as exc:
+                    if "reshape" in str(exc):
                         continue
-                    raise e
+                    raise exc
             return None
 
         vrun = Vasprun(f"{directory}/vasprun.xml")
@@ -386,10 +386,10 @@ def epsilon_imag(
     try:
         min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
         min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
-    except ValueError as e:
-        if "zero-size array" in str(e):
+    except ValueError as exc:
+        if "zero-size array" in str(exc):
             return egrid, np.zeros_like(egrid, dtype=np.complex_)
-        raise e
+        raise exc
     _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),

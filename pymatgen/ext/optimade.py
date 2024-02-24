@@ -5,8 +5,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections import namedtuple
-from os.path import join
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 from tqdm import tqdm
@@ -32,6 +31,13 @@ class OptimadeRester:
     """Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
     This class is ready to use but considered in-development and subject to change.
+
+    Please also consider using the client in "OPTIMADE Python tools":
+
+    https://www.optimade.org/optimade-python-tools/latest/getting_started/client/
+
+    The "OPTIMADE Python tools" client is less integrated with pymatgen, but
+    more actively developed for the latest OPTIMADE features.
 
     [1] Andersen, C.W., *et al*.
         OPTIMADE, an API for exchanging materials data.
@@ -309,7 +315,7 @@ class OptimadeRester:
         response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-            url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=!s}")
+            url = urljoin(resource, f"v1/structures?filter={optimade_filter}&{response_fields=!s}")
 
             try:
                 json = self._get_json(url)
@@ -443,7 +449,7 @@ class OptimadeRester:
             return None
 
         try:
-            url = join(provider_url, "v1/info")
+            url = urljoin(provider_url, "v1/info")
             provider_info_json = self._get_json(url)
         except Exception as exc:
             _logger.warning(f"Failed to parse {url} when validating: {exc}")
@@ -480,7 +486,7 @@ class OptimadeRester:
             Provider objects.
         """
         try:
-            url = join(provider_url, "v1/links")
+            url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
         except Exception as exc:
             _logger.error(f"Failed to parse {url} when following links: {exc}")
@@ -490,8 +496,8 @@ class OptimadeRester:
             """No validation attempted."""
             ps = {}
             try:
-                d = [d for d in provider_link_json["data"] if d["attributes"]["link_type"] == "child"]
-                for link in d:
+                data = [dct for dct in provider_link_json["data"] if dct["attributes"]["link_type"] == "child"]
+                for link in data:
                     key = f"{provider}.{link['id']}" if provider != link["id"] else provider
                     if link["attributes"]["base_url"]:
                         ps[key] = Provider(

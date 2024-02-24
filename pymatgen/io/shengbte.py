@@ -191,7 +191,7 @@ class Control(MSONable, dict):
         flags_nml = f90nml.Namelist({"flags": flags_dict})
         control_str += str(flags_nml) + "\n"
 
-        with open(filename, "w") as file:
+        with open(filename, mode="w") as file:
             file.write(control_str)
 
     @classmethod
@@ -216,7 +216,7 @@ class Control(MSONable, dict):
         types = [types_dict[i] + 1 for i in structure.atomic_numbers]
 
         control_dict = {
-            "nelements": structure.ntypesp,
+            "nelements": structure.n_elems,
             "natoms": len(structure),
             "norientations": 0,
             "lfactor": 0.1,

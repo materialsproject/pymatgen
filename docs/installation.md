@@ -153,60 +153,54 @@ After installation, do
 pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
 ```
 
-In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
-you extracted the downloaded VASP pseudopotential files. Typically, it has
-the following format:
+In the above, `<EXTRACTED_VASP_POTCAR>` is the path to the extracted VASP pseudopotential
+files as-obtained from VASP, and `<MY_PSP>` is the desired path where you would like to
+store the reformatted, Pymatgen-compatible pseudopotential files. Typically, the
+`<EXTRACTED_VASP_POTCAR>` directory has the following format:
 
 ```
- - <EXTRACTED_VASP_POTCAR>
- |- POT_GGA_PAW_PBE
- ||- Ac_s
- |||-POTCAR
- |||-...
-```
-
-or:
-
-```
- - <EXTRACTED_VASP_POTCAR>
- |- potpaw_PBE
- ||- Ac_s
- |||-POTCAR
- |||-...
-```
-
-and follow the instructions. If you have done it correctly, you should get a
-resources directory with the following directory structure::
-
-```
-- psp_resources
-|- POT_GGA_PAW_PBE
-||- POTCAR.Ac_s.gz
-||- POTCAR.Ac.gz
-||- POTCAR.Ag.gz
+potpaw_PBE.54
+├── Ac
+│   ├── POTCAR
+│   └── PSCTR
+├── Ag
+│   ├── POTCAR
+│   └── PSCTR
 ...
-|- POT_GGA_PAW_PW91
-...
+
+If you have done it correctly, your newly generated directory given by `<MY_PSP>` should
+have the following directory structure:
+
+```
+<MY_PSP>
+├── POT_GGA_PAW_PBE_54
+│   ├── POTCAR.Ac.gz
+│   ├── POTCAR.Ag.gz
+    ...
 ```
 
-After generating the resources directory, you should add a VASP_PSP_DIR config
-variable pointing to the generated directory and you should then be
-able to generate POTCARs:
+After the `<MY_PSP>` directory is generated, you should add it to your Pymatgen configuration
+file as follows:
 
 ```bash
 pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
 ```
 
-If you are using newer sets of pseudopotential files from VASP, the directory
-names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
-add a default functional specification as follows:
+In practice, this entire process might look something like the following:
+
+```bash
+pmg config -p /path/to/pseudos/potcar_PBE.54/ /path/to/pseudos/pmg_potcars/
+pmg config -p /path/to/pseudos/potcar_LDA.54/ /path/to/pseudos/pmg_potcars/
+pmg config --add PMG_VASP_PSP_DIR /path/to/pseudos/pmg_potcars/pmg_potcars
+```
+
+If desired, you may specify a default version and type of pseudopotentials as follows:
 
 ```bash
 pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
 ```
 
-You can also use this to specify whatever functional you would like to use by
-default in pymatgen, e.g., LDA_52, PW91, etc. Type::
+For additional options, run the help command:
 
 ```bash
 pmg potcar -h

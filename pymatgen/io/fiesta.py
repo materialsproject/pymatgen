@@ -16,7 +16,6 @@ import shutil
 import subprocess
 from string import Template
 
-import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -60,7 +59,7 @@ class Nwchem2Fiesta(MSONable):
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
-        with zopen(self.log_file, "w") as fout:
+        with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
                 [
                     self._NWCHEM2FIESTA_cmd,
@@ -131,7 +130,7 @@ class FiestaRun(MSONable):
             init_folder = os.getcwd()
             os.chdir(self.folder)
 
-        with zopen(self.log_file, "w") as fout:
+        with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -154,7 +153,7 @@ class FiestaRun(MSONable):
             init_folder = os.getcwd()
             os.chdir(self.folder)
 
-        with zopen(self.log_file, "w") as fout:
+        with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -206,8 +205,8 @@ class BasisSetReader:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            basis_set = f.read()
+        with zopen(filename) as file:
+            basis_set = file.read()
 
         self.data = self._parse_file(basis_set)
         # compute the number of nlm orbitals per atom
@@ -524,8 +523,8 @@ $geometry
         Write FiestaInput to a file
         :param filename: Filename.
         """
-        with zopen(filename, "w") as f:
-            f.write(str(self))
+        with zopen(filename, mode="w") as file:
+            file.write(str(self))
 
     def as_dict(self):
         """MSONable dict"""
@@ -554,11 +553,6 @@ $geometry
             GW_options=d["symmetry_options"],
             BSE_TDDFT_options=d["memory_options"],
         )
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string_input):
@@ -707,8 +701,8 @@ $geometry
         Returns:
             FiestaInput object
         """
-        with zopen(filename) as f:
-            return cls.from_str(f.read())
+        with zopen(filename) as file:
+            return cls.from_str(file.read())
 
 
 class FiestaOutput:
@@ -725,8 +719,8 @@ class FiestaOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            data = f.read()
+        with zopen(filename) as file:
+            data = file.read()
 
         chunks = re.split(r"GW Driver iteration", data)
 
@@ -821,8 +815,8 @@ class BSEOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            log_bse = f.read()
+        with zopen(filename) as file:
+            log_bse = file.read()
 
         # self.job_info = self._parse_preamble(preamble)
         self.exiton = self._parse_job(log_bse)

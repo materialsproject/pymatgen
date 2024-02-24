@@ -157,7 +157,6 @@ class QuasiRRHO:
 
         Returns:
             QuasiRRHO: QuasiRRHO class instantiated from a QChem Output
-
         """
         mult = output.data["multiplicity"]
         elec_e = output.data["SCF_energy_in_the_final_basis_set"]

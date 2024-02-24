@@ -57,9 +57,9 @@ class ConversionElectrode(AbstractElectrode):
         working_ion = Element(working_ion_symbol)
         entry = working_ion_entry = None
         for e in pd.stable_entries:
-            if e.composition.reduced_formula == comp.reduced_formula:
+            if e.reduced_formula == comp.reduced_formula:
                 entry = e
-            elif e.is_element and e.composition.reduced_formula == working_ion_symbol:
+            elif e.is_element and e.reduced_formula == working_ion_symbol:
                 working_ion_entry = e
 
         if not allow_unstable and not entry:
@@ -323,7 +323,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         vol_charge = sum(
             abs(prev_rxn.get_coeff(e.composition)) * e.structure.volume
             for e in step1["entries"]
-            if e.composition.reduced_formula != working_ion
+            if e.reduced_formula != working_ion
         )
         mass_discharge = (
             sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
@@ -332,7 +332,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         vol_discharge = sum(
             abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
             for e in step2["entries"]
-            if e.composition.reduced_formula != working_ion
+            if e.reduced_formula != working_ion
         )
 
         total_comp = Composition({})
@@ -368,7 +368,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            f"Conversion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"Conversion voltage pair with working ion {self.working_ion_entry.reduced_formula}",
             f"Reaction : {self.rxn}",
             f"V = {self.voltage}, mAh = {self.mAh}",
             f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",

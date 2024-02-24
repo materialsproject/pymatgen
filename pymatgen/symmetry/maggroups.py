@@ -121,10 +121,10 @@ class MagneticSpaceGroup(SymmetryGroup):
         raw_data = list(c.fetchone())
 
         # Jones Faithful transformation
-        self.jf = JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0")
+        self.jf = JonesFaithfulTransformation.from_transformation_str("a,b,c;0,0,0")
         if isinstance(setting_transformation, str):
             if setting_transformation != "a,b,c;0,0,0":
-                self.jf = JonesFaithfulTransformation.from_transformation_string(setting_transformation)
+                self.jf = JonesFaithfulTransformation.from_transformation_str(setting_transformation)
         elif isinstance(setting_transformation, JonesFaithfulTransformation) and setting_transformation != self.jf:
             self.jf = setting_transformation
 
@@ -441,7 +441,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # parse data into strings
 
         # indicate if non-standard setting specified
-        if self.jf != JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0"):
+        if self.jf != JonesFaithfulTransformation.from_transformation_str("a,b,c;0,0,0"):
             description += "Non-standard setting: .....\n"
             description += repr(self.jf)
             description += "\n\nStandard setting information: \n"
@@ -562,5 +562,5 @@ def _write_all_magnetic_space_groups_to_file(filename):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
         out += f"\n{msg.data_str()}\n\n--------\n"
-    with open(filename, "w") as f:
-        f.write(out)
+    with open(filename, mode="w") as file:
+        file.write(out)

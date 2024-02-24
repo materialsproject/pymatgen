@@ -17,11 +17,11 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 
 def ref_file(filename):
-    return os.path.join(_test_dir, filename)
+    return os.path.join(TEST_DIR, filename)
 
 
 class TestEtsfReader(PymatgenTest):
@@ -93,3 +93,5 @@ class TestAbinitHeader(PymatgenTest):
         assert head.foo == 1
         assert str(head)
         assert head.to_str(verbose=2, title="title")
+        # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS,
+        assert head.to_string(verbose=2, title="title")

@@ -71,13 +71,13 @@ class TestEwaldSummation(unittest.TestCase):
 
     def test_as_dict(self):
         ham = EwaldSummation(self.struct, compute_forces=True)
-        d = ham.as_dict()
-        assert d["compute_forces"]
-        assert d["eta"] == ham._eta
-        assert d["acc_factor"] == ham._acc_factor
-        assert d["real_space_cut"] == ham._rmax
-        assert d["recip_space_cut"] == ham._gmax
-        assert ham.as_dict() == EwaldSummation.from_dict(d).as_dict()
+        dct = ham.as_dict()
+        assert dct["compute_forces"]
+        assert dct["eta"] == ham._eta
+        assert dct["acc_factor"] == ham._acc_factor
+        assert dct["real_space_cut"] == ham._rmax
+        assert dct["recip_space_cut"] == ham._gmax
+        assert ham.as_dict() == EwaldSummation.from_dict(dct).as_dict()
 
 
 class TestEwaldMinimizer(unittest.TestCase):

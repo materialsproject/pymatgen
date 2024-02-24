@@ -25,7 +25,7 @@ class AbstractChemenvError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)
+        return f"{self.cls}: {self.method}\n{self.msg!r}"
 
 
 class NeighborsNotComputedChemenvError(AbstractChemenvError):

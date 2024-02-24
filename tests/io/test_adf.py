@@ -83,8 +83,8 @@ def readfile(file_object):
     """
     if hasattr(file_object, "read"):
         return file_object.read()
-    with open(file_object) as f:
-        return f.read()
+    with open(file_object) as file:
+        return file.read()
 
 
 class TestAdfKey:
@@ -123,7 +123,7 @@ class TestAdfKey:
         assert str(zlmfit) == zlm_fit_string
         assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlm_fit_string
 
-    def test_from_string(self):
+    def test_from_str(self):
         k1 = AdfKey.from_str("CHARGE -1 0")
         assert k1.key == "CHARGE"
         assert k1.options == [-1, 0]

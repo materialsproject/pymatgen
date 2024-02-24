@@ -60,7 +60,7 @@ class TestGruneisenParameter(PymatgenTest):
         ax = plotter.get_plot(units="mev")
         assert isinstance(ax, plt.Axes)
 
-    def test_fromdict_asdict(self):
+    def test_as_from_dict(self):
         new_dict = self.gruneisen_obj.as_dict()
         self.gruneisen_obj2 = GruneisenParameter.from_dict(new_dict)
 

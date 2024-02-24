@@ -37,8 +37,8 @@ class HHIModel:
         """Init for HHIModel."""
         self.symbol_hhip_hhir = {}  # symbol->(HHI_production, HHI reserve)
 
-        with open(csv_path) as f:
-            for line in f:
+        with open(csv_path) as file:
+            for line in file:
                 if line[0] != "#":
                     symbol, hhi_production, hhi_reserve = line.split(",")
                     self.symbol_hhip_hhir[symbol] = float(hhi_production), float(hhi_reserve)

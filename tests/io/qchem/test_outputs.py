@@ -31,8 +31,9 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
-single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
-multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))
+module_dir = os.path.dirname(__file__)
+single_job_dict = loadfn(f"{module_dir}/single_job.json")
+multi_job_dict = loadfn(f"{module_dir}/multi_job.json")
 
 property_list = {
     "errors",
@@ -278,22 +279,22 @@ class TestQCOutput(PymatgenTest):
         dumpfn(multi_job_dict, "multi_job.json")
 
     def _test_property(self, key, single_outs, multi_outs):
-        for name, out_data in single_outs.items():
+        for filename, out_data in single_outs.items():
             try:
-                assert out_data.get(key) == single_job_dict[name].get(key)
+                assert out_data.get(key) == single_job_dict[filename].get(key)
             except ValueError:
                 try:
-                    assert_array_equal(out_data.get(key), single_job_dict[name].get(key))
+                    assert_array_equal(out_data.get(key), single_job_dict[filename].get(key))
                 except AssertionError:
-                    raise RuntimeError("Issue with file: " + name + " Exiting...")
+                    raise RuntimeError(f"Issue with {filename=} Exiting...")
             except AssertionError:
-                raise RuntimeError("Issue with file: " + name + " Exiting...")
-        for name, outputs in multi_outs.items():
+                raise RuntimeError(f"Issue with {filename=} Exiting...")
+        for filename, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
-                    assert sub_output.data.get(key) == multi_job_dict[name][ii].get(key)
+                    assert sub_output.data.get(key) == multi_job_dict[filename][ii].get(key)
                 except ValueError:
-                    assert_array_equal(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
+                    assert_array_equal(sub_output.data.get(key), multi_job_dict[filename][ii].get(key))
 
     @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
     def test_all(self):
@@ -521,6 +522,12 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["donor atom 2 number"][2593] == "info_is_from_3C"
         assert perturb_ene[0]["acceptor type"][723] == "3C*"
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
+
+    def test_qchem_6_1_1(self):
+        qc_out = QCOutput(f"{TEST_FILES_DIR}/qchem/6.1.1.wb97xv.out.gz")
+        assert qc_out.data["final_energy"] == -76.43205015
+        n_vals = sum(1 for val in qc_out.data.values() if val is not None)
+        assert n_vals == 21
 
 
 def test_gradient(tmp_path):

@@ -49,8 +49,8 @@ class TemplateInputGen(InputGenerator):
         self.filename = filename
 
         # load the template
-        with zopen(self.template, "r") as f:
-            template_str = f.read()
+        with zopen(self.template, mode="r") as file:
+            template_str = file.read()
 
         # replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)

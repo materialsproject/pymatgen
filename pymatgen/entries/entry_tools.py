@@ -46,15 +46,15 @@ def _perform_grouping(args):
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(f"Reference tid = {unmatched[0][0].entry_id}, formula = {ref_host.formula}")
-        ref_formula = ref_host.composition.reduced_formula
+        ref_formula = ref_host.reduced_formula
         logger.info(f"Reference host = {ref_formula}")
         matches = [unmatched[0]]
-        for i in range(1, len(unmatched)):
-            test_host = unmatched[i][1]
-            logger.info(f"Testing tid = {unmatched[i][0].entry_id}, formula = {test_host.formula}")
-            test_formula = test_host.composition.reduced_formula
+        for idx in range(1, len(unmatched)):
+            test_host = unmatched[idx][1]
+            logger.info(f"Testing tid = {unmatched[idx][0].entry_id}, formula = {test_host.formula}")
+            test_formula = test_host.reduced_formula
             logger.info(f"Test host = {test_formula}")
-            m = StructureMatcher(
+            matcher = StructureMatcher(
                 ltol=ltol,
                 stol=stol,
                 angle_tol=angle_tol,
@@ -62,9 +62,9 @@ def _perform_grouping(args):
                 scale=scale,
                 comparator=comparator,
             )
-            if m.fit(ref_host, test_host):
+            if matcher.fit(ref_host, test_host):
                 logger.info("Fit found")
-                matches.append(unmatched[i])
+                matches.append(unmatched[idx])
         groups.append(json.dumps([m[0] for m in matches], cls=MontyEncoder))
         unmatched = list(filter(lambda x: x not in matches, unmatched))
         logger.info(f"{len(unmatched)} unmatched remaining")
@@ -176,8 +176,8 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
     entry_groups = []
-    entries = sorted(entries, key=lambda e: e.composition.reduced_formula)
-    for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+    entries = sorted(entries, key=lambda e: e.reduced_formula)
+    for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula):
         group = list(g)
         if sort_by_e_per_atom:
             group = sorted(group, key=lambda e: e.energy_per_atom)
@@ -238,9 +238,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """A set containing only the entries that are ground states, i.e., the lowest energy
         per atom entry at each composition.
         """
-        entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
+        entries = sorted(self.entries, key=lambda e: e.reduced_formula)
         ground_states = set()
-        for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+        for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         return ground_states
 
@@ -297,9 +297,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         for entry in self.entries:
             els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as file:
             writer = csv.writer(
-                f,
+                file,
                 delimiter=",",
                 quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
@@ -321,13 +321,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         Returns:
             List of Elements, List of PDEntries
         """
-        with open(filename, encoding="utf-8") as f:
-            reader = csv.reader(
-                f,
-                delimiter=",",
-                quotechar='"',
-                quoting=csv.QUOTE_MINIMAL,
-            )
+        with open(filename, encoding="utf-8") as file:
+            reader = csv.reader(file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
             entries = []
             header_read = False
             elements: list[str] = []

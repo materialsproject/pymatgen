@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
 from pymatgen.util.testing import PymatgenTest
@@ -9,18 +8,16 @@ from pymatgen.util.testing import PymatgenTest
 class TestXSF(PymatgenTest):
     def test_xsf(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
         assert structure, XSF.from_str(xsf.to_str())
 
-    def test_to_string(self):
+    def test_to_str(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
         xsf_str = xsf.to_str()

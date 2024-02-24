@@ -48,7 +48,7 @@ class ExpEntry(PDEntry, MSONable):
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
+        return f"ExpEntry {self.formula}, Energy = {self.energy:.4f}"
 
     @classmethod
     def from_dict(cls, d):

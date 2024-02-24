@@ -6,7 +6,6 @@ import os
 import re
 from typing import TYPE_CHECKING
 
-import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -114,13 +113,13 @@ class AdfKey(MSONable):
     def _options_string(self):
         """Return the option string."""
         if len(self.options) > 0:
-            s = ""
+            opt_str = ""
             for op in self.options:
                 if self._sized_op:
-                    s += f"{op[0]}={op[1]} "
+                    opt_str += f"{op[0]}={op[1]} "
                 else:
-                    s += f"{op} "
-            return s.strip()
+                    opt_str += f"{op} "
+            return opt_str.strip()
         return ""
 
     def is_block_key(self) -> bool:
@@ -146,27 +145,27 @@ class AdfKey(MSONable):
         If this key is 'Atoms' and the coordinates are in Cartesian form, a
         different string format will be used.
         """
-        s = f"{self.key}"
+        adf_str = f"{self.key}"
         if len(self.options) > 0:
-            s += f" {self._options_string()}"
-        s += "\n"
+            adf_str += f" {self._options_string()}"
+        adf_str += "\n"
         if len(self.subkeys) > 0:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += (
+                    adf_str += (
                         f"{subkey.name:2s}  {subkey.options[0]: 14.8f}"
                         f"    {subkey.options[1]: 14.8f}    {subkey.options[2]: 14.8f}\n"
                     )
             else:
                 for subkey in self.subkeys:
-                    s += str(subkey)
+                    adf_str += str(subkey)
             if self.is_block_key():
-                s += "END\n"
+                adf_str += "END\n"
             else:
-                s += "subend\n"
+                adf_str += "subend\n"
         elif self.key.upper() in self._full_blocks:
-            s += "END\n"
-        return s
+            adf_str += "END\n"
+        return adf_str
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, AdfKey):
@@ -295,7 +294,7 @@ class AdfKey(MSONable):
         """
         if len(self.options) == 0:
             return False
-        return any(self._sized_op and op[0] == option or op == option for op in self.options)
+        return any((self._sized_op and op[0] == option) or op == option for op in self.options)
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
@@ -332,11 +331,6 @@ class AdfKey(MSONable):
         subkey_list = d.get("subkeys", [])
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string: str) -> AdfKey:
@@ -539,18 +533,18 @@ class AdfTask(MSONable):
                 self.geo.remove_subkey("Frequencies")
 
     def __str__(self):
-        s = f"""TITLE {self.title}\n
+        out = f"""TITLE {self.title}\n
 {self.units}
 {self.xc}
 {self.basis_set}
 {self.scf}
 {self.geo}"""
-        s += "\n"
+        out += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
                 raise ValueError(f"{block_key} is not an AdfKey!")
-            s += str(block_key) + "\n"
-        return s
+            out += str(block_key) + "\n"
+        return out
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
@@ -612,7 +606,7 @@ class AdfInput:
         """
         self.task = task
 
-    def write_file(self, molecule, inpfile):
+    def write_file(self, molecule, inp_file):
         """
         Write an ADF input file.
 
@@ -630,19 +624,19 @@ class AdfInput:
         mol_blocks.append(atom_block)
 
         if molecule.charge != 0:
-            netq = molecule.charge
+            net_q = molecule.charge
             ab = molecule.spin_multiplicity - 1
-            charge_block = AdfKey("Charge", [netq, ab])
+            charge_block = AdfKey("Charge", [net_q, ab])
             mol_blocks.append(charge_block)
             if ab != 0:
                 unres_block = AdfKey("Unrestricted")
                 mol_blocks.append(unres_block)
 
-        with open(inpfile, "w+") as f:
+        with open(inp_file, "w+") as file:
             for block in mol_blocks:
-                f.write(str(block) + "\n")
-            f.write(str(self.task) + "\n")
-            f.write("END INPUT")
+                file.write(str(block) + "\n")
+            file.write(str(self.task) + "\n")
+            file.write("END INPUT")
 
 
 class AdfOutput:
@@ -752,8 +746,8 @@ class AdfOutput:
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
         # ADF manual has a detailed explanation.
-        with zopen(logfile, "rt") as f:
-            for line in reverse_readline(f):
+        with zopen(logfile, mode="rt") as file:
+            for line in reverse_readline(file):
                 if line == "":
                     continue
                 if end_patt.search(line) is None:
@@ -763,8 +757,8 @@ class AdfOutput:
                     return
                 break
 
-        with open(logfile) as f:
-            for line in f:
+        with open(logfile) as file:
+            for line in file:
                 m = error_patt.search(line)
                 if m:
                     self.is_failed = True
@@ -866,8 +860,8 @@ class AdfOutput:
             parse_coord = False
             n_atoms = len(self.final_structure)
 
-        with open(self.filename) as f:
-            for line in f:
+        with open(self.filename) as file:
+            for line in file:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:
                         m = coord_on_patt.search(line)

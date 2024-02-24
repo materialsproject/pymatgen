@@ -463,7 +463,7 @@ with infinite undo. The main classes are:
 
 1. :class:`pymatgen.alchemy.materials.TransformedStructure` - Standard object
    representing a TransformedStructure. Takes in an input structure and a list
-   of transformations as an input. Can also be generated from cifs and POSCARs.
+   of transformations as an input. Can also be generated from CIFs and POSCARs.
 2. :class:`pymatgen.alchemy.transmuters.StandardTransmuter` - An example of
    a Transmuter class, which takes a list of structures, and apply a sequence
    of transformations on all of them.
@@ -473,10 +473,8 @@ Usage example - replace Fe with Mn and remove all Li in all structures::
    from pymatgen.alchemy.transmuters import CifTransmuter
    from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation
 
-   trans = []
-   trans.append(SubstitutionTransformation({"Fe":"Mn"}))
-   trans.append(RemoveSpecieTransformation(["Lu"]))
-   transmuter = CifTransmuter.from_filenames(["MultiStructure.cif"], trans)
+   trafos = [SubstitutionTransformation({"Fe":"Mn"}), RemoveSpecieTransformation(["Lu"])]
+   transmuter = CifTransmuter.from_filenames(["MultiStructure.cif"], trafos)
    structures = transmuter.transformed_structures
 
 pymatgen.ext.matproj - Integration with the Materials Project REST API

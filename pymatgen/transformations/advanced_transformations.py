@@ -9,7 +9,7 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -31,6 +31,7 @@ from pymatgen.core import DummySpecies, Element, Species, Structure, get_el_sp
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.icet import IcetSQS
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import (
     OrderDisorderedStructureTransformation,
@@ -41,6 +42,7 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
 try:
     import hiphive
@@ -892,7 +894,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         # remove duplicate structures and group according to energy model
-        m = StructureMatcher(comparator=SpinComparator())
+        matcher = StructureMatcher(comparator=SpinComparator())
 
         def key(struct: Structure) -> int:
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
@@ -900,7 +902,7 @@ class MagOrderingTransformation(AbstractTransformation):
         out = []
         for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):
             group = list(group)  # type: ignore
-            grouped = m.group_structures(group)
+            grouped = matcher.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
 
         self._all_structures = sorted(out, key=lambda dct: dct["energy"])
@@ -1776,8 +1778,8 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             matches = np.absolute(zero_col) == np.amax(np.absolute(zero_col))
             row_idx_to_fix = np.where(matches)[0]
 
-            for i in row_idx_to_fix:
-                arr_rounded[i, zero_col_idx] = round_away_from_zero(arr[i, zero_col_idx])
+            for idx in row_idx_to_fix:
+                arr_rounded[idx, zero_col_idx] = round_away_from_zero(arr[idx, zero_col_idx])
     return arr_rounded.astype(int)
 
 
@@ -1825,7 +1827,9 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         self.range_tol = range_tol
         self.dist_from_surf = dist_from_surf
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> list[dict] | Structure:
         """
         Args:
             structure: Must be a Slab structure
@@ -1874,50 +1878,58 @@ def _proj(b, a):
 
 
 class SQSTransformation(AbstractTransformation):
-    """A transformation that creates a special quasirandom structure (SQS) from a structure with partial occupancies."""
+    """A transformation that creates a special quasi-random structure (SQS)
+    from a structure with partial occupancies.
+    """
 
     def __init__(
         self,
-        scaling,
-        cluster_size_and_shell=None,
-        search_time=60,
-        directory=None,
-        instances=None,
-        temperature=1,
-        wr=1,
-        wn=1,
-        wd=0.5,
-        tol=1e-3,
-        best_only=True,
-        remove_duplicate_structures=True,
-        reduction_algo="LLL",
+        scaling: int | list[int],
+        cluster_size_and_shell: dict[int, int] | None = None,
+        search_time: float = 60,
+        directory: str | None = None,
+        instances: int | None = None,
+        temperature: float = 1,
+        wr: float = 1,
+        wn: float = 1,
+        wd: float = 0.5,
+        tol: float = 1e-3,
+        icet_sqs_kwargs: dict[str, Any] | None = None,
+        best_only: bool = True,
+        remove_duplicate_structures: bool = True,
+        reduction_algo: Literal["niggli", "LLL"] = "LLL",
+        sqs_method: Literal["mcsqs", "icet-enumeration", "icet-monte_carlo"] = "mcsqs",
     ):
         """
         Args:
             scaling (int or list): Scaling factor to determine supercell. Two options are possible:
-                    a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
-                       scaling=4 would lead to a 32 atom supercell
-                    b. A sequence of three scaling factors, e.g., [2, 1, 1], which
-                       specifies that the supercell should have dimensions 2a x b x c
+                a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
+                    scaling=4 would lead to a 32 atom supercell
+                b. A sequence of three scaling factors, e.g., [2, 1, 1], which
+                    specifies that the supercell should have dimensions 2a x b x c
             cluster_size_and_shell (Optional[Dict[int, int]]): Dictionary of cluster interactions with entries in
                 the form number of atoms: nearest neighbor shell
-        Keyword Args:
-            search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
-            directory (str): Directory to run mcsqs calculation and store files (default: None
+            search_time (float, optional): If sqs_method == "mcsqs", the time spent looking for the ideal SQS
+                in minutes (default: 60)
+            directory (str, optional): Directory to run mcsqs calculation and store files (default: None
                 runs calculations in a temp directory)
-            instances (int): Specifies the number of parallel instances of mcsqs to run
+            instances (int, optional): Specifies the number of parallel instances of mcsqs to run
                 (default: number of cpu cores detected by Python)
-            temperature (float): Monte Carlo temperature (default: 1), "T" in atat code
-            wr (float): Weight assigned to range of perfect correlation match in objective
+            temperature (float, optional): Monte Carlo temperature (default: 1), "T" in atat code
+            wr (float, optional): Weight assigned to range of perfect correlation match in objective
                 function (default = 1)
-            wn (float): Multiplicative decrease in weight per additional point in cluster (default: 1)
-            wd (float): Exponent of decay in weight as function of cluster diameter (default: 0)
-            tol (float): Tolerance for matching correlations (default: 1e-3)
-            best_only (bool): only return structures with lowest objective function
-            remove_duplicate_structures (bool): only return unique structures
-            reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
-                "False" does not reduce structure.
+            wn (float, optional): Multiplicative decrease in weight per additional point in cluster (default: 1)
+            wd (float, optional): Exponent of decay in weight as function of cluster diameter (default: 0)
+            tol (float, optional): Tolerance for matching correlations (default: 1e-3)
+            icet_sqs_kwargs (dict) : If icet is used for the SQS search, kwargs to pass to
+                pymatgen.io.icet.IcetSQS
+            best_only (bool, optional): only return structures with lowest objective function
+            remove_duplicate_structures (bool, optional): only return unique structures
+            reduction_algo (str, optional): The lattice reduction algorithm to use.
+                One of "niggli" or "LLL". Passing False does not reduce structure.
+            sqs_method (str): One of "mcsqs" (MCSQS method from ATAT), "icet-enumeration"
+                (enumeration of all possible SQS structures of a given size with icet),
+                or "icet-monte_carlo" (Monte Carlo search with icet, similar to MCSQS).
         """
         self.scaling = scaling
         self.search_time = search_time
@@ -1929,9 +1941,11 @@ class SQSTransformation(AbstractTransformation):
         self.wn = wn
         self.wd = wd
         self.tol = tol
+        self.icet_sqs_kwargs = icet_sqs_kwargs or {}
         self.best_only = best_only
         self.remove_duplicate_structures = remove_duplicate_structures
         self.reduction_algo = reduction_algo
+        self.sqs_method = sqs_method
 
     @staticmethod
     def _get_max_neighbor_distance(struct, shell):
@@ -1945,11 +1959,11 @@ class SQSTransformation(AbstractTransformation):
         Returns:
             maximum nearest neighbor distance, in angstroms
         """
-        mdnn = MinimumDistanceNN()
+        min_dist_nn = MinimumDistanceNN()
         distances = []
 
         for site_num, site in enumerate(struct):
-            shell_info = mdnn.get_nn_shell_info(struct, site_num, shell)
+            shell_info = min_dist_nn.get_nn_shell_info(struct, site_num, shell)
             for entry in shell_info:
                 image = entry["image"]
                 distance = site.distance(struct[entry["site_index"]], jimage=image)
@@ -2009,34 +2023,52 @@ class SQSTransformation(AbstractTransformation):
             pymatgen Structure which is an SQS of the input structure
         """
         if return_ranked_list and self.instances is None:
-            raise ValueError("mcsqs has no instances, so cannot return a ranked list")
+            raise ValueError(f"{type(self).__name__} has no instances, so cannot return a ranked list")
         if (
             isinstance(return_ranked_list, int)
             and isinstance(self.instances, int)
             and return_ranked_list > self.instances
         ):
-            raise ValueError("return_ranked_list cannot be less that number of instances")
+            raise ValueError(f"{return_ranked_list=} cannot be greater than {self.instances=}")
 
         clusters = self._sqs_cluster_estimate(structure, self.cluster_size_and_shell)
 
         # useful for debugging and understanding
         self._last_used_clusters = clusters
 
-        sqs = run_mcsqs(
-            structure=structure,
-            clusters=clusters,
-            scaling=self.scaling,
-            search_time=self.search_time,
-            directory=self.directory,
-            instances=self.instances,
-            temperature=self.temperature,
-            wr=self.wr,
-            wn=self.wn,
-            wd=self.wd,
-            tol=self.tol,
-        )
+        if self.sqs_method == "mcsqs":
+            sqs = run_mcsqs(
+                structure=structure,
+                clusters=clusters,
+                scaling=self.scaling,
+                search_time=self.search_time,
+                directory=self.directory,
+                instances=self.instances,
+                temperature=self.temperature,
+                wr=self.wr,
+                wn=self.wn,
+                wd=self.wd,
+                tol=self.tol,
+            )
 
-        return self._get_unique_bestsqs_strucs(
+        elif self.sqs_method.startswith("icet-"):
+            if not isinstance(self.scaling, int) or self.scaling < 1:
+                raise ValueError(
+                    f"icet can only scale the input cell by a positive integer factor, not {self.scaling}."
+                )
+            self.icet_sqs_kwargs.setdefault("optimality_weight", self.wr)
+            self.icet_sqs_kwargs.setdefault("T_start", self.temperature)
+
+            sqs = IcetSQS(
+                structure=structure,
+                scaling=self.scaling,
+                instances=self.instances,
+                sqs_method=self.sqs_method.split("icet-")[1],
+                cluster_cutoffs=clusters,
+                sqs_kwargs=self.icet_sqs_kwargs,
+            ).run()
+
+        return self._get_unique_best_sqs_structs(
             sqs,
             best_only=self.best_only,
             return_ranked_list=return_ranked_list,
@@ -2045,7 +2077,7 @@ class SQSTransformation(AbstractTransformation):
         )
 
     @staticmethod
-    def _get_unique_bestsqs_strucs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
+    def _get_unique_best_sqs_structs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
         """Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
             in parallel, otherwise returns Sqs.bestsqs.
 
@@ -2056,44 +2088,43 @@ class SQSTransformation(AbstractTransformation):
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
             remove_duplicate_structures (bool): only return unique structures.
-            reduction_algo (str): The lattice reduction algorithm to use.
-                Currently supported options are "niggli" or "LLL".
-                "False" does not reduce structure.
+            reduction_algo (str): The lattice reduction algorithm to use. One of "niggli" or "LLL".
+                reduction_algo=False does not reduce structure.
 
         Returns:
-            list of dicts of the form {'structure': Structure, 'objective_function': ...}, unless run in serial
-                (returns a single structure Sqs.bestsqs)
+            list[dict[str, Structure | Callable]]: of the form {'structure': Structure, 'objective_function': ...},
+                unless run in serial (returns a single structure Sqs.bestsqs)
         """
         if not return_ranked_list:
-            return_struc = sqs.bestsqs
+            return_struct = sqs.bestsqs
 
             # reduce structure
             if reduction_algo:
-                return_struc = return_struc.get_reduced_structure(reduction_algo=reduction_algo)
+                return_struct = return_struct.get_reduced_structure(reduction_algo=reduction_algo)
 
             # return just the structure
-            return return_struc
+            return return_struct
 
-        strucs = []
+        structs = []
         for dct in sqs.allsqs:
             # filter for best structures only if enabled, else use full sqs.all_sqs list
             if (not best_only) or (best_only and dct["objective_function"] == sqs.objective_function):
                 struct = dct["structure"]
                 # add temporary objective_function attribute to access objective_function after grouping
                 struct.objective_function = dct["objective_function"]
-                strucs.append(struct)
+                structs.append(struct)
 
         if remove_duplicate_structures:
             matcher = StructureMatcher()
-            # sort by unique structures ... can take a while for a long list of strucs
-            unique_strucs_grouped = matcher.group_structures(strucs)
+            # sort by unique structures ... can take a while for a long list of structs
+            unique_structs_grouped = matcher.group_structures(structs)
             # get unique structures only
-            strucs = [group[0] for group in unique_strucs_grouped]
+            structs = [group[0] for group in unique_structs_grouped]
 
         # sort structures by objective function
-        strucs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
+        structs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
 
-        to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
+        to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in structs]
 
         for dct in to_return:
             # delete temporary objective_function attribute
@@ -2103,7 +2134,8 @@ class SQSTransformation(AbstractTransformation):
             if reduction_algo:
                 dct["structure"] = dct["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
-        if isinstance(return_ranked_list, int):
+        # because bools are subclasses of ints, cannot just check that returned_ranked_list is int
+        if isinstance(return_ranked_list, int) and not isinstance(return_ranked_list, bool):
             return to_return[:return_ranked_list]
         return to_return
 

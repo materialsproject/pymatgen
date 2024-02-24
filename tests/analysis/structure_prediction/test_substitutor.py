@@ -26,8 +26,8 @@ class TestSubstitutor(PymatgenTest):
         s_list = [Species("O", -2), Species("Li", 1)]
         subs = self.s.pred_from_list(s_list)
         assert len(subs) == 4, "incorrect number of substitutions"
-        c = Composition({"O2-": 1, "Li1+": 2})
-        subs = self.s.pred_from_comp(c)
+        comp = Composition({"O2-": 1, "Li1+": 2})
+        subs = self.s.pred_from_comp(comp)
         assert len(subs) == 4, "incorrect number of substitutions"
 
         structures = [{"structure": PymatgenTest.get_structure("Li2O"), "id": "pmgtest"}]

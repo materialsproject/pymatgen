@@ -925,7 +925,7 @@ class StructureMatcher(MSONable):
             mapped_struct = struct1.copy()
             mapped_struct.replace_species(sp_mapping)  # type: ignore[arg-type]
             if swapped:
-                m = self._strict_match(
+                match = self._strict_match(
                     struct2,
                     mapped_struct,
                     fu,
@@ -934,9 +934,9 @@ class StructureMatcher(MSONable):
                     break_on_match,
                 )
             else:
-                m = self._strict_match(mapped_struct, struct2, fu, s1_supercell, use_rms, break_on_match)
-            if m:
-                matches.append((sp_mapping, m))
+                match = self._strict_match(mapped_struct, struct2, fu, s1_supercell, use_rms, break_on_match)
+            if match:
+                matches.append((sp_mapping, match))
                 if single_match:
                     break
         return matches
@@ -962,11 +962,9 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            (min_rms, min_mapping)
-            min_rms is the minimum rms distance, and min_mapping is the
-            corresponding minimal species mapping that would map
-            struct1 to struct2. (None, None) is returned if the minimax_rms
-            exceeds the threshold.
+            tuple: [min_rms, min_mapping]: min_rms is the minimum rms distance, and min_mapping is the
+                corresponding minimal species mapping that would map
+                struct1 to struct2. (None, None) is returned if the minimax_rms exceeds the threshold.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
@@ -1092,9 +1090,9 @@ class StructureMatcher(MSONable):
             struct2 (Structure): Structure to transform.
 
         Returns:
-            supercell (numpy.ndarray(3, 3)): supercell matrix
-            vector (numpy.ndarray(3)): fractional translation vector
-            mapping (list(int or None)):
+            supercell (np.array(3, 3)): supercell matrix
+            vector (np.array(3)): fractional translation vector
+            mapping (list[int | None]):
                 The first len(struct1) items of the mapping vector are the
                 indices of struct1's corresponding sites in struct2 (or None
                 if there is no corresponding site), and the other items are

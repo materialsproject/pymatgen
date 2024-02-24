@@ -60,7 +60,7 @@ class TestBabelMolAdaptor(unittest.TestCase):
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H4 C1"
 
-    def test_from_string(self):
+    def test_from_str(self):
         xyz = XYZ(self.mol)
         adaptor = BabelMolAdaptor.from_str(str(xyz), "xyz")
         mol = adaptor.pymatgen_mol

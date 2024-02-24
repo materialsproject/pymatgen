@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-
 from pymatgen.core import Element, Structure
 
 __author__ = "Matteo Giantomassi"
@@ -21,10 +19,6 @@ class XSF:
             structure (Structure): Structure object.
         """
         self.structure = structure
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, atom_symbol=True):
         """
@@ -55,11 +49,6 @@ class XSF:
             app(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")
 
         return "\n".join(lines)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, input_string, cls_=None):

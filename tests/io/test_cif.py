@@ -20,7 +20,7 @@ except ImportError:
 
 
 class TestCifBlock(PymatgenTest):
-    def test_to_string(self):
+    def test_to_str(self):
         with open(f"{TEST_FILES_DIR}/Graphite.cif") as file:
             cif_str = file.read()
         cif_block = CifBlock.from_str(cif_str)
@@ -193,6 +193,7 @@ class TestCifIO(PymatgenTest):
 
         with open(f"{TEST_FILES_DIR}/FePO4.cif") as cif_file:
             cif_str = cif_file.read()
+
         parser = CifParser.from_str(cif_str)
         struct = parser.parse_structures(primitive=False)[0]
         assert struct.formula == "Fe4 P4 O16"
@@ -400,8 +401,8 @@ class TestCifIO(PymatgenTest):
             "SH": "S",
         }
 
-        for e in Element:
-            name = e.name
+        for elem in Element:
+            name = elem.name
             test_cases[name] = name
             if len(name) == 2:
                 test_cases[name.upper()] = name
@@ -470,9 +471,9 @@ loop_
         writer = CifWriter(struct, symprec=0.1)
 
         cif = CifParser.from_str(str(writer))
-        m = StructureMatcher()
+        matcher = StructureMatcher()
 
-        assert m.fit(cif.parse_structures()[0], struct)
+        assert matcher.fit(cif.parse_structures()[0], struct)
 
         # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
         #     assert l1.strip() == l2.strip()
@@ -481,35 +482,33 @@ loop_
         writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_str(str(writer)).parse_structures()[0]
 
-        assert m.fit(struct, s2)
+        assert matcher.fit(struct, s2)
 
         struct = self.get_structure("Li2O")
         writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_str(str(writer)).parse_structures()[0]
-        assert m.fit(struct, s2)
+        assert matcher.fit(struct, s2)
 
         # test angle tolerance.
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=0)
-        d = next(iter(writer.cif_file.data.values()))
-        assert d["_symmetry_Int_Tables_number"] == 14
+        dct = next(iter(writer.cif_file.data.values()))
+        assert dct["_symmetry_Int_Tables_number"] == 14
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=2)
-        d = next(iter(writer.cif_file.data.values()))
-        assert d["_symmetry_Int_Tables_number"] == 62
+        dct = next(iter(writer.cif_file.data.values()))
+        assert dct["_symmetry_Int_Tables_number"] == 62
 
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
         coords = []
         coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
@@ -560,13 +559,11 @@ loop_
         n = DummySpecies("X", -3)
         coords = []
         coords.extend((np.array([0.5, 0.5, 0.5]), np.array([0.75, 0.5, 0.75]), np.array([0, 0, 0])))
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
@@ -765,9 +762,13 @@ loop_
     def test_replacing_finite_precision_frac_coords(self):
         cif = f"{TEST_FILES_DIR}/cif_finite_precision_frac_coord_error.cif"
         parser = CifParser(cif)
-        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
-        with pytest.warns(UserWarning, match=warn_msg):
+        with pytest.warns(UserWarning) as record:
             struct = parser.parse_structures()[0]
+
+        assert len(record) == 3
+        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
+        assert warn_msg in str(record[-1])
+
         assert str(struct.composition) == "N5+72"
         assert warn_msg in parser.warnings
 
@@ -869,6 +870,90 @@ Si1 Si 0 0 0 1 0.0
         read_structs = CifParser(out_path).parse_structures()
         assert len(read_structs) == 2
         assert [x.formula for x in read_structs] == ["Fe4 P4 O16", "C4"]
+
+    def test_valid_cif(self):
+        cif = CifParser(f"{TEST_FILES_DIR}/CsI3Pb.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/CsI3Pb.cif")
+        failure_reason = cif.check(structure)
+        assert failure_reason is None
+
+    def test_missing_elements(self):
+        cif_str = ""
+        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as file:
+            for line in file:
+                if "_chemical_formula_sum" in line:
+                    # remove this line
+                    continue
+
+                # add missing hydrogens
+                if "_chemical_formula_structural" in line:
+                    line = line.split("\n")[0] + "H6" + "\n"
+                cif_str += line
+
+        cif = CifParser.from_str(cif_str)
+        structure = Structure.from_str(cif_str, "cif")
+        failure_reason = cif.check(structure)
+        assert failure_reason == "Missing elements H from PMG structure composition"
+
+    def test_incorrect_stoichiometry(self):
+        cif_str = ""
+        with open(f"{TEST_FILES_DIR}/MgNiF6.cif") as file:
+            for line in file:
+                if "_chemical_formula_sum" in line:
+                    line = line.replace("F6", "F5")
+                cif_str += line
+
+        cif = CifParser.from_str(cif_str)
+        structure = Structure.from_str(cif_str, "cif")
+        failure_reason = cif.check(structure)
+        assert "Incorrect stoichiometry" in failure_reason
+
+    def test_missing_cif_composition(self):
+        with open(f"{TEST_FILES_DIR}/LiFePO4.cif") as file:
+            cif_str = file.read()
+        # remove only key that gives info about CIF composition in this file
+        cif_str = "\n".join([line for line in cif_str.split("\n") if "_atom_site_type_symbol" not in line])
+        test_cif_file = f"{self.tmp_path}/test_broken.cif"
+        with open(test_cif_file, "w+") as file:
+            file.write(cif_str)
+
+        cif = CifParser(test_cif_file)
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        assert failure_reason == "Cannot determine chemical composition from CIF! 'NoneType' object is not iterable"
+
+    def test_invalid_cif_composition(self):
+        with open(f"{TEST_FILES_DIR}/LiFePO4.cif") as file:
+            cif_str = file.read()
+
+        test_cif_file = f"{self.tmp_path}/test_broken.cif"
+        with open(test_cif_file, "w+") as file:
+            # replace Li with dummy atom X
+            file.write(cif_str.replace("Li", "X"))
+
+        cif = CifParser(test_cif_file)
+        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif"))
+        assert failure_reason == "'X' is not a valid Element"
+
+    def test_skipping_relative_stoichiometry_check(self):
+        cif = CifParser(f"{TEST_FILES_DIR}/Li10GeP2S12.cif")
+        struct = cif.parse_structures()[0]
+        failure_reason = cif.check(struct)
+        assert failure_reason is None
+        assert len(cif.warnings) == 2
+        assert cif.warnings[-1] == "Skipping relative stoichiometry check because CIF does not contain formula keys."
+
+    def test_cif_writer_site_properties(self):
+        # check CifWriter(write_site_properties=True) adds Structure site properties to
+        # CIF with _atom_site_ prefix
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        struct.add_site_property(label := "hello", [1.0] * (len(struct) - 1) + [-1.0])
+        out_path = f"{self.tmp_path}/test2.cif"
+        CifWriter(struct, write_site_properties=True).write_file(out_path)
+        with open(out_path) as file:
+            cif_str = file.read()
+        assert f"_atom_site_occupancy\n _atom_site_{label}\n" in cif_str
+        assert "Fe  Fe0  1  0.21872822  0.75000000  0.47486711  1  1.0" in cif_str
+        assert "O  O23  1  0.95662769  0.25000000  0.29286233  1  -1.0" in cif_str
 
 
 class TestMagCif(PymatgenTest):

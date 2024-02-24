@@ -55,7 +55,7 @@ H 9.487 9.111 9.637
 H 9.487 10.889 9.637"""
         assert mxyz_text == ans_multi
 
-    def test_from_string(self):
+    def test_from_str(self):
         expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000

@@ -282,8 +282,8 @@ class JahnTellerAnalyzer:
                 op_threshold=op_threshold,
             )
             active = analysis["active"]
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
 
         return active
 
@@ -326,8 +326,8 @@ class JahnTellerAnalyzer:
                         jt_sites[index] = True
                         structure.add_site_property("possible_jt_active", jt_sites)
             return structure
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
             return structure
 
     @staticmethod

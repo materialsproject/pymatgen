@@ -49,12 +49,12 @@ class TestPourbaixEntry(PymatgenTest):
         assert self.px_sol.nH2O == 3, "Wrong nH2O!"
 
     def test_as_from_dict(self):
-        d = self.px_ion.as_dict()
-        ion_entry = self.px_ion.from_dict(d)
+        dct = self.px_ion.as_dict()
+        ion_entry = self.px_ion.from_dict(dct)
         assert ion_entry.entry.name == "MnO4[-1]", "Wrong Entry!"
 
-        d = self.px_sol.as_dict()
-        sol_entry = self.px_sol.from_dict(d)
+        dct = self.px_sol.as_dict()
+        sol_entry = self.px_sol.from_dict(dct)
         assert sol_entry.name == "Mn2O3(s)", "Wrong Entry!"
         assert sol_entry.energy == self.px_sol.energy, "as_dict and from_dict energies unequal"
 

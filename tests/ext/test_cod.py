@@ -24,7 +24,7 @@ class TestCOD(unittest.TestCase):
     def test_get_structure_by_formula(self):
         data = COD().get_structure_by_formula("Li2O")
         assert len(data) > 15
-        assert data[0]["structure"].composition.reduced_formula == "Li2O"
+        assert data[0]["structure"].reduced_formula == "Li2O"
 
     def test_get_structure_by_id(self):
         struct = COD().get_structure_by_id(2002926)

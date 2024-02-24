@@ -131,16 +131,16 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    a = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
 
-    ind = np.where(a[:, 0] >= x)[0]
+    indices = np.where(arr[:, 0] >= x)[0]
 
-    if len(ind) == 0 or ind[0] == 0:
-        raise ValueError("x is out of range of provided x_values")
+    if len(indices) == 0 or indices[0] == 0:
+        raise ValueError(f"{x=} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")
 
-    i = ind[0]
-    x1, x2 = a[i - 1][0], a[i][0]
-    y1, y2 = a[i - 1][1], a[i][1]
+    idx = indices[0]
+    x1, x2 = arr[idx - 1][0], arr[idx][0]
+    y1, y2 = arr[idx - 1][1], arr[idx][1]
 
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 

@@ -87,7 +87,7 @@ class Slab(Structure):
         site_properties=None,
         energy=None,
         properties=None,
-    ):
+    ) -> None:
         """Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
 
@@ -258,26 +258,26 @@ class Slab(Structure):
 
             for selection in itertools.product(*combinations):
                 species = [site.species for site in fixed]
-                fcoords = [site.frac_coords for site in fixed]
+                frac_coords = [site.frac_coords for site in fixed]
 
                 for s in to_move:
                     species.append(s.species)
                     for group in selection:
                         if s in group:
-                            fcoords.append(s.frac_coords)
+                            frac_coords.append(s.frac_coords)
                             break
                     else:
                         # Move unselected atom to the opposite surface.
-                        fcoords.append(s.frac_coords + [0, 0, shift])  # noqa: RUF005
+                        frac_coords.append(s.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, fcoords), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
-                fcoords = [x[1] for x in sp_fcoord]
+                frac_coords = [x[1] for x in sp_fcoord]
                 slab = Slab(
                     self.lattice,
                     species,
-                    fcoords,
+                    frac_coords,
                     self.miller_index,
                     self.oriented_unit_cell,
                     self.shift,
@@ -415,8 +415,8 @@ class Slab(Structure):
     @property
     def surface_area(self):
         """Calculates the surface area of the slab."""
-        m = self.lattice.matrix
-        return np.linalg.norm(np.cross(m[0], m[1]))
+        matrix = self.lattice.matrix
+        return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @property
     def center_of_mass(self):
@@ -424,7 +424,7 @@ class Slab(Structure):
         weights = [s.species.weight for s in self]
         return np.average(self.frac_coords, weights=weights, axis=0)
 
-    def add_adsorbate_atom(self, indices, specie, distance):
+    def add_adsorbate_atom(self, indices, specie, distance) -> Slab:
         """Gets the structure of single atom adsorption.
         slab structure from the Slab class(in [0, 0, 1]).
 
@@ -435,16 +435,21 @@ class Slab(Structure):
             specie (Species/Element/str): adsorbed atom species
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
+
+        Returns:
+            Slab: self with adsorbed atom.
         """
-        # Let's do the work in Cartesian coords
-        center = np.sum([self[i].coords for i in indices], axis=0) / len(indices)
+        # Let's work in Cartesian coords
+        center = np.sum([self[idx].coords for idx in indices], axis=0) / len(indices)
 
         coords = center + self.normal * distance / np.linalg.norm(self.normal)
 
         self.append(specie, coords, coords_are_cartesian=True)
 
-    def __str__(self):
-        def to_s(x):
+        return self
+
+    def __str__(self) -> str:
+        def to_str(x) -> str:
             return f"{x:0.6f}"
 
         comp = self.composition
@@ -453,21 +458,13 @@ class Slab(Structure):
             f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
-            "abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc),
-            "angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles),
+            f"abc   : {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.abc)}",
+            f"angles: {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.angles)}",
             f"Sites ({len(self)})",
         ]
 
-        for i, site in enumerate(self):
-            outs.append(
-                " ".join(
-                    [
-                        str(i + 1),
-                        site.species_string,
-                        " ".join(to_s(j).rjust(12) for j in site.frac_coords),
-                    ]
-                )
-            )
+        for idx, site in enumerate(self):
+            outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
         return "\n".join(outs)
 
     def as_dict(self):
@@ -484,27 +481,27 @@ class Slab(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
-        """:param d: dict
+    def from_dict(cls, dct: dict) -> Slab:  # type: ignore[override]
+        """:param dct: dict
 
         Returns:
             Creates slab from dict.
         """
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        lattice = Lattice.from_dict(dct["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
         struct = Structure.from_sites(sites)
 
         return Slab(
             lattice=lattice,
             species=struct.species_and_occu,
             coords=struct.frac_coords,
-            miller_index=d["miller_index"],
-            oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
-            shift=d["shift"],
-            scale_factor=d["scale_factor"],
+            miller_index=dct["miller_index"],
+            oriented_unit_cell=Structure.from_dict(dct["oriented_unit_cell"]),
+            shift=dct["shift"],
+            scale_factor=dct["scale_factor"],
             site_properties=struct.site_properties,
-            energy=d["energy"],
-            properties=d.get("properties"),
+            energy=dct["energy"],
+            properties=dct.get("properties"),
         )
 
     def get_surface_sites(self, tag=False):
@@ -621,7 +618,7 @@ class Slab(Structure):
 
         return site2
 
-    def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
+    def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False) -> None:
         """Class method for adding a site at a specified point in a slab.
             Will add the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
@@ -643,7 +640,7 @@ class Slab(Structure):
         self.append(specie, point, coords_are_cartesian=coords_are_cartesian)
         self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
 
-    def symmetrically_remove_atoms(self, indices):
+    def symmetrically_remove_atoms(self, indices) -> None:
         """Class method for removing sites corresponding to a list of indices.
             Will remove the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
@@ -719,7 +716,7 @@ class SlabGenerator:
         primitive=True,
         max_normal_search=None,
         reorient_lattice=True,
-    ):
+    ) -> None:
         """Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
         Also stores the initial information needed later on to generate a slab.
@@ -804,7 +801,7 @@ class SlabGenerator:
         # We want the vector that has maximum magnitude in the
         # direction of the surface normal as the c-direction.
         # Results in a more "orthogonal" unit cell.
-        c_index, dist = max(non_orth_ind, key=lambda t: t[1])
+        c_index, _dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
             lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
@@ -868,7 +865,7 @@ class SlabGenerator:
         self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self._normal = normal
-        a, b, c = self.oriented_unit_cell.lattice.matrix
+        _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
         self.reorient_lattice = reorient_lattice
 
@@ -885,34 +882,34 @@ class SlabGenerator:
             energy (float): An energy to assign to the slab.
 
         Returns:
-            (Slab) A Slab object with a particular shifted oriented unit cell.
+            Slab: with a particular shifted oriented unit cell.
         """
         h = self._proj_height
         p = round(h / self.parent.lattice.d_hkl(self.miller_index), 8)
         if self.in_unit_planes:
-            nlayers_slab = int(math.ceil(self.min_slab_size / p))
-            nlayers_vac = int(math.ceil(self.min_vac_size / p))
+            n_layers_slab = int(math.ceil(self.min_slab_size / p))
+            n_layers_vac = int(math.ceil(self.min_vac_size / p))
         else:
-            nlayers_slab = int(math.ceil(self.min_slab_size / h))
-            nlayers_vac = int(math.ceil(self.min_vac_size / h))
-        nlayers = nlayers_slab + nlayers_vac
+            n_layers_slab = int(math.ceil(self.min_slab_size / h))
+            n_layers_vac = int(math.ceil(self.min_vac_size / h))
+        n_layers = n_layers_slab + n_layers_vac
 
         species = self.oriented_unit_cell.species_and_occu
         props = self.oriented_unit_cell.site_properties
-        props = {k: v * nlayers_slab for k, v in props.items()}
+        props = {k: v * n_layers_slab for k, v in props.items()}  # type: ignore[operator, misc]
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
-        new_lattice = [a, b, nlayers * c]
-        frac_coords[:, 2] = frac_coords[:, 2] / nlayers
+        new_lattice = [a, b, n_layers * c]
+        frac_coords[:, 2] = frac_coords[:, 2] / n_layers
         all_coords = []
-        for i in range(nlayers_slab):
-            fcoords = frac_coords.copy()
-            fcoords[:, 2] += i / nlayers
-            all_coords.extend(fcoords)
+        for idx in range(n_layers_slab):
+            f_coords = frac_coords.copy()
+            f_coords[:, 2] += idx / n_layers
+            all_coords.extend(f_coords)
 
-        slab = Structure(new_lattice, species * nlayers_slab, all_coords, site_properties=props)
+        slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
@@ -1090,10 +1087,10 @@ class SlabGenerator:
                 slabs.append(self.repair_broken_bonds(slab, bonds))
 
         # Further filters out any surfaces made that might be the same
-        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
+        matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
         new_slabs = []
-        for g in m.group_structures(slabs):
+        for g in matcher.group_structures(slabs):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
@@ -1294,7 +1291,7 @@ class ReconstructionGenerator:
         - Right now there is no way to specify what atom is being added. In the future, use basis sets?
     """
 
-    def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name):
+    def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name) -> None:
         """Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
 

@@ -97,16 +97,16 @@ class LammpsInputFile(InputFile):
         Returns the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
-        ncomments = 0
+        n_comments = 0
         for stage in self.stages:
             # Block of comment = 1 comment
             if all(cmd.strip().startswith("#") for (cmd, args) in stage["commands"]):
-                ncomments += 1
+                n_comments += 1
             else:
                 # Else, inline comment each count as one
-                ncomments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
+                n_comments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
 
-        return ncomments
+        return n_comments
 
     def get_args(self, command: str, stage_name: str | None = None) -> list | str:
         """
@@ -183,14 +183,14 @@ class LammpsInputFile(InputFile):
             raise ValueError("""The argument 'how' should be a 'first', 'all', an integer or a list of integers.""")
 
         # Look for occurrences in the relevant stages
-        i = 0
+        idx = 0
         for i_stage, stage in enumerate(self.stages):
             if stage["stage_name"] in stages_to_look:
                 for i_cmd, (cmd, _) in enumerate(stage["commands"]):
                     if command == cmd:
-                        if i in how:
+                        if idx in how:
                             self.stages[i_stage]["commands"][i_cmd] = (cmd, argument)
-                        i += 1
+                        idx += 1
 
     def add_stage(
         self,
@@ -483,10 +483,6 @@ class LammpsInputFile(InputFile):
         # Append the two list of stages
         self.stages += new_list_to_add
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
         """
         Generates and ² the string representation of the LammpsInputFile.
@@ -533,16 +529,11 @@ class LammpsInputFile(InputFile):
             filename (str or path): The filename to output to, including path.
             ignore_comments (bool): True if only the commands should be kept from the InputFile.
             keep_stages (bool): True if the block structure from the InputFile should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, "wt") as f:
-            f.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> LammpsInputFile:
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
     def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
@@ -559,7 +550,7 @@ class LammpsInputFile(InputFile):
             contents (str): String representation of LammpsInputFile.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
@@ -633,14 +624,14 @@ class LammpsInputFile(InputFile):
             path (str or path): Filename to read, including path.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, "rt") as f:
-            return cls.from_str(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self) -> str:
         return self.get_str()
@@ -824,11 +815,8 @@ class LammpsInputFile(InputFile):
         lines = [string_list[0]]
 
         for idx, string in enumerate(string_list[1:-1]):
-            if (
-                string != ""
-                and not (string[0] == "#" and ignore_comments)
-                or string == ""
-                and string_list[idx + 2] != ""
+            if (string != "" and not (string[0] == "#" and ignore_comments)) or (
+                string == "" and string_list[idx + 2] != ""
             ):
                 lines.append(string)
 
@@ -933,8 +921,8 @@ class LammpsRun(MSONable):
                 placeholders.
         """
         template_path = os.path.join(template_dir, "md.template")
-        with open(template_path) as f:
-            script_template = f.read()
+        with open(template_path) as file:
+            script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
         settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
         script_filename = "in.md"
@@ -1047,8 +1035,8 @@ def write_lammps_inputs(
         ...
         ... run             $nsteps'''
         >>> write_lammps_inputs('.', eam_template, settings={'temperature': 1600.0, 'nsteps': 100})
-        >>> with open('in.lammps') as f:
-        ...     script = f.read()
+        >>> with open('in.lammps') as file:
+        ...     script = file.read()
         ...
         >>> print(script)
         units           metal
@@ -1078,8 +1066,8 @@ def write_lammps_inputs(
     input_script = template.safe_substitute(**variables)
     if make_dir_if_not_present:
         os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, script_filename), "w") as f:
-        f.write(input_script)
+    with open(os.path.join(output_dir, script_filename), mode="w") as file:
+        file.write(input_script)
     read_data = re.search(r"read_data\s+(.*)\n", input_script)
     if read_data:
         data_filename = read_data.group(1).split()[0]

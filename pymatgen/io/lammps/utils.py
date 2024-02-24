@@ -268,9 +268,9 @@ class PackmolRunner:
         Args:
             input_dir (str): path to the input directory
         """
-        with open(os.path.join(input_dir, self.input_file), "w", encoding="utf-8") as inp:
-            for k, v in self.control_params.items():
-                inp.write(f"{k} {self._format_param_val(v)}\n")
+        with open(f"{input_dir}/{self.input_file}", mode="w", encoding="utf-8") as inp:
+            for key, val in self.control_params.items():
+                inp.write(f"{key} {self._format_param_val(val)}\n")
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
             # input file.
@@ -291,8 +291,8 @@ class PackmolRunner:
 
                 inp.write("\n")
                 inp.write(f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n")
-                for k, v in self.param_list[idx].items():
-                    inp.write(f"  {k} {self._format_param_val(v)}\n")
+                for key, val in self.param_list[idx].items():
+                    inp.write(f"  {key} {self._format_param_val(val)}\n")
                 inp.write("end structure\n")
 
     def run(self, site_property: str | None = None) -> Molecule:

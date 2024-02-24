@@ -144,5 +144,5 @@ if __name__ == "__main__":
     if test == "y":
         cg._algorithms = new_algos
         cg_dict = cg.as_dict()
-        with open(f"../coordination_geometries_files_new/{cg_symbol}.json", "w") as f:
-            json.dump(cg_dict, f)
+        with open(f"../coordination_geometries_files_new/{cg_symbol}.json", mode="w") as file:
+            json.dump(cg_dict, file)

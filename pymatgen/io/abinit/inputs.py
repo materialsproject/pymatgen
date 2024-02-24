@@ -615,8 +615,8 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
-        with open(filepath, "w") as fh:
-            fh.write(str(self))
+        with open(filepath, mode="w") as file:
+            file.write(str(self))
 
     def deepcopy(self):
         """Deep copy of the input."""
@@ -804,7 +804,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return dct
 
     def __setitem__(self, key, value):
-        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
+        if (
+            key in _TOLVARS_SCF
+            and hasattr(self, "_vars")
+            and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
+        ):
             logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
@@ -815,10 +819,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "You cannot set the value of a variable associated to the structure.\n"
                 "Use Structure objects to prepare the input file."
             )
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """
@@ -849,7 +849,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
-        items = [(k, self[k]) for k in keys]
+        items = [(key, self[key]) for key in keys]
         if with_structure:
             items.extend(list(aobj.structure_to_abivars(self.structure).items()))
 
@@ -858,18 +858,18 @@ class BasicAbinitInput(AbstractInput, MSONable):
             vname = name + post
             app(str(InputVariable(vname, value)))
 
-        s = "\n".join(lines)
+        out = "\n".join(lines)
         if not with_pseudos:
-            return s
+            return out
 
         # Add JSON section with pseudo potentials.
         ppinfo = ["\n\n\n#<JSON>"]
-        d = {"pseudos": [p.as_dict() for p in self.pseudos]}
-        ppinfo.extend(json.dumps(d, indent=4).splitlines())
+        psp_dict = {"pseudos": [p.as_dict() for p in self.pseudos]}
+        ppinfo.extend(json.dumps(psp_dict, indent=4).splitlines())
         ppinfo.append("</JSON>")
 
-        s += "\n#".join(ppinfo)
-        return s
+        out += "\n#".join(ppinfo)
+        return out
 
     @property
     def comment(self):
@@ -1144,7 +1144,7 @@ class BasicMultiDataset:
         return iter(self._inputs)
 
     def __getattr__(self, name):
-        _inputs = object.__getattribute__(self, "_inputs")
+        _inputs = self.__getattribute__("_inputs")
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(
@@ -1225,10 +1225,6 @@ class BasicMultiDataset:
 
     def __str__(self):
         return self.to_str()
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self, with_pseudos=True):
         """
