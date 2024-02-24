@@ -23,7 +23,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestVoronoiAnalyzer(PymatgenTest):
     def setUp(self):
-        self.ss = Xdatcar(f"{TEST_FILES_DIR}/XDATCAR.MD").structures
+        self.ss = Xdatcar(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR.MD").structures
         self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4)
 
@@ -77,7 +77,7 @@ class TestVoronoiConnectivity(PymatgenTest):
 
 class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
-        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/XDATCAR.MD")
+        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
         assert coordination_numbers["Fe"] == approx(
             4.771903318390836, 5

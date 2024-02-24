@@ -1638,25 +1638,25 @@ class TestProcar(PymatgenTest):
 
 class TestXdatcar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/XDATCAR_4"
+        filepath = f"{test_output_dir}/XDATCAR_4"
         x = Xdatcar(filepath)
         structures = x.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
-        filepath = f"{TEST_FILES_DIR}/XDATCAR_5"
+        filepath = f"{test_output_dir}/XDATCAR_5"
         x = Xdatcar(filepath)
         structures = x.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
-        x.concatenate(f"{TEST_FILES_DIR}/XDATCAR_4")
+        x.concatenate(f"{test_output_dir}/XDATCAR_4")
         assert len(x.structures) == 8
         assert x.get_str() is not None
 
-        filepath = f"{TEST_FILES_DIR}/XDATCAR_6"
+        filepath = f"{test_output_dir}/XDATCAR_6"
         x = Xdatcar(filepath)
         structures = x.structures
 
