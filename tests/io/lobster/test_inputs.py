@@ -602,13 +602,13 @@ class TestNciCobiList(unittest.TestCase):
 class TestDoscar(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
-        doscar = f"{TEST_FILES_DIR}/DOSCAR.lobster.spin"
+        doscar = f"{TEST_FILES_DIR}/vasp/outputs/DOSCAR.lobster.spin"
         poscar = f"{TEST_FILES_DIR}/POSCAR.lobster.spin_DOS"
+
         # not spin polarized
-        doscar2 = f"{TEST_FILES_DIR}/DOSCAR.lobster.nonspin"
+        doscar2 = f"{TEST_FILES_DIR}/vasp/outputs/DOSCAR.lobster.nonspin"
         poscar2 = f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS"
-        f"{TEST_FILES_DIR}/DOSCAR.lobster.nonspin_zip.gz"
-        f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS_zip.gz"
+
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
