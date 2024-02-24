@@ -316,7 +316,7 @@ class TestPhaseDiagram(PymatgenTest):
 
             with pytest.warns(UserWarning, match=match_msg):
                 out = method(too_neg_entry, on_error="warn")
-                assert out == expected
+            assert out == expected
 
             out = method(too_neg_entry, on_error="ignore")
             assert out == expected

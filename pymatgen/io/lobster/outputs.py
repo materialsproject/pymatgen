@@ -757,7 +757,7 @@ class Charge(MSONable):
         return self.loewdin
 
 
-class Lobsterout:
+class Lobsterout(MSONable):
     """
     Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos.
 
@@ -793,80 +793,122 @@ class Lobsterout:
         warning_lines (str): String with all warnings.
     """
 
+    # valid Lobsterout instance attributes
+    _ATTRIBUTES = (
+        "filename",
+        "is_restart_from_projection",
+        "lobster_version",
+        "number_of_threads",
+        "dft_program",
+        "number_of_spins",
+        "charge_spilling",
+        "total_spilling",
+        "elements",
+        "basis_type",
+        "basis_functions",
+        "timing",
+        "warning_lines",
+        "info_orthonormalization",
+        "info_lines",
+        "has_doscar",
+        "has_doscar_lso",
+        "has_cohpcar",
+        "has_coopcar",
+        "has_cobicar",
+        "has_charge",
+        "has_madelung",
+        "has_projection",
+        "has_bandoverlaps",
+        "has_fatbands",
+        "has_grosspopulation",
+        "has_density_of_energies",
+    )
+    ATTRIBUTE_DEFAULTS = dict.fromkeys(_ATTRIBUTES, None)
+
     # TODO: add tests for skipping COBI and madelung
     # TODO: add tests for including COBI and madelung
-    def __init__(self, filename="lobsterout"):
+    def __init__(self, filename: str | None, **kwargs) -> None:
         """
         Args:
             filename: filename of lobsterout.
+            **kwargs:dict to initialize Lobsterout instance (see > ATTRIBUTE_DEFAULTS)
         """
-        # read in file
-        with zopen(filename, mode="rt") as file:
-            data = file.read().split("\n")  # [3:-3]
-        if len(data) == 0:
-            raise OSError("lobsterout does not contain any data")
+        self.filename = filename
+        if kwargs:
+            for attr, val in kwargs.items():
+                if attr in self.ATTRIBUTE_DEFAULTS:
+                    setattr(self, attr, val)
+                else:
+                    raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
+        else:
+            with zopen(filename, mode="rt") as file:  # read in file
+                data = file.read().split("\n")
+            if len(data) == 0:
+                raise OSError("lobsterout does not contain any data")
 
-        # check if Lobster starts from a projection
-        self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
+            # check if Lobster starts from a projection
+            self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
 
-        self.lobster_version = self._get_lobster_version(data=data)
+            self.lobster_version = self._get_lobster_version(data=data)
 
-        self.number_of_threads = int(self._get_threads(data=data))
-        self.dft_program = self._get_dft_program(data=data)
+            self.number_of_threads = int(self._get_threads(data=data))
+            self.dft_program = self._get_dft_program(data=data)
 
-        self.number_of_spins = self._get_number_of_spins(data=data)
-        chargespilling, totalspilling = self._get_spillings(data=data, number_of_spins=self.number_of_spins)
-        self.charge_spilling = chargespilling
-        self.total_spilling = totalspilling
+            self.number_of_spins = self._get_number_of_spins(data=data)
+            chargespilling, totalspilling = self._get_spillings(data=data, number_of_spins=self.number_of_spins)
+            self.charge_spilling = chargespilling
+            self.total_spilling = totalspilling
 
-        elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=data)
-        self.elements = elements
-        self.basis_type = basistype
-        self.basis_functions = basisfunctions
+            elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=data)
+            self.elements = elements
+            self.basis_type = basistype
+            self.basis_functions = basisfunctions
 
-        wall_time, user_time, sys_time = self._get_timing(data=data)
-        timing = {}
-        timing["wall_time"] = wall_time
-        timing["user_time"] = user_time
-        timing["sys_time"] = sys_time
-        self.timing = timing
+            wall_time, user_time, sys_time = self._get_timing(data=data)
+            timing = {}
+            timing["wall_time"] = wall_time
+            timing["user_time"] = user_time
+            timing["sys_time"] = sys_time
+            self.timing = timing
 
-        warninglines = self._get_all_warning_lines(data=data)
-        self.warning_lines = warninglines
+            warninglines = self._get_all_warning_lines(data=data)
+            self.warning_lines = warninglines
 
-        orthowarning = self._get_warning_orthonormalization(data=data)
-        self.info_orthonormalization = orthowarning
+            orthowarning = self._get_warning_orthonormalization(data=data)
+            self.info_orthonormalization = orthowarning
 
-        infos = self._get_all_info_lines(data=data)
-        self.info_lines = infos
+            infos = self._get_all_info_lines(data=data)
+            self.info_lines = infos
 
-        self.has_doscar = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
-        self.has_doscar_lso = (
-            "writing DOSCAR.LSO.lobster..." in data and "SKIPPING writing DOSCAR.LSO.lobster..." not in data
-        )
-        self.has_cohpcar = (
-            "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
-            and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
-        )
-        self.has_coopcar = (
-            "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
-            and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
-        )
-        self.has_cobicar = (
-            "writing COBICAR.lobster and ICOBILIST.lobster..." in data
-            and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
-        )
+            self.has_doscar = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
+            self.has_doscar_lso = (
+                "writing DOSCAR.LSO.lobster..." in data and "SKIPPING writing DOSCAR.LSO.lobster..." not in data
+            )
+            self.has_cohpcar = (
+                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
+                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
+            )
+            self.has_coopcar = (
+                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
+                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
+            )
+            self.has_cobicar = (
+                "writing COBICAR.lobster and ICOBILIST.lobster..." in data
+                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
+            )
 
-        self.has_charge = "SKIPPING writing CHARGE.lobster..." not in data
-        self.has_projection = "saving projection to projectionData.lobster..." in data
-        self.has_bandoverlaps = "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
-        self.has_fatbands = self._has_fatband(data=data)
-        self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
-        self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
-        self.has_madelung = (
-            "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
-            and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
-        )
+            self.has_charge = "SKIPPING writing CHARGE.lobster..." not in data
+            self.has_projection = "saving projection to projectionData.lobster..." in data
+            self.has_bandoverlaps = (
+                "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
+            )
+            self.has_fatbands = self._has_fatband(data=data)
+            self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
+            self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
+            self.has_madelung = (
+                "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
+                and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
+            )
 
     def get_doc(self):
         """Returns: LobsterDict with all the information stored in lobsterout."""
@@ -906,6 +948,14 @@ class Lobsterout:
         LobsterDict["has_density_of_energies"] = self.has_density_of_energies
 
         return LobsterDict
+
+    def as_dict(self):
+        """MSONable dict"""
+        dct = vars(self)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+
+        return dct
 
     @staticmethod
     def _get_lobster_version(data):

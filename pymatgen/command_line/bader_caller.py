@@ -435,9 +435,10 @@ def bader_analysis_from_path(path, suffix=""):
         summary dict
     """
 
-    def _get_filepath(filename, path=path, suffix=suffix):
-        paths = glob(f"{path}/{filename}{suffix}*")
+    def _get_filepath(filename: str, msg: str = "") -> str | None:
+        paths = glob(glob_pattern := f"{path}/{filename}{suffix}*")
         if len(paths) == 0:
+            warnings.warn(msg or f"no matches for {glob_pattern=}")
             return None
         if len(paths) > 1:
             # using reverse=True because, if multiple files are present,
@@ -516,9 +517,9 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             )
 
             summary = {
-                "min_dist": [d["min_dist"] for d in ba.data],
-                "charge": [d["charge"] for d in ba.data],
-                "atomic_volume": [d["atomic_vol"] for d in ba.data],
+                "min_dist": [dct["min_dist"] for dct in ba.data],
+                "charge": [dct["charge"] for dct in ba.data],
+                "atomic_volume": [dct["atomic_vol"] for dct in ba.data],
                 "vacuum_charge": ba.vacuum_charge,
                 "vacuum_volume": ba.vacuum_volume,
                 "reference_used": bool(chgref_path),
@@ -526,7 +527,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             }
 
             if potcar:
-                charge_transfer = [ba.get_charge_transfer(i) for i in range(len(ba.data))]
+                charge_transfer = [ba.get_charge_transfer(idx) for idx in range(len(ba.data))]
                 summary["charge_transfer"] = charge_transfer
 
             if chgcar.is_spin_polarized:
@@ -541,7 +542,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
                     potcar_filename=potcar_path,
                     chgref_filename=chgref_path,
                 )
-                summary["magmom"] = [d["charge"] for d in ba.data]
+                summary["magmom"] = [dct["charge"] for dct in ba.data]
     finally:
         os.chdir(orig_dir)
 

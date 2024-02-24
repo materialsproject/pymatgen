@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 
 from numpy.testing import assert_allclose, assert_array_equal
@@ -25,6 +26,12 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         assert repr(self.bs2) == (
             r"PhononBandStructureSymmLine(bands=(6, 130), labels=['$\\Gamma$', 'X', 'W', 'K', 'L', 'U'])"
         )
+
+    def test_eq(self):
+        assert self.bs == self.bs
+        assert self.bs == copy.deepcopy(self.bs)
+        assert self.bs2 == self.bs2
+        assert self.bs != self.bs2
 
     def test_basic(self):
         assert self.bs.bands[1][10] == approx(0.7753555184)

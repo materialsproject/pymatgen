@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MSONable
@@ -33,10 +33,9 @@ def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
     return 1, 1, 1
 
 
-def eigenvectors_from_displacements(disp, masses) -> np.ndarray:
+def eigenvectors_from_displacements(disp: np.ndarray, masses: np.ndarray) -> np.ndarray:
     """Calculate the eigenvectors from the atomic displacements."""
-    sqrt_masses = np.sqrt(masses)
-    return np.einsum("nax,a->nax", disp, sqrt_masses)
+    return np.einsum("nax,a->nax", disp, masses**0.5)
 
 
 def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int]:
@@ -45,13 +44,13 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int
     connection_order = []
     for overlaps in metric:
         max_val = 0
-        for i in reversed(range(len(metric))):
-            val = overlaps[i]
-            if i in connection_order:
+        for idx in reversed(range(len(metric))):
+            val = overlaps[idx]
+            if idx in connection_order:
                 continue
             if val > max_val:
                 max_val = val
-                max_idx = i
+                max_idx = idx
         connection_order.append(max_idx)
 
     return [connection_order[x] for x in prev_band_order]
@@ -66,7 +65,7 @@ class PhononBandStructure(MSONable):
 
     def __init__(
         self,
-        qpoints: list[Kpoint],
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         lattice: Lattice,
         nac_frequencies: Sequence[Sequence] | None = None,
@@ -102,15 +101,15 @@ class PhononBandStructure(MSONable):
                 A list of tuples. The first element of each tuple should be a list
                 defining the direction. The second element containing a numpy array of
                 complex numbers with shape (3*len(structure), len(structure), 3).
-            labels_dict: (dict) of {} this links a qpoint (in frac coords or
+            labels_dict: (dict[str, Kpoint]): this links a qpoint (in frac coords or
                 Cartesian coordinates depending on the coords) to a label.
-            coords_are_cartesian: Whether the qpoint coordinates are Cartesian.
+            coords_are_cartesian (bool): Whether the qpoint coordinates are Cartesian. Defaults to False.
             structure: The crystal structure (as a pymatgen Structure object)
-                associated with the band structure. This is needed if we
-                provide projections to the band structure.
+                associated with the band structure. This is needed to calculate element/orbital
+                projections of the band structure.
         """
         self.lattice_rec = lattice
-        self.qpoints = []
+        self.qpoints: list[Kpoint] = []
         self.labels_dict = {}
         self.structure = structure
         if eigendisplacements is None:
@@ -127,8 +126,8 @@ class PhononBandStructure(MSONable):
                     self.labels_dict[label] = Kpoint(
                         q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian
                     )
-            self.qpoints.append(Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
-        self.bands = frequencies
+            self.qpoints += [Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian)]
+        self.bands = np.asarray(frequencies)
         self.nb_bands = len(self.bands)
         self.nb_qpoints = len(self.qpoints)
 
@@ -246,7 +245,7 @@ class PhononBandStructure(MSONable):
 
         return None
 
-    def asr_breaking(self, tol_eigendisplacements: float = 1e-5):
+    def asr_breaking(self, tol_eigendisplacements: float = 1e-5) -> np.ndarray | None:
         """Returns the breaking of the acoustic sum rule for the three acoustic modes,
         if Gamma is present. None otherwise.
         If eigendisplacements are available they are used to determine the acoustic
@@ -255,36 +254,34 @@ class PhononBandStructure(MSONable):
         identified or eigendisplacements are missing the first 3 modes will be used
         (indices [0:3]).
         """
-        for i in range(self.nb_qpoints):
-            if np.allclose(self.qpoints[i].frac_coords, (0, 0, 0)):
+        for idx in range(self.nb_qpoints):
+            if np.allclose(self.qpoints[idx].frac_coords, (0, 0, 0)):
                 if self.has_eigendisplacements:
                     acoustic_modes_index = []
                     for j in range(self.nb_bands):
-                        eig = self.eigendisplacements[j][i]
+                        eig = self.eigendisplacements[j][idx]
                         if np.max(np.abs(eig[1:] - eig[:1])) < tol_eigendisplacements:
                             acoustic_modes_index.append(j)
                     # if acoustic modes are not correctly identified return use
                     # the first three modes
                     if len(acoustic_modes_index) != 3:
                         acoustic_modes_index = [0, 1, 2]
-                    return self.bands[acoustic_modes_index, i]
+                    return self.bands[acoustic_modes_index, idx]
 
-                return self.bands[:3, i]
+                return self.bands[:3, idx]
 
         return None
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
-        dct = {
+        dct: dict[str, Any] = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
-            "qpoints": [],
+            # qpoints are not Kpoint objects dicts but are frac coords. This makes
+            # the dict smaller and avoids the repetition of the lattice
+            "qpoints": [q_pt.as_dict()["fcoords"] for q_pt in self.qpoints],
         }
-        # qpoints are not Kpoint objects dicts but are frac coords. This makes
-        # the dict smaller and avoids the repetition of the lattice
-        for q in self.qpoints:
-            dct["qpoints"].append(q.as_dict()["fcoords"])
         dct["bands"] = self.bands.tolist()
         dct["labels_dict"] = {}
         for kpoint_letter, kpoint_object in self.labels_dict.items():
@@ -307,10 +304,10 @@ class PhononBandStructure(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> PhononBandStructure:
+    def from_dict(cls, dct: dict[str, Any]) -> PhononBandStructure:
         """
         Args:
-            dct (dict): Dict representation.
+            dct (dict): Dict representation of PhononBandStructure.
 
         Returns:
             PhononBandStructure
@@ -345,7 +342,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def __init__(
         self,
-        qpoints: list[Kpoint],
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         lattice: Lattice,
         has_nac: bool = False,
@@ -397,7 +394,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return f"{type(self).__name__}({bands=}, {labels=})"
 
     def _reuse_init(
-        self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: list[Kpoint]
+        self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: Sequence[Kpoint]
     ) -> None:
         self.distance = []
         self.branches = []
@@ -410,29 +407,29 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         for idx in range(self.nb_qpoints):
             label = self.qpoints[idx].label
             if label is not None and previous_label is not None:
-                self.distance.append(previous_distance)
+                self.distance += [previous_distance]
             else:
-                self.distance.append(
+                self.distance += [
                     np.linalg.norm(self.qpoints[idx].cart_coords - previous_qpoint.cart_coords) + previous_distance
-                )
+                ]
             previous_qpoint = self.qpoints[idx]
             previous_distance = self.distance[idx]
             if label and previous_label:
                 if len(one_group) != 0:
-                    branches_tmp.append(one_group)
+                    branches_tmp += [one_group]
                 one_group = []
             previous_label = label
-            one_group.append(idx)
+            one_group += [idx]
         if len(one_group) != 0:
-            branches_tmp.append(one_group)
+            branches_tmp += [one_group]
         for branch in branches_tmp:
-            self.branches.append(
+            self.branches += [
                 {
                     "start_index": branch[0],
                     "end_index": branch[-1],
                     "name": f"{self.qpoints[branch[0]].label}-{self.qpoints[branch[-1]].label}",
                 }
-            )
+            ]
         # extract the frequencies with non-analytical contribution at gamma
         if has_nac:
             naf = []
@@ -462,10 +459,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         same frac coords) to the given one.
 
         Args:
-            index: the qpoint index
+            index (int): the qpoint index
 
         Returns:
-            a list of equivalent indices
+            list[int]: equivalent indices
 
         TODO: now it uses the label we might want to use coordinates instead
         (in case there was a mislabel)
@@ -544,15 +541,15 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
         # get qpoints
         qpoints = []
-        for q in self.qpoints:
-            qpoints.append(list(q.frac_coords))
+        for q_pt in self.qpoints:
+            qpoints.append(list(q_pt.frac_coords))
         dct["qpoints"] = qpoints
 
         # get labels
         hsq_dict = {}
-        for nq, q in enumerate(self.qpoints):
-            if q.label is not None:
-                hsq_dict[nq] = q.label
+        for nq, q_pt in enumerate(self.qpoints):
+            if q_pt.label is not None:
+                hsq_dict[nq] = q_pt.label
 
         # get distances
         dist = 0
@@ -583,18 +580,18 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         dct["eigenvalues"] = bands.T.tolist()
 
         # eigenvectors
-        eigenvectors = self.eigendisplacements.copy()
-        eigenvectors /= np.linalg.norm(eigenvectors[0, 0])
-        eigenvectors = eigenvectors.swapaxes(0, 1)
-        eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
-        eigenvectors = np.rollaxis(eigenvectors, 0, 5)
-        dct["vectors"] = eigenvectors.tolist()
+        eigen_vecs = self.eigendisplacements.copy()
+        eigen_vecs /= np.linalg.norm(eigen_vecs[0, 0])
+        eigen_vecs = eigen_vecs.swapaxes(0, 1)
+        eigen_vecs = np.array([eigen_vecs.real, eigen_vecs.imag])
+        eigen_vecs = np.rollaxis(eigen_vecs, 0, 5)
+        dct["vectors"] = eigen_vecs.tolist()
 
         return dct
 
     def band_reorder(self) -> None:
         """Re-order the eigenvalues according to the similarity of the eigenvectors."""
-        eiv = self.eigendisplacements
+        eigen_displacements = self.eigendisplacements
         eig = self.bands
 
         n_phonons, n_qpoints = self.bands.shape
@@ -607,19 +604,19 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
         # get order
         for nq in range(1, n_qpoints):
-            old_eiv = eigenvectors_from_displacements(eiv[:, nq - 1], atomic_masses)
-            new_eiv = eigenvectors_from_displacements(eiv[:, nq], atomic_masses)
+            old_eig_vecs = eigenvectors_from_displacements(eigen_displacements[:, nq - 1], atomic_masses)
+            new_eig_vecs = eigenvectors_from_displacements(eigen_displacements[:, nq], atomic_masses)
             order[nq] = estimate_band_connection(
-                old_eiv.reshape([n_phonons, n_phonons]).T,
-                new_eiv.reshape([n_phonons, n_phonons]).T,
+                old_eig_vecs.reshape([n_phonons, n_phonons]).T,
+                new_eig_vecs.reshape([n_phonons, n_phonons]).T,
                 order[nq - 1],
             )
 
         # reorder
         for nq in range(1, n_qpoints):
-            eivq = eiv[:, nq]
+            eivq = eigen_displacements[:, nq]
             eigq = eig[:, nq]
-            eiv[:, nq] = eivq[order[nq]]
+            eigen_displacements[:, nq] = eivq[order[nq]]
             eig[:, nq] = eigq[order[nq]]
 
     def as_dict(self) -> dict:
@@ -645,7 +642,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eigendisplacements = (
             np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
         )
-        struct = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
             dct["qpoints"],
             np.array(dct["bands"]),
@@ -653,5 +649,17 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             dct["has_nac"],
             eigendisplacements,
             dct["labels_dict"],
-            structure=struct,
+            structure=Structure.from_dict(dct["structure"]) if "structure" in dct else None,
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PhononBandStructureSymmLine):
+            return NotImplemented
+        return (
+            self.bands.shape == other.bands.shape
+            and np.allclose(self.bands, other.bands)
+            and self.lattice_rec == other.lattice_rec
+            # and self.qpoints == other.qpoints
+            and self.labels_dict == other.labels_dict
+            and self.structure == other.structure
         )

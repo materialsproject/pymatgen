@@ -93,3 +93,5 @@ class TestAbinitHeader(PymatgenTest):
         assert head.foo == 1
         assert str(head)
         assert head.to_str(verbose=2, title="title")
+        # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS,
+        assert head.to_string(verbose=2, title="title")

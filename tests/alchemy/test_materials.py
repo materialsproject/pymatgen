@@ -107,7 +107,12 @@ class TestTransformedStructure(PymatgenTest):
         self.trans.set_parameter("author", "will")
         with pytest.warns(UserWarning) as warns:
             snl = self.trans.to_snl([("will", "will@test.com")])
+
         assert len(warns) == 1, "Warning not raised on type conversion with other_parameters"
+        assert (
+            str(warns[0].message)
+            == "Data in TransformedStructure.other_parameters discarded during type conversion to SNL"
+        )
 
         ts = TransformedStructure.from_snl(snl)
         assert ts.history[-1]["@class"] == "SubstitutionTransformation"

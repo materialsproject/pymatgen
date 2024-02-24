@@ -29,9 +29,14 @@ try:
     from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
-    ase_loaded = True
+    no_ase_err = None
 except ImportError:
-    ase_loaded = False
+    no_ase_err = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+
+    class Atoms:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            raise no_ase_err
+
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -51,12 +56,12 @@ class MSONAtoms(Atoms, MSONable):
         # See ASE issue #1387.
         return {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": encode(s)}
 
-    def from_dict(d: dict[str, Any]) -> MSONAtoms:
+    def from_dict(dct: dict[str, Any]) -> MSONAtoms:
         # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        return MSONAtoms(decode(d["atoms_json"]))
+        return MSONAtoms(decode(dct["atoms_json"]))
 
 
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
@@ -77,8 +82,8 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if not ase_loaded:
-            raise PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+        if no_ase_err:
+            raise no_ase_err
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 
