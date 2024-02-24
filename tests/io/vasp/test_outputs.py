@@ -1589,7 +1589,7 @@ class TestElfcar(PymatgenTest):
 
 class TestProcar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
+        filepath = f"{test_output_dir}/PROCAR.simple"
         procar = Procar(filepath)
         assert procar.get_occupation(0, "d")[Spin.up] == approx(0)
         assert procar.get_occupation(0, "s")[Spin.up] == approx(0.35381249999999997)
@@ -1599,13 +1599,13 @@ class TestProcar(PymatgenTest):
         assert procar.nbands == 10
         assert procar.nkpoints == 10
         assert procar.nions == 3
-        filepath = f"{TEST_FILES_DIR}/PROCAR"
+        filepath = f"{test_output_dir}/PROCAR"
         procar = Procar(filepath)
         assert procar.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
         assert procar.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
 
     def test_phase_factors(self):
-        filepath = f"{TEST_FILES_DIR}/PROCAR.phase"
+        filepath = f"{test_output_dir}/PROCAR.phase"
         procar = Procar(filepath)
         assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.746 + 0.099j)
         assert procar.phase_factors[Spin.down][0, 0, 0, 0] == approx(0.372 - 0.654j)
@@ -1616,12 +1616,12 @@ class TestProcar(PymatgenTest):
         assert procar.phase_factors[Spin.down][0, 0, 2, 0] == approx(0.027 - 0.047j)
 
         # new style phase factors (VASP 5.4.4+)
-        filepath = f"{TEST_FILES_DIR}/PROCAR.new_format_5.4.4"
+        filepath = f"{test_output_dir}/PROCAR.new_format_5.4.4"
         procar = Procar(filepath)
         assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
 
     def test_get_projection_on_elements(self):
-        filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
+        filepath = f"{test_output_dir}/PROCAR.simple"
         procar = Procar(filepath)
         struct = Structure(
             Lattice.cubic(3.0),
