@@ -793,9 +793,8 @@ class Lobsterout(MSONable):
         warning_lines (str): String with all warnings.
     """
 
-    # list of Lobsterout instance attributes
-
-    _ATTRIBUTES_LIST = [
+    # valid Lobsterout instance attributes
+    _ATTRIBUTES = (
         "filename",
         "is_restart_from_projection",
         "lobster_version",
@@ -823,23 +822,27 @@ class Lobsterout(MSONable):
         "has_fatbands",
         "has_grosspopulation",
         "has_density_of_energies",
-    ]
-
-    INIT_ATTRIBUTES_DEFAULTS = {key: None for key in _ATTRIBUTES_LIST}
+    )
+    ATTRIBUTE_DEFAULTS = dict.fromkeys(_ATTRIBUTES, None)
 
     # TODO: add tests for skipping COBI and madelung
     # TODO: add tests for including COBI and madelung
-    def __init__(self, filename: str | None, **kwargs):
+    def __init__(self, filename: str | None, **kwargs) -> None:
         """
         Args:
             filename: filename of lobsterout.
             **kwargs:dict to initialize Lobsterout instance (see > INIT_ATTRIBUTES_DEFAULTS)
         """
         self.filename = filename
-        if not kwargs:
-            # read in file
-            with zopen(filename, mode="rt") as file:
-                data = file.read().split("\n")  # [3:-3]
+        if kwargs:
+            for attr, val in kwargs.items():
+                if attr in self.ATTRIBUTE_DEFAULTS:
+                    setattr(self, attr, val)
+                else:
+                    raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
+        else:
+            with zopen(filename, mode="rt") as file:  # read in file
+                data = file.read().split("\n")
             if len(data) == 0:
                 raise OSError("lobsterout does not contain any data")
 
@@ -906,12 +909,6 @@ class Lobsterout(MSONable):
                 "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
                 and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
             )
-        else:
-            for attribute in kwargs:
-                if attribute in self.INIT_ATTRIBUTES_DEFAULTS:
-                    setattr(self, attribute, kwargs[attribute])
-                else:
-                    raise ValueError(f"{attribute} is not a valid attribute for Lobsterout")
 
     def get_doc(self):
         """Returns: LobsterDict with all the information stored in lobsterout."""
