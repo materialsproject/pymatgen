@@ -1824,7 +1824,7 @@ class TestLobsterin(unittest.TestCase):
         # without line mode
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/IBZKPT.lobster")
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/vasp/outputs/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
@@ -1842,7 +1842,7 @@ class TestLobsterin(unittest.TestCase):
             input_grid=[6, 6, 3],
         )
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/IBZKPT.lobster")
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/vasp/outputs/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
