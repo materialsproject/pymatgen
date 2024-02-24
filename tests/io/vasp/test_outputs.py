@@ -1426,7 +1426,7 @@ class TestOszicar(PymatgenTest):
 
 class TestLocpot(PymatgenTest):
     def test_init(self):
-        filepath = f"{test_output_dir}/LOCPOT"
+        filepath = f"{test_output_dir}/LOCPOT.gz"
         locpot = Locpot.from_file(filepath)
         assert approx(sum(locpot.get_average_along_axis(0))) == -217.05226954
         assert locpot.get_axis_grid(0)[-1] == approx(2.87629, abs=1e-2)
@@ -1442,7 +1442,7 @@ class TestLocpot(PymatgenTest):
 class TestChgcar(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = f"{test_output_dir}/CHGCAR.nospin"
+        filepath = f"{test_output_dir}/CHGCAR.nospin.gz"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
         filepath = f"{test_output_dir}/CHGCAR.spin.gz"
@@ -1613,7 +1613,7 @@ class TestProcar(PymatgenTest):
         assert procar.phase_factors[Spin.down][0, 0, 2, 0] == approx(0.027 - 0.047j)
 
         # new style phase factors (VASP 5.4.4+)
-        filepath = f"{test_output_dir}/PROCAR.new_format_5.4.4"
+        filepath = f"{test_output_dir}/PROCAR.new_format_5.4.4.gz"
         procar = Procar(filepath)
         assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
 
