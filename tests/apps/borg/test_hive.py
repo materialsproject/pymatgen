@@ -25,18 +25,19 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
-        entry = self.drone.assimilate(TEST_FILES_DIR)
+        entry = self.drone.assimilate(f"{TEST_FILES_DIR}/vasp/outputs")
+
         for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
             assert param in entry.parameters
         assert entry.data["efermi"] == approx(-6.62148548)
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
-        entry = self.structure_drone.assimilate(TEST_FILES_DIR)
+
+        entry = self.structure_drone.assimilate(f"{TEST_FILES_DIR}/vasp/outputs")
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         assert isinstance(entry, ComputedStructureEntry)
         assert entry.structure is not None
-        # assert len(entry.parameters["history"]) == 2
 
     def test_as_from_dict(self):
         dct = self.structure_drone.as_dict()
@@ -50,8 +51,8 @@ class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
         self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(TEST_FILES_DIR):
-            if path[0] == TEST_FILES_DIR:
+        for path in os.walk(f"{TEST_FILES_DIR}/vasp/outputs"):
+            if path[0] == f"{TEST_FILES_DIR}/vasp/outputs":
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_as_from_dict(self):
