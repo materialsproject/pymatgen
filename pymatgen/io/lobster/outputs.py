@@ -831,7 +831,7 @@ class Lobsterout(MSONable):
         """
         Args:
             filename: filename of lobsterout.
-            **kwargs:dict to initialize Lobsterout instance (see > INIT_ATTRIBUTES_DEFAULTS)
+            **kwargs:dict to initialize Lobsterout instance (see > ATTRIBUTE_DEFAULTS)
         """
         self.filename = filename
         if kwargs:
