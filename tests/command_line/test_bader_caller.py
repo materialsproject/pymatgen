@@ -23,9 +23,9 @@ class TestBaderAnalysis(PymatgenTest):
     def test_init(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4",
+            chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4",
             potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
-            chgref_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4_ref",
+            chgref_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4_ref",
         )
         assert len(analysis.data) == 14
         assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
@@ -55,7 +55,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4")
+        analysis = BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4")
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
@@ -118,9 +118,9 @@ class TestBaderAnalysis(PymatgenTest):
     def test_atom_parsing(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4",
+            chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4",
             potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
-            chgref_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4_ref",
+            chgref_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4_ref",
             parse_atomic_densities=True,
         )
 
@@ -136,4 +136,4 @@ class TestBaderAnalysis(PymatgenTest):
         with patch("shutil.which", return_value=None), pytest.raises(
             RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
         ):
-            BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4", bader_exe_path="")
+            BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4", bader_exe_path="")

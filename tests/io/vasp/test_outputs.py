@@ -1445,16 +1445,16 @@ class TestLocpot(PymatgenTest):
 class TestChgcar(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = f"{TEST_FILES_DIR}/CHGCAR.nospin"
+        filepath = f"{test_output_dir}/CHGCAR.nospin"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
-        filepath = f"{TEST_FILES_DIR}/CHGCAR.spin"
+        filepath = f"{test_output_dir}/CHGCAR.spin"
         cls.chgcar_spin = Chgcar.from_file(filepath)
 
-        filepath = f"{TEST_FILES_DIR}/CHGCAR.Fe3O4"
+        filepath = f"{test_output_dir}/CHGCAR.Fe3O4"
         cls.chgcar_fe3o4 = Chgcar.from_file(filepath)
 
-        filepath = f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz"
+        filepath = f"{test_output_dir}/CHGCAR.NiO_SOC.gz"
         cls.chgcar_NiO_soc = Chgcar.from_file(filepath)
 
     def test_init(self):
@@ -1500,7 +1500,7 @@ class TestChgcar(PymatgenTest):
 
     @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
     def test_hdf5(self):
-        chgcar = Chgcar.from_file(f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz")
+        chgcar = Chgcar.from_file(f"{test_output_dir}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
 
         with h5py.File(out_path, mode="r") as dct:
