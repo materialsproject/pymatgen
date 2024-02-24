@@ -1686,11 +1686,11 @@ class TestWavecar(PymatgenTest):
         b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
         self.b = 2 * np.pi * b / self.vol
         self.a = a
-        self.wavecar = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2")
-        self.wH2 = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.H2_low_symm")
-        self.wH2_gamma = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.H2_low_symm.gamma")
-        self.w_ncl = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.H2.ncl")
-        self.w_frac_encut = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.frac_encut")
+        self.wavecar = Wavecar(f"{test_output_dir}/WAVECAR.N2")
+        self.wH2 = Wavecar(f"{test_output_dir}/WAVECAR.H2_low_symm")
+        self.wH2_gamma = Wavecar(f"{test_output_dir}/WAVECAR.H2_low_symm.gamma")
+        self.w_ncl = Wavecar(f"{test_output_dir}/WAVECAR.H2.ncl")
+        self.w_frac_encut = Wavecar(f"{test_output_dir}/WAVECAR.frac_encut")
 
     def test_standard(self):
         wavecar = self.wavecar
@@ -1699,7 +1699,7 @@ class TestWavecar(PymatgenTest):
         b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
         b = 2 * np.pi * b / vol
 
-        assert wavecar.filename == f"{TEST_FILES_DIR}/WAVECAR.N2"
+        assert wavecar.filename == f"{test_output_dir}/WAVECAR.N2"
         assert wavecar.efermi == approx(-5.7232, abs=1e-4)
         assert wavecar.encut == 25.0
         assert wavecar.nb == 9
@@ -1722,29 +1722,29 @@ class TestWavecar(PymatgenTest):
 
         # Test malformed WAVECARs
         with pytest.raises(ValueError, match="Invalid rtag=.+, must be one of"):
-            Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.malformed")
+            Wavecar(f"{test_output_dir}/WAVECAR.N2.malformed")
 
         with pytest.raises(ValueError, match="invalid vasp_type='poop'"):
-            Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2", vasp_type="poop")
+            Wavecar(f"{test_output_dir}/WAVECAR.N2", vasp_type="poop")
 
         with pytest.raises(ValueError, match=r"Incorrect vasp_type='g'. Please open an issue if you are certain"):
-            Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2", vasp_type="g")
+            Wavecar(f"{test_output_dir}/WAVECAR.N2", vasp_type="g")
 
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
-            Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2", vasp_type="n")
+            Wavecar(f"{test_output_dir}/WAVECAR.N2", vasp_type="n")
 
         saved_stdout = sys.stdout
         try:
             out = StringIO()
             sys.stdout = out
-            Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2", verbose=True)
+            Wavecar(f"{test_output_dir}/WAVECAR.N2", verbose=True)
             assert out.getvalue().strip() != ""
         finally:
             sys.stdout = saved_stdout
 
     def test_n2_45210(self):
-        wavecar = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.45210")
-        assert wavecar.filename == f"{TEST_FILES_DIR}/WAVECAR.N2.45210"
+        wavecar = Wavecar(f"{test_output_dir}/WAVECAR.N2.45210")
+        assert wavecar.filename == f"{test_output_dir}/WAVECAR.N2.45210"
         assert wavecar.efermi == approx(-5.7232, abs=1e-4)
         assert wavecar.encut == 25.0
         assert wavecar.nb == 9
@@ -1760,7 +1760,7 @@ class TestWavecar(PymatgenTest):
         assert len(wavecar.Gpoints[0]) <= 257
 
     def test_n2_spin(self):
-        w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.spin")
+        w = Wavecar(f"{test_output_dir}/WAVECAR.N2.spin")
         assert len(w.coeffs) == 2
         assert len(w.band_energy) == 2
         assert len(w.kpoints) == w.nk
@@ -1772,7 +1772,7 @@ class TestWavecar(PymatgenTest):
         try:
             Wavecar._generate_G_points = lambda x, y, gamma: []
             with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
-                Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2")
+                Wavecar(f"{test_output_dir}/WAVECAR.N2")
         finally:
             Wavecar._generate_G_points = temp_ggp
 
@@ -1793,7 +1793,7 @@ class TestWavecar(PymatgenTest):
         assert self.wavecar.evaluate_wavefunc(0, 0, [0, 0, 0]) == approx(
             np.sum(self.wavecar.coeffs[0][0]) / np.sqrt(self.vol), abs=1e-4
         )
-        w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.spin")
+        w = Wavecar(f"{test_output_dir}/WAVECAR.N2.spin")
         w.Gpoints.append(np.array([0, 0, 0]))
         w.kpoints.append(np.array([0, 0, 0]))
         w.coeffs[0].append([[1 + 1j]])
@@ -1876,7 +1876,7 @@ class TestWavecar(PymatgenTest):
         assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
         assert not np.all(c.data["total"] > 0.0)
 
-        w = Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2.spin")
+        w = Wavecar(f"{test_output_dir}/WAVECAR.N2.spin")
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
         assert "total" in c.data
         assert "diff" in c.data
