@@ -9,10 +9,10 @@ import xml.etree.ElementTree as ElementTree
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
-from monty.io import zopen
 
 import numpy as np
 import pytest
+from monty.io import zopen
 from numpy.testing import assert_allclose
 from pytest import approx
 
