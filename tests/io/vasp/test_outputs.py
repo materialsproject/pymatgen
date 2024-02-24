@@ -1413,7 +1413,7 @@ class TestBSVasprun(PymatgenTest):
 
 class TestOszicar(PymatgenTest):
     def test_init(self):
-        fpath = f"{TEST_FILES_DIR}/OSZICAR"
+        fpath = f"{test_output_dir}/OSZICAR"
         oszicar = Oszicar(fpath)
         assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
         assert len(oszicar.all_energies) == 60
