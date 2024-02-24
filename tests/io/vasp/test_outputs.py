@@ -1302,7 +1302,7 @@ class TestOutcar(PymatgenTest):
         outcar = Outcar(filepath)
         assert outcar.run_stats["Average memory used (kb)"] is None
 
-        filepath = f"{test_output_dir}/OUTCAR.vasp.6.2.1.mpi"
+        filepath = f"{test_output_dir}/OUTCAR.vasp.6.2.1.mpi.gz"
         outcar = Outcar(filepath)
         assert outcar.run_stats["cores"] == 64
 
