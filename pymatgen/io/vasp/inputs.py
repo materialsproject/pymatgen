@@ -50,12 +50,6 @@ __copyright__ = "Copyright 2011, The Materials Project"
 logger = logging.getLogger(__name__)
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
-# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-# written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
-
 
 class Poscar(MSONable):
     """Object for representing the data in a POSCAR or CONTCAR file.
@@ -679,10 +673,6 @@ class BadPoscarWarning(UserWarning):
     """Warning class for bad POSCAR entries."""
 
 
-with open(f"{module_dir}/incar_parameters.json", encoding="utf-8") as json_file:
-    incar_params = json.loads(json_file.read())
-
-
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -970,23 +960,31 @@ class Incar(dict, MSONable):
             params[key] = val
         return Incar(params)
 
-    def check_params(self):
+    def check_params(self) -> None:
+        """Check INCAR for invalid tags or values.
+        If a tag doesn't exist, calculation will still run, however VASP
+        will ignore the tag and set it as default without letting you know.
         """
-        Raise a warning for nonexistent INCAR tags or invalid values.
-        If a tag doesn't exist (e.g. typo), calculation will still run,
-        however VASP will ignore the tag without letting you know.
-        """
+        # Load INCAR tag/value check reference file
+        with open(os.path.join(module_dir, "incar_parameters.json"), encoding="utf-8") as json_file:
+            incar_params = json.loads(json_file.read())
+
         for tag, val in self.items():
-            # First check if this tag exists
+            # Check if the tag exists
             if tag not in incar_params:
                 warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
+                continue
 
-            # Now check if the tag type is appropriate
-            elif isinstance(incar_params[tag], str) and type(val).__name__ != incar_params[tag]:
-                warnings.warn(f"{tag}: {val} is not a {incar_params[tag]}", BadIncarWarning, stacklevel=2)
+            # Check value and its type
+            param_type = incar_params[tag].get("type")
+            allowed_values = incar_params[tag].get("values")
 
-            # Check if the given value is in the list
-            elif isinstance(incar_params[tag], list) and val not in incar_params[tag]:
+            if param_type is not None and not isinstance(val, eval(param_type)):
+                warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
+
+            # Only check value when it's not None,
+            # meaning there is recording for corresponding value
+            if allowed_values is not None and val not in allowed_values:
                 warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
 
 
@@ -1597,8 +1595,11 @@ Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
 OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
 
 
-class UnknownPotcarWarning(UserWarning):
-    """Warning raised when POTCAR hashes do not pass validation."""
+# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
+PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
+# written to some newer POTCARs by VASP
+VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
 class PotcarSingle:
@@ -2568,6 +2569,10 @@ class Potcar(list, MSONable):
             self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
         else:
             self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
+
+
+class UnknownPotcarWarning(UserWarning):
+    """Warning raised when POTCAR hashes do not pass validation."""
 
 
 class VaspInput(dict, MSONable):
