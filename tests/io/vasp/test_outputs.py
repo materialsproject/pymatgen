@@ -1569,7 +1569,7 @@ class TestAeccars(PymatgenTest):
 
 class TestElfcar(PymatgenTest):
     def test_init(self):
-        elfcar = Elfcar.from_file(f"{TEST_FILES_DIR}/ELFCAR.gz")
+        elfcar = Elfcar.from_file(f"{test_output_dir}/ELFCAR.gz")
         assert approx(np.mean(elfcar.data["total"])) == 0.19076207645194002
         assert approx(np.mean(elfcar.data["diff"])) == 0.19076046677910055
         reconstituted = Elfcar.from_dict(elfcar.as_dict())
@@ -1577,12 +1577,12 @@ class TestElfcar(PymatgenTest):
         assert elfcar.poscar.structure == reconstituted.poscar.structure
 
     def test_alpha(self):
-        elfcar = Elfcar.from_file(f"{TEST_FILES_DIR}/ELFCAR.gz")
+        elfcar = Elfcar.from_file(f"{test_output_dir}/ELFCAR.gz")
         alpha = elfcar.get_alpha()
         assert approx(np.median(alpha.data["total"])) == 2.936678808979031
 
     def test_interpolation(self):
-        elfcar = Elfcar.from_file(f"{TEST_FILES_DIR}/ELFCAR.gz")
+        elfcar = Elfcar.from_file(f"{test_output_dir}/ELFCAR.gz")
         assert approx(elfcar.value_at(0.4, 0.5, 0.6)) == 0.0918471
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
