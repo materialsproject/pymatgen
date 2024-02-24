@@ -1665,7 +1665,7 @@ class TestXdatcar(PymatgenTest):
 
 class TestDynmat(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/DYNMAT"
+        filepath = f"{test_output_dir}/DYNMAT"
         dct = Dynmat(filepath)
         assert dct.nspecs == 2
         assert dct.natoms == 6
