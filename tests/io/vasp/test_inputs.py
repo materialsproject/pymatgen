@@ -288,14 +288,14 @@ direct
 
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_potcar=False)
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/vasp/outputs/CONTCAR.MD", check_for_potcar=False)
         assert np.sum(poscar.velocities) == approx(0.0065417961324)
         assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
         assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
         assert poscar.lattice_velocities is None
 
         # Parsing from an MD type run with velocities, predictor corrector data and lattice velocities
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/vasp/outputs/CONTCAR.MD.npt", check_for_potcar=False)
         assert np.sum(poscar.velocities) == approx(-0.06193299494)
         assert poscar.predictor_corrector[0][0][0] == 0.63981833
         assert poscar.lattice_velocities.sum() == approx(16.49411358474)
@@ -303,7 +303,7 @@ direct
     def test_write_md_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         # And writing a new POSCAR from the new structure
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD", check_for_potcar=False)
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/vasp/outputs/CONTCAR.MD", check_for_potcar=False)
 
         path = f"{self.tmp_path}/POSCAR.testing.md"
         poscar.write_file(path)
@@ -315,7 +315,7 @@ direct
         assert poscar.predictor_corrector_preamble == p3.predictor_corrector_preamble
 
         # Same as above except also has lattice velocities
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/vasp/outputs/CONTCAR.MD.npt", check_for_potcar=False)
 
         poscar.write_file(path)
 
@@ -1394,7 +1394,7 @@ class TestVaspInput(PymatgenTest):
 
         Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
 
-        copyfile(f"{TEST_FILES_DIR}/CONTCAR.Li2O", f"{self.tmp_path}/CONTCAR.Li2O")
+        copyfile(f"{TEST_FILES_DIR}/vasp/outputs/CONTCAR.Li2O", f"{self.tmp_path}/CONTCAR.Li2O")
 
         vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR.Li2O": Poscar})
 
