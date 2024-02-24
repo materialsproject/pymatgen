@@ -1429,7 +1429,7 @@ class TestOszicar(PymatgenTest):
 
 class TestLocpot(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/LOCPOT"
+        filepath = f"{test_output_dir}/LOCPOT"
         locpot = Locpot.from_file(filepath)
         assert approx(sum(locpot.get_average_along_axis(0))) == -217.05226954
         assert locpot.get_axis_grid(0)[-1] == approx(2.87629, abs=1e-2)
