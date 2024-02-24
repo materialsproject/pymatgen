@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import unittest
 
@@ -26,6 +27,13 @@ class TestKpoint(unittest.TestCase):
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
+
+    def test_eq(self):
+        assert self.kpoint == self.kpoint
+        assert self.kpoint == copy.deepcopy(self.kpoint)
+        assert self.kpoint != Kpoint([0.1, 0.4, -0.5], self.lattice, label="Y")
+        assert self.kpoint != Kpoint([0.1, 0.4, -0.6], self.lattice, label="X")
+        assert self.kpoint != Kpoint([0.1, 0.4, -0.5], Lattice.cubic(20.0), label="X")
 
     def test_properties(self):
         assert list(self.kpoint.frac_coords) == [0.1, 0.4, -0.5]
