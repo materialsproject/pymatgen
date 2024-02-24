@@ -1984,7 +1984,7 @@ class TestEigenval(PymatgenTest):
 
 class TestWaveder(PymatgenTest):
     def setUp(self):
-        wder = Waveder.from_binary(f"{TEST_FILES_DIR}/WAVEDER", "float64")
+        wder = Waveder.from_binary(f"{test_output_dir}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
         band_i = 0
@@ -1996,10 +1996,10 @@ class TestWaveder(PymatgenTest):
         assert cder == approx(-1.33639226092e-103, abs=1e-114)
 
     def test_consistency(self):
-        wder_ref = np.loadtxt(f"{TEST_FILES_DIR}/WAVEDERF.Si", skiprows=1)
+        wder_ref = np.loadtxt(f"{test_output_dir}/WAVEDERF.Si", skiprows=1)
 
         def _check(wder):
-            with open(f"{TEST_FILES_DIR}/WAVEDERF.Si") as file:
+            with open(f"{test_output_dir}/WAVEDERF.Si") as file:
                 first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
@@ -2014,9 +2014,9 @@ class TestWaveder(PymatgenTest):
                 assert wder.cder[0, i, 0, 0, 2].real == approx(wder_ref[i, 10], abs=1e-10)
                 assert wder.cder[0, i, 0, 0, 2].imag == approx(wder_ref[i, 11], abs=1e-10)
 
-        wder = Waveder.from_binary(f"{TEST_FILES_DIR}/WAVEDER.Si")
+        wder = Waveder.from_binary(f"{test_output_dir}/WAVEDER.Si")
         _check(wder)
-        wderf = Waveder.from_formatted(f"{TEST_FILES_DIR}/WAVEDERF.Si")
+        wderf = Waveder.from_formatted(f"{test_output_dir}/WAVEDERF.Si")
         _check(wderf)
 
 
