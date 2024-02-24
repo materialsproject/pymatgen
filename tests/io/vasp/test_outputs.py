@@ -833,7 +833,7 @@ class TestOutcar(PymatgenTest):
             assert toten == approx(outcar.final_energy, abs=1e-6)
 
     def test_stopped_old(self):
-        filepath = f"{test_output_dir}/OUTCAR.stopped"
+        filepath = f"{test_output_dir}/OUTCAR.stopped.gz"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
 
@@ -862,7 +862,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_stopped(self):
-        filepath = f"{test_output_dir}/OUTCAR.stopped"
+        filepath = f"{test_output_dir}/OUTCAR.stopped.gz"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
 
@@ -1059,7 +1059,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.data["piezo_tensor"][2][5] == approx(0.35997)
 
     def test_core_state_eigen(self):
-        filepath = f"{test_output_dir}/OUTCAR.CL"
+        filepath = f"{test_output_dir}/OUTCAR.CL.gz"
         cl = Outcar(filepath).read_core_state_eigen()
         assert cl[6]["2s"][-1] == approx(-174.4779)
         filepath = f"{test_output_dir}/OUTCAR.icorelevel"
@@ -1226,7 +1226,7 @@ class TestOutcar(PymatgenTest):
         assert len(outcar.drift) == 5
         assert np.sum(outcar.drift) == approx(0)
 
-        outcar = Outcar(f"{test_output_dir}/OUTCAR.CL")
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.CL.gz")
         assert len(outcar.drift) == 79
         assert np.sum(outcar.drift) == approx(0.448010)
 
@@ -1289,7 +1289,7 @@ class TestOutcar(PymatgenTest):
             1717, 1712, 1710, 1721, 1722, 1724, 1720, 1726, 1719, 1722, 1714,
         ]
         # fmt: on
-        outcar = Outcar(f"{test_output_dir}/OUTCAR.CL")
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.CL.gz")
         assert outcar.data["nplwv"] == [[None]]
         assert outcar.data["nplwvs_at_kpoints"] == [85687]
 
@@ -1299,7 +1299,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.data["nplwvs_at_kpoints"] == [4418, 4390, 4421, 4404]
 
     def test_vasp620_format(self):
-        filepath = f"{test_output_dir}/OUTCAR.vasp.6.2.0"
+        filepath = f"{test_output_dir}/OUTCAR.vasp.6.2.0.gz"
         outcar = Outcar(filepath)
         assert outcar.run_stats["Average memory used (kb)"] is None
 
@@ -1446,10 +1446,10 @@ class TestChgcar(PymatgenTest):
         filepath = f"{test_output_dir}/CHGCAR.nospin"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
-        filepath = f"{test_output_dir}/CHGCAR.spin"
+        filepath = f"{test_output_dir}/CHGCAR.spin.gz"
         cls.chgcar_spin = Chgcar.from_file(filepath)
 
-        filepath = f"{test_output_dir}/CHGCAR.Fe3O4"
+        filepath = f"{test_output_dir}/CHGCAR.Fe3O4.gz"
         cls.chgcar_fe3o4 = Chgcar.from_file(filepath)
 
         filepath = f"{test_output_dir}/CHGCAR.NiO_SOC.gz"
@@ -1597,13 +1597,13 @@ class TestProcar(PymatgenTest):
         assert procar.nbands == 10
         assert procar.nkpoints == 10
         assert procar.nions == 3
-        filepath = f"{test_output_dir}/PROCAR"
+        filepath = f"{test_output_dir}/PROCAR.gz"
         procar = Procar(filepath)
         assert procar.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
         assert procar.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
 
     def test_phase_factors(self):
-        filepath = f"{test_output_dir}/PROCAR.phase"
+        filepath = f"{test_output_dir}/PROCAR.phase.gz"
         procar = Procar(filepath)
         assert procar.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.746 + 0.099j)
         assert procar.phase_factors[Spin.down][0, 0, 0, 0] == approx(0.372 - 0.654j)
