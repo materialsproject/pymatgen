@@ -6,7 +6,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestFunc(PymatgenTest):
     def test_micro_pyawk(self):
-        filename = f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR"
+        filename = f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR.gz"
         data = []
 
         def f(_x, y):

@@ -177,7 +177,7 @@ def test_get_structure_mag():
     assert "final_magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR")
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR.gz")
     structure = AseAtomsAdaptor.get_structure(atoms)
     assert structure.site_properties["final_magmom"] == atoms.get_magnetic_moments().tolist()
     assert "magmom" not in structure.site_properties
@@ -238,7 +238,7 @@ def test_get_molecule():
 
 
 @skip_if_no_ase
-@pytest.mark.parametrize("filename", ["vasp/outputs/OUTCAR", "V2O3.cif"])
+@pytest.mark.parametrize("filename", ["vasp/outputs/OUTCAR.gz", "V2O3.cif"])
 def test_back_forth(filename):
     # Atoms --> Structure --> Atoms --> Structure
     atoms = ase.io.read(f"{TEST_FILES_DIR}/{filename}")
@@ -316,7 +316,7 @@ def test_back_forth_v4():
 
 @skip_if_no_ase
 def test_msonable_atoms():
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR")
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR.gz")
     assert not isinstance(atoms, MSONAtoms)
     ref = {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": ase.io.jsonio.encode(atoms)}
     msonable_atoms = MSONAtoms(atoms)

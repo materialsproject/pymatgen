@@ -786,52 +786,50 @@ class TestVasprun(PymatgenTest):
 
 class TestOutcar(PymatgenTest):
     def test_init(self):
-        for filename in ["OUTCAR", "OUTCAR.gz"]:
-            filepath = f"{test_output_dir}/{filename}"
-            outcar = Outcar(filepath)
-            expected_mag = (
-                {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
-                {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
-                {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
-                {"d": 0.0, "p": -0.117, "s": 0.005, "tot": -0.112},
-                {"d": 0.0, "p": -0.165, "s": 0.004, "tot": -0.162},
-                {"d": 0.0, "p": -0.117, "s": 0.005, "tot": -0.112},
-                {"d": 0.0, "p": -0.165, "s": 0.004, "tot": -0.162},
-            )
-            expected_chg = (
-                {"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232},
-                {"p": 0.707, "s": 0.463, "d": 8.316, "tot": 9.486},
-                {"p": 0.707, "s": 0.463, "d": 8.316, "tot": 9.486},
-                {"p": 3.388, "s": 1.576, "d": 0.0, "tot": 4.964},
-                {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
-                {"p": 3.388, "s": 1.576, "d": 0.0, "tot": 4.964},
-                {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
-            )
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.gz")
+        expected_mag = (
+            {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
+            {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
+            {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
+            {"d": 0.0, "p": -0.117, "s": 0.005, "tot": -0.112},
+            {"d": 0.0, "p": -0.165, "s": 0.004, "tot": -0.162},
+            {"d": 0.0, "p": -0.117, "s": 0.005, "tot": -0.112},
+            {"d": 0.0, "p": -0.165, "s": 0.004, "tot": -0.162},
+        )
+        expected_chg = (
+            {"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232},
+            {"p": 0.707, "s": 0.463, "d": 8.316, "tot": 9.486},
+            {"p": 0.707, "s": 0.463, "d": 8.316, "tot": 9.486},
+            {"p": 3.388, "s": 1.576, "d": 0.0, "tot": 4.964},
+            {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
+            {"p": 3.388, "s": 1.576, "d": 0.0, "tot": 4.964},
+            {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
+        )
 
-            assert outcar.magnetization == approx(expected_mag, abs=1e-5), "Wrong magnetization read from Outcar"
-            assert outcar.charge == approx(expected_chg, abs=1e-5), "Wrong charge read from Outcar"
-            assert not outcar.is_stopped
-            assert outcar.run_stats == {
-                "System time (sec)": 0.938,
-                "Total CPU time used (sec)": 545.142,
-                "Elapsed time (sec)": 546.709,
-                "Maximum memory used (kb)": 0.0,
-                "Average memory used (kb)": 0.0,
-                "User time (sec)": 544.204,
-                "cores": 8,
-            }
-            assert outcar.efermi == approx(2.0112)
-            assert outcar.nelect == approx(44.9999991)
-            assert outcar.total_mag == approx(0.9999998)
+        assert outcar.magnetization == approx(expected_mag, abs=1e-5), "Wrong magnetization read from Outcar"
+        assert outcar.charge == approx(expected_chg, abs=1e-5), "Wrong charge read from Outcar"
+        assert not outcar.is_stopped
+        assert outcar.run_stats == {
+            "System time (sec)": 0.938,
+            "Total CPU time used (sec)": 545.142,
+            "Elapsed time (sec)": 546.709,
+            "Maximum memory used (kb)": 0.0,
+            "Average memory used (kb)": 0.0,
+            "User time (sec)": 544.204,
+            "cores": 8,
+        }
+        assert outcar.efermi == approx(2.0112)
+        assert outcar.nelect == approx(44.9999991)
+        assert outcar.total_mag == approx(0.9999998)
 
-            assert outcar.as_dict() is not None
+        assert outcar.as_dict() is not None
 
-            assert not outcar.lepsilon
+        assert not outcar.lepsilon
 
-            toten = 0
-            for k in outcar.final_energy_contribs:
-                toten += outcar.final_energy_contribs[k]
-            assert toten == approx(outcar.final_energy, abs=1e-6)
+        toten = 0
+        for k in outcar.final_energy_contribs:
+            toten += outcar.final_energy_contribs[k]
+        assert toten == approx(outcar.final_energy, abs=1e-6)
 
     def test_stopped_old(self):
         filepath = f"{test_output_dir}/OUTCAR.stopped.gz"
@@ -1076,7 +1074,7 @@ class TestOutcar(PymatgenTest):
         cp = Outcar(filepath).read_avg_core_poten()
         assert cp[-1][1] == approx(-90.0487)
 
-        filepath = f"{test_output_dir}/OUTCAR"
+        filepath = f"{test_output_dir}/OUTCAR.gz"
         cp = Outcar(filepath).read_avg_core_poten()
         assert cp[0][6] == approx(-73.1068)
 
@@ -1223,7 +1221,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.data["fermi_contact_shift"]["dh"][0][0] == approx(0.0)
 
     def test_drift(self):
-        outcar = Outcar(f"{test_output_dir}/OUTCAR")
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.gz")
         assert len(outcar.drift) == 5
         assert np.sum(outcar.drift) == approx(0)
 
@@ -1232,7 +1230,7 @@ class TestOutcar(PymatgenTest):
         assert np.sum(outcar.drift) == approx(0.448010)
 
     def test_electrostatic_potential(self):
-        outcar = Outcar(f"{test_output_dir}/OUTCAR")
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.gz")
         assert outcar.ngf == [54, 30, 54]
         assert_allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215])
         assert_allclose(
@@ -1278,7 +1276,7 @@ class TestOutcar(PymatgenTest):
         assert "onsite_density_matrices" in outcar.as_dict()
 
     def test_nplwvs(self):
-        outcar = Outcar(f"{test_output_dir}/OUTCAR")
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.gz")
         assert outcar.data["nplwv"] == [[34560]]
         # fmt: off
         assert outcar.data["nplwvs_at_kpoints"] == [
@@ -1334,7 +1332,7 @@ class TestOutcar(PymatgenTest):
         assert o.final_fr_energy == approx(-15.92115453)
 
     def test_read_table_pattern(self):
-        outcar = Outcar(f"{test_output_dir}/OUTCAR")
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.gz")
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
