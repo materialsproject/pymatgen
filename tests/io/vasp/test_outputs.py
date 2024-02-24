@@ -836,61 +836,59 @@ class TestOutcar(PymatgenTest):
         filepath = f"{test_output_dir}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for filename in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
-            filepath = f"{test_output_dir}/{filename}"
-            outcar = Outcar(filepath)
 
-            assert outcar.lepsilon
-            assert outcar.dielectric_tensor[0][0] == approx(3.716432)
-            assert outcar.dielectric_tensor[0][1] == approx(-0.20464)
-            assert outcar.dielectric_tensor[1][2] == approx(-0.20464)
-            assert outcar.dielectric_ionic_tensor[0][0] == approx(0.001419)
-            assert outcar.dielectric_ionic_tensor[0][2] == approx(0.001419)
-            assert outcar.dielectric_ionic_tensor[2][2] == approx(0.001419)
-            assert outcar.piezo_tensor[0][0] == approx(0.52799)
-            assert outcar.piezo_tensor[1][3] == approx(0.35998)
-            assert outcar.piezo_tensor[2][5] == approx(0.35997)
-            assert outcar.piezo_ionic_tensor[0][0] == approx(0.05868)
-            assert outcar.piezo_ionic_tensor[1][3] == approx(0.06241)
-            assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
-            assert outcar.born[0][1][2] == approx(-0.385)
-            assert outcar.born[1][2][0] == approx(0.36465)
-            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
-            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
-            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.lepsilon_old_born.gz")
+
+        assert outcar.lepsilon
+        assert outcar.dielectric_tensor[0][0] == approx(3.716432)
+        assert outcar.dielectric_tensor[0][1] == approx(-0.20464)
+        assert outcar.dielectric_tensor[1][2] == approx(-0.20464)
+        assert outcar.dielectric_ionic_tensor[0][0] == approx(0.001419)
+        assert outcar.dielectric_ionic_tensor[0][2] == approx(0.001419)
+        assert outcar.dielectric_ionic_tensor[2][2] == approx(0.001419)
+        assert outcar.piezo_tensor[0][0] == approx(0.52799)
+        assert outcar.piezo_tensor[1][3] == approx(0.35998)
+        assert outcar.piezo_tensor[2][5] == approx(0.35997)
+        assert outcar.piezo_ionic_tensor[0][0] == approx(0.05868)
+        assert outcar.piezo_ionic_tensor[1][3] == approx(0.06241)
+        assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
+        assert outcar.born[0][1][2] == approx(-0.385)
+        assert outcar.born[1][2][0] == approx(0.36465)
+        assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
+        assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
+        assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
+        assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
+        assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
+        assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_stopped(self):
         filepath = f"{test_output_dir}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for filename in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
-            filepath = f"{test_output_dir}/{filename}"
-            outcar = Outcar(filepath)
 
-            assert outcar.lepsilon
-            assert outcar.dielectric_tensor[0][0] == approx(3.716432)
-            assert outcar.dielectric_tensor[0][1] == approx(-0.20464)
-            assert outcar.dielectric_tensor[1][2] == approx(-0.20464)
-            assert outcar.dielectric_ionic_tensor[0][0] == approx(0.001419)
-            assert outcar.dielectric_ionic_tensor[0][2] == approx(0.001419)
-            assert outcar.dielectric_ionic_tensor[2][2] == approx(0.001419)
-            assert outcar.piezo_tensor[0][0] == approx(0.52799)
-            assert outcar.piezo_tensor[1][3] == approx(0.35998)
-            assert outcar.piezo_tensor[2][5] == approx(0.35997)
-            assert outcar.piezo_ionic_tensor[0][0] == approx(0.05868)
-            assert outcar.piezo_ionic_tensor[1][3] == approx(0.06241)
-            assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
-            assert outcar.born[0][1][2] == approx(-0.385)
-            assert outcar.born[1][2][0] == approx(0.36465)
-            assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
-            assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
-            assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
-            assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
+        outcar = Outcar(f"{test_output_dir}/OUTCAR.lepsilon.gz")
+
+        assert outcar.lepsilon
+        assert outcar.dielectric_tensor[0][0] == approx(3.716432)
+        assert outcar.dielectric_tensor[0][1] == approx(-0.20464)
+        assert outcar.dielectric_tensor[1][2] == approx(-0.20464)
+        assert outcar.dielectric_ionic_tensor[0][0] == approx(0.001419)
+        assert outcar.dielectric_ionic_tensor[0][2] == approx(0.001419)
+        assert outcar.dielectric_ionic_tensor[2][2] == approx(0.001419)
+        assert outcar.piezo_tensor[0][0] == approx(0.52799)
+        assert outcar.piezo_tensor[1][3] == approx(0.35998)
+        assert outcar.piezo_tensor[2][5] == approx(0.35997)
+        assert outcar.piezo_ionic_tensor[0][0] == approx(0.05868)
+        assert outcar.piezo_ionic_tensor[1][3] == approx(0.06241)
+        assert outcar.piezo_ionic_tensor[2][5] == approx(0.06242)
+        assert outcar.born[0][1][2] == approx(-0.385)
+        assert outcar.born[1][2][0] == approx(0.36465)
+        assert outcar.internal_strain_tensor[0][0][0] == approx(-572.5437, abs=1e-4)
+        assert outcar.internal_strain_tensor[0][1][0] == approx(683.2985, abs=1e-4)
+        assert outcar.internal_strain_tensor[0][1][3] == approx(73.07059, abs=1e-4)
+        assert outcar.internal_strain_tensor[1][0][0] == approx(570.98927, abs=1e-4)
+        assert outcar.internal_strain_tensor[1][1][0] == approx(-683.68519, abs=1e-4)
+        assert outcar.internal_strain_tensor[1][2][2] == approx(570.98927, abs=1e-4)
 
     def test_soc(self):
         filepath = f"{test_output_dir}/OUTCAR.NiO_SOC.gz"
@@ -1073,7 +1071,7 @@ class TestOutcar(PymatgenTest):
         outcar.as_dict()
 
     def test_avg_core_poten(self):
-        filepath = f"{test_output_dir}/OUTCAR.lepsilon"
+        filepath = f"{test_output_dir}/OUTCAR.lepsilon.gz"
         cp = Outcar(filepath).read_avg_core_poten()
         assert cp[-1][1] == approx(-90.0487)
 
