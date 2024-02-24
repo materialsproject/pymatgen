@@ -1944,7 +1944,7 @@ class TestWavecar(PymatgenTest):
 
 class TestEigenval(PymatgenTest):
     def test_init(self):
-        eig = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL.gz")
+        eig = Eigenval(f"{test_output_dir}/EIGENVAL.gz")
         assert eig.ispin == 1
         assert eig.nkpt == len(eig.kpoints)
         assert eig.nkpt == len(eig.kpoints_weights)
@@ -1955,7 +1955,7 @@ class TestEigenval(PymatgenTest):
         assert np.min(eig.eigenvalues[Spin.up]) < 0
 
     def test_ispin2(self):
-        eig = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL.ispin2.gz")
+        eig = Eigenval(f"{test_output_dir}/EIGENVAL.ispin2.gz")
         assert eig.ispin == 2
         assert eig.nkpt == eig.eigenvalues[Spin.up].shape[0]
         assert eig.nbands == eig.eigenvalues[Spin.up].shape[1]
@@ -1963,7 +1963,7 @@ class TestEigenval(PymatgenTest):
         assert eig.nbands == eig.eigenvalues[Spin.down].shape[1]
 
     def test_eigenvalue_band_properties(self):
-        eig = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL.gz")
+        eig = Eigenval(f"{test_output_dir}/EIGENVAL.gz")
         props = eig.eigenvalue_band_properties
         assert props[0] == approx(6.4153, abs=1e-4)
         assert props[1] == approx(7.5587, abs=1e-4)
@@ -1971,9 +1971,9 @@ class TestEigenval(PymatgenTest):
         assert props[3] is False
 
     def test_eigenvalue_band_properties_separate_spins(self):
-        eig = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL_separate_spins.gz", separate_spins=True)
+        eig = Eigenval(f"{test_output_dir}/EIGENVAL_separate_spins.gz", separate_spins=True)
         props = eig.eigenvalue_band_properties
-        eig2 = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL_separate_spins.gz", separate_spins=False)
+        eig2 = Eigenval(f"{test_output_dir}/EIGENVAL_separate_spins.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
 
         assert np.array(props)[:3, :2].flat == approx([2.8772, 1.2810, 3.6741, 1.6225, 0.7969, 0.3415], abs=1e-4)
