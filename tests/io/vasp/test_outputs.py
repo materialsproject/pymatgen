@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ElementTree
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
+from monty.io import zopen
 
 import numpy as np
 import pytest
@@ -1994,10 +1995,10 @@ class TestWaveder(PymatgenTest):
         assert cder == approx(-1.33639226092e-103, abs=1e-114)
 
     def test_consistency(self):
-        wder_ref = np.loadtxt(f"{test_output_dir}/WAVEDERF.Si", skiprows=1)
+        wder_ref = np.loadtxt(f"{test_output_dir}/WAVEDERF.Si.gz", skiprows=1)
 
         def _check(wder):
-            with open(f"{test_output_dir}/WAVEDERF.Si") as file:
+            with zopen(f"{test_output_dir}/WAVEDERF.Si.gz") as file:
                 first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
@@ -2014,7 +2015,7 @@ class TestWaveder(PymatgenTest):
 
         wder = Waveder.from_binary(f"{test_output_dir}/WAVEDER.Si")
         _check(wder)
-        wderf = Waveder.from_formatted(f"{test_output_dir}/WAVEDERF.Si")
+        wderf = Waveder.from_formatted(f"{test_output_dir}/WAVEDERF.Si.gz")
         _check(wderf)
 
 
