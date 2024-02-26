@@ -164,7 +164,7 @@ class BaderAnalysis:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated. Calculation of vacuum charge may be incorrect.",
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
                     UserWarning,
                 )
 
