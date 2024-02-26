@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 
 import pytest
 
@@ -15,24 +16,22 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 
 class TestTransformedStructure(PymatgenTest):
     def setUp(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         self.structure = structure
-        trans = [SubstitutionTransformation({"Li": "Na"})]
-        self.trans = TransformedStructure(structure, trans)
+        trafos = [SubstitutionTransformation({"Li": "Na"})]
+        self.trans = TransformedStructure(structure, trafos)
 
     def test_append_transformation(self):
         trafo = SubstitutionTransformation({"Fe": "Mn"})
         self.trans.append_transformation(trafo)
-        assert self.trans.final_structure.composition.reduced_formula == "NaMnPO4"
+        assert self.trans.final_structure.reduced_formula == "NaMnPO4"
         assert len(self.trans.structures) == 3
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
             [3.8401979337, 0, 0],
             [1.9200989668, 3.3257101909, 0],
@@ -51,13 +50,15 @@ class TestTransformedStructure(PymatgenTest):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = TEST_FILES_DIR
+        SETTINGS["PMG_VASP_PSP_DIR"] = FAKE_POTCAR_DIR
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
         assert "\n".join(p.symbol for p in potcar) == "Na_pv\nFe_pv\nP\nO"
         assert len(self.trans.structures) == 2
 
     def test_final_structure(self):
-        assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
+        assert self.trans.final_structure.reduced_formula == "NaFePO4"
+        # https://github.com/materialsproject/pymatgen/pull/3617
+        assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
         with open(f"{TEST_FILES_DIR}/transformations.json") as file:
@@ -66,26 +67,26 @@ class TestTransformedStructure(PymatgenTest):
         ts = TransformedStructure.from_dict(dct)
         ts.other_parameters["author"] = "Will"
         ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
-        assert ts.final_structure.composition.reduced_formula == "MnPO4"
+        assert ts.final_structure.reduced_formula == "MnPO4"
         assert ts.other_parameters == {"author": "Will", "tags": ["test"]}
 
     def test_undo_and_redo_last_change(self):
-        trans = [
+        trafos = [
             SubstitutionTransformation({"Li": "Na"}),
             SubstitutionTransformation({"Fe": "Mn"}),
         ]
-        ts = TransformedStructure(self.structure, trans)
-        assert ts.final_structure.composition.reduced_formula == "NaMnPO4"
+        ts = TransformedStructure(self.structure, trafos)
+        assert ts.final_structure.reduced_formula == "NaMnPO4"
         ts.undo_last_change()
-        assert ts.final_structure.composition.reduced_formula == "NaFePO4"
+        assert ts.final_structure.reduced_formula == "NaFePO4"
         ts.undo_last_change()
-        assert ts.final_structure.composition.reduced_formula == "LiFePO4"
+        assert ts.final_structure.reduced_formula == "LiFePO4"
         with pytest.raises(IndexError, match="No more changes to undo"):
             ts.undo_last_change()
         ts.redo_next_change()
-        assert ts.final_structure.composition.reduced_formula == "NaFePO4"
+        assert ts.final_structure.reduced_formula == "NaFePO4"
         ts.redo_next_change()
-        assert ts.final_structure.composition.reduced_formula == "NaMnPO4"
+        assert ts.final_structure.reduced_formula == "NaMnPO4"
         with pytest.raises(IndexError, match="No more changes to redo"):
             ts.redo_next_change()
         # Make sure that this works with filters.
@@ -96,17 +97,22 @@ class TestTransformedStructure(PymatgenTest):
 
     def test_as_dict(self):
         self.trans.set_parameter("author", "will")
-        d = self.trans.as_dict()
-        assert "last_modified" in d
-        assert "history" in d
-        assert "author" in d["other_parameters"]
-        assert Structure.from_dict(d).formula == "Na4 Fe4 P4 O16"
+        dct = self.trans.as_dict()
+        assert "last_modified" in dct
+        assert "history" in dct
+        assert "author" in dct["other_parameters"]
+        assert Structure.from_dict(dct).formula == "Na4 Fe4 P4 O16"
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
         with pytest.warns(UserWarning) as warns:
             snl = self.trans.to_snl([("will", "will@test.com")])
+
         assert len(warns) == 1, "Warning not raised on type conversion with other_parameters"
+        assert (
+            str(warns[0].message)
+            == "Data in TransformedStructure.other_parameters discarded during type conversion to SNL"
+        )
 
         ts = TransformedStructure.from_snl(snl)
         assert ts.history[-1]["@class"] == "SubstitutionTransformation"

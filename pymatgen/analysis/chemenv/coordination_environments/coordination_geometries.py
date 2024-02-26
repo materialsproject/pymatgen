@@ -397,7 +397,7 @@ class CoordinationGeometry:
             """
             if hints_info["csm"] > self.options["csm_max"]:
                 return []
-            return object.__getattribute__(self, f"{self.hints_type}_hints")(hints_info)
+            return getattr(self, f"{self.hints_type}_hints")(hints_info)
 
         def single_cap_hints(self, hints_info):
             """Return hints for an additional neighbors set, i.e. the voronoi indices that
@@ -651,8 +651,7 @@ class CoordinationGeometry:
             outs.append("  - list of points :")
             for pp in self.points:
                 outs.append(f"    - {pp}")
-        outs.append("------------------------------------------------------------")
-        outs.append("")
+        outs.extend(("------------------------------------------------------------", ""))
 
         return "\n".join(outs)
 
@@ -670,8 +669,7 @@ class CoordinationGeometry:
             f"Coordination geometry type : {self.name}{symbol}\n",
             f"  - coordination number : {self.coordination}",
         ]
-        outs.append("------------------------------------------------------------")
-        outs.append("")
+        outs.extend(("------------------------------------------------------------", ""))
         return "\n".join(outs)
 
     def __len__(self):
@@ -699,15 +697,15 @@ class CoordinationGeometry:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
             else:
-                min_dist_anions = 1000000.0
-                min_dist_cation_anion = 1000000.0
-                for ipt1 in range(len(self.points)):  # pylint: disable=C0200
+                min_dist_anions = 1_000_000
+                min_dist_cation_anion = 1_000_000
+                for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     min_dist_cation_anion = min(min_dist_cation_anion, np.linalg.norm(pt1 - self.central_site))
                     for ipt2 in range(ipt1 + 1, len(self.points)):
                         pt2 = np.array(self.points[ipt2])
                         min_dist_anions = min(min_dist_anions, np.linalg.norm(pt1 - pt2))
-                anion_radius = min_dist_anions / 2.0
+                anion_radius = min_dist_anions / 2
                 cation_radius = min_dist_cation_anion - anion_radius
                 self._pauling_stability_ratio = cation_radius / anion_radius
         return self._pauling_stability_ratio
@@ -759,9 +757,9 @@ class CoordinationGeometry:
         """Returns the number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
-        if self.permutations is None:  # pylint: disable=E1101
+        if self.permutations is None:
             return factorial(self.coordination)
-        return len(self.permutations)  # pylint: disable=E1101
+        return len(self.permutations)
 
     def ref_permutation(self, permutation):
         """
@@ -884,19 +882,19 @@ class AllCoordinationGeometries(dict):
         dict.__init__(self)
         self.cg_list = []
         if only_symbols is None:
-            with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as f:
-                data = f.readlines()
+            with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as file:
+                data = file.readlines()
             for line in data:
                 cg_file = f"{module_dir}/{line.strip()}"
-                with open(cg_file) as f:
-                    dd = json.load(f)
+                with open(cg_file) as file:
+                    dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
                 cg_file = f"{module_dir}/coordination_geometries_files/{fsymbol}.json"
-                with open(cg_file) as f:
-                    dd = json.load(f)
+                with open(cg_file) as file:
+                    dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 
         self.cg_list.append(CoordinationGeometry(UNKNOWN_ENVIRONMENT_SYMBOL, "Unknown environment", deactivate=True))

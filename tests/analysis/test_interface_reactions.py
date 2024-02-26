@@ -162,13 +162,14 @@ class TestInterfaceReaction(unittest.TestCase):
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with pytest.warns(
-            UserWarning,
-            match="The reactant MnO3 has no matching entry with negative formation energy, instead "
-            "convex hull energy for this composition will be used for reaction energy calculation.",
-        ) as warns:
+        with pytest.warns(UserWarning) as warns:
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
         assert len(warns) == 1
+        assert str(warns[0].message) == (
+            "The reactant MnO3 has no matching entry with negative formation energy, instead "
+            "convex hull energy for this composition will be used for reaction energy calculation."
+        )
+
         test1 = np.isclose(energy, -30, atol=1e-3)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
         # Test normal functionality
@@ -217,24 +218,24 @@ class TestInterfaceReaction(unittest.TestCase):
 
     def test_get_get_elmt_amt_in_rxt(self):
         rxt1 = Reaction(
-            [Composition("Mn"), Composition("O2"), Composition("Li")],
+            [*map(Composition, ["Mn", "O2", "Li"])],
             [Composition("LiMnO2")],
         )
-        test1 = np.isclose(self.irs[2]._get_elmt_amt_in_rxn(rxt1), 3)
+        test1 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt1), 3)
         assert test1, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!"
 
         rxt2 = rxt1
         rxt2.normalize_to(Composition("Li"), 0.5)
-        test2 = np.isclose(self.irs[2]._get_elmt_amt_in_rxn(rxt2), 1.5)
+        test2 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt2), 1.5)
         assert test2, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!"
 
         rxt3 = Reaction([Composition("O2"), Composition("Li")], [Composition("Li2O")])
         # Li is not counted
-        test3 = np.isclose(self.irs[2]._get_elmt_amt_in_rxn(rxt3), 1)
+        test3 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt3), 1)
         assert test3, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!"
 
         # Li is counted
-        test4 = np.isclose(self.irs[6]._get_elmt_amt_in_rxn(rxt3), 3)
+        test4 = np.isclose(self.irs[6]._get_elem_amt_in_rxn(rxt3), 3)
         assert test4, "_get_get_elmt_amt_in_rxt: pd elements amounts gets error!"
 
     def test_convert(self):
@@ -415,9 +416,12 @@ class TestInterfaceReaction(unittest.TestCase):
             (0.3333333, -4.0),
         ]
         for i, j in zip(self.irs, answer):
-            assert_allclose(i.minimum, j, atol=1e-7), (
-                f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
-                f"gets error!{j} expected, but gets {i.minimum}"
+            (
+                assert_allclose(i.minimum, j, atol=1e-7),
+                (
+                    f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
+                    f"gets error!{j} expected, but gets {i.minimum}"
+                ),
             )
 
     def test_get_no_mixing_energy(self):
@@ -439,9 +443,10 @@ class TestInterfaceReaction(unittest.TestCase):
         for i, j in zip(result_info, answer):
             err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
             assert name_lst(i) == name_lst(j), err_msg
-            assert_allclose(
-                energy_lst(i), energy_lst(j), atol=1e-9
-            ), f"get_no_mixing_energy: {energy_lst(j)} expected but gets {energy_lst(i)}"
+            (
+                assert_allclose(energy_lst(i), energy_lst(j), atol=1e-9),
+                f"get_no_mixing_energy: {energy_lst(j)} expected but gets {energy_lst(i)}",
+            )
 
     def test_get_chempot_correction(self):
         # test data from fig. 6 in ref:

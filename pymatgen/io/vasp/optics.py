@@ -118,10 +118,10 @@ class DielectricFunctionCalculator(MSONable):
             for dtype in dtypes:
                 try:
                     return Waveder.from_binary(f"{directory}/WAVEDER", data_type=dtype)
-                except ValueError as e:
-                    if "reshape" in str(e):
+                except ValueError as exc:
+                    if "reshape" in str(exc):
                         continue
-                    raise e
+                    raise exc
             return None
 
         vrun = Vasprun(f"{directory}/vasprun.xml")
@@ -308,7 +308,6 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
 
     Return:
         np.array: Array of size `nx` with delta function on the desired outputgrid.
-
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
@@ -370,7 +369,6 @@ def epsilon_imag(
 
     Return:
         np.array: Array of size `nedos` with the imaginary part of the dielectric function.
-
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
     egrid = np.linspace(0, nedos * deltae, nedos, endpoint=False)
@@ -388,10 +386,10 @@ def epsilon_imag(
     try:
         min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
         min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
-    except ValueError as e:
-        if "zero-size array" in str(e):
+    except ValueError as exc:
+        if "zero-size array" in str(exc):
             return egrid, np.zeros_like(egrid, dtype=np.complex_)
-        raise e
+        raise exc
     _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),

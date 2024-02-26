@@ -40,9 +40,7 @@ from monty.dev import requires
 from monty.fractions import lcm
 from monty.tempfile import ScratchDir
 
-from pymatgen.core.periodic_table import DummySpecies
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import DummySpecies, PeriodicSite, Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -201,7 +199,7 @@ class EnumlibAdaptor:
         target_sg_num = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sg_num = get_sg_info(curr_sites)
-        ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
+        ordered_sites = sorted(ordered_sites, key=len)
         logger.debug(f"Disordered sites has sg # {sg_num}")
         self.ordered_sites = []
 
@@ -235,13 +233,10 @@ class EnumlibAdaptor:
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append(f"{len(index_species)}")
-        output.append(f"{len(coord_str)}")
+        output.extend((f"{len(index_species)}", f"{len(coord_str)}"))
         output.extend(coord_str)
 
-        output.append(f"{self.min_cell_size} {self.max_cell_size}")
-        output.append(str(self.enum_precision_parameter))
-        output.append("full")
+        output.extend((f"{self.min_cell_size} {self.max_cell_size}", str(self.enum_precision_parameter), "full"))
 
         n_disordered = sum(len(s) for s in disordered_sites)
         base = int(
@@ -275,8 +270,8 @@ class EnumlibAdaptor:
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", "w") as f:
-            f.write("\n".join(output))
+        with open("struct_enum.in", mode="w") as file:
+            file.write("\n".join(output))
 
     def _run_multienum(self):
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
@@ -322,7 +317,7 @@ class EnumlibAdaptor:
             stdin=subprocess.PIPE,
             close_fds=True,
         ) as rs:
-            stdout, stderr = rs.communicate()
+            _stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
 
@@ -354,12 +349,12 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None  # to fix pylint E0601
+            ordered_structure = None
             inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as f:
-                data = f.read()
+            with open(file) as file:
+                data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_str(data, self.index_species)

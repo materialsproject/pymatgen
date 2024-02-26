@@ -43,7 +43,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
-module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 molecule_dir = f"{TEST_FILES_DIR}/molecules"
 
 
@@ -52,7 +52,7 @@ class TestStructureGraph(PymatgenTest):
         self.maxDiff = None
 
         # trivial example, simple square lattice for testing
-        structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H"], [[0, 0, 0]])
+        structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
@@ -62,7 +62,7 @@ class TestStructureGraph(PymatgenTest):
         # self.square_sg.decorate_structure_with_ce_info()
 
         # body-centered square lattice for testing
-        structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.bc_square_sg = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
@@ -75,7 +75,7 @@ class TestStructureGraph(PymatgenTest):
 
         # body-centered square lattice for testing
         # directions reversed, should be equivalent to bc_square
-        structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.bc_square_sg_r = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
@@ -89,8 +89,8 @@ class TestStructureGraph(PymatgenTest):
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
-        with open(stdout_file) as f:
-            reference_stdout = f.read()
+        with open(stdout_file) as txt_file:
+            reference_stdout = txt_file.read()
         self.structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
@@ -127,13 +127,11 @@ class TestStructureGraph(PymatgenTest):
 
         # known example where this bug occurred due to edge weights not being
         # bit-for-bit identical in otherwise identical edges
-        nacl_lattice = Lattice(
-            [
-                [3.48543625, 0.0, 2.01231756],
-                [1.16181208, 3.28610081, 2.01231756],
-                [0.0, 0.0, 4.02463512],
-            ]
-        )
+        nacl_lattice = [
+            [3.48543625, 0.0, 2.01231756],
+            [1.16181208, 3.28610081, 2.01231756],
+            [0.0, 0.0, 4.02463512],
+        ]
         nacl = Structure(nacl_lattice, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
         nacl_graph = StructureGraph.with_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
@@ -391,10 +389,10 @@ from    to  to_image
         assert pdfs == expected_pdfs
 
     def test_as_from_dict(self):
-        d = self.mos2_sg.as_dict()
-        sg = StructureGraph.from_dict(d)
-        d2 = sg.as_dict()
-        assert d == d2
+        dct = self.mos2_sg.as_dict()
+        struct_graph = StructureGraph.from_dict(dct)
+        d2 = struct_graph.as_dict()
+        assert dct == d2
 
     def test_from_local_env_and_equality_and_diff(self):
         nn = MinimumDistanceNN()
@@ -440,7 +438,7 @@ from    to  to_image
         sg = StructureGraph.with_local_env_strategy(struct, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
-        assert molecules[0].composition.formula == "H3 C1"
+        assert molecules[0].formula == "H3 C1"
         assert len(molecules) == 1
 
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
@@ -887,16 +885,16 @@ class TestMoleculeGraph(unittest.TestCase):
         assert eth_copy_repl.get_coordination_of_site(5) == 4
         # Now swap one functional group for another
         eth_copy_repl.replace_group(5, "amine", MinimumDistanceNN)
-        assert ["C", "C", "H", "H", "H", "N", "H", "H"] == [str(s) for s in eth_copy_repl.molecule.species]
+        assert list(map(str, eth_copy_repl.molecule.species)) == ["C", "C", "H", "H", "H", "N", "H", "H"]
         assert len(eth_copy_repl.graph.nodes) == 8
         # Amine nitrogen should have coordination 3
         assert eth_copy_repl.get_coordination_of_site(5) == 3
 
     def test_as_from_dict(self):
-        d = self.cyclohexene.as_dict()
-        mg = MoleculeGraph.from_dict(d)
-        d2 = mg.as_dict()
-        assert str(d) == str(d2)
+        dct = self.cyclohexene.as_dict()
+        mg = MoleculeGraph.from_dict(dct)
+        dct2 = mg.as_dict()
+        assert str(dct) == str(dct2)
 
     def test_sort(self):
         sg = copy.deepcopy(self.ethylene)

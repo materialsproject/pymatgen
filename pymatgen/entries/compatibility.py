@@ -19,8 +19,7 @@ from tqdm import tqdm
 from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.core import SETTINGS
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import SETTINGS, Element
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
@@ -201,16 +200,10 @@ class GasCorrection(Correction):
             Correction.
         """
         comp = entry.composition
-
+        # set error to 0 because old MPCompatibility doesn't have errors
         correction = ufloat(0.0, 0.0)
 
-        # set error to 0 because old MPCompatibility doesn't have errors
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
-            return ufloat(0.0, 0.0)
-
-        rform = entry.composition.reduced_formula
+        rform = entry.reduced_formula
         if rform in self.cpd_energies:
             correction += self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
 
@@ -253,10 +246,6 @@ class AnionCorrection(Correction):
 
         correction = ufloat(0.0, 0.0)
 
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
-            return ufloat(0.0, 0.0)
-
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
@@ -296,7 +285,7 @@ class AnionCorrection(Correction):
                         "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
                         "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
                     )
-                    rform = entry.composition.reduced_formula
+                    rform = entry.reduced_formula
                     if rform in UCorrection.common_peroxides:
                         correction += self.oxide_correction["peroxide"] * comp["O"]
                     elif rform in UCorrection.common_superoxides:
@@ -348,15 +337,9 @@ class AqueousCorrection(Correction):
         Returns:
             Correction, Uncertainty.
         """
-        from pymatgen.analysis.pourbaix_diagram import MU_H2O
-
         comp = entry.composition
         rform = comp.reduced_formula
         cpd_energies = self.cpd_energies
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
-            return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
 
@@ -468,22 +451,12 @@ class UCorrection(Correction):
         Returns:
             Correction, Uncertainty.
         """
-        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
-            raise CompatibilityError(
-                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
-            )
-
-        calc_u = entry.parameters.get("hubbards")
-        calc_u = defaultdict(int) if calc_u is None else calc_u
+        calc_u = entry.parameters.get("hubbards") or defaultdict(int)
         comp = entry.composition
 
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
-
-        # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
-            return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})
         u_settings = self.u_settings.get(most_electroneg, {})
@@ -657,17 +630,30 @@ class CorrectionsList(Compatibility):
     MITCompatibility subclasses instead.
     """
 
-    def __init__(self, corrections: Sequence[Correction]):
+    def __init__(self, corrections: Sequence[Correction], run_types: list[str] | None = None):
         """
         Args:
             corrections (list[Correction]): Correction objects to apply.
+            run_types: Valid DFT run_types for this correction scheme. Entries with run_type
+                other than those in this list will be excluded from the list returned
+                by process_entries. The default value captures both GGA and GGA+U run types
+                historically used by the Materials Project, for example in.
         """
+        if run_types is None:
+            run_types = ["GGA", "GGA+U", "PBE", "PBE+U"]
         self.corrections = corrections
+        self.run_types = run_types
         super().__init__()
 
     def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
         """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
+        if entry.parameters.get("run_type") not in self.run_types:
+            raise CompatibilityError(
+                f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
+                f"Must be GGA or GGA+U. Discarding."
+            )
+
         corrections, uncertainties = self.get_corrections_dict(entry)
 
         for k, v in corrections.items():
@@ -748,19 +734,19 @@ class CorrectionsList(Compatibility):
         Args:
             entry: A ComputedEntry.
         """
-        d = self.get_explanation_dict(entry)
-        print(f"The uncorrected value of the energy of {entry.composition} is {d['uncorrected_energy']:f} eV")
-        print(f"The following corrections / screening are applied for {d['compatibility']}:\n")
-        for c in d["corrections"]:
-            print(f"{c['name']} correction: {c['description']}\n")
-            print(f"For the entry, this correction has the value {c['value']:f} eV.")
-            if c["uncertainty"] != 0 or c["value"] == 0:
-                print(f"This correction has an uncertainty value of {c['uncertainty']:f} eV.")
+        dct = self.get_explanation_dict(entry)
+        print(f"The uncorrected value of the energy of {entry.composition} is {dct['uncorrected_energy']:f} eV")
+        print(f"The following corrections / screening are applied for {dct['compatibility']}:\n")
+        for corr in dct["corrections"]:
+            print(f"{corr['name']} correction: {corr['description']}\n")
+            print(f"For the entry, this correction has the value {corr['value']:f} eV.")
+            if corr["uncertainty"] != 0 or corr["value"] == 0:
+                print(f"This correction has an uncertainty value of {corr['uncertainty']:f} eV.")
             else:
                 print("This correction does not have uncertainty data available")
             print("-" * 30)
 
-        print(f"The final energy after corrections is {d['corrected_energy']:f}")
+        print(f"The final energy after corrections is {dct['corrected_energy']:f}")
 
 
 class MaterialsProjectCompatibility(CorrectionsList):
@@ -807,16 +793,14 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
-"""
-Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
-instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
-When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
-require CorrectionsList.
+# Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
+# instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
+# When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
+# require CorrectionsList.
 
-This was particularly helpful for the AqueousCorrection class. The new system gives complete
-flexibility to process entries however needed inside the get_adjustments() method, rather than
-having to create a list of separate correction classes.
-"""
+# This was particularly helpful for the AqueousCorrection class. The new system gives complete
+# flexibility to process entries however needed inside the get_adjustments() method, rather than
+# having to create a list of separate correction classes.
 
 
 @cached_class
@@ -935,7 +919,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         Raises:
             CompatibilityError if the entry is not compatible
         """
-        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ("GGA", "GGA+U"):
             raise CompatibilityError(
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. "
                 f"Must be GGA or GGA+U. Discarding."
@@ -1042,7 +1026,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         if entry.data["oxidation_states"] == {}:
             warnings.warn(
                 f"Failed to guess oxidation states for Entry {entry.entry_id} "
-                f"({entry.composition.reduced_formula}). Assigning anion correction to "
+                f"({entry.reduced_formula}). Assigning anion correction to "
                 "only the most electronegative atom."
             )
 
@@ -1434,7 +1418,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # when processing single entries, all H2 polymorphs will get assigned the
         # same energy
-        if len(entries) == 1 and entries[0].composition.reduced_formula == "H2":
+        if len(entries) == 1 and entries[0].reduced_formula == "H2":
             warnings.warn(
                 "Processing single H2 entries will result in the all polymorphs "
                 "being assigned the same energy. This should not cause problems "
@@ -1448,18 +1432,18 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # results
         if len(entries) > 1:
             if not self.o2_energy:
-                o2_entries = [e for e in entries if e.composition.reduced_formula == "O2"]
+                o2_entries = [e for e in entries if e.reduced_formula == "O2"]
                 if o2_entries:
                     self.o2_energy = min(e.energy_per_atom for e in o2_entries)
 
             if not self.h2o_energy and not self.h2o_adjustments:
-                h2o_entries = [e for e in entries if e.composition.reduced_formula == "H2O"]
+                h2o_entries = [e for e in entries if e.reduced_formula == "H2O"]
                 if h2o_entries:
                     h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
                     self.h2o_energy = h2o_entries[0].energy_per_atom
                     self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
 
-        h2_entries = [e for e in entries if e.composition.reduced_formula == "H2"]
+        h2_entries = [e for e in entries if e.reduced_formula == "H2"]
         if h2_entries:
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]

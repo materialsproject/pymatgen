@@ -5,13 +5,10 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
-import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
 
 
@@ -217,11 +214,11 @@ class PWInput:
         Args:
             filename (str): The string filename to output to.
         """
-        with open(filename, "w") as f:
-            f.write(str(self))
+        with open(filename, mode="w") as file:
+            file.write(str(self))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads an PWInput object from a file.
 
@@ -231,16 +228,11 @@ class PWInput:
         Returns:
             PWInput object
         """
-        with zopen(filename, "rt") as f:
-            return PWInput.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @staticmethod
-    def from_str(string):
+    def from_str(cls, string):
         """
         Reads an PWInput object from a string.
 
@@ -343,7 +335,7 @@ class PWInput:
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
         )
-        return PWInput(
+        return cls(
             structure=structure,
             control=sections["control"],
             pseudo=pseudo,

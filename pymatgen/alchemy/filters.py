@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
-from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -30,8 +30,8 @@ class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
             structure (Structure): Input structure to test
 
         Returns:
-            (bool) Structures that return true are kept in the Transmuter
-            object during filtering.
+            bool: Structures that return true are kept in the Transmuter
+                object during filtering.
         """
         return
 
@@ -75,7 +75,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         if self._AND and filter_set <= structure_set:
             # return true if we aren't excluding since all are in structure
             return not self._exclude
-        if (not self._AND) and filter_set & structure_set:
+        if not self._AND and filter_set & structure_set:
             # return true if we aren't excluding since one is in structure
             return not self._exclude
         # return false if we aren't excluding otherwise
@@ -265,9 +265,11 @@ class RemoveExistingFilter(AbstractStructureFilter):
 
         for s in self.existing_structures:
             if (
-                self.structure_matcher._comparator.get_hash(structure.composition)
-                == self.structure_matcher._comparator.get_hash(s.composition)
-                and self.symprec is None
+                (
+                    self.structure_matcher._comparator.get_hash(structure.composition)
+                    == self.structure_matcher._comparator.get_hash(s.composition)
+                    and self.symprec is None
+                )
                 or get_sg(s) == get_sg(structure)
             ) and self.structure_matcher.fit(s, structure):
                 return False
@@ -339,9 +341,8 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         """
         sp1_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp1]
         sp2_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp2]
-        fcoords = structure.frac_coords
-        fcoords1 = fcoords[sp1_indices, :]
-        fcoords2 = fcoords[sp2_indices, :]
+        frac_coords1 = structure.frac_coords[sp1_indices, :]
+        frac_coords2 = structure.frac_coords[sp2_indices, :]
         lattice = structure.lattice
-        dists = lattice.get_all_distances(fcoords1, fcoords2)
+        dists = lattice.get_all_distances(frac_coords1, frac_coords2)
         return all(any(row) for row in dists < self.max_dist)

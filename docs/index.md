@@ -9,12 +9,11 @@ nav_order: 1
 </h1>
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
-[![Linting](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml)
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
 [![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
-[![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
+[![Paper](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue?logo=elsevier&logoColor=white)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some
 of the main features:
@@ -69,8 +68,7 @@ reports. The following are resources for pymatgen:
 
 ## Matgenie & Examples
 
-The [Materials Virtual Lab] has developed a [matgenie web app](http://matgenie.materialsvirtuallab.org) which
-demonstrates some of the basic functionality of pymatgen, as well as a [matgenb] repository of Jupyter notebooks for
+The [Materials Virtual Lab] has created a [matgenb] repository of Jupyter notebooks for
 common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
 
 Below are a quick look at some of the graphical output possible.

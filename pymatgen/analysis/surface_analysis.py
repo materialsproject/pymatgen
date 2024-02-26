@@ -38,7 +38,6 @@ import copy
 import itertools
 import random
 import warnings
-from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,16 +45,14 @@ from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
+from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
-
-if TYPE_CHECKING:
-    from pymatgen.core import Structure
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -513,7 +510,7 @@ class SurfaceEnergyPlotter:
             no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
-            (WulffShape): The WulffShape at u_ref and u_ads.
+            WulffShape: The WulffShape at u_ref and u_ads.
         """
         latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
@@ -631,7 +628,7 @@ class SurfaceEnergyPlotter:
                 format: Symbol("delu_el") where el is the name of the element.
 
         Returns:
-            (array): Array containing a solution to x equations with x
+            array: Array containing a solution to x equations with x
                 variables (x-1 chemical potential and 1 surface energy)
         """
         # Generate all possible coefficients
@@ -861,11 +858,11 @@ class SurfaceEnergyPlotter:
         chempot_range = sorted(chempot_range)
 
         # use dashed lines for slabs that are not stoichiometric
-        # wrt bulk. Label with formula if non-stoichiometric
+        # w.r.t. bulk. Label with formula if non-stoichiometric
         ucell_comp = self.ucell_entry.composition.reduced_composition
         if entry.adsorbates:
-            s = entry.cleaned_up_slab
-            clean_comp = s.composition.reduced_composition
+            struct = entry.cleaned_up_slab
+            clean_comp = struct.composition.reduced_composition
         else:
             clean_comp = entry.composition.reduced_composition
 
@@ -933,7 +930,7 @@ class SurfaceEnergyPlotter:
             no_label (bool): Option to turn off labels.
 
         Returns:
-            (Plot): Plot of surface energy vs chempot for all entries.
+            Plot: Plot of surface energy vs chempot for all entries.
         """
         if delu_dict is None:
             delu_dict = {}
@@ -1011,10 +1008,10 @@ class SurfaceEnergyPlotter:
 
         Args:
             plot_eads (bool): Option to plot the adsorption energy (binding
-                 energy multiplied by number of adsorbates) instead.
+                energy multiplied by number of adsorbates) instead.
 
         Returns:
-            (Plot): Plot of binding energy vs monolayer for all facets.
+            Plot: Plot of binding energy vs monolayer for all facets.
         """
         ax = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries:
@@ -1101,7 +1098,7 @@ class SurfaceEnergyPlotter:
                 eV/A^2 (False)
 
         Returns:
-            (Plot): Plot of clean surface energy vs binding energy for
+            Plot: Plot of clean surface energy vs binding energy for
                 all facets.
         """
         ax = pretty_plot(width=8, height=7)
@@ -1137,7 +1134,7 @@ class SurfaceEnergyPlotter:
         delu_dict=None,
         ax=None,
         annotate=True,
-        show_unphyiscal_only=False,
+        show_unphysical_only=False,
         fontsize=10,
     ) -> plt.Axes:
         """
@@ -1146,14 +1143,14 @@ class SurfaceEnergyPlotter:
             energy stability. Currently works only for 2-component PDs. At
             the moment uses a brute force method by enumerating through the
             range of the first element chempot with a specified increment
-            and determines the chempot rangeo fht e second element for each
+            and determines the chempot range of the second element for each
             SlabEntry. Future implementation will determine the chempot range
             map first by solving systems of equations up to 3 instead of 2.
 
         Args:
             elements (list): Sequence of elements to be considered as independent
                 variables. E.g., if you want to show the stability ranges of
-                all Li-Co-O phases wrt to duLi and duO, you will supply
+                all Li-Co-O phases w.r.t. to duLi and duO, you will supply
                 [Element("Li"), Element("O")]
             miller_index ([h, k, l]): Miller index of the surface we are interested in
             ranges ([[range1], [range2]]): List of chempot ranges (max and min values)
@@ -1167,7 +1164,7 @@ class SurfaceEnergyPlotter:
             ax (plt.Axes): Axes object to plot on. If None, will create a new plot.
             annotate (bool): Whether to annotate each "phase" with the label of
                 the entry. If no label, uses the reduced formula
-            show_unphyiscal_only (bool): Whether to only show the shaded region where
+            show_unphysical_only (bool): Whether to only show the shaded region where
                 surface energy is negative. Useful for drawing other chempot range maps.
             fontsize (int): Font size of the annotation
         """
@@ -1222,7 +1219,7 @@ class SurfaceEnergyPlotter:
                         neg_dmu_range = [pt1[delu2][0][1], pt1[delu2][0][2]]
                     # Shade the threshold and region at which se<=0
                     ax.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
-                elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0 and not show_unphyiscal_only:
+                elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0 and not show_unphysical_only:
                     # Any chempot at this point will result
                     # in se<0, shade the entire y range
                     ax.plot([pt1[delu1], pt1[delu1]], range2, "k--")
@@ -1230,7 +1227,7 @@ class SurfaceEnergyPlotter:
                 if ii == len(vertex) - 1:
                     break
                 pt2 = vertex[ii + 1]
-                if not show_unphyiscal_only:
+                if not show_unphysical_only:
                     ax.plot(
                         [pt1[delu1], pt2[delu1]],
                         [pt1[delu2][0][0], pt2[delu2][0][0]],
@@ -1246,14 +1243,14 @@ class SurfaceEnergyPlotter:
             delu1, delu2 = pt
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
-            if not show_unphyiscal_only:
+            if not show_unphysical_only:
                 ax.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], "k")
 
             if annotate:
                 # Label the phases
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
-                label = entry.label if entry.label else entry.composition.reduced_formula
+                label = entry.label if entry.label else entry.reduced_formula
                 ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
@@ -1578,11 +1575,10 @@ class WorkFunctionAnalyzer:
         Returns:
             WorkFunctionAnalyzer: A WorkFunctionAnalyzer instance.
         """
-        poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
         outcar = Outcar(outcar_filename)
         return cls(
-            poscar.structure,
+            Structure.from_file(poscar_filename),
             locpot.get_average_along_axis(2),
             outcar.efermi,
             shift=shift,
@@ -1599,7 +1595,7 @@ class NanoscaleStability:
     polymorphs with respect to size. The Wulff shape will be the model for the
     nanoparticle. Stability will be determined by an energetic competition between the
     weighted surface energy (surface energy of the Wulff shape) and the bulk energy. A
-    future release will include a 2D phase diagram (e.g. wrt size vs chempot for adsorbed
+    future release will include a 2D phase diagram (e.g. w.r.t. size vs chempot for adsorbed
     or non-stoichiometric surfaces). Based on the following work:
 
     Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale

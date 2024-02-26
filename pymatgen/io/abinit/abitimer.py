@@ -12,7 +12,8 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.string import is_string, list_strings
+import pandas as pd
+from matplotlib.gridspec import GridSpec
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -107,26 +108,27 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         Return: list of successfully read files.
         """
-        filenames = list_strings(filenames)
+        if isinstance(filenames, str):
+            filenames = [filenames]
 
         read_ok = []
-        for fname in filenames:
+        for filename in filenames:
             try:
-                fh = open(fname)  # noqa: SIM115
+                file = open(filename)  # noqa: SIM115
             except OSError:
-                logger.warning(f"Cannot open file {fname}")
+                logger.warning(f"Cannot open file {filename}")
                 continue
 
             try:
-                self._read(fh, fname)
-                read_ok.append(fname)
+                self._read(file, filename)
+                read_ok.append(filename)
 
-            except self.Error as e:
-                logger.warning(f"exception while parsing file {fname}:\n{e}")
+            except self.Error as exc:
+                logger.warning(f"exception while parsing file {filename}:\n{exc}")
                 continue
 
             finally:
-                fh.close()
+                file.close()
 
         # Add read_ok to the list of files that have been parsed.
         self._filenames.extend(read_ok)
@@ -143,8 +145,8 @@ class AbinitTimerParser(collections.abc.Iterable):
             try:
                 ctime, cfract, wtime, wfract, ncalls, gflops = vals
             except ValueError:
-                # v8.3 Added two columns at the end [Speedup, Efficacity]
-                ctime, cfract, wtime, wfract, ncalls, gflops, speedup, eff = vals
+                # v8.3 Added two columns at the end [Speedup, Efficacy]
+                ctime, cfract, wtime, wfract, ncalls, gflops, _speedup, _eff = vals
 
             return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
@@ -168,7 +170,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             elif line.startswith(self.END_TAG):
                 inside = 0
                 timer = AbinitTimer(sections, info, cpu_time, wall_time)
-                mpi_rank = info["mpi_rank"]  # pylint: disable=E1136
+                mpi_rank = info["mpi_rank"]
                 data[mpi_rank] = timer
 
             elif inside:
@@ -277,7 +279,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         for sect_name in self.section_names():
             ref_sect = ref_t.get_section(sect_name)
-            sects = [t.get_section(sect_name) for t in timers]
+            sects = [timer.get_section(sect_name) for timer in timers]
             try:
                 ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
                 wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
@@ -297,7 +299,6 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     def summarize(self, **kwargs):
         """Return pandas DataFrame with the most important results stored in the timers."""
-        import pandas as pd
 
         col_names = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
@@ -383,7 +384,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.grid(visible=True)
 
         # Set xticks and labels.
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -405,9 +406,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         n = len(timers)
 
         # Make square figures and axes
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         fig = plt.gcf()
         gspec = GridSpec(n, 1)
         for idx, timer in enumerate(timers):
@@ -470,7 +468,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
@@ -495,7 +493,7 @@ class ParallelEfficiency(dict):
     def __init__(self, filenames, ref_idx, *args, **kwargs):
         """
         Args:
-            filennames: List of filenames
+            filenames: List of filenames
             ref_idx: Index of the Reference time (calculation done with the smallest number of cpus).
         """
         self.update(*args, **kwargs)
@@ -610,7 +608,7 @@ class AbinitTimerSection:
         string = ""
 
         if with_header:
-            string += "# " + " ".join(at for at in AbinitTimerSection.FIELDS) + "\n"
+            string += f"# {' '.join(at for at in AbinitTimerSection.FIELDS)}\n"
 
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
@@ -667,16 +665,16 @@ class AbinitTimer:
 
     def to_csv(self, fileobj=sys.stdout):
         """Write data on file fileobj using CSV format."""
-        openclose = is_string(fileobj)
+        is_str = isinstance(fileobj, str)
 
-        if openclose:
-            fileobj = open(fileobj, "w")  # noqa: SIM115
+        if is_str:
+            fileobj = open(fileobj, mode="w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
         fileobj.flush()
 
-        if openclose:
+        if is_str:
             fileobj.close()
 
     def to_table(self, sort_key="wall_time", stop=None):
@@ -698,7 +696,6 @@ class AbinitTimer:
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        import pandas as pd
 
         frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
 
@@ -718,11 +715,12 @@ class AbinitTimer:
 
     def get_values(self, keys):
         """Return a list of values associated to a particular list of keys."""
-        if is_string(keys):
-            return [s.__dict__[keys] for s in self.sections]
+        if isinstance(keys, str):
+            return [sec.__dict__[keys] for sec in self.sections]
+
         values = []
-        for k in keys:
-            values.append([s.__dict__[k] for s in self.sections])
+        for key in keys:
+            values.append([sec.__dict__[key] for sec in self.sections])
         return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):
@@ -891,11 +889,11 @@ class AbinitTimer:
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
         axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
-            tl.set_visible(False)  # noqa: FBT003
+            tl.set_visible(False)
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
-                tl.set_visible(False)  # noqa: FBT003
+                tl.set_visible(False)
                 axHisty.set_xticks([0, 50, 100])
 
         # plt.draw()

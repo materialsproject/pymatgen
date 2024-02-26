@@ -82,7 +82,7 @@ class BornEffectiveCharge:
         relations = []
         for site, val in enumerate(bec):
             unique = 1
-            eig1, vecs1 = np.linalg.eig(val)
+            eig1, _vecs1 = np.linalg.eig(val)
             index = np.argsort(eig1)
             new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
             for index, p in enumerate(passed):
@@ -211,7 +211,7 @@ class InternalStrainTensor:
                     uniq_point_ops.append(op)
 
         IST_operations = []
-        for atom in range(len(self.ist)):  # pylint: disable=C0200
+        for atom in range(len(self.ist)):
             IST_operations.append([])
             for j in range(atom):
                 for op in uniq_point_ops:
@@ -229,7 +229,7 @@ class InternalStrainTensor:
         symmetry and the acoustic sum rule.
 
         Args:
-            max_force(float): maximum born effective charge value
+            max_force (float): maximum born effective charge value
 
         Return:
             InternalStrainTensor object
@@ -304,7 +304,7 @@ class ForceConstantMatrix:
 
         passed = []
         relations = []
-        for atom1 in range(len(self.fcm)):  # pylint: disable=C0200
+        for atom1 in range(len(self.fcm)):
             for atom2 in range(atom1, len(self.fcm)):
                 unique = 1
                 eig1, _vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
@@ -377,9 +377,9 @@ class ForceConstantMatrix:
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
-                    tempfcm = symop.transform_tensor(tempfcm)
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    temp_fcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    temp_fcm = symop.transform_tensor(temp_fcm)
+                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
@@ -670,7 +670,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     n_sites = len(BEC)
     temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (n_sites * 3, n_sites * 3))
 
-    eigs, vecs = np.linalg.eig(temp_fcm)
+    eigs, _vecs = np.linalg.eig(temp_fcm)
     K = np.linalg.pinv(
         -temp_fcm,
         rcond=np.abs(eigs[np.argsort(np.abs(eigs))[2]]) / np.abs(eigs[np.argsort(np.abs(eigs))[-1]]) + rcond,

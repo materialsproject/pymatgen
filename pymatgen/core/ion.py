@@ -19,7 +19,7 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition, charge=0.0, _properties=None):
+    def __init__(self, composition, charge=0.0, _properties=None) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
@@ -92,7 +92,7 @@ class Ion(Composition, MSONable, Stringify):
         chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = True) -> tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
         """Calculates a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
@@ -136,8 +136,8 @@ class Ion(Composition, MSONable, Stringify):
                 nH2O = int(nO) if nH >= 2 * nO else int(nH) // 2
                 comp = self.composition - nH2O * Composition("H2O")
 
-        d = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
+        el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
+        (formula, factor) = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")
@@ -183,10 +183,10 @@ class Ion(Composition, MSONable, Stringify):
         charge is placed in brackets with the sign preceding the magnitude, e.g.,
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
-        reduced_formula = super().reduced_formula
-        charge = self._charge / self.get_reduced_composition_and_factor()[1]
+        formula, factor = self.get_reduced_formula_and_factor()
+        charge = self._charge / factor
         chg_str = charge_string(charge)
-        return reduced_formula + chg_str
+        return formula + chg_str
 
     @property
     def alphabetical_formula(self) -> str:
@@ -303,10 +303,10 @@ class Ion(Composition, MSONable, Stringify):
     def __hash__(self) -> int:
         return hash((self.composition, self.charge))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.formula
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Ion: " + self.formula
 
     def to_pretty_string(self) -> str:

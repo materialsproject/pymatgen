@@ -7,7 +7,6 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -36,9 +35,9 @@ class TestHeader(unittest.TestCase):
             assert line == hs[i]
         assert header_string.splitlines() == header.splitlines(), "Failed to read HEADER file"
 
-    def test_from_string(self):
+    def test_from_str(self):
         header = Header.from_str(header_string)
-        assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
+        assert header.struct.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
     def test_get_str(self):
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
@@ -51,16 +50,15 @@ class TestHeader(unittest.TestCase):
     def test_as_dict_and_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/HEADER"
         header = Header.from_file(file_name)
-        d = header.as_dict()
-        header2 = Header.from_dict(d)
+        dct = header.as_dict()
+        header2 = Header.from_dict(dct)
         assert str(header) == str(header2), "Header failed to and from dict test"
 
 
 class TestFeffAtoms(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        r = CifParser(f"{TEST_FILES_DIR}/CoO19128.cif")
-        cls.structure = r.get_structures()[0]
+        cls.structure = Structure.from_file(f"{TEST_FILES_DIR}/CoO19128.cif")
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
     def test_absorbing_atom(self):
@@ -76,9 +74,9 @@ class TestFeffAtoms(unittest.TestCase):
         """
         # one Zn+2, 9 triflate, plus water
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
-        atoms = Atoms(m, "Zn", 9)
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
+        atoms = Atoms(mol, "Zn", 9)
         # Zn should not appear in the pot_dict
         assert not atoms.pot_dict.get("Zn", False)
 
@@ -116,8 +114,8 @@ class TestFeffAtoms(unittest.TestCase):
         header = Header.from_str(header_string)
         struct = header.struct
         central_atom = "O"
-        a = Atoms(struct, central_atom, radius=10.0)
-        atoms = str(a)
+        atoms = Atoms(struct, central_atom, radius=10.0)
+        atoms = str(atoms)
         assert atoms.splitlines()[3].split()[4] == central_atom, "failed to create ATOMS string"
 
     def test_as_dict_and_from_dict(self):
@@ -125,8 +123,8 @@ class TestFeffAtoms(unittest.TestCase):
         header = Header.from_file(file_name)
         struct = header.struct
         atoms = Atoms(struct, "O", radius=10.0)
-        d = atoms.as_dict()
-        atoms2 = Atoms.from_dict(d)
+        dct = atoms.as_dict()
+        atoms2 = Atoms.from_dict(dct)
         assert str(atoms) == str(atoms2), "Atoms failed to and from dict test"
 
     def test_cluster_from_file(self):
@@ -136,6 +134,12 @@ class TestFeffAtoms(unittest.TestCase):
         assert mol_1.formula == mol_2.formula
         assert len(mol_1) == len(mol_2)
         os.remove("ATOMS_test")
+
+    def test_atom_num(self):
+        filepath = f"{TEST_FILES_DIR}/Pt37_atoms.inp.gz"
+        atoms = Atoms.cluster_from_file(filepath)
+        assert len(atoms) == 37
+        assert atoms.formula == "Pt37"
 
 
 class TestFeffTags(unittest.TestCase):
@@ -172,8 +176,8 @@ class TestFeffTags(unittest.TestCase):
     def test_as_dict_and_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/PARAMETERS"
         tags = Tags.from_file(file_name)
-        d = tags.as_dict()
-        tags2 = Tags.from_dict(d)
+        dct = tags.as_dict()
+        tags2 = Tags.from_dict(dct)
         assert tags == tags2, "Parameters do not match to and from dict"
 
     def test_eels_tags(self):
@@ -206,9 +210,10 @@ class TestFeffTags(unittest.TestCase):
 class TestFeffPot(unittest.TestCase):
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/POTENTIALS"
-        feffpot = Potential.pot_string_from_file(filepath)
-        d, dr = Potential.pot_dict_from_string(feffpot)
-        assert d["Co"] == 1, "Wrong symbols read in for Potential"
+        feff_pot = Potential.pot_string_from_file(filepath)
+        dct, dr = Potential.pot_dict_from_str(feff_pot)
+        assert dct["Co"] == 1, "Wrong symbols read in for Potential"
+        assert dr == {0: "O", 1: "Co", 2: "O"}
 
     def test_single_absorbing_atom(self):
         """
@@ -217,9 +222,9 @@ class TestFeffPot(unittest.TestCase):
         """
         # one Zn+2, 9 triflate, plus water
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
-        pot = Potential(m, "Zn")
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
+        pot = Potential(mol, "Zn")
         # Zn should not appear in the pot_dict
         assert not pot.pot_dict.get("Zn", False)
         # Zn should only appear in the first row of the string representation
@@ -230,8 +235,8 @@ class TestFeffPot(unittest.TestCase):
         header = Header.from_file(file_name)
         struct = header.struct
         pot = Potential(struct, "O")
-        d = pot.as_dict()
-        pot2 = Potential.from_dict(d)
+        dct = pot.as_dict()
+        pot2 = Potential.from_dict(dct)
         assert str(pot) == str(pot2), "Potential to and from dict does not match"
 
 

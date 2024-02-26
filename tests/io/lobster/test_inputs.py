@@ -11,6 +11,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
     Bandoverlaps,
@@ -21,15 +22,17 @@ from pymatgen.io.lobster import (
     Grosspop,
     Icohplist,
     Lobsterin,
+    LobsterMatrices,
     Lobsterout,
     MadelungEnergies,
+    NciCobiList,
     SitePotential,
     Wavefunction,
 )
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -37,9 +40,8 @@ __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
-test_dir_doscar = TEST_FILES_DIR
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCohpcar(PymatgenTest):
@@ -209,150 +211,29 @@ class TestCohpcar(PymatgenTest):
             assert (orb_set[0][1], orb_set[1][1]) in orbitals
 
         # test d and f orbitals
-        comparelist = [
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            6,
-            7,
-            7,
-            7,
-            7,
-        ]
-        comparelist2 = [
-            "f0",
-            "f0",
-            "f0",
-            "f0",
-            "f1",
-            "f1",
-            "f1",
-            "f1",
-            "f2",
-            "f2",
-            "f2",
-            "f2",
-            "f3",
-            "f3",
-            "f3",
-            "f3",
-            "f_1",
-            "f_1",
-            "f_1",
-            "f_1",
-            "f_2",
-            "f_2",
-            "f_2",
-            "f_2",
-            "f_3",
-            "f_3",
-            "f_3",
-            "f_3",
-            "dx2",
-            "dx2",
-            "dx2",
-            "dx2",
-            "dxy",
-            "dxy",
-            "dxy",
-            "dxy",
-            "dxz",
-            "dxz",
-            "dxz",
-            "dxz",
-            "dyz",
-            "dyz",
-            "dyz",
-            "dyz",
-            "dz2",
-            "dz2",
-            "dz2",
-            "dz2",
-            "px",
-            "px",
-            "px",
-            "px",
-            "py",
-            "py",
-            "py",
-            "py",
-            "pz",
-            "pz",
-            "pz",
-            "pz",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
-            "s",
+        ref_list1 = [*[5] * 28, *[6] * 36, *[7] * 4]
+        ref_list2 = [
+            *["f0"] * 4,
+            *["f1"] * 4,
+            *["f2"] * 4,
+            *["f3"] * 4,
+            *["f_1"] * 4,
+            *["f_2"] * 4,
+            *["f_3"] * 4,
+            *["dx2"] * 4,
+            *["dxy"] * 4,
+            *["dxz"] * 4,
+            *["dyz"] * 4,
+            *["dz2"] * 4,
+            *["px"] * 4,
+            *["py"] * 4,
+            *["pz"] * 4,
+            *["s"] * 8,
         ]
         for iorb, orbs in enumerate(sorted(self.cohp_Na2UO4.orb_res_cohp["49"])):
             orb_set = self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["orbitals"]
-            assert orb_set[0][0] == comparelist[iorb]
-            assert str(orb_set[0][1]) == comparelist2[iorb]
+            assert orb_set[0][0] == ref_list1[iorb]
+            assert str(orb_set[0][1]) == ref_list2[iorb]
 
         # The sum of the orbital-resolved COHPs should be approximately
         # the total COHP. Due to small deviations in the LOBSTER calculation,
@@ -669,25 +550,73 @@ class TestIcohplist(unittest.TestCase):
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
+    def test_msonable(self):
+        dict_data = self.icobi_orbitalwise_spinpolarized.as_dict()
+        icohplist_from_dict = Icohplist.from_dict(dict_data)
+        all_attributes = vars(self.icobi_orbitalwise_spinpolarized)
+        for attr_name, attr_value in all_attributes.items():
+            if isinstance(attr_value, IcohpCollection):
+                assert getattr(icohplist_from_dict, attr_name).as_dict() == attr_value.as_dict()
+            else:
+                assert getattr(icohplist_from_dict, attr_name) == attr_value
+
+
+class TestNciCobiList(unittest.TestCase):
+    def setUp(self):
+        self.ncicobi = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
+        self.ncicobi_gz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
+        self.ncicobi_no_spin = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin")
+        self.ncicobi_no_spin_wo = NciCobiList(
+            filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin.withoutorbitals"
+        )
+        self.ncicobi_wo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.withoutorbitals")
+
+    def test_ncicobilist(self):
+        assert self.ncicobi.is_spin_polarized
+        assert not self.ncicobi_no_spin.is_spin_polarized
+        assert self.ncicobi_wo.is_spin_polarized
+        assert not self.ncicobi_no_spin_wo.is_spin_polarized
+        assert self.ncicobi.orbital_wise
+        assert self.ncicobi_no_spin.orbital_wise
+        assert not self.ncicobi_wo.orbital_wise
+        assert not self.ncicobi_no_spin_wo.orbital_wise
+        assert len(self.ncicobi.ncicobi_list) == 2
+        assert self.ncicobi.ncicobi_list["2"]["number_of_atoms"] == 3
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == approx(0.00009)
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == approx(0.00009)
+        assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
+        assert (
+            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
+        )
+        assert (
+            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][Spin.up]
+        )
+        assert (
+            self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
+        )
+        assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == approx(
+            self.ncicobi_no_spin.ncicobi_list["2"]["ncicobi"][Spin.up]
+        )
+
 
 class TestDoscar(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
-        doscar = f"{test_dir_doscar}/DOSCAR.lobster.spin"
-        poscar = f"{test_dir_doscar}/POSCAR.lobster.spin_DOS"
+        doscar = f"{TEST_FILES_DIR}/DOSCAR.lobster.spin"
+        poscar = f"{TEST_FILES_DIR}/POSCAR.lobster.spin_DOS"
         # not spin polarized
-        doscar2 = f"{test_dir_doscar}/DOSCAR.lobster.nonspin"
-        poscar2 = f"{test_dir_doscar}/POSCAR.lobster.nonspin_DOS"
-        f"{test_dir_doscar}/DOSCAR.lobster.nonspin_zip.gz"
-        f"{test_dir_doscar}/POSCAR.lobster.nonspin_DOS_zip.gz"
+        doscar2 = f"{TEST_FILES_DIR}/DOSCAR.lobster.nonspin"
+        poscar2 = f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS"
+        f"{TEST_FILES_DIR}/DOSCAR.lobster.nonspin_zip.gz"
+        f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS_zip.gz"
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        with open(f"{test_dir_doscar}/structure_KF.json") as f:
-            data = json.load(f)
+        with open(f"{TEST_FILES_DIR}/structure_KF.json") as file:
+            data = json.load(file)
 
         self.structure = Structure.from_dict(data)
 
@@ -701,14 +630,14 @@ class TestDoscar(unittest.TestCase):
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
         fermi = 0.0
 
-        PDOS_F_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
-        PDOS_F_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
-        PDOS_F_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
-        PDOS_F_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
-        PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
-        PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
+        pdos_f_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
+        pdos_f_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
+        pdos_f_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
+        pdos_f_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
+        pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
+        pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
         assert energies_spin == self.DOSCAR_spin_pol.completedos.energies.tolist()
         assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
@@ -723,21 +652,21 @@ class TestDoscar(unittest.TestCase):
             self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
         )
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == PDOS_F_2s_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == PDOS_F_2py_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == PDOS_F_2pz_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == PDOS_F_2pz_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == PDOS_F_2px_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == PDOS_F_2px_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == pdos_f_2s_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
-        PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
-        PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
-        PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
-        PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
+        pdos_f_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
+        pdos_f_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
+        pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
+        pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
         assert energies_nonspin == self.DOSCAR_nonspin_pol.completedos.energies.tolist()
 
@@ -747,42 +676,42 @@ class TestDoscar(unittest.TestCase):
 
         assert self.DOSCAR_nonspin_pol.completedos.structure == self.structure
 
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == PDOS_F_2pz
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == PDOS_F_2px
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px
 
     def test_pdos(self):
         # first for spin polarized version
 
-        PDOS_F_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
-        PDOS_F_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
-        PDOS_F_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
-        PDOS_F_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
-        PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
-        PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
+        pdos_f_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
+        pdos_f_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
+        pdos_f_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
+        pdos_f_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
+        pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
+        pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == PDOS_F_2s_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == PDOS_F_2s_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == PDOS_F_2py_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == PDOS_F_2pz_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == PDOS_F_2pz_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == PDOS_F_2px_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == PDOS_F_2px_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == pdos_f_2s_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
 
         # non spin
-        PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
-        PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
-        PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
-        PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
+        pdos_f_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
+        pdos_f_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
+        pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
+        pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == PDOS_F_2s
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == PDOS_F_2py
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == PDOS_F_2pz
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == PDOS_F_2px
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px
 
     def test_tdos(self):
         # first for spin polarized version
@@ -846,17 +775,17 @@ class TestCharge(PymatgenTest):
         # gzipped file
         self.charge = Charge(filename=f"{TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO2.gz")
 
-    def testattributes(self):
+    def test_attributes(self):
         charge_Loewdin = [-1.25, 1.25]
         charge_Mulliken = [-1.30, 1.30]
         atomlist = ["O1", "Mn2"]
         types = ["O", "Mn"]
         num_atoms = 2
-        assert_array_equal(charge_Mulliken, self.charge2.Mulliken)
-        assert_array_equal(charge_Loewdin, self.charge2.Loewdin)
-        assert_array_equal(atomlist, self.charge2.atomlist)
-        assert_array_equal(types, self.charge2.types)
-        assert_array_equal(num_atoms, self.charge2.num_atoms)
+        assert charge_Mulliken == self.charge2.Mulliken
+        assert charge_Loewdin == self.charge2.Loewdin
+        assert atomlist == self.charge2.atomlist
+        assert types == self.charge2.types
+        assert num_atoms == self.charge2.num_atoms
 
     def test_get_structure_with_charges(self):
         structure_dict2 = {
@@ -895,7 +824,14 @@ class TestCharge(PymatgenTest):
             "@module": "pymatgen.core.structure",
         }
         s2 = Structure.from_dict(structure_dict2)
-        assert s2 == self.charge2.get_structure_with_charges(TEST_FILES_DIR / "POSCAR.MnO")
+        assert s2 == self.charge2.get_structure_with_charges(f"{TEST_FILES_DIR}/POSCAR.MnO")
+
+    def test_msonable(self):
+        dict_data = self.charge2.as_dict()
+        charge_from_dict = Charge.from_dict(dict_data)
+        all_attributes = vars(self.charge2)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(charge_from_dict, attr_name) == attr_value
 
 
 class TestLobsterout(PymatgenTest):
@@ -924,20 +860,9 @@ class TestLobsterout(PymatgenTest):
             filename=f"{TEST_FILES_DIR}/cohp/lobsterout.skip_cobi_madelung"
         )
 
-    def testattributes(self):
+    def test_attributes(self):
         assert self.lobsterout_normal.basis_functions == [
-            [
-                "3s",
-                "4s",
-                "3p_y",
-                "3p_z",
-                "3p_x",
-                "3d_xy",
-                "3d_yz",
-                "3d_z^2",
-                "3d_xz",
-                "3d_x^2-y^2",
-            ]
+            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
         ]
         assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_normal.charge_spilling == [0.0268]
@@ -979,18 +904,7 @@ class TestLobsterout(PymatgenTest):
         ]
 
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_functions == [
-            [
-                "3s",
-                "4s",
-                "3p_y",
-                "3p_z",
-                "3p_x",
-                "3d_xy",
-                "3d_yz",
-                "3d_z^2",
-                "3d_xz",
-                "3d_x^2-y^2",
-            ]
+            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
         ]
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
@@ -1278,7 +1192,7 @@ class TestLobsterout(PymatgenTest):
         assert self.lobsterout_skipping_cobi_madelung.has_madelung is False
 
     def test_get_doc(self):
-        comparedict = {
+        ref_data = {
             "restart_from_projection": False,
             "lobster_version": "v3.1.0",
             "threads": 8,
@@ -1333,13 +1247,27 @@ class TestLobsterout(PymatgenTest):
         for key, item in self.lobsterout_normal.get_doc().items():
             if key not in ["has_cobicar", "has_madelung"]:
                 if isinstance(item, str):
-                    assert comparedict[key], item
+                    assert ref_data[key], item
                 elif isinstance(item, int):
-                    assert comparedict[key] == item
+                    assert ref_data[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
-                    assert item[0] == approx(comparedict[key][0])
+                    assert item[0] == approx(ref_data[key][0])
                 elif isinstance(item, (list, dict)):
-                    assert item == comparedict[key]
+                    assert item == ref_data[key]
+
+    def test_msonable(self):
+        dict_data = self.lobsterout_normal.as_dict()
+        lobsterout_from_dict = Lobsterout.from_dict(dict_data)
+        assert dict_data == lobsterout_from_dict.as_dict()
+        # test initialization with empty attributes (ensure file is not read again)
+        dict_data_empty = self.lobsterout_doscar_lso.ATTRIBUTE_DEFAULTS
+        lobsterout_empty_init_dict = Lobsterout.from_dict(dict_data_empty).as_dict()
+        for attribute in lobsterout_empty_init_dict:
+            if "@" not in attribute:
+                assert dict_data_empty[attribute] == lobsterout_empty_init_dict[attribute]
+
+        with pytest.raises(ValueError, match="invalid=val is not a valid attribute for Lobsterout"):
+            Lobsterout(filename=None, invalid="val")
 
 
 class TestFatband(PymatgenTest):
@@ -1603,7 +1531,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
         with pytest.raises(IOError, match="No basis functions are provided. The program cannot calculate nbands"):
-            lobsterin2._get_nbands(structure=Structure.from_file(f"{test_dir_doscar}/POSCAR.Fe3O4"))
+            lobsterin2._get_nbands(structure=Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Fe3O4"))
 
     def test_standard_settings(self):
         # test standard settings
@@ -1620,9 +1548,9 @@ class TestLobsterin(unittest.TestCase):
             "onlycohpcoopcobi",
         ]:
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-                f"{test_dir_doscar}/POSCAR.Fe3O4",
-                f"{test_dir_doscar}/INCAR.lobster",
-                f"{test_dir_doscar}/POTCAR.Fe3O4",
+                f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+                f"{TEST_FILES_DIR}/INCAR.lobster",
+                f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
                 option=option,
             )
             assert lobsterin1["cohpstartenergy"] == approx(-35.0)
@@ -1697,8 +1625,8 @@ class TestLobsterin(unittest.TestCase):
                 assert lobsterin1["skipdos"], True
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-            f"{test_dir_doscar}/POSCAR.Fe3O4",
-            f"{test_dir_doscar}/INCAR.lobster",
+            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/INCAR.lobster",
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
@@ -1706,8 +1634,8 @@ class TestLobsterin(unittest.TestCase):
 
         # test gaussian smearing
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-            f"{test_dir_doscar}/POSCAR.Fe3O4",
-            f"{test_dir_doscar}/INCAR.lobster2",
+            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/INCAR.lobster2",
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
@@ -1716,8 +1644,8 @@ class TestLobsterin(unittest.TestCase):
         # fatband and ISMEAR=-5 does not work together
         with pytest.raises(ValueError, match="ISMEAR has to be 0 for a fatband calculation with Lobster"):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-                f"{test_dir_doscar}/POSCAR.Fe3O4",
-                f"{test_dir_doscar}/INCAR.lobster2",
+                f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+                f"{TEST_FILES_DIR}/INCAR.lobster2",
                 dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
                 option="standard_with_fatband",
             )
@@ -1725,10 +1653,10 @@ class TestLobsterin(unittest.TestCase):
     def test_standard_with_energy_range_from_vasprun(self):
         # test standard_with_energy_range_from_vasprun
         lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
-            f"{test_dir_doscar}/POSCAR.C2.gz",
-            f"{test_dir_doscar}/INCAR.C2.gz",
-            f"{test_dir_doscar}/POTCAR.C2.gz",
-            f"{test_dir_doscar}/vasprun.xml.C2.gz",
+            f"{TEST_FILES_DIR}/POSCAR.C2.gz",
+            f"{TEST_FILES_DIR}/INCAR.C2.gz",
+            f"{TEST_FILES_DIR}/POTCAR.C2.gz",
+            f"{TEST_FILES_DIR}/vasprun.xml.C2.gz",
             option="standard_with_energy_range_from_vasprun",
         )
         assert lobsterin_comp["COHPstartEnergy"] == -28.3679
@@ -1755,53 +1683,79 @@ class TestLobsterin(unittest.TestCase):
             == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
         )
 
+    def test_dict_functionality(self):
+        assert self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0
+        assert self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0
+        assert self.Lobsterinfromfile.get("COhPstartenergy") == -15.0
+        lobsterincopy = self.Lobsterinfromfile.copy()
+        lobsterincopy.update({"cohpstarteNergy": -10.00})
+        assert lobsterincopy["cohpstartenergy"] == -10.0
+        lobsterincopy.pop("cohpstarteNergy")
+        assert "cohpstartenergy" not in lobsterincopy
+        lobsterincopy.pop("cohpendenergY")
+        lobsterincopy["cohpsteps"] = 100
+        assert lobsterincopy["cohpsteps"] == 100
+        before = len(lobsterincopy.items())
+        lobsterincopy.popitem()
+        after = len(lobsterincopy.items())
+        assert before != after
+
+    def test_read_write_lobsterin(self):
+        outfile_path = tempfile.mkstemp()[1]
+        lobsterin1 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.1")
+        lobsterin1.write_lobsterin(outfile_path)
+        lobsterin2 = Lobsterin.from_file(outfile_path)
+        assert lobsterin1.diff(lobsterin2)["Different"] == {}
+
+        # TODO: will integer vs float break cohpsteps?
+
     def test_get_basis(self):
         # get basis functions
         lobsterin1 = Lobsterin({})
-        potcar = Potcar.from_file(f"{test_dir_doscar}/POTCAR.Fe3O4")
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        potcar = Potcar.from_file(f"{TEST_FILES_DIR}/POTCAR.Fe3O4")
+        potcar_names = [name["symbol"] for name in potcar.spec]
 
         assert lobsterin1.get_basis(
-            Structure.from_file(f"{test_dir_doscar}/Fe3O4.cif"),
-            potcar_symbols=Potcar_names,
+            Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
+            potcar_symbols=potcar_names,
         ) == ["Fe 3d 4p 4s ", "O 2p 2s "]
         potcar = Potcar.from_file(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs")
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        potcar_names = [name["symbol"] for name in potcar.spec]
         assert lobsterin1.get_basis(
             Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR.GaAs"),
-            potcar_symbols=Potcar_names,
+            potcar_symbols=potcar_names,
         ) == ["Ga 3d 4p 4s ", "As 4p 4s "]
 
     def test_get_all_possible_basis_functions(self):
-        potcar = Potcar.from_file(f"{test_dir_doscar}/POTCAR.Fe3O4")
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        potcar = Potcar.from_file(f"{TEST_FILES_DIR}/POTCAR.Fe3O4")
+        potcar_names = [name["symbol"] for name in potcar.spec]
         result = Lobsterin.get_all_possible_basis_functions(
-            Structure.from_file(f"{test_dir_doscar}/Fe3O4.cif"),
-            potcar_symbols=Potcar_names,
+            Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
+            potcar_symbols=potcar_names,
         )
         assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
         assert result[1] == {"Fe": "3d 4s 4p", "O": "2p 2s"}
 
-        potcar2 = Potcar.from_file(f"{test_dir_doscar}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv.gz")
+        potcar2 = Potcar.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
         Potcar_names2 = [name["symbol"] for name in potcar2.spec]
         result2 = Lobsterin.get_all_possible_basis_functions(
-            Structure.from_file(f"{test_dir_doscar}/Fe.cif"),
+            Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif"),
             potcar_symbols=Potcar_names2,
         )
-        assert result2[0] == {"Fe": "3d 3p 4s"}
+        assert result2[0] == {"Fe": "3d 4s"}
 
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
-        assert lobsterin1._get_potcar_symbols(f"{test_dir_doscar}/POTCAR.Fe3O4") == ["Fe", "O"]
+        assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/POTCAR.Fe3O4") == ["Fe", "O"]
         assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs") == ["Ga_d", "As"]
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-            f"{test_dir_doscar}/POSCAR.Fe3O4",
-            f"{test_dir_doscar}/INCAR.lobster",
-            f"{test_dir_doscar}/POTCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/INCAR.lobster",
+            f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
             option="standard",
         )
         lobsterin1.write_lobsterin(outfile_path)
@@ -1812,18 +1766,18 @@ class TestLobsterin(unittest.TestCase):
         # write INCAR and compare
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-            f"{test_dir_doscar}/POSCAR.Fe3O4",
-            f"{test_dir_doscar}/INCAR.lobster",
-            f"{test_dir_doscar}/POTCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/INCAR.lobster",
+            f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
             option="standard",
         )
         lobsterin1.write_INCAR(
-            f"{test_dir_doscar}/INCAR.lobster3",
+            f"{TEST_FILES_DIR}/INCAR.lobster3",
             outfile_path,
-            f"{test_dir_doscar}/POSCAR.Fe3O4",
+            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
         )
 
-        incar1 = Incar.from_file(f"{test_dir_doscar}/INCAR.lobster3")
+        incar1 = Incar.from_file(f"{TEST_FILES_DIR}/INCAR.lobster3")
         incar2 = Incar.from_file(outfile_path)
 
         assert incar1.diff(incar2)["Different"] == {
@@ -1840,7 +1794,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin1 = Lobsterin({})
         # test writing primitive cell
         lobsterin1.write_POSCAR_with_standard_primitive(
-            POSCAR_input=f"{test_dir_doscar}/POSCAR.Fe3O4", POSCAR_output=outfile_path2
+            POSCAR_input=f"{TEST_FILES_DIR}/POSCAR.Fe3O4", POSCAR_output=outfile_path2
         )
 
         lobsterin1.write_KPOINTS(
@@ -1854,7 +1808,7 @@ class TestLobsterin(unittest.TestCase):
         assert kpoint.kpts[-1][1] == approx(0.5)
         assert kpoint.kpts[-1][2] == approx(0.5)
         assert kpoint.labels[-1] == "T"
-        kpoint2 = Kpoints.from_file(f"{test_dir_doscar}/KPOINTS_band.lobster")
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS_band.lobster")
 
         labels = []
         number = 0
@@ -1884,7 +1838,7 @@ class TestLobsterin(unittest.TestCase):
         # without line mode
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(f"{test_dir_doscar}/IBZKPT.lobster")
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
@@ -1902,7 +1856,7 @@ class TestLobsterin(unittest.TestCase):
             input_grid=[6, 6, 3],
         )
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(f"{test_dir_doscar}/IBZKPT.lobster")
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
@@ -1985,9 +1939,9 @@ class TestLobsterin(unittest.TestCase):
 
     def test_msonable_implementation(self):
         # tests as dict and from dict methods
-        newLobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
-        assert newLobsterin == self.Lobsterinfromfile
-        newLobsterin.to_json()
+        new_lobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
+        assert new_lobsterin == self.Lobsterinfromfile
+        new_lobsterin.to_json()
 
 
 class TestBandoverlaps(unittest.TestCase):
@@ -2140,12 +2094,19 @@ class TestBandoverlaps(unittest.TestCase):
             number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
+    def test_msonable(self):
+        dict_data = self.bandoverlaps2_new.as_dict()
+        bandoverlaps_from_dict = Bandoverlaps.from_dict(dict_data)
+        all_attributes = vars(self.bandoverlaps2_new)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(bandoverlaps_from_dict, attr_name) == attr_value
+
 
 class TestGrosspop(unittest.TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(f"{TEST_FILES_DIR}/cohp/GROSSPOP.lobster")
 
-    def testattributes(self):
+    def test_attributes(self):
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"] == approx(0.52)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"] == approx(0.38)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"] == approx(0.37)
@@ -2257,6 +2218,13 @@ class TestGrosspop(unittest.TestCase):
         new_structure = self.grosspop1.get_structure_with_total_grosspop(f"{TEST_FILES_DIR}/cohp/POSCAR.SiO2")
         assert_allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
 
+    def test_msonable(self):
+        dict_data = self.grosspop1.as_dict()
+        grosspop_from_dict = Grosspop.from_dict(dict_data)
+        all_attributes = vars(self.grosspop1)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(grosspop_from_dict, attr_name) == attr_value
+
 
 class TestUtils(PymatgenTest):
     def test_get_all_possible_basis_combinations(self):
@@ -2317,7 +2285,7 @@ class TestWavefunction(PymatgenTest):
     def test_parse_file(self):
         grid, points, real, imaginary, distance = Wavefunction._parse_file(
             os.path.join(
-                test_dir_doscar,
+                TEST_FILES_DIR,
                 "cohp",
                 "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             )
@@ -2335,8 +2303,8 @@ class TestWavefunction(PymatgenTest):
 
     def test_set_volumetric_data(self):
         wave1 = Wavefunction(
-            filename=f"{test_dir_doscar}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
-            structure=Structure.from_file(f"{test_dir_doscar}/cohp/POSCAR_O.gz"),
+            filename=f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
+            structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
 
         wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
@@ -2346,11 +2314,11 @@ class TestWavefunction(PymatgenTest):
     def test_get_volumetricdata_real(self):
         wave1 = Wavefunction(
             filename=os.path.join(
-                test_dir_doscar,
+                TEST_FILES_DIR,
                 "cohp",
                 "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             ),
-            structure=Structure.from_file(f"{test_dir_doscar}/cohp/POSCAR_O.gz"),
+            structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
         volumetricdata_real = wave1.get_volumetricdata_real()
         assert volumetricdata_real.data["total"][0, 0, 0] == approx(-3.0966)
@@ -2358,50 +2326,40 @@ class TestWavefunction(PymatgenTest):
     def test_get_volumetricdata_imaginary(self):
         wave1 = Wavefunction(
             filename=os.path.join(
-                test_dir_doscar,
+                TEST_FILES_DIR,
                 "cohp",
                 "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             ),
-            structure=Structure.from_file(f"{test_dir_doscar}/cohp/POSCAR_O.gz"),
+            structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
         volumetricdata_imaginary = wave1.get_volumetricdata_imaginary()
         assert volumetricdata_imaginary.data["total"][0, 0, 0] == approx(-6.45895e00)
 
     def test_get_volumetricdata_density(self):
         wave1 = Wavefunction(
-            filename=os.path.join(
-                test_dir_doscar,
-                "cohp",
-                "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
-            ),
-            structure=Structure.from_file(f"{test_dir_doscar}/cohp/POSCAR_O.gz"),
+            filename=os.path.join(TEST_FILES_DIR, "cohp", "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
         volumetricdata_density = wave1.get_volumetricdata_density()
         assert volumetricdata_density.data["total"][0, 0, 0] == approx((-3.0966 * -3.0966) + (-6.45895 * -6.45895))
 
     def test_write_file(self):
         wave1 = Wavefunction(
-            filename=os.path.join(
-                test_dir_doscar,
-                "cohp",
-                "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
-            ),
-            structure=Structure.from_file(f"{test_dir_doscar}/cohp/POSCAR_O.gz"),
+            filename=f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
+            structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
-        wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="real")
+        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="real")
         assert os.path.isfile("wavecar_test.vasp")
 
-        wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="imaginary")
+        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="imaginary")
         assert os.path.isfile("wavecar_test.vasp")
-        os.remove("wavecar_test.vasp")
-        wave1.write_file(filename=os.path.join("density.vasp"), part="density")
+        wave1.write_file(filename=f"{self.tmp_path}/density.vasp", part="density")
         assert os.path.isfile("density.vasp")
-        os.remove("density.vasp")
 
 
 class TestSitePotentials(PymatgenTest):
     def setUp(self) -> None:
-        self.sitepotential = SitePotential(filename=f"{test_dir_doscar}/cohp/SitePotentials.lobster.perovskite")
+        self.sitepotential = SitePotential(filename=f"{TEST_FILES_DIR}/cohp/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
         assert self.sitepotential.sitepotentials_Loewdin == [-8.77, -17.08, 9.57, 9.57, 8.45]
@@ -2414,16 +2372,149 @@ class TestSitePotentials(PymatgenTest):
         assert self.sitepotential.ewald_splitting == approx(3.14)
 
     def test_get_structure(self):
-        structure = self.sitepotential.get_structure_with_site_potentials(f"{test_dir_doscar}/cohp/POSCAR.perovskite")
+        structure = self.sitepotential.get_structure_with_site_potentials(f"{TEST_FILES_DIR}/cohp/POSCAR.perovskite")
         assert structure.site_properties["Loewdin Site Potentials (eV)"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
         assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
+
+    def test_msonable(self):
+        dict_data = self.sitepotential.as_dict()
+        sitepotential_from_dict = SitePotential.from_dict(dict_data)
+        all_attributes = vars(self.sitepotential)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(sitepotential_from_dict, attr_name) == attr_value
 
 
 class TestMadelungEnergies(PymatgenTest):
     def setUp(self) -> None:
-        self.madelungenergies = MadelungEnergies(filename=f"{test_dir_doscar}/cohp/MadelungEnergies.lobster.perovskite")
+        self.madelungenergies = MadelungEnergies(filename=f"{TEST_FILES_DIR}/cohp/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
         assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
+
+    def test_msonable(self):
+        dict_data = self.madelungenergies.as_dict()
+        madelung_from_dict = MadelungEnergies.from_dict(dict_data)
+        all_attributes = vars(self.madelungenergies)
+        for attr_name, attr_value in all_attributes.items():
+            assert getattr(madelung_from_dict, attr_name) == attr_value
+
+
+class TestLobsterMatrices(PymatgenTest):
+    def setUp(self) -> None:
+        self.hamilton_matrices = LobsterMatrices(
+            filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
+        )
+        self.transfer_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/C_transferMatrices.lobster.gz")
+        self.overlap_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Si_overlapMatrices.lobster.gz")
+        self.coeff_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Si_coefficientMatricesLSO1.lobster.gz")
+
+    def test_attributes(self):
+        # hamilton matrices
+        assert self.hamilton_matrices.average_onsite_energies == pytest.approx(
+            {"Na1_3s": 0.58855353, "Na1_2p_y": -25.72719646, "Na1_2p_z": -25.72719646, "Na1_2p_x": -25.72719646}
+        )
+        ref_onsite_energies = [
+            [-0.22519646, -25.76989646, -25.76989646, -25.76989646],
+            [1.40230354, -25.68449646, -25.68449646, -25.68449646],
+        ]
+        assert_allclose(self.hamilton_matrices.onsite_energies, ref_onsite_energies)
+
+        ref_imag_mat_spin_up = np.zeros((4, 4))
+
+        assert_allclose(self.hamilton_matrices.hamilton_matrices["1"][Spin.up].imag, ref_imag_mat_spin_up)
+
+        ref_real_mat_spin_up = [
+            [-3.0217, 0.0, 0.0, 0.0],
+            [0.0, -28.5664, 0.0, 0.0],
+            [0.0, 0.0, -28.5664, 0.0],
+            [0.0, 0.0, 0.0, -28.5664],
+        ]
+        assert_allclose(self.hamilton_matrices.hamilton_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
+
+        # overlap matrices
+        assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
+            {"Si1_3s": 1.00000009, "Si1_3p_y": 0.99999995, "Si1_3p_z": 0.99999995, "Si1_3p_x": 0.99999995}
+        )
+        ref_onsite_ovelaps = [[1.00000009, 0.99999995, 0.99999995, 0.99999995]]
+
+        assert_allclose(self.overlap_matrices.onsite_overlaps, ref_onsite_ovelaps)
+
+        ref_imag_mat = np.zeros((4, 4))
+
+        assert_allclose(self.overlap_matrices.overlap_matrices["1"].imag, ref_imag_mat)
+
+        ref_real_mat = [
+            [1.00000009, 0.0, 0.0, 0.0],
+            [0.0, 0.99999995, 0.0, 0.0],
+            [0.0, 0.0, 0.99999995, 0.0],
+            [0.0, 0.0, 0.0, 0.99999995],
+        ]
+
+        assert_allclose(self.overlap_matrices.overlap_matrices["1"].real, ref_real_mat)
+
+        assert len(self.overlap_matrices.overlap_matrices) == 1
+        # transfer matrices
+        ref_onsite_transfer = [
+            [-0.70523233, -0.07099237, -0.65987499, -0.07090411],
+            [-0.03735031, -0.66865552, 0.69253776, 0.80648063],
+        ]
+        assert_allclose(self.transfer_matrices.onsite_transfer, ref_onsite_transfer)
+
+        ref_imag_mat_spin_down = [
+            [-0.99920553, 0.0, 0.0, 0.0],
+            [0.0, 0.71219607, -0.06090336, -0.08690835],
+            [0.0, -0.04539545, -0.69302453, 0.08323944],
+            [0.0, -0.12220894, -0.09749622, -0.53739499],
+        ]
+
+        assert_allclose(self.transfer_matrices.transfer_matrices["1"][Spin.down].imag, ref_imag_mat_spin_down)
+
+        ref_real_mat_spin_down = [
+            [-0.03735031, 0.0, 0.0, 0.0],
+            [0.0, -0.66865552, 0.06086057, 0.13042529],
+            [-0.0, 0.04262018, 0.69253776, -0.12491928],
+            [0.0, 0.11473763, 0.09742773, 0.80648063],
+        ]
+
+        assert_allclose(self.transfer_matrices.transfer_matrices["1"][Spin.down].real, ref_real_mat_spin_down)
+
+        # coefficient matrices
+        assert list(self.coeff_matrices.coefficient_matrices["1"]) == [Spin.up, Spin.down]
+        assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
+            {
+                "Si1_3s": 0.6232626450000001,
+                "Si1_3p_y": -0.029367565000000012,
+                "Si1_3p_z": -0.50003867,
+                "Si1_3p_x": 0.13529422,
+            }
+        )
+
+        ref_imag_mat_spin_up = [
+            [-0.59697342, 0.0, 0.0, 0.0],
+            [0.0, 0.50603774, 0.50538255, -0.26664607],
+            [0.0, -0.45269894, 0.56996771, 0.23223275],
+            [0.0, 0.47836456, 0.00476861, 0.50184424],
+        ]
+
+        assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].imag, ref_imag_mat_spin_up)
+
+        ref_real_mat_spin_up = [
+            [0.80226096, 0.0, 0.0, 0.0],
+            [0.0, -0.33931137, -0.42979933, -0.34286226],
+            [0.0, 0.30354633, -0.48472536, 0.29861248],
+            [0.0, -0.32075579, -0.00405544, 0.64528776],
+        ]
+
+        assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
+
+    def test_raises(self):
+        with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):
+            self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
+
+        with pytest.raises(
+            OSError,
+            match=r"Please check provided input file, it seems to be empty",
+        ):
+            self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")

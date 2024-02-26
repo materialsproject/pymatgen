@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
-from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.core import Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -282,8 +282,8 @@ class JahnTellerAnalyzer:
                 op_threshold=op_threshold,
             )
             active = analysis["active"]
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
 
         return active
 
@@ -326,8 +326,8 @@ class JahnTellerAnalyzer:
                         jt_sites[index] = True
                         structure.add_site_property("possible_jt_active", jt_sites)
             return structure
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
             return structure
 
     @staticmethod

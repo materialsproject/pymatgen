@@ -9,16 +9,15 @@ from typing import TYPE_CHECKING, Literal
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.composition import Composition, SpeciesLike
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.core import Composition, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -518,7 +517,7 @@ class StructureMatcher(MSONable):
         # vectors are from s2 to s1
         vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
-        sol = lin.solution  # pylint: disable=E1101
+        sol = lin.solution
         short_vecs = vecs[np.arange(len(sol)), sol]
         translation = np.average(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
@@ -744,7 +743,7 @@ class StructureMatcher(MSONable):
         if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
-        if LinearAssignment(mask).min_cost > 0:  # pylint: disable=E1101
+        if LinearAssignment(mask).min_cost > 0:
             return None
 
         best_match = None
@@ -763,7 +762,7 @@ class StructureMatcher(MSONable):
                     lll_frac_tol = inv_lll_abc * self.stol / (np.pi * normalization)
                     dist, t_adj, mapping = self._cart_dists(s1fc, t_s2fc, avg_l, mask, normalization, lll_frac_tol)
                     val = np.linalg.norm(dist) / len(dist) ** 0.5 if use_rms else max(dist)
-                    # pylint: disable=E1136
+
                     if best_match is None or val < best_match[0]:
                         total_t = t + t_adj
                         total_t -= np.round(total_t)
@@ -926,7 +925,7 @@ class StructureMatcher(MSONable):
             mapped_struct = struct1.copy()
             mapped_struct.replace_species(sp_mapping)  # type: ignore[arg-type]
             if swapped:
-                m = self._strict_match(
+                match = self._strict_match(
                     struct2,
                     mapped_struct,
                     fu,
@@ -935,9 +934,9 @@ class StructureMatcher(MSONable):
                     break_on_match,
                 )
             else:
-                m = self._strict_match(mapped_struct, struct2, fu, s1_supercell, use_rms, break_on_match)
-            if m:
-                matches.append((sp_mapping, m))
+                match = self._strict_match(mapped_struct, struct2, fu, s1_supercell, use_rms, break_on_match)
+            if match:
+                matches.append((sp_mapping, match))
                 if single_match:
                     break
         return matches
@@ -963,11 +962,9 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            (min_rms, min_mapping)
-            min_rms is the minimum rms distance, and min_mapping is the
-            corresponding minimal species mapping that would map
-            struct1 to struct2. (None, None) is returned if the minimax_rms
-            exceeds the threshold.
+            tuple: [min_rms, min_mapping]: min_rms is the minimum rms distance, and min_mapping is the
+                corresponding minimal species mapping that would map
+                struct1 to struct2. (None, None) is returned if the minimax_rms exceeds the threshold.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
@@ -1093,9 +1090,9 @@ class StructureMatcher(MSONable):
             struct2 (Structure): Structure to transform.
 
         Returns:
-            supercell (numpy.ndarray(3, 3)): supercell matrix
-            vector (numpy.ndarray(3)): fractional translation vector
-            mapping (list(int or None)):
+            supercell (np.array(3, 3)): supercell matrix
+            vector (np.array(3)): fractional translation vector
+            mapping (list[int | None]):
                 The first len(struct1) items of the mapping vector are the
                 indices of struct1's corresponding sites in struct2 (or None
                 if there is no corresponding site), and the other items are

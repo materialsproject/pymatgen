@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -19,28 +18,27 @@ __email__ = "rit001@eng.ucsd.edu"
 __date__ = "Aug 24, 2017"
 
 
-def get_path(path_str):
-    return os.path.join(TEST_FILES_DIR, "surface_tests", path_str)
+TEST_DIR = f"{TEST_FILES_DIR}/surface_tests"
 
 
 class TestSlabEntry(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
-            ucell_entries = json.loads(ucell_entries.read())
+        with open(f"{TEST_DIR}/ucell_entries.txt") as file:
+            ucell_entries = json.loads(file.read())
         self.ucell_entries = ucell_entries
 
         # Load objects for O adsorption tests
         self.metals_O_entry_dict = load_O_adsorption()
 
         # Load objects for Cu test
-        self.Cu_entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
+        self.Cu_entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         assert len(self.Cu_entry_dict) == 13
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Cu"])
 
         # Load dummy MgO slab entries
         self.MgO_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["MgO"])
         self.Mg_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Mg"])
-        self.MgO_slab_entry_dict = get_entry_dict(os.path.join(get_path(""), "MgO_slab_entries.txt"))
+        self.MgO_slab_entry_dict = get_entry_dict(f"{TEST_DIR}/MgO_slab_entries.txt")
 
     def test_properties(self):
         # Test cases for getting adsorption related quantities for a 1/4
@@ -59,8 +57,8 @@ class TestSlabEntry(PymatgenTest):
                         assert ads.Nsurfs_ads_in_slab == 1
 
                         # Determine the correct binding energy
-                        with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
-                            isolated_O_entry = json.loads(isolated_O_entry.read())
+                        with open(f"{TEST_DIR}/isolated_O_entry.txt") as txt_file:
+                            isolated_O_entry = json.loads(txt_file.read())
                         O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
                         g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
                         assert g_bind == ads.gibbs_binding_energy()
@@ -121,10 +119,10 @@ class TestSlabEntry(PymatgenTest):
 
 class TestSurfaceEnergyPlotter(PymatgenTest):
     def setUp(self):
-        entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
+        entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         self.Cu_entry_dict = entry_dict
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
-            ucell_entries = json.loads(ucell_entries.read())
+        with open(f"{TEST_DIR}/ucell_entries.txt") as file:
+            ucell_entries = json.loads(file.read())
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
@@ -136,11 +134,7 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
         self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"], ucell_entry)
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
         self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"], ucell_entry)
-        self.Oads_analyzer_dict = {
-            "Pt": self.Pt_analyzer,
-            "Ni": self.Ni_analyzer,
-            "Rh": self.Rh_analyzer,
-        }
+        self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer, "Ni": self.Ni_analyzer, "Rh": self.Rh_analyzer}
 
     def test_get_stable_entry_at_u(self):
         for plotter in self.Oads_analyzer_dict.values():
@@ -251,8 +245,8 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
                 all_Pt_slab_entries.append(clean)
                 all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
 
-        a = SurfaceEnergyPlotter(all_Pt_slab_entries, self.Pt_analyzer.ucell_entry)
-        assert type(a).__name__ == "SurfaceEnergyPlotter"
+        surf_ene_plotter = SurfaceEnergyPlotter(all_Pt_slab_entries, self.Pt_analyzer.ucell_entry)
+        assert surf_ene_plotter.list_of_chempots == self.Pt_analyzer.list_of_chempots
 
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict:
@@ -294,9 +288,9 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
 class TestWorkfunctionAnalyzer(PymatgenTest):
     def setUp(self):
         self.kwargs = {
-            "poscar_filename": get_path("CONTCAR.relax1.gz"),
-            "locpot_filename": get_path("LOCPOT.gz"),
-            "outcar_filename": get_path("OUTCAR.relax1.gz"),
+            "poscar_filename": f"{TEST_DIR}/CONTCAR.relax1.gz",
+            "locpot_filename": f"{TEST_DIR}/LOCPOT.gz",
+            "outcar_filename": f"{TEST_DIR}/OUTCAR.relax1.gz",
         }
         self.wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
 
@@ -311,10 +305,10 @@ class TestWorkfunctionAnalyzer(PymatgenTest):
 class TestNanoscaleStability(PymatgenTest):
     def setUp(self):
         # Load all entries
-        La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_hcp_entries.txt"))
-        La_fcc_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_fcc_entries.txt"))
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
-            ucell_entries = json.loads(ucell_entries.read())
+        La_hcp_entry_dict = get_entry_dict(f"{TEST_DIR}/La_hcp_entries.txt")
+        La_fcc_entry_dict = get_entry_dict(f"{TEST_DIR}/La_fcc_entries.txt")
+        with open(f"{TEST_DIR}/ucell_entries.txt") as txt_file:
+            ucell_entries = json.loads(txt_file.read())
         La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
         La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
 
@@ -332,20 +326,20 @@ class TestNanoscaleStability(PymatgenTest):
         # polymorph above the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r + 10, from_sphere_area=True)
+        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r + 10, from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r + 10, from_sphere_area=True)
+        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r + 10, from_sphere_area=True)
         assert gfcc > ghcp
 
         # fcc phase of La particle should be the stable
         # polymorph below the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r - 10, from_sphere_area=True)
+        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r - 10, from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r - 10, from_sphere_area=True)
+        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r - 10, from_sphere_area=True)
         assert gfcc < ghcp
 
     def test_scaled_wulff(self):
@@ -364,8 +358,8 @@ def get_entry_dict(filename):
     # helper to generate an entry_dict
 
     entry_dict = {}
-    with open(filename) as entries:
-        entries = json.loads(entries.read())
+    with open(filename) as file:
+        entries = json.loads(file.read())
     for k in entries:
         n = k[25:]
         miller_index = []
@@ -391,8 +385,8 @@ def load_O_adsorption():
     # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
 
     # Load the adsorbate as an entry
-    with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
-        isolated_O_entry = json.loads(isolated_O_entry.read())
+    with open(f"{TEST_DIR}/isolated_O_entry.txt") as file:
+        isolated_O_entry = json.loads(file.read())
     O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
     # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
@@ -402,57 +396,57 @@ def load_O_adsorption():
         "Rh": {(1, 0, 0): {}},
     }
 
-    with open(os.path.join(get_path(""), "csentries_slabs.json")) as entries:
-        entries = json.loads(entries.read())
-    for k in entries:
-        entry = ComputedStructureEntry.from_dict(entries[k])
-        for el in metals_O_entry_dict:  # pylint: disable=C0206
-            if el in k:
-                if "111" in k:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=k + "_clean")
+    with open(f"{TEST_DIR}/cs_entries_slabs.json") as file:
+        entries = json.loads(file.read())
+    for key in entries:
+        entry = ComputedStructureEntry.from_dict(entries[key])
+        for el in metals_O_entry_dict:
+            if el in key:
+                if "111" in key:
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=key + "_clean")
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = []
-                if "110" in k:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 0), label=k + "_clean")
+                if "110" in key:
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 0), label=key + "_clean")
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = []
-                if "100" in k:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=k + "_clean")
+                if "100" in key:
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=key + "_clean")
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
-    with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
-        entries = json.loads(entries.read())
-    for k in entries:
-        entry = ComputedStructureEntry.from_dict(entries[k])
+    with open(f"{TEST_DIR}/cs_entries_o_ads.json") as file:
+        entries = json.loads(file.read())
+    for key in entries:
+        entry = ComputedStructureEntry.from_dict(entries[key])
         for el, val in metals_O_entry_dict.items():
-            if el in k:
-                if "111" in k:
+            if el in key:
+                if "111" in key:
                     clean = next(iter(val[(1, 1, 1)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
                         (1, 1, 1),
-                        label=k + "_O",
+                        label=key + "_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
-                if "110" in k:
+                if "110" in key:
                     clean = next(iter(val[(1, 1, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
                         (1, 1, 0),
-                        label=k + "_O",
+                        label=key + "_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
-                if "100" in k:
+                if "100" in key:
                     clean = next(iter(val[(1, 0, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
                         (1, 0, 0),
-                        label=k + "_O",
+                        label=key + "_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )

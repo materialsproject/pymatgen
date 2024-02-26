@@ -1,5 +1,5 @@
 #
-# pylint: disable=no-member, chained-comparison
+
 """Low-level objects providing an abstraction for the objects involved in the calculation."""
 
 from __future__ import annotations
@@ -65,7 +65,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             and abs(ang_deg[0] - 90.0) + abs(ang_deg[1] - 90.0) + abs(ang_deg[2] - 90) > tol12
         ):
             # Treat the case of equal angles (except all right angles):
-            # generates trigonal symmetry wrt third axis
+            # generates trigonal symmetry w.r.t. third axis
             cos_ang = cos(pi * ang_deg[0] / 180.0)
             a2 = 2.0 / 3.0 * (1.0 - cos_ang)
             aa = sqrt(a2)
@@ -95,52 +95,48 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(kwargs)}")
 
 
-def structure_from_abivars(cls=None, *args, **kwargs):
+def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
     """
     Build a Structure object from a dictionary with ABINIT variables.
 
     Args:
-        cls: Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
+        cls: Structure class to be instantiated. Defaults to Structure.
 
     Example:
         al_structure = structure_from_abivars(
             acell=3*[7.5],
-            rprim=[0.0, 0.5, 0.5,
-                   0.5, 0.0, 0.5,
-                   0.5, 0.5, 0.0],
+            rprim=[0.0, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.5, 0.0],
             typat=1,
             xred=[0.0, 0.0, 0.0],
             ntypat=1,
             znucl=13,
         )
 
-    `xred` can be replaced with `xcart` or `xangst`.
+    xred can be replaced with xcart or xangst.
     """
     kwargs.update(dict(*args))
-    d = kwargs
-
-    cls = Structure if cls is None else cls
+    cls = cls or Structure
 
     # lattice = Lattice.from_dict(d, fmt="abivars")
-    lattice = lattice_from_abivars(**d)
-    coords, coords_are_cartesian = d.get("xred"), False
+    lattice = lattice_from_abivars(**kwargs)
+    coords, coords_are_cartesian = kwargs.get("xred"), False
 
     if coords is None:
-        coords = d.get("xcart")
+        coords = kwargs.get("xcart")
         if coords is not None:
-            if "xangst" in d:
+            if "xangst" in kwargs:
                 raise ValueError("xangst and xcart are mutually exclusive")
             coords = ArrayWithUnit(coords, "bohr").to("ang")
         else:
-            coords = d.get("xangst")
+            coords = kwargs.get("xangst")
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError(f"Cannot extract coordinates from:\n {d}")
+        raise ValueError(f"Cannot extract coordinates from:\n {kwargs}")
 
     coords = np.reshape(coords, (-1, 3))
 
-    znucl_type, typat = d["znucl"], d["typat"]
+    znucl_type, typat = kwargs["znucl"], kwargs["typat"]
 
     if not isinstance(znucl_type, Iterable):
         znucl_type = [znucl_type]
@@ -188,28 +184,27 @@ def species_by_znucl(structure: Structure) -> list[Species]:
     return types
 
 
-def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kwargs):
+def structure_to_abivars(
+    structure: Structure, enforce_znucl: list | None = None, enforce_typat: list | None = None, **kwargs
+):
     """
     Receives a structure and returns a dictionary with ABINIT variables.
 
     Args:
-        enforce_znucl: List of ntypat entries with the value of Z for each type of atom.
-            Used to change the default ordering.
-        enforce_typat: List with natom entries with the type index.
-            Fortran conventions: start to count from 1.
-            Used to change the default ordering.
+        enforce_znucl (list): ntypat entries with the value of Z for each type of atom.
+            Used to change the default ordering. Defaults to None.
+        enforce_typat (list): natom entries with the type index.
+            Fortran conventions: start to count from 1. Used to change the default ordering.
     """
     if not structure.is_ordered:
         raise ValueError(
-            """\
-Received disordered structure with partial occupancies that cannot be converted into an Abinit input.
-Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
-to build an appropriate supercell from partial occupancies or, alternatively, use the Rigid Band Model
-or the Virtual Crystal Approximation."""
+            "Received disordered structure with partial occupancies that cannot be converted into an "
+            "Abinit input. Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation "
+            "to build an appropriate supercell from partial occupancies or, alternatively, use the Rigid Band Model "
+            "or the Virtual Crystal Approximation."
         )
 
     n_atoms = len(structure)
-    n_types_atom = structure.ntypesp
     enforce_order = False
 
     if enforce_znucl is not None or enforce_typat is not None:
@@ -223,94 +218,94 @@ or the Virtual Crystal Approximation."""
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != n_types_atom:
-            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {n_types_atom=}")
+        if len(enforce_znucl) != structure.n_elems:
+            raise ValueError(
+                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
+            )
 
-    if not enforce_order:
+    if enforce_order:
+        znucl_type = enforce_znucl
+        typat = enforce_typat or []  # or [] added for mypy
+    else:
         types_of_specie = species_by_znucl(structure)
 
-        # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
         typat = np.zeros(n_atoms, int)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
-    else:
-        znucl_type = enforce_znucl
-        typat = enforce_typat
 
-    rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
-    angdeg = structure.lattice.angles
-    xred = np.reshape([site.frac_coords for site in structure], (-1, 3))
+    r_prim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
+    ang_deg = structure.lattice.angles
+    x_red = np.reshape([site.frac_coords for site in structure], (-1, 3))
 
     # Set small values to zero. This usually happens when the CIF file
     # does not give structure parameters with enough digits.
-    rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-    xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+    r_prim = np.where(np.abs(r_prim) > 1e-8, r_prim, 0.0)
+    x_red = np.where(np.abs(x_red) > 1e-8, x_red, 0.0)
 
     # Info on atoms.
     dct = {
         "natom": n_atoms,
-        "ntypat": n_types_atom,
+        "ntypat": structure.n_elems,
         "typat": typat,
         "znucl": znucl_type,
-        "xred": xred,
+        "xred": x_red,
     }
 
     # Add info on the lattice.
-    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
-    geomode = kwargs.pop("geomode", "rprim")
-    if geomode == "automatic":
-        geomode = "rprim"
-        if structure.lattice.is_hexagonal:  # or structure.lattice.is_rhombohedral
-            geomode = "angdeg"
-            angdeg = structure.lattice.angles
+    # Should we use (rprim, acell) or (ang_deg, acell) to specify the lattice?
+    geo_mode = kwargs.pop("geomode", "rprim")
+    if geo_mode == "automatic":
+        geo_mode = "rprim"
+        if structure.lattice.is_hexagonal():  # or structure.lattice.is_rhombohedral
+            geo_mode = "angdeg"
+            ang_deg = structure.lattice.angles
             # Here one could polish a bit the numerical values if they are not exact.
             # Note that in pmg the angles are 12, 20, 01 while in Abinit 12, 02, 01
             # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
-    if geomode == "rprim":
+    if geo_mode == "rprim":
         dct.update(
             acell=3 * [1.0],
-            rprim=rprim,
+            rprim=r_prim,
         )
 
-    elif geomode == "angdeg":
+    elif geo_mode == "angdeg":
         dct.update(
             acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
-            angdeg=angdeg,
+            angdeg=ang_deg,
         )
     else:
-        raise ValueError(f"Wrong value for {geomode=}")
+        raise ValueError(f"Wrong value for {geo_mode=}")
 
     return dct
 
 
-def contract(s):
+def contract(string):
     """
     assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
     assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
-    if not s:
-        return s
+    if not string:
+        return string
 
-    tokens = s.split()
+    tokens = string.split()
     old = tokens[0]
     count = [[1, old]]
 
-    for t in tokens[1:]:
-        if t == old:
+    for tok in tokens[1:]:
+        if tok == old:
             count[-1][0] += 1
         else:
-            old = t
-            count.append([1, t])
+            old = tok
+            count.append([1, tok])
 
     return " ".join(f"{c}*{t}" for c, t in count)
 
 
 class AbivarAble(metaclass=abc.ABCMeta):
     """
-    An `AbivarAble` object provides a method `to_abivars`
-    that returns a dictionary with the abinit variables.
+    An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
 
     @abc.abstractmethod
@@ -371,17 +366,13 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
         # Assume a string with mode
         try:
-            return _mode2spinvars[obj]
+            return _mode_to_spin_vars[obj]
         except KeyError:
             raise KeyError(f"Wrong value for spin_mode: {obj}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
-        return {
-            "nsppol": self.nsppol,
-            "nspinor": self.nspinor,
-            "nspden": self.nspden,
-        }
+        return {"nsppol": self.nsppol, "nspinor": self.nspinor, "nspden": self.nspden}
 
     def as_dict(self):
         """Convert object to dict."""
@@ -396,7 +387,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
 
 # An handy Multiton
-_mode2spinvars = {
+_mode_to_spin_vars = {
     "unpolarized": SpinMode("unpolarized", 1, 1, 1),
     "polarized": SpinMode("polarized", 2, 1, 2),
     "afm": SpinMode("afm", 1, 1, 2),
@@ -427,10 +418,10 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s = f"occopt {self.occopt} # {self.mode} Smearing\n"
+        string = f"occopt {self.occopt} # {self.mode} Smearing\n"
         if self.tsmear:
-            s += f"tsmear {self.tsmear}"
-        return s
+            string += f"tsmear {self.tsmear}"
+        return string
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("occopt", "tsmear")
@@ -598,7 +589,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """Json friendly dict representation."""
+        """JSON friendly dict representation."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -612,16 +603,16 @@ class Electrons(AbivarAble, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Build object from dictionary."""
-        d = d.copy()
-        d.pop("@module", None)
-        d.pop("@class", None)
+        dct = dct.copy()
+        dct.pop("@module", None)
+        dct.pop("@class", None)
         dec = MontyDecoder()
-        d["spin_mode"] = dec.process_decoded(d["spin_mode"])
-        d["smearing"] = dec.process_decoded(d["smearing"])
-        d["algorithm"] = dec.process_decoded(d["algorithm"]) if d["algorithm"] else None
-        return cls(**d)
+        dct["spin_mode"] = dec.process_decoded(dct["spin_mode"])
+        dct["smearing"] = dec.process_decoded(dct["smearing"])
+        dct["algorithm"] = dec.process_decoded(dct["algorithm"]) if dct["algorithm"] else None
+        return cls(**dct)
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -689,8 +680,8 @@ class KSampling(AbivarAble, MSONable):
                 Number of division for the sampling of the smallest segment if mode is "path".
                 Not used for the other modes
             kpts: Number of divisions. Even when only a single specification is
-                  required, e.g. in the automatic scheme, the kpts should still
-                  be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+                required, e.g. in the automatic scheme, the kpts should still
+                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
             kpt_shifts: Shifts for Kpoints.
             use_symmetries: False if spatial symmetries should not be used
                 to reduce the number of independent k-points.

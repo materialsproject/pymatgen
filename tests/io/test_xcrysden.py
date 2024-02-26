@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
 from pymatgen.util.testing import PymatgenTest
@@ -8,21 +7,17 @@ from pymatgen.util.testing import PymatgenTest
 
 class TestXSF(PymatgenTest):
     def test_xsf(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
         assert structure, XSF.from_str(xsf.to_str())
 
-    def test_to_string(self):
+    def test_to_str(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
         xsf_str = xsf.to_str()
@@ -58,7 +53,7 @@ PRIMCOORD
 3     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
 
-    def test_xsf_symbolparse(self):
+    def test_xsf_symbol_parse(self):
         """
         Ensure that the same structure is parsed
         even if the atomic symbol / number convention

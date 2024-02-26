@@ -21,6 +21,10 @@ import re
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
+from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
+
+from pymatgen.core.structure import Molecule
 
 try:
     from openbabel import openbabel
@@ -29,10 +33,6 @@ try:
 except ImportError:
     openbabel = None
 
-from scipy.optimize import linear_sum_assignment
-from scipy.spatial.distance import cdist
-
-from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
 
 __author__ = "Xiaohui Qu, Adam Fekete"
 __version__ = "1.0"
@@ -58,13 +58,12 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object.
 
         Returns:
-            (list1, list2) if uniform atom order is found. list1 and list2
-            are for mol1 and mol2, respectively. Their length equal
-            to the number of atoms. They represents the uniform atom order
-            of the two molecules. The value of each element is the original
-            atom index in mol1 or mol2 of the current atom in uniform atom
-            order.
-            (None, None) if unform atom is not available.
+            tuple[list1, list2]: if uniform atom order is found. list1 and list2
+                are for mol1 and mol2, respectively. Their length equal
+                to the number of atoms. They represents the uniform atom order
+                of the two molecules. The value of each element is the original
+                atom index in mol1 or mol2 of the current atom in uniform atom order.
+                (None, None) if uniform atom is not available.
         """
 
     @abc.abstractmethod
@@ -81,10 +80,10 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         """
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (): Dict.
+            dct (dict): Dict representation.
 
         Returns:
             AbstractMolAtomMapper
@@ -95,12 +94,12 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
                 f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
-                [d["@class"]],
+                [dct["@class"]],
                 level,
             )
-            if hasattr(mod, d["@class"]):
-                class_proxy = getattr(mod, d["@class"])
-                return class_proxy.from_dict(d)
+            if hasattr(mod, dct["@class"]):
+                class_proxy = getattr(mod, dct["@class"])
+                return class_proxy.from_dict(dct)
         raise ValueError("Invalid Comparator dict")
 
 
@@ -118,13 +117,12 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object.
 
         Returns:
-            (list1, list2) if uniform atom order is found. list1 and list2
-            are for mol1 and mol2, respectively. Their length equal
-            to the number of atoms. They represents the uniform atom order
-            of the two molecules. The value of each element is the original
-            atom index in mol1 or mol2 of the current atom in uniform atom
-            order.
-            (None, None) if unform atom is not available.
+            tuple[list1, list2]: if uniform atom order is found. list1 and list2
+                are for mol1 and mol2, respectively. Their length equal
+                to the number of atoms. They represents the uniform atom order
+                of the two molecules. The value of each element is the original
+                atom index in mol1 or mol2 of the current atom in uniform atom order.
+                (None, None) if uniform atom is not available.
         """
         ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
         ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol
@@ -143,7 +141,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = ob_mol1
-        aligner = openbabel.OBAlign(includeH=True, symmetry=False)
+        aligner = openbabel.OBAlign(True, False)  # includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -355,44 +353,44 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             corrected inchi labels of heavy atoms of the second molecule
         """
-        nvirtual = vmol1.NumAtoms()
-        nheavy = len(ilabel1)
+        n_virtual = vmol1.NumAtoms()
+        n_heavy = len(ilabel1)
 
-        for i in ilabel2:  # add all heavy atoms
+        for idx in ilabel2:  # add all heavy atoms
             a1 = vmol1.NewAtom()
             a1.SetAtomicNum(1)
             a1.SetVector(0.0, 0.0, 0.0)  # useless, just to pair with vmol2
-            oa2 = mol2.GetAtom(i)
+            oa2 = mol2.GetAtom(idx)
             a2 = vmol2.NewAtom()
             a2.SetAtomicNum(1)
             # align using the virtual atoms, these atoms are not
             # used to align, but match by positions
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
+        aligner = openbabel.OBAlign(False, False)  # includeH=False, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(vmol1)
         aligner.SetTargetMol(vmol2)
         aligner.Align()
         aligner.UpdateCoords(vmol2)
 
         canon_mol1 = openbabel.OBMol()
-        for i in ilabel1:
-            oa1 = mol1.GetAtom(i)
+        for idx in ilabel1:
+            oa1 = mol1.GetAtom(idx)
             a1 = canon_mol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
 
         aligned_mol2 = openbabel.OBMol()
-        for i in range(nvirtual + 1, nvirtual + nheavy + 1):
-            oa2 = vmol2.GetAtom(i)
+        for idx in range(n_virtual + 1, n_virtual + n_heavy + 1):
+            oa2 = vmol2.GetAtom(idx)
             a2 = aligned_mol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        canon_label2 = list(range(1, nheavy + 1))
+        canon_label2 = list(range(1, n_heavy + 1))
         for symm in eq_atoms:
-            for i in symm:
-                canon_label2[i - 1] = -1
+            for idx in symm:
+                canon_label2[idx - 1] = -1
         for symm in eq_atoms:
             candidates1 = list(symm)
             candidates2 = list(symm)
@@ -402,14 +400,14 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 a2 = aligned_mol2.GetAtom(c2)
                 for c1 in candidates1:
                     a1 = canon_mol1.GetAtom(c1)
-                    d = a1.GetDistance(a2)
-                    if d < distance:
-                        distance = d
+                    dist = a1.GetDistance(a2)
+                    if dist < distance:
+                        distance = dist
                         canon_idx = c1
                 canon_label2[c2 - 1] = canon_idx
                 candidates1.remove(canon_idx)
 
-        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, nheavy + 1)), ilabel2))
+        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, n_heavy + 1)), ilabel2))
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
         return tuple(x[2] for x in canon_inchi_orig_map2)
 
@@ -448,7 +446,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
+        aligner = openbabel.OBAlign(False, False)  # includeH=False, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -462,9 +460,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2 = cmol2.GetAtom(h2)
             for h1 in hydrogen_label1:
                 a1 = cmol1.GetAtom(h1)
-                d = a1.GetDistance(a2)
-                if d < distance:
-                    distance = d
+                dist = a1.GetDistance(a2)
+                if dist < distance:
+                    distance = dist
                     idx = h1
             hydrogen_label2.append(idx)
             hydrogen_label1.remove(idx)
@@ -631,23 +629,23 @@ class MoleculeMatcher(MSONable):
         Returns:
             The RMSD.
         """
-        obmol1 = BabelMolAdaptor(mol1).openbabel_mol
-        obmol2 = BabelMolAdaptor(mol2).openbabel_mol
+        ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
+        ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol
 
         cmol1 = openbabel.OBMol()
         for i in clabel1:
-            oa1 = obmol1.GetAtom(i)
+            oa1 = ob_mol1.GetAtom(i)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
         cmol2 = openbabel.OBMol()
         for i in clabel2:
-            oa2 = obmol2.GetAtom(i)
+            oa2 = ob_mol2.GetAtom(i)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(includeH=True, symmetry=False)
+        aligner = openbabel.OBAlign(True, False)  # includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -810,7 +808,7 @@ class KabschMatcher(MSONable):
         P and Q, centered around the their centroid.
 
         For more info see:
-        - http://en.wikipedia.org/wiki/Kabsch_algorithm and
+        - http://wikipedia.org/wiki/Kabsch_algorithm and
         - https://cnx.org/contents/HV-RsdwL@23/Molecular-Distance-Measures
 
         Args:
@@ -825,14 +823,14 @@ class KabschMatcher(MSONable):
 
         # Computation of the optimal rotation matrix
         # using singular value decomposition (SVD).
-        V, S, WT = np.linalg.svd(C)
+        V, _S, WT = np.linalg.svd(C)
 
         # Getting the sign of the det(V*Wt) to decide whether
-        d = np.linalg.det(np.dot(V, WT))
+        det = np.linalg.det(np.dot(V, WT))
 
         # And finally calculating the optimal rotation matrix R
         # we need to correct our rotation matrix to ensure a right-handed coordinate system.
-        return np.dot(np.dot(V, np.diag([1, 1, d])), WT)
+        return np.dot(np.dot(V, np.diag([1, 1, det])), WT)
 
 
 class BruteForceOrderMatcher(KabschMatcher):
@@ -1064,7 +1062,7 @@ class HungarianOrderMatcher(KabschMatcher):
             # Perform Hungarian analysis on distance matrix between atoms of 1st
             # structure and trial structure
             distances = cdist(A, B, "euclidean")
-            a_inds, b_inds = linear_sum_assignment(distances)
+            _a_inds, b_inds = linear_sum_assignment(distances)
 
             perm_inds[q_atom_inds] = p_atom_inds[b_inds]
 
@@ -1089,7 +1087,7 @@ class HungarianOrderMatcher(KabschMatcher):
             # Perform Hungarian analysis on distance matrix between atoms of 1st
             # structure and trial structure
             distances = cdist(A, B, "euclidean")
-            a_inds, b_inds = linear_sum_assignment(distances)
+            _a_inds, b_inds = linear_sum_assignment(distances)
 
             perm_inds[q_atom_inds] = p_atom_inds[b_inds]
 
@@ -1119,7 +1117,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
         inertia_tensor = np.array([[Ixx, Ixy, Ixz], [Ixy, Iyy, Iyz], [Ixz, Iyz, Izz]])
 
-        eigvals, eigvecs = np.linalg.eigh(inertia_tensor)
+        _eigvals, eigvecs = np.linalg.eigh(inertia_tensor)
 
         return eigvecs[:, 0]
 

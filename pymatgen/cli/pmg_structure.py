@@ -89,8 +89,8 @@ def compare_structures(args):
         print("Error converting file. Are they in the right format?")
         raise SystemExit(exc)
 
-    m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
-    for idx, grp in enumerate(m.group_structures(structures)):
+    matcher = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
+    for idx, grp in enumerate(matcher.group_structures(structures)):
         print(f"Group {idx}: ")
         for s in grp:
             print(f"- {filenames[structures.index(s)]} ({s.formula})")

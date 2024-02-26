@@ -32,6 +32,7 @@ from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
 from scipy import constants
+from scipy.optimize import fsolve
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
@@ -91,7 +92,7 @@ class BoltztrapRunner(MSONable):
         symprec=1e-3,
         cb_cut=10,
         timeout=7200,
-    ):
+    ) -> None:
         """
         Args:
             bs:
@@ -183,7 +184,7 @@ class BoltztrapRunner(MSONable):
         self._nelec = nelec
         self.dos_type = dos_type
         self.energy_grid = energy_grid
-        self.error = []
+        self.error: list[str] = []
         self.run_type = run_type
         self.band_nb = band_nb
         self.spin = spin
@@ -211,7 +212,7 @@ class BoltztrapRunner(MSONable):
         self.timeout = timeout
         self.start_time = time.perf_counter()
 
-    def _auto_set_energy_range(self):
+    def _auto_set_energy_range(self) -> None:
         """Automatically determine the energy range as min/max eigenvalue
         minus/plus the buffer_in_ev.
         """
@@ -248,14 +249,14 @@ class BoltztrapRunner(MSONable):
         """Number of electrons."""
         return self._nelec
 
-    def write_energy(self, output_file):
+    def write_energy(self, output_file) -> None:
         """Writes the energy to an output file.
 
         :param output_file: Filename
         """
-        with open(output_file, "w") as f:
-            f.write("test\n")
-            f.write(f"{len(self._bs.kpoints)}\n")
+        with open(output_file, mode="w") as file:
+            file.write("test\n")
+            file.write(f"{len(self._bs.kpoints)}\n")
 
             if self.run_type == "FERMI":
                 sign = -1.0 if self.cond_band else 1.0
@@ -268,9 +269,9 @@ class BoltztrapRunner(MSONable):
                         ).to("Ry")
                     )
                     a, b, c = kpt.frac_coords
-                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
+                    file.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
                     for e in eigs:
-                        f.write(f"{sign * float(e):18.8f}\n")
+                        file.write(f"{sign * float(e):18.8f}\n")
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -295,12 +296,12 @@ class BoltztrapRunner(MSONable):
                         eigs.insert(0, self._ll)
                         eigs.append(self._hl)
                     a, b, c = kpt.frac_coords
-                    f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
+                    file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
 
                     for e in eigs:
-                        f.write(f"{float(e):18.8f}\n")
+                        file.write(f"{float(e):18.8f}\n")
 
-    def write_struct(self, output_file):
+    def write_struct(self, output_file) -> None:
         """Writes the structure to an output file.
 
         :param output_file: Filename
@@ -310,13 +311,13 @@ class BoltztrapRunner(MSONable):
         elif self._symprec is None:
             pass
 
-        with open(output_file, "w") as f:
+        with open(output_file, mode="w") as file:
             if self._symprec is not None:
-                f.write(f"{self._bs.structure.composition.formula} {sym.get_space_group_symbol()}\n")
+                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")
             elif self._symprec is None:
-                f.write(f"{self._bs.structure.composition.formula} symmetries disabled\n")
+                file.write(f"{self._bs.structure.formula} symmetries disabled\n")
 
-            f.write(
+            file.write(
                 "\n".join(
                     " ".join(f"{Length(i, 'ang').to('bohr'):.5f}" for i in row)
                     for row in self._bs.structure.lattice.matrix
@@ -328,29 +329,29 @@ class BoltztrapRunner(MSONable):
                 ops = sym.get_symmetry_dataset()["rotations"]
             elif self._symprec is None:
                 ops = [[[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
-            f.write(f"{len(ops)}\n")
+            file.write(f"{len(ops)}\n")
 
             for op in ops:
                 for row in op:
-                    f.write(f"{' '.join(map(str, row))}\n")
+                    file.write(f"{' '.join(map(str, row))}\n")
 
-    def write_def(self, output_file):
+    def write_def(self, output_file) -> None:
         """Writes the def to an output file.
 
         :param output_file: Filename
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
-        with open(output_file, "w") as f:
+        with open(output_file, mode="w") as file:
             so = ""
             if self._bs.is_spin_polarized or self.soc:
                 so = "so"
-            f.write(
+            file.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
                 "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
                 "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                "10,'boltztrap.energy" + so + "',         'old',    "
+                f"10,'boltztrap.energy{so}',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
@@ -362,7 +363,7 @@ class BoltztrapRunner(MSONable):
                 "'formatted',0\n"
             )
 
-    def write_proj(self, output_file_proj, output_file_def):
+    def write_proj(self, output_file_proj, output_file_def) -> None:
         """Writes the projections to an output file.
 
         :param output_file: Filename
@@ -372,9 +373,9 @@ class BoltztrapRunner(MSONable):
         for oi, o in enumerate(Orbital):
             for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
-                    with open(f"{output_file_proj}_{site_nb}_{o}", "w") as f:
-                        f.write(self._bs.structure.composition.formula + "\n")
-                        f.write(str(len(self._bs.kpoints)) + "\n")
+                    with open(f"{output_file_proj}_{site_nb}_{o}", mode="w") as file:
+                        file.write(self._bs.structure.formula + "\n")
+                        file.write(str(len(self._bs.kpoints)) + "\n")
                         for i, kpt in enumerate(self._bs.kpoints):
                             tmp_proj = []
                             for j in range(int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))):
@@ -387,19 +388,19 @@ class BoltztrapRunner(MSONable):
                                 tmp_proj.insert(0, self._ll)
                                 tmp_proj.append(self._hl)
                             a, b, c = kpt.frac_coords
-                            f.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
+                            file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
                             for t in tmp_proj:
-                                f.write(f"{float(t):18.8f}\n")
-        with open(output_file_def, "w") as f:
+                                file.write(f"{float(t):18.8f}\n")
+        with open(output_file_def, mode="w") as file:
             so = ""
             if self._bs.is_spin_polarized:
                 so = "so"
-            f.write(
+            file.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
                 "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
                 "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                "10,'boltztrap.energy" + so + "',         'old',    "
+                f"10,'boltztrap.energy{so}',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
@@ -414,10 +415,10 @@ class BoltztrapRunner(MSONable):
             for oi, o in enumerate(Orbital):
                 for site_nb in range(len(self._bs.structure)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
-                        f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
+                        file.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
                         i += 1
 
-    def write_intrans(self, output_file):
+    def write_intrans(self, output_file) -> None:
         """Writes the intrans to an output file.
 
         :param output_file: Filename
@@ -425,7 +426,7 @@ class BoltztrapRunner(MSONable):
         setgap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type in ("BOLTZ", "DOS"):
-            with open(output_file, "w") as fout:
+            with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
@@ -452,7 +453,7 @@ class BoltztrapRunner(MSONable):
                     fout.write(str(-d) + "\n")
 
         elif self.run_type == "FERMI":
-            with open(output_file, "w") as fout:
+            with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
@@ -474,7 +475,7 @@ class BoltztrapRunner(MSONable):
             elif isinstance(self.kpt_line[0], Kpoint):
                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
 
-            with open(output_file, "w") as fout:
+            with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
@@ -493,7 +494,7 @@ class BoltztrapRunner(MSONable):
                     fout.writelines([f"{k} " for k in kp])
                     fout.write("\n")
 
-    def write_input(self, output_dir):
+    def write_input(self, output_dir) -> None:
         """Writes the input files.
 
         :param output_dir: Directory to write the input files.
@@ -545,18 +546,19 @@ class BoltztrapRunner(MSONable):
         if convergence and not write_input:
             raise ValueError("Convergence mode requires write_input to be true")
 
-        if self.run_type in ("BANDS", "DOS", "FERMI"):
+        run_type = self.run_type
+        if run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
             if self.lpfac > max_lpfac:
                 max_lpfac = self.lpfac
 
-        if self.run_type == "BANDS" and self.bs.is_spin_polarized:
+        if run_type == "BANDS" and self.bs.is_spin_polarized:
             print(
-                f"Reminder: for run_type {self.run_type}, spin component are not separated! "
+                f"Reminder: for {run_type=}, spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
 
-        if self.run_type in ("FERMI", "DOS") and self.spin is None:
+        if run_type in ("FERMI", "DOS") and self.spin is None:
             if self.bs.is_spin_polarized:
                 raise BoltztrapError("Spin parameter must be specified for spin polarized band structures!")
             self.spin = 1
@@ -568,9 +570,8 @@ class BoltztrapRunner(MSONable):
         else:
             path_dir = os.path.abspath(os.path.join(path_dir, dir_bz_name))
 
-        if not os.path.exists(path_dir):
-            os.mkdir(path_dir)
-        elif clear_dir:
+        os.mkdir(path_dir, exist_ok=True)
+        if clear_dir:
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
@@ -731,7 +732,7 @@ class BoltztrapAnalyzer:
         bz_bands=None,
         bz_kpoints=None,
         fermi_surface_data=None,
-    ):
+    ) -> None:
         """Constructor taking directly all the data generated by Boltztrap. You
         won't probably use it directly but instead use the from_files and
         from_dict methods.
@@ -899,11 +900,10 @@ class BoltztrapAnalyzer:
         - "avg_corr": average of correlation coefficient over the 8 bands
         - "avg_dist": average of energy distance over the 8 bands
         - "nb_list": list of indexes of the 8 compared bands
-        - "acc_thr": list of two float corresponding to the two warning
-                     thresholds in input
+        - "acc_thr": list of two float corresponding to the two warning thresholds in input
         - "acc_err": list of two bools:
-                     True if the avg_corr > warn_thr[0], and
-                     True if the avg_dist > warn_thr[1]
+            True if the avg_corr > warn_thr[0], and
+            True if the avg_dist > warn_thr[1]
         See also compare_sym_bands function doc.
         """
         if not sbs_ref.is_metal() and not sbs_bz.is_metal():
@@ -1567,7 +1567,7 @@ class BoltztrapAnalyzer:
             analyzer_for_second_spin: must be specified to have a CompleteDos with both Spin components
 
         Returns:
-            a CompleteDos object
+            CompleteDos: from the interpolated projected band structure
 
         Example of use in case of spin polarized case:
 
@@ -1601,18 +1601,15 @@ class BoltztrapAnalyzer:
                 if analyzer_for_second_spin:
                     pdoss[structure[idx]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
         if analyzer_for_second_spin:
-            tdos = Dos(
+            total_dos = Dos(
                 self.dos.efermi,
                 self.dos.energies,
-                {
-                    spin_1: self.dos.densities[spin_1],
-                    spin_2: analyzer_for_second_spin.dos.densities[spin_2],
-                },
+                {spin_1: self.dos.densities[spin_1], spin_2: analyzer_for_second_spin.dos.densities[spin_2]},
             )
         else:
-            tdos = self.dos
+            total_dos = self.dos
 
-        return CompleteDos(structure, total_dos=tdos, pdoss=pdoss)
+        return CompleteDos(structure, total_dos=total_dos, pdoss=pdoss)
 
     def get_mu_bounds(self, temp=300):
         """:param temp: Temperature.
@@ -1665,8 +1662,8 @@ class BoltztrapAnalyzer:
         run_type = warning = efermi = gap = None
         doping_levels = []
 
-        with open(f"{path_dir}/boltztrap.outputtrans") as f:
-            for line in f:
+        with open(f"{path_dir}/boltztrap.outputtrans") as file:
+            for line in file:
                 if "WARNING" in line:
                     warning = line
                 elif "Calc type:" in line:
@@ -1696,9 +1693,9 @@ class BoltztrapAnalyzer:
         data_dos = {"total": [], "partial": {}}
         # parse the total DOS data
         # format is energy, DOS, integrated DOS
-        with open(f"{path_dir}/boltztrap.transdos") as f:
+        with open(f"{path_dir}/boltztrap.transdos") as file:
             count_series = 0  # TODO: why is count_series needed?
-            for line in f:
+            for line in file:
                 if line.lstrip().startswith("#"):
                     count_series += 1
                     if count_series > 1:
@@ -1734,8 +1731,8 @@ class BoltztrapAnalyzer:
                 tokens = file_name.split(".")[1].split("_")
                 site = tokens[1]
                 orb = "_".join(tokens[2:])
-                with open(os.path.join(path_dir, file_name)) as f:
-                    for line in f:
+                with open(os.path.join(path_dir, file_name)) as file:
+                    for line in file:
                         if not line.lstrip().startswith(" #"):
                             if site not in data_dos["partial"]:
                                 data_dos["partial"][site] = {}
@@ -1768,8 +1765,8 @@ class BoltztrapAnalyzer:
                 been used in the Boltztrap run.
         """
         intrans = {}
-        with open(f"{path_dir}/boltztrap.intrans") as f:
-            for line in f:
+        with open(f"{path_dir}/boltztrap.intrans") as file:
+            for line in file:
                 if "iskip" in line:
                     intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to("eV")
                 if "HISTO" in line or "TETRA" in line:
@@ -1786,8 +1783,8 @@ class BoltztrapAnalyzer:
         Returns:
             (float) volume
         """
-        with open(f"{path_dir}/boltztrap.struct") as f:
-            tokens = f.readlines()
+        with open(f"{path_dir}/boltztrap.struct") as file:
+            tokens = file.readlines()
             return Lattice(
                 [[Length(float(tokens[i].split()[j]), "bohr").to("ang") for j in range(3)] for i in range(1, 4)]
             ).volume
@@ -1816,29 +1813,29 @@ class BoltztrapAnalyzer:
 
         # parse the full conductivity/Seebeck/kappa0/etc data
         # also initialize t_steps and mu_steps
-        with open(f"{path_dir}/boltztrap.condtens") as f:
-            for line in f:
+        with open(f"{path_dir}/boltztrap.condtens") as file:
+            for line in file:
                 if not line.startswith("#"):
                     mu_steps.add(float(line.split()[0]))
                     t_steps.add(int(float(line.split()[1])))
                     data_full.append([float(c) for c in line.split()])
 
         # parse the full Hall tensor
-        with open(f"{path_dir}/boltztrap.halltens") as f:
-            for line in f:
+        with open(f"{path_dir}/boltztrap.halltens") as file:
+            for line in file:
                 if not line.startswith("#"):
                     data_hall.append([float(c) for c in line.split()])
 
         if len(doping_levels) != 0:
             # parse doping levels version of full cond. tensor, etc.
-            with open(f"{path_dir}/boltztrap.condtens_fixdoping") as f:
-                for line in f:
+            with open(f"{path_dir}/boltztrap.condtens_fixdoping") as file:
+                for line in file:
                     if not line.startswith("#") and len(line) > 2:
                         data_doping_full.append([float(c) for c in line.split()])
 
             # parse doping levels version of full hall tensor
-            with open(f"{path_dir}/boltztrap.halltens_fixdoping") as f:
-                for line in f:
+            with open(f"{path_dir}/boltztrap.halltens_fixdoping") as file:
+                for line in file:
                     if not line.startswith("#") and len(line) > 2:
                         data_doping_hall.append([float(c) for c in line.split()])
 
@@ -1925,8 +1922,8 @@ class BoltztrapAnalyzer:
             carrier_conc,
         )
 
-    @staticmethod
-    def from_files(path_dir, dos_spin=1):
+    @classmethod
+    def from_files(cls, path_dir, dos_spin=1):
         """Get a BoltztrapAnalyzer object from a set of files.
 
         Args:
@@ -1936,29 +1933,29 @@ class BoltztrapAnalyzer:
         Returns:
             a BoltztrapAnalyzer object
         """
-        run_type, warning, efermi, gap, doping_levels = BoltztrapAnalyzer.parse_outputtrans(path_dir)
+        run_type, warning, efermi, gap, doping_levels = cls.parse_outputtrans(path_dir)
 
-        vol = BoltztrapAnalyzer.parse_struct(path_dir)
+        vol = cls.parse_struct(path_dir)
 
-        intrans = BoltztrapAnalyzer.parse_intrans(path_dir)
+        intrans = cls.parse_intrans(path_dir)
 
         if run_type == "BOLTZ":
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
+            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
-            *cond_and_hall, carrier_conc = BoltztrapAnalyzer.parse_cond_and_hall(path_dir, doping_levels)
+            *cond_and_hall, carrier_conc = cls.parse_cond_and_hall(path_dir, doping_levels)
 
-            return BoltztrapAnalyzer(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
+            return cls(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
 
         if run_type == "DOS":
             trim = intrans["dos_type"] == "HISTO"
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
+            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
 
-            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
+            return cls(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
 
         if run_type == "BANDS":
             bz_kpoints = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, -3:]
             bz_bands = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, 1:-6]
-            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
+            return cls(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
             if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
@@ -1967,7 +1964,7 @@ class BoltztrapAnalyzer:
                 fs_data = read_cube_file(f"{path_dir}/fort.30")
             else:
                 raise BoltztrapError("No data file found for fermi surface")
-            return BoltztrapAnalyzer(fermi_surface_data=fs_data)
+            return cls(fermi_surface_data=fs_data)
 
         raise ValueError(f"{run_type=} not recognized!")
 
@@ -2140,36 +2137,33 @@ def read_cube_file(filename):
     Returns:
         Energy data.
     """
-    with open(filename) as f:
+    with open(filename) as file:
         natoms = 0
-        count_line = 0
-        for line in f:
+        for idx, line in enumerate(file):
             line = line.rstrip("\n")
-            if count_line == 0 and "CUBE" not in line:
+            if idx == 0 and "CUBE" not in line:
                 raise ValueError("CUBE file format not recognized")
 
-            if count_line == 2:
+            if idx == 2:
                 tokens = line.split()
                 natoms = int(tokens[0])
-            if count_line == 3:
+            if idx == 3:
                 tokens = line.split()
                 n1 = int(tokens[0])
-            elif count_line == 4:
+            elif idx == 4:
                 tokens = line.split()
                 n2 = int(tokens[0])
-            elif count_line == 5:
+            elif idx == 5:
                 tokens = line.split()
                 n3 = int(tokens[0])
-            elif count_line > 5:
+            elif idx > 5:
                 break
-
-            count_line += 1
 
     if "fort.30" in filename:
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
         nlines_data = len(energy_data)
         last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
-        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)  # pylint: disable=E1121
+        energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
 
@@ -2265,8 +2259,6 @@ def eta_from_seebeck(seeb, Lambda):
     Returns:
         float: eta where the two seebeck coefficients are equal (reduced chemical potential).
     """
-    from scipy.optimize import fsolve
-
     out = fsolve(lambda x: (seebeck_spb(x, Lambda) - abs(seeb)) ** 2, 1.0, full_output=True)
     return out[0][0]
 

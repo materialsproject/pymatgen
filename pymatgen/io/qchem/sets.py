@@ -501,10 +501,8 @@ class QChemDictSet(QCInput):
 
         tmp_geom_opt = self.geom_opt
         geom_opt = self.geom_opt
-        if (
-            self.job_type.lower() in ["opt", "optimization"]
-            and self.qchem_version == 6
-            or (self.qchem_version == 5 and self.geom_opt is not None)
+        if (self.job_type.lower() in ["opt", "optimization"] and self.qchem_version == 6) or (
+            self.qchem_version == 5 and self.geom_opt is not None
         ):
             if self.qchem_version == 5:
                 rem["geom_opt2"] = "3"
@@ -530,45 +528,29 @@ class QChemDictSet(QCInput):
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
                 if sec == "rem":
-                    temp_rem = lower_and_check_unique(sec_dict)
-                    for k, v in temp_rem.items():
-                        rem[k] = v
+                    rem |= lower_and_check_unique(sec_dict)
                 if sec == "pcm":
-                    temp_pcm = lower_and_check_unique(sec_dict)
-                    for k, v in temp_pcm.items():
-                        pcm[k] = v
+                    pcm |= lower_and_check_unique(sec_dict)
                 if sec == "solvent":
-                    temp_solvent = lower_and_check_unique(sec_dict)
+                    solvent |= lower_and_check_unique(sec_dict)
                     if rem["solvent_method"] != "pcm":
                         warnings.warn("The solvent section will be ignored unless solvent_method=pcm!", UserWarning)
-                    for k, v in temp_solvent.items():
-                        solvent[k] = v
                 if sec == "smx":
-                    temp_smx = lower_and_check_unique(sec_dict)
-                    for k, v in temp_smx.items():
-                        smx[k] = v
+                    smx |= lower_and_check_unique(sec_dict)
                 if sec == "scan":
-                    temp_scan = lower_and_check_unique(sec_dict)
-                    for k, v in temp_scan.items():
-                        scan[k] = v
+                    scan |= lower_and_check_unique(sec_dict)
                 if sec == "van_der_waals":
-                    temp_vdw = lower_and_check_unique(sec_dict)
-                    for k, v in temp_vdw.items():
-                        vdw[k] = v
+                    vdw |= lower_and_check_unique(sec_dict)
                     # set the PCM section to read custom radii
                     pcm["radii"] = "read"
                 if sec == "plots":
-                    temp_plots = lower_and_check_unique(sec_dict)
-                    for k, v in temp_plots.items():
-                        plots[k] = v
+                    plots |= lower_and_check_unique(sec_dict)
                 if sec == "nbo":
                     raise RuntimeError("Set nbo parameters directly with nbo_params input! Exiting...")
                 if sec == "geom_opt":
                     raise RuntimeError("Set geom_opt params directly with geom_opt input! Exiting...")
                 if sec == "opt":
-                    temp_opts = lower_and_check_unique(sec_dict)
-                    for k, v in temp_opts.items():
-                        opt[k] = v
+                    opt |= lower_and_check_unique(sec_dict)
                 if sec == "svp":
                     temp_svp = lower_and_check_unique(sec_dict)
                     for k, v in temp_svp.items():
@@ -638,8 +620,8 @@ class QChemDictSet(QCInput):
         """
         self.write_file(input_file)
         if self.smd_solvent in ("custom", "other") and self.qchem_version == 5:
-            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
-                f.write(self.custom_smd)
+            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), mode="wt") as file:
+                file.write(self.custom_smd)
 
 
 class SinglePointSet(QChemDictSet):

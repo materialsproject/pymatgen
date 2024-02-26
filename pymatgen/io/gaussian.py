@@ -8,11 +8,10 @@ import warnings
 import numpy as np
 import scipy.constants as cst
 from monty.io import zopen
+from scipy.stats import norm
 
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Element, Molecule
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
@@ -145,7 +144,7 @@ class GaussianInput:
                 self.spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
             # Get a title from the molecule name
-            self.title = title or self._mol.composition.formula
+            self.title = title or self._mol.formula
         else:
             self.charge = charge
             self.spin_multiplicity = spin_multiplicity
@@ -276,12 +275,7 @@ class GaussianInput:
         return Molecule(species, coords)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @staticmethod
-    def from_str(contents):
+    def from_str(cls, contents):
         """
         Creates GaussianInput from a string.
 
@@ -328,7 +322,7 @@ class GaussianInput:
         spaces = 0
         input_paras = {}
         ind += 1
-        if GaussianInput._xyz_patt.match(lines[route_index + ind]):
+        if cls._xyz_patt.match(lines[route_index + ind]):
             spaces += 1
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
@@ -339,10 +333,10 @@ class GaussianInput:
                     input_paras[d[0]] = d[1]
             else:
                 coord_lines.append(lines[i].strip())
-        mol = GaussianInput._parse_coords(coord_lines)
+        mol = cls._parse_coords(coord_lines)
         mol.set_charge_and_spin(charge, spin_mult)
 
-        return GaussianInput(
+        return cls(
             mol,
             charge=charge,
             spin_multiplicity=spin_mult,
@@ -355,8 +349,8 @@ class GaussianInput:
             dieze_tag=dieze_tag,
         )
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Creates GaussianInput from a file.
 
@@ -366,8 +360,8 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, "r") as f:
-            return GaussianInput.from_str(f.read())
+        with zopen(filename, mode="r") as file:
+            return cls.from_str(file.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
@@ -383,10 +377,6 @@ class GaussianInput:
     def __str__(self):
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, cart_coords=False):
         """Return GaussianInput string.
 
@@ -395,14 +385,14 @@ class GaussianInput:
                 Defaults to False.
         """
 
-        def para_dict_to_string(para, joiner=" "):
+        def para_dict_to_str(para, joiner=" "):
             para_str = []
             # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
                 elif isinstance(val, dict):
-                    val_str = para_dict_to_string(val, joiner=",")
+                    val_str = para_dict_to_str(val, joiner=",")
                     para_str.append(f"{par}=({val_str})")
                 else:
                     para_str.append(f"{par}={val}")
@@ -410,7 +400,7 @@ class GaussianInput:
 
         output = []
         if self.link0_parameters:
-            output.append(para_dict_to_string(self.link0_parameters, "\n"))
+            output.append(para_dict_to_str(self.link0_parameters, "\n"))
 
         # Handle functional or basis set to None, empty string or whitespace
         func_str = "" if self.functional is None else self.functional.strip()
@@ -422,10 +412,7 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output.append(f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}")
-        output.append("")
-        output.append(self.title)
-        output.append("")
+        output += (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
@@ -441,8 +428,7 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.append(para_dict_to_string(self.input_parameters, "\n"))
-        output.append("\n")
+        output.extend((para_dict_to_str(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):
@@ -451,7 +437,7 @@ class GaussianInput:
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
@@ -472,23 +458,23 @@ class GaussianInput:
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> GaussianInput:
         """
-        :param d: dict
+        :param dct: dict
 
         Returns:
             GaussianInput
         """
         return cls(
-            mol=Molecule.from_dict(d["molecule"]),
-            functional=d["functional"],
-            basis_set=d["basis_set"],
-            route_parameters=d["route_parameters"],
-            title=d["title"],
-            charge=d["charge"],
-            spin_multiplicity=d["spin_multiplicity"],
-            input_parameters=d["input_parameters"],
-            link0_parameters=d["link0_parameters"],
+            mol=Molecule.from_dict(dct["molecule"]),
+            functional=dct["functional"],
+            basis_set=dct["basis_set"],
+            route_parameters=dct["route_parameters"],
+            title=dct["title"],
+            charge=dct["charge"],
+            spin_multiplicity=dct["spin_multiplicity"],
+            input_parameters=dct["input_parameters"],
+            link0_parameters=dct["link0_parameters"],
         )
 
 
@@ -581,7 +567,6 @@ class GaussianOutput:
     .. method:: save_scan_plot()
 
         Save a matplotlib plot of the potential energy surface to a file
-
     """
 
     def __init__(self, filename):
@@ -1106,19 +1091,12 @@ class GaussianOutput:
         Read a potential energy surface from a gaussian scan calculation.
 
         Returns:
-            A dict: {"energies": [ values ],
-                     "coords": {"d1": [ values ], "A2", [ values ], ... }}
-
+            dict[str, list]: {"energies": [...], "coords": {"d1": [...], "A2", [...], ... }}
             "energies" are the energies of all points of the potential energy
             surface. "coords" are the internal coordinates used to compute the
             potential energy surface and the internal coordinates optimized,
             labelled by their name as defined in the calculation.
         """
-
-        def floatList(lst):
-            """Return a list of float from a list of string."""
-            return [float(val) for val in lst]
-
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
         coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
@@ -1127,42 +1105,42 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, "r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
 
             while line != "":
                 if optscan_patt.match(line):
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     endScan = False
                     while not endScan:
-                        data["energies"] += floatList(float_patt.findall(line))
-                        line = f.readline()
+                        data["energies"] += list(map(float, float_patt.findall(line)))
+                        line = file.readline()
                         while coord_patt.match(line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
-                                data["coords"][icname] += floatList(float_patt.findall(line))
+                                data["coords"][icname] += list(map(float, float_patt.findall(line)))
                             else:
-                                data["coords"][icname] = floatList(float_patt.findall(line))
-                            line = f.readline()
+                                data["coords"][icname] = list(map(float, float_patt.findall(line)))
+                            line = file.readline()
                         if not re.search(r"^\s+((\s*\d+)+)", line):
                             endScan = True
                         else:
-                            line = f.readline()
+                            line = file.readline()
 
                 elif scan_patt.match(line):
-                    line = f.readline()
+                    line = file.readline()
                     data["coords"] = {icname: [] for icname in line.split()[1:-1]}
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     while not re.search(r"^\s-+", line):
-                        values = floatList(line.split())
+                        values = list(map(float, line.split()))
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
                             data["coords"][icname].append(values[i + 1])
-                        line = f.readline()
+                        line = file.readline()
                 else:
-                    line = f.readline()
+                    line = file.readline()
 
         return data
 
@@ -1176,19 +1154,19 @@ class GaussianOutput:
 
         ax = pretty_plot(12, 8)
 
-        d = self.read_scan()
+        dct = self.read_scan()
 
-        if coords and coords in d["coords"]:
-            x = d["coords"][coords]
+        if coords and coords in dct["coords"]:
+            x = dct["coords"][coords]
             ax.set_xlabel(coords)
         else:
-            x = range(len(d["energies"]))
+            x = range(len(dct["energies"]))
             ax.set_xlabel("points")
 
         ax.set_ylabel("Energy (eV)")
 
-        e_min = min(d["energies"])
-        y = [(e - e_min) * Ha_to_eV for e in d["energies"]]
+        e_min = min(dct["energies"])
+        y = [(e - e_min) * Ha_to_eV for e in dct["energies"]]
 
         ax.plot(x, y, "ro--")
         return ax
@@ -1216,8 +1194,8 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, "r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
             td = False
             while line != "":
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
@@ -1226,7 +1204,7 @@ class GaussianOutput:
                 if td and re.search(r"^\sExcited State\s*\d", line):
                     val = [float(v) for v in float_patt.findall(line)]
                     transitions.append(tuple(val[0:3]))
-                line = f.readline()
+                line = file.readline()
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
@@ -1246,8 +1224,6 @@ class GaussianOutput:
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """
-        from scipy.stats import norm
-
         ax = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()
@@ -1294,7 +1270,7 @@ class GaussianOutput:
             sigma: Full width at half maximum in eV for normal functions.
             step: bin interval in eV
         """
-        d, plt = self.get_spectre_plot(sigma, step)
+        _d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
     def to_input(

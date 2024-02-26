@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import unittest
 
-import numpy as np
 import pandas as pd
 import pytest
 from pytest import approx
 
+from pymatgen.core import Structure
 from pymatgen.core.structure import Molecule
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -56,7 +55,7 @@ H 9.487 9.111 9.637
 H 9.487 10.889 9.637"""
         assert mxyz_text == ans_multi
 
-    def test_from_string(self):
+    def test_from_str(self):
         expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000
@@ -136,8 +135,7 @@ C32-C2-1
 
     def test_init_from_structure(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        struct = poscar.structure
+        struct = Structure.from_file(filepath)
         xyz = XYZ(struct)
         expected = """24
 Fe4 P4 O16
@@ -190,12 +188,8 @@ O 9.960184 1.516793 1.393875"""
         test_df2.index += 1
         mol_df = self.xyz.as_dataframe()
 
-        # body tests
+        # body tests (also tests index and columns)
         pd.testing.assert_frame_equal(mol_df, test_df)
-
-        # index tests
-        np.testing.assert_array_equal(mol_df.columns, test_df.columns)
-        np.testing.assert_array_equal(mol_df.index, test_df.index)
 
     def test_invalid_coord_precision(self):
         with pytest.raises(ValueError, match="Format specifier missing precision"):

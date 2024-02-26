@@ -65,27 +65,22 @@ class Xr:
         Args:
             filename (str): name of the file to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @staticmethod
-    def from_str(string, use_cores=True, thresh=1.0e-4):
+    def from_str(cls, string, use_cores=True, thresh=1.0e-4):
         """
         Creates an Xr object from a string representation.
 
         Args:
             string (str): string representation of an Xr object.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default). Otherwise,
-                    use shell positions and discard core positions.
+                positions if set to True (default). Otherwise,
+                use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
-                    between cell parameters (lengths and angles) from
-                    header information and cell vectors, respectively.
+                between cell parameters (lengths and angles) from
+                header information and cell vectors, respectively.
 
         Returns:
             xr (Xr): Xr object corresponding to the input
@@ -106,18 +101,18 @@ class Xr:
                 if item != tokens_2[j]:
                     raise RuntimeError("expected both matrices to be the same in xr file")
             mat[i] = np.array([float(w) for w in tokens])
-        lat = Lattice(mat)
+        lattice = Lattice(mat)
         if (
-            fabs(lat.a - lengths[0]) / fabs(lat.a) > thresh
-            or fabs(lat.b - lengths[1]) / fabs(lat.b) > thresh
-            or fabs(lat.c - lengths[2]) / fabs(lat.c) > thresh
-            or fabs(lat.alpha - angles[0]) / fabs(lat.alpha) > thresh
-            or fabs(lat.beta - angles[1]) / fabs(lat.beta) > thresh
-            or fabs(lat.gamma - angles[2]) / fabs(lat.gamma) > thresh
+            fabs(lattice.a - lengths[0]) / fabs(lattice.a) > thresh
+            or fabs(lattice.b - lengths[1]) / fabs(lattice.b) > thresh
+            or fabs(lattice.c - lengths[2]) / fabs(lattice.c) > thresh
+            or fabs(lattice.alpha - angles[0]) / fabs(lattice.alpha) > thresh
+            or fabs(lattice.beta - angles[1]) / fabs(lattice.beta) > thresh
+            or fabs(lattice.gamma - angles[2]) / fabs(lattice.gamma) > thresh
         ):
             raise RuntimeError(
                 f"cell parameters in header ({lengths}, {angles}) are not consistent with Cartesian "
-                f"lattice vectors ({lat.abc}, {lat.angles})"
+                f"lattice vectors ({lattice.abc}, {lattice.angles})"
             )
         # Ignore line w/ index 3.
         sp = []
@@ -138,10 +133,10 @@ class Xr:
                 else:
                     sp.append(tmp_sp)
                 coords.append([float(m.group(i)) for i in range(2, 5)])
-        return Xr(Structure(lat, sp, coords, coords_are_cartesian=True))
+        return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
-    @staticmethod
-    def from_file(filename, use_cores=True, thresh=1.0e-4):
+    @classmethod
+    def from_file(cls, filename, use_cores=True, thresh=1.0e-4):
         """
         Reads an xr-formatted file to create an Xr object.
 
@@ -158,5 +153,5 @@ class Xr:
             xr (Xr): Xr object corresponding to the input
                     file.
         """
-        with zopen(filename, "rt") as f:
-            return Xr.from_str(f.read(), use_cores=use_cores, thresh=thresh)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), use_cores=use_cores, thresh=thresh)

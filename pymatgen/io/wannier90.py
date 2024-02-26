@@ -88,8 +88,8 @@ class Unk:
         self.nbnd = self.data.shape[0]
         self.ng = self.data.shape[-3:]
 
-    @staticmethod
-    def from_file(filename: str) -> object:
+    @classmethod
+    def from_file(cls, filename: str) -> object:
         """
         Reads the UNK data from file.
 
@@ -100,16 +100,16 @@ class Unk:
             Unk object
         """
         input_data = []
-        with FortranFile(filename, "r") as f:
-            *ng, ik, nbnd = f.read_ints()
+        with FortranFile(filename, mode="r") as file:
+            *ng, ik, nbnd = file.read_ints()
             for _ in range(nbnd):
                 input_data.append(
                     # when reshaping need to specify ordering as fortran
-                    f.read_record(np.complex128).reshape(ng, order="F")
+                    file.read_record(np.complex128).reshape(ng, order="F")
                 )
             try:
                 for _ in range(nbnd):
-                    input_data.append(f.read_record(np.complex128).reshape(ng, order="F"))
+                    input_data.append(file.read_record(np.complex128).reshape(ng, order="F"))
                 is_noncollinear = True
             except FortranEOFError:
                 is_noncollinear = False
@@ -122,8 +122,8 @@ class Unk:
             temp_data = np.empty((nbnd, 2, *ng), dtype=np.complex128)
             temp_data[:, 0, :, :, :] = data[::2, :, :, :]
             temp_data[:, 1, :, :, :] = data[1::2, :, :, :]
-            return Unk(ik, temp_data)
-        return Unk(ik, data)
+            return cls(ik, temp_data)
+        return cls(ik, data)
 
     def write_file(self, filename: str) -> None:
         """
@@ -134,14 +134,14 @@ class Unk:
                 form 'UNKXXXXX.YY' where XXXXX is the kpoint index (Unk.ik) and
                 YY is 1 or 2 for the spin index or NC if noncollinear
         """
-        with FortranFile(filename, "w") as f:
-            f.write_record(np.array([*self.ng, self.ik, self.nbnd], dtype=np.int32))
+        with FortranFile(filename, mode="w") as file:
+            file.write_record(np.array([*self.ng, self.ik, self.nbnd], dtype=np.int32))
             for ib in range(self.nbnd):
                 if self.is_noncollinear:
-                    f.write_record(self.data[ib, 0].flatten("F"))
-                    f.write_record(self.data[ib, 1].flatten("F"))
+                    file.write_record(self.data[ib, 0].flatten("F"))
+                    file.write_record(self.data[ib, 1].flatten("F"))
                 else:
-                    f.write_record(self.data[ib].flatten("F"))
+                    file.write_record(self.data[ib].flatten("F"))
 
     def __repr__(self) -> str:
         ik, nbnd, ncl, ngx, ngy, ngz = self.ik, self.nbnd, self.is_noncollinear, *self.ng

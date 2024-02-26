@@ -92,7 +92,6 @@ class QuasiRRHO:
         free_energy_ho (float): Free energy calculated without the Quasi-RRHO
             method, i.e. with a harmonic oscillator approximation for the
             vibrational entropy [Ha]
-
     """
 
     def __init__(
@@ -158,7 +157,6 @@ class QuasiRRHO:
 
         Returns:
             QuasiRRHO: QuasiRRHO class instantiated from a QChem Output
-
         """
         mult = output.data["multiplicity"]
         elec_e = output.data["SCF_energy_in_the_final_basis_set"]
@@ -189,7 +187,7 @@ class QuasiRRHO:
         """
         # Calculate mass in kg
         mass: float = 0
-        for site in mol.sites:
+        for site in mol:
             mass += site.specie.atomic_mass
         mass *= amu_to_kg
 

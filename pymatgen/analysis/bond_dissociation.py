@@ -67,7 +67,7 @@ class BondDissociationEnergies(MSONable):
             required_keys.append("pcm_dielectric")
         for key in required_keys:
             if key not in self.molecule_entry:
-                raise RuntimeError(key + " must be present in molecule entry! Exiting...")
+                raise RuntimeError(f"{key=} must be present in molecule entry! Exiting...")
             for entry in self.filtered_entries:
                 if key not in entry:
                     raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
@@ -111,10 +111,10 @@ class BondDissociationEnergies(MSONable):
                 self.fragment_and_process(bond_pair)
 
     def fragment_and_process(self, bonds):
-        """
-        Fragment and process bonds.
+        """Fragment and process bonds.
 
-        :param bonds: Bonds to process.
+        Args:
+            bonds (list): bonds to process.
         """
         # Try to split the principle:
         try:

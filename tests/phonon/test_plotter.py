@@ -3,41 +3,41 @@ from __future__ import annotations
 import json
 import unittest
 
+from matplotlib import axes, rc
+
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
 from pymatgen.util.testing import TEST_FILES_DIR
 
+rc("text", usetex=False)  # Disabling latex for testing
+
 
 class TestPhononDosPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.dos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.dos = CompletePhononDos.from_dict(json.load(file))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
-            self.plotter_nostack = PhononDosPlotter(sigma=0.2, stack=False)
+            self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
 
     def test_add_dos_dict(self):
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 0
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 0
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 2
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 2
 
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
+        dct = self.plotter.get_dos_dict()
         for el in ["Na", "Cl"]:
-            assert el in d
+            assert el in dct
 
     def test_plot(self):
-        # Disabling latex for testing.
-        from matplotlib import axes, rc
-
-        rc("text", usetex=False)
         self.plotter.add_dos("Total", self.dos)
         self.plotter.get_plot(units="mev")
-        self.plotter_nostack.add_dos("Total", self.dos)
-        ax = self.plotter_nostack.get_plot(units="mev")
+        self.plotter_no_stack.add_dos("Total", self.dos)
+        ax = self.plotter_no_stack.get_plot(units="mev")
         assert isinstance(ax, axes.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Density\\ of\\ states}$"
         assert ax.get_xlabel() == "$\\mathrm{Frequencies\\ (meV)}$"
@@ -45,13 +45,13 @@ class TestPhononDosPlotter(unittest.TestCase):
 
 class TestPhononBSPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.bs = PhononBandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.bs = PhononBandStructureSymmLine.from_dict(dct)
             self.plotter = PhononBSPlotter(self.bs)
-        with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.bs_sto = PhononBandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
             self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
     def test_bs_plot_data(self):
@@ -62,17 +62,9 @@ class TestPhononBSPlotter(unittest.TestCase):
         assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 8, "wrong number of tick labels"
 
     def test_plot(self):
-        # Disabling latex for testing.
-        from matplotlib import rc
-
-        rc("text", usetex=False)
         self.plotter.get_plot(units="mev")
 
     def test_proj_plot(self):
-        # Disabling latex for testing.
-        from matplotlib import rc
-
-        rc("text", usetex=False)
         self.plotter.get_proj_plot(units="mev")
         self.plotter.get_proj_plot(units="mev", ylim=(15, 30), rgb_labels=("NA", "CL"))
         self.plotter.get_proj_plot(units="mev", site_comb=[[0], [1]])
@@ -84,24 +76,22 @@ class TestPhononBSPlotter(unittest.TestCase):
         self.plotter_sto.get_proj_plot(site_comb=[[0], [1], [2], [3, 4]])
 
     def test_plot_compare(self):
-        # Disabling latex for testing.
-        from matplotlib import rc
-
-        rc("text", usetex=False)
-        self.plotter.plot_compare(self.plotter, units="mev")
+        labels = ("NaCl", "NaCl 2")
+        ax = self.plotter.plot_compare(self.plotter, units="mev", labels=labels)
+        assert isinstance(ax, axes.Axes)
+        assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
+        assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
+        assert ax.get_title() == ""
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
 
 
 class TestThermoPlotter(unittest.TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
-            self.dos = CompletePhononDos.from_dict(json.load(f))
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+            self.dos = CompletePhononDos.from_dict(json.load(file))
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
     def test_plot_functions(self):
-        # Disabling latex for testing.
-        from matplotlib import rc
-
-        rc("text", usetex=False)
         self.plotter.plot_cv(5, 100, 5, show=False)
         self.plotter.plot_entropy(5, 100, 5, show=False)
         self.plotter.plot_internal_energy(5, 100, 5, show=False)

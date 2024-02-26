@@ -76,7 +76,7 @@ class XAS(Spectrum):
     def __str__(self):
         return (
             f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
-            f"for {self.structure.composition.reduced_formula}: {super()}"
+            f"for {self.structure.reduced_formula}: {super()}"
         )
 
     def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:
@@ -96,15 +96,15 @@ class XAS(Spectrum):
 
         Args:
             other: Another XAS object.
-            num_samples(int): Number of samples for interpolation.
+            num_samples (int): Number of samples for interpolation.
             mode("XAFS" | "L23"): Either XAFS mode for stitching XANES and EXAFS
                 or L23 mode for stitching L2 and L3.
 
         Returns:
             XAS object: The stitched spectrum.
         """
-        m = StructureMatcher()
-        if not m.fit(self.structure, other.structure):
+        matcher = StructureMatcher()
+        if not matcher.fit(self.structure, other.structure):
             raise ValueError("The input structures for spectra mismatch")
         if not self.absorbing_element == other.absorbing_element:
             raise ValueError("The absorbing elements for spectra are different")
@@ -162,9 +162,7 @@ class XAS(Spectrum):
             f_final = interp1d(np.asarray(wavenumber), np.asarray(mu), bounds_error=False, fill_value=0)
             wavenumber_final = np.linspace(min(wavenumber), max(wavenumber), num=num_samples)
             mu_final = f_final(wavenumber_final)
-            energy_final = [
-                3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final
-            ]
+            energy_final = [3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final]
 
             return XAS(
                 energy_final,
@@ -220,8 +218,8 @@ def site_weighted_spectrum(xas_list: list[XAS], num_samples: int = 500) -> XAS:
     Returns:
         XAS object: The site-weighted spectrum
     """
-    m = StructureMatcher()
-    groups = m.group_structures([i.structure for i in xas_list])
+    matcher = StructureMatcher()
+    groups = matcher.group_structures([i.structure for i in xas_list])
     if len(groups) > 1:
         raise ValueError("The input structures mismatch")
     if not len({i.absorbing_element for i in xas_list}) == len({i.edge for i in xas_list}) == 1:

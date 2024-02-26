@@ -328,7 +328,7 @@ class FunctionalGroupExtractor:
         """
         categories = {}
 
-        em = iso.numerical_edge_match("weight", 1)  # pylint: disable=E1102
+        em = iso.numerical_edge_match("weight", 1)
         nm = iso.categorical_node_match("specie", "C")
 
         for group in groups:

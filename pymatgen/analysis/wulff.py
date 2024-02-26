@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from scipy.spatial import ConvexHull
 
 from pymatgen.core.structure import Structure
@@ -200,10 +200,10 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
+        recp_symm_ops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
-            for op in recp_symmops:
+            for op in recp_symm_ops:
                 miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
                     all_hkl.append(miller)
@@ -332,8 +332,7 @@ class WulffShape:
                         break
             # make sure the lines are connected one by one.
             # find the way covering all pts and facets
-            pt.append(self.wulff_pt_list[line[0]].tolist())
-            pt.append(self.wulff_pt_list[line[1]].tolist())
+            pt.extend((self.wulff_pt_list[line[0]].tolist(), self.wulff_pt_list[line[1]].tolist()))
             prev = line[1]
 
         return pt
@@ -421,7 +420,7 @@ class WulffShape:
         r_range = max(np.linalg.norm(x) for x in wulff_pt_list)
         ax_3d.set_xlim([-r_range * 1.1, r_range * 1.1])
         ax_3d.set_ylim([-r_range * 1.1, r_range * 1.1])
-        ax_3d.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
+        ax_3d.set_zlim([-r_range * 1.1, r_range * 1.1])
         # add legend
         if legend_on:
             if show_area:
@@ -498,10 +497,10 @@ class WulffShape:
                 Joules per square meter (True)
 
         Return:
-            (plotly.graph_objs.Figure)
+            (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+        color_list, _color_proxy, _color_proxy_on_wulff, _miller_on_wulff, e_surf_on_wulff = self._get_colors(
             color_set, alpha, off_color, custom_colors=custom_colors or {}
         )
 
@@ -523,7 +522,7 @@ class WulffShape:
 
             # remove duplicate x y z pts to save time
             all_xyz = []
-            # pylint: disable=E1133,E1136
+
             [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T if list(coord) not in all_xyz]
             all_xyz = np.array(all_xyz).T
             x_pts, y_pts, z_pts = all_xyz[0], all_xyz[1], all_xyz[2]
@@ -531,7 +530,7 @@ class WulffShape:
 
             tri_indices = np.array(list(itertools.combinations(index_list, 3))).T
             hkl = self.miller_list[plane.index]
-            hkl = unicodeify_spacegroup("(" + "%s" * len(hkl) % hkl + ")")
+            hkl = unicodeify_spacegroup(f"({'%s' * len(hkl) % hkl})")
             cs = tuple(np.array(plane_color) * 255)
             color = f"rgba({cs[0]:.5f}, {cs[1]:.5f}, {cs[2]:.5f}, {cs[3]:.5f})"
 
@@ -624,27 +623,27 @@ class WulffShape:
         return azim, elev
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """Volume of the Wulff shape."""
         return self.wulff_convex.volume
 
     @property
-    def miller_area_dict(self):
+    def miller_area_dict(self) -> dict[tuple, float]:
         """Returns {hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
-    def miller_energy_dict(self):
+    def miller_energy_dict(self) -> dict[tuple, float]:
         """Returns {hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property
-    def surface_area(self):
+    def surface_area(self) -> float:
         """Total surface area of Wulff shape."""
         return sum(self.miller_area_dict.values())
 
     @property
-    def weighted_surface_energy(self):
+    def weighted_surface_energy(self) -> float:
         """
         Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl).
@@ -652,21 +651,20 @@ class WulffShape:
         return self.total_surface_energy / self.surface_area
 
     @property
-    def area_fraction_dict(self):
+    def area_fraction_dict(self) -> dict[tuple, float]:
         """
         Returns:
-            (dict): {hkl: area_hkl/total area on wulff}.
+            dict: {hkl: area_hkl/total area on wulff}.
         """
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
     @property
-    def anisotropy(self):
+    def anisotropy(self) -> float:
         """
         Returns:
-            (float) Coefficient of Variation from weighted surface energy
-            The ideal sphere is 0.
+            float: Coefficient of Variation from weighted surface energy. The ideal sphere is 0.
         """
-        square_diff_energy = 0
+        square_diff_energy = 0.0
         weighted_energy = self.weighted_surface_energy
         area_frac_dict = self.area_fraction_dict
         miller_energy_dict = self.miller_energy_dict
@@ -676,7 +674,7 @@ class WulffShape:
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property
-    def shape_factor(self):
+    def shape_factor(self) -> float:
         """
         This is useful for determining the critical nucleus size.
         A large shape factor indicates great anisotropy.
@@ -684,30 +682,29 @@ class WulffShape:
             of Materials. (John Wiley & Sons, 2005), p.461.
 
         Returns:
-            (float) Shape factor.
+            float: Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))
 
     @property
-    def effective_radius(self):
+    def effective_radius(self) -> float:
         """
-        Radius of the Wulffshape when the
-        Wulffshape is approximated as a sphere.
+        Radius of the WulffShape when the WulffShape is approximated as a sphere.
 
         Returns:
-            (float) radius.
+            float: radius.
         """
         return ((3 / 4) * (self.volume / np.pi)) ** (1 / 3)
 
     @property
-    def total_surface_energy(self):
+    def total_surface_energy(self) -> float:
         """
         Total surface energy of the Wulff shape.
 
         Returns:
-            (float) sum(surface_energy_hkl * area_hkl)
+            float: sum(surface_energy_hkl * area_hkl)
         """
-        tot_surface_energy = 0
+        tot_surface_energy = 0.0
         for hkl, energy in self.miller_energy_dict.items():
             tot_surface_energy += energy * self.miller_area_dict[hkl]
         return tot_surface_energy
@@ -732,7 +729,7 @@ class WulffShape:
             pt = self.get_line_in_facet(facet)
 
             lines = []
-            for idx, _ in enumerate(pt):
+            for idx in range(len(pt)):
                 if idx == len(pt) / 2:
                     break
                 lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))

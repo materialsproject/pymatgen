@@ -73,7 +73,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     def __getattr__(self, attr):
         # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
-        props = object.__getattribute__(self, "properties")
+        props = self.__getattribute__("properties")
         if attr in props:
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")
@@ -182,7 +182,7 @@ class Site(collections.abc.Hashable, MSONable):
         occupancy 1.
         """
         total_occu = self.species.num_atoms
-        return total_occu == 1 and len(self.species) == 1
+        return total_occu == len(self.species) == 1
 
     def __getitem__(self, el):
         """Get the occupancy for element."""
@@ -208,10 +208,10 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return sum(el.Z for el in self.species)
 
-    def __contains__(self, el):
+    def __contains__(self, el) -> bool:
         return el in self.species
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name = self.species_string
 
         if self.label != name:
@@ -234,7 +234,7 @@ class Site(collections.abc.Hashable, MSONable):
             return False
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.coords} {self.species_string}"
 
     def as_dict(self) -> dict:
@@ -296,7 +296,7 @@ class PeriodicSite(Site, MSONable):
         properties: dict | None = None,
         label: str | None = None,
         skip_checks: bool = False,
-    ):
+    ) -> None:
         """Create a periodic site.
 
         :param species: Species on the site. Can be:
@@ -546,7 +546,7 @@ class PeriodicSite(Site, MSONable):
         """
         return self.distance_and_image(other, jimage)[0]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name = self.species_string
 
         if self.label != name:

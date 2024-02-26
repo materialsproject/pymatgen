@@ -19,10 +19,7 @@ import dateutil.parser  # type: ignore[import]
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, PeriodicSite, Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.core import ParseError
 
@@ -246,7 +243,7 @@ class ResParser:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
-        with zopen(filename, "r") as file:
+        with zopen(filename, mode="r") as file:
             self.source = file.read()
             return self._parse_txt()
 
@@ -319,7 +316,7 @@ class ResWriter:
 
     def write(self, filename: str) -> None:
         """Write the res data to a file."""
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(str(self))
 
 
@@ -400,7 +397,7 @@ class AirssProvider(ResProvider):
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
         super().__init__(res)
         if self._res.TITL is None:
-            raise ResError(f"{self.__class__} can only be constructed from a res file with a valid TITL entry.")
+            raise ResError(f"{type(self).__name__} can only be constructed from a res file with a valid TITL entry.")
         if parse_rems not in ["gentle", "strict"]:
             raise ValueError(f"{parse_rems} not valid, must be either 'gentle' or 'strict'.")
         self._TITL = self._res.TITL  # alias for the object so it is guarded by the None check

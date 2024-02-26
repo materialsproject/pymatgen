@@ -52,11 +52,11 @@ class Cssr:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string):
         """
         Reads a string representation to a Cssr object.
 
@@ -79,10 +79,10 @@ class Cssr:
             if m:
                 sp.append(m.group(1))
                 coords.append([float(m.group(i)) for i in range(2, 5)])
-        return Cssr(Structure(latt, sp, coords))
+        return cls(Structure(latt, sp, coords))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Reads a CSSR file to a Cssr object.
 
@@ -92,5 +92,5 @@ class Cssr:
         Returns:
             Cssr object.
         """
-        with zopen(filename, "rt") as f:
-            return Cssr.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())

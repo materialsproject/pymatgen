@@ -9,8 +9,7 @@ from pymatgen.analysis.structure_prediction.dopant_predictor import (
     get_dopants_from_shannon_radii,
     get_dopants_from_substitution_probabilities,
 )
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Structure
+from pymatgen.core import Species, Structure
 
 
 class TestDopantPrediction(unittest.TestCase):

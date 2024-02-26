@@ -5,7 +5,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import string
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -23,7 +23,7 @@ _UNITS = {
 class InputVariable:
     """An Abinit input variable."""
 
-    def __init__(self, name, value, units="", valperline=3):
+    def __init__(self, name: str, value, units: str = "", valperline: int = 3) -> None:
         """
         Args:
             name: Name of the variable.
@@ -35,12 +35,11 @@ class InputVariable:
         self.value = value
         self._units = units
 
-        # Maximum number of values per line.
-        self.valperline = valperline
+        self.valperline = valperline  # Maximum number of values per line.
         if name == "bdgw":
             self.valperline = 2
 
-        if isinstance(self.value, Iterable) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
+        if isinstance(self.value, Sequence) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
             self.value = list(self.value)
             self._units = self.value.pop(-1)
 
@@ -149,38 +148,38 @@ class InputVariable:
     @staticmethod
     def format_list2d(values, float_decimal=0):
         """Format a list of lists."""
-        lvals = flatten(values)
+        flattened_list = flatten(values)
 
         # Determine the representation
-        if all(isinstance(v, int) for v in lvals):
+        if all(isinstance(v, int) for v in flattened_list):
             type_all = int
         else:
             try:
-                for v in lvals:
+                for v in flattened_list:
                     float(v)
                 type_all = float
             except Exception:
                 type_all = str
 
         # Determine the format
-        width = max(len(str(s)) for s in lvals)
-        if type_all == int:
+        width = max(len(str(s)) for s in flattened_list)
+        if type_all is int:
             fmt_spec = f">{width}d"
-        elif type_all == str:
+        elif type_all is str:
             fmt_spec = f">{width}"
         else:
             # Number of decimal
-            max_dec = max(len(str(f - int(f))) - 2 for f in lvals)
-            ndec = min(max(max_dec, float_decimal), 10)
+            max_dec = max(len(str(f - int(f))) - 2 for f in flattened_list)
+            n_dec = min(max(max_dec, float_decimal), 10)
 
-            if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
-                fmt_spec = f">{ndec + 5}.{ndec}f"
+            if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in flattened_list):
+                fmt_spec = f">{n_dec + 5}.{n_dec}f"
             else:
-                fmt_spec = f">{ndec + 8}.{ndec}e"
+                fmt_spec = f">{n_dec + 8}.{n_dec}e"
 
         line = "\n"
-        for L in values:
-            for val in L:
+        for lst in values:
+            for val in lst:
                 line += f" {val:{{fmt_spec}}}"
             line += "\n"
 

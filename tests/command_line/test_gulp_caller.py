@@ -24,7 +24,6 @@ from pymatgen.command_line.gulp_caller import (
     get_energy_tersoff,
 )
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import TEST_FILES_DIR
 
 gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
@@ -59,8 +58,7 @@ class TestGulpCaller(unittest.TestCase):
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
         gc = GulpCaller()
 
-        """Some inherent checks are in the run_gulp function itself.
-        They should be sufficient for raising errors."""
+        # some inherent checks are in the run_gulp function itself. should be sufficient for raising errors
         gc.run(gin)
 
     def test_decimal(self):
@@ -99,11 +97,8 @@ class TestGulpCaller(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestGulpIO(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
-        self.structure = p.structure
+        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18")
         self.gio = GulpIO()
 
     def test_keyword_line_with_correct_keywords(self):
@@ -249,8 +244,8 @@ class TestGulpIO(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_FILES_DIR}/example21.gout") as fp:
-            out_str = fp.read()
+        with open(f"{TEST_FILES_DIR}/example21.gout") as file:
+            out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8
@@ -258,7 +253,7 @@ class TestGulpIO(unittest.TestCase):
         assert struct.lattice.alpha == 90
 
     @unittest.skip("Test later")
-    def test_tersoff_inpt(self):
+    def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 
 
@@ -280,12 +275,11 @@ class TestGlobalFunctions(unittest.TestCase):
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
-        el = [site.species_string for site in self.mgo_uc.sites]
+        el = [site.species_string for site in self.mgo_uc]
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
-        structure = p.structure
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18")
         energy = get_energy_tersoff(structure)
         assert isinstance(energy, float)
 
@@ -311,8 +305,6 @@ class TestGlobalFunctions(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestBuckinghamPotentialLewis(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.bpl = BuckinghamPotential("lewis")
 
@@ -323,7 +315,7 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
         assert "O_core" in self.bpl.species_dict
         assert "O_shel" in self.bpl.species_dict
 
-    def test_non_exisitng_element(self):
+    def test_non_existing_element(self):
         assert "Li_1+" not in self.bpl.pot_dict
         assert "Li_1+" not in self.bpl.species_dict
 
@@ -341,8 +333,6 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestBuckinghamPotentialBush(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.bpb = BuckinghamPotential("bush")
 
@@ -352,7 +342,7 @@ class TestBuckinghamPotentialBush(unittest.TestCase):
         assert "O" in self.bpb.pot_dict
         assert "O" in self.bpb.species_dict
 
-    def test_non_exisitng_element(self):
+    def test_non_existing_element(self):
         assert "Mn" not in self.bpb.pot_dict
         assert "Mn" not in self.bpb.species_dict
 

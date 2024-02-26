@@ -113,7 +113,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         res = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
             coordination_geometry=cg_tet, NRANDOM=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps = res
+        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = res
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 
@@ -125,13 +125,13 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
     #     for _ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_dir}/{json_file}") as f:
-    #                 dd = json.load(f)
+    #             with open(f"{json_dir}/{json_file}") as file:
+    #                 dct = json.load(file)
 
-    #             atom_indices = dd["atom_indices"]
-    #             expected_geoms = dd["expected_geoms"]
+    #             atom_indices = dct["atom_indices"]
+    #             expected_geoms = dct["expected_geoms"]
 
-    #             struct = Structure.from_dict(dd["structure"])
+    #             struct = Structure.from_dict(dct["structure"])
 
     #             struct = self.lgf.setup_structure(struct)
     #             se = self.lgf.compute_structure_environments_detailed_voronoi(

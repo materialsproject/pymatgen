@@ -3,30 +3,40 @@ This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
 """
 
-
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
+from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.json import jsanitize
+from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule, Structure
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.structure import SiteCollection
 
 try:
-    from ase import Atoms
+    from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
+    from ase.io.jsonio import decode, encode
+    from ase.spacegroup import Spacegroup
 
-    ase_loaded = True
+    no_ase_err = None
 except ImportError:
-    ase_loaded = False
+    no_ase_err = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+
+    class Atoms:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            raise no_ase_err
+
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -36,28 +46,44 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
+class MSONAtoms(Atoms, MSONable):
+    """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
+
+    def as_dict(s: Atoms) -> dict[str, Any]:
+        # Normally, we would want to this to be a wrapper around atoms.todict() with @module and
+        # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
+        # to be used in a round-trip fashion and does not work properly with constraints.
+        # See ASE issue #1387.
+        return {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": encode(s)}
+
+    def from_dict(dct: dict[str, Any]) -> MSONAtoms:
+        # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
+        # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
+        # to be used in a round-trip fashion and does not work properly with constraints.
+        # See ASE issue #1387.
+        return MSONAtoms(decode(dct["atoms_json"]))
+
+
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
     @staticmethod
-    def get_atoms(structure: SiteCollection, **kwargs) -> Atoms:
+    def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONAtoms | Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
             structure (SiteCollection): pymatgen Structure or Molecule
+            msonable (bool): Whether to return an MSONAtoms object, which is MSONable.
             **kwargs: passed to the ASE Atoms constructor
 
         Returns:
             Atoms: ASE Atoms object
         """
-        if not ase_loaded:
-            raise ImportError(
-                "AseAtomsAdaptor requires the ASE package.\n"
-                "Use `pip install ase` or `conda install ase -c conda-forge`"
-            )
+        if no_ase_err:
+            raise no_ase_err
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 
@@ -72,6 +98,9 @@ class AseAtomsAdaptor:
             cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
+
+        if msonable:
+            atoms = MSONAtoms(atoms)
 
         if "tags" in structure.site_properties:
             atoms.set_tags(structure.site_properties["tags"])
@@ -112,20 +141,6 @@ class AseAtomsAdaptor:
             atoms.charge = structure.charge
             atoms.spin_multiplicity = structure.spin_multiplicity
 
-        # Set the Atoms final magnetic moments and charges if present.
-        # This uses the SinglePointDFTCalculator as the dummy calculator
-        # to store results.
-        charges = structure.site_properties.get("final_charge")
-        magmoms = structure.site_properties.get("final_magmom")
-        if magmoms or charges:
-            if magmoms and charges:
-                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
-            elif magmoms:
-                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
-            else:
-                calc = SinglePointDFTCalculator(atoms, charges=charges)
-            atoms.calc = calc
-
         # Get the oxidation states from the structure
         oxi_states: list[float | None] = [getattr(site.specie, "oxi_state", None) for site in structure]
 
@@ -136,8 +151,11 @@ class AseAtomsAdaptor:
             fix_atoms = []
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if not (np.all(selective_dynamics) or not np.any(selective_dynamics)):
-                    # should be [True, True, True] or [False, False, False]
+                if (
+                    isinstance(selective_dynamics, Iterable)
+                    and True in selective_dynamics
+                    and False in selective_dynamics
+                ):
                     raise ValueError(
                         "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
                         f"Remove the {selective_dynamics=} and try again if you do not need them."
@@ -154,17 +172,40 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in ["magmom", "charge", "final_magmom", "final_charge", "selective_dynamics"]:
+            if prop not in [
+                "magmom",
+                "charge",
+                "final_magmom",
+                "final_charge",
+                "selective_dynamics",
+            ]:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         # Atoms.info <---> Structure.properties
-        # Atoms.calc <---> Structure.calc
         if properties := getattr(structure, "properties"):  # noqa: B009
             atoms.info = properties
+
+        # Regenerate Spacegroup object from `.todict()` representation
+        if isinstance(atoms.info.get("spacegroup"), dict):
+            atoms.info["spacegroup"] = Spacegroup(
+                atoms.info["spacegroup"]["number"],
+                setting=atoms.info["spacegroup"].get("setting", 1),
+            )
+
+        # Atoms.calc <---> Structure.calc
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
+        else:
+            # Set the Atoms final magnetic moments and charges if present.
+            # This uses the SinglePointDFTCalculator as the dummy calculator
+            # to store results.
+            charges = structure.site_properties.get("final_charge")
+            magmoms = structure.site_properties.get("final_magmom")
+            if charges or magmoms:
+                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
+                atoms.calc = calc
 
         return atoms
 
@@ -179,7 +220,7 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            Equivalent pymatgen.core.structure.Structure
+            Structure: Equivalent pymatgen Structure
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
@@ -212,20 +253,33 @@ class AseAtomsAdaptor:
                 else:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
-                warnings.warn("Only FixAtoms is supported by Pymatgen. Other constraints will not be set.")
+                warnings.warn(
+                    "Only FixAtoms is supported by Pymatgen. Other constraints will not be set.",
+                    UserWarning,
+                )
             sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
         else:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties
-        properties = jsanitize(getattr(atoms, "info", {}))
+        # But first make sure `spacegroup` is JSON serializable
+        if atoms.info.get("spacegroup") and isinstance(atoms.info["spacegroup"], Spacegroup):
+            atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
+        properties = getattr(atoms, "info", {})
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
         if cls == Molecule:
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
-            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, properties=properties, **cls_kwargs)
+            structure = cls(
+                lattice,
+                symbols,
+                positions,
+                coords_are_cartesian=True,
+                properties=properties,
+                **cls_kwargs,
+            )
 
         # Atoms.calc <---> Structure.calc
         if calc := getattr(atoms, "calc", None):

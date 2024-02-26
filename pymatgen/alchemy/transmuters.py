@@ -99,18 +99,15 @@ class StandardTransmuter:
             transformation: Transformation to append
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations. extend_collection can be a
-                number, which determines the maximum branching for each
-                transformation.
+                number, which determines the maximum branching for each transformation.
             clear_redo (bool): Whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of
                 undoing. However, when using append_transformation to do a
-                redo, the redo list should not be cleared to allow multiple
-                redos.
+                redo, the redo list should not be cleared to allow multiple redos.
 
         Returns:
-            List of booleans corresponding to initial transformed structures
-            each boolean describes whether the transformation altered the
-            structure
+            list[bool]: corresponding to initial transformed structures each boolean
+                describes whether the transformation altered the structure
         """
         if self.ncores and transformation.use_multiprocessing:
             with Pool(self.ncores) as p:
@@ -134,8 +131,8 @@ class StandardTransmuter:
         Args:
             transformations: Sequence of Transformations
         """
-        for t in transformations:
-            self.append_transformation(t)
+        for trafo in transformations:
+            self.append_transformation(trafo)
 
     def apply_filter(self, structure_filter):
         """Applies a structure_filter to the list of TransformedStructures
@@ -254,7 +251,7 @@ class CifTransmuter(StandardTransmuter):
             if read_data:
                 structure_data[-1].append(line)
         for data in structure_data:
-            trafo_struct = TransformedStructure.from_cif_string("\n".join(data), [], primitive)
+            trafo_struct = TransformedStructure.from_cif_str("\n".join(data), [], primitive)
             transformed_structures.append(trafo_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 
@@ -271,8 +268,8 @@ class CifTransmuter(StandardTransmuter):
             extend_collection: Same meaning as in __init__.
         """
         cif_files = []
-        for fname in filenames:
-            with open(fname) as file:
+        for filename in filenames:
+            with open(filename) as file:
                 cif_files.append(file.read())
         return cls(
             "\n".join(cif_files),
@@ -294,7 +291,7 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations.
         """
-        trafo_struct = TransformedStructure.from_poscar_string(poscar_string, [])
+        trafo_struct = TransformedStructure.from_poscar_str(poscar_string, [])
         super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
     @staticmethod
@@ -311,8 +308,8 @@ class PoscarTransmuter(StandardTransmuter):
         """
         trafo_structs = []
         for filename in poscar_filenames:
-            with open(filename) as f:
-                trafo_structs.append(TransformedStructure.from_poscar_string(f.read(), []))
+            with open(filename) as file:
+                trafo_structs.append(TransformedStructure.from_poscar_str(file.read(), []))
         return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
 
 
@@ -369,8 +366,8 @@ def _apply_transformation(inputs):
             collection, and a boolean indicating whether to clear the redo
 
     Returns:
-        List of output structures (the modified initial structure, plus
-        any new structures created by a one-to-many transformation)
+        list[Structure]: the modified initial structure, plus
+            any new structures created by a one-to-many transformation
     """
     ts, transformation, extend_collection, clear_redo = inputs
     new = ts.append_transformation(transformation, extend_collection, clear_redo=clear_redo)

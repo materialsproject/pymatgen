@@ -13,9 +13,7 @@ import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 
 if TYPE_CHECKING:
@@ -23,11 +21,11 @@ if TYPE_CHECKING:
 
 try:
     import vtk
-    from vtk import vtkInteractorStyleTrackballCamera
+    from vtk import vtkInteractorStyleTrackballCamera as TrackballCamera
 except ImportError:
     # VTK not present. The Camera is to set object to avoid errors in unittest.
     vtk = None
-    vtkInteractorStyleTrackballCamera = object
+    TrackballCamera = object
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
@@ -301,7 +299,7 @@ class StructureVis:
                 camera.SetFocalPoint(struct.center_of_mass)
 
         self.structure = structure
-        self.title = struct.composition.formula
+        self.title = struct.formula
 
     def zoom(self, factor):
         """Zoom the camera view by a factor."""
@@ -600,7 +598,7 @@ class StructureVis:
                 ac.GetProperty().SetColor(color)
                 self.ren.AddActor(ac)
             elif len(face) > 3:
-                center = np.zeros(3, np.float_)
+                center = np.zeros(3, float)
                 for site in face:
                     center += site
                 center /= np.float_(len(face))
@@ -772,7 +770,7 @@ class StructureVis:
         self.iren.SetPicker(picker)
 
 
-class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
+class StructureInteractorStyle(TrackballCamera):
     """A custom interactor style for visualizing structures."""
 
     def __init__(self, parent):
@@ -798,7 +796,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
         self.OnLeftButtonUp()
 
-    def keyPressEvent(self, obj, event):
+    def keyPressEvent(self, obj, _event):
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
@@ -844,7 +842,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         elif sym == "Right":
             parent.rotate_view(0, 90)
         elif sym == "o":
-            parent.orthongonalize_structure()
+            parent.orthogonalize_structure()
             parent.redraw()
 
         self.OnKeyPress()
@@ -860,7 +858,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
             movie.mp4
         zoom (float): A zoom to be applied to the visualizer. Defaults to 1.0.
         fps (int): Frames per second for the movie. Defaults to 20.
-        bitrate (str): Video bitate. Defaults to "10000k" (fairly high
+        bitrate (str): Video bitrate. Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
         kwargs: Any kwargs supported by StructureVis to modify the images
@@ -870,25 +868,13 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
     vis.show_help = False
     vis.redraw()
     vis.zoom(zoom)
-    sigfig = int(math.floor(math.log10(len(structures))) + 1)
-    filename = f"image{{0:0{sigfig}d}}.png"
-    for i, s in enumerate(structures):
-        vis.set_structure(s)
-        vis.write_image(filename.format(i), 3)
-    filename = f"image%0{sigfig}d.png"
-    args = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        filename,
-        "-q:v",
-        str(quality),
-        "-r",
-        str(fps),
-        "-b:v",
-        str(bitrate),
-        output_filename,
-    ]
+    sig_fig = int(math.floor(math.log10(len(structures))) + 1)
+    filename = f"image{{0:0{sig_fig}d}}.png"
+    for idx, site in enumerate(structures):
+        vis.set_structure(site)
+        vis.write_image(filename.format(idx), 3)
+    filename = f"image%0{sig_fig}d.png"
+    args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
     with subprocess.Popen(args) as p:
         p.communicate()
 

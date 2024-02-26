@@ -19,43 +19,43 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-test_dir = f"{TEST_FILES_DIR}/cohp"
-this_dir = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = f"{TEST_FILES_DIR}/cohp"
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCtrl(PymatgenTest):
     def setUp(self):
-        os.chdir(test_dir)
-        self.ctrl_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
-        self.ctrl_fe = LMTOCtrl.from_file()
+        os.chdir(TEST_DIR)
+        self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
+        self.ref_fe = LMTOCtrl.from_file()
 
     def tearDown(self):
-        os.chdir(this_dir)
+        os.chdir(module_dir)
 
     def test_dict(self):
-        assert self.ctrl_bise == LMTOCtrl.from_dict(self.ctrl_bise.as_dict())
+        assert self.ref_bise == LMTOCtrl.from_dict(self.ref_bise.as_dict())
 
     def test_structure(self):
         bise_poscar = Structure.from_file("POSCAR.BiSe")
-        assert bise_poscar.matches(self.ctrl_bise.structure)
-        assert self.ctrl_bise == LMTOCtrl(self.ctrl_bise.structure, header="Bi6Se6, hexagonal")
+        assert bise_poscar.matches(self.ref_bise.structure)
+        assert self.ref_bise == LMTOCtrl(self.ref_bise.structure, header="Bi6Se6, hexagonal")
 
     def test_read_write(self):
         ctrl_path = f"{self.tmp_path}/CTRL.tmp"
-        self.ctrl_bise.write_file(filename=ctrl_path)
+        self.ref_bise.write_file(filename=ctrl_path)
         ctrl_file = LMTOCtrl.from_file(filename=ctrl_path)
-        assert self.ctrl_bise.structure.matches(ctrl_file.structure)
+        assert self.ref_bise.structure.matches(ctrl_file.structure)
 
 
 class TestCopl(PymatgenTest):
     def setUp(self):
-        os.chdir(test_dir)
+        os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")
         self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
         self.copl_fe = LMTOCopl()
 
     def tearDown(self):
-        os.chdir(this_dir)
+        os.chdir(module_dir)
 
     def test_attributes(self):
         assert not self.copl_bise.is_spin_polarized

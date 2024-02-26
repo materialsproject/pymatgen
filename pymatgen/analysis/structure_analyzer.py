@@ -13,9 +13,7 @@ import numpy as np
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core import Composition, Element, PeriodicSite, Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -42,13 +40,13 @@ def average_coordination_number(structures, freq=10):
     for spec in structures[0].composition.as_dict():
         coordination_numbers[spec] = 0.0
     count = 0
-    for i, s in enumerate(structures):
-        if i % freq != 0:
+    for idx, site in enumerate(structures):
+        if idx % freq != 0:
             continue
         count += 1
         vnn = VoronoiNN()
-        for j, atom in enumerate(s):
-            cn = vnn.get_cn(s, j, use_weights=True)
+        for j, atom in enumerate(site):
+            cn = vnn.get_cn(site, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
     return {el: v / elements[el] / count for el, v in coordination_numbers.items()}
@@ -161,7 +159,7 @@ class VoronoiAnalyzer:
         arr /= np.sum(arr)
         pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis
 
-        fig, ax = plt.subplots()
+        _fig, ax = plt.subplots()
         ax.barh(pos, arr, align="center", alpha=0.5)
         ax.set_yticks(pos)
         ax.set_yticklabels(labels)
@@ -252,13 +250,15 @@ class VoronoiConnectivity:
             cutoff (float) Cutoff distance.
         """
         self.cutoff = cutoff
-        self.s = structure
-        recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
-        i = np.ceil(cutoff * recp_len / (2 * pi))
-        offsets = np.mgrid[-i[0] : i[0] + 1, -i[1] : i[1] + 1, -i[2] : i[2] + 1].T
+        self.structure = structure
+        recip_vec = np.array(self.structure.lattice.reciprocal_lattice.abc)
+        cutoff_vec = np.ceil(cutoff * recip_vec / (2 * pi))
+        offsets = np.mgrid[
+            -cutoff_vec[0] : cutoff_vec[0] + 1, -cutoff_vec[1] : cutoff_vec[1] + 1, -cutoff_vec[2] : cutoff_vec[2] + 1
+        ].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]
-        self.cart_offsets = self.s.lattice.get_cartesian_coords(self.offsets)
+        self.cart_offsets = self.structure.lattice.get_cartesian_coords(self.offsets)
 
     @property
     def connectivity_array(self):
@@ -273,12 +273,12 @@ class VoronoiConnectivity:
             solid angle of polygon between atom_i and image_j of atom_j
         """
         # shape = [site, axis]
-        cart_coords = np.array(self.s.cart_coords)
+        cart_coords = np.array(self.structure.cart_coords)
         # shape = [site, image, axis]
         all_sites = cart_coords[:, None, :] + self.cart_offsets[None, :, :]
         vt = Voronoi(all_sites.reshape((-1, 3)))
         n_images = all_sites.shape[1]
-        cs = (len(self.s), len(self.s), len(self.cart_offsets))
+        cs = (len(self.structure), len(self.structure), len(self.cart_offsets))
         connectivity = np.zeros(cs)
         vts = np.array(vt.vertices)
         for (ki, kj), v in vt.ridge_dict.items():
@@ -323,7 +323,7 @@ class VoronoiConnectivity:
         for ii in range(max_conn.shape[0]):
             for jj in range(max_conn.shape[1]):
                 if max_conn[ii][jj] != 0:
-                    dist = self.s.get_distance(ii, jj)
+                    dist = self.structure.get_distance(ii, jj)
                     con.append([ii, jj, dist])
         return con
 
@@ -337,9 +337,9 @@ class VoronoiConnectivity:
             site_index (int): index of the site (3 in the example)
             image_index (int): index of the image (12 in the example)
         """
-        atoms_n_occu = self.s[site_index].species
-        lattice = self.s.lattice
-        coords = self.s[site_index].frac_coords + self.offsets[image_index]
+        atoms_n_occu = self.structure[site_index].species
+        lattice = self.structure.lattice
+        coords = self.structure[site_index].frac_coords + self.offsets[image_index]
         return PeriodicSite(atoms_n_occu, coords, lattice)
 
 
@@ -520,8 +520,7 @@ def sulfide_type(structure):
     Returns:
         (str) sulfide/polysulfide or None if structure is a sulfate.
     """
-    structure = structure.copy()
-    structure.remove_oxidation_states()
+    structure = structure.copy().remove_oxidation_states()
     sulphur = Element("S")
     comp = structure.composition
     if comp.is_element or sulphur not in comp:

@@ -82,7 +82,7 @@ class PackmolSet(InputSet):
         except subprocess.CalledProcessError as exc:
             raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
         else:
-            with open(Path(path, self.stdoutfile), "w") as out:
+            with open(Path(path, self.stdoutfile), mode="w") as out:
                 out.write(p.stdout.decode())
         finally:
             os.chdir(wd)
@@ -95,7 +95,7 @@ class PackmolSet(InputSet):
         Args:
             directory (str | Path): Directory to read input files from.
         """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        raise NotImplementedError(f"from_directory has not been implemented in {cls.__name__}")
 
 
 class PackmolBoxGen(InputGenerator):

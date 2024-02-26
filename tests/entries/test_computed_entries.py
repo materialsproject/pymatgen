@@ -24,7 +24,7 @@ from pymatgen.entries.computed_entries import (
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
 
-filepath = f"{TEST_FILES_DIR}/vasprun.xml"
+filepath = f"{TEST_FILES_DIR}/vasprun.xml.gz"
 vasp_run = Vasprun(filepath)
 
 
@@ -112,9 +112,9 @@ class TestComputedEntry(unittest.TestCase):
         assert self.entry3.energy_per_atom == approx(2.3 / 5)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
-        assert self.entry2.composition.reduced_formula == "Fe2O3"
-        assert self.entry5.composition.reduced_formula == "Fe2O3"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry2.reduced_formula == "Fe2O3"
+        assert self.entry5.reduced_formula == "Fe2O3"
         assert self.entry5.composition.get_reduced_formula_and_factor()[1] == 3
 
     def test_per_atom_props(self):
@@ -132,13 +132,13 @@ class TestComputedEntry(unittest.TestCase):
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry_formula = entry.normalize()
-        assert entry_formula.composition.formula == "Fe2 O3"
+        assert entry_formula.formula == "Fe2 O3"
         assert entry_formula.uncorrected_energy == approx(6.9 / 3)
         assert entry_formula.correction == approx(1 / 3)
         assert entry_formula.energy * 3 == approx(6.9 + 1)
         assert entry_formula.energy_adjustments[0].value == approx(1 / 3)
         entry_atom = entry.normalize("atom")
-        assert entry_atom.composition.formula == "Fe0.4 O0.6"
+        assert entry_atom.formula == "Fe0.4 O0.6"
         assert entry_atom.uncorrected_energy == approx(6.9 / 15)
         assert entry_atom.correction == approx(1 / 15)
         assert entry_atom.energy * 15 == approx(6.9 + 1)
@@ -213,7 +213,13 @@ class TestComputedEntry(unittest.TestCase):
         assert self.entry2.entry_id is None
 
     def test_str(self):
-        assert str(self.entry) is not None
+        assert str(self.entry).startswith(
+            "None ComputedEntry - Li1 Fe4 P4 O16 (LiFe4(PO4)4)\n"
+            "Energy (Uncorrected)     = -269.3832 eV (-10.7753 eV/atom)\n"
+            "Correction               = 0.0000    eV (0.0000   eV/atom)\n"
+            "Energy (Final)           = -269.3832 eV (-10.7753 eV/atom)\n"
+            "Energy Adjustments:"
+        )
 
     def test_sulfide_energy(self):
         self.entry = ComputedEntry("BaS", -10.21249155)
@@ -243,7 +249,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert self.entry.energy == approx(-268.38319884)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
 
     def test_as_from_dict(self):
         dct = self.entry.as_dict()
@@ -252,7 +258,11 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert entry.energy == approx(-269.38319884)
 
     def test_str(self):
-        assert str(self.entry) is not None
+        assert str(self.entry).startswith(
+            "None ComputedStructureEntry - Li1 Fe4 P4 O16 (LiFe4(PO4)4)\n"
+            "Energy (Uncorrected)     = -269.3832 eV (-10.7753 eV/atom)\n"
+            "Correction               = 0.0000    eV (0.0000   eV/atom)\nEnergy (Final)"
+        )
 
     def test_as_from_dict_structure_with_adjustment_3(self):
         """
@@ -443,10 +453,10 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_FILES_DIR}/Mn-O_entries.json") as f:
-            data = json.load(f)
-        with open(f"{TEST_FILES_DIR}/structure_CO2.json") as f:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(f))
+        with open(f"{TEST_FILES_DIR}/Mn-O_entries.json") as file:
+            data = json.load(file)
+        with open(f"{TEST_FILES_DIR}/structure_CO2.json") as file:
+            self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
@@ -459,8 +469,8 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             1500: -37.793417248809774,
             1800: -32.32513382051749,
         }
-        for t in self.temps:
-            assert self.entries_with_temps[t].energy == approx(energies[t])
+        for temp in self.temps:
+            assert self.entries_with_temps[temp].energy == approx(energies[temp])
 
     def test_interpolation(self):
         temp = 450
@@ -474,12 +484,14 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
-        assert gibbs_entries is not None
+        assert isinstance(gibbs_entries, list)
+        assert isinstance(gibbs_entries[0], GibbsComputedStructureEntry)
 
     def test_from_pd(self):
         pd = PhaseDiagram(self.mp_entries)
         gibbs_entries = GibbsComputedStructureEntry.from_pd(pd)
-        assert gibbs_entries is not None
+        assert isinstance(gibbs_entries, list)
+        assert isinstance(gibbs_entries[0], GibbsComputedStructureEntry)
 
     def test_as_from_dict(self):
         test_entry = self.entries_with_temps[300]
@@ -489,10 +501,12 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
         assert entry.energy == approx(test_entry.energy)
 
     def test_str(self):
-        assert str(self.entries_with_temps[300]) is not None
+        assert str(self.entries_with_temps[300]).startswith(
+            "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"
+        )
 
     def test_normalize(self):
         for entry in self.entries_with_temps.values():
-            entry = copy.deepcopy(entry)
-            normed_entry = entry.normalize(mode="atom")
-            assert entry.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)
+            copied = copy.deepcopy(entry)
+            normed_entry = copied.normalize(mode="atom")
+            assert copied.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)

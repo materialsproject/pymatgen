@@ -5,6 +5,7 @@ from __future__ import annotations
 import itertools
 import logging
 
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from matplotlib.patches import Circle, FancyArrowPatch
@@ -32,7 +33,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         c = Circle(pos[n], radius=0.02, alpha=0.5)
         ax.add_patch(c)
         env_graph.node[n]["patch"] = c
-        x, y = pos[n]
+        _x, _y = pos[n]
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None
@@ -56,12 +57,12 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         dist = np.sqrt(np.power(n2.center[0] - n1.center[0], 2) + np.power(n2.center[1] - n1.center[1], 2))
         n1c_to_n2c = n2center - n1center
         vv = np.cross(
-            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], np.float_),
-            np.array([0, 0, 1], np.float_),
+            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], float),
+            np.array([0, 0, 1], float),
         )
         vv /= np.linalg.norm(vv)
-        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], np.float_)
-        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], np.float_)
+        mid_arc = midpoint + rad * dist * np.array([vv[0], vv[1]], float)
+        xy_text_offset = 0.1 * dist * np.array([vv[0], vv[1]], float)
 
         if periodicity_vectors is not None and len(periodicity_vectors) == 1:
             if np.all(np.array(delta) == np.array(periodicity_vectors[0])) or np.all(
@@ -109,11 +110,11 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
             )
         ax.annotate(
             delta,
-            midarc,
+            mid_arc,
             ha="center",
             va="center",
             xycoords="data",
-            xytext=xytext_offset,
+            xytext=xy_text_offset,
             textcoords="offset points",
         )
         seen[(u, v)] = rad
@@ -154,14 +155,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print(
-                        "delta not equal to periodicity nor 0 ... : ",
-                        n1,
-                        n2,
-                        key,
-                        data["delta"],
-                        data,
-                    )
+                    print("delta not equal to periodicity nor 0 ... : ", n1, n2, key, data["delta"], data)
                     input("Are we ok with this ?")
                 other_edges.append((n1, n2, key, data))
 
@@ -234,11 +228,9 @@ class ConnectedComponent(MSONable):
                 env_node1 = edge[0]
                 env_node2 = edge[1]
                 key = None if len(edge) == 2 else edge[2]
-                if (not self._connected_subgraph.has_node(env_node1)) or (
-                    not self._connected_subgraph.has_node(env_node2)
-                ):
+                if not self._connected_subgraph.has_node(env_node1) or not self._connected_subgraph.has_node(env_node2):
                     raise ChemenvError(
-                        self.__class__,
+                        type(self).__name__,
                         "__init__",
                         "Trying to add edge with some unexistent node ...",
                     )
@@ -373,12 +365,10 @@ class ConnectedComponent(MSONable):
     def __len__(self):
         return len(self.graph)
 
-    def compute_periodicity(self, algorithm="all_simple_paths"):
+    def compute_periodicity(self, algorithm="all_simple_paths") -> None:
         """
         Args:
             algorithm ():
-
-        Returns:
         """
         if algorithm == "all_simple_paths":
             self.compute_periodicity_all_simple_paths_algorithm()
@@ -521,6 +511,7 @@ class ConnectedComponent(MSONable):
             multiplicity ():
 
         Returns:
+            nx.MultiGraph: Super graph of the connected component.
         """
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
@@ -536,7 +527,6 @@ class ConnectedComponent(MSONable):
                 If not provided, the graph is not saved.
             drawing_type (str): The type of drawing to use. Can be "internal" or "external".
         """
-        import matplotlib.pyplot as plt
 
         shown_graph = self._connected_subgraph if graph is None else graph
 
@@ -553,12 +543,8 @@ class ConnectedComponent(MSONable):
                 plt.savefig(save_file)
             # nx.draw(self._connected_subgraph)
         elif drawing_type == "draw_graphviz":
-            import networkx as nx
-
             nx.nx_pydot.graphviz_layout(shown_graph)
         elif drawing_type == "draw_random":
-            import networkx as nx
-
             nx.draw_random(shown_graph)
 
     @property
@@ -581,32 +567,28 @@ class ConnectedComponent(MSONable):
         """Whether this connected component is 0-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 0
+        return len(self._periodicity_vectors) == 0  # type: ignore[arg-type]
 
     @property
     def is_1d(self) -> bool:
         """Whether this connected component is 1-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 1
+        return len(self._periodicity_vectors) == 1  # type: ignore[arg-type]
 
     @property
     def is_2d(self) -> bool:
         """Whether this connected component is 2-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 2
+        return len(self._periodicity_vectors) == 2  # type: ignore[arg-type]
 
     @property
     def is_3d(self) -> bool:
         """Whether this connected component is 3-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
-        assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
-        return len(self._periodicity_vectors) == 3
+        return len(self._periodicity_vectors) == 3  # type: ignore[arg-type]
 
     @staticmethod
     def _order_vectors(vectors):
@@ -661,10 +643,10 @@ class ConnectedComponent(MSONable):
         logging.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
-        ntest_nodes = 0
+        n_test_nodes = 0
         start_node = next(iter(self.graph.nodes()))
 
-        ntest_nodes += 1
+        n_test_nodes += 1
         centered_connected_subgraph = nx.MultiGraph()
         centered_connected_subgraph.add_nodes_from(self.graph.nodes())
         centered_connected_subgraph.add_edges_from(self.graph.edges(data=True))
@@ -761,7 +743,7 @@ class ConnectedComponent(MSONable):
         return centered_connected_subgraph
 
     @staticmethod
-    def _edgekey_to_edgedictkey(key):
+    def _edge_key_to_edge_dict_key(key):
         if isinstance(key, int):
             return str(key)
         if isinstance(key, str):
@@ -789,12 +771,21 @@ class ConnectedComponent(MSONable):
         """
         Private method used to cast back lists to tuples where applicable in an edge data.
 
-        The format of the edge data is :
-        {'start': STARTINDEX, 'end': ENDINDEX, 'delta': TUPLE(DELTAX, DELTAY, DELTAZ),
-         'ligands': [TUPLE(LIGAND_1_INDEX, TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
-                                           TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1)),
-                     TUPLE(LIGAND_2_INDEX, ...),
-                     ... ]}
+        The format of the edge data is:
+        {
+            "start": STARTINDEX,
+            "end": ENDINDEX,
+            "delta": TUPLE(DELTAX, DELTAY, DELTAZ),
+            "ligands": [
+                TUPLE(
+                    LIGAND_1_INDEX,
+                    TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
+                    TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1),
+                ),
+                TUPLE(LIGAND_2_INDEX, ...),
+                ...,
+            ],
+        }
         When serializing to json/bson, these tuples are transformed into lists. This method transforms these lists
         back to tuples.
 
@@ -826,7 +817,7 @@ class ConnectedComponent(MSONable):
                 in2 = node2stringindex[n2]
                 new_dict_of_dicts[in1][in2] = {}
                 for ie, edge_data in edges_dict.items():
-                    ied = self._edgekey_to_edgedictkey(ie)
+                    ied = self._edge_key_to_edge_dict_key(ie)
                     new_dict_of_dicts[in1][in2][ied] = jsanitize(edge_data)
         return {
             "@module": type(self).__module__,

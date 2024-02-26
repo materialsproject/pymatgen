@@ -265,7 +265,7 @@ $theory_spec
         title = title if title is not None else f"{formula} {theory} {operation}"
 
         charge = charge if charge is not None else mol.charge
-        n_electrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
+        n_electrons = -charge + mol.charge + mol.nelectrons
         if spin_multiplicity is not None:
             if (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(f"{charge=} and {spin_multiplicity=} is not possible for this molecule")
@@ -276,7 +276,7 @@ $theory_spec
 
         elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
-            basis_set = {el: basis_set for el in elements}
+            basis_set = dict.fromkeys(elements, basis_set)
 
         return NwTask(
             charge,
@@ -364,36 +364,35 @@ class NwInput(MSONable):
         return self._mol
 
     def __str__(self):
-        o = []
+        out = []
         if self.memory_options:
-            o.append("memory " + self.memory_options)
+            out.append("memory " + self.memory_options)
         for d in self.directives:
-            o.append(f"{d[0]} {d[1]}")
-        o.append("geometry " + " ".join(self.geometry_options))
+            out.append(f"{d[0]} {d[1]}")
+        out.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
-            o.append(" symmetry " + " ".join(self.symmetry_options))
+            out.append(" symmetry " + " ".join(self.symmetry_options))
         for site in self._mol:
-            o.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
-        o.append("end\n")
-        for t in self.tasks:
-            o.append(str(t))
-            o.append("")
-        return "\n".join(o)
+            out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
+        out.append("end\n")
+        for task in self.tasks:
+            out.extend((str(task), ""))
+        return "\n".join(out)
 
     def write_file(self, filename):
         """
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, "w") as f:
-            f.write(str(self))
+        with zopen(filename, mode="w") as file:
+            file.write(str(self))
 
     def as_dict(self):
         """Returns: MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
-            "tasks": [t.as_dict() for t in self.tasks],
-            "directives": [list(t) for t in self.directives],
+            "tasks": [task.as_dict() for task in self.tasks],
+            "directives": [list(task) for task in self.directives],
             "geometry_options": list(self.geometry_options),
             "symmetry_options": self.symmetry_options,
             "memory_options": self.memory_options,
@@ -416,11 +415,6 @@ class NwInput(MSONable):
             symmetry_options=d["symmetry_options"],
             memory_options=d["memory_options"],
         )
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, string_input):
@@ -528,8 +522,8 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        with zopen(filename) as f:
-            return cls.from_str(f.read())
+        with zopen(filename) as file:
+            return cls.from_str(file.read())
 
 
 class NwInputError(Exception):
@@ -551,8 +545,8 @@ class NwOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as f:
-            data = f.read()
+        with zopen(filename) as file:
+            data = file.read()
 
         chunks = re.split(r"NWChem Input Module", data)
         if re.search(r"CITATION", chunks[-1]):
@@ -708,8 +702,8 @@ class NwOutput:
         def fort2py(x):
             return x.replace("D", "e")
 
-        def isfloatstring(s):
-            return s.find(".") == -1
+        def isfloatstring(in_str):
+            return in_str.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False
@@ -739,7 +733,6 @@ class NwOutput:
         time = 0
 
         for line in output.split("\n"):
-            # pylint: disable=E1136
             for e, v in error_defs.items():
                 if line.find(e) != -1:
                     errors.append(v)

@@ -15,8 +15,6 @@ except requests.exceptions.ConnectionError:
 
 @unittest.skipIf(website_down, "www.crystallography.net is down.")
 class TestCOD(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     @unittest.skipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")
@@ -26,7 +24,7 @@ class TestCOD(unittest.TestCase):
     def test_get_structure_by_formula(self):
         data = COD().get_structure_by_formula("Li2O")
         assert len(data) > 15
-        assert data[0]["structure"].composition.reduced_formula == "Li2O"
+        assert data[0]["structure"].reduced_formula == "Li2O"
 
     def test_get_structure_by_id(self):
         struct = COD().get_structure_by_id(2002926)

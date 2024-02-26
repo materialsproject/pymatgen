@@ -90,8 +90,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         See http://stokes.byu.edu/iso/magneticspacegroupshelp.php for more
         information on magnetic symmetry.
 
-        :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups
+        Args:
+            label: BNS number supplied as list of 2 ints or BNS label as
+                str or index as int (1-1651) to iterate over all space groups
+            setting_transformation: Transformation to apply to convert
+                from BNS to OG setting, default is 'a,b,c;0,0,0' which
+                means no transformation, i.e. BNS setting is the same as
+                OG setting.
         """
         self._data = {}
 
@@ -116,10 +121,10 @@ class MagneticSpaceGroup(SymmetryGroup):
         raw_data = list(c.fetchone())
 
         # Jones Faithful transformation
-        self.jf = JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0")
+        self.jf = JonesFaithfulTransformation.from_transformation_str("a,b,c;0,0,0")
         if isinstance(setting_transformation, str):
             if setting_transformation != "a,b,c;0,0,0":
-                self.jf = JonesFaithfulTransformation.from_transformation_string(setting_transformation)
+                self.jf = JonesFaithfulTransformation.from_transformation_str(setting_transformation)
         elif isinstance(setting_transformation, JonesFaithfulTransformation) and setting_transformation != self.jf:
             self.jf = setting_transformation
 
@@ -282,8 +287,8 @@ class MagneticSpaceGroup(SymmetryGroup):
     def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
         """Initialize from Opechowski and Guccione (OG) label or number.
 
-        :param id: OG number supplied as list of 3 ints or
-            or OG label as str
+        Args:
+            label: OG number supplied as list of 3 ints or OG label as str
         """
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
@@ -436,7 +441,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # parse data into strings
 
         # indicate if non-standard setting specified
-        if self.jf != JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0"):
+        if self.jf != JonesFaithfulTransformation.from_transformation_str("a,b,c;0,0,0"):
             description += "Non-standard setting: .....\n"
             description += repr(self.jf)
             description += "\n\nStandard setting information: \n"
@@ -557,5 +562,5 @@ def _write_all_magnetic_space_groups_to_file(filename):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
         out += f"\n{msg.data_str()}\n\n--------\n"
-    with open(filename, "w") as f:
-        f.write(out)
+    with open(filename, mode="w") as file:
+        file.write(out)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 
 from pytest import approx
@@ -10,8 +9,7 @@ from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,
 )
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Species
+from pymatgen.core import Composition, Species
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
@@ -21,14 +19,9 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = os.path.join(
-        TEST_FILES_DIR,
-        "struct_predictor",
-    )
-
-    json_file = f"{data_dir}/test_lambda.json"
-    with open(json_file) as f:
-        return json.load(f)
+    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    with open(json_path) as file:
+        return json.load(file)
 
 
 class TestSubstitutionProbability(unittest.TestCase):
@@ -76,8 +69,8 @@ class TestSubstitutionPredictor(unittest.TestCase):
         assert result["probability"] == approx(cond_prob)
         assert set(result["substitutions"].values()) != {"Na+", "Cl-"}
 
-        c = Composition({"Ag2+": 1, "Cl-": 2})
-        result = sp.composition_prediction(c, to_this_composition=True)[2]
-        assert set(result["substitutions"].values()) == set(c.elements)
-        result = sp.composition_prediction(c, to_this_composition=False)[2]
-        assert set(result["substitutions"]) == set(c.elements)
+        comp = Composition({"Ag2+": 1, "Cl-": 2})
+        result = sp.composition_prediction(comp, to_this_composition=True)[2]
+        assert set(result["substitutions"].values()) == set(comp.elements)
+        result = sp.composition_prediction(comp, to_this_composition=False)[2]
+        assert set(result["substitutions"]) == set(comp.elements)

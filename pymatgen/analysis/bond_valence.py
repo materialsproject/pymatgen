@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import Element, Species, get_el_sp
+from pymatgen.core import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -117,13 +117,13 @@ class BVAnalyzer:
     is selected.
     """
 
-    CHARGE_NEUTRALITY_TOLERANCE = 0.00001
+    CHARGE_NEUTRALITY_TOLERANCE = 0.000_01
 
     def __init__(
         self,
         symm_tol=0.1,
         max_radius=4,
-        max_permutations=100000,
+        max_permutations=100_000,
         distance_scale_factor=1.015,
         charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
         forbidden_species=None,
@@ -181,7 +181,7 @@ class BVAnalyzer:
         try:
             prob = {k: v / sum(prob.values()) for k, v in prob.items()}
         except ZeroDivisionError:
-            prob = {key: 0 for key in prob}
+            prob = dict.fromkeys(prob, 0)
         return prob
 
     def _calc_site_probabilities_unordered(self, site, nn):
@@ -202,7 +202,7 @@ class BVAnalyzer:
             try:
                 prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
             except ZeroDivisionError:
-                prob[el] = {key: 0 for key in prob[el]}
+                prob[el] = dict.fromkeys(prob[el], 0)
         return prob
 
     def get_valences(self, structure: Structure):
@@ -331,17 +331,17 @@ class BVAnalyzer:
                 for _ in valences[idx]:
                     tmp.append(n_site)
                     attrib.append(idx)
-            new_nsites = np.array(tmp)
+            new_n_sites = np.array(tmp)
             fractions = []
             elements = []
             for sites in equi_sites:
                 for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
-            fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
+            fractions = np.array(fractions, float)  # type: ignore[assignment]
             new_valences = [val for vals in valences for val in vals]
-            valence_min = np.array([min(i) for i in new_valences], np.float_)
-            valence_max = np.array([max(i) for i in new_valences], np.float_)
+            valence_min = np.array([min(val) for val in new_valences], float)
+            valence_max = np.array([max(val) for val in new_valences], float)
 
             self._n = 0
             self._best_score = 0
@@ -377,13 +377,13 @@ class BVAnalyzer:
                 i = len(assigned)
                 highest = valence_max.copy()
                 highest[:i] = assigned
-                highest *= new_nsites
+                highest *= new_n_sites
                 highest *= fractions
                 highest = np.sum(highest)
 
                 lowest = valence_min.copy()
                 lowest[:i] = assigned
-                lowest *= new_nsites
+                lowest *= new_n_sites
                 lowest *= fractions
                 lowest = np.sum(lowest)
 

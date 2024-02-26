@@ -319,7 +319,7 @@ class ComputedEntry(Entry):
         self.parameters = parameters or {}
         self.data = data or {}
         self.entry_id = entry_id
-        self.name = self.composition.reduced_formula
+        self.name = self.reduced_formula
 
     @property
     def uncorrected_energy(self) -> float:
@@ -416,8 +416,7 @@ class ComputedEntry(Entry):
     def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
         output = [
-            f"{self.entry_id} {type(self).__name__:<10} "
-            f"- {self.composition.formula:<12} ({self.composition.reduced_formula})",
+            f"{self.entry_id} {type(self).__name__:<10} " f"- {self.formula:<12} ({self.reduced_formula})",
             f"{'Energy (Uncorrected)':<24} = {self._energy:<9.4f} eV ({self._energy / n_atoms:<8.4f} eV/atom)",
             f"{'Correction':<24} = {self.correction:<9.4f} eV ({self.correction / n_atoms:<8.4f} eV/atom)",
             f"{'Energy (Final)':<24} = {self.energy:<9.4f} eV ({self.energy_per_atom:<8.4f} eV/atom)",
@@ -652,10 +651,10 @@ class ComputedStructureEntry(ComputedEntry):
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)
-        d = super().normalize(mode).as_dict()
-        d["structure"] = self.structure.as_dict()
-        entry = self.from_dict(d)
-        entry._composition /= factor  # pylint: disable=E1101
+        dct = super().normalize(mode).as_dict()
+        dct["structure"] = self.structure.as_dict()
+        entry = self.from_dict(dct)
+        entry._composition /= factor
         return entry
 
     def copy(self) -> ComputedStructureEntry:
@@ -957,7 +956,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     def __repr__(self):
         output = [
-            f"GibbsComputedStructureEntry {self.entry_id} - {self.composition.formula}",
+            f"GibbsComputedStructureEntry {self.entry_id} - {self.formula}",
             f"Gibbs Free Energy (Formation) = {self.energy:.4f}",
         ]
         return "\n".join(output)

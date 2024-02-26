@@ -14,11 +14,14 @@ from typing import TYPE_CHECKING, Literal, cast, no_type_check
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
+import palettable
 import scipy.interpolate as scint
+from matplotlib.collections import LineCollection
+from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
@@ -99,7 +102,7 @@ class DosPlotter:
             "efermi": efermi,
         }
 
-    def add_dos_dict(self, dos_dict, key_sort_func=None):
+    def add_dos_dict(self, dos_dict, key_sort_func=None) -> None:
         """Add a dictionary of doses, with an optional sorting function for the
         keys.
 
@@ -145,9 +148,6 @@ class DosPlotter:
         """
         n_colors = min(9, max(3, len(self._doses)))
 
-        import palettable
-
-        # pylint: disable=E1101
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
@@ -239,12 +239,11 @@ class DosPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
+    def save_plot(self, filename: str, xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
@@ -253,9 +252,9 @@ class DosPlotter:
             beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
         self.get_plot(xlim, ylim, invert_axes, beta_dashed)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
-    def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
+    def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False) -> None:
         """Show the plot using matplotlib.
 
         Args:
@@ -333,12 +332,12 @@ class BSPlotter:
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i, t in enumerate(temp_ticks):
-            if i == 0:
+        for idx, t in enumerate(temp_ticks):
+            if idx == 0:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
-            elif t[1] == temp_ticks[i - 1][1]:
+            elif t[1] == temp_ticks[idx - 1][1]:
                 logger.debug(f"Skipping label {t[1]}")
             else:
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
@@ -349,18 +348,18 @@ class BSPlotter:
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(ticks["label"])):
-            if ticks["label"][i] is not None:
+        for idx, label in enumerate(ticks["label"]):
+            if label is not None:
                 # don't print the same label twice
-                if i != 0:
-                    if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
+                if idx != 0:
+                    if label == ticks["label"][idx - 1]:
+                        logger.debug(f"already print label... skipping label {ticks['label'][idx]}")
                     else:
-                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        ax.axvline(ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {ticks['distance'][idx]} for label {ticks['label'][idx]}")
+                        ax.axvline(ticks["distance"][idx], color="k")
                 else:
-                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                    ax.axvline(ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {ticks['distance'][idx]} for label {ticks['label'][idx]}")
+                    ax.axvline(ticks["distance"][idx], color="k")
         return ax
 
     @staticmethod
@@ -382,10 +381,10 @@ class BSPlotter:
         scaled_distances = []
 
         for br, br2 in zip(bs_ref.branches, bs.branches):
-            s = br["start_index"]
-            e = br["end_index"]
-            max_d = bs_ref.distance[e]
-            min_d = bs_ref.distance[s]
+            start = br["start_index"]
+            end = br["end_index"]
+            max_d = bs_ref.distance[end]
+            min_d = bs_ref.distance[start]
             s2 = br2["start_index"]
             e2 = br2["end_index"]
             np = e2 - s2
@@ -706,7 +705,7 @@ class BSPlotter:
         plt.tight_layout()
 
         # auto tight_layout when resizing or pressing t
-        def fix_layout(event):
+        def fix_layout(event) -> None:
             if (event.name == "key_press_event" and event.key == "t") or event.name == "resize_event":
                 plt.tight_layout()
                 plt.gcf().canvas.draw()
@@ -716,7 +715,7 @@ class BSPlotter:
 
         return ax
 
-    def show(self, zero_to_efermi=True, ylim=None, smooth=False, smooth_tol=None):
+    def show(self, zero_to_efermi=True, ylim=None, smooth=False, smooth_tol=None) -> None:
         """Show the plot using matplotlib.
 
         Args:
@@ -732,19 +731,18 @@ class BSPlotter:
         self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()
 
-    def save_plot(self, filename, img_format="eps", ylim=None, zero_to_efermi=True, smooth=False):
+    def save_plot(self, filename: str, ylim=None, zero_to_efermi=True, smooth=False) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): Filename to write to. Must include extension to specify image format.
             ylim: Specifies the y-axis limits.
             zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
                 Defaults to True.
             smooth: Cubic spline interpolation of the bands.
         """
         self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
         plt.close()
 
     def get_ticks(self):
@@ -768,7 +766,7 @@ class BSPlotter:
             # add latex $$
             for idx, label in enumerate(labels):
                 if label.startswith("\\") or "_" in label:
-                    labels[idx] = "$" + label + "$"
+                    labels[idx] = f"${label}$"
 
             # If next branch is not continuous,
             # join the first lbl to the previous tick label
@@ -776,7 +774,7 @@ class BSPlotter:
             # otherwise add to ticks list both new labels.
             # Similar for distances.
             if ticks and labels[0] != ticks[-1]:
-                ticks[-1] += "$\\mid$" + labels[0]
+                ticks[-1] += f"$\\mid${labels[0]}"
                 ticks.append(labels[1])
                 distance.append(bs.distance[end])
             else:
@@ -809,15 +807,15 @@ class BSPlotter:
                 if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
+                        label1 = f"${label1}$"
                     label0 = previous_label
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
                 elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"${c.label}$")
                 else:
                     tick_labels.append(c.label)
                 previous_label = c.label
@@ -840,8 +838,6 @@ class BSPlotter:
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
         # TODO: add exception if the band structures are not compatible
-        import matplotlib.lines as mlines
-
         ax = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -898,7 +894,7 @@ class BSPlotterProjected(BSPlotter):
     projected along orbitals, elements or sites.
     """
 
-    def __init__(self, bs):
+    def __init__(self, bs) -> None:
         """
         Args:
             bs: A BandStructureSymmLine object with projections.
@@ -980,11 +976,10 @@ class BSPlotterProjected(BSPlotter):
         if self._bs.is_metal():
             e_min = -10
             e_max = 10
-        count = 1
 
         for el in dictio:
-            for o in dictio[el]:
-                ax = plt.subplot(fig_rows + fig_cols + count)
+            for idx, key in enumerate(dictio[el], 1):
+                ax = plt.subplot(fig_rows + fig_cols + idx)
                 self._make_ticks(ax)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
@@ -1006,14 +1001,14 @@ class BSPlotterProjected(BSPlotter):
                                     data["distances"][b][j],
                                     data["energy"][str(Spin.down)][b][i][j],
                                     "ro",
-                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][o] * 15.0,
+                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][key] * 15.0,
                                 )
                         for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             ax.plot(
                                 data["distances"][b][j],
                                 data["energy"][str(Spin.up)][b][i][j],
                                 "bo",
-                                markersize=proj[b][str(Spin.up)][i][j][str(el)][o] * 15.0,
+                                markersize=proj[b][str(Spin.up)][i][j][str(el)][key] * 15.0,
                             )
                 if ylim is None:
                     if self._bs.is_metal():
@@ -1032,19 +1027,18 @@ class BSPlotterProjected(BSPlotter):
                         ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
                     ax.set_ylim(ylim)
-                ax.set_title(f"{el} {o}")
-                count += 1
-        return ax
+                ax.set_title(f"{el} {key}")
+        return plt.gcf().axes
 
     @no_type_check
     def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
         """Method returning a plot composed of subplots along different elements.
 
         Returns:
-            a pyplot object with different subfigures for each projection
-            The blue and red colors are for spin up and spin down
-            The bigger the red or blue dot in the band structure the higher
-            character for the corresponding element and orbital
+            np.ndarray[plt.Axes]: 2x2 array of plt.Axes with different subfigures for each projection
+                The blue and red colors are for spin up and spin down
+                The bigger the red or blue dot in the band structure the higher
+                character for the corresponding element and orbital
         """
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
@@ -1054,9 +1048,8 @@ class BSPlotterProjected(BSPlotter):
         e_min, e_max = -4, 4
         if self._bs.is_metal():
             e_min, e_max = -10, 10
-        count = 1
-        for el in self._bs.structure.elements:
-            plt.subplot(220 + count)
+        for idx, el in enumerate(self._bs.structure.elements, 1):
+            ax = plt.subplot(220 + idx)
             self._make_ticks(ax)
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
@@ -1120,9 +1113,8 @@ class BSPlotterProjected(BSPlotter):
             else:
                 ax.set_ylim(ylim)
             ax.set_title(str(el))
-            count += 1
 
-        return ax
+        return axs
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """Returns a pyplot plot object with one plot where the band structure
@@ -1530,9 +1522,9 @@ class BSPlotterProjected(BSPlotter):
                 result, correct index numbers of atoms.
             sum_atoms: Sum projection of the similar atoms together (e.g.: Cu
                 on site-1 and Cu on site-5). The format is {Element: [Site numbers]}, for instance:
-                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
-                 site-5 and O on site-3 and on site-4. If you do not want to use this functional,
-                 just turn it off by setting sum_atoms = None.
+                {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
+                site-5 and O on site-3 and on site-4. If you do not want to use this functional,
+                just turn it off by setting sum_atoms = None.
             sum_morbs: Sum projections of individual orbitals of similar atoms
                 together (e.g.: 'dxy' and 'dxz'). The format is {Element: [individual orbitals]},
                 for instance: {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections
@@ -1745,7 +1737,7 @@ class BSPlotterProjected(BSPlotter):
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
-                            if orb in individual_orbs and len(set(sum_morbs[elt]) & individual_orbs[orb]) != 0:
+                            if orb in individual_orbs and len(set(sum_morbs[elt]) & set(individual_orbs[orb])) != 0:
                                 raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
@@ -1826,10 +1818,6 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from collections import Counter
-
-        from pymatgen.core.periodic_table import Element
-
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
         if len(dictpa) == 0:
@@ -1841,7 +1829,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
@@ -1888,7 +1876,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for i in range(len(_sites)):  # pylint: disable=C0200
+                        for i in range(len(_sites)):
                             if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
@@ -1954,8 +1942,6 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core.periodic_table import Element
-
         individual_orbs = {
             "p": ["px", "py", "pz"],
             "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
@@ -1997,7 +1983,7 @@ class BSPlotterProjected(BSPlotter):
                     label += elem + ","
                 else:
                     orb_label = [orb[1:] for orb in orbs]
-                    label += f"{elem}{str(orb_label).replace('[' , '').replace(']' , '').replace(', ', '-')},"
+                    label += f"{elem}{str(orb_label).replace('[', '').replace(']', '').replace(', ', '-')},"
             return label[:-1]
 
         if sum_atoms is None and sum_morbs is None:
@@ -2012,7 +1998,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2061,7 +2047,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2111,22 +2097,17 @@ class BSPlotterProjected(BSPlotter):
             else:
                 n_label.append([label[branch].split("$")[-1], label[branch + 1].split("$")[0]])
 
-        f_distance = []
-        rf_distance = []
-        f_label = []
-        f_label.append(n_label[0][0])
-        f_label.append(n_label[0][1])
-        f_distance.append(0.0)
-        f_distance.append(n_distance[0])
-        rf_distance.append(0.0)
-        rf_distance.append(n_distance[0])
+        f_distance: list[float] = []
+        rf_distance: list[float] = []
+        f_label: list[str] = []
+        f_label.extend((n_label[0][0], n_label[0][1]))
+        f_distance.extend((0.0, n_distance[0]))
+        rf_distance.extend((0.0, n_distance[0]))
         length = n_distance[0]
         for i in range(1, len(n_distance)):
             if n_label[i][0] == n_label[i - 1][1]:
-                f_distance.append(length)
-                f_distance.append(length + n_distance[i])
-                f_label.append(n_label[i][0])
-                f_label.append(n_label[i][1])
+                f_distance.extend((length, length + n_distance[i]))
+                f_label.extend((n_label[i][0], n_label[i][1]))
             else:
                 f_distance.append(length + n_distance[i])
                 f_label[-1] = n_label[i - 1][1] + "$\\mid$" + n_label[i][0]
@@ -2134,10 +2115,9 @@ class BSPlotterProjected(BSPlotter):
             rf_distance.append(length + n_distance[i])
             length += n_distance[i]
 
-        n_ticks = {"distance": f_distance, "label": f_label}
         uniq_d = []
         uniq_l = []
-        temp_ticks = list(zip(n_ticks["distance"], n_ticks["label"]))
+        temp_ticks = list(zip(f_distance, f_label))
         for i, t in enumerate(temp_ticks):
             if i == 0:
                 uniq_d.append(t[0])
@@ -2154,18 +2134,18 @@ class BSPlotterProjected(BSPlotter):
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(n_ticks["label"])):
-            if n_ticks["label"][i] is not None:
+        for i in range(len(f_label)):
+            if f_label[i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if n_ticks["label"][i] == n_ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
+                    if f_label[i] == f_label[i - 1]:
+                        logger.debug(f"already print label... skipping label {f_label[i]}")
                     else:
-                        logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                        ax.axvline(n_ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                        ax.axvline(f_distance[i], color="k")
                 else:
-                    logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                    ax.axvline(n_ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                    ax.axvline(f_distance[i], color="k")
 
         shift = []
         br = -1
@@ -2247,10 +2227,6 @@ class BSDOSPlotter:
         Returns:
             plt.Axes | tuple[plt.Axes, plt.Axes]: matplotlib axes for the band structure and DOS, resp.
         """
-        import matplotlib.lines as mlines
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
         if dos:
@@ -2295,16 +2271,16 @@ class BSDOSPlotter:
 
             # add $ notation for LaTeX kpoint labels
             if left_k[0] == "\\" or "_" in left_k:
-                left_k = "$" + left_k + "$"
+                left_k = f"${left_k}$"
             if right_k[0] == "\\" or "_" in right_k:
-                right_k = "$" + right_k + "$"
+                right_k = f"${right_k}$"
 
             # add left k label to list of labels
             if prev_right_klabel is None:
                 xlabels.append(left_k)
                 xlabel_distances.append(0)
             elif prev_right_klabel != left_k:  # used for pipe separator
-                xlabels[-1] = xlabels[-1] + "$\\mid$ " + left_k
+                xlabels[-1] = f"{xlabels[-1]}$\\mid$ {left_k}"
 
             # add right k label to list of labels
             xlabels.append(right_k)
@@ -2507,7 +2483,7 @@ class BSDOSPlotter:
         return bs_ax
 
     @staticmethod
-    def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
+    def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid") -> None:
         """An RGB colored line for plotting.
         creation of segments based on:
         http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb.
@@ -2522,16 +2498,14 @@ class BSDOSPlotter:
             alpha: alpha values data
             linestyles: linestyle for plot (e.g., "solid" or "dotted").
         """
-        from matplotlib.collections import LineCollection
-
-        pts = np.array([k, e]).T.reshape(-1, 1, 2)  # pylint: disable=E1121
+        pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         nseg = len(k) - 1
         r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
         g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
         b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
-        a = np.ones(nseg, np.float_) * alpha
+        a = np.ones(nseg, float) * alpha
         lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
@@ -2591,7 +2565,7 @@ class BSDOSPlotter:
         return contribs
 
     @staticmethod
-    def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc):
+    def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc) -> None:
         """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
@@ -2625,23 +2599,16 @@ class BSDOSPlotter:
         inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(
-            0.70, -0.2, m_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="left"
-        )
-        inset_ax.text(
-            0.325, 0.70, c_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="center"
-        )
-        inset_ax.text(
-            -0.05, -0.2, y_label, fontsize=13, family="Times New Roman", color=(0, 0, 0), horizontalalignment="right"
-        )
-        inset_ax.text(
-            0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
-        )
+        common = dict(fontsize=13, family="Times New Roman")
+        inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
+        inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
+        inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")
+        inset_ax.text(0.325, 0.22, k_label, **common, color=(1, 1, 1), horizontalalignment="center")
 
         inset_ax.axis("off")
 
     @staticmethod
-    def _rgb_triangle(ax, r_label, g_label, b_label, loc):
+    def _rgb_triangle(ax, r_label, g_label, b_label, loc) -> None:
         """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
@@ -2670,12 +2637,12 @@ class BSDOSPlotter:
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)  # pylint: disable=E1101
-        inset_ax.set_xlim([-0.35, 1.00])  # pylint: disable=E1101
-        inset_ax.set_ylim([-0.35, 1.00])  # pylint: disable=E1101
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.70,
             -0.2,
             g_label,
@@ -2684,7 +2651,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="left",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.325,
             0.70,
             r_label,
@@ -2693,7 +2660,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="center",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             -0.05,
             -0.2,
             b_label,
@@ -2706,7 +2673,7 @@ class BSDOSPlotter:
         inset_ax.axis("off")
 
     @staticmethod
-    def _rb_line(ax, r_label, b_label, loc):
+    def _rb_line(ax, r_label, b_label, loc) -> None:
         # Draw an rb bar legend on the desired axis
 
         if loc not in range(1, 11):
@@ -2724,7 +2691,7 @@ class BSDOSPlotter:
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
-        # pylint: disable=E1101
+
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(
@@ -2755,14 +2722,14 @@ class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
     """class containing methods to plot the data from Boltztrap."""
 
-    def __init__(self, bz):
+    def __init__(self, bz) -> None:
         """
         Args:
             bz: a BoltztrapAnalyzer object.
         """
         self._bz = bz
 
-    def _plot_doping(self, plt, temp):
+    def _plot_doping(self, plt, temp) -> None:
         if len(self._bz.doping) != 0:
             limit = 2.21e15
             plt.axvline(self._bz.mu_doping["n"][temp][0], linewidth=3.0, linestyle="--")
@@ -2794,7 +2761,7 @@ class BoltztrapPlotter:
                 color="b",
             )
 
-    def _plot_bg_limits(self, plt):
+    def _plot_bg_limits(self, plt) -> None:
         plt.axvline(0.0, color="k", linewidth=3.0)
         plt.axvline(self._bz.gap, color="k", linewidth=3.0)
 
@@ -3080,15 +3047,15 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(sbk["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 sbk_temp = []
                 for temp in tlist:
-                    sbk_temp.append(sbk[dt][temp][d])
+                    sbk_temp.append(sbk[doping_type][temp][dop_idx])
                 if output == "average":
-                    ax.plot(tlist, sbk_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
@@ -3097,13 +3064,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "lower right" if i == 0 else "best"
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3133,13 +3099,13 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(cond["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 cond_temp = []
                 for temp in tlist:
-                    cond_temp.append(cond[dt][temp][d])
+                    cond_temp.append(cond[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, cond_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
@@ -3150,13 +3116,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3187,15 +3152,15 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(pf["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 pf_temp = []
                 for temp in tlist:
-                    pf_temp.append(pf[dt][temp][d])
+                    pf_temp.append(pf[doping_type][temp][dop_idx])
                 if output == "average":
-                    ax.plot(tlist, pf_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
@@ -3204,13 +3169,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3242,13 +3206,13 @@ class BoltztrapPlotter:
         ax = pretty_plot(22, 14)
         tlist = sorted(zt["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, doping_type in enumerate(["n", "p"]):
+            plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
+                dop_idx = self._bz.doping[doping_type].index(dop)
                 zt_temp = []
                 for temp in tlist:
-                    zt_temp.append(zt[dt][temp][d])
+                    zt_temp.append(zt[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, zt_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
@@ -3259,13 +3223,12 @@ class BoltztrapPlotter:
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{doping_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("zT", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
             ax.set_yticks(fontsize=25)
@@ -3294,23 +3257,22 @@ class BoltztrapPlotter:
         ax_main = pretty_plot(22, 14)
         tlist = sorted(eff_mass["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, dt in enumerate(["n", "p"]):
+        for idx, doping_type in enumerate(["n", "p"]):
             ax = plt.subplot(121 + idx)
             for dop in doping:
-                d = self._bz.doping[dt].index(dop)
-                em_temp = [eff_mass[dt][temp][d] for temp in tlist]
+                dop_idx = self._bz.doping[doping_type].index(dop)
+                em_temp = [eff_mass[doping_type][temp][dop_idx] for temp in tlist]
                 if output == "average":
                     ax.plot(tlist, em_temp, marker="s", label=f"{dop} $cm^{{-3}}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(tlist, list(zip(*em_temp))[xyz], marker="s", label=f"{xyz} {dop} $cm^{{-3}}$")
-            ax.set_title(dt + "-type", fontsize=20)
+            ax.set_title(f"{doping_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
-            p = "best"  # 'lower right' if i == 0 else ''
-            ax.legend(loc=p, fontsize=15)
+            ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.tick_params(labelsize=25)
 
@@ -3322,7 +3284,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
 
@@ -3367,7 +3329,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3416,7 +3378,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3462,7 +3424,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3513,7 +3475,7 @@ class BoltztrapPlotter:
 
         Args:
             temps: the default 'all' plots all the temperatures in the analyzer.
-                   Specify a list of temperatures if you want to plot only some.
+                Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
@@ -3624,7 +3586,7 @@ class CohpPlotter:
     DosPlotter object.
     """
 
-    def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False):
+    def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False) -> None:
         """
         Args:
             zero_at_efermi: Whether to shift all populations to have zero
@@ -3637,9 +3599,9 @@ class CohpPlotter:
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self._cohps = {}
+        self._cohps: dict[str, dict[str, np.ndarray | dict[Spin, np.ndarray] | float]] = {}
 
-    def add_cohp(self, label, cohp):
+    def add_cohp(self, label, cohp) -> None:
         """Adds a COHP for plotting.
 
         Args:
@@ -3657,7 +3619,7 @@ class CohpPlotter:
             "efermi": cohp.efermi,
         }
 
-    def add_cohp_dict(self, cohp_dict, key_sort_func=None):
+    def add_cohp_dict(self, cohp_dict, key_sort_func=None) -> None:
         """Adds a dictionary of COHPs with an optional sorting function
         for the keys.
 
@@ -3722,17 +3684,15 @@ class CohpPlotter:
             plot_negative = (not self.are_coops) and (not self.are_cobis)
 
         if integrated:
-            cohp_label = "I" + cohp_label + " (eV)"
+            cohp_label = f"I{cohp_label} (eV)"
 
         if plot_negative:
-            cohp_label = "-" + cohp_label
+            cohp_label = f"-{cohp_label}"
 
         energy_label = "$E - E_f$ (eV)" if self.zero_at_efermi else "$E$ (eV)"
 
         ncolors = max(3, len(self._cohps))
         ncolors = min(9, ncolors)
-
-        import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
@@ -3817,21 +3777,20 @@ class CohpPlotter:
         plt.tight_layout()
         return ax
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+    def save_plot(self, filename: str, xlim=None, ylim=None) -> None:
         """Save matplotlib plot to a file.
 
         Args:
-            filename: File name to write to.
-            img_format: Image format to use. Defaults to EPS.
+            filename (str): File name to write to. Must include extension to specify image format.
             xlim: Specifies the x-axis limits. Defaults to None for
                 automatic determination.
             ylim: Specifies the y-axis limits. Defaults to None for
                 automatic determination.
         """
         self.get_plot(xlim, ylim)
-        plt.savefig(filename, format=img_format)
+        plt.savefig(filename)
 
-    def show(self, xlim=None, ylim=None):
+    def show(self, xlim=None, ylim=None) -> None:
         """Show the plot using matplotlib.
 
         Args:
@@ -3941,9 +3900,9 @@ def plot_fermi_surface(
 
     if mlab_figure is None and not multiple_figure:
         fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
-        for iface in range(len(bz)):  # pylint: disable=C0200
+        for iface in range(len(bz)):
             for line in itertools.combinations(bz[iface], 2):
-                for jface in range(len(bz)):  # pylint: disable=C0200
+                for jface in range(len(bz)):
                     if (
                         iface < jface
                         and any(np.all(line[0] == x) for x in bz[jface])
@@ -3977,7 +3936,7 @@ def plot_fermi_surface(
         if multiple_figure:
             fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
 
-            for iface in range(len(bz)):  # pylint: disable=C0200
+            for iface in range(len(bz)):
                 for line in itertools.combinations(bz[iface], 2):
                     for jface in range(len(bz)):
                         if (
@@ -4053,7 +4012,7 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
     kwargs.setdefault("linewidth", 1)
 
     bz = lattice.get_wigner_seitz_cell()
-    for iface in range(len(bz)):  # pylint: disable=C0200
+    for iface in range(len(bz)):
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
                 if (
@@ -4158,7 +4117,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
     for k, coords in labels.items():
         label = k
         if k.startswith("\\") or k.find("_") != -1:
-            label = "$" + k + "$"
+            label = f"${k}$"
         off = 0.01
         if coords_are_cartesian:
             coords = np.array(coords)
@@ -4243,7 +4202,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
+def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs) -> plt.Axes:
     """Gives the plot (as a matplotlib object) of the symmetry line path in
         the Brillouin Zone.
 
@@ -4253,8 +4212,7 @@ def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
-        matplotlib figure
-
+        plt.Axes: matplotlib Axes
     """
     lines = [[kpath.kpath["kpoints"][k] for k in p] for p in kpath.kpath["path"]]
     return plot_brillouin_zone(
@@ -4381,7 +4339,7 @@ def plot_ellipsoid(
 
     # calculate the ellipsoid
     # find the rotation matrix and radii of the axes
-    U, s, rotation = np.linalg.svd(hessian)
+    _U, s, rotation = np.linalg.svd(hessian)
     radii = 1.0 / np.sqrt(s)
 
     # from polar coordinates

@@ -6,7 +6,6 @@ from collections import namedtuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
-from monty.string import is_string
 
 from pymatgen.core.libxcfunc import LibxcFunc
 
@@ -122,7 +121,7 @@ class XcFunc(MSONable):
         """Convert object into Xcfunc."""
         if isinstance(obj, cls):
             return obj
-        if is_string(obj):
+        if isinstance(obj, str):
             return cls.from_name(obj)
         raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
 
@@ -174,13 +173,8 @@ class XcFunc(MSONable):
         xc = LibxcFunc[name]
         return cls(xc=xc)
 
-    @classmethod
-    def from_dict(cls, d):
-        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
-        return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
-
     def as_dict(self):
-        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
+        """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             dct["x"] = self.x.as_dict()
@@ -190,7 +184,12 @@ class XcFunc(MSONable):
             dct["xc"] = self.xc.as_dict()
         return dct
 
-    def __init__(self, xc=None, x=None, c=None):
+    @classmethod
+    def from_dict(cls, dct):
+        """Deserialize from MSONable dict representation."""
+        return cls(xc=dct.get("xc"), x=dct.get("x"), c=dct.get("c"))
+
+    def __init__(self, xc=None, x=None, c=None) -> None:
         """
         Args:
             xc: LibxcFunc for XC functional.

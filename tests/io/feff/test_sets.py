@@ -7,7 +7,6 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.core.structure import Lattice, Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -30,7 +29,7 @@ TITLE sites: 4
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
-        cls.structure = CifParser(cif_file).get_structures()[0]
+        cls.structure = Structure.from_file(cif_file, primitive=True)
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
 
@@ -52,18 +51,19 @@ TITLE sites: 4
         assert tags["COREHOLE"] == "FSR", "Failed to generate PARAMETERS string"
 
     def test_get_feff_pot(self):
-        POT = str(self.mp_xanes.potential)
-        d, dr = Potential.pot_dict_from_string(POT)
-        assert d["Co"] == 1, "Wrong symbols read in for Potential"
+        potential = str(self.mp_xanes.potential)
+        dct, dr = Potential.pot_dict_from_str(potential)
+        assert dct["Co"] == 1, "Wrong symbols read in for Potential"
+        assert dr == {0: "O", 1: "Co", 2: "O"}
 
     def test_get_feff_atoms(self):
         atoms = str(self.mp_xanes.atoms)
         assert atoms.splitlines()[3].split()[4] == self.absorbing_atom, "failed to create ATOMS string"
 
     def test_to_and_from_dict(self):
-        f1_dict = self.mp_xanes.as_dict()
-        f2 = MPXANESSet.from_dict(f1_dict)
-        assert f1_dict == f2.as_dict()
+        dct = self.mp_xanes.as_dict()
+        xanes_set = MPXANESSet.from_dict(dct)
+        assert dct == xanes_set.as_dict(), "round trip as_dict failed"
 
     def test_user_tag_settings(self):
         tags_dict_ans = self.mp_xanes.tags.as_dict()
@@ -74,7 +74,7 @@ TITLE sites: 4
         assert mp_xanes_2.tags.as_dict() == tags_dict_ans
 
     def test_eels_to_from_dict(self):
-        elnes = MPELNESSet(
+        elnes_set = MPELNESSet(
             self.absorbing_atom,
             self.structure,
             radius=5.0,
@@ -83,7 +83,7 @@ TITLE sites: 4
             collection_angle=7,
             convergence_angle=6,
         )
-        elnes_dict = elnes.as_dict()
+        elnes_dict = elnes_set.as_dict()
         elnes_2 = MPELNESSet.from_dict(elnes_dict)
         assert elnes_dict == elnes_2.as_dict()
 
@@ -120,11 +120,11 @@ TITLE sites: 4
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
         xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
-        m = Molecule.from_file(xyz)
-        m.set_charge_and_spin(-7)
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
         with pytest.warns(UserWarning, match="ION tags"):
-            MPXANESSet("Zn", m)
+            MPXANESSet("Zn", mol)
         struct = self.structure.copy()
         struct.set_charge(1)
         with pytest.raises(ValueError, match="not supported"):
@@ -141,15 +141,12 @@ TITLE sites: 4
         all_input = elnes.all_input()
         assert "ATOMS" not in all_input
         assert "POTENTIALS" not in all_input
-        elnes.write_input()
+        elnes.write_input(output_dir=self.tmp_path)
         structure = Structure.from_file("Co2O2.cif")
         assert self.structure.matches(structure)
-        os.remove("HEADER")
-        os.remove("PARAMETERS")
-        os.remove("feff.inp")
-        os.remove("Co2O2.cif")
+        assert {*os.listdir()} == {"Co2O2.cif", "HEADER", "PARAMETERS", "feff.inp"}
 
-    def test_small_system_EXAFS(self):
+    def test_small_system_exafs(self):
         exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
         assert not exafs_settings.small_system
         assert "RECIPROCAL" not in exafs_settings.tags
@@ -208,11 +205,11 @@ TITLE sites: 4
         assert "RECIPROCAL" in feff_reci_input.tags
 
         feff_reci_input.write_input(f"{self.tmp_path}/Dup_reci")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/HEADER")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/feff.inp")
-        assert os.path.exists(f"{self.tmp_path}/Dup_reci/PARAMETERS")
-        assert not os.path.exists(f"{self.tmp_path}/Dup_reci/ATOMS")
-        assert not os.path.exists(f"{self.tmp_path}/Dup_reci/POTENTIALS")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/HEADER")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/feff.inp")
+        assert os.path.isfile(f"{self.tmp_path}/Dup_reci/PARAMETERS")
+        assert not os.path.isfile(f"{self.tmp_path}/Dup_reci/ATOMS")
+        assert not os.path.isfile(f"{self.tmp_path}/Dup_reci/POTENTIALS")
 
         tags_original = Tags.from_file(f"{self.tmp_path}/xanes_reci/feff.inp")
         tags_output = Tags.from_file(f"{self.tmp_path}/Dup_reci/feff.inp")
@@ -257,11 +254,14 @@ TITLE sites: 4
                 "RPATH": "-1",
             },
         )
-        assert str(dict_set) is not None
+        assert str(dict_set).startswith(
+            "EXAFS\nS02 = 0\nCOREHOLE = regular\nCONTROL = 1 1 1 1 1 1\nXANES = 4 0.04 0.1\nSCF = 7.0 0 100 0.2 3\n"
+            "FMS = 9.0 0\nEXCHANGE = 0 0.0 0.0 2\nRPATH = -1\nEDGE = K\n"
+        )
 
     def test_cluster_index(self):
         # https://github.com/materialsproject/pymatgen/pull/3256
         cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
-        structure = CifParser(cif_file).get_structures()[0]
+        structure = Structure.from_file(cif_file)
         for idx in range(len(structure.species)):
             assert Atoms(structure, idx, 3).cluster

@@ -144,7 +144,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         Returns:
             List of valid dir/file paths for assimilation
         """
-        (parent, subdirs, files) = path
+        parent, subdirs, _files = path
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (
@@ -195,8 +195,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def __init__(self, inc_structure=False):
         """
         Args:
-            inc_structure (bool): Set to True if you want
-                ComputedStructureEntries to be returned instead of
+            inc_structure (bool): Set to True if you want ComputedStructureEntries to be returned instead of
                 ComputedEntries. Structure will be parsed from the CONTCAR.
         """
         self._inc_structure = inc_structure
@@ -225,7 +224,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 for filename in filenames:
                     files = sorted(glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or len(files) == 1 and filename == "DYNMAT":
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or (len(files) == 1 and filename == "DYNMAT"):
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -382,7 +381,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         Returns:
             List of valid dir/file paths for assimilation
         """
-        parent, subdirs, files = path
+        parent, _subdirs, files = path
         return [os.path.join(parent, f) for f in files if os.path.splitext(f)[1] in self._file_extensions]
 
     def __str__(self):
@@ -418,8 +417,8 @@ def _get_transformation_history(path):
     trans_json = glob(f"{path}/transformations.json*")
     if trans_json:
         try:
-            with zopen(trans_json[0]) as f:
-                return json.load(f)["history"]
+            with zopen(trans_json[0]) as file:
+                return json.load(file)["history"]
         except Exception:
             return None
     return None

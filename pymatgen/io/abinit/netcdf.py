@@ -1,5 +1,5 @@
 #
-# pylint: disable=no-member
+
 """Wrapper for netCDF readers."""
 
 from __future__ import annotations
@@ -36,25 +36,25 @@ __status__ = "Development"
 __date__ = "Feb 21, 2013M"
 
 
-def _asreader(file, cls):
-    closeit = False
+def _as_reader(file, cls):
+    close_it = False
     if not isinstance(file, cls):
-        file, closeit = cls(file), True
-    return file, closeit
+        file, close_it = cls(file), True
+    return file, close_it
 
 
 def as_ncreader(file):
     """
     Convert file into a NetcdfReader instance.
-    Returns reader, closeit where closeit is set to True
+    Returns reader, close_it where close_it is set to True
     if we have to close the file before leaving the procedure.
     """
-    return _asreader(file, NetcdfReader)
+    return _as_reader(file, NetcdfReader)
 
 
 def as_etsfreader(file):
-    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
-    return _asreader(file, ETSF_Reader)
+    """Return an EtsfReader. Accepts filename or EtsfReader."""
+    return _as_reader(file, EtsfReader)
 
 
 class NetcdfReaderError(Exception):
@@ -91,7 +91,7 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
+        self.rootgrp.set_auto_mask(False)
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -218,22 +218,22 @@ class NetcdfReader:
         Read a list of variables/dimensions from file. If a key is not present the corresponding
         entry in the output dictionary is set to None.
         """
-        od = dict_cls()
-        for k in keys:
+        dct = dict_cls()
+        for key in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(k, path=path)
+                dct[key] = self.read_value(key, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(k, path=path)
+                    dct[key] = self.read_dimvalue(key, path=path)
                 except self.Error:
-                    od[k] = None
+                    dct[key] = None
 
-        return od
+        return dct
 
 
-class ETSF_Reader(NetcdfReader):
+class EtsfReader(NetcdfReader):
     """
     This object reads data from a file written according to the ETSF-IO specifications.
 
@@ -251,7 +251,7 @@ class ETSF_Reader(NetcdfReader):
 
         return symbols
 
-    def typeidx_from_symbol(self, symbol):
+    def type_idx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
@@ -302,7 +302,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         site_properties: Dictionary with site properties.
         cls: The Structure class to instantiate.
     """
-    ncdata, closeit = as_ncreader(ncdata)
+    ncdata, close_it = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
     lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
@@ -337,14 +337,14 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     except ImportError:
         pass
 
-    if closeit:
+    if close_it:
         ncdata.close()
 
     return structure
 
 
 class _H:
-    __slots__ = ("name", "doc", "etsf_name")
+    __slots__ = ("doc", "etsf_name", "name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
@@ -457,10 +457,6 @@ class AbinitHeader(AttrDict):
     def __str__(self):
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, verbose=0, title=None, **kwargs):
         """
         String representation. kwargs are passed to `pprint.pformat`.
@@ -471,7 +467,11 @@ class AbinitHeader(AttrDict):
         """
         from pprint import pformat
 
-        s = pformat(self, **kwargs)
+        header_str = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join([marquee(title, mark="="), s])
-        return s
+            return "\n".join([marquee(title, mark="="), header_str])
+        return header_str
+
+    # to_string alias required for backwards compatibility
+    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
+    to_string = to_str
