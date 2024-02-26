@@ -513,17 +513,8 @@ class Atoms(MSONable):
         for idx, site in enumerate(self._cluster[1:]):
             site_symbol = site.specie.symbol
             ipot = self.pot_dict[site_symbol]
-            lines.append(
-                [
-                    f"{site.x}",
-                    f"{site.y}",
-                    f"{site.z}",
-                    ipot,
-                    site_symbol,
-                    f"{self._cluster.get_distance(0, idx + 1)}",
-                    idx + 1,
-                ]
-            )
+            dist = self._cluster.get_distance(0, idx + 1)
+            lines += [[f"{site.x}", f"{site.y}", f"{site.z}", ipot, site_symbol, f"{dist}", idx + 1]]
 
         # sort by distance from absorbing atom
         return sorted(lines, key=lambda line: float(line[5]))
