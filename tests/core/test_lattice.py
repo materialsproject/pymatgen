@@ -247,7 +247,9 @@ class LatticeTestCase(PymatgenTest):
         scale = np.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]])
 
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
-        (aligned_out, rot_out, scale_out) = latt2.find_mapping(latt)
+        mapping = latt2.find_mapping(latt)
+        assert isinstance(mapping, tuple)
+        aligned_out, rot_out, scale_out = mapping
         assert abs(np.linalg.det(rot)) == approx(1)
 
         rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)

@@ -954,9 +954,7 @@ class Lattice(MSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix=skip_rotation_matrix):
-            return x
-        return None
+        return next(self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix), None)
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
         """:param delta: Delta parameter.
