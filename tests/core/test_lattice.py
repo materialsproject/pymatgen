@@ -230,6 +230,14 @@ class LatticeTestCase(PymatgenTest):
         ]
         assert_allclose(latt.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
 
+        latt = Lattice([-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229])
+        expected = [
+            [-0.8849, -0.718, 0.1464],
+            [0.1878, 0.7571, 0.902],
+            [-0.4468, 0.4295, -1.0255],
+        ]
+        assert_allclose(latt.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
         latt = Lattice(m)
