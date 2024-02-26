@@ -201,9 +201,7 @@ class BaderAnalysis:
             "github.com/materialsproject/pymatgen/issues/3652 for details."
         )
     )
-    def _parse_atomic_densities(
-        self,
-    ):
+    def _parse_atomic_densities(self):
         # Deprecation tracker
         if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
             raise RuntimeError("This method should have been removed, see #3656.")
