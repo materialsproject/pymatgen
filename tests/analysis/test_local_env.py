@@ -112,7 +112,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
-        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure(np.eye(3), ["Cu"], [[0, 0, 0]])
 
         # Get the 1NN shell
         self.nn.targets = None
@@ -155,7 +155,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
-        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure(np.eye(3), ["Cu"], [[0, 0, 0]])
 
         # Compute the NNs with adjacency
         self.nn.targets = None
@@ -217,7 +217,7 @@ class TestVoronoiNN(PymatgenTest):
 
         # Make a bcc crystal
         bcc = Structure(
-            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            np.eye(3),
             ["Cu", "Cu"],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
             coords_are_cartesian=False,
@@ -509,7 +509,7 @@ class TestMotifIdentification(PymatgenTest):
             site_properties=None,
         )
         self.square_pyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            Lattice(np.eye(3) * 100),
             ["C", "C", "C", "C", "C", "C"],
             [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1]],
             validate_proximity=False,
@@ -518,7 +518,7 @@ class TestMotifIdentification(PymatgenTest):
             site_properties=None,
         )
         self.trigonal_bipyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            Lattice(np.eye(3) * 100),
             ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
             [
                 [0, 0, 0],

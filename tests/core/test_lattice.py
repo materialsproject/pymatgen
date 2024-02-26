@@ -330,7 +330,7 @@ class LatticeTestCase(PymatgenTest):
             assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
 
     def test_dot_and_norm(self):
-        frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        frac_basis = np.eye(3)
 
         for lattice in self.families.values():
             assert_allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)

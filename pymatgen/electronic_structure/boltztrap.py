@@ -328,7 +328,7 @@ class BoltztrapRunner(MSONable):
             if self._symprec is not None:
                 ops = sym.get_symmetry_dataset()["rotations"]
             elif self._symprec is None:
-                ops = [[[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
+                ops = [np.eye(3)]
             file.write(f"{len(ops)}\n")
 
             for op in ops:

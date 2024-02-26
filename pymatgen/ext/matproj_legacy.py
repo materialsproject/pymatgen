@@ -1096,8 +1096,8 @@ class _MPResterLegacy:
             MPRestError
         """
         snl = snl if isinstance(snl, list) else [snl]
-        jsondata = [s.as_dict() for s in snl]
-        payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
+        json_data = [s.as_dict() for s in snl]
+        payload = {"snl": json.dumps(json_data, cls=MontyEncoder)}
         response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
         if response.status_code in [200, 400]:
             resp = json.loads(response.text, cls=MontyDecoder)
