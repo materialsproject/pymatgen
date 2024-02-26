@@ -995,9 +995,9 @@ class KPathSeek(KPathBase):
         if sub_class == "oI3":
             return np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
         if sub_class == "oA2":
-            return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
+            return np.diag((-1, 1, -1))
         if sub_class == "oC2":
-            return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
+            return np.diag((-1, 1, -1))
         if sub_class in ["mP1", "mC1", "mC2", "mC3"]:
             return np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
         raise RuntimeError("Sub-classification of crystal not found!")

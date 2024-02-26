@@ -1108,7 +1108,7 @@ class Lattice(MSONable):
                 i = -1 if ll == -1 else 1
                 j = -1 if m == -1 else 1
                 k = -1 if n == -1 else 1
-                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
             elif ll * m * n in (0, -1):
                 # A4
@@ -1123,7 +1123,7 @@ class Lattice(MSONable):
                         j = -1
                     elif ll == 0:
                         i = -1
-                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
 
             A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]

@@ -485,7 +485,7 @@ class TestIStructure(PymatgenTest):
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice(np.eye(3))
-        l2 = Lattice([[-1.01, 0, 0], [0, -1.01, 0], [0, 0, 1]])
+        l2 = Lattice(np.diag((-1.01, -1.01, 1)))
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct1 = IStructure(l1, ["Si"] * 2, coords)
         struct2 = IStructure(l2, ["Si"] * 2, coords)

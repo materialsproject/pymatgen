@@ -1836,7 +1836,7 @@ class TestWavecar(PymatgenTest):
             int(mesh.shape[2] / 2) - 2,
         )
         p2 = (p1[0] + 1, p1[1], p1[2])
-        c = np.array([[5, 0, 0], [0, 4, 0], [0, 0, 6]])  # this needs to match POSCAR, which we don't have
+        c = np.diag((5, 4, 6))  # this needs to match POSCAR, which we don't have
         r1 = np.dot(np.array(p1) / mesh.shape, c)
         r2 = np.dot(np.array(p2) / mesh.shape, c)
 

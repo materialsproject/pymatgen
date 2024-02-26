@@ -46,7 +46,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/fragmenter_files"
 class TestValenceIonicRadiusEvaluator(PymatgenTest):
     def setUp(self):
         """Setup MgO rocksalt structure for testing Vacancy."""
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -63,12 +63,12 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
 
     def test_valences_ionic_structure(self):
         valence_dict = self._mgo_val_rad_evaluator.valences
-        for val in list(valence_dict.values()):
+        for val in valence_dict.values():
             assert val in {2, -2}
 
     def test_radii_ionic_structure(self):
         radii_dict = self._mgo_val_rad_evaluator.radii
-        for rad in list(radii_dict.values()):
+        for rad in radii_dict.values():
             assert rad in {0.86, 1.26}
 
 

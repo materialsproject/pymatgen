@@ -3699,7 +3699,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[ArrayLike] | np.ndarray,
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
