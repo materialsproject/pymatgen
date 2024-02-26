@@ -127,7 +127,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.atomic_densities) == len(analysis.chgcar.structure)
 
         assert np.sum(analysis.chgcar.data["total"]) == approx(
-            np.sum([dct["data"] for dct in analysis.atomic_densities])
+            np.sum([np.sum(dct["data"]) for dct in analysis.atomic_densities])
         )
 
     def test_missing_file_bader_exe_path(self):

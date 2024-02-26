@@ -62,7 +62,7 @@ jobs:
       - name: Install Bader
         if: matrix.os == 'ubuntu-latest'
         run: |
-          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+          wget https://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
           tar xvzf bader_lnx_64.tar.gz
           sudo mv bader /usr/local/bin/
         continue-on-error: true # This is not critical to succeed.
