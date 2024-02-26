@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -61,7 +62,7 @@ class TestSet(unittest.TestCase):
             self.out.data["chi_soft"][0],
             [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
         )
-        assert_allclose(self.out.data["chi_local"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        assert_allclose(self.out.data["chi_local"][0], np.zeros((3, 3)))
         assert_allclose(
             self.out.data["chi_total"][0],
             [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
@@ -74,9 +75,9 @@ class TestSet(unittest.TestCase):
     def test_gtensor(self):
         self.out.parse_gtensor()
         assert len(self.out.data["gtensor_total"]) == 1
-        assert_allclose(self.out.data["gmatrix_zke"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        assert_allclose(self.out.data["gmatrix_so"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        assert_allclose(self.out.data["gmatrix_soo"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        assert_allclose(self.out.data["gmatrix_zke"][0], np.zeros((3, 3)))
+        assert_allclose(self.out.data["gmatrix_so"][0], np.zeros((3, 3)))
+        assert_allclose(self.out.data["gmatrix_soo"][0], np.zeros((3, 3)))
         assert_allclose(
             self.out.data["gmatrix_total"][0],
             [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],

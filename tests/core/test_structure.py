@@ -350,7 +350,7 @@ class TestIStructure(PymatgenTest):
             assert interpolated_structs[0].lattice == inter_struct.lattice
         assert_array_equal(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
 
-        bad_lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        bad_lattice = np.eye(3)
         struct2 = IStructure(bad_lattice, ["Si"] * 2, coords2)
         with pytest.raises(ValueError, match="Structures with different lattices"):
             struct.interpolate(struct2)
@@ -484,8 +484,8 @@ class TestIStructure(PymatgenTest):
         assert_array_equal(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
 
     def test_interpolate_lattice_rotation(self):
-        l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        l2 = Lattice([[-1.01, 0, 0], [0, -1.01, 0], [0, 0, 1]])
+        l1 = Lattice(np.eye(3))
+        l2 = Lattice(np.diag((-1.01, -1.01, 1)))
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct1 = IStructure(l1, ["Si"] * 2, coords)
         struct2 = IStructure(l2, ["Si"] * 2, coords)

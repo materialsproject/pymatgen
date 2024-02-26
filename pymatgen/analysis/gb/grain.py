@@ -525,9 +525,7 @@ class GrainBoundaryGenerator:
             rotation_axis = [int(round(x / reduce(gcd, rotation_axis))) for x in rotation_axis]
         # transform four index notation to three index notation for plane
         if plane is not None and len(plane) == 4:
-            u1 = plane[0]
-            v1 = plane[1]
-            w1 = plane[3]
+            u1, v1, w1 = plane[0], plane[1], plane[3]
             plane = [u1, v1, w1]
         # set the plane for grain boundary when plane is None.
         if plane is None:
@@ -550,16 +548,10 @@ class GrainBoundaryGenerator:
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "o":
-                    for i in range(3):
-                        if ratio[i] is None:
-                            ratio[i] = 1
-                    metric = np.array(
-                        [
-                            [1, 0, 0],
-                            [0, ratio[1] / ratio[2], 0],
-                            [0, 0, ratio[0] / ratio[2]],
-                        ]
-                    )
+                    for idx in range(3):
+                        if ratio[idx] is None:
+                            ratio[idx] = 1
+                    metric = np.array([[1, 0, 0], [0, ratio[1] / ratio[2], 0], [0, 0, ratio[0] / ratio[2]]])
                 else:
                     raise RuntimeError("Lattice type has not implemented.")
 
@@ -676,14 +668,14 @@ class GrainBoundaryGenerator:
         index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
 
         top_labels = []
-        for i in range(n_sites):
-            if i in index_incident[0]:
+        for idx in range(n_sites):
+            if idx in index_incident[0]:
                 top_labels.append("top_incident")
             else:
                 top_labels.append("top")
         bottom_labels = []
-        for i in range(n_sites):
-            if i in index_incident[1]:
+        for idx in range(n_sites):
+            if idx in index_incident[1]:
                 bottom_labels.append("bottom_incident")
             else:
                 bottom_labels.append("bottom")
@@ -2302,7 +2294,7 @@ def symm_group_cubic(mat):
         cubic symmetric equivalents of the list of vectors.
     """
     sym_group = np.zeros([24, 3, 3])
-    sym_group[0, :] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    sym_group[0, :] = np.eye(3)
     sym_group[1, :] = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
     sym_group[2, :] = [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]
     sym_group[3, :] = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]

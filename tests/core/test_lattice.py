@@ -58,11 +58,11 @@ class LatticeTestCase(PymatgenTest):
         assert format(self.lattice, ".1fp") == "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
 
     def test_init(self):
-        a = 9.026
-        lattice = Lattice.cubic(a)
+        len_a = 9.026
+        lattice = Lattice.cubic(len_a)
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
-        lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
+        lattice2 = Lattice(np.eye(3) * len_a)
         for ii in range(3):
             for jj in range(3):
                 assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
@@ -324,13 +324,13 @@ class LatticeTestCase(PymatgenTest):
             assert_allclose(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
-        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
+        ws_cell = Lattice(np.diag([10, 5, 1])).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
         for vec in ws_cell[3]:
             assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
 
     def test_dot_and_norm(self):
-        frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        frac_basis = np.eye(3)
 
         for lattice in self.families.values():
             assert_allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
