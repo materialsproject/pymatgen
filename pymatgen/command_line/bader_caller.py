@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import subprocess
 import warnings
+from datetime import datetime
 from glob import glob
 from shutil import which
 from tempfile import TemporaryDirectory
@@ -203,6 +204,10 @@ class BaderAnalysis:
     def _parse_atomic_densities(
         self,
     ):
+        # Deprecation tracker
+        if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
+            raise RuntimeError("This method should have been removed, see #3656.")
+
         def slice_from_center(data, x_width, y_width, z_width):
             """Slices a central window from the data array."""
             x, y, z = data.shape
