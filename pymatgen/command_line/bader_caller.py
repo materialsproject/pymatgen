@@ -193,7 +193,11 @@ class BaderAnalysis:
             if self.parse_atomic_densities:
                 self._parse_atomic_densities()
 
-    @deprecated(message="parse_atomic_densities deprecated and would be removed on 26Feb2024.")
+    @deprecated(
+        message="parse_atomic_densities was deprecated on 2024-02-26 "
+        "and will be removed on 2025-02-26. See"
+        " https://github.com/materialsproject/pymatgen/issues/3652 for reason."
+    )
     def _parse_atomic_densities(
         self,
     ):
