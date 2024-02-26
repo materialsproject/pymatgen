@@ -201,42 +201,42 @@ class LatticeTestCase(PymatgenTest):
             assert reduced_random_latt.volume == approx(random_latt.volume)
 
     def test_get_niggli_reduced_lattice(self):
-        latt = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60)
-        reduced_cell = latt.get_niggli_reduced_lattice()
+        lattice = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60)
+        reduced_cell = lattice.get_niggli_reduced_lattice()
         abc = reduced_cell.lengths
         angles = reduced_cell.angles
         assert abc == approx([2, 3, 3], abs=1e-3)
         assert angles == approx([116.382855225, 94.769790287999996, 109.466666667])
 
         mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]
-        latt = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
-        reduced_cell = latt.get_niggli_reduced_lattice()
+        lattice = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
+        reduced_cell = lattice.get_niggli_reduced_lattice()
         assert reduced_cell.lengths == approx([5, 5, 5])
         assert reduced_cell.angles == approx([90, 90, 90])
 
-        latt = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
+        lattice = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
         expected = [
             [-1.43295, -2.481942, 0.0],
             [-2.8659, 0.0, 0.0],
             [-1.43295, -0.827314, -4.751],
         ]
-        assert_allclose(latt.get_niggli_reduced_lattice().matrix, expected)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected)
 
-        latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
+        lattice = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
         expected = [
             [2.578932, 0.826965, 0.000000],
             [-0.831059, 2.067413, 1.547813],
             [-0.458407, -2.480895, 1.129126],
         ]
-        assert_allclose(latt.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
 
-        latt = Lattice([-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229])
+        lattice = Lattice([-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229])
         expected = [
             [-0.8849, -0.718, 0.1464],
             [0.1878, 0.7571, 0.902],
             [-0.4468, 0.4295, -1.0255],
         ]
-        assert_allclose(latt.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
