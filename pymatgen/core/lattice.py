@@ -1093,6 +1093,9 @@ class Lattice(MSONable):
                 # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = np.dot(np.transpose(M), np.dot(G, M))
+
+            A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
+
             if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
