@@ -208,8 +208,7 @@ class LatticeTestCase(PymatgenTest):
         assert abc == approx([2, 3, 3], abs=1e-3)
         assert angles == approx([116.382855225, 94.769790287999996, 109.466666667])
 
-        mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]
-        lattice = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
+        lattice = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], 5 * np.eye(3)))
         reduced_cell = lattice.get_niggli_reduced_lattice()
         assert reduced_cell.lengths == approx([5, 5, 5])
         assert reduced_cell.angles == approx([90, 90, 90])
@@ -239,14 +238,14 @@ class LatticeTestCase(PymatgenTest):
         assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
 
     def test_find_mapping(self):
-        m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
-        latt = Lattice(m)
+        matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
+        latt = Lattice(matrix)
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, 3, 3], 35)
         rot = op.rotation_matrix
         scale = np.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]])
 
-        latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
+        latt2 = Lattice(np.dot(rot, np.dot(scale, matrix).T).T)
         mapping = latt2.find_mapping(latt)
         assert isinstance(mapping, tuple)
         aligned_out, rot_out, scale_out = mapping
@@ -260,14 +259,14 @@ class LatticeTestCase(PymatgenTest):
         assert not np.allclose(aligned_out.parameters, latt2.parameters)
 
     def test_find_all_mappings(self):
-        m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
-        lattice = Lattice(m)
+        matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
+        lattice = Lattice(matrix)
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, -1, 3], 40)
         rot = op.rotation_matrix
         scale = np.array([[0, 2, 0], [1, 1, 0], [0, 0, 1]])
 
-        latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
+        latt2 = Lattice(np.dot(rot, np.dot(scale, matrix).T).T)
 
         for aligned_out, rot_out, scale_out in lattice.find_all_mappings(latt2):
             assert_allclose(np.inner(latt2.matrix, rot_out), aligned_out.matrix, atol=1e-12)
