@@ -22,6 +22,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from monty.dev import deprecated
 from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
 
@@ -192,6 +193,7 @@ class BaderAnalysis:
             if self.parse_atomic_densities:
                 self._parse_atomic_densities()
 
+    @deprecated("parse_atomic_densities deprecated and would be removed on 26Feb2024.")
     def _parse_atomic_densities(
         self,
     ):
