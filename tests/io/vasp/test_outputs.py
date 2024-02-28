@@ -177,7 +177,7 @@ class TestVasprun(PymatgenTest):
         assert o.final_energy == approx(-15.89355325)
 
         # VASP 6.2.1
-        o = Vasprun(f"{test_output_dir}/vasprun.xml.etest4.gz")
+        o = Vasprun(f"{test_output_dir}/vasprun.etest4.xml.gz")
         assert o.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
