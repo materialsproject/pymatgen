@@ -42,7 +42,7 @@ __status__ = "Beta"
 __date__ = "4/5/13"
 
 
-BADER_EXE = which("bader") or which("bader.exe")
+BADER_PATH = which("bader") or which("bader.exe")
 
 
 class BaderAnalysis:
@@ -57,8 +57,7 @@ class BaderAnalysis:
         nelectrons (int): Number of electrons of the Bader analysis.
         chgcar (Chgcar): Chgcar object associated with input CHGCAR file.
         atomic_densities (list[dict]): List of charge densities for each
-            atom centered on the atom. Excess 0's are removed from the array
-            to reduce its size. Each dictionary has the keys:
+            atom centered on the atom. Each dictionary has the keys:
             "data", "shift", "dim", where "data" is the charge density array,
             "shift" is the shift used to center the atomic charge density, and
             "dim" is the dimension of the original charge density.
@@ -70,7 +69,7 @@ class BaderAnalysis:
         potcar_filename: str = "",
         chgref_filename: str = "",
         cube_filename: str = "",
-        bader_exe_path: str | None = BADER_EXE,
+        bader_exe_path: str | None = BADER_PATH,
         parse_atomic_densities: bool = False,
     ) -> None:
         """Initializes the Bader caller.
@@ -189,21 +188,28 @@ class BaderAnalysis:
             self.data = data
 
             if self.parse_atomic_densities:
-                self._parse_atomic_densities()
+                self.atomic_densities = self._parse_atomic_densities()
 
     @deprecated(
         message=(
             "parse_atomic_densities was deprecated on 2024-02-26 "
-            "and will be removed on 2025-02-26. See https://"
+            "and will be removed on 2025-02-26.\nSee https://"
             "github.com/materialsproject/pymatgen/issues/3652 for details."
         )
     )
-    def _parse_atomic_densities(self):
+    def _parse_atomic_densities(self) -> list[dict]:
+        """Parse atom-centered charge densities with excess zeros removed.
+
+        Each dictionary has the keys:
+            "data", "shift", "dim", where "data" is the charge density array,
+            "shift" is the shift used to center the atomic charge density, and
+            "dim" is the dimension of the original charge density.
+        """
         # Deprecation tracker
         if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
             raise RuntimeError("This method should have been removed, see #3656.")
 
-        def slice_from_center(data, x_width, y_width, z_width):
+        def slice_from_center(data: np.ndarray, x_width: int, y_width: int, z_width: int) -> np.ndarray:
             """Slices a central window from the data array."""
             x, y, z = data.shape
             start_x = x // 2 - (x_width // 2)
@@ -215,7 +221,7 @@ class BaderAnalysis:
                 start_z : start_z + z_width,
             ]
 
-        def find_encompassing_vol(data: np.ndarray):
+        def find_encompassing_vol(data: np.ndarray) -> np.ndarray | None:
             """Find the central encompassing volume which
             holds all the data within a precision.
             """
@@ -253,7 +259,8 @@ class BaderAnalysis:
                 "dim": self.chgcar.dim,
             }
             atomic_densities.append(dct)
-        self.atomic_densities = atomic_densities
+
+        return atomic_densities
 
     def get_charge(self, atom_index: int) -> float:
         """Convenience method to get the charge on a particular atom. This is the "raw"
@@ -503,7 +510,12 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)
 
 
-def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None):
+def bader_analysis_from_objects(
+    chgcar: Chgcar,
+    potcar: Potcar = None,
+    aeccar0: Chgcar = None,
+    aeccar2: Chgcar = None,
+):
     """Convenience method to run Bader analysis from a set
     of pymatgen Chgcar and Potcar objects.
 
