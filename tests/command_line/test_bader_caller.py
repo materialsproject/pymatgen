@@ -74,7 +74,7 @@ class TestBaderAnalysis(PymatgenTest):
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
 
         analysis = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
-        analysis_from_path = BaderAnalysis.from_path(from_path_dir)
+        analysis_from_path = analysis.from_path(from_path_dir)
 
         for key in analysis_from_path.summary:
             val, val_from_path = analysis.summary[key], analysis_from_path.summary[key]
