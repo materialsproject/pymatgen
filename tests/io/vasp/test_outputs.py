@@ -92,7 +92,7 @@ class TestVasprun(PymatgenTest):
         See the comments in `linear_optics.F` for details.
         """
         vasp_run = Vasprun(
-            f"{test_output_dir}/vasprun.xml.dielectric_5.4.4.gz",
+            f"{test_output_dir}/vasprun.dielectric_5.4.4.xml.gz",
             parse_potcar_file=False,
         )
         assert vasp_run.dielectric is not None
@@ -107,7 +107,7 @@ class TestVasprun(PymatgenTest):
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with pytest.raises(NotImplementedError, match="This vasprun.xml has >2 unlabelled dielectric functions"):
-            Vasprun(f"{test_output_dir}/vasprun.xml.dielectric_bad.gz")
+            Vasprun(f"{test_output_dir}/vasprun.dielectric_bad.xml.gz")
 
     def test_bad_vasprun(self):
         with pytest.raises(ElementTree.ParseError):
@@ -128,7 +128,7 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.pbesol_vdw.xml.gz")
         assert vasp_run.run_type in "PBEsol+vdW-DFT-D3-BJ"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.hse06.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.hse06.xml.gz")
         assert vasp_run.run_type in "HSE06"
 
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.scan_rvv10.xml.gz")
@@ -165,15 +165,15 @@ class TestVasprun(PymatgenTest):
 
     def test_energies(self):
         # VASP 5.4.1
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.etest1.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.etest1.xml.gz")
         assert vasp_run.final_energy == approx(-11.18981538)
 
         # VASP 6.2.1
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.etest2.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.etest2.xml.gz")
         assert vasp_run.final_energy == approx(-11.18986774)
 
         # VASP 5.4.1
-        o = Vasprun(f"{test_output_dir}/vasprun.xml.etest3.gz")
+        o = Vasprun(f"{test_output_dir}/vasprun.etest3.xml.gz")
         assert o.final_energy == approx(-15.89355325)
 
         # VASP 6.2.1
@@ -195,7 +195,7 @@ class TestVasprun(PymatgenTest):
         # test pDOS parsing
 
         assert vasp_run.complete_dos.spin_polarization == 1.0
-        assert Vasprun(f"{test_output_dir}/vasprun.xml.etest1.gz").complete_dos.spin_polarization is None
+        assert Vasprun(f"{test_output_dir}/vasprun.etest1.xml.gz").complete_dos.spin_polarization is None
 
         pdos0 = vasp_run.complete_dos.pdos[vasp_run.final_structure[0]]
         assert pdos0[Orbital.s][Spin.up][16] == approx(0.0026)
@@ -333,7 +333,7 @@ class TestVasprun(PymatgenTest):
         assert vasprun_dfpt_ionic.epsilon_ionic[2][2] == approx(19.02110169)
 
     def test_dfpt_unconverged(self):
-        filepath = f"{test_output_dir}/vasprun.xml.dfpt.unconverged.gz"
+        filepath = f"{test_output_dir}/vasprun.dfpt.unconverged.xml.gz"
         vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert not vasprun_dfpt_unconverged.converged_electronic
         assert vasprun_dfpt_unconverged.converged_ionic
@@ -354,7 +354,7 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_no_pdos.dos_has_errors
 
     def test_dielectric(self):
-        vasprun_diel = Vasprun(f"{test_output_dir}/vasprun.xml.dielectric.gz", parse_potcar_file=False)
+        vasprun_diel = Vasprun(f"{test_output_dir}/vasprun.dielectric.xml.gz", parse_potcar_file=False)
         assert approx(vasprun_diel.dielectric[0][10]) == 0.4294
         assert approx(vasprun_diel.dielectric[1][51][0]) == 19.941
         assert approx(vasprun_diel.dielectric[1][51][1]) == 19.941
@@ -368,7 +368,7 @@ class TestVasprun(PymatgenTest):
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
         vasprun_diel = Vasprun(
-            f"{test_output_dir}/vasprun.xml.dielectric_6.0.8.gz",
+            f"{test_output_dir}/vasprun.dielectric_6.0.8.xml.gz",
             parse_potcar_file=False,
         )
         assert approx(vasprun_diel.dielectric[0][10]) == 0.4338
@@ -380,7 +380,7 @@ class TestVasprun(PymatgenTest):
         assert len(vasprun_diel.other_dielectric) == 0
 
     def test_indirect_vasprun(self):
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.indirect.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.indirect.xml.gz")
         _gap, _cbm, _vbm, direct = vasp_run.eigenvalue_band_properties
         assert not direct
 
@@ -459,7 +459,7 @@ class TestVasprun(PymatgenTest):
             Vasprun(f"{test_output_dir}/vasprun.wrong_sp.xml.gz")
 
     def test_selective_dynamics(self):
-        vsd = Vasprun(f"{test_output_dir}/vasprun.xml.indirect.gz")
+        vsd = Vasprun(f"{test_output_dir}/vasprun.indirect.xml.gz")
         assert list(vsd.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
 
     def test_as_dict(self):
@@ -534,7 +534,7 @@ class TestVasprun(PymatgenTest):
 
         # test self-consistent band structure calculation for non-hybrid functionals
         vasp_run = Vasprun(
-            f"{test_output_dir}/vasprun.xml.force_hybrid_like_calc.gz",
+            f"{test_output_dir}/vasprun.force_hybrid_like_calc.xml.gz",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
