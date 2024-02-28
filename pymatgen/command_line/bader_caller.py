@@ -46,7 +46,7 @@ BADER_EXE = which("bader") or which("bader.exe")
 
 
 class BaderAnalysis:
-    """Performs Bader analysis for Cube files and VASP outputs.
+    """Performs Bader charge analysis for Cube files or VASP outputs.
 
     Attributes:
         data (list[dict]): Atomic data parsed from bader analysis.
@@ -61,7 +61,7 @@ class BaderAnalysis:
             to reduce its size. Each dictionary has the keys:
             "data", "shift", "dim", where "data" is the charge density array,
             "shift" is the shift used to center the atomic charge density, and
-            "dim" is the dimension of the original charge density map.
+            "dim" is the dimension of the original charge density.
     """
 
     def __init__(
@@ -69,9 +69,9 @@ class BaderAnalysis:
         chgcar_filename: str = "",
         potcar_filename: str = "",
         chgref_filename: str = "",
-        parse_atomic_densities: bool = False,
         cube_filename: str = "",
         bader_exe_path: str | None = BADER_EXE,
+        parse_atomic_densities: bool = False,
     ) -> None:
         """Initializes the Bader caller.
 
@@ -80,33 +80,31 @@ class BaderAnalysis:
             potcar_filename (str): The filename of the POTCAR.
             chgref_filename (str): The filename of the
                 reference charge density.
+            cube_filename (str, optional): The filename of the cube file.
+            bader_exe_path (str, optional): The path to the bader executable.
             parse_atomic_densities (bool, optional): Enable atomic partition
                 of the charge density. Charge densities are atom centered.
                 Defaults to False.
-            cube_filename (str, optional): The filename of the cube file.
-            bader_exe_path (str, optional): The path to the bader executable.
         """
-        bader_exe = which(bader_exe_path or "")
+        # Check Bader executable
+        bader_exe = bader_exe_path  # TODO: use a single var should suffice
         if bader_exe is None:
             raise RuntimeError(
-                "BaderAnalysis requires bader or bader.exe to be in the PATH "
-                "the absolute path to the binary to be specified "
-                f"via {bader_exe_path=}. Download the binary at "
-                "https://theory.cm.utexas.edu/henkelman/code/bader."
+                "Requires bader or bader.exe to be in the PATH.\n"
+                "Download from https://theory.cm.utexas.edu/henkelman/code/bader."
             )
 
+        # Check input cube/CHGCAR files
         if not (cube_filename or chgcar_filename):
-            raise ValueError("You must provide either a cube file or a CHGCAR")
+            raise ValueError("You must provide either a cube file or a CHGCAR.")
         if cube_filename and chgcar_filename:
-            raise ValueError(
-                f"You cannot parse a cube and a CHGCAR at the same time. \n{cube_filename=}\n{chgcar_filename=}"
-            )
+            raise ValueError("Cannot parse cube and CHGCAR at the same time.")
+
+        # Parse atomic partitioned charge density
         self.parse_atomic_densities = parse_atomic_densities
 
         with ScratchDir("."):
             if chgcar_filename:
-                self.is_vasp = True
-
                 # Decompress the file if compressed
                 fpath = chgcar_fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
                 self.chgcar = Chgcar.from_file(chgcar_fpath)
@@ -129,7 +127,6 @@ class BaderAnalysis:
                 )
 
             else:
-                self.is_vasp = False
                 fpath = cube_fpath = decompress_file(filepath=cube_filename) or cube_filename
                 self.cube = VolumetricData.from_cube(cube_fpath)
                 self.structure = self.cube.structure
