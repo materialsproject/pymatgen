@@ -68,6 +68,7 @@ class BaderAnalysis:
         potcar_filename: str = "",
         chgref_filename: str = "",
         cube_filename: str = "",
+        bader_path: str | None = None,
         parse_atomic_densities: bool = False,
     ) -> None:
         """Initializes the Bader caller.
@@ -78,6 +79,7 @@ class BaderAnalysis:
             chgref_filename (str): The filename of the
                 reference charge density.
             cube_filename (str, optional): The filename of the cube file.
+            bader_path (str, optional): The path to the bader executable.
             parse_atomic_densities (bool, optional): Enable atomic partition
                 of the charge density. Charge densities are atom centered.
                 Defaults to False.
@@ -112,8 +114,9 @@ class BaderAnalysis:
 
             return str(file)
 
-        # Get Bader executable path
-        bader_path: str | None = which("bader") or which("bader.exe")
+        # Get and check Bader executable path
+        if bader_path is None:
+            bader_path = which("bader") or which("bader.exe")
 
         if bader_path is None:
             raise RuntimeError(
