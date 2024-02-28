@@ -14,10 +14,12 @@ Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import warnings
 from datetime import datetime
 from glob import glob
+from pathlib import Path
 from shutil import which
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
@@ -80,6 +82,36 @@ class BaderAnalysis:
                 of the charge density. Charge densities are atom centered.
                 Defaults to False.
         """
+
+        def temp_decompress(file: str | Path, target_dir: str = ".") -> str:
+            """
+            Utility function to copy a compressed file to a target directory and decompress it.
+
+            Parameters:
+                file (str or Path): The path to the compressed file to be decompressed.
+                target_dir (str, optional): The target directory where the decompressed file will be stored.
+                    Defaults to "." (current directory).
+
+            Returns:
+                str or None: The path to the decompressed file if successful, otherwise None.
+
+            Notes:
+                This function should be used in conjunction with `monty.tempfile.ScratchDir` to avoid
+                modifying files in place.
+            """
+            file = Path(file)
+
+            if file.suffix.lower() in [".bz2", ".gz", ".z"]:
+                shutil.copy(file, f"{target_dir}/{file.name}")
+                outputfile = decompress_file(f"{target_dir}/{file.name}")
+
+                if file:  # to avoid mypy error
+                    return str(outputfile)
+
+                raise FileNotFoundError(f"File {outputfile} not found.")
+
+            return str(file)
+
         # Get Bader executable path
         bader_path: str | None = which("bader") or which("bader.exe")
 
@@ -100,8 +132,8 @@ class BaderAnalysis:
 
         with ScratchDir("."):
             if chgcar_filename:
-                # Decompress the file if compressed
-                fpath = chgcar_fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
+                fpath = chgcar_fpath = temp_decompress(chgcar_filename)
+
                 self.chgcar = Chgcar.from_file(chgcar_fpath)
                 self.structure = self.chgcar.structure
 
@@ -120,19 +152,20 @@ class BaderAnalysis:
 
             # Parse from cube file
             else:
-                fpath = cube_fpath = decompress_file(filepath=cube_filename) or cube_filename
+                fpath = cube_fpath = temp_decompress(cube_filename)
+
                 self.cube = VolumetricData.from_cube(cube_fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
 
             # Compile CHGCAR reference file
-            chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
+            chgref_fpath = temp_decompress(chgref_filename)
             self.reference_used = bool(chgref_filename)
 
             # Compile Bader args
             bader_args = [bader_path, fpath]
 
-            if chgref_fpath:
+            if self.reference_used:
                 bader_args += ["-ref", chgref_fpath]
 
             if parse_atomic_densities:
