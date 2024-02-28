@@ -136,4 +136,4 @@ class TestBaderAnalysis(PymatgenTest):
         with patch("shutil.which", return_value=None), pytest.raises(
             RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
         ):
-            BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4", bader_path="")
+            BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4")

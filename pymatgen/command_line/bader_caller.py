@@ -42,9 +42,6 @@ __status__ = "Beta"
 __date__ = "4/5/13"
 
 
-BADER_PATH = which("bader") or which("bader.exe")
-
-
 class BaderAnalysis:
     """Performs Bader charge analysis for Cube files or VASP outputs.
 
@@ -69,7 +66,6 @@ class BaderAnalysis:
         potcar_filename: str = "",
         chgref_filename: str = "",
         cube_filename: str = "",
-        bader_path: str | None = BADER_PATH,
         parse_atomic_densities: bool = False,
     ) -> None:
         """Initializes the Bader caller.
@@ -80,12 +76,13 @@ class BaderAnalysis:
             chgref_filename (str): The filename of the
                 reference charge density.
             cube_filename (str, optional): The filename of the cube file.
-            bader_path (str, optional): The path to the bader executable.
             parse_atomic_densities (bool, optional): Enable atomic partition
                 of the charge density. Charge densities are atom centered.
                 Defaults to False.
         """
-        # Check Bader executable
+        # Get Bader executable path
+        bader_path: str | None = which("bader") or which("bader.exe")
+
         if bader_path is None:
             raise RuntimeError(
                 "Requires bader or bader.exe to be in the PATH.\n"
