@@ -1642,7 +1642,7 @@ class TestLobsterin(unittest.TestCase):
             f"{TEST_FILES_DIR}/POSCAR.C2.gz",
             f"{TEST_FILES_DIR}/INCAR.C2.gz",
             f"{TEST_FILES_DIR}/POTCAR.C2.gz",
-            f"{TEST_FILES_DIR}/vasp/outputs/vasprun.xml.C2.gz",
+            f"{TEST_FILES_DIR}/vasp/outputs/vasprun.C2.xml.gz",
             option="standard_with_energy_range_from_vasprun",
         )
         assert lobsterin_comp["COHPstartEnergy"] == -28.3679

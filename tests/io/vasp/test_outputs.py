@@ -134,10 +134,10 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.scan_rvv10.gz")
         assert vasp_run.run_type in "SCAN+rVV10"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.dfpt.ionic.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.dfpt.ionic.xml.gz")
         assert vasp_run.run_type in "GGA"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.dfpt.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.dfpt.xml.gz")
         assert vasp_run.run_type in "GGA+U"
 
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.r2scan.gz")
@@ -155,12 +155,12 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.random.gz")
         assert vasp_run.run_type in "RANDOMFUNCTIONAL"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.unknown.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.unknown.xml.gz")
         with pytest.warns(UserWarning, match="Unknown run type!"):
             assert vasp_run.run_type in "unknown"
 
     def test_vdw(self):
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.vdw.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.vdw.xml.gz")
         assert vasp_run.final_energy == approx(-9.78310677)
 
     def test_energies(self):
@@ -311,7 +311,7 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_unconverged.converged
 
     def test_dfpt(self):
-        filepath = f"{test_output_dir}/vasprun.xml.dfpt.gz"
+        filepath = f"{test_output_dir}/vasprun.dfpt.xml.gz"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
         assert vasprun_dfpt.epsilon_static[0][0] == approx(3.26105533)
         assert vasprun_dfpt.epsilon_static[0][1] == approx(-0.00459066)
@@ -326,7 +326,7 @@ class TestVasprun(PymatgenTest):
         assert entry.uncorrected_energy + entry.correction == approx(entry.energy)
 
     def test_dfpt_ionic(self):
-        filepath = f"{test_output_dir}/vasprun.xml.dfpt.ionic.gz"
+        filepath = f"{test_output_dir}/vasprun.dfpt.ionic.xml.gz"
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
         assert vasprun_dfpt_ionic.epsilon_ionic[0][0] == approx(515.73485838)
         assert vasprun_dfpt_ionic.epsilon_ionic[0][1] == approx(-0.00263523)
@@ -340,12 +340,12 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_dfpt_unconverged.converged
 
     def test_chi(self):
-        filepath = f"{test_output_dir}/vasprun.xml.chi.gz"
+        filepath = f"{test_output_dir}/vasprun.chi.xml.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
         assert vasprun_chi.incar.get("ALGO", ""), "CHI"
 
     def test_uniform(self):
-        vasprun_uniform = Vasprun(f"{test_output_dir}/vasprun.xml.uniform.gz", parse_potcar_file=False)
+        vasprun_uniform = Vasprun(f"{test_output_dir}/vasprun.uniform.xml.gz", parse_potcar_file=False)
         assert vasprun_uniform.kpoints.style == Kpoints.supported_modes.Reciprocal
 
     def test_no_projected(self):
@@ -403,7 +403,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_optical.optical_transition[56][1]) == 0.001
 
     def test_force_constants(self):
-        vasprun_fc = Vasprun(f"{test_output_dir}/vasprun.xml.dfpt.phonon.gz", parse_potcar_file=False)
+        vasprun_fc = Vasprun(f"{test_output_dir}/vasprun.dfpt.phonon.xml.gz", parse_potcar_file=False)
         assert vasprun_fc.force_constants.shape == (16, 16, 3, 3)
         assert_allclose(
             vasprun_fc.force_constants[8, 9],
@@ -451,12 +451,12 @@ class TestVasprun(PymatgenTest):
         )
 
     def test_xe(self):
-        vr = Vasprun(f"{test_output_dir}/vasprun.xml.xe.gz", parse_potcar_file=False)
+        vr = Vasprun(f"{test_output_dir}/vasprun.xe.xml.gz", parse_potcar_file=False)
         assert vr.atomic_symbols == ["Xe"]
 
     def test_invalid_element(self):
         with pytest.raises(ValueError, match="'Z' is not a valid Element"):
-            Vasprun(f"{test_output_dir}/vasprun.xml.wrong_sp.gz")
+            Vasprun(f"{test_output_dir}/vasprun.wrong_sp.xml.gz")
 
     def test_selective_dynamics(self):
         vsd = Vasprun(f"{test_output_dir}/vasprun.xml.indirect.gz")
@@ -561,7 +561,7 @@ class TestVasprun(PymatgenTest):
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
-        vrun = Vasprun(f"{test_output_dir}/vasprun.xml.LiF.gz")
+        vrun = Vasprun(f"{test_output_dir}/vasprun.LiF.xml.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
@@ -569,7 +569,7 @@ class TestVasprun(PymatgenTest):
         assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 2 - E_fermi crosses a band but bandgap=0
-        vrun = Vasprun(f"{test_output_dir}/vasprun.xml.Al.gz")
+        vrun = Vasprun(f"{test_output_dir}/vasprun.Al.xml.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
@@ -577,7 +577,7 @@ class TestVasprun(PymatgenTest):
         assert bs_gap == approx(eigen_gap, abs=1e-3)
 
         # branch 3 - E_fermi crosses a band in an insulator
-        vrun = Vasprun(f"{test_output_dir}/vasprun.xml.LiH_bad_efermi.gz")
+        vrun = Vasprun(f"{test_output_dir}/vasprun.LiH_bad_efermi.xml.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi != approx(vrun.efermi, abs=1e-4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
@@ -587,7 +587,7 @@ class TestVasprun(PymatgenTest):
         assert bs_gap != 0
 
         # branch 4 - E_fermi incorrectly placed inside a band
-        vrun = Vasprun(f"{test_output_dir}/vasprun.xml.bad_fermi.gz")
+        vrun = Vasprun(f"{test_output_dir}/vasprun.bad_fermi.xml.gz")
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(6.0165)
 
@@ -769,7 +769,7 @@ class TestVasprun(PymatgenTest):
         # in the current working directory using relative paths,
         # either when leading ./ is specified or not for vasprun.xml
         # See gh-3586
-        copyfile(f"{test_output_dir}/vasprun.xml.Al.gz", "vasprun.xml.gz")
+        copyfile(f"{test_output_dir}/vasprun.Al.xml.gz", "vasprun.xml.gz")
 
         potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
         copyfile(potcar_path, "POTCAR.gz")
