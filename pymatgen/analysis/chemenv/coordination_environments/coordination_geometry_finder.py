@@ -1080,7 +1080,7 @@ class LocalGeometryFinder:
         for _ in range(coordination + 1):
             coords.append(aa * np.random.random_sample(3) + bb)
         self.set_structure(
-            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], float),
+            lattice=np.array(np.eye(3) * 10, float),
             species=["Si"] * (coordination + 1),
             coords=coords,
             coords_are_cartesian=False,

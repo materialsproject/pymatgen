@@ -244,8 +244,8 @@ class StructureNLCase(unittest.TestCase):
         assert mol_nl == b
 
     def test_from_structures(self):
-        s1 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-        s2 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Mn"], [[0, 0, 0]])
+        s1 = Structure(np.eye(3) * 5, ["Fe"], [[0, 0, 0]])
+        s2 = Structure(np.eye(3) * 5, ["Mn"], [[0, 0, 0]])
         remarks = ["unittest"]
         authors = "Test User <test@materialsproject.com>"
         snl_list = StructureNL.from_structures([s1, s2], authors, remarks=remarks)

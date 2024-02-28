@@ -293,8 +293,8 @@ class SlabEntry(ComputedStructureEntry):
     @property
     def surface_area(self):
         """Calculates the surface area of the slab."""
-        m = self.structure.lattice.matrix
-        return np.linalg.norm(np.cross(m[0], m[1]))
+        matrix = self.structure.lattice.matrix
+        return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @property
     def cleaned_up_slab(self):

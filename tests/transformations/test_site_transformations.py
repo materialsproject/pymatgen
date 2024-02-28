@@ -309,7 +309,7 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
                 [0, -3, 0],
                 [0, 0, -3],
             ],
-            lattice=[[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+            lattice=np.eye(3) * 10,
             coords_are_cartesian=True,
         )
 

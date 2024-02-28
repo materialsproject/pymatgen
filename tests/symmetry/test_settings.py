@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 from pymatgen.symmetry.settings import JonesFaithfulTransformation, Lattice, SymmOp
@@ -24,10 +25,10 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
             "a,b,c;1/4,1/2,3/4",
         ]  # pure translation
         self.test_Pps = [
-            ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0, 0, 0]),
+            (np.eye(3), [0, 0, 0]),
             ([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], [0, 0, 0.5]),
             ([[0.25, 0.25, -0.5], [0.25, -0.25, -0.5], [-0.5, 0, 0]], [0, 0, 0]),
-            ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0.25, 0.5, 0.75]),
+            (np.eye(3), [0.25, 0.5, 0.75]),
         ]
 
     def test_init(self):

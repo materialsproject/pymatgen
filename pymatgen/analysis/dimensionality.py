@@ -340,7 +340,7 @@ def get_dimensionality_cheon(
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, _clusters1 = find_clusters(structure, connected_list1)
     if larger_cell:
-        structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+        structure.make_supercell(np.eye(3) * 3)
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, _clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
@@ -352,7 +352,7 @@ def get_dimensionality_cheon(
             else:
                 return None
     else:
-        structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
+        structure.make_supercell(np.eye(3) * 2)
         connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max2, min2, _clusters2 = find_clusters(structure, connected_list2)
         if min2 == 1:
@@ -365,7 +365,7 @@ def get_dimensionality_cheon(
                 dim = str(int(dim)) + "D"
             else:
                 structure = copy.copy(structure_save)
-                structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+                structure.make_supercell(np.eye(3) * 3)
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, _clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:

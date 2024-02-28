@@ -16,12 +16,14 @@ from __future__ import annotations
 import os
 import subprocess
 import warnings
+from datetime import datetime
 from glob import glob
 from shutil import which
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from monty.dev import deprecated
 from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
 
@@ -47,14 +49,16 @@ class BaderAnalysis:
     """Performs Bader analysis for Cube files and VASP outputs.
 
     Attributes:
-        data (list[dict]): Atomic data parsed from bader analysis. Each dictionary in the list has the keys:
+        data (list[dict]): Atomic data parsed from bader analysis.
+            Each dictionary in the list has the keys:
             "atomic_vol", "min_dist", "charge", "x", "y", "z".
         vacuum_volume (float): Vacuum volume of the Bader analysis.
         vacuum_charge (float): Vacuum charge of the Bader analysis.
         nelectrons (int): Number of electrons of the Bader analysis.
         chgcar (Chgcar): Chgcar object associated with input CHGCAR file.
-        atomic_densities (list[dict]): List of charge densities for each atom centered on the atom.
-            Excess 0's are removed from the array to reduce its size. Each dictionary has the keys:
+        atomic_densities (list[dict]): List of charge densities for each
+            atom centered on the atom. Excess 0's are removed from the array
+            to reduce its size. Each dictionary has the keys:
             "data", "shift", "dim", where "data" is the charge density array,
             "shift" is the shift used to center the atomic charge density, and
             "dim" is the dimension of the original charge density map.
@@ -74,17 +78,20 @@ class BaderAnalysis:
         Args:
             chgcar_filename (str): The filename of the CHGCAR.
             potcar_filename (str): The filename of the POTCAR.
-            chgref_filename (str): The filename of the reference charge density.
-            parse_atomic_densities (bool, optional): Enable atomic partition of the charge density.
-                Charge densities are atom centered. Defaults to False.
+            chgref_filename (str): The filename of the
+                reference charge density.
+            parse_atomic_densities (bool, optional): Enable atomic partition
+                of the charge density. Charge densities are atom centered.
+                Defaults to False.
             cube_filename (str, optional): The filename of the cube file.
             bader_exe_path (str, optional): The path to the bader executable.
         """
         bader_exe = which(bader_exe_path or "")
         if bader_exe is None:
             raise RuntimeError(
-                "BaderAnalysis requires bader or bader.exe to be in the PATH or the absolute path "
-                f"to the binary to be specified via {bader_exe_path=}. Download the binary at "
+                "BaderAnalysis requires bader or bader.exe to be in the PATH "
+                "the absolute path to the binary to be specified "
+                f"via {bader_exe_path=}. Download the binary at "
                 "https://theory.cm.utexas.edu/henkelman/code/bader."
             )
 
@@ -92,7 +99,7 @@ class BaderAnalysis:
             raise ValueError("You must provide either a cube file or a CHGCAR")
         if cube_filename and chgcar_filename:
             raise ValueError(
-                f"You cannot parse a cube and a CHGCAR at the same time.\n{cube_filename=}\n{chgcar_filename=}"
+                f"You cannot parse a cube and a CHGCAR at the same time. \n{cube_filename=}\n{chgcar_filename=}"
             )
         self.parse_atomic_densities = parse_atomic_densities
 
@@ -100,7 +107,7 @@ class BaderAnalysis:
             if chgcar_filename:
                 self.is_vasp = True
 
-                # decompress the file if compressed
+                # Decompress the file if compressed
                 fpath = chgcar_fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
                 self.chgcar = Chgcar.from_file(chgcar_fpath)
                 self.structure = self.chgcar.structure
@@ -138,11 +145,17 @@ class BaderAnalysis:
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]
 
-            with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as proc:
+            with subprocess.Popen(
+                args,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                close_fds=True,
+            ) as proc:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
                     raise RuntimeError(
-                        f"{bader_exe} exit code: {proc.returncode}, error message: {stderr!s}.\nstdout: {stdout!s}"
+                        f"{bader_exe} exit code: {proc.returncode}, "
+                        f"error message: {stderr!s}.\nstdout: {stdout!s}"
                         "Please check your bader installation."
                     )
 
@@ -179,49 +192,71 @@ class BaderAnalysis:
             self.data = data
 
             if self.parse_atomic_densities:
-                # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
-                atom_chgcars = [Chgcar.from_file(f"BvAt{idx + 1:04}.dat") for idx in range(len(self.chgcar.structure))]
+                self._parse_atomic_densities()
 
-                atomic_densities = []
-                # For each atom in the structure
-                for _site, loc, chg in zip(self.chgcar.structure, self.chgcar.structure.frac_coords, atom_chgcars):
-                    # Find the index of the atom in the charge density atom
-                    index = np.round(np.multiply(loc, chg.dim))
+    @deprecated(
+        message=(
+            "parse_atomic_densities was deprecated on 2024-02-26 "
+            "and will be removed on 2025-02-26. See https://"
+            "github.com/materialsproject/pymatgen/issues/3652 for details."
+        )
+    )
+    def _parse_atomic_densities(self):
+        # Deprecation tracker
+        if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
+            raise RuntimeError("This method should have been removed, see #3656.")
 
-                    # Find the shift vector in the array
-                    shift = (np.divide(chg.dim, 2) - index).astype(int)
+        def slice_from_center(data, x_width, y_width, z_width):
+            """Slices a central window from the data array."""
+            x, y, z = data.shape
+            start_x = x // 2 - (x_width // 2)
+            start_y = y // 2 - (y_width // 2)
+            start_z = z // 2 - (z_width // 2)
+            return data[
+                start_x : start_x + x_width,
+                start_y : start_y + y_width,
+                start_z : start_z + z_width,
+            ]
 
-                    # Shift the data so that the atomic charge density to the center for easier manipulation
-                    shifted_data = np.roll(chg.data["total"], shift, axis=(0, 1, 2))
+        def find_encompassing_vol(data: np.ndarray):
+            """Find the central encompassing volume which
+            holds all the data within a precision.
+            """
+            total = np.sum(data)
+            for idx in range(np.max(data.shape)):
+                sliced_data = slice_from_center(data, idx, idx, idx)
+                if total - np.sum(sliced_data) < 0.1:
+                    return sliced_data
+            return None
 
-                    # Slices a central window from the data array
-                    def slice_from_center(data, x_width, y_width, z_width):
-                        x, y, z = data.shape
-                        start_x = x // 2 - (x_width // 2)
-                        start_y = y // 2 - (y_width // 2)
-                        start_z = z // 2 - (z_width // 2)
-                        return data[
-                            start_x : start_x + x_width,
-                            start_y : start_y + y_width,
-                            start_z : start_z + z_width,
-                        ]
+        # convert the charge density for each atom spit out by Bader
+        # into Chgcar objects for easy parsing
+        atom_chgcars = [Chgcar.from_file(f"BvAt{idx + 1:04}.dat") for idx in range(len(self.chgcar.structure))]
 
-                    def find_encompassing_vol(data: np.ndarray):
-                        # Find the central encompassing volume which holds all the data within a precision
-                        total = np.sum(data)
-                        for idx in range(np.max(data.shape)):
-                            sliced_data = slice_from_center(data, idx, idx, idx)
-                            if total - np.sum(sliced_data) < 0.1:
-                                return sliced_data
-                        return None
+        atomic_densities = []
+        # For each atom in the structure
+        for _site, loc, chg in zip(
+            self.chgcar.structure,
+            self.chgcar.structure.frac_coords,
+            atom_chgcars,
+        ):
+            # Find the index of the atom in the charge density atom
+            index = np.round(np.multiply(loc, chg.dim))
 
-                    dct = {
-                        "data": find_encompassing_vol(shifted_data),
-                        "shift": shift,
-                        "dim": self.chgcar.dim,
-                    }
-                    atomic_densities.append(dct)
-                self.atomic_densities = atomic_densities
+            # Find the shift vector in the array
+            shift = (np.divide(chg.dim, 2) - index).astype(int)
+
+            # Shift the data so that the atomic charge density
+            # to the center for easier manipulation
+            shifted_data = np.roll(chg.data["total"], shift, axis=(0, 1, 2))
+
+            dct = {
+                "data": find_encompassing_vol(shifted_data),
+                "shift": shift,
+                "dim": self.chgcar.dim,
+            }
+            atomic_densities.append(dct)
+        self.atomic_densities = atomic_densities
 
     def get_charge(self, atom_index: int) -> float:
         """Convenience method to get the charge on a particular atom. This is the "raw"
