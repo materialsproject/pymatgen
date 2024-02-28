@@ -126,7 +126,7 @@ class TestStructureConversion(PymatgenTest):
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
-        supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
+        supercell_matrix = np.diag((2, 1, 2))
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
         assert len(structures) == 49

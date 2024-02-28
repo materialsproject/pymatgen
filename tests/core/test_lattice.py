@@ -58,11 +58,11 @@ class LatticeTestCase(PymatgenTest):
         assert format(self.lattice, ".1fp") == "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
 
     def test_init(self):
-        a = 9.026
-        lattice = Lattice.cubic(a)
+        len_a = 9.026
+        lattice = Lattice.cubic(len_a)
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
-        lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
+        lattice2 = Lattice(np.eye(3) * len_a)
         for ii in range(3):
             for jj in range(3):
                 assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
@@ -201,45 +201,54 @@ class LatticeTestCase(PymatgenTest):
             assert reduced_random_latt.volume == approx(random_latt.volume)
 
     def test_get_niggli_reduced_lattice(self):
-        latt = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60)
-        reduced_cell = latt.get_niggli_reduced_lattice()
+        lattice = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60)
+        reduced_cell = lattice.get_niggli_reduced_lattice()
         abc = reduced_cell.lengths
         angles = reduced_cell.angles
         assert abc == approx([2, 3, 3], abs=1e-3)
         assert angles == approx([116.382855225, 94.769790287999996, 109.466666667])
 
-        mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]
-        latt = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
-        reduced_cell = latt.get_niggli_reduced_lattice()
+        lattice = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], 5 * np.eye(3)))
+        reduced_cell = lattice.get_niggli_reduced_lattice()
         assert reduced_cell.lengths == approx([5, 5, 5])
         assert reduced_cell.angles == approx([90, 90, 90])
 
-        latt = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
+        lattice = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
         expected = [
             [-1.43295, -2.481942, 0.0],
             [-2.8659, 0.0, 0.0],
             [-1.43295, -0.827314, -4.751],
         ]
-        assert_allclose(latt.get_niggli_reduced_lattice().matrix, expected)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected)
 
-        latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
+        lattice = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
         expected = [
             [2.578932, 0.826965, 0.000000],
             [-0.831059, 2.067413, 1.547813],
             [-0.458407, -2.480895, 1.129126],
         ]
-        assert_allclose(latt.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+
+        lattice = Lattice([-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229])
+        expected = [
+            [-0.8849, -0.718, 0.1464],
+            [0.1878, 0.7571, 0.902],
+            [-0.4468, 0.4295, -1.0255],
+        ]
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
 
     def test_find_mapping(self):
-        m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
-        latt = Lattice(m)
+        matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
+        latt = Lattice(matrix)
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, 3, 3], 35)
         rot = op.rotation_matrix
         scale = np.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]])
 
-        latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
-        (aligned_out, rot_out, scale_out) = latt2.find_mapping(latt)
+        latt2 = Lattice(np.dot(rot, np.dot(scale, matrix).T).T)
+        mapping = latt2.find_mapping(latt)
+        assert isinstance(mapping, tuple)
+        aligned_out, rot_out, scale_out = mapping
         assert abs(np.linalg.det(rot)) == approx(1)
 
         rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)
@@ -250,14 +259,14 @@ class LatticeTestCase(PymatgenTest):
         assert not np.allclose(aligned_out.parameters, latt2.parameters)
 
     def test_find_all_mappings(self):
-        m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
-        lattice = Lattice(m)
+        matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
+        lattice = Lattice(matrix)
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, -1, 3], 40)
         rot = op.rotation_matrix
         scale = np.array([[0, 2, 0], [1, 1, 0], [0, 0, 1]])
 
-        latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
+        latt2 = Lattice(np.dot(rot, np.dot(scale, matrix).T).T)
 
         for aligned_out, rot_out, scale_out in lattice.find_all_mappings(latt2):
             assert_allclose(np.inner(latt2.matrix, rot_out), aligned_out.matrix, atol=1e-12)
@@ -315,13 +324,13 @@ class LatticeTestCase(PymatgenTest):
             assert_allclose(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
-        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
+        ws_cell = Lattice(np.diag([10, 5, 1])).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
         for vec in ws_cell[3]:
             assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
 
     def test_dot_and_norm(self):
-        frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        frac_basis = np.eye(3)
 
         for lattice in self.families.values():
             assert_allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)

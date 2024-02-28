@@ -11,6 +11,7 @@ import sys
 import unittest
 from shutil import which
 
+import numpy as np
 import pytest
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -35,7 +36,7 @@ gulp_present = False
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestGulpCaller(unittest.TestCase):
     def test_run(self):
-        mgo_lattice = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_lattice = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -136,7 +137,7 @@ class TestGulpIO(unittest.TestCase):
             self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -163,7 +164,7 @@ class TestGulpIO(unittest.TestCase):
         assert "spring" in gin
 
     def test_buckingham_input(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -188,7 +189,7 @@ class TestGulpIO(unittest.TestCase):
 
     # Improve the test
     def test_tersoff_potential(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -260,7 +261,7 @@ class TestGulpIO(unittest.TestCase):
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestGlobalFunctions(unittest.TestCase):
     def setUp(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],

@@ -10,5 +10,5 @@ f90nml>=1.4.3
 seekpath>=2.0.1
 jarvis-tools>=2022.9.16
 galore>=0.7.0
-matgl==0.9.2
+matgl==1.0.0
 icet>=2.2

@@ -1192,7 +1192,7 @@ class TestLobsterout(PymatgenTest):
         assert self.lobsterout_skipping_cobi_madelung.has_madelung is False
 
     def test_get_doc(self):
-        comparedict = {
+        ref_data = {
             "restart_from_projection": False,
             "lobster_version": "v3.1.0",
             "threads": 8,
@@ -1247,13 +1247,27 @@ class TestLobsterout(PymatgenTest):
         for key, item in self.lobsterout_normal.get_doc().items():
             if key not in ["has_cobicar", "has_madelung"]:
                 if isinstance(item, str):
-                    assert comparedict[key], item
+                    assert ref_data[key], item
                 elif isinstance(item, int):
-                    assert comparedict[key] == item
+                    assert ref_data[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
-                    assert item[0] == approx(comparedict[key][0])
+                    assert item[0] == approx(ref_data[key][0])
                 elif isinstance(item, (list, dict)):
-                    assert item == comparedict[key]
+                    assert item == ref_data[key]
+
+    def test_msonable(self):
+        dict_data = self.lobsterout_normal.as_dict()
+        lobsterout_from_dict = Lobsterout.from_dict(dict_data)
+        assert dict_data == lobsterout_from_dict.as_dict()
+        # test initialization with empty attributes (ensure file is not read again)
+        dict_data_empty = self.lobsterout_doscar_lso.ATTRIBUTE_DEFAULTS
+        lobsterout_empty_init_dict = Lobsterout.from_dict(dict_data_empty).as_dict()
+        for attribute in lobsterout_empty_init_dict:
+            if "@" not in attribute:
+                assert dict_data_empty[attribute] == lobsterout_empty_init_dict[attribute]
+
+        with pytest.raises(ValueError, match="invalid=val is not a valid attribute for Lobsterout"):
+            Lobsterout(filename=None, invalid="val")
 
 
 class TestFatband(PymatgenTest):

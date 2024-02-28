@@ -1677,7 +1677,7 @@ class TestDynmat(PymatgenTest):
 
 class TestWavecar(PymatgenTest):
     def setUp(self):
-        a = np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], dtype=float)  # lattice vectors
+        a = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
         self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))  # unit cell volume
         # reciprocal lattice vectors
         b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
@@ -1807,8 +1807,7 @@ class TestWavecar(PymatgenTest):
         assert mesh[0, 0, 0] == 0j
 
     def test_fft_mesh_advanced(self):
-        ik = 0
-        ib = 0
+        ik = ib = 0
         mesh = self.wH2.fft_mesh(ik, ib)
         mesh_gamma = self.wH2_gamma.fft_mesh(ik, ib)
         mesh_ncl = self.w_ncl.fft_mesh(ik, ib)
@@ -1835,7 +1834,7 @@ class TestWavecar(PymatgenTest):
             int(mesh.shape[2] / 2) - 2,
         )
         p2 = (p1[0] + 1, p1[1], p1[2])
-        c = np.array([[5, 0, 0], [0, 4, 0], [0, 0, 6]])  # this needs to match POSCAR,  which we don't have
+        c = np.diag((5, 4, 6))  # this needs to match POSCAR, which we don't have
         r1 = np.dot(np.array(p1) / mesh.shape, c)
         r2 = np.dot(np.array(p2) / mesh.shape, c)
 

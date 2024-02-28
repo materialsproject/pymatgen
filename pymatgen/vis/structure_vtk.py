@@ -103,7 +103,7 @@ class StructureVis:
         self.poly_radii_tol_factor = poly_radii_tol_factor
         self.excluded_bonding_elements = excluded_bonding_elements or []
         self.show_help = True
-        self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        self.supercell = np.eye(3)
         self.redraw()
 
         style = StructureInteractorStyle(self)

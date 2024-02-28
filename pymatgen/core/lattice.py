@@ -954,9 +954,7 @@ class Lattice(MSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix=skip_rotation_matrix):
-            return x
-        return None
+        return next(self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix), None)
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
         """:param delta: Delta parameter.
@@ -1093,6 +1091,9 @@ class Lattice(MSONable):
                 # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = np.dot(np.transpose(M), np.dot(G, M))
+                # update lattice parameters based on new G (gh-3657)
+                A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
+
             if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
@@ -1107,7 +1108,7 @@ class Lattice(MSONable):
                 i = -1 if ll == -1 else 1
                 j = -1 if m == -1 else 1
                 k = -1 if n == -1 else 1
-                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
             elif ll * m * n in (0, -1):
                 # A4
@@ -1122,7 +1123,7 @@ class Lattice(MSONable):
                         j = -1
                     elif ll == 0:
                         i = -1
-                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
 
             A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
