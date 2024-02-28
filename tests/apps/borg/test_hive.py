@@ -20,8 +20,8 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(TEST_FILES_DIR):
-            if path[0] == TEST_FILES_DIR:
+        for path in os.walk(f"{TEST_FILES_DIR}/vasp/outputs"):
+            if path[0] == f"{TEST_FILES_DIR}/vasp/outputs":
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
