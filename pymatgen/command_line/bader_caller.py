@@ -69,7 +69,7 @@ class BaderAnalysis:
         potcar_filename: str = "",
         chgref_filename: str = "",
         cube_filename: str = "",
-        bader_exe_path: str | None = BADER_PATH,
+        bader_path: str | None = BADER_PATH,
         parse_atomic_densities: bool = False,
     ) -> None:
         """Initializes the Bader caller.
@@ -80,14 +80,13 @@ class BaderAnalysis:
             chgref_filename (str): The filename of the
                 reference charge density.
             cube_filename (str, optional): The filename of the cube file.
-            bader_exe_path (str, optional): The path to the bader executable.
+            bader_path (str, optional): The path to the bader executable.
             parse_atomic_densities (bool, optional): Enable atomic partition
                 of the charge density. Charge densities are atom centered.
                 Defaults to False.
         """
         # Check Bader executable
-        bader_exe = bader_exe_path  # TODO: use a single var should suffice
-        if bader_exe is None:
+        if bader_path is None:
             raise RuntimeError(
                 "Requires bader or bader.exe to be in the PATH.\n"
                 "Download from https://theory.cm.utexas.edu/henkelman/code/bader."
@@ -133,7 +132,7 @@ class BaderAnalysis:
                 chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
                 self.reference_used = bool(chgref_filename)
 
-            args = [bader_exe, fpath]
+            args = [bader_path, fpath]
 
             if chgref_fpath:
                 args += ["-ref", chgref_fpath]
@@ -150,7 +149,7 @@ class BaderAnalysis:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
                     raise RuntimeError(
-                        f"{bader_exe} exit code: {proc.returncode}, "
+                        f"{bader_path} exit code: {proc.returncode}, "
                         f"error message: {stderr!s}.\nstdout: {stdout!s}"
                         "Please check your bader installation."
                     )
