@@ -57,7 +57,7 @@ class TestVasprun(PymatgenTest):
     def test_vasprun_ml(self):
         # Test for ML MD simulation
         # The trajectory data is stored in md_data
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.ml_md.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.ml_md.xml.gz")
         assert len(vasp_run.md_data) == 100
         for frame in vasp_run.md_data:
             assert "structure" in frame
@@ -70,7 +70,7 @@ class TestVasprun(PymatgenTest):
     def test_vasprun_md(self):
         # Test for simple MD simulation (no ML).
         # Does not generate the `md_data` attribute in Vasprun. Data based on `ionic_steps`
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.md.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.md.xml.gz")
         assert len(vasp_run.ionic_steps) == 10
         assert vasp_run.final_energy == approx(-327.73014059)
         assert vasp_run.md_n_steps == 10
@@ -125,13 +125,13 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.GW0.xml.gz")
         assert vasp_run.run_type in "HF"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.pbesol_vdw.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.pbesol_vdw.xml.gz")
         assert vasp_run.run_type in "PBEsol+vdW-DFT-D3-BJ"
 
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.hse06.gz")
         assert vasp_run.run_type in "HSE06"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.scan_rvv10.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.scan_rvv10.xml.gz")
         assert vasp_run.run_type in "SCAN+rVV10"
 
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.dfpt.ionic.xml.gz")
@@ -140,19 +140,19 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.dfpt.xml.gz")
         assert vasp_run.run_type in "GGA+U"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.r2scan.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.r2scan.xml.gz")
         assert vasp_run.run_type in "R2SCAN"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.scan.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.scan.xml.gz")
         assert vasp_run.run_type in "SCAN"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.pbesol.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.pbesol.xml.gz")
         assert vasp_run.run_type in "PBEsol"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.rscan.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.rscan.xml.gz")
         assert vasp_run.run_type in "RSCAN"
 
-        vasp_run = Vasprun(f"{test_output_dir}/vasprun.xml.random.gz")
+        vasp_run = Vasprun(f"{test_output_dir}/vasprun.random.xml.gz")
         assert vasp_run.run_type in "RANDOMFUNCTIONAL"
 
         vasp_run = Vasprun(f"{test_output_dir}/vasprun.unknown.xml.gz")
@@ -181,7 +181,7 @@ class TestVasprun(PymatgenTest):
         assert o.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
-        filepath = f"{test_output_dir}/vasprun.xml.nonlm.gz"
+        filepath = f"{test_output_dir}/vasprun.nonlm.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasp_run.complete_dos.pdos[vasp_run.final_structure[0]])
         assert OrbitalType.s in orbs
@@ -299,9 +299,9 @@ class TestVasprun(PymatgenTest):
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
     def test_unconverged(self):
-        filepath = f"{test_output_dir}/vasprun.xml.unconverged.gz"
+        filepath = f"{test_output_dir}/vasprun.unconverged.xml.gz"
         with pytest.warns(
-            UnconvergedVASPWarning, match="vasprun.xml.unconverged.gz is an unconverged VASP run"
+            UnconvergedVASPWarning, match="vasprun.unconverged.xml.gz is an unconverged VASP run"
         ) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert len(warns) == 1
@@ -386,7 +386,7 @@ class TestVasprun(PymatgenTest):
 
     def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
-            f"{test_output_dir}/vasprun.xml.optical_transitions.gz",
+            f"{test_output_dir}/vasprun.optical_transitions.xml.gz",
             parse_potcar_file=False,
         )
         assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
@@ -594,7 +594,7 @@ class TestVasprun(PymatgenTest):
     def test_float_overflow(self):
         # test we interpret VASP's *********** for overflowed values as NaNs
         # https://github.com/materialsproject/pymatgen/pull/3452
-        filepath = f"{test_output_dir}/vasprun.xml.sc_overflow.gz"
+        filepath = f"{test_output_dir}/vasprun.sc_overflow.xml.gz"
         with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun"):
             vasp_run = Vasprun(filepath)
         first_ionic_step = vasp_run.ionic_steps[0]
