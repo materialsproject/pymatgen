@@ -95,7 +95,7 @@ class BaderAnalysis:
         if cube_filename and chgcar_filename:
             raise ValueError("Cannot parse cube and CHGCAR at the same time.")
 
-        # Parse atomic partitioned charge density
+        # Flag for parse atomic partitioned charge density
         self.parse_atomic_densities = parse_atomic_densities
 
         with ScratchDir("."):
@@ -108,9 +108,6 @@ class BaderAnalysis:
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename else None
                 self.natoms = self.chgcar.poscar.natoms
 
-                chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
-                self.reference_used = bool(chgref_filename)
-
                 # List of nelects for each atom from potcar
                 potcar_indices = []
                 for idx, val in enumerate(self.natoms):
@@ -121,24 +118,28 @@ class BaderAnalysis:
                     else []
                 )
 
+            # Parse from cube file
             else:
                 fpath = cube_fpath = decompress_file(filepath=cube_filename) or cube_filename
                 self.cube = VolumetricData.from_cube(cube_fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
-                chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
-                self.reference_used = bool(chgref_filename)
 
-            args = [bader_path, fpath]
+            # Compile CHGCAR reference file
+            chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
+            self.reference_used = bool(chgref_filename)
+
+            # Compile Bader args
+            bader_args = [bader_path, fpath]
 
             if chgref_fpath:
-                args += ["-ref", chgref_fpath]
+                bader_args += ["-ref", chgref_fpath]
 
             if parse_atomic_densities:
-                args += ["-p", "all_atom"]
+                bader_args += ["-p", "all_atom"]
 
             with subprocess.Popen(
-                args,
+                bader_args,
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 close_fds=True,
@@ -151,40 +152,52 @@ class BaderAnalysis:
                         "Please check your bader installation."
                     )
 
+            # Determine Bader version
             try:
                 self.version = float(stdout.split()[5])
             except ValueError:
                 self.version = -1  # Unknown
+
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
-                    UserWarning,
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect."
                 )
 
-            data = []
-            with open("ACF.dat") as file:
-                lines = file.readlines()
-                headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
-                lines.pop(0)
-                lines.pop(0)
-                while True:
-                    line = lines.pop(0).strip()
-                    if line.startswith("-"):
-                        break
-                    vals = map(float, line.split()[1:])
-                    data.append(dict(zip(headers, vals)))
-                for line in lines:
-                    tokens = line.strip().split(":")
-                    if tokens[0] == "VACUUM CHARGE":
-                        self.vacuum_charge = float(tokens[1])
-                    elif tokens[0] == "VACUUM VOLUME":
-                        self.vacuum_volume = float(tokens[1])
-                    elif tokens[0] == "NUMBER OF ELECTRONS":
-                        self.nelectrons = float(tokens[1])
-            self.data = data
+            # Parse ACF.dat file
+            self.data = self._parse_acf()
 
+            # Parse atomic densities
             if self.parse_atomic_densities:
                 self.atomic_densities = self._parse_atomic_densities()
+
+    def _parse_acf(self) -> list[dict]:
+        """Parse Bader output file ACF.dat."""
+        with open("ACF.dat", encoding="us-ascii") as file:
+            lines = file.readlines()
+
+        # Skip header lines
+        headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
+        lines.pop(0)
+        lines.pop(0)
+
+        data = []
+        while True:
+            line = lines.pop(0).strip()
+            if line.startswith("-"):
+                break
+            vals = map(float, line.split()[1:])
+            data.append(dict(zip(headers, vals)))
+
+        for line in lines:
+            tokens = line.strip().split(":")
+            if tokens[0] == "VACUUM CHARGE":
+                self.vacuum_charge = float(tokens[1])
+            elif tokens[0] == "VACUUM VOLUME":
+                self.vacuum_volume = float(tokens[1])
+            elif tokens[0] == "NUMBER OF ELECTRONS":
+                self.nelectrons = float(tokens[1])
+
+        return data
 
     @deprecated(
         message=(
