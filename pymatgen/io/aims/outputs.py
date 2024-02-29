@@ -1,4 +1,5 @@
 """A representation of FHI-aims output (based on ASE output parser)."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any

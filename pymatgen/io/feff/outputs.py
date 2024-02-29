@@ -4,7 +4,6 @@ This module defines classes for parsing the FEFF output files.
 Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 """
 
-
 from __future__ import annotations
 
 import re

@@ -1,4 +1,5 @@
 """AIMS output parser, taken from ASE with modifications."""
+
 from __future__ import annotations
 
 import gzip

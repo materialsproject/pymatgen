@@ -1,4 +1,5 @@
 """Tests the GW input set generator"""
+
 from __future__ import annotations
 
 from pathlib import Path

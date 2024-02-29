@@ -1,6 +1,5 @@
 """This module provides plotting capabilities for battery related applications."""
 
-
 from __future__ import annotations
 
 import matplotlib.pyplot as plt

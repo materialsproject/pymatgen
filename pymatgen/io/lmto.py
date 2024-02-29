@@ -4,7 +4,6 @@ LMTO-ASA code. It will primarily be used to generate a pymatgen
 Structure object in the pymatgen.electronic_structure.cohp.py module.
 """
 
-
 from __future__ import annotations
 
 import re

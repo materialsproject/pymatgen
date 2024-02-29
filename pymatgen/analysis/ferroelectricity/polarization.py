@@ -43,7 +43,6 @@ of polarization can only be zero or 1/2. We use a nonpolar structure to help
 determine the spontaneous polarization because it serves as a reference point.
 """
 
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

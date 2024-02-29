@@ -53,12 +53,10 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return len(self)
 
     @overload
-    def __getitem__(self, item: int) -> SymmOp:
-        ...
+    def __getitem__(self, item: int) -> SymmOp: ...
 
     @overload
-    def __getitem__(self, item: slice) -> Sequence[SymmOp]:
-        ...
+    def __getitem__(self, item: slice) -> Sequence[SymmOp]: ...
 
     def __getitem__(self, item: int | slice) -> SymmOp | Sequence[SymmOp]:
         return list(self.symmetry_ops)[item]
