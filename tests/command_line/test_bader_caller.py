@@ -133,7 +133,10 @@ class TestBaderAnalysis(PymatgenTest):
     def test_missing_file_bader_exe_path(self):
         pytest.skip("doesn't reliably raise RuntimeError")
         # mock which("bader") to return None so we always fall back to use bader_exe_path
-        with patch("shutil.which", return_value=None), pytest.raises(
-            RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
+        with (
+            patch("shutil.which", return_value=None),
+            pytest.raises(
+                RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
+            ),
         ):
             BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4", bader_exe_path="")

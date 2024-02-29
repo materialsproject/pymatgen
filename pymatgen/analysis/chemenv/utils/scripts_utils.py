@@ -1,6 +1,5 @@
 """This module contains some script utils that are used in the chemenv package."""
 
-
 from __future__ import annotations
 
 import re

@@ -263,9 +263,6 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                    warnings.warn(
-                        "Cannot determine elements in POSCAR. Falling back to manual assignment.", BadPoscarWarning
-                    )
                 except Exception:
                     names = None
         with zopen(filename, mode="rt") as file:
@@ -2714,7 +2711,9 @@ class VaspInput(dict, MSONable):
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
 
-        with cd(run_dir), open(output_file, mode="w", encoding="utf-8") as stdout_file, open(
-            err_file, mode="w", encoding="utf-8", buffering=1
-        ) as stderr_file:
+        with (
+            cd(run_dir),
+            open(output_file, mode="w", encoding="utf-8") as stdout_file,
+            open(err_file, mode="w", encoding="utf-8", buffering=1) as stderr_file,
+        ):
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)

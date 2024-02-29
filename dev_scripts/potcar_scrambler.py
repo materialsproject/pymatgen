@@ -15,7 +15,6 @@ from pymatgen.io.vasp.sets import _load_yaml_config
 
 
 class PotcarScrambler:
-
     """
     Takes a POTCAR and replaces its values with completely random values
     Does type matching and attempts precision matching on floats to ensure

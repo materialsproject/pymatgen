@@ -1,6 +1,5 @@
 """A module to perform experimental thermochemical data analysis."""
 
-
 from __future__ import annotations
 
 from pymatgen.core.composition import Composition
