@@ -87,7 +87,8 @@ class BaderAnalysis:
 
         def temp_decompress(file: str | Path, target_dir: str = ".") -> str:
             """
-            Utility function to copy a compressed file to a target directory and decompress it.
+            Utility function to copy a compressed file to a target directory (ScratchDir)
+            and decompress it, to avoid modifying files in place.
 
             Parameters:
                 file (str or Path): The path to the compressed file to be decompressed.
@@ -95,11 +96,7 @@ class BaderAnalysis:
                     Defaults to "." (current directory).
 
             Returns:
-                str or None: The path to the decompressed file if successful, otherwise None.
-
-            Notes:
-                This function should be used in conjunction with `monty.tempfile.ScratchDir` to avoid
-                modifying files in place.
+                str: The path to the decompressed file if successful.
             """
             file = Path(file)
 
