@@ -263,9 +263,6 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                    warnings.warn(
-                        "Cannot determine elements in POSCAR. Falling back to manual assignment.", BadPoscarWarning
-                    )
                 except Exception:
                     names = None
         with zopen(filename, mode="rt") as file:
