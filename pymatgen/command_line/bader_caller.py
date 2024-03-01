@@ -98,7 +98,7 @@ class BaderAnalysis:
             """
             file = Path(file)
 
-            if file.suffix.lower() in (".bz2", ".gz", ".z"):
+            if file.suffix.lower() in {".bz2", ".gz", ".z"}:
                 shutil.copy(file, f"{target_dir}/{file.name}")
                 out_file = decompress_file(f"{target_dir}/{file.name}")
 
@@ -156,7 +156,7 @@ class BaderAnalysis:
                 self.structure = self.cube.structure
                 self.nelects = []
 
-            # prepare CHGCAR file
+            # Prepare CHGCAR reference file
             chgref_fpath = temp_decompress(chgref_filename)
             self.reference_used = bool(chgref_filename)
 
@@ -527,9 +527,8 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    if chgcar_path is None:
-        raise FileNotFoundError("Could not find CHGCAR!")
-    chgcar = Chgcar.from_file(chgcar_path)
+    if chgcar_path is not None:
+        chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:
