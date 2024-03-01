@@ -1003,9 +1003,9 @@ class Lobsterout(MSONable):
             splitrow = row.split()
             if len(splitrow) > 2 and splitrow[2] == "spilling:":
                 if splitrow[1] == "charge":
-                    charge_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
+                    charge_spilling.append(np.float64(splitrow[3].replace("%", "")) / 100.0)
                 if splitrow[1] == "total":
-                    total_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
+                    total_spilling.append(np.float64(splitrow[3].replace("%", "")) / 100.0)
 
             if len(charge_spilling) == number_of_spins and len(total_spilling) == number_of_spins:
                 break

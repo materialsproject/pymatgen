@@ -391,7 +391,7 @@ class PhaseDiagram(MSONable):
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = tuple(computed_data["qhull_entries"])
         self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
-        self._stable_entries = tuple({self.qhull_entries[i] for i in set(itertools.chain(*self.facets))})
+        self._stable_entries = tuple({self.qhull_entries[idx] for idx in set(itertools.chain(*self.facets))})
         self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def as_dict(self):
@@ -458,7 +458,7 @@ class PhaseDiagram(MSONable):
         # Add the elemental references
         idx.extend([min_entries.index(el) for el in el_refs.values()])
 
-        qhull_entries = [min_entries[i] for i in idx]
+        qhull_entries = [min_entries[idx] for idx in idx]
         qhull_data = data[idx][:, 1:]
 
         # Add an extra point to enforce full dimensionality.
@@ -652,8 +652,8 @@ class PhaseDiagram(MSONable):
         Returns:
             {element: chempot} for all elements in the phase diagram.
         """
-        comp_list = [self.qhull_entries[i].composition for i in facet]
-        energy_list = [self.qhull_entries[i].energy_per_atom for i in facet]
+        comp_list = [self.qhull_entries[idx].composition for idx in facet]
+        energy_list = [self.qhull_entries[idx].energy_per_atom for idx in facet]
         atom_frac_mat = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
         chempots = np.linalg.solve(atom_frac_mat, energy_list)
 
@@ -1189,8 +1189,10 @@ class PhaseDiagram(MSONable):
                 data2 = self.facets[combi[1]]
                 common_ent_ind = set(data1).intersection(set(data2))
                 if len(common_ent_ind) == len(elements):
-                    common_entries = [self.qhull_entries[i] for i in common_ent_ind]
-                    data = np.array([[all_chempots[i][j] - el_energies[self.elements[j]] for j in inds] for i in combi])
+                    common_entries = [self.qhull_entries[idx] for idx in common_ent_ind]
+                    data = np.array(
+                        [[all_chempots[ii][jj] - el_energies[self.elements[jj]] for jj in inds] for ii in combi]
+                    )
                     sim = Simplex(data)
                     for entry in common_entries:
                         chempot_ranges[entry].append(sim)
@@ -1647,7 +1649,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Add the elemental references
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
-        self.qhull_entries = tuple(min_entries[i] for i in inds)
+        self.qhull_entries = tuple(min_entries[idx] for idx in inds)
         # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
         # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
         self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
@@ -1661,14 +1663,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
             systems = set()
             # NOTE reduce the number of comparisons by only comparing to larger sets
-            for i in range(2, max_size + 1):
-                test = (s for s in spaces if len(s) == i)
-                refer = (s for s in spaces if len(s) > i)
+            for idx in range(2, max_size + 1):
+                test = (s for s in spaces if len(s) == idx)
+                refer = (s for s in spaces if len(s) > idx)
                 systems |= {t for t in test if not any(t.issubset(r) for r in refer)}
 
             spaces = systems
 
-        # TODO comprhys: refactor to have self._compute method to allow serialisation
+        # TODO comprhys: refactor to have self._compute method to allow serialization
         self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
         self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
         self.all_entries = all_entries
@@ -1930,7 +1932,7 @@ class ReactionDiagram:
 
         for facet in pd.facets:
             for face in itertools.combinations(facet, len(facet) - 1):
-                face_entries = [pd.qhull_entries[i] for i in face]
+                face_entries = [pd.qhull_entries[idx] for idx in face]
 
                 if any(e.reduced_formula in terminal_formulas for e in face_entries):
                     continue
@@ -2455,19 +2457,19 @@ class PDPlotter:
             if not (is_x and is_y):
                 if is_x:
                     coords = sorted(coords, key=lambda c: c[1])
-                    for i in [0, -1]:
-                        x = [min(xlim), coords[i][0]]
-                        y = [coords[i][1], coords[i][1]]
+                    for idx in [0, -1]:
+                        x = [min(xlim), coords[idx][0]]
+                        y = [coords[idx][1], coords[idx][1]]
                         plt.plot(x, y, "k")
                         center_x += min(xlim)
-                        center_y += coords[i][1]
+                        center_y += coords[idx][1]
                 elif is_y:
                     coords = sorted(coords, key=lambda c: c[0])
-                    for i in [0, -1]:
-                        x = [coords[i][0], coords[i][0]]
-                        y = [coords[i][1], min(ylim)]
+                    for idx in [0, -1]:
+                        x = [coords[idx][0], coords[idx][0]]
+                        y = [coords[idx][1], min(ylim)]
                         plt.plot(x, y, "k")
-                        center_x += coords[i][0]
+                        center_x += coords[idx][0]
                         center_y += min(ylim)
                 xy = (center_x / (n + 2), center_y / (n + 2))
             else:

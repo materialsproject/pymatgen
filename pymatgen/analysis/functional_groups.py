@@ -1,6 +1,5 @@
 """Determine functional groups present in a Molecule."""
 
-
 from __future__ import annotations
 
 import copy

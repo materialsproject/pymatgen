@@ -244,7 +244,11 @@ class BaderAnalysis:
             "dim" is the dimension of the original charge density.
         """
         # Deprecation tracker
-        if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
+        if (
+            datetime(2025, 2, 26) < datetime.now()
+            and os.getenv("CI")
+            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
+        ):
             raise RuntimeError("This method should have been removed, see #3656.")
 
         def slice_from_center(data: np.ndarray, x_width: int, y_width: int, z_width: int) -> np.ndarray:
