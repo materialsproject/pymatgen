@@ -80,18 +80,16 @@ class BaderAnalysis:
                 reference charge density.
             cube_filename (str, optional): The filename of the cube file.
             bader_path (str, optional): The path to the bader executable.
-            parse_atomic_densities (bool, optional): Enable atomic partition
-                of the charge density. Charge densities are atom centered.
-                Defaults to False.
+            parse_atomic_densities (bool, optional): Enable atomic partition of the
+                charge density. Charge densities are atom centered. Defaults to False.
         """
 
         def temp_decompress(file: str | Path, target_dir: str = ".") -> str:
-            """
-            Utility function to copy a compressed file to a target directory (ScratchDir)
+            """Utility function to copy a compressed file to a target directory (ScratchDir)
             and decompress it, to avoid modifying files in place.
 
             Parameters:
-                file (str or Path): The path to the compressed file to be decompressed.
+                file (str | Path): The path to the compressed file to be decompressed.
                 target_dir (str, optional): The target directory where the decompressed file will be stored.
                     Defaults to "." (current directory).
 
@@ -100,14 +98,14 @@ class BaderAnalysis:
             """
             file = Path(file)
 
-            if file.suffix.lower() in [".bz2", ".gz", ".z"]:
+            if file.suffix.lower() in (".bz2", ".gz", ".z"):
                 shutil.copy(file, f"{target_dir}/{file.name}")
-                outputfile = decompress_file(f"{target_dir}/{file.name}")
+                out_file = decompress_file(f"{target_dir}/{file.name}")
 
                 if file:  # to avoid mypy error
-                    return str(outputfile)
+                    return str(out_file)
 
-                raise FileNotFoundError(f"File {outputfile} not found.")
+                raise FileNotFoundError(f"File {out_file} not found.")
 
             return str(file)
 
@@ -117,22 +115,22 @@ class BaderAnalysis:
 
         if bader_path is None:
             raise RuntimeError(
-                "Requires bader or bader.exe to be in the PATH.\n"
+                "Requires bader or bader.exe to be in the PATH or the absolute path to "
+                f"the binary to be specified via {bader_path=}.\n"
                 "Download from https://theory.cm.utexas.edu/henkelman/code/bader."
             )
 
         # Check input cube/CHGCAR files
         if not (cube_filename or chgcar_filename):
-            raise ValueError("You must provide either a cube file or a CHGCAR.")
+            raise ValueError("You must provide either a Cube file or a CHGCAR.")
         if cube_filename and chgcar_filename:
             raise ValueError("Cannot parse cube and CHGCAR at the same time.")
 
-        # Flag for parse atomic partitioned charge density
         self.parse_atomic_densities = parse_atomic_densities
 
         with ScratchDir("."):
             if chgcar_filename:
-                fpath = chgcar_fpath = temp_decompress(chgcar_filename)
+                filepath = chgcar_fpath = temp_decompress(chgcar_filename)
 
                 self.chgcar = Chgcar.from_file(chgcar_fpath)
                 self.structure = self.chgcar.structure
@@ -150,20 +148,19 @@ class BaderAnalysis:
                     else []
                 )
 
-            # Parse from cube file
+            # Parse from Cube file
             else:
-                fpath = cube_fpath = temp_decompress(cube_filename)
+                filepath = cube_fpath = temp_decompress(cube_filename)
 
                 self.cube = VolumetricData.from_cube(cube_fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
 
-            # Compile CHGCAR reference file
+            # prepare CHGCAR file
             chgref_fpath = temp_decompress(chgref_filename)
             self.reference_used = bool(chgref_filename)
 
-            # Compile Bader args
-            bader_args = [bader_path, fpath]
+            bader_args = [bader_path, filepath]
 
             if self.reference_used:
                 bader_args += ["-ref", chgref_fpath]
@@ -180,9 +177,8 @@ class BaderAnalysis:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
                     raise RuntimeError(
-                        f"{bader_path} exit code: {proc.returncode}, "
-                        f"error message: {stderr!s}.\nstdout: {stdout!s}"
-                        "Please check your bader installation."
+                        f"{bader_path} exit code: {proc.returncode}, error: {stderr!s}."
+                        f"\nstdout: {stdout!s}. Please check your bader installation."
                     )
 
             # Determine Bader version
@@ -458,7 +454,7 @@ class BaderAnalysis:
         def _get_filepath(filename):
             name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
             paths = glob(f"{path}/{name_pattern}")
-            fpath = ""
+            filepath = ""
             if len(paths) >= 1:
                 # using reverse=True because, if multiple files are present, they likely
                 # have suffixes 'static', 'relax', 'relax2', etc. and this would give
@@ -467,7 +463,7 @@ class BaderAnalysis:
                 paths.sort(reverse=True)
                 if len(paths) > 1:
                     warnings.warn(f"Multiple files detected, using {paths[0]}")
-                fpath = paths[0]
+                filepath = paths[0]
             else:
                 msg = f"Could not find {filename!r}"
                 if filename in ("AECCAR0", "AECCAR2"):
@@ -475,7 +471,7 @@ class BaderAnalysis:
                 elif filename == "POTCAR":
                     msg += ", cannot calculate charge transfer."
                 warnings.warn(msg)
-            return fpath
+            return filepath
 
         chgcar_filename = _get_filepath("CHGCAR")
         if chgcar_filename is None:
@@ -531,8 +527,9 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    if chgcar_path is not None:
-        chgcar = Chgcar.from_file(chgcar_path)
+    if chgcar_path is None:
+        raise FileNotFoundError("Could not find CHGCAR!")
+    chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:
@@ -554,9 +551,9 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
 
 def bader_analysis_from_objects(
     chgcar: Chgcar,
-    potcar: Potcar = None,
-    aeccar0: Chgcar = None,
-    aeccar2: Chgcar = None,
+    potcar: Potcar | None = None,
+    aeccar0: Chgcar | None = None,
+    aeccar2: Chgcar | None = None,
 ):
     """Convenience method to run Bader analysis from a set
     of pymatgen Chgcar and Potcar objects.
