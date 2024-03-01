@@ -16,8 +16,8 @@ from itertools import groupby
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-import monty
 import numpy as np
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.serialization import loadfn
 
@@ -1137,7 +1137,7 @@ class CifParser:
             return struct
         return None
 
-    @monty.dev.deprecate(
+    @deprecated(
         message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
         "The only difference is that primitive defaults to False in the new parse_structures method."
         "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
