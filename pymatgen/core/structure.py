@@ -1131,7 +1131,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
-            np.array(coords, dtype=np.float_) if not coords_are_cartesian else latt.get_fractional_coords(coords)
+            np.array(coords, dtype=np.float64) if not coords_are_cartesian else latt.get_fractional_coords(coords)
         )
 
         props = {} if site_properties is None else site_properties
@@ -1754,7 +1754,7 @@ class IStructure(SiteCollection, MSONable):
         # expand the output tuple by symmetry_indices and symmetry_ops.
         n_bonds = len(bonds[0])
         symmetry_indices = np.empty(n_bonds)
-        symmetry_indices[:] = np.NaN
+        symmetry_indices[:] = np.nan
         symmetry_ops = np.empty(len(symmetry_indices), dtype=object)
         symmetry_identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
         symmetry_index = 0

@@ -120,9 +120,9 @@ class AbstractGeometry:
                     if central_site is None:
                         raise ValueError("The centroid includes the central site but no central site is given")
                     total += self.bare_centre
-                    self.centre = total / (np.float_(len(bare_coords)) + 1.0)
+                    self.centre = total / (np.float64(len(bare_coords)) + 1.0)
                 else:
-                    self.centre = total / np.float_(len(bare_coords))
+                    self.centre = total / np.float64(len(bare_coords))
         elif centering_type == "central_site":
             if include_central_site_in_centroid:
                 raise ValueError(
@@ -138,9 +138,9 @@ class AbstractGeometry:
                 if central_site is None:
                     raise ValueError("The centroid includes the central site but no central site is given")
                 total += self.bare_centre
-                self.centre = total / (np.float_(len(bare_coords)) + 1.0)
+                self.centre = total / (np.float64(len(bare_coords)) + 1.0)
             else:
-                self.centre = total / np.float_(len(bare_coords))
+                self.centre = total / np.float64(len(bare_coords))
         self._bare_coords = self.bare_points_without_centre
         self._coords = self._bare_coords - self.centre
         self.central_site = self.bare_central_site - self.centre

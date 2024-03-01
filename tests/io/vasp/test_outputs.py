@@ -1767,13 +1767,13 @@ class TestWavecar(PymatgenTest):
         assert len(w.coeffs[0][0]) == w.nb
         assert len(w.band_energy[0]) == w.nk
 
-        temp_ggp = Wavecar._generate_G_points
+        orig_gen_g_points = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda x, y, gamma: []
+            Wavecar._generate_G_points = lambda _x, _y, gamma: []
             with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
                 Wavecar(f"{TEST_FILES_DIR}/WAVECAR.N2")
         finally:
-            Wavecar._generate_G_points = temp_ggp
+            Wavecar._generate_G_points = orig_gen_g_points
 
     def test_generate_nbmax(self):
         self.wavecar._generate_nbmax()
