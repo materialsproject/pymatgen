@@ -155,30 +155,30 @@ class InterfacialReactivity(MSONable):
             react_kink = [self._get_reaction(x) for x in x_kink]
             num_atoms = [(x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms) for x in x_kink]
             energy_per_rxt_formula = [
-                energy_kink[i]
-                * self._get_elem_amt_in_rxn(react_kink[i])
-                / num_atoms[i]
+                energy_kink[idx]
+                * self._get_elem_amt_in_rxn(react_kink[idx])
+                / num_atoms[idx]
                 * InterfacialReactivity.EV_TO_KJ_PER_MOL
-                for i in range(2)
+                for idx in range(2)
             ]
         else:
-            for i in reversed(critical_comp):
+            for idx in reversed(critical_comp):
                 # Gets mixing ratio x at kinks.
-                c = self.pd.pd_coords(i)
-                x = float(np.linalg.norm(c - c2_coord) / np.linalg.norm(c1_coord - c2_coord))
+                coords = self.pd.pd_coords(idx)
+                mixing_ratio = float(np.linalg.norm(coords - c2_coord) / np.linalg.norm(c1_coord - c2_coord))
                 # Modifies mixing ratio in case compositions self.comp1 and
                 # self.comp2 are not normalized.
-                x = x * n2 / (n1 + x * (n2 - n1))
-                n_atoms = x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms
+                mixing_ratio = mixing_ratio * n2 / (n1 + mixing_ratio * (n2 - n1))
+                n_atoms = mixing_ratio * self.comp1.num_atoms + (1 - mixing_ratio) * self.comp2.num_atoms
                 # Converts mixing ratio in comp1 - comp2 tie line to that in
                 # c1 - c2 tie line.
-                x_converted = self._convert(x, self.factor1, self.factor2)
+                x_converted = self._convert(mixing_ratio, self.factor1, self.factor2)
                 x_kink.append(x_converted)
                 # Gets reaction energy at kinks
-                normalized_energy = self._get_energy(x)
+                normalized_energy = self._get_energy(mixing_ratio)
                 energy_kink.append(normalized_energy)
                 # Gets balanced reaction at kinks
-                rxt = self._get_reaction(x)
+                rxt = self._get_reaction(mixing_ratio)
                 react_kink.append(rxt)
                 rxt_energy = normalized_energy * self._get_elem_amt_in_rxn(rxt) / n_atoms
                 energy_per_rxt_formula.append(rxt_energy * self.EV_TO_KJ_PER_MOL)

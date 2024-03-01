@@ -317,8 +317,8 @@ class EwaldSummation(MSONable):
         """
         n_sites = len(self._struct)
         prefactor = 2 * pi / self._vol
-        e_recip = np.zeros((n_sites, n_sites), dtype=np.float_)
-        forces = np.zeros((n_sites, 3), dtype=np.float_)
+        e_recip = np.zeros((n_sites, n_sites), dtype=np.float64)
+        forces = np.zeros((n_sites, 3), dtype=np.float64)
         coords = self._coords
         rcp_latt = self._struct.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self._gmax)
@@ -363,9 +363,9 @@ class EwaldSummation(MSONable):
         force_pf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
         n_sites = len(self._struct)
-        e_real = np.empty((n_sites, n_sites), dtype=np.float_)
+        e_real = np.empty((n_sites, n_sites), dtype=np.float64)
 
-        forces = np.zeros((n_sites, 3), dtype=np.float_)
+        forces = np.zeros((n_sites, 3), dtype=np.float64)
 
         qs = np.array(self._oxi_states)
 

@@ -601,7 +601,7 @@ class StructureVis:
                 center = np.zeros(3, float)
                 for site in face:
                     center += site
-                center /= np.float_(len(face))
+                center /= np.float64(len(face))
                 for ii, f in enumerate(face):
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()

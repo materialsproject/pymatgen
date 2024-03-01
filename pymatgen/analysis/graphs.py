@@ -654,8 +654,8 @@ class StructureGraph(MSONable):
             atoms = len(grp) - 1
             offset = len(self.structure) - atoms
 
-            for i in range(atoms):
-                grp_map[i] = i + offset
+            for idx in range(atoms):
+                grp_map[idx] = idx + offset
 
             return grp_map
 
@@ -1011,7 +1011,7 @@ class StructureGraph(MSONable):
 
             if anonymous:
                 mapping = {centre_sp: "A"}
-                available_letters = [chr(66 + i) for i in range(25)]
+                available_letters = [chr(66 + idx) for idx in range(25)]
                 for label in labels:
                     sp = label[1]
                     if sp not in mapping:
@@ -2164,8 +2164,8 @@ class MoleculeGraph(MSONable):
             atoms = len(grp) - 1
             offset = len(self.molecule) - atoms
 
-            for i in range(atoms):
-                grp_map[i] = i + offset
+            for idx in range(atoms):
+                grp_map[idx] = idx + offset
 
             return grp_map
 
@@ -2298,9 +2298,9 @@ class MoleculeGraph(MSONable):
                 sizes[neighbor[2]] = len(nx.descendants(disconnected, neighbor[2]))
 
             keep = max(sizes, key=lambda x: sizes[x])
-            for i in sizes:
-                if i != keep:
-                    to_remove.add(i)
+            for idx in sizes:
+                if idx != keep:
+                    to_remove.add(idx)
 
             self.remove_nodes(list(to_remove))
             self.substitute_group(

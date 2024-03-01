@@ -48,8 +48,8 @@ class TestBaderAnalysis(PymatgenTest):
             1.021523,
             1.024357,
         ]
-        for i in range(14):
-            assert ans[i] == approx(analysis.get_charge_transfer(i), abs=1e-3)
+        for idx in range(14):
+            assert ans[idx] == approx(analysis.get_charge_transfer(idx), abs=1e-3)
         assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
         struct = analysis.get_oxidation_state_decorated_structure()
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
