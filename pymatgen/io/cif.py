@@ -34,11 +34,11 @@ if TYPE_CHECKING:
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
-sub_spgrp = partial(re.sub, r"[\s_]", "")
+sub_space_group = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
+space_groups.update({sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 
 class CifBlock:
@@ -711,7 +711,7 @@ class CifParser:
                 msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
                 if sg:
-                    sg = sub_spgrp(sg)
+                    sg = sub_space_group(sg)
                     try:
                         spg = space_groups.get(sg)
                         if spg:
@@ -1184,8 +1184,8 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
-            raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
+        if os.getenv("CI") and datetime.now() > datetime(2024, 10, 1):  # pragma: no cover
+            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(
