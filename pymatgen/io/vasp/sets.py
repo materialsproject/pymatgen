@@ -2902,7 +2902,7 @@ _dummy_structure = Structure(
 )
 
 
-def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
+def get_valid_magmom_struct(structure: Structure, inplace: bool = True, spin_mode: str = "auto") -> Structure:
     """
     Make sure that the structure has valid magmoms based on the kind of calculation.
 
@@ -2943,17 +2943,15 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     else:
         mode = spin_mode[0].lower()
 
-    new_struct = structure.copy() if not inplace else structure
-    for site in new_struct:
+    ret_struct = structure if inplace else structure.copy()
+    for site in ret_struct:
         if mode == "n":
             if "magmom" in site.properties:
                 site.properties.pop("magmom")
         elif "magmom" not in site.properties or site.properties["magmom"] is None:
             site.properties["magmom"] = default_values[mode]
 
-    if not inplace:
-        return new_struct
-    return None
+    return ret_struct
 
 
 @dataclass
