@@ -203,7 +203,11 @@ class BaderAnalysis:
     )
     def _parse_atomic_densities(self):
         # Deprecation tracker
-        if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
+        if (
+            datetime(2025, 2, 26) < datetime.now()
+            and os.getenv("CI")
+            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
+        ):
             raise RuntimeError("This method should have been removed, see #3656.")
 
         def slice_from_center(data, x_width, y_width, z_width):
