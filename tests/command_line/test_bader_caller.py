@@ -140,4 +140,3 @@ class TestBaderAnalysis(PymatgenTest):
             ),
         ):
             BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4.gz", bader_exe_path="")
-
