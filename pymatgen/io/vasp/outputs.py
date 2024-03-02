@@ -3792,7 +3792,7 @@ class Procar:
                     phase_factors = defaultdict(
                         lambda: np.full(
                             (n_kpoints, n_bands, n_ions, len(headers)),
-                            np.NaN,
+                            np.nan,
                             dtype=np.complex128,
                         )
                     )
@@ -4731,7 +4731,7 @@ class Wavecar:
         else:
             tcoeffs = self.coeffs[kpoint][band]
 
-        mesh = np.zeros(tuple(self.ng), dtype=np.complex_)
+        mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
@@ -5081,8 +5081,8 @@ class Waveder(MSONable):
                 return np.frombuffer(data, dtype=dtype)
 
             nbands, nelect, nk, ispin = read_data(np.int32)
-            _ = read_data(np.float_)  # nodes_in_dielectric_function
-            _ = read_data(np.float_)  # wplasmon
+            _ = read_data(np.float64)  # nodes_in_dielectric_function
+            _ = read_data(np.float64)  # wplasmon
             me_datatype = np.dtype(data_type)
             cder = read_data(me_datatype)
 

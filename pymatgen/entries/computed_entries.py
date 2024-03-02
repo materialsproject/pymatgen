@@ -416,7 +416,7 @@ class ComputedEntry(Entry):
     def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
         output = [
-            f"{self.entry_id} {type(self).__name__:<10} " f"- {self.formula:<12} ({self.reduced_formula})",
+            f"{self.entry_id} {type(self).__name__:<10} - {self.formula:<12} ({self.reduced_formula})",
             f"{'Energy (Uncorrected)':<24} = {self._energy:<9.4f} eV ({self._energy / n_atoms:<8.4f} eV/atom)",
             f"{'Correction':<24} = {self.correction:<9.4f} eV ({self.correction / n_atoms:<8.4f} eV/atom)",
             f"{'Energy (Final)':<24} = {self.energy:<9.4f} eV ({self.energy_per_atom:<8.4f} eV/atom)",

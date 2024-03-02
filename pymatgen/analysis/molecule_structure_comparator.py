@@ -216,7 +216,7 @@ class MoleculeStructureComparator(MSONable):
         num_atoms = len(mol)
         # index starting from 0
         if self.ignore_ionic_bond:
-            covalent_atoms = [i for i in range(num_atoms) if mol.species[i].symbol not in self.ionic_element_list]
+            covalent_atoms = [idx for idx in range(num_atoms) if mol.species[idx].symbol not in self.ionic_element_list]
         else:
             covalent_atoms = list(range(num_atoms))
         all_pairs = list(itertools.combinations(covalent_atoms, 2))

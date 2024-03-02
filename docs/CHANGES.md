@@ -6,6 +6,51 @@ nav_order: 4
 
 # Changelog
 
+## v2024.3.1
+
+## What's Changed
+
+### 🐛 Bug Fixes
+
+* Fix `BSPlotterProjected.get_projected_plots_dots_patom_pmorb` fix set & list intersect by @janosh in https://github.com/materialsproject/pymatgen/pull/3651
+* Remove rounding during FEFF writing by @matthewcarbone in https://github.com/materialsproject/pymatgen/pull/3345
+* Fix `get_niggli_reduced_lattice` if entering A1 case by @packer-jp in https://github.com/materialsproject/pymatgen/pull/3657
+* Remove BadPoscarWarning when POSCAR elements set by POTCAR by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3662
+* Fix RuntimeError triggered in CI of downstream packages by @janosh in https://github.com/materialsproject/pymatgen/pull/3664
+
+### 🛠 Enhancements
+
+* `Kpoint.__eq__` and `PhononBandStructureSymmLine.__eq__` methods + tests by @janosh in https://github.com/materialsproject/pymatgen/pull/3650
+* LOBSTER IO improvements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3649
+
+### 📖 Documentation
+
+* Lobsterout update doc-string to match renamed class variable by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3655
+* Fix installation.md formatting by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3661
+
+### 🧹 House-Keeping
+
+* Use `np.eye(3)` instead of `[[1, 0, 0], [0, 1, 0], [0, 0, 1]]` for identies by @janosh in https://github.com/materialsproject/pymatgen/pull/3659
+
+### 🧪 Tests
+
+* Deprecate `_parse_atomic_densities` in `BaderAnalysis` and fix `Bader` test setup by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3656
+
+### 🏷️ Type Hints
+
+* Improve INCAR tag check by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3621
+
+### 🤷‍♂️ Other Changes
+
+* Avoid `bader_caller` from altering compressed file in place by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3660
+
+## New Contributors
+
+* @matthewcarbone made their first contribution in https://github.com/materialsproject/pymatgen/pull/3345
+* @packer-jp made their first contribution in https://github.com/materialsproject/pymatgen/pull/3657
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.2.23...v2024.3.1
+
 ## v2024.2.23
 
 ### 🐛 Bug Fixes

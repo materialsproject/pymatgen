@@ -1,4 +1,5 @@
 """Module defining core FHI-aims input set generators."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

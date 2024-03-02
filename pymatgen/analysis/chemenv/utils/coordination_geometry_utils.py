@@ -631,12 +631,12 @@ class Plane:
             raise ValueError("Normal vector is equal to 0.0")
         if self.normal_vector[non_zeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
-            dd = -np.float_(coefficients[3]) / norm_v
+            dd = -np.float64(coefficients[3]) / norm_v
         else:
-            dd = np.float_(coefficients[3]) / norm_v
+            dd = np.float64(coefficients[3]) / norm_v
         self._coefficients = np.array(
             [self.normal_vector[0], self.normal_vector[1], self.normal_vector[2], dd],
-            np.float_,
+            np.float64,
         )
         self._crosses_origin = np.isclose(dd, 0.0, atol=1e-7, rtol=0.0)
         self.p1 = p1
