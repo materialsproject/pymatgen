@@ -316,6 +316,8 @@ def test_back_forth_v4():
 
 @skip_if_no_ase
 def test_msonable_atoms():
+    structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+
     atoms = ase.io.read(f"{TEST_FILES_DIR}/OUTCAR")
     atoms_info = {"test": "hi", "structure": structure}
     atoms.info = atoms_info
@@ -327,19 +329,12 @@ def test_msonable_atoms():
     msonable_atoms = MSONAtoms(atoms)
     assert atoms == msonable_atoms
 
-    ref = {
-        "@module": "pymatgen.io.ase",
-        "@class": "MSONAtoms",
-        "atoms_json": ase.io.jsonio.encode(ref_atoms),
-        "atoms_info": atoms_info,
-    }
-    assert msonable_atoms.as_dict() == ref
+    msonable_atoms_dict = msonable_atoms.as_dict()
+    assert msonable_atoms_dict == {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": ase.io.jsonio.encode(ref_atoms), "atoms_info": jsanitize(atoms_info, strict=True)}
 
-    atoms_back = MSONAtoms.from_dict(ref)
+    atoms_back = MSONAtoms.from_dict(msonable_atoms_dict)
     assert atoms_back == atoms
     assert atoms_back.info == atoms.info
-
-    structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
     atoms = AseAtomsAdaptor.get_atoms(structure, msonable=True)
     assert callable(atoms.as_dict)
