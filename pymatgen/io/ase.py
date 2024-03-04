@@ -4,13 +4,14 @@ Atoms object and pymatgen Structure objects.
 """
 
 from __future__ import annotations
+
 import warnings
 from collections.abc import Iterable
 from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.json import MSONable, jsanitize, MontyDecoder
+from monty.json import MontyDecoder, MSONable, jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -55,7 +56,12 @@ class MSONAtoms(Atoms, MSONable):
         # See ASE issue #1387.
         atoms_info = atoms.info.copy()
         atoms.info = {}
-        return {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": encode(atoms), "atoms_info": jsanitize(atoms_info, strict=True)}
+        return {
+            "@module": "pymatgen.io.ase",
+            "@class": "MSONAtoms",
+            "atoms_json": encode(atoms),
+            "atoms_info": jsanitize(atoms_info, strict=True),
+        }
 
     def from_dict(dct: dict[str, Any]) -> MSONAtoms:
         # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
@@ -66,6 +72,7 @@ class MSONAtoms(Atoms, MSONable):
         atoms_info = MontyDecoder().process_decoded(dct["atoms_info"])
         mson_atoms.info = atoms_info
         return mson_atoms
+
 
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.

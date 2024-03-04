@@ -323,11 +323,16 @@ def test_msonable_atoms():
 
     ref_atoms = atoms.copy()
     ref_atoms.info = {}
-    
+
     msonable_atoms = MSONAtoms(atoms)
     assert atoms == msonable_atoms
 
-    ref = {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": ase.io.jsonio.encode(ref_atoms), "atoms_info": atoms_info}
+    ref = {
+        "@module": "pymatgen.io.ase",
+        "@class": "MSONAtoms",
+        "atoms_json": ase.io.jsonio.encode(ref_atoms),
+        "atoms_info": atoms_info,
+    }
     assert msonable_atoms.as_dict() == ref
 
     atoms_back = MSONAtoms.from_dict(ref)
