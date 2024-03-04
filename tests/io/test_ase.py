@@ -337,7 +337,7 @@ def test_msonable_atoms():
 
     atoms_back = MSONAtoms.from_dict(ref)
     assert atoms_back == atoms
-    assert atoms_back.info == atoms_info
+    assert atoms_back.info == atoms.info
 
     structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
