@@ -316,8 +316,9 @@ def test_back_forth_v4():
 
 @skip_if_no_ase
 def test_msonable_atoms():
+
     atoms = ase.io.read(f"{TEST_FILES_DIR}/OUTCAR")
-    atoms_info = {"test": "hi"}
+    atoms_info = {"test": "hi", "structure": structure}
     atoms.info = atoms_info
     assert not isinstance(atoms, MSONAtoms)
 
