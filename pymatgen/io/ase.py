@@ -54,13 +54,13 @@ class MSONAtoms(Atoms, MSONable):
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        atoms_info = atoms.info.copy()
-        atoms.info: dict = {}
+        atoms_no_info = atoms.copy()
+        atoms_no_info.info: dict = {}
         return {
             "@module": "pymatgen.io.ase",
             "@class": "MSONAtoms",
-            "atoms_json": encode(atoms),
-            "atoms_info": jsanitize(atoms_info, strict=True),
+            "atoms_json": encode(atoms_no_info),
+            "atoms_info": jsanitize(atoms.info, strict=True),
         }
 
     def from_dict(dct: dict[str, Any]) -> MSONAtoms:
