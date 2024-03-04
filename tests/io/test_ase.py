@@ -317,12 +317,22 @@ def test_back_forth_v4():
 @skip_if_no_ase
 def test_msonable_atoms():
     atoms = ase.io.read(f"{TEST_FILES_DIR}/OUTCAR")
+    atoms_info = {"test": "hi"}
+    atoms.info = atoms_info
     assert not isinstance(atoms, MSONAtoms)
-    ref = {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": ase.io.jsonio.encode(atoms)}
+
+    ref_atoms = atoms.copy()
+    ref_atoms.info = {}
+    
     msonable_atoms = MSONAtoms(atoms)
     assert atoms == msonable_atoms
+
+    ref = {"@module": "pymatgen.io.ase", "@class": "MSONAtoms", "atoms_json": ase.io.jsonio.encode(ref_atoms), "atoms_info": atoms_info}
     assert msonable_atoms.as_dict() == ref
-    assert MSONAtoms.from_dict(ref) == atoms
+
+    atoms_back = MSONAtoms.from_dict(ref)
+    assert atoms_back == atoms
+    assert atoms_back.info == atoms_info
 
     structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
