@@ -55,7 +55,7 @@ class MSONAtoms(Atoms, MSONable):
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
         atoms_info = atoms.info.copy()
-        atoms.info = {}
+        atoms.info: dict = {}
         return {
             "@module": "pymatgen.io.ase",
             "@class": "MSONAtoms",
