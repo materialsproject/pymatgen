@@ -68,6 +68,11 @@ class TestAirssProvider:
         assert airss_v[0] == "0.9.1"
         assert airss_v[1].year == 2018
 
+    def test_end_of_file_newline(self, provider: AirssProvider):
+        """https://github.com/materialsproject/pymatgen/issues/3636"""
+        string = ResWriter(provider.entry).string
+        assert string.endswith("\n")
+
     def test_entry(self, provider: AirssProvider):
         entry1 = provider.entry
         assert entry1.energy == provider.energy

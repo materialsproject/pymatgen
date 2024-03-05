@@ -91,7 +91,7 @@ class ResSFAC:
     def __str__(self) -> str:
         species = " ".join(f"{specie:<2s}" for specie in self.species)
         ions = "\n".join(map(str, self.ions))
-        return f"SFAC {species}\n{ions}\nEND"
+        return f"SFAC {species}\n{ions}\nEND\n"
 
 
 @dataclass(frozen=True)
