@@ -101,7 +101,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self._label if self._label is not None else self.species_string
 
     @label.setter
-    def label(self, label: str) -> None:
+    def label(self, label: str | None) -> None:
         self._label = label
 
     @property

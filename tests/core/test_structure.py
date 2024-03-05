@@ -977,6 +977,12 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "K1.5 P0.5"
         assert new_struct.formula == "Li1.5 P0.5"
 
+    def test_replace_species_labels(self):
+        """https://github.com/materialsproject/pymatgen/issues/3658"""
+        struct = self.labeled_structure
+        struct.replace_species({"Si": "Ge"})
+        assert struct.labels == ["Ge", "Ge"]
+
     def test_append_insert_remove_replace_substitute(self):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])

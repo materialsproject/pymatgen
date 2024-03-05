@@ -528,11 +528,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     ) -> SiteCollection:
         """Swap species.
 
+        Note that this clears the label of any affected site.
+
         Args:
             species_mapping (dict): Species to swap. Species can be elements too. E.g.,
                 {Element("Li"): Element("Na")} performs a Li for Na substitution. The second species can
                 be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
-                {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
+                {Element('Si'): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
             in_place (bool): Whether to perform the substitution in place or modify a copy.
                 Defaults to True.
 
@@ -559,6 +561,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     except Exception:
                         comp += {new_sp: amt}
                 site.species = comp
+                site.label = None  # type: ignore
 
         return site_coll
 
