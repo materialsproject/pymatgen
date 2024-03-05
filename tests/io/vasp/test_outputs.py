@@ -451,7 +451,7 @@ class TestVasprun(PymatgenTest):
         )
 
     def test_xe(self):
-        vr = Vasprun(f"{test_output_dir}/vasprun.xe.xml.gz", parse_potcar_file=False)
+        vr = Vasprun(f"{test_output_dir}/vasprun.xml.xe.gz", parse_potcar_file=False)
         assert vr.atomic_symbols == ["Xe"]
 
     def test_invalid_element(self):
