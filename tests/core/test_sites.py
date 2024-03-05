@@ -226,7 +226,7 @@ class TestPeriodicSite(PymatgenTest):
 
     def test_str(self):
         assert str(self.site) == "[2.5 3.5 4.5] Fe"
-        assert str(self.site2) == "[0. 0. 0.] Si:0.500"
+        assert str(self.site2) == "[0. 0. 0.] Si:0.5"
         assert str(self.propertied_site) == "[2.5 3.5 4.5] Fe2+"
         assert str(self.labeled_site) == "[2.5 3.5 4.5] Fe"
 
