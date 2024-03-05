@@ -106,11 +106,9 @@ class Res:
     def __str__(self) -> str:
         lines = ["TITL" if self.TITL is None else str(self.TITL)]
 
-        lines.extend(f"REM {rem}" for rem in self.REMS)
+        lines += (f"REM {rem}" for rem in self.REMS)
 
-        lines.append(str(self.CELL))
-        lines.append("LATT -1")
-        lines.append(str(self.SFAC))
+        lines += (str(self.CELL), "LATT -1", str(self.SFAC))
 
         return "\n".join(lines)
 
