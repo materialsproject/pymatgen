@@ -91,7 +91,7 @@ class ResSFAC:
     def __str__(self) -> str:
         species = " ".join(f"{specie:<2s}" for specie in self.species)
         ions = "\n".join(map(str, self.ions))
-        return f"SFAC {species}\n{ions}\nEND"
+        return f"SFAC {species}\n{ions}\nEND\n"
 
 
 @dataclass(frozen=True)
@@ -104,15 +104,13 @@ class Res:
     SFAC: ResSFAC
 
     def __str__(self) -> str:
-        return "\n".join(
-            [
-                "TITL" if self.TITL is None else str(self.TITL),
-                "\n".join(f"REM {rem}" for rem in self.REMS),
-                str(self.CELL),
-                "LATT -1",
-                str(self.SFAC),
-            ]
-        )
+        lines = ["TITL" if self.TITL is None else str(self.TITL)]
+
+        lines += (f"REM {rem}" for rem in self.REMS)
+
+        lines += (str(self.CELL), "LATT -1", str(self.SFAC))
+
+        return "\n".join(lines)
 
 
 class ResParseError(ParseError):
