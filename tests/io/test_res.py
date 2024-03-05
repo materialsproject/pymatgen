@@ -78,8 +78,7 @@ class TestAirssProvider:
         entry = provider.entry
         del entry.data["rems"]
         string = ResWriter(entry).string
-
-        assert string.splitlines()[1].startswith("CELL")
+        assert all(string.splitlines())
 
     def test_entry(self, provider: AirssProvider):
         entry1 = provider.entry

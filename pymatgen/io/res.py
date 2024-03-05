@@ -104,15 +104,15 @@ class Res:
     SFAC: ResSFAC
 
     def __str__(self) -> str:
-        return "\n".join(
-            [
-                "TITL" if self.TITL is None else str(self.TITL),
-                "\n".join(f"REM {rem}" for rem in self.REMS),
-                str(self.CELL),
-                "LATT -1",
-                str(self.SFAC),
-            ]
-        )
+        lines = ["TITL" if self.TITL is None else str(self.TITL)]
+
+        lines.extend(f"REM {rem}" for rem in self.REMS)
+
+        lines.append(str(self.CELL))
+        lines.append("LATT -1")
+        lines.append(str(self.SFAC))
+
+        return "\n".join(lines)
 
 
 class ResParseError(ParseError):
