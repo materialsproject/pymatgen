@@ -1905,8 +1905,8 @@ class ReactionDiagram:
                 number of decimal places in reaction string. Defaults to "%.4f".
         """
         elem_set = set()
-        for ent in [entry1, entry2]:
-            elem_set.update([el.symbol for el in ent.elements])
+        for entry in [entry1, entry2]:
+            elem_set.update([el.symbol for el in entry.elements])
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -1939,8 +1939,8 @@ class ReactionDiagram:
 
                 try:
                     mat = []
-                    for ent in face_entries:
-                        mat.append([ent.composition.get_atomic_fraction(el) for el in elements])
+                    for entry in face_entries:
+                        mat.append([entry.composition.get_atomic_fraction(el) for el in elements])
                     mat.append(comp_vec2 - comp_vec1)
                     matrix = np.array(mat).T
                     coeffs = np.linalg.solve(matrix, comp_vec2)
@@ -1967,12 +1967,12 @@ class ReactionDiagram:
 
                         energy = -(x * entry1.energy_per_atom + (1 - x) * entry2.energy_per_atom)
 
-                        for c, ent in zip(coeffs[:-1], face_entries):
+                        for c, entry in zip(coeffs[:-1], face_entries):
                             if c > tol:
-                                r = ent.composition.reduced_composition
+                                r = entry.composition.reduced_composition
                                 products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
-                                product_entries.append((c, ent))
-                                energy += c * ent.energy_per_atom
+                                product_entries.append((c, entry))
+                                energy += c * entry.energy_per_atom
 
                         rxn_str += " + ".join(products)
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
@@ -1995,9 +1995,9 @@ class ReactionDiagram:
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = {}
-        for i, ent in enumerate(rxn_entries):
-            self.labels[str(i + 1)] = ent.attribute
-            ent.name = str(i + 1)
+        for idx, entry in enumerate(rxn_entries):
+            self.labels[str(idx + 1)] = entry.attribute
+            entry.name = str(idx + 1)
         self.all_entries = all_entries
         self.pd = pd
 
