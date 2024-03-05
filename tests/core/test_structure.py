@@ -980,8 +980,11 @@ class TestStructure(PymatgenTest):
     def test_replace_species_labels(self):
         """https://github.com/materialsproject/pymatgen/issues/3658"""
         struct = self.labeled_structure
-        struct.replace_species({"Si": "Ge"})
-        assert struct.labels == ["Ge", "Ge"]
+        new1 = struct.replace_species({"Si": "Ge"}, in_place=False)
+        assert new1.labels == ["Ge", "Ge"]
+
+        new2 = struct.replace_species({"Si": {"Ge": 0.5}}, in_place=False)
+        assert new2.labels == ["Ge:0.500", "Ge:0.500"]
 
     def test_append_insert_remove_replace_substitute(self):
         struct = self.struct
