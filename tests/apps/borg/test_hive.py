@@ -25,6 +25,7 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
+        """Test assimilate data from "vasprun.xml.xe.gz" file."""
         entry = self.drone.assimilate(f"{TEST_FILES_DIR}/vasp/outputs")
 
         for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
