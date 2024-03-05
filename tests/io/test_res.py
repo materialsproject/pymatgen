@@ -73,6 +73,14 @@ class TestAirssProvider:
         string = ResWriter(provider.entry).string
         assert string.endswith("\n")
 
+    def test_empty_rems_no_blank_line(self, provider: AirssProvider):
+        """https://github.com/materialsproject/pymatgen/issues/3636"""
+        entry = provider.entry
+        del entry.data["rems"]
+        string = ResWriter(entry).string
+
+        assert string.splitlines()[1].startswith("CELL")
+
     def test_entry(self, provider: AirssProvider):
         entry1 = provider.entry
         assert entry1.energy == provider.energy
