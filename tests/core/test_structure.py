@@ -983,8 +983,10 @@ class TestStructure(PymatgenTest):
         new1 = struct.replace_species({"Si": "Ge"}, in_place=False)
         assert new1.labels == ["Ge", "Ge"]
 
-        new2 = struct.replace_species({"Si": {"Ge": 0.5}}, in_place=False)
-        assert new2.labels == ["Ge:0.500", "Ge:0.500"]
+        replacement = {"Si": 0.5, "Ge": 0.5}
+        label = ", ".join(f"{key}:{val:.3}" for key, val in replacement.items())
+        new2 = struct.replace_species({"Si": replacement}, in_place=False)
+        assert new2.labels == [label] * len(struct)
 
     def test_append_insert_remove_replace_substitute(self):
         struct = self.struct
