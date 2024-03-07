@@ -26,9 +26,9 @@ def test_pmg_analyze(cd_tmp_path: Path):
 
 
 def test_pmg_structure(cd_tmp_path: Path):
-    exit_status = os.system(f"pmg structure --convert --filenames {TEST_FILES_DIR}/Li2O.cif POSCAR.Li2O.test")
+    exit_status = os.system(f"pmg structure --convert --filenames {TEST_FILES_DIR}/Li2O.cif POSCAR_Li2O_test")
     assert exit_status == 0
-    assert os.path.exists("POSCAR.Li2O.test")
+    assert os.path.exists("POSCAR_Li2O_test")
 
     exit_status = os.system(f"pmg structure --symmetry 0.1 --filenames {TEST_FILES_DIR}/Li2O.cif")
     assert exit_status == 0
