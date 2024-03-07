@@ -31,12 +31,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: |
-          python -m pip install build
-          pip install -e .
-
       - name: Build sdist
-        run: python -m build --sdist
+        run: |
+          pip install build
+          python -m build --sdist
 
       - uses: actions/upload-artifact@v3
         with:
