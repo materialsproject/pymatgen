@@ -171,7 +171,8 @@ class BalancedReaction(MSONable):
         return True
 
     def __hash__(self) -> int:
-        return 7
+        # Necessity for hash method is unclear (see #3673)
+        return hash((frozenset(self.reactants_coeffs.items()), frozenset(self.products_coeffs.items())))
 
     @classmethod
     def _str_from_formulas(cls, coeffs, formulas):
