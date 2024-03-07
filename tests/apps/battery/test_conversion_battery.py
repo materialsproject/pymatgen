@@ -21,7 +21,7 @@ class TestConversionElectrode(unittest.TestCase):
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
-            elif f in ["MnO2"]:
+            elif f == "MnO2":
                 working_ion = "Mg"
             c = ConversionElectrode.from_composition_and_entries(
                 Composition(f), entries, working_ion_symbol=working_ion

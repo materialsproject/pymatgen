@@ -519,7 +519,7 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
     that does not match any GGA material (r2scan-8).
     """
     gga_entries = ms_complete.gga_entries
-    scan_entries = [e for e in ms_complete.scan_entries if e.entry_id in ["r2scan-4"]]
+    scan_entries = [e for e in ms_complete.scan_entries if e.entry_id == "r2scan-4"]
     scan_entries.append(
         ComputedStructureEntry(
             Structure(
@@ -1072,7 +1072,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             if entry.entry_id in ["gga-1", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="ground state"):
                     compat.get_adjustments(entry, mixing_state)
-            elif entry.entry_id in ["r2scan-3"]:
+            elif entry.entry_id == "r2scan-3":
                 with pytest.raises(CompatibilityError, match="and no R2SCAN ground state"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.entry_id in ["gga-2", "gga-5", "gga-6", "gga-7"]:
@@ -1461,7 +1461,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert entry.correction == 3
             elif entry.entry_id == "r2scan-7":
                 assert entry.correction == 15
-            elif entry.entry_id in ["gga-4"]:
+            elif entry.entry_id == "gga-4":
                 raise AssertionError(f"Entry {entry.entry_id} should have been discarded")
             else:
                 assert entry.correction == 0, f"{entry.entry_id}"

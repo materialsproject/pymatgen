@@ -517,7 +517,7 @@ class Lobsterin(UserDict, MSONable):
             mapping = []
             for gp in newlist:
                 minus_gp = [-k for k in gp]
-                if minus_gp in newlist and minus_gp not in [[0, 0, 0]]:
+                if minus_gp in newlist and minus_gp != [0, 0, 0]:
                     mapping.append(newlist.index(minus_gp))
                 else:
                     mapping.append(newlist.index(gp))

@@ -303,7 +303,7 @@ def contract(string):
     return " ".join(f"{c}*{t}" for c, t in count)
 
 
-class AbivarAble(metaclass=abc.ABCMeta):
+class AbivarAble(abc.ABC):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
@@ -775,7 +775,7 @@ class KSampling(AbivarAble, MSONable):
     @property
     def is_homogeneous(self) -> bool:
         """Homogeneous sampling."""
-        return self.mode not in ["path"]
+        return self.mode != "path"
 
     @classmethod
     def gamma_only(cls):

@@ -53,7 +53,7 @@ class CompatibilityError(Exception):
     """
 
 
-class Correction(metaclass=abc.ABCMeta):
+class Correction(abc.ABC):
     """A Correction class is a pre-defined scheme for correction a computed
     entry based on the type and chemistry of the structure and the
     calculation parameters. All Correction classes must implement a
@@ -476,7 +476,7 @@ class UCorrection(Correction):
         return f"{self.name} {self.compat_type} Correction"
 
 
-class Compatibility(MSONable, metaclass=abc.ABCMeta):
+class Compatibility(MSONable, abc.ABC):
     """Abstract Compatibility class, not intended for direct use.
     Compatibility classes are used to correct the energies of an entry or a set
     of entries. All Compatibility classes must implement get_adjustments() method.

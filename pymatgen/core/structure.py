@@ -17,7 +17,7 @@ import random
 import re
 import sys
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from fnmatch import fnmatch
 from inspect import isclass
 from io import StringIO
@@ -191,7 +191,7 @@ class PeriodicNeighbor(PeriodicSite):
         return super(Site, cls).from_dict(dct)
 
 
-class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
+class SiteCollection(collections.abc.Sequence, ABC):
     """Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
     periodicity) and Structure (a collection of PeriodicSites, i.e.,

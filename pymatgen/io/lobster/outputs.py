@@ -1378,7 +1378,7 @@ class Bandoverlaps(MSONable):
             else:
                 overlaps = []
                 for el in line.split(" "):
-                    if el not in [""]:
+                    if el != "":
                         overlaps.append(float(el))
                 self.band_overlaps_dict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)
 

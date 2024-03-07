@@ -571,17 +571,17 @@ class Vasprun(MSONable):
                 for i in range(len(self.dielectric_data["density"][0]))
             ]
 
-            def f(freq, real, imag):
+            def optical_absorb_coeff(freq, real, imag):
                 """
                 The optical absorption coefficient calculated in terms of
-                equation, the unit is in cm-1.
+                equation, the unit is cm^-1.
                 """
                 hc = 1.23984 * 1e-4  # plank constant times speed of light, in the unit of eV*cm
                 return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
-            absorption_coeff = [
-                f(freq, real, imag) for freq, real, imag in zip(self.dielectric_data["density"][0], real_avg, imag_avg)
-            ]
+            absorption_coeff = list(
+                itertools.starmap(optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg))
+            )
         return absorption_coeff
 
     @property

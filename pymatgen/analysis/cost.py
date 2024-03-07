@@ -56,7 +56,7 @@ class CostEntry(PDEntry):
         return f"CostEntry : {self.composition} with cost = {self.energy:.4f}"
 
 
-class CostDB(metaclass=abc.ABCMeta):
+class CostDB(abc.ABC):
     """
     Abstract class for representing a Cost database.
     Can be extended, e.g. for file-based or REST-based databases.

@@ -67,6 +67,6 @@ class ConnectivityFinder:
 
     def setup_parameters(self, multiple_environments_choice):
         """Setup of the parameters for the connectivity finder."""
-        if multiple_environments_choice is not None and multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
+        if multiple_environments_choice is not None and multiple_environments_choice != "TAKE_HIGHEST_FRACTION":
             raise ValueError(f"Option {multiple_environments_choice!r} for multiple_environments_choice is not allowed")
         self.multiple_environments_choice = multiple_environments_choice

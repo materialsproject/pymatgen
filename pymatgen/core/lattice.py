@@ -5,6 +5,7 @@ from __future__ import annotations
 import collections
 import itertools
 import math
+import operator
 import warnings
 from fractions import Fraction
 from functools import reduce
@@ -1651,7 +1652,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
 
     # deal with the case we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in mi]
-    mi *= reduce(lambda x, y: x * y, md)
+    mi *= reduce(operator.mul, md)
     int_miller_index = np.round(mi, 1).astype(int)
     mi /= np.abs(reduce(math.gcd, int_miller_index))
 

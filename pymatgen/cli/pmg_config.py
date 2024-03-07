@@ -148,7 +148,7 @@ def setup_potcars(potcar_dirs: list[str]):
                     if ext.upper() in ["Z", "GZ"]:
                         with subprocess.Popen(["gunzip", dest]) as p:
                             p.communicate()
-                    elif ext.upper() in ["BZ2"]:
+                    elif ext.upper() == "BZ2":
                         with subprocess.Popen(["bunzip2", dest]) as p:
                             p.communicate()
                     if subdir == "Osmium":

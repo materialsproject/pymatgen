@@ -36,7 +36,7 @@ __status__ = "Development"
 __date__ = "March 2020"
 
 
-class KPathBase(metaclass=abc.ABCMeta):
+class KPathBase(abc.ABC):
     """This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
     """

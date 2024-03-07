@@ -40,7 +40,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
+class AbstractFeffInputSet(MSONable, abc.ABC):
     """
     Abstract base class representing a set of Feff input parameters.
     The idea is that using a FeffInputSet, a complete set of input files

@@ -350,7 +350,7 @@ class HeisenbergMapper:
         ex_mat = self.ex_mat
         # Solve the matrix equation for J_ij values
         E = ex_mat[["E"]]
-        j_names = [j for j in ex_mat.columns if j not in ["E"]]
+        j_names = [j for j in ex_mat.columns if j != "E"]
 
         # Only 1 NN interaction
         if len(j_names) < 3:

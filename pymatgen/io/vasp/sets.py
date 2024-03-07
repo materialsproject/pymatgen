@@ -69,7 +69,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 # MODULE_DIR = os.path.dirname(__file__)
 
 
-class VaspInputSet(InputGenerator, metaclass=abc.ABCMeta):
+class VaspInputSet(InputGenerator, abc.ABC):
     """
     Base class representing a set of VASP input parameters with a structure
     supplied as init parameters. Typically, you should not inherit from this

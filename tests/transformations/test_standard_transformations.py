@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 import json
+import operator
 import random
 import unittest
 from shutil import which
@@ -128,7 +129,7 @@ class TestSupercellTransformation(unittest.TestCase):
         scale_factors = [random.randint(1, 5) for i in range(3)]
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
         struct = trafo.apply_transformation(self.struct)
-        assert len(struct) == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
+        assert len(struct) == 4 * functools.reduce(operator.mul, scale_factors)
 
     def test_from_boundary_distance(self):
         struct_cubic = Structure.from_spacegroup("Pm-3m", 4 * np.eye(3), ["H"], [[0, 0, 0]])

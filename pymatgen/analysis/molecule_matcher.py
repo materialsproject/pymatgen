@@ -41,7 +41,7 @@ __email__ = "xhqu1981@gmail.com"
 logger = logging.getLogger(__name__)
 
 
-class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
+class AbstractMolAtomMapper(MSONable, abc.ABC):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the

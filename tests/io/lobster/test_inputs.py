@@ -1577,16 +1577,16 @@ class TestLobsterin(unittest.TestCase):
                 "onlycohpcoop",
             ]:
                 assert lobsterin1["cohpGenerator"] == "from 0.1 to 6.0 orbitalwise"
-            if option in ["standard"]:
+            if option == "standard":
                 assert "skipdos" not in lobsterin1
                 assert "skipcohp" not in lobsterin1
                 assert "skipcoop" not in lobsterin1
-            if option in ["standard_with_fatband"]:
+            if option == "standard_with_fatband":
                 assert lobsterin1["createFatband"] == ["Fe 3d 4p 4s ", "O 2p 2s "]
                 assert "skipdos" not in lobsterin1
                 assert "skipcohp" not in lobsterin1
                 assert "skipcoop" not in lobsterin1
-            if option in ["standard_from_projection"]:
+            if option == "standard_from_projection":
                 assert lobsterin1["loadProjectionFromFile"], True
             if option in [
                 "onlyprojection",
@@ -1601,22 +1601,22 @@ class TestLobsterin(unittest.TestCase):
                 assert lobsterin1["skipGrossPopulation"], True
                 assert lobsterin1["skipMadelungEnergy"], True
 
-            if option in ["onlydos"]:
+            if option == "onlydos":
                 assert lobsterin1["skipPopulationAnalysis"], True
                 assert lobsterin1["skipGrossPopulation"], True
                 assert lobsterin1["skipcohp"], True
                 assert lobsterin1["skipcoop"], True
                 assert lobsterin1["skipcobi"], True
                 assert lobsterin1["skipMadelungEnergy"], True
-            if option in ["onlycohp"]:
+            if option == "onlycohp":
                 assert lobsterin1["skipcoop"], True
                 assert lobsterin1["skipcobi"], True
-            if option in ["onlycoop"]:
+            if option == "onlycoop":
                 assert lobsterin1["skipcohp"], True
                 assert lobsterin1["skipcobi"], True
-            if option in ["onlyprojection"]:
+            if option == "onlyprojection":
                 assert lobsterin1["skipdos"], True
-            if option in ["onlymadelung"]:
+            if option == "onlymadelung":
                 assert lobsterin1["skipPopulationAnalysis"], True
                 assert lobsterin1["skipGrossPopulation"], True
                 assert lobsterin1["skipcohp"], True

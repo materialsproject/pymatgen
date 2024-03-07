@@ -20,7 +20,7 @@ from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
+class AbstractDrone(MSONable, abc.ABC):
     """Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the

@@ -104,7 +104,7 @@ class JonesFaithfulTransformation:
 
             # add implicit multiplication symbols
             basis_change = [
-                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.X)
+                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.VERBOSE)
                 for string in basis_change
             ]
 

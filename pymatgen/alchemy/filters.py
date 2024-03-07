@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
+class AbstractStructureFilter(MSONable, abc.ABC):
     """AbstractStructureFilter that defines an API to perform testing of
     Structures. Structures that return True to a test are retained during
     transmutation while those that return False are removed.

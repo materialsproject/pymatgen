@@ -28,7 +28,7 @@ __status__ = "Production"
 __date__ = "Dec 3, 2012"
 
 
-class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
+class AbstractComparator(MSONable, abc.ABC):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.

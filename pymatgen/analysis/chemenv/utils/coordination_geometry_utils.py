@@ -335,8 +335,8 @@ def rectangle_surface_intersection(
         raise NotImplementedError("Bounds should be given right now ...")
     if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
         return 0.0, 0.0
-    xmin = bounds_lower[0] if x1 < bounds_lower[0] else x1
-    xmax = bounds_lower[1] if x2 > bounds_lower[1] else x2
+    xmin = max(x1, bounds_lower[0])
+    xmax = min(x2, bounds_lower[1])
 
     def diff(x):
         flwx = f_lower(x)
