@@ -10,8 +10,7 @@ on:
     branches: [master]
     paths-ignore: ["**/*.md", docs/**]
   workflow_dispatch:
-  # make this workflow reusable by release.yml
-  workflow_call:
+  workflow_call: # make this workflow reusable by release.yml
 
 permissions:
   contents: read
@@ -42,8 +41,6 @@ jobs:
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
-      PMG_TEST_FILES_DIR: ${{ github.workspace }}/tests/files
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
       PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
 
