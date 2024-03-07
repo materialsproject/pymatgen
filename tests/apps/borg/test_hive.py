@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import unittest
 
+from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.apps.borg.hive import (
@@ -11,7 +12,7 @@ from pymatgen.apps.borg.hive import (
     VaspToComputedEntryDrone,
 )
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
 
 class TestVaspToComputedEntryDrone(unittest.TestCase):
@@ -20,23 +21,30 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(TEST_FILES_DIR):
-            if path[0] == TEST_FILES_DIR:
+        for path in os.walk(VASP_OUT_DIR):
+            if path[0] == VASP_OUT_DIR:
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
-        entry = self.drone.assimilate(TEST_FILES_DIR)
-        for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
-            assert param in entry.parameters
-        assert entry.data["efermi"] == approx(-6.62148548)
-        assert entry.reduced_formula == "Xe"
-        assert entry.energy == approx(0.5559329)
-        entry = self.structure_drone.assimilate(TEST_FILES_DIR)
-        assert entry.reduced_formula == "Xe"
-        assert entry.energy == approx(0.5559329)
-        assert isinstance(entry, ComputedStructureEntry)
-        assert entry.structure is not None
-        # assert len(entry.parameters["history"]) == 2
+        """Test assimilate data from "vasprun.xe.xml.gz" file."""
+
+        with ScratchDir("."):
+            # Need to rename the test file to "vasprun.xml.xe.gz" as
+            # hive is looking for pattern "vasprun.xml*"
+            os.symlink(f"{VASP_OUT_DIR}/vasprun.xe.xml.gz", "vasprun.xml.xe.gz")
+            entry = self.drone.assimilate(".")
+
+            for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
+                assert param in entry.parameters
+            assert entry.data["efermi"] == approx(-6.62148548)
+            assert entry.reduced_formula == "Xe"
+            assert entry.energy == approx(0.5559329)
+
+            entry = self.structure_drone.assimilate(".")
+            assert entry.reduced_formula == "Xe"
+            assert entry.energy == approx(0.5559329)
+            assert isinstance(entry, ComputedStructureEntry)
+            assert entry.structure is not None
 
     def test_as_from_dict(self):
         dct = self.structure_drone.as_dict()
@@ -50,8 +58,8 @@ class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
         self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(TEST_FILES_DIR):
-            if path[0] == TEST_FILES_DIR:
+        for path in os.walk(VASP_OUT_DIR):
+            if path[0] == VASP_OUT_DIR:
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_as_from_dict(self):

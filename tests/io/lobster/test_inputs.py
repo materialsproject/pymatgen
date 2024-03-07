@@ -32,7 +32,7 @@ from pymatgen.io.lobster import (
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -602,13 +602,13 @@ class TestNciCobiList(unittest.TestCase):
 class TestDoscar(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
-        doscar = f"{TEST_FILES_DIR}/DOSCAR.lobster.spin"
+        doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
         poscar = f"{TEST_FILES_DIR}/POSCAR.lobster.spin_DOS"
+
         # not spin polarized
-        doscar2 = f"{TEST_FILES_DIR}/DOSCAR.lobster.nonspin"
+        doscar2 = f"{VASP_OUT_DIR}/DOSCAR.lobster.nonspin"
         poscar2 = f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS"
-        f"{TEST_FILES_DIR}/DOSCAR.lobster.nonspin_zip.gz"
-        f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS_zip.gz"
+
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
@@ -1656,7 +1656,7 @@ class TestLobsterin(unittest.TestCase):
             f"{TEST_FILES_DIR}/POSCAR.C2.gz",
             f"{TEST_FILES_DIR}/INCAR.C2.gz",
             f"{TEST_FILES_DIR}/POTCAR.C2.gz",
-            f"{TEST_FILES_DIR}/vasprun.xml.C2.gz",
+            f"{VASP_OUT_DIR}/vasprun.C2.xml.gz",
             option="standard_with_energy_range_from_vasprun",
         )
         assert lobsterin_comp["COHPstartEnergy"] == -28.3679
@@ -1838,7 +1838,7 @@ class TestLobsterin(unittest.TestCase):
         # without line mode
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/IBZKPT.lobster")
+        kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
@@ -1856,7 +1856,7 @@ class TestLobsterin(unittest.TestCase):
             input_grid=[6, 6, 3],
         )
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/IBZKPT.lobster")
+        kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
