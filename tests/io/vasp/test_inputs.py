@@ -881,10 +881,10 @@ class TestKpointsSupportedModes:
 
 class TestKpoints:
     def test_init(self):
-        filepath = f"{VASP_IN_DIR}/KPOINTS.auto"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[10]], "Wrong kpoint lattice read"
-        filepath = f"{VASP_IN_DIR}/KPOINTS.cartesian"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read"
         assert kpoints.kpts_shift == [0.5, 0.5, 0.5], "Wrong kpoint shift read"
@@ -894,13 +894,13 @@ class TestKpoints:
         self.kpoints = kpoints
         assert kpoints.kpts == [[2, 4, 6]]
 
-        filepath = f"{VASP_IN_DIR}/KPOINTS.band"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_band"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
         assert str(kpoints).split("\n")[3] == "Reciprocal"
 
-        filepath = f"{VASP_IN_DIR}/KPOINTS.explicit"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
         expected_kpt_str = """Example file
@@ -912,7 +912,7 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
-        filepath = f"{VASP_IN_DIR}/KPOINTS.explicit_tet"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
@@ -970,7 +970,7 @@ Cartesian
         assert kpts.kpts_shift == kpts_from_dict.kpts_shift
 
     def test_kpt_bands_as_dict_from_dict(self):
-        file_name = f"{VASP_IN_DIR}/KPOINTS.band"
+        file_name = f"{VASP_IN_DIR}/KPOINTS_band"
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
@@ -1344,7 +1344,7 @@ class TestVaspInput(PymatgenTest):
             os.environ["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
         filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         potcar = Potcar.from_file(filepath)
-        filepath = f"{VASP_IN_DIR}/KPOINTS.auto"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 

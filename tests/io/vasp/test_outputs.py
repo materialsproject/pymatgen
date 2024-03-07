@@ -538,7 +538,7 @@ class TestVasprun(PymatgenTest):
             parse_potcar_file=False,
         )
         bs = vasp_run.get_band_structure(
-            kpoints_filename=f"{VASP_IN_DIR}/KPOINTS.force_hybrid_like_calc",
+            kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_force_hybrid_like_calc",
             force_hybrid_mode=True,
             line_mode=True,
         )

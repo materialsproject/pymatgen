@@ -268,7 +268,7 @@ class TestReconstructBandStructure(PymatgenTest):
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
-        bs = bsv.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS.band", line_mode=True)
+        bs = bsv.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_band", line_mode=True)
         bs.get_projection_on_elements()
 
 
