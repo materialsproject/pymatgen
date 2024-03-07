@@ -536,7 +536,7 @@ Cartesian
 
 class TestIncar(PymatgenTest):
     def setUp(self):
-        self.incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+        self.incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_init(self):
         incar = self.incar
@@ -555,11 +555,12 @@ class TestIncar(PymatgenTest):
         assert self.incar.get("LDAU") is None
 
     def test_diff(self):
-        filepath1 = f"{TEST_FILES_DIR}/INCAR"
+        filepath1 = f"{VASP_IN_DIR}/INCAR"
         incar1 = Incar.from_file(filepath1)
-        filepath2 = f"{TEST_FILES_DIR}/INCAR.2"
+        filepath2 = f"{VASP_IN_DIR}/INCAR_2"
+        filepath3 = f"{VASP_IN_DIR}/INCAR_3"
         incar2 = Incar.from_file(filepath2)
-        incar3 = Incar.from_file(filepath2)
+        incar3 = Incar.from_file(filepath3)
         assert incar1.diff(incar2) == {
             "Different": {
                 "NELM": {"INCAR1": None, "INCAR2": 100},
@@ -1336,7 +1337,7 @@ class TestPotcar(PymatgenTest):
 
 class TestVaspInput(PymatgenTest):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/INCAR"
+        filepath = f"{VASP_IN_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath, check_for_potcar=False)

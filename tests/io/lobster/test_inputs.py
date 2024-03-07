@@ -1549,7 +1549,7 @@ class TestLobsterin(unittest.TestCase):
         ]:
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
                 f"{VASP_IN_DIR}/POSCAR_Fe3O4",
-                f"{TEST_FILES_DIR}/INCAR.lobster",
+                f"{VASP_IN_DIR}/INCAR.lobster",
                 f"{VASP_IN_DIR}/POTCAR_Fe3O4",
                 option=option,
             )
@@ -1626,7 +1626,7 @@ class TestLobsterin(unittest.TestCase):
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
-            f"{TEST_FILES_DIR}/INCAR.lobster",
+            f"{VASP_IN_DIR}/INCAR.lobster",
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
@@ -1635,7 +1635,7 @@ class TestLobsterin(unittest.TestCase):
         # test gaussian smearing
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
-            f"{TEST_FILES_DIR}/INCAR.lobster2",
+            f"{VASP_IN_DIR}/INCAR.lobster2",
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
@@ -1645,7 +1645,7 @@ class TestLobsterin(unittest.TestCase):
         with pytest.raises(ValueError, match="ISMEAR has to be 0 for a fatband calculation with Lobster"):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
                 f"{VASP_IN_DIR}/POSCAR_Fe3O4",
-                f"{TEST_FILES_DIR}/INCAR.lobster2",
+                f"{VASP_IN_DIR}/INCAR.lobster2",
                 dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
                 option="standard_with_fatband",
             )
@@ -1654,7 +1654,7 @@ class TestLobsterin(unittest.TestCase):
         # test standard_with_energy_range_from_vasprun
         lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_C2",
-            f"{TEST_FILES_DIR}/INCAR.C2.gz",
+            f"{VASP_IN_DIR}/INCAR_C2",
             f"{VASP_IN_DIR}/POTCAR_C2.gz",
             f"{VASP_OUT_DIR}/vasprun.C2.xml.gz",
             option="standard_with_energy_range_from_vasprun",
@@ -1754,7 +1754,7 @@ class TestLobsterin(unittest.TestCase):
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
-            f"{TEST_FILES_DIR}/INCAR.lobster",
+            f"{VASP_IN_DIR}/INCAR.lobster",
             f"{VASP_IN_DIR}/POTCAR_Fe3O4",
             option="standard",
         )
@@ -1767,17 +1767,17 @@ class TestLobsterin(unittest.TestCase):
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
-            f"{TEST_FILES_DIR}/INCAR.lobster",
+            f"{VASP_IN_DIR}/INCAR.lobster",
             f"{VASP_IN_DIR}/POTCAR_Fe3O4",
             option="standard",
         )
         lobsterin1.write_INCAR(
-            f"{TEST_FILES_DIR}/INCAR.lobster3",
+            f"{VASP_IN_DIR}/INCAR.lobster3",
             outfile_path,
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
         )
 
-        incar1 = Incar.from_file(f"{TEST_FILES_DIR}/INCAR.lobster3")
+        incar1 = Incar.from_file(f"{VASP_IN_DIR}/INCAR.lobster3")
         incar2 = Incar.from_file(outfile_path)
 
         assert incar1.diff(incar2)["Different"] == {

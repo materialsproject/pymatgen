@@ -368,7 +368,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # because the structure has no site properties, the default MAGMOM is assigned from the
         # config dictionary.
         struct = Structure(lattice, ["Fe", "F"], coords)
-        incar = MPStaticSet(struct, prev_incar=f"{TEST_FILES_DIR}/INCAR").incar
+        incar = MPStaticSet(struct, prev_incar=f"{VASP_IN_DIR}/INCAR").incar
         assert incar["MAGMOM"] == [5, 0.6]
 
         # Make sure this works with species.
@@ -797,7 +797,7 @@ class TestMPStaticSet(PymatgenTest):
 class TestMatPESStaticSet(PymatgenTest):
     def setUp(self):
         self.struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
-        self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+        self.prev_incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_default(self):
         input_set = MatPESStaticSet(self.struct)
