@@ -18,12 +18,12 @@ from pymatgen.analysis.structure_analyzer import (
 )
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestVoronoiAnalyzer(PymatgenTest):
     def setUp(self):
-        self.ss = Xdatcar(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR.MD").structures
+        self.ss = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
         self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4)
 
@@ -40,7 +40,7 @@ class TestVoronoiAnalyzer(PymatgenTest):
 class TestRelaxationAnalyzer(unittest.TestCase):
     def setUp(self):
         s1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O")
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/vasp/outputs/CONTCAR.Li2O")
+        s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR.Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
     def test_vol_and_para_changes(self):
@@ -77,7 +77,7 @@ class TestVoronoiConnectivity(PymatgenTest):
 
 class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
-        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR.MD")
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
         assert coordination_numbers["Fe"] == approx(
             4.771903318390836, 5

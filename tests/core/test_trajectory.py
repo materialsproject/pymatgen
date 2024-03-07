@@ -10,13 +10,13 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestTrajectory(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR_traj")
-        self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR_traj")
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_traj")
+        self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures
 
         out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
@@ -221,15 +221,15 @@ class TestTrajectory(PymatgenTest):
         traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR_traj_combine_test_1")
+        compatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_1")
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR_traj_combine_test_full")
+        full_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_full")
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/vasp/outputs/XDATCAR_traj_combine_test_2")
+        incompatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_2")
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)

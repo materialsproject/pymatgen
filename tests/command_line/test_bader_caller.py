@@ -12,7 +12,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 @unittest.skipIf(not which("bader"), "bader executable not present")
@@ -23,9 +23,9 @@ class TestBaderAnalysis(PymatgenTest):
     def test_init(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4.gz",
+            chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
             potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
-            chgref_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4_ref.gz",
+            chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
         )
         assert len(analysis.data) == 14
         assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
@@ -55,7 +55,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4.gz")
+        analysis = BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz")
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
@@ -118,9 +118,9 @@ class TestBaderAnalysis(PymatgenTest):
     def test_atom_parsing(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4.gz",
+            chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
             potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
-            chgref_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4_ref.gz",
+            chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
             parse_atomic_densities=True,
         )
 
@@ -139,4 +139,4 @@ class TestBaderAnalysis(PymatgenTest):
                 RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
             ),
         ):
-            BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/vasp/outputs/CHGCAR.Fe3O4.gz", bader_exe_path="")
+            BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz", bader_exe_path="")

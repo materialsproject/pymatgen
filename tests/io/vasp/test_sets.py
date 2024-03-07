@@ -55,7 +55,7 @@ from pymatgen.io.vasp.sets import (
     get_valid_magmom_struct,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
 
 dec = MontyDecoder()
 
@@ -1078,7 +1078,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
 class TestMagmomLdau(PymatgenTest):
     def test_structure_from_prev_run(self):
-        vrun = Vasprun(f"{TEST_FILES_DIR}/vasp/outputs/vasprun.magmom_ldau.xml.gz")
+        vrun = Vasprun(f"{VASP_OUT_DIR}/vasprun.magmom_ldau.xml.gz")
         structure = vrun.final_structure
         poscar = Poscar(structure)
         structure_decorated = get_structure_from_prev_run(vrun)

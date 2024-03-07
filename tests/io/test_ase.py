@@ -7,7 +7,7 @@ from monty.json import MontyDecoder, jsanitize
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
 try:
     import ase
@@ -177,7 +177,7 @@ def test_get_structure_mag():
     assert "final_magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR.gz")
+    atoms = ase.io.read(f"{VASP_OUT_DIR}/OUTCAR.gz")
     structure = AseAtomsAdaptor.get_structure(atoms)
     assert structure.site_properties["final_magmom"] == atoms.get_magnetic_moments().tolist()
     assert "magmom" not in structure.site_properties
@@ -318,7 +318,7 @@ def test_back_forth_v4():
 def test_msonable_atoms():
     structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/vasp/outputs/OUTCAR.gz")
+    atoms = ase.io.read(f"{VASP_OUT_DIR}/OUTCAR.gz")
     atoms_info = {"test": "hi", "structure": structure}
     atoms.info = atoms_info
     assert not isinstance(atoms, MSONAtoms)
