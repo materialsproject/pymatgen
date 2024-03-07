@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import unittest
 
+from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.apps.borg.hive import (
@@ -25,20 +26,25 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
-        """Test assimilate data from "vasprun.xml.xe.gz" file."""
-        entry = self.drone.assimilate(f"{TEST_FILES_DIR}/vasp/outputs")
+        """Test assimilate data from "vasprun.xe.xml.gz" file."""
 
-        for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
-            assert param in entry.parameters
-        assert entry.data["efermi"] == approx(-6.62148548)
-        assert entry.reduced_formula == "Xe"
-        assert entry.energy == approx(0.5559329)
+        with ScratchDir("."):
+            # Need to rename the test file to "vasprun.xml.xe.gz" as
+            # hive is looking for pattern "vasprun.xml*"
+            os.symlink(f"{TEST_FILES_DIR}/vasp/outputs/vasprun.xe.xml.gz", "vasprun.xml.xe.gz")
+            entry = self.drone.assimilate(".")
 
-        entry = self.structure_drone.assimilate(f"{TEST_FILES_DIR}/vasp/outputs")
-        assert entry.reduced_formula == "Xe"
-        assert entry.energy == approx(0.5559329)
-        assert isinstance(entry, ComputedStructureEntry)
-        assert entry.structure is not None
+            for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
+                assert param in entry.parameters
+            assert entry.data["efermi"] == approx(-6.62148548)
+            assert entry.reduced_formula == "Xe"
+            assert entry.energy == approx(0.5559329)
+
+            entry = self.structure_drone.assimilate(".")
+            assert entry.reduced_formula == "Xe"
+            assert entry.energy == approx(0.5559329)
+            assert isinstance(entry, ComputedStructureEntry)
+            assert entry.structure is not None
 
     def test_as_from_dict(self):
         dct = self.structure_drone.as_dict()
