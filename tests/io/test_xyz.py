@@ -9,7 +9,7 @@ from pytest import approx
 from pymatgen.core import Structure
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyz import XYZ
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
 class TestXYZ(unittest.TestCase):
@@ -134,7 +134,7 @@ C32-C2-1
         assert list(mxyz.molecule.cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
 
     def test_init_from_structure(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         xyz = XYZ(struct)
         expected = """24

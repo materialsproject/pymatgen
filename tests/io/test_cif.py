@@ -11,7 +11,7 @@ from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     import pybtex
@@ -421,7 +421,7 @@ class TestCifIO(PymatgenTest):
             assert parser._parse_symbol(sym) == expected_symbol
 
     def test_cif_writer(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         writer = CifWriter(struct, symprec=0.01)
         answer = """# generated using pymatgen
@@ -466,7 +466,7 @@ loop_
             assert l1.strip() == l2.strip()
 
     def test_symmetrized(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         writer = CifWriter(struct, symprec=0.1)
 
@@ -712,7 +712,7 @@ loop_
 """
         parser = CifParser.from_str(cif_structure)
         s_test = parser.parse_structures(primitive=False)[0]
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
 
         sm = StructureMatcher(stol=0.05, ltol=0.01, angle_tol=0.1)
@@ -856,7 +856,7 @@ Si1 Si 0 0 0 1 0.0
             assert structs[0].species.as_dict()["Te"] == 1.5
 
     def test_cif_writer_write_file(self):
-        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         out_path = f"{self.tmp_path}/test.cif"
         CifWriter(struct1).write_file(out_path)
         read_structs = CifParser(out_path).parse_structures()
@@ -945,7 +945,7 @@ Si1 Si 0 0 0 1 0.0
     def test_cif_writer_site_properties(self):
         # check CifWriter(write_site_properties=True) adds Structure site properties to
         # CIF with _atom_site_ prefix
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         struct.add_site_property(label := "hello", [1.0] * (len(struct) - 1) + [-1.0])
         out_path = f"{self.tmp_path}/test2.cif"
         CifWriter(struct, write_site_properties=True).write_file(out_path)

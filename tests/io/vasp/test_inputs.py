@@ -60,7 +60,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
 
 class TestPoscar(PymatgenTest):
     def test_init(self):
-        comp = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR").composition
+        comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
@@ -113,7 +113,7 @@ direct
         self.selective_poscar = poscar
 
     def test_from_file(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR.symbols_natoms_multilines"
+        filepath = f"{VASP_IN_DIR}/POSCAR_symbols_natoms_multilines"
         poscar = Poscar.from_file(filepath, check_for_potcar=False, read_velocities=False)
         ordered_expected_elements = [
             "Fe",
@@ -336,7 +336,7 @@ direct
         assert_allclose(poscar.lattice_velocities, p3.lattice_velocities, 5)
 
     def test_setattr(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath, check_for_potcar=False)
         with pytest.raises(ValueError, match="velocities array must be same length as the structure"):
             poscar.velocities = [[0, 0, 0]]
@@ -410,7 +410,7 @@ direct
         assert temperature == approx(700, abs=1e-4), "Temperature instantiated incorrectly"
 
     def test_write(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         tmp_file = f"{self.tmp_path}/POSCAR.testing"
         poscar.write_file(tmp_file)
@@ -421,7 +421,7 @@ direct
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        copyfile(f"{TEST_FILES_DIR}/POSCAR.Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
         copyfile(f"{TEST_FILES_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
 
         poscar = Poscar.from_file(tmp_poscar_path)
@@ -525,7 +525,7 @@ Cartesian
         # be a slash in the element names
         # Test that Poscar works for these too
         poscar_str = ""
-        with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
+        with open(f"{VASP_IN_DIR}/POSCAR_LiFePO4") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
                     line = " ".join(f"{x}/" for x in line.split()) + "\n"
@@ -933,7 +933,7 @@ Cartesian
         kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [[100]]
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [[1, 3, 3]]
@@ -1022,7 +1022,7 @@ direct
 
     def test_automatic_density_by_lengths(self):
         # Load a structure from a POSCAR file
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         structure = Structure.from_file(filepath)
 
         # test different combos of length densities and expected kpoints
@@ -1042,7 +1042,7 @@ direct
             Kpoints.automatic_density_by_lengths(structure, [50, 50])
 
     def test_automatic_monkhorst_vs_gamma_style_selection(self):
-        structs = {key: Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_{key}") for key in ("bcc", "fcc", "hcp")}
+        structs = {key: Structure.from_file(f"{VASP_IN_DIR}/POSCAR_{key}") for key in ("bcc", "fcc", "hcp")}
 
         # bcc structures should allow both Monkhorst and Gamma
         for struct_type, struct in structs.items():
@@ -1338,7 +1338,7 @@ class TestVaspInput(PymatgenTest):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/INCAR"
         incar = Incar.from_file(filepath)
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath, check_for_potcar=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
@@ -1389,7 +1389,7 @@ class TestVaspInput(PymatgenTest):
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
+        for file in ("INCAR", "KPOINTS", "POSCAR_Li2O"):
             copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
 
         Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")

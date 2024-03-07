@@ -8,12 +8,12 @@ from pytest import approx
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import VASP_IN_DIR
 
 
 class TestEwaldSummation(unittest.TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         self.original_struct = Structure.from_file(filepath)
         self.struct = self.original_struct.copy()
         self.struct.add_oxidation_state_by_element({"Li": 1, "Fe": 2, "P": 5, "O": -2})
@@ -107,7 +107,7 @@ class TestEwaldMinimizer(unittest.TestCase):
 
     def test_site(self):
         """Test that uses an uncharged structure."""
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         s = struct.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 3, "P": 5, "O": -2})

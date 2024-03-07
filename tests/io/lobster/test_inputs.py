@@ -603,11 +603,11 @@ class TestDoscar(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
-        poscar = f"{TEST_FILES_DIR}/POSCAR.lobster.spin_DOS"
+        poscar = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
 
         # not spin polarized
         doscar2 = f"{VASP_OUT_DIR}/DOSCAR.lobster.nonspin"
-        poscar2 = f"{TEST_FILES_DIR}/POSCAR.lobster.nonspin_DOS"
+        poscar2 = f"{VASP_IN_DIR}/POSCAR.lobster.nonspin_DOS"
 
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
@@ -824,7 +824,7 @@ class TestCharge(PymatgenTest):
             "@module": "pymatgen.core.structure",
         }
         s2 = Structure.from_dict(structure_dict2)
-        assert s2 == self.charge2.get_structure_with_charges(f"{TEST_FILES_DIR}/POSCAR.MnO")
+        assert s2 == self.charge2.get_structure_with_charges(f"{VASP_IN_DIR}/POSCAR_MnO")
 
     def test_msonable(self):
         dict_data = self.charge2.as_dict()
@@ -1531,7 +1531,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
         with pytest.raises(IOError, match="No basis functions are provided. The program cannot calculate nbands"):
-            lobsterin2._get_nbands(structure=Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Fe3O4"))
+            lobsterin2._get_nbands(structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4"))
 
     def test_standard_settings(self):
         # test standard settings
@@ -1548,7 +1548,7 @@ class TestLobsterin(unittest.TestCase):
             "onlycohpcoopcobi",
         ]:
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-                f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+                f"{VASP_IN_DIR}/POSCAR_Fe3O4",
                 f"{TEST_FILES_DIR}/INCAR.lobster",
                 f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
                 option=option,
@@ -1625,7 +1625,7 @@ class TestLobsterin(unittest.TestCase):
                 assert lobsterin1["skipdos"], True
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{TEST_FILES_DIR}/INCAR.lobster",
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
@@ -1634,7 +1634,7 @@ class TestLobsterin(unittest.TestCase):
 
         # test gaussian smearing
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{TEST_FILES_DIR}/INCAR.lobster2",
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
@@ -1644,7 +1644,7 @@ class TestLobsterin(unittest.TestCase):
         # fatband and ISMEAR=-5 does not work together
         with pytest.raises(ValueError, match="ISMEAR has to be 0 for a fatband calculation with Lobster"):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-                f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+                f"{VASP_IN_DIR}/POSCAR_Fe3O4",
                 f"{TEST_FILES_DIR}/INCAR.lobster2",
                 dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
                 option="standard_with_fatband",
@@ -1653,7 +1653,7 @@ class TestLobsterin(unittest.TestCase):
     def test_standard_with_energy_range_from_vasprun(self):
         # test standard_with_energy_range_from_vasprun
         lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
-            f"{TEST_FILES_DIR}/POSCAR.C2.gz",
+            f"{VASP_IN_DIR}/POSCAR_C2",
             f"{TEST_FILES_DIR}/INCAR.C2.gz",
             f"{TEST_FILES_DIR}/POTCAR.C2.gz",
             f"{VASP_OUT_DIR}/vasprun.C2.xml.gz",
@@ -1753,7 +1753,7 @@ class TestLobsterin(unittest.TestCase):
         # write lobsterin, read it and compare it
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{TEST_FILES_DIR}/INCAR.lobster",
             f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
             option="standard",
@@ -1766,7 +1766,7 @@ class TestLobsterin(unittest.TestCase):
         # write INCAR and compare
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{TEST_FILES_DIR}/INCAR.lobster",
             f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
             option="standard",
@@ -1774,7 +1774,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin1.write_INCAR(
             f"{TEST_FILES_DIR}/INCAR.lobster3",
             outfile_path,
-            f"{TEST_FILES_DIR}/POSCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POSCAR_Fe3O4",
         )
 
         incar1 = Incar.from_file(f"{TEST_FILES_DIR}/INCAR.lobster3")
@@ -1794,7 +1794,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin1 = Lobsterin({})
         # test writing primitive cell
         lobsterin1.write_POSCAR_with_standard_primitive(
-            POSCAR_input=f"{TEST_FILES_DIR}/POSCAR.Fe3O4", POSCAR_output=outfile_path2
+            POSCAR_input=f"{VASP_IN_DIR}/POSCAR_Fe3O4", POSCAR_output=outfile_path2
         )
 
         lobsterin1.write_KPOINTS(

@@ -1856,7 +1856,7 @@ class TestWavecar(PymatgenTest):
         assert np.abs(mesh_ncl[p1]) / np.abs(mesh_ncl[p2]) == approx(np.abs(v1_ncl) / np.abs(v2_ncl), abs=1e-6)
 
     def test_get_parchg(self):
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        poscar = Poscar.from_file(f"{VASP_IN_DIR}/POSCAR")
 
         w = self.wavecar
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
