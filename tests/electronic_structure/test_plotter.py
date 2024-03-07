@@ -214,7 +214,7 @@ class TestBSDOSPlotter(unittest.TestCase):
     def test_methods(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz")
         plotter = BSDOSPlotter()
-        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands")
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()

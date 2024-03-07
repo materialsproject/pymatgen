@@ -472,7 +472,7 @@ class TestVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
-        bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
@@ -500,7 +500,7 @@ class TestVasprun(PymatgenTest):
             _ = vasp_run.get_band_structure(line_mode=True)
 
         # Check KPOINTS.gz successfully inferred and used if present
-        with open(f"{TEST_FILES_DIR}/KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
+        with open(f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
             copyfileobj(f_in, f_out)
         bs_kpts_gzip = vasp_run.get_band_structure()
         assert bs.efermi == bs_kpts_gzip.efermi
@@ -508,7 +508,7 @@ class TestVasprun(PymatgenTest):
 
         # Test compressed files case 2: compressed vasprun in another dir
         os.mkdir("deeper")
-        copyfile(f"{TEST_FILES_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
+        copyfile(f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
         copyfile(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz", Path("deeper") / "vasprun.xml.gz")
         vasp_run = Vasprun(
             os.path.join("deeper", "vasprun.xml.gz"),
@@ -521,7 +521,7 @@ class TestVasprun(PymatgenTest):
 
         # test hybrid band structures
         vasp_run.actual_kpoints_weights[-1] = 0.0
-        bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [0]
@@ -538,7 +538,7 @@ class TestVasprun(PymatgenTest):
             parse_potcar_file=False,
         )
         bs = vasp_run.get_band_structure(
-            kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.force_hybrid_like_calc",
+            kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.force_hybrid_like_calc",
             force_hybrid_mode=True,
             line_mode=True,
         )
@@ -1363,7 +1363,7 @@ class TestBSVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
-        bs = vasprun.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        bs = vasprun.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"

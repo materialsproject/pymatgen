@@ -1808,7 +1808,7 @@ class TestLobsterin(unittest.TestCase):
         assert kpoint.kpts[-1][1] == approx(0.5)
         assert kpoint.kpts[-1][2] == approx(0.5)
         assert kpoint.labels[-1] == "T"
-        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS_band.lobster")
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_band.lobster")
 
         labels = []
         number = 0
