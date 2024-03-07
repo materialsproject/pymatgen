@@ -288,11 +288,13 @@ class TestReaction(unittest.TestCase):
 
 
 class TestBalancedReaction(unittest.TestCase):
-    def test_init(self):
+    def setUp(self) -> None:
         rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
-        rxn = BalancedReaction(rct, prod)
-        assert str(rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
+        self.rxn = BalancedReaction(rct, prod)
+
+    def test_init(self):
+        assert str(self.rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
 
         # Test unbalanced exception
         rct = {Composition("K2SO4"): 1, Composition("Na2S"): 1, Composition("Li"): 24}
@@ -315,11 +317,7 @@ class TestBalancedReaction(unittest.TestCase):
 
         rxn = BalancedReaction(
             {Composition("Li(NiO2)3"): 1},
-            {
-                Composition("O2"): 0.5,
-                Composition("Li(NiO2)2"): 1,
-                Composition("NiO"): 1,
-            },
+            {Composition("O2"): 0.5, Composition("Li(NiO2)2"): 1, Composition("NiO"): 1},
         )
 
         assert rxn == BalancedReaction.from_str("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO")
@@ -331,6 +329,9 @@ class TestBalancedReaction(unittest.TestCase):
         )
 
         assert Composition("Na") not in rxn.all_comp
+
+    def test_hash(self):
+        assert hash(self.rxn) == 4774511606373046513
 
 
 class TestComputedReaction(unittest.TestCase):

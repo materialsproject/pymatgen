@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from itertools import chain, combinations
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.fractions import gcd_float
@@ -14,6 +14,9 @@ from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -33,7 +36,9 @@ class BalancedReaction(MSONable):
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
 
-    def __init__(self, reactants_coeffs: dict[Composition, float], products_coeffs: dict[Composition, float]) -> None:
+    def __init__(
+        self, reactants_coeffs: Mapping[Composition, float], products_coeffs: Mapping[Composition, float]
+    ) -> None:
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
 
