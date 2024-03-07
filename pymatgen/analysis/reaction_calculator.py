@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from itertools import chain, combinations
+from typing import cast
 
 import numpy as np
 from monty.fractions import gcd_float
@@ -32,7 +33,7 @@ class BalancedReaction(MSONable):
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
 
-    def __init__(self, reactants_coeffs, products_coeffs):
+    def __init__(self, reactants_coeffs: dict[Composition, float], products_coeffs: dict[Composition, float]) -> None:
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
 
@@ -41,8 +42,8 @@ class BalancedReaction(MSONable):
             products_coeffs (dict[Composition, float]): Products as dict of {Composition: amt}.
         """
         # sum reactants and products
-        all_reactants = sum((k * v for k, v in reactants_coeffs.items()), Composition({}))
-        all_products = sum((k * v for k, v in products_coeffs.items()), Composition({}))
+        all_reactants = cast(Composition, sum((k * v for k, v in reactants_coeffs.items()), Composition()))
+        all_products = cast(Composition, sum((k * v for k, v in products_coeffs.items()), Composition()))
 
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")

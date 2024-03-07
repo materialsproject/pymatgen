@@ -287,7 +287,7 @@ class MultiEntry(PourbaixEntry):
         # Attributes that are weighted averages of entry attributes
         if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
             # TODO: Composition could be changed for compat with sum
-            start = Composition({}) if attr == "composition" else 0
+            start = Composition() if attr == "composition" else 0
             weighted_values = (getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights))
             return sum(weighted_values, start)
 

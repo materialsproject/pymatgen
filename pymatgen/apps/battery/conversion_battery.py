@@ -335,13 +335,13 @@ class ConversionVoltagePair(AbstractVoltagePair):
             if e.reduced_formula != working_ion
         )
 
-        total_comp = Composition({})
+        total_comp = Composition()
         for comp in prev_rxn.products:
             if comp.reduced_formula != working_ion:
                 total_comp += comp * abs(prev_rxn.get_coeff(comp))
         frac_charge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        total_comp = Composition({})
+        total_comp = Composition()
         for comp in curr_rxn.products:
             if comp.reduced_formula != working_ion:
                 total_comp += comp * abs(curr_rxn.get_coeff(comp))
