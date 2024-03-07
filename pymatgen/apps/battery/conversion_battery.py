@@ -301,14 +301,14 @@ class ConversionVoltagePair(AbstractVoltagePair):
             * 1000
             * working_ion_valence
         )
-        licomp = Composition(working_ion)
+        li_comp = Composition(working_ion)
         prev_rxn = step1["reaction"]
-        reactants = {comp: abs(prev_rxn.get_coeff(comp)) for comp in prev_rxn.products if comp != licomp}
+        reactants = {comp: abs(prev_rxn.get_coeff(comp)) for comp in prev_rxn.products if comp != li_comp}
 
         curr_rxn = step2["reaction"]
-        products = {comp: abs(curr_rxn.get_coeff(comp)) for comp in curr_rxn.products if comp != licomp}
+        products = {comp: abs(curr_rxn.get_coeff(comp)) for comp in curr_rxn.products if comp != li_comp}
 
-        reactants[licomp] = step2["evolution"] - step1["evolution"]
+        reactants[li_comp] = step2["evolution"] - step1["evolution"]
 
         rxn = BalancedReaction(reactants, products)
 
@@ -318,7 +318,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
                 break
 
         prev_mass_dischg = (
-            sum(prev_rxn.all_comp[i].weight * abs(prev_rxn.coeffs[i]) for i in range(len(prev_rxn.all_comp))) / 2
+            sum(prev_rxn.all_comp[idx].weight * abs(prev_rxn.coeffs[idx]) for idx in range(len(prev_rxn.all_comp))) / 2
         )
         vol_charge = sum(
             abs(prev_rxn.get_coeff(e.composition)) * e.structure.volume
@@ -326,13 +326,13 @@ class ConversionVoltagePair(AbstractVoltagePair):
             if e.reduced_formula != working_ion
         )
         mass_discharge = (
-            sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
+            sum(curr_rxn.all_comp[idx].weight * abs(curr_rxn.coeffs[idx]) for idx in range(len(curr_rxn.all_comp))) / 2
         )
         mass_charge = prev_mass_dischg
         vol_discharge = sum(
-            abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
-            for e in step2["entries"]
-            if e.reduced_formula != working_ion
+            abs(curr_rxn.get_coeff(entry.composition)) * entry.structure.volume
+            for entry in step2["entries"]
+            if entry.reduced_formula != working_ion
         )
 
         total_comp = Composition()
