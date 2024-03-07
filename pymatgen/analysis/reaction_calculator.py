@@ -48,21 +48,19 @@ class BalancedReaction(MSONable):
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
-        self._els = all_reactants.elements
-
         self.reactants_coeffs = reactants_coeffs
         self.products_coeffs = products_coeffs
 
         # calculate net reaction coefficients
-        self._coeffs = []
-        self._els = []
-        self._all_comp = []
+        self._coeffs: list[float] = []
+        self._els: list[str] = []
+        self._all_comp: list[Composition] = []
         for key in {*reactants_coeffs, *products_coeffs}:
             coeff = products_coeffs.get(key, 0) - reactants_coeffs.get(key, 0)
 
             if abs(coeff) > self.TOLERANCE:
-                self._all_comp.append(key)
-                self._coeffs.append(coeff)
+                self._all_comp += [key]
+                self._coeffs += [coeff]
 
     def calculate_energy(self, energies):
         """
