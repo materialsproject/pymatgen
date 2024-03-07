@@ -103,9 +103,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv install numpy cython --system
+          uv pip install numpy cython --system
 
-          uv install -e '.[dev,optional]' --system
+          uv pip install -e '.[dev,optional]' --system
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           uv pip install --upgrade 'ase@git+https://gitlab.com/ase/ase' --system
