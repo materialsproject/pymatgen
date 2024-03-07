@@ -189,6 +189,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         for s in alls:
             assert "energy" not in s
 
+    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
@@ -204,6 +205,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
+    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
@@ -212,8 +214,8 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
 
         m3gnet_model = Relaxer(potential=pot)
 
-        def sort_criteria(s):
-            relax_results = m3gnet_model.relax(s)
+        def sort_criteria(struct: Structure) -> tuple[Structure, float]:
+            relax_results = m3gnet_model.relax(struct)
             energy = float(relax_results["trajectory"].energies[-1])
             return relax_results["final_structure"], energy
 
