@@ -338,7 +338,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> Structure | list[dict]:
         """Returns either a single ordered structure or a sequence of all ordered
         structures.
 
@@ -879,7 +881,7 @@ class MagOrderingTransformation(AbstractTransformation):
             # remove dummy species and replace Spin.up or Spin.down
             # with spin magnitudes given in mag_species_spin arg
             alls = self._remove_dummy_species(alls)
-            alls = self._add_spin_magnitudes(alls)
+            alls = self._add_spin_magnitudes(alls)  # type: ignore[arg-type]
         else:
             for idx in range(len(alls)):
                 alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])
@@ -891,7 +893,7 @@ class MagOrderingTransformation(AbstractTransformation):
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
-            return alls[0]["structure"] if num_to_return else alls
+            return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value]
 
         # remove duplicate structures and group according to energy model
         matcher = StructureMatcher(comparator=SpinComparator())
@@ -1010,11 +1012,10 @@ class DopingTransformation(AbstractTransformation):
         Args:
             structure (Structure): Input structure to dope
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures.
-
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
-            [{"structure": Structure, "energy": float}]
+            list[dict] | Structure: each dict has shape {"structure": Structure, "energy": float}.
         """
         comp = structure.composition
         logger.info(f"Composition: {comp}")
@@ -1059,7 +1060,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"{lengths=}")
         logger.info(f"{scaling=}")
 
-        all_structures = []
+        all_structures: list[dict] = []
         trafo = EnumerateStructureTransformation(**self.kwargs)
 
         for sp in compatible_species:
@@ -1131,10 +1132,9 @@ class DopingTransformation(AbstractTransformation):
                     }
                 )
 
-            ss = trafo.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
-            logger.info(f"{len(ss)} distinct structures")
-            all_structures.extend(ss)
-
+            structs = trafo.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
+            logger.info(f"{len(structs)} distinct structures")
+            all_structures.extend(structs)
         logger.info(f"Total {len(all_structures)} doped structures")
         if return_ranked_list:
             return all_structures[:return_ranked_list]
