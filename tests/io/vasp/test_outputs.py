@@ -604,8 +604,8 @@ class TestVasprun(PymatgenTest):
 
     def test_update_potcar(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
-        potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
-        potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
+        potcar_path = f"{VASP_IN_DIR}/POTCAR_LiFePO4.gz"
+        potcar_path2 = f"{VASP_IN_DIR}/POTCAR2.LiFePO4.gz"
 
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         potcars = Potcar.from_file(potcar_path)
@@ -682,7 +682,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_structure.charge == -1
 
         vpath = f"{VASP_OUT_DIR}/vasprun.split.charged.xml.gz"
-        potcar_path = f"{TEST_FILES_DIR}/POTCAR.split.charged.gz"
+        potcar_path = f"{VASP_IN_DIR}/POTCAR.split.charged.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 0) == 7

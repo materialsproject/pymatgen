@@ -1550,7 +1550,7 @@ class TestLobsterin(unittest.TestCase):
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
                 f"{VASP_IN_DIR}/POSCAR_Fe3O4",
                 f"{TEST_FILES_DIR}/INCAR.lobster",
-                f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
+                f"{VASP_IN_DIR}/POTCAR_Fe3O4",
                 option=option,
             )
             assert lobsterin1["cohpstartenergy"] == approx(-35.0)
@@ -1655,7 +1655,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin_comp = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_C2",
             f"{TEST_FILES_DIR}/INCAR.C2.gz",
-            f"{TEST_FILES_DIR}/POTCAR.C2.gz",
+            f"{VASP_IN_DIR}/POTCAR_C2.gz",
             f"{VASP_OUT_DIR}/vasprun.C2.xml.gz",
             option="standard_with_energy_range_from_vasprun",
         )
@@ -1712,7 +1712,7 @@ class TestLobsterin(unittest.TestCase):
     def test_get_basis(self):
         # get basis functions
         lobsterin1 = Lobsterin({})
-        potcar = Potcar.from_file(f"{TEST_FILES_DIR}/POTCAR.Fe3O4")
+        potcar = Potcar.from_file(f"{VASP_IN_DIR}/POTCAR_Fe3O4")
         potcar_names = [name["symbol"] for name in potcar.spec]
 
         assert lobsterin1.get_basis(
@@ -1727,7 +1727,7 @@ class TestLobsterin(unittest.TestCase):
         ) == ["Ga 3d 4p 4s ", "As 4p 4s "]
 
     def test_get_all_possible_basis_functions(self):
-        potcar = Potcar.from_file(f"{TEST_FILES_DIR}/POTCAR.Fe3O4")
+        potcar = Potcar.from_file(f"{VASP_IN_DIR}/POTCAR_Fe3O4")
         potcar_names = [name["symbol"] for name in potcar.spec]
         result = Lobsterin.get_all_possible_basis_functions(
             Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
@@ -1746,7 +1746,7 @@ class TestLobsterin(unittest.TestCase):
 
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
-        assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/POTCAR.Fe3O4") == ["Fe", "O"]
+        assert lobsterin1._get_potcar_symbols(f"{VASP_IN_DIR}/POTCAR_Fe3O4") == ["Fe", "O"]
         assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs") == ["Ga_d", "As"]
 
     def test_write_lobsterin(self):
@@ -1755,7 +1755,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{TEST_FILES_DIR}/INCAR.lobster",
-            f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POTCAR_Fe3O4",
             option="standard",
         )
         lobsterin1.write_lobsterin(outfile_path)
@@ -1768,7 +1768,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{TEST_FILES_DIR}/INCAR.lobster",
-            f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
+            f"{VASP_IN_DIR}/POTCAR_Fe3O4",
             option="standard",
         )
         lobsterin1.write_INCAR(
