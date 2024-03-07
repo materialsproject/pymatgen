@@ -30,7 +30,7 @@ from pymatgen.electronic_structure.plotter import (
     plot_ellipsoid,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
@@ -214,7 +214,7 @@ class TestBSDOSPlotter(unittest.TestCase):
     def test_methods(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz")
         plotter = BSDOSPlotter()
-        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_Si_bands")
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()

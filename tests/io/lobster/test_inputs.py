@@ -32,7 +32,7 @@ from pymatgen.io.lobster import (
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -1808,7 +1808,7 @@ class TestLobsterin(unittest.TestCase):
         assert kpoint.kpts[-1][1] == approx(0.5)
         assert kpoint.kpts[-1][2] == approx(0.5)
         assert kpoint.labels[-1] == "T"
-        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS_band.lobster")
+        kpoint2 = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS_band.lobster")
 
         labels = []
         number = 0

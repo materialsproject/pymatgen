@@ -20,7 +20,7 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestKpoint(unittest.TestCase):
@@ -268,7 +268,7 @@ class TestReconstructBandStructure(PymatgenTest):
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
-        bs = bsv.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.band", line_mode=True)
+        bs = bsv.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS.band", line_mode=True)
         bs.get_projection_on_elements()
 
 

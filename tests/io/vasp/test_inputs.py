@@ -34,7 +34,7 @@ from pymatgen.io.vasp.inputs import (
     VaspInput,
     _gen_potcar_summary_stats,
 )
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
@@ -881,26 +881,26 @@ class TestKpointsSupportedModes:
 
 class TestKpoints:
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.auto"
+        filepath = f"{VASP_IN_DIR}/KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[10]], "Wrong kpoint lattice read"
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.cartesian"
+        filepath = f"{VASP_IN_DIR}/KPOINTS.cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read"
         assert kpoints.kpts_shift == [0.5, 0.5, 0.5], "Wrong kpoint shift read"
 
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS"
+        filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
         assert kpoints.kpts == [[2, 4, 6]]
 
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.band"
+        filepath = f"{VASP_IN_DIR}/KPOINTS.band"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
         assert str(kpoints).split("\n")[3] == "Reciprocal"
 
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.explicit"
+        filepath = f"{VASP_IN_DIR}/KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
         expected_kpt_str = """Example file
@@ -912,12 +912,12 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.explicit_tet"
+        filepath = f"{VASP_IN_DIR}/KPOINTS.explicit_tet"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
     def test_style_setter(self):
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS"
+        filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         kpoints.style = "G"
@@ -970,7 +970,7 @@ Cartesian
         assert kpts.kpts_shift == kpts_from_dict.kpts_shift
 
     def test_kpt_bands_as_dict_from_dict(self):
-        file_name = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.band"
+        file_name = f"{VASP_IN_DIR}/KPOINTS.band"
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
@@ -990,8 +990,8 @@ Cartesian
         auto_g_kpts = Kpoints.gamma_automatic()
         assert auto_g_kpts == auto_g_kpts
         assert auto_g_kpts == Kpoints.gamma_automatic()
-        file_kpts = Kpoints.from_file(f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS")
-        assert file_kpts == Kpoints.from_file(f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS")
+        file_kpts = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
+        assert file_kpts == Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
         assert auto_g_kpts != file_kpts
         auto_m_kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
         assert auto_m_kpts == Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -1344,7 +1344,7 @@ class TestVaspInput(PymatgenTest):
             os.environ["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
         filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         potcar = Potcar.from_file(filepath)
-        filepath = f"{TEST_FILES_DIR}/vasp/inputs/KPOINTS.auto"
+        filepath = f"{VASP_IN_DIR}/KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
@@ -1390,7 +1390,7 @@ class TestVaspInput(PymatgenTest):
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
         for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
-            copyfile(f"{TEST_FILES_DIR}/vasp/inputs/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
+            copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
 
         Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
 
