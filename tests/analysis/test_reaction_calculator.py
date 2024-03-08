@@ -288,21 +288,23 @@ class TestReaction(unittest.TestCase):
 
 
 class TestBalancedReaction(unittest.TestCase):
+    def setUp(self) -> None:
+        rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
+        prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
+        self.rxn = BalancedReaction(rct, prod)
+
     def test_init(self):
-        rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
-        prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
-        rxn = BalancedReaction(rct, prod)
-        assert str(rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
+        assert str(self.rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
 
         # Test unbalanced exception
-        rct = {Composition("K2SO4"): 1, Composition("Na2S"): 1, Composition("Li"): 24}
-        prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
+        rct = {"K2SO4": 1, "Na2S": 1, "Li": 24}
+        prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
         with pytest.raises(ReactionError, match="Reaction is unbalanced"):
             BalancedReaction(rct, prod)
 
     def test_as_from_dict(self):
-        rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
-        prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
+        rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
+        prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
         rxn = BalancedReaction(rct, prod)
         dct = rxn.as_dict()
         new_rxn = BalancedReaction.from_dict(dct)
@@ -310,27 +312,26 @@ class TestBalancedReaction(unittest.TestCase):
             assert new_rxn.get_coeff(comp) == rxn.get_coeff(comp)
 
     def test_from_str(self):
-        rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1}, {Composition("Li2O"): 2})
+        rxn = BalancedReaction({"Li": 4, "O2": 1}, {"Li2O": 2})
         assert rxn == BalancedReaction.from_str("4 Li + O2 -> 2Li2O")
 
         rxn = BalancedReaction(
-            {Composition("Li(NiO2)3"): 1},
-            {
-                Composition("O2"): 0.5,
-                Composition("Li(NiO2)2"): 1,
-                Composition("NiO"): 1,
-            },
+            {"Li(NiO2)3": 1},
+            {"O2": 0.5, "Li(NiO2)2": 1, "NiO": 1},
         )
 
         assert rxn == BalancedReaction.from_str("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO")
 
     def test_remove_spectator_species(self):
         rxn = BalancedReaction(
-            {Composition("Li"): 4, Composition("O2"): 1, Composition("Na"): 1},
-            {Composition("Li2O"): 2, Composition("Na"): 1},
+            {"Li": 4, "O2": 1, "Na": 1},
+            {"Li2O": 2, "Na": 1},
         )
 
-        assert Composition("Na") not in rxn.all_comp
+        assert "Na" not in rxn.all_comp
+
+    def test_hash(self):
+        assert hash(self.rxn) == 4774511606373046513
 
 
 class TestComputedReaction(unittest.TestCase):

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from itertools import chain, combinations
+from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.fractions import gcd_float
@@ -13,6 +14,11 @@ from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from pymatgen.util.typing import CompositionLike
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -32,7 +38,12 @@ class BalancedReaction(MSONable):
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
 
-    def __init__(self, reactants_coeffs, products_coeffs):
+    @no_type_check
+    def __init__(
+        self,
+        reactants_coeffs: Mapping[CompositionLike, int | float],
+        products_coeffs: Mapping[CompositionLike, int | float],
+    ) -> None:
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
 
@@ -40,28 +51,31 @@ class BalancedReaction(MSONable):
             reactants_coeffs (dict[Composition, float]): Reactants as dict of {Composition: amt}.
             products_coeffs (dict[Composition, float]): Products as dict of {Composition: amt}.
         """
+        # convert to Composition if necessary
+        reactants_coeffs = {Composition(comp): coeff for comp, coeff in reactants_coeffs.items()}
+        products_coeffs = {Composition(comp): coeff for comp, coeff in products_coeffs.items()}
+
         # sum reactants and products
-        all_reactants = sum((k * v for k, v in reactants_coeffs.items()), Composition({}))
-        all_products = sum((k * v for k, v in products_coeffs.items()), Composition({}))
+        all_reactants = sum((comp * coeff for comp, coeff in reactants_coeffs.items()), Composition())
+
+        all_products = sum((comp * coeff for comp, coeff in products_coeffs.items()), Composition())
 
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
-        self._els = all_reactants.elements
-
-        self.reactants_coeffs = reactants_coeffs
-        self.products_coeffs = products_coeffs
+        self.reactants_coeffs: dict = reactants_coeffs
+        self.products_coeffs: dict = products_coeffs
 
         # calculate net reaction coefficients
-        self._coeffs = []
-        self._els = []
-        self._all_comp = []
+        self._coeffs: list[float] = []
+        self._els: list[str] = []
+        self._all_comp: list[Composition] = []
         for key in {*reactants_coeffs, *products_coeffs}:
             coeff = products_coeffs.get(key, 0) - reactants_coeffs.get(key, 0)
 
             if abs(coeff) > self.TOLERANCE:
-                self._all_comp.append(key)
-                self._coeffs.append(coeff)
+                self._all_comp += [key]
+                self._coeffs += [coeff]
 
     def calculate_energy(self, energies):
         """
@@ -171,7 +185,8 @@ class BalancedReaction(MSONable):
         return True
 
     def __hash__(self) -> int:
-        return 7
+        # Necessity for hash method is unclear (see gh-3673)
+        return hash((frozenset(self.reactants_coeffs.items()), frozenset(self.products_coeffs.items())))
 
     @classmethod
     def _str_from_formulas(cls, coeffs, formulas):
