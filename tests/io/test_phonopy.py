@@ -120,6 +120,7 @@ class TestStructureConversion(PymatgenTest):
 
         # https://github.com/materialsproject/pymatgen/pull/3555
         assert list(struct_ph.magnetic_moments) == magmoms
+        assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")

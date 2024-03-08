@@ -33,15 +33,10 @@ def get_pmg_structure(phonopy_structure: PhonopyAtoms) -> Structure:
     lattice = phonopy_structure.cell
     frac_coords = phonopy_structure.scaled_positions
     symbols = phonopy_structure.symbols
-    masses = phonopy_structure.masses
     magmoms = getattr(phonopy_structure, "magnetic_moments", [0] * len(symbols))
+    site_props = {"phonopy_masses": phonopy_structure.masses, "magmom": magmoms}
 
-    return Structure(
-        lattice,
-        symbols,
-        frac_coords,
-        site_properties={"phonopy_masses": masses, "magnetic_moments": magmoms},
-    )
+    return Structure(lattice, symbols, frac_coords, site_properties=site_props)
 
 
 @requires(Phonopy, "phonopy not installed!")
