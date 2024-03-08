@@ -27,7 +27,7 @@ class TestStructureMatcher(PymatgenTest):
         self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(f"{VASP_IN_DIR}/POSCAR.Li2O"),
+            Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O"),
         ]
 
     def test_ignore_species(self):
@@ -317,7 +317,7 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_mix(self):
         structures = list(map(self.get_structure, ["Li2O", "Li2O2", "LiFePO4"]))
-        structures += [Structure.from_file(f"{VASP_IN_DIR}/{fname}") for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]]
+        structures += [Structure.from_file(f"{VASP_IN_DIR}/{fname}") for fname in ["POSCAR_Li2O", "POSCAR_LiFePO4"]]
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for group in groups:

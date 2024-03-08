@@ -525,7 +525,7 @@ Cartesian
         # be a slash in the element names
         # Test that Poscar works for these too
         poscar_str = ""
-        with open(f"{VASP_IN_DIR}/POSCAR.LiFePO4", encoding="utf-8") as file:
+        with open(f"{VASP_IN_DIR}/POSCAR_LiFePO4", encoding="utf-8") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
                     line = " ".join(f"{x}/" for x in line.split()) + "\n"
@@ -1390,8 +1390,8 @@ class TestVaspInput(PymatgenTest):
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
-            copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
+        for file in ("INCAR", "KPOINTS", "POSCAR_Li2O"):
+            copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('_')[0]}")
 
         Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
 
