@@ -40,7 +40,7 @@ def get_pmg_structure(phonopy_structure: PhonopyAtoms) -> Structure:
         lattice,
         symbols,
         frac_coords,
-        site_properties={"phonopy_masses": masses, "magnetic_moments": magmoms},
+        site_properties={"phonopy_masses": masses, "magmom": magmoms},
     )
 
 
