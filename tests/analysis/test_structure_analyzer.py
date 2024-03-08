@@ -40,7 +40,7 @@ class TestVoronoiAnalyzer(PymatgenTest):
 class TestRelaxationAnalyzer(unittest.TestCase):
     def setUp(self):
         s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
-        s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR.Li2O")
+        s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
     def test_vol_and_para_changes(self):

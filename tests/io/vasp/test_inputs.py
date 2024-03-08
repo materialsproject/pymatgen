@@ -525,7 +525,7 @@ Cartesian
         # be a slash in the element names
         # Test that Poscar works for these too
         poscar_str = ""
-        with open(f"{VASP_IN_DIR}/POSCAR_LiFePO4") as file:
+        with open(f"{VASP_IN_DIR}/POSCAR_LiFePO4", encoding="utf-8") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
                     line = " ".join(f"{x}/" for x in line.split()) + "\n"
@@ -1391,19 +1391,21 @@ class TestVaspInput(PymatgenTest):
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
         for file in ("INCAR", "KPOINTS", "POSCAR_Li2O"):
-            copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
+            copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('_')[0]}")
 
         Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
 
-        copyfile(f"{VASP_OUT_DIR}/CONTCAR.Li2O", f"{self.tmp_path}/CONTCAR.Li2O")
+        copyfile(f"{VASP_OUT_DIR}/CONTCAR_Li2O", f"{self.tmp_path}/CONTCAR_Li2O")
 
-        vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR.Li2O": Poscar})
+        vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR_Li2O": Poscar})
 
         assert vi["INCAR"]["ALGO"] == "Damped"
-        assert "CONTCAR.Li2O" in vi
-        dct = vi.as_dict()
-        vasp_input = VaspInput.from_dict(dct)
-        assert "CONTCAR.Li2O" in vasp_input
+        assert "CONTCAR_Li2O" in vi
+
+        vi.as_dict()
+
+        vasp_input = VaspInput.from_dict(vi.as_dict())
+        assert "CONTCAR_Li2O" in vasp_input
 
 
 def test_potcar_summary_stats() -> None:
