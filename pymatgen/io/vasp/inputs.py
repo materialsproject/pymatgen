@@ -2611,7 +2611,6 @@ class VaspInput(dict, MSONable):
     def as_dict(self):
         """MSONable dict."""
         dct = {key: val.as_dict() for key, val in self.items()}
-
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         return dct
