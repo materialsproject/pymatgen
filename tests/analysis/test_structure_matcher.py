@@ -322,7 +322,7 @@ class TestStructureMatcher(PymatgenTest):
         groups = sm.group_structures(structures)
         for group in groups:
             formula = group[0].reduced_formula
-            assert len(group) == (2 if formula in ["Li2O", "LiFePO4"] else 1)
+            assert len(group) == (2 if formula in {"Li2O", "LiFePO4"} else 1)
 
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""
