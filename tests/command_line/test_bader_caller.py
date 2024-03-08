@@ -24,7 +24,7 @@ class TestBaderAnalysis(PymatgenTest):
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
-            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
             chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
         )
         assert len(analysis.data) == 14
@@ -119,7 +119,7 @@ class TestBaderAnalysis(PymatgenTest):
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
-            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
             chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
             parse_atomic_densities=True,
         )
