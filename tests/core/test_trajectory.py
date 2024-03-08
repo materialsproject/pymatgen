@@ -10,7 +10,7 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestTrajectory(PymatgenTest):
@@ -418,7 +418,7 @@ class TestTrajectory(PymatgenTest):
         assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
-        structures = [Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")]
+        structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
         for i in range(10):

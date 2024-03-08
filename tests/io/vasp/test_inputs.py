@@ -34,7 +34,7 @@ from pymatgen.io.vasp.inputs import (
     VaspInput,
     _gen_potcar_summary_stats,
 )
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
@@ -60,7 +60,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
 
 class TestPoscar(PymatgenTest):
     def test_init(self):
-        comp = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR").composition
+        comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
@@ -113,7 +113,7 @@ direct
         self.selective_poscar = poscar
 
     def test_from_file(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR.symbols_natoms_multilines"
+        filepath = f"{VASP_IN_DIR}/POSCAR_symbols_natoms_multilines"
         poscar = Poscar.from_file(filepath, check_for_potcar=False, read_velocities=False)
         ordered_expected_elements = [
             "Fe",
@@ -336,7 +336,7 @@ direct
         assert_allclose(poscar.lattice_velocities, p3.lattice_velocities, 5)
 
     def test_setattr(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath, check_for_potcar=False)
         with pytest.raises(ValueError, match="velocities array must be same length as the structure"):
             poscar.velocities = [[0, 0, 0]]
@@ -410,7 +410,7 @@ direct
         assert temperature == approx(700, abs=1e-4), "Temperature instantiated incorrectly"
 
     def test_write(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         tmp_file = f"{self.tmp_path}/POSCAR.testing"
         poscar.write_file(tmp_file)
@@ -421,7 +421,7 @@ direct
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        copyfile(f"{TEST_FILES_DIR}/POSCAR.Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
         copyfile(f"{TEST_FILES_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
 
         poscar = Poscar.from_file(tmp_poscar_path)
@@ -525,7 +525,7 @@ Cartesian
         # be a slash in the element names
         # Test that Poscar works for these too
         poscar_str = ""
-        with open(f"{TEST_FILES_DIR}/POSCAR.LiFePO4") as file:
+        with open(f"{VASP_IN_DIR}/POSCAR_LiFePO4", encoding="utf-8") as file:
             for idx, line in enumerate(file):
                 if idx == 5:
                     line = " ".join(f"{x}/" for x in line.split()) + "\n"
@@ -536,7 +536,7 @@ Cartesian
 
 class TestIncar(PymatgenTest):
     def setUp(self):
-        self.incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+        self.incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_init(self):
         incar = self.incar
@@ -555,83 +555,10 @@ class TestIncar(PymatgenTest):
         assert self.incar.get("LDAU") is None
 
     def test_diff(self):
-        filepath1 = f"{TEST_FILES_DIR}/INCAR"
-        incar1 = Incar.from_file(filepath1)
-        filepath2 = f"{TEST_FILES_DIR}/INCAR.2"
-        incar2 = Incar.from_file(filepath2)
-        incar3 = Incar.from_file(filepath2)
-        assert incar1.diff(incar2) == {
-            "Different": {
-                "NELM": {"INCAR1": None, "INCAR2": 100},
-                "ISPIND": {"INCAR1": 2, "INCAR2": None},
-                "LWAVE": {"INCAR1": True, "INCAR2": False},
-                "LDAUPRINT": {"INCAR1": None, "INCAR2": 1},
-                "MAGMOM": {
-                    "INCAR1": [
-                        6,
-                        -6,
-                        -6,
-                        6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                        0.6,
-                    ],
-                    "INCAR2": None,
-                },
-                "NELMIN": {"INCAR1": None, "INCAR2": 3},
-                "ENCUTFOCK": {"INCAR1": 0.0, "INCAR2": None},
-                "HFSCREEN": {"INCAR1": 0.207, "INCAR2": None},
-                "LSCALU": {"INCAR1": False, "INCAR2": None},
-                "ENCUT": {"INCAR1": 500, "INCAR2": None},
-                "NSIM": {"INCAR1": 1, "INCAR2": None},
-                "ICHARG": {"INCAR1": None, "INCAR2": 1},
-                "NSW": {"INCAR1": 99, "INCAR2": 51},
-                "NKRED": {"INCAR1": 2, "INCAR2": None},
-                "NUPDOWN": {"INCAR1": 0, "INCAR2": None},
-                "LCHARG": {"INCAR1": True, "INCAR2": None},
-                "LPLANE": {"INCAR1": True, "INCAR2": None},
-                "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
-                "NPAR": {"INCAR1": 8, "INCAR2": 1},
-                "SYSTEM": {
-                    "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
-                    "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
-                    "sg_name=[r-3m]",
-                },
-                "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
-                "LHFCALC": {"INCAR1": True, "INCAR2": None},
-                "TIME": {"INCAR1": 0.4, "INCAR2": None},
-            },
-            "Same": {
-                "IBRION": 2,
-                "PREC": "Accurate",
-                "ISIF": 3,
-                "LMAXMIX": 4,
-                "LREAL": "Auto",
-                "ISPIN": 2,
-                "EDIFF": 0.0001,
-                "LORBIT": 11,
-                "SIGMA": 0.05,
-            },
-        }
+        incar1 = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
+        incar2 = Incar.from_file(f"{VASP_IN_DIR}/INCAR_2")
 
-        assert incar1.diff(incar3) == {
+        assert incar1.diff(incar2) == {
             "Different": {
                 "NELM": {"INCAR1": None, "INCAR2": 100},
                 "ISPIND": {"INCAR1": 2, "INCAR2": None},
@@ -881,26 +808,26 @@ class TestKpointsSupportedModes:
 
 class TestKpoints:
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/KPOINTS.auto"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[10]], "Wrong kpoint lattice read"
-        filepath = f"{TEST_FILES_DIR}/KPOINTS.cartesian"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read"
         assert kpoints.kpts_shift == [0.5, 0.5, 0.5], "Wrong kpoint shift read"
 
-        filepath = f"{TEST_FILES_DIR}/KPOINTS"
+        filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
         assert kpoints.kpts == [[2, 4, 6]]
 
-        filepath = f"{TEST_FILES_DIR}/KPOINTS.band"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_band"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
         assert str(kpoints).split("\n")[3] == "Reciprocal"
 
-        filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
         expected_kpt_str = """Example file
@@ -912,12 +839,12 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
-        filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit_tet"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
     def test_style_setter(self):
-        filepath = f"{TEST_FILES_DIR}/KPOINTS"
+        filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         kpoints.style = "G"
@@ -933,7 +860,7 @@ Cartesian
         kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [[100]]
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [[1, 3, 3]]
@@ -970,7 +897,7 @@ Cartesian
         assert kpts.kpts_shift == kpts_from_dict.kpts_shift
 
     def test_kpt_bands_as_dict_from_dict(self):
-        file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
+        file_name = f"{VASP_IN_DIR}/KPOINTS_band"
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
@@ -990,8 +917,8 @@ Cartesian
         auto_g_kpts = Kpoints.gamma_automatic()
         assert auto_g_kpts == auto_g_kpts
         assert auto_g_kpts == Kpoints.gamma_automatic()
-        file_kpts = Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
-        assert file_kpts == Kpoints.from_file(f"{TEST_FILES_DIR}/KPOINTS")
+        file_kpts = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
+        assert file_kpts == Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
         assert auto_g_kpts != file_kpts
         auto_m_kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
         assert auto_m_kpts == Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -1022,7 +949,7 @@ direct
 
     def test_automatic_density_by_lengths(self):
         # Load a structure from a POSCAR file
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         structure = Structure.from_file(filepath)
 
         # test different combos of length densities and expected kpoints
@@ -1042,7 +969,7 @@ direct
             Kpoints.automatic_density_by_lengths(structure, [50, 50])
 
     def test_automatic_monkhorst_vs_gamma_style_selection(self):
-        structs = {key: Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_{key}") for key in ("bcc", "fcc", "hcp")}
+        structs = {key: Structure.from_file(f"{VASP_IN_DIR}/POSCAR_{key}") for key in ("bcc", "fcc", "hcp")}
 
         # bcc structures should allow both Monkhorst and Gamma
         for struct_type, struct in structs.items():
@@ -1336,15 +1263,15 @@ class TestPotcar(PymatgenTest):
 
 class TestVaspInput(PymatgenTest):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/INCAR"
+        filepath = f"{VASP_IN_DIR}/INCAR"
         incar = Incar.from_file(filepath)
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath, check_for_potcar=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
         filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         potcar = Potcar.from_file(filepath)
-        filepath = f"{TEST_FILES_DIR}/KPOINTS.auto"
+        filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
@@ -1389,20 +1316,22 @@ class TestVaspInput(PymatgenTest):
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        for file in ("INCAR", "KPOINTS", "POSCAR.Li2O"):
-            copyfile(f"{TEST_FILES_DIR}/{file}", f"{self.tmp_path}/{file.split('.')[0]}")
+        for file in ("INCAR", "KPOINTS", "POSCAR_Li2O"):
+            copyfile(f"{VASP_IN_DIR}/{file}", f"{self.tmp_path}/{file.split('_')[0]}")
 
         Potcar(symbols=["Li_sv", "O"], functional="PBE").write_file(f"{self.tmp_path}/POTCAR")
 
-        copyfile(f"{VASP_OUT_DIR}/CONTCAR.Li2O", f"{self.tmp_path}/CONTCAR.Li2O")
+        copyfile(f"{VASP_OUT_DIR}/CONTCAR_Li2O", f"{self.tmp_path}/CONTCAR_Li2O")
 
-        vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR.Li2O": Poscar})
+        vi = VaspInput.from_directory(self.tmp_path, optional_files={"CONTCAR_Li2O": Poscar})
 
         assert vi["INCAR"]["ALGO"] == "Damped"
-        assert "CONTCAR.Li2O" in vi
-        dct = vi.as_dict()
-        vasp_input = VaspInput.from_dict(dct)
-        assert "CONTCAR.Li2O" in vasp_input
+        assert "CONTCAR_Li2O" in vi
+
+        vi.as_dict()
+
+        vasp_input = VaspInput.from_dict(vi.as_dict())
+        assert "CONTCAR_Li2O" in vasp_input
 
 
 def test_potcar_summary_stats() -> None:

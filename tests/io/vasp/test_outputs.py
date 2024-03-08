@@ -42,7 +42,7 @@ from pymatgen.io.vasp.outputs import (
     Xdatcar,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 try:
     import h5py
@@ -472,7 +472,7 @@ class TestVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
-        bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        bs = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
@@ -500,7 +500,7 @@ class TestVasprun(PymatgenTest):
             _ = vasp_run.get_band_structure(line_mode=True)
 
         # Check KPOINTS.gz successfully inferred and used if present
-        with open(f"{TEST_FILES_DIR}/KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
+        with open(f"{VASP_IN_DIR}/KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
             copyfileobj(f_in, f_out)
         bs_kpts_gzip = vasp_run.get_band_structure()
         assert bs.efermi == bs_kpts_gzip.efermi
@@ -508,7 +508,7 @@ class TestVasprun(PymatgenTest):
 
         # Test compressed files case 2: compressed vasprun in another dir
         os.mkdir("deeper")
-        copyfile(f"{TEST_FILES_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
+        copyfile(f"{VASP_IN_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
         copyfile(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz", Path("deeper") / "vasprun.xml.gz")
         vasp_run = Vasprun(
             os.path.join("deeper", "vasprun.xml.gz"),
@@ -521,7 +521,7 @@ class TestVasprun(PymatgenTest):
 
         # test hybrid band structures
         vasp_run.actual_kpoints_weights[-1] = 0.0
-        bs = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        bs = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [0]
@@ -538,7 +538,7 @@ class TestVasprun(PymatgenTest):
             parse_potcar_file=False,
         )
         bs = vasp_run.get_band_structure(
-            kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.force_hybrid_like_calc",
+            kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_force_hybrid_like_calc",
             force_hybrid_mode=True,
             line_mode=True,
         )
@@ -604,8 +604,8 @@ class TestVasprun(PymatgenTest):
 
     def test_update_potcar(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
-        potcar_path = f"{TEST_FILES_DIR}/POTCAR.LiFePO4.gz"
-        potcar_path2 = f"{TEST_FILES_DIR}/POTCAR2.LiFePO4.gz"
+        potcar_path = f"{VASP_IN_DIR}/POTCAR_LiFePO4.gz"
+        potcar_path2 = f"{VASP_IN_DIR}/POTCAR_2_LiFePO4.gz"
 
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         potcars = Potcar.from_file(potcar_path)
@@ -682,7 +682,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_structure.charge == -1
 
         vpath = f"{VASP_OUT_DIR}/vasprun.split.charged.xml.gz"
-        potcar_path = f"{TEST_FILES_DIR}/POTCAR.split.charged.gz"
+        potcar_path = f"{VASP_IN_DIR}/POTCAR_split_charged.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 0) == 7
@@ -1363,7 +1363,7 @@ class TestBSVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
-        bs = vasprun.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        bs = vasprun.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
@@ -1856,7 +1856,7 @@ class TestWavecar(PymatgenTest):
         assert np.abs(mesh_ncl[p1]) / np.abs(mesh_ncl[p2]) == approx(np.abs(v1_ncl) / np.abs(v2_ncl), abs=1e-6)
 
     def test_get_parchg(self):
-        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        poscar = Poscar.from_file(f"{VASP_IN_DIR}/POSCAR")
 
         w = self.wavecar
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)

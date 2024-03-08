@@ -7,14 +7,14 @@ from monty.json import MontyDecoder, jsanitize
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
 
 try:
     import ase
 except ImportError:
     ase = None
 
-structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
 
 skip_if_no_ase = pytest.mark.skipif(ase is None, reason="ase not installed")
 
@@ -146,18 +146,18 @@ def test_get_atoms_from_molecule_dyn():
 
 @skip_if_no_ase
 def test_get_structure():
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/POSCAR")
+    atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
     struct = AseAtomsAdaptor.get_structure(atoms)
     assert struct.formula == "Fe4 P4 O16"
     assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/POSCAR")
+    atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
     prop = np.array([3.14] * len(atoms))
     atoms.set_array("prop", prop)
     struct = AseAtomsAdaptor.get_structure(atoms)
     assert struct.site_properties["prop"] == prop.tolist()
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/POSCAR_overlap")
+    atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR_overlap")
     struct = AseAtomsAdaptor.get_structure(atoms)
     assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
     with pytest.raises(
@@ -169,7 +169,7 @@ def test_get_structure():
 
 @skip_if_no_ase
 def test_get_structure_mag():
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/POSCAR")
+    atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
     mags = [1.0] * len(atoms)
     atoms.set_initial_magnetic_moments(mags)
     structure = AseAtomsAdaptor.get_structure(atoms)
@@ -190,7 +190,7 @@ def test_get_structure_mag():
     [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
 )
 def test_get_structure_dyn(select_dyn):
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/POSCAR")
+    atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
     atoms.set_constraint(ase.constraints.FixAtoms(mask=[True] * len(atoms)))
     structure = AseAtomsAdaptor.get_structure(atoms)
     assert structure.site_properties["selective_dynamics"][-1][0] is False
@@ -259,7 +259,7 @@ def test_back_forth(filename):
 @skip_if_no_ase
 def test_back_forth_v2():
     # Structure --> Atoms --> Structure --> Atoms
-    structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+    structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
     structure.add_site_property("final_magmom", [1.0] * len(structure))
     structure.add_site_property("magmom", [2.0] * len(structure))
     structure.add_site_property("final_charge", [3.0] * len(structure))
@@ -316,7 +316,7 @@ def test_back_forth_v4():
 
 @skip_if_no_ase
 def test_msonable_atoms():
-    structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+    structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
 
     atoms = ase.io.read(f"{VASP_OUT_DIR}/OUTCAR.gz")
     atoms_info = {"test": "hi", "structure": structure}

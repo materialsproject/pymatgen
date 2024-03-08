@@ -55,7 +55,7 @@ from pymatgen.io.vasp.sets import (
     get_valid_magmom_struct,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 dec = MontyDecoder()
 
@@ -132,7 +132,7 @@ class TestSetChangeCheck(PymatgenTest):
 class TestDictSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         cls.structure = Structure.from_file(filepath)
 
     def test_as_dict(self):
@@ -173,7 +173,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         cls.mp_set = MPRelaxSet
         cls.monkeypatch = MonkeyPatch()
 
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         cls.structure = Structure.from_file(filepath)
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         cls.lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
@@ -256,7 +256,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # Use pytest's monkeypatch to temporarily point pymatgen to a directory
         # containing the wrong POTCARs (LDA potcars in a PBE directory)
         with self.monkeypatch.context() as m:
-            m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(f"{TEST_FILES_DIR}/wrong_potcars"))
+            m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(f"{VASP_IN_DIR}/wrong_potcars"))
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
                 _ = self.set(structure).potcar
 
@@ -368,7 +368,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # because the structure has no site properties, the default MAGMOM is assigned from the
         # config dictionary.
         struct = Structure(lattice, ["Fe", "F"], coords)
-        incar = MPStaticSet(struct, prev_incar=f"{TEST_FILES_DIR}/INCAR").incar
+        incar = MPStaticSet(struct, prev_incar=f"{VASP_IN_DIR}/INCAR").incar
         assert incar["MAGMOM"] == [5, 0.6]
 
         # Make sure this works with species.
@@ -796,8 +796,8 @@ class TestMPStaticSet(PymatgenTest):
 
 class TestMatPESStaticSet(PymatgenTest):
     def setUp(self):
-        self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
-        self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+        self.struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
+        self.prev_incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_default(self):
         input_set = MatPESStaticSet(self.struct)
@@ -1114,7 +1114,7 @@ class TestMagmomLdau(PymatgenTest):
 class TestMITMDSet(PymatgenTest):
     def setUp(self):
         self.set = MITMDSet
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(filepath)
         self.mit_md_param = self.set(structure=self.struct, start_temp=300, end_temp=1200, nsteps=10000)
 
@@ -1155,7 +1155,7 @@ class TestMITMDSet(PymatgenTest):
 @skip_if_no_psp_dir
 class TestMVLNPTMDSet(PymatgenTest):
     def setUp(self):
-        file_path = f"{TEST_FILES_DIR}/POSCAR"
+        file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
 
@@ -1191,9 +1191,9 @@ class TestMVLNPTMDSet(PymatgenTest):
 
 class TestMPMDSet(PymatgenTest):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(filepath)
-        self.struct_with_H = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp")
+        self.struct_with_H = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_hcp")
         self.mp_md_set_noTS = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
         self.mp_md_set_noTS_with_H = MPMDSet(self.struct_with_H, start_temp=0, end_temp=300, nsteps=1000)
         self.mp_md_set_TS1 = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000, time_step=1.0)
@@ -1552,7 +1552,7 @@ class TestMPHSEBS(PymatgenTest):
 class TestMVLScanRelaxSet(PymatgenTest):
     def setUp(self):
         self.set = MVLScanRelaxSet
-        file_path = f"{TEST_FILES_DIR}/POSCAR"
+        file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         self.mvl_scan_set = self.set(self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500})
 
@@ -1617,7 +1617,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
 
 class TestMPScanRelaxSet(PymatgenTest):
     def setUp(self):
-        file_path = f"{TEST_FILES_DIR}/POSCAR"
+        file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         self.mp_scan_set = MPScanRelaxSet(
             self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
@@ -1664,7 +1664,7 @@ class TestMPScanRelaxSet(PymatgenTest):
 
     def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
-        file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
+        file_path = f"{VASP_IN_DIR}/POSCAR_O2"
         struct = Structure.from_file(file_path)
         for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757), (0.5, 0.2832948), (0, 0.22)):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
@@ -1858,7 +1858,7 @@ class TestMVLGBSet(PymatgenTest):
 class TestMVLRelax52Set(PymatgenTest):
     def setUp(self):
         self.set = MVLRelax52Set
-        file_path = f"{TEST_FILES_DIR}/POSCAR"
+        file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         self.mvl_rlx_set = self.set(self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500})
 
@@ -1891,7 +1891,7 @@ class TestMVLRelax52Set(PymatgenTest):
 class TestLobsterSet(PymatgenTest):
     def setUp(self):
         self.set = LobsterSet
-        file_path = f"{TEST_FILES_DIR}/POSCAR"
+        file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         # test for different parameters!
         self.lobsterset1 = self.set(self.struct, isym=-1, ismear=-5)

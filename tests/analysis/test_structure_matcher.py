@@ -17,7 +17,7 @@ from pymatgen.analysis.structure_matcher import (
 )
 from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 
 class TestStructureMatcher(PymatgenTest):
@@ -27,12 +27,12 @@ class TestStructureMatcher(PymatgenTest):
         self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O"),
+            Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O"),
         ]
 
     def test_ignore_species(self):
         s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        s2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         matcher = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         assert matcher.fit(s1, s2)
         assert matcher.fit_anonymous(s1, s2)
@@ -283,8 +283,8 @@ class TestStructureMatcher(PymatgenTest):
         # test symmetric
         sm_coarse = sm = StructureMatcher(comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6)
 
-        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s1.vasp")
-        struct2 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s2.vasp")
+        struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_fit_symm_s1")
+        struct2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_fit_symm_s2")
         assert sm_coarse.fit(struct1, struct2)
         assert sm_coarse.fit(struct2, struct1) is False
         assert sm_coarse.fit(struct1, struct2, symmetric=True) is False
@@ -317,12 +317,12 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_mix(self):
         structures = list(map(self.get_structure, ["Li2O", "Li2O2", "LiFePO4"]))
-        structures += [Structure.from_file(f"{TEST_FILES_DIR}/{fname}") for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]]
+        structures += [Structure.from_file(f"{VASP_IN_DIR}/{fname}") for fname in ["POSCAR_Li2O", "POSCAR_LiFePO4"]]
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for group in groups:
             formula = group[0].reduced_formula
-            assert len(group) == (2 if formula in ["Li2O", "LiFePO4"] else 1)
+            assert len(group) == (2 if formula in {"Li2O", "LiFePO4"} else 1)
 
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""

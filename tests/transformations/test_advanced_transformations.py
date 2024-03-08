@@ -41,7 +41,7 @@ from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     import hiphive
@@ -162,7 +162,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
@@ -193,7 +193,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -220,7 +220,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -301,7 +301,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
         spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
@@ -331,7 +331,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
         struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)

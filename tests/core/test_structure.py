@@ -29,7 +29,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     from ase.atoms import Atoms
@@ -1807,7 +1807,7 @@ Sites (8)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
 
     def test_struct_with_isotope(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         struct = struct.replace_species({"Li": "H"})
 
         struct_deuter = struct.copy()

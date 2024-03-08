@@ -18,7 +18,7 @@ from pymatgen.analysis.structure_analyzer import (
 )
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestVoronoiAnalyzer(PymatgenTest):
@@ -39,8 +39,8 @@ class TestVoronoiAnalyzer(PymatgenTest):
 
 class TestRelaxationAnalyzer(unittest.TestCase):
     def setUp(self):
-        s1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O")
-        s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR.Li2O")
+        s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
+        s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
     def test_vol_and_para_changes(self):

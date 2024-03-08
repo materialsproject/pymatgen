@@ -12,7 +12,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 @unittest.skipIf(not which("bader"), "bader executable not present")
@@ -24,7 +24,7 @@ class TestBaderAnalysis(PymatgenTest):
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
-            potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
             chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
         )
         assert len(analysis.data) == 14
@@ -119,7 +119,7 @@ class TestBaderAnalysis(PymatgenTest):
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
-            potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
             chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
             parse_atomic_densities=True,
         )
