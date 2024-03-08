@@ -146,16 +146,16 @@ class TestFeffAtoms(unittest.TestCase):
 
 class TestFeffTags(unittest.TestCase):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/PARAMETERS"
+        filepath = f"{FEFF_TEST_DIR}/PARAMETERS"
         parameters = Tags.from_file(filepath)
         parameters["RPATH"] = 10
         assert parameters["COREHOLE"] == "Fsr", "Failed to read PARAMETERS file"
         assert parameters["LDOS"] == [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file"
 
     def test_diff(self):
-        filepath1 = f"{TEST_FILES_DIR}/PARAMETERS"
+        filepath1 = f"{FEFF_TEST_DIR}/PARAMETERS"
         parameters1 = Tags.from_file(filepath1)
-        filepath2 = f"{TEST_FILES_DIR}/PARAMETERS.2"
+        filepath2 = f"{FEFF_TEST_DIR}/PARAMETERS.2"
         parameters2 = Tags.from_file(filepath2)
         assert Tags(parameters1).diff(parameters2) == {
             "Different": {},
@@ -176,7 +176,7 @@ class TestFeffTags(unittest.TestCase):
         }
 
     def test_as_dict_and_from_dict(self):
-        file_name = f"{TEST_FILES_DIR}/PARAMETERS"
+        file_name = f"{FEFF_TEST_DIR}/PARAMETERS"
         tags = Tags.from_file(file_name)
         dct = tags.as_dict()
         tags2 = Tags.from_dict(dct)
