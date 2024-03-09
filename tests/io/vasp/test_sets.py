@@ -1498,7 +1498,7 @@ class TestMPHSEBS(PymatgenTest):
         self.set = MPHSEBSSet
 
     def test_init(self):
-        prev_run = f"{TEST_FILES_DIR}/static_silicon"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/static_silicon"
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform")
         assert vis.incar["LHFCALC"]
         assert len(vis.kpoints.kpts) == 16
@@ -1529,7 +1529,7 @@ class TestMPHSEBS(PymatgenTest):
             vis.incar.items()
 
     def test_override_from_prev_calc(self):
-        prev_run = f"{TEST_FILES_DIR}/static_silicon"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/static_silicon"
         vis = self.set(dummy_structure, mode="uniform")
         vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["LHFCALC"]
