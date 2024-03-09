@@ -653,7 +653,7 @@ class TestMPStaticSet(PymatgenTest):
         self.set = MPStaticSet
 
     def test_init(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
 
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run)
         assert vis.inherit_incar is True
@@ -735,7 +735,7 @@ class TestMPStaticSet(PymatgenTest):
 
     def test_override_from_prev_calc(self):
         # test override_from_prev
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
 
         vis = self.set(dummy_structure)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
@@ -902,7 +902,7 @@ class TestMatPESStaticSet(PymatgenTest):
             assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
     def test_from_prev_calc(self):
-        vis = MatPESStaticSet.from_prev_calc(f"{TEST_FILES_DIR}/relaxation")
+        vis = MatPESStaticSet.from_prev_calc(f"{TEST_FILES_DIR}/vasp/fixtures/relaxation")
         incar = vis.incar
         assert incar["GGA"] == "Pe"
         assert incar["ALGO"] == "Normal"
@@ -916,7 +916,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_init(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         # check mode belong to ["line", "uniform", "boltztrap"]
         valid_modes = ("line", "uniform", "boltztrap")
         mode = "none"
@@ -978,7 +978,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_override_from_prev(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
 
         # test override_from_prev
         vis = self.set(dummy_structure, mode="Boltztrap")
@@ -1022,7 +1022,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
     def test_kpoints(self):
         # test k-points are generated in the correct format
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform", copy_chgcar=False)
         assert np.array(vis.kpoints.kpts).shape == (1, 3)
 
@@ -1033,7 +1033,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert np.array(vis.kpoints.kpts).shape != (1, 3)
 
     def test_optics(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         vis = self.set.from_prev_calc(
             prev_calc_dir=prev_run,
             copy_chgcar=False,
@@ -1064,7 +1064,7 @@ class TestMPNonSCFSet(PymatgenTest):
         # default kpoints style is reciprocal, try setting to gamma
         user_kpoints_override = Kpoints(style=Kpoints.supported_modes.Gamma, kpts=((1, 1, 1),))
 
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         vis = self.set.from_prev_calc(
             prev_calc_dir=prev_run,
             copy_chgcar=False,
@@ -1437,7 +1437,7 @@ class TestMVLGWSet(PymatgenTest):
         assert symbols == ["Li_sv_GW", "O_GW"]
 
     def test_diag(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         mvlgwdiag = self.set.from_prev_calc(prev_run, copy_wavecar=True, mode="diag")
         mvlgwdiag.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
@@ -1455,13 +1455,13 @@ class TestMVLGWSet(PymatgenTest):
         assert mvlgwdiag.incar["LOPTICS"]
 
     def test_bse(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         mvlgwgbse = self.set.from_prev_calc(prev_run, copy_wavecar=True, mode="BSE")
         mvlgwgbse.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
 
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         mvlgwgbse = self.set.from_prev_calc(prev_run, copy_wavecar=False, mode="GW")
         assert mvlgwgbse.incar["NOMEGA"] == 80
         assert mvlgwgbse.incar["ENCUTGW"] == 250
@@ -1472,14 +1472,14 @@ class TestMVLGWSet(PymatgenTest):
         assert mvlgwgbse1.incar["ALGO"] == "Bse"
 
         # test override_from_prev_calc
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         mvlgwgbse = self.set(dummy_structure, copy_wavecar=True, mode="BSE")
         mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
         mvlgwgbse.write_input(self.tmp_path)
         assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
 
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/relaxation"
         mvlgwgbse = self.set(dummy_structure, copy_wavecar=True, mode="GW")
         mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
         assert mvlgwgbse.incar["NOMEGA"] == 80
