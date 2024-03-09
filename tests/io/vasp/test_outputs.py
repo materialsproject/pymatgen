@@ -770,7 +770,7 @@ class TestVasprun(PymatgenTest):
         # See gh-3586
         copyfile(f"{VASP_OUT_DIR}/vasprun.Al.xml.gz", "vasprun.xml.gz")
 
-        potcar_path = f"{VASP_IN_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
+        potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
         copyfile(potcar_path, "POTCAR.gz")
 
         potcar = Potcar.from_file(potcar_path)
