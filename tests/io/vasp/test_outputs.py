@@ -1013,7 +1013,7 @@ class TestOutcar(PymatgenTest):
 
     def test_read_lcalcpol(self):
         # outcar with electrons Angst units
-        folder = "BTO_221_99_polarization/interpolation_6_polarization/"
+        folder = "vasp/fixtures/BTO_221_99_polarization/interpolation_6_polarization/"
         filepath = TEST_FILES_DIR / folder / "OUTCAR"
         outcar = Outcar(filepath)
 
