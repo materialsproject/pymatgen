@@ -2493,6 +2493,29 @@ class Potcar(list, MSONable):
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @classmethod
+    def from_str(cls, data: str):
+        """
+        Read Potcar from a string.
+
+        :param data: Potcar as a string.
+
+        Returns:
+            Potcar
+        """
+        potcar = cls()
+
+        functionals = []
+        for psingle_str in data.split("End of Dataset"):
+            if p_strip := psingle_str.strip():
+                psingle = PotcarSingle(p_strip + "\nEnd of Dataset\n")
+                potcar.append(psingle)
+                functionals.append(psingle.functional)
+        if len(set(functionals)) != 1:
+            raise ValueError("File contains incompatible functionals!")
+        potcar.functional = functionals[0]
+        return potcar
+
+    @classmethod
     def from_file(cls, filename: str):
         """
         Reads Potcar from file.
@@ -2504,18 +2527,7 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, mode="rt") as file:
             fdata = file.read()
-        potcar = cls()
-
-        functionals = []
-        for psingle_str in fdata.split("End of Dataset"):
-            if p_strip := psingle_str.strip():
-                psingle = PotcarSingle(p_strip + "\nEnd of Dataset\n")
-                potcar.append(psingle)
-                functionals.append(psingle.functional)
-        if len(set(functionals)) != 1:
-            raise ValueError("File contains incompatible functionals!")
-        potcar.functional = functionals[0]
-        return potcar
+        return cls.from_str(fdata)
 
     def __str__(self) -> str:
         return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"

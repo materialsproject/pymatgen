@@ -16,9 +16,10 @@ from dataclasses import dataclass
 from glob import glob
 from io import StringIO
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
+from monty.dev import requires
 from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
@@ -37,10 +38,19 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.common import VolumetricData as BaseVolumetricData
 from pymatgen.io.core import ParseError
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, KpointsSupportedModes, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
+
+try:
+    import h5py
+except ImportError:
+    h5py = None
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -5218,3 +5228,289 @@ class WSWQ(MSONable):
 
 class UnconvergedVASPWarning(Warning):
     """Warning for unconverged vasp run."""
+
+
+@requires(h5py is not None, "h5py must be installed to read vaspout.h5")
+class Vaspout(Vasprun):
+    """
+    Class to read vaspout.h5 files.
+
+    This class inherits from Vasprun, as the vaspout.h5 file is intended
+    to be a forward-looking replacement for vasprun.xml.
+
+    Thus to later accommodate a smooth transition to vaspout.h5, this class
+    uses the same structure as Vasprun but overrides many of its methods.
+
+    Parameters
+    -----------
+        filename : str or Path
+            The name of the vaspout.h5 file to parse, can be compressed.
+        occu_tol: float = 1e-8
+            Sets the minimum tol for the determination of the
+            vbm and cbm. Usually the default of 1e-8 works well enough,
+            but there may be pathological cases.
+        parse_dos : bool = True
+            Whether to parse the dos. Defaults to True. Set
+            to False to shave off significant time from the parsing if you
+            are not interested in getting those data.
+        parse_eigen : bool = True
+            Whether to parse the eigenvalues. Defaults to
+            True. Set to False to shave off significant time from the
+            parsing if you are not interested in getting those data.
+        parse_projected_eigen : bool = False
+            Whether to parse the projected
+            eigenvalues and magnetization. Defaults to False. Set to True to obtain
+            projected eigenvalues and magnetization. **Note that this can take an
+            extreme amount of time and memory.** So use this wisely.
+        separate_spins : bool
+            Whether the band gap, CBM, and VBM should be
+            reported for each individual spin channel. Defaults to False,
+            which computes the eigenvalue band properties independent of
+            the spin orientation. If True, the calculation must be spin-polarized.
+    """
+
+    def __init__(
+        self,
+        filename: str | Path,
+        occu_tol: float = 1e-8,
+        parse_dos: bool = True,
+        parse_eigen: bool = True,
+        parse_projected_eigen: bool = False,
+        separate_spins: bool = False,
+    ) -> None:
+        self.filename = str(filename)
+        self.occu_tol = occu_tol
+        self.separate_spins = separate_spins
+
+        self._parse(parse_dos, parse_eigen, parse_projected_eigen)
+
+    @staticmethod
+    def _parse_hdf5_value(val: Any) -> Any:
+        val = np.array(val).tolist()
+        if isinstance(val, bytes):
+            val = val.decode()
+        elif isinstance(val, list):
+            val = [Vaspout._parse_hdf5_value(x) for x in val]
+        elif isinstance(val, dict):
+            val = {k: Vaspout._parse_hdf5_value(v) for k, v in val.items()}
+        return val
+
+    def _parse(self, parse_dos: bool, parse_eigen: bool, parse_projected_eigen: bool) -> None:  # type: ignore
+        with zopen(self.filename, "rb") as vout_file:
+            _data = h5py.File(vout_file, "r")
+
+            data: dict[str, Any] = {}
+            for calc_key in _data:
+                data[calc_key] = {}
+                for obj in _data[calc_key]:
+                    if hasattr(_data[calc_key][obj], "items"):
+                        data[calc_key][obj] = {
+                            key: self._parse_hdf5_value(value) for key, value in _data[calc_key][obj].items()
+                        }
+                    else:
+                        data[calc_key][obj] = self._parse_hdf5_value(_data[calc_key][obj])
+
+        self._parse_params(data["input"])
+        self._get_ionic_steps(data["intermediate"]["ion_dynamics"])
+
+        # TODO: determine if these following fields are stored in vaspout.h5
+        self.kpoints_opt_props = None
+        self.md_data = []
+        # end TODO
+
+        self._parse_results(data["results"])
+
+        if parse_dos:
+            try:
+                self._parse_dos(data["results"]["electron_dos"])
+                self.dos_has_errors = False
+            except Exception:
+                self.dos_has_errors = True
+
+        if parse_eigen:
+            self.eigenvalues = self._parse_eigen(data["results"]["electron_eigenvalues"])
+
+        if parse_projected_eigen:
+            # TODO: are these contained in vaspout.h5?
+            self.projected_eigenvalues = None
+            self.projected_magnetisation = None
+
+        self.vasp_version = ".".join(f"{data['version'].get(tag,'')}" for tag in ("major", "minor", "patch"))
+        # TODO: are the other generator tags, like computer platform, stored in vaspout.h5?
+        self.generator = {"version": self.vasp_version}
+
+    @staticmethod
+    def _parse_structure(positions: dict) -> Structure:
+        species = []
+        for ispecie, specie in enumerate(positions["ion_types"]):
+            species += [specie for _ in range(positions["number_ion_types"][ispecie])]
+
+        # TODO : figure out how site_properties are stored in vaspout
+        site_properties: dict[str, list] = {}
+        if positions["selective_dynamics"] == 1:
+            site_properties["selective_dynamics"] = []
+
+        return Structure(
+            lattice=Lattice(positions["scale"] * np.array(positions["lattice_vectors"])),
+            species=species,
+            coords=positions["position_ions"],
+            coords_are_cartesian=(positions["direct_coordinates"] == 1),
+        )
+
+    @staticmethod
+    def _parse_kpoints(kpoints: dict) -> tuple[Kpoints, Sequence, Sequence]:
+        _kpoints_style_from_mode = {
+            KpointsSupportedModes.Reciprocal: {"mode": "e", "coordinate_space": "R"},
+            KpointsSupportedModes.Automatic: {"mode": "a"},
+            KpointsSupportedModes.Gamma: {"mode": "g"},
+            KpointsSupportedModes.Line_mode: {"mode": "l"},
+            KpointsSupportedModes.Monkhorst: {"mode": "m"},
+        }
+
+        for kpoints_style, props in _kpoints_style_from_mode.items():
+            if all(kpoints.get(k) == v for k, v in props.items()):
+                kpoints["style"] = kpoints_style
+                break
+
+        if not kpoints.get("style"):
+            raise ValueError("Could not identify KPOINTS style.")
+
+        if coord_type := kpoints.get("coordinate_space"):
+            coord_type = "Reciprocal" if coord_type == "R" else "Cartesian"
+
+        num_kpts = len(kpoints["coordinates_kpoints"])
+        kpt_labels = [None for _ in range(num_kpts)]
+        for i, idx in enumerate(kpoints.get("positions_labels_kpoints", [])):
+            kpt_labels[idx - 1] = kpoints["labels_kpoints"][i]
+
+        return (
+            Kpoints(
+                comment=kpoints.get("system", "Unknown"),
+                num_kpts=num_kpts,
+                style=kpoints["style"],
+                kpts=kpoints["coordinates_kpoints"],
+                kpts_weights=kpoints["weights_kpoints"],
+                coord_type=coord_type,
+                labels=kpt_labels if any(kpt_labels) else None,
+            ),
+            kpoints["coordinates_kpoints"],
+            kpoints["weights_kpoints"],
+        )
+
+    @staticmethod
+    def _parse_atominfo(composition: Composition):
+        # TODO: this function seems irrelevant but is used in Vasprun, do we need this?
+        atom_symbols = []
+        for element in composition:
+            atom_symbols += [str(element) for _ in range(int(composition[element]))]
+        return atom_symbols
+
+    def _parse_params(self, input_data: dict):
+        self.incar = Incar(input_data["incar"])
+
+        # TODO: set defaults in parameters to match vasprun?
+        self.parameters = Incar.from_dict(self.incar.as_dict())
+
+        self.kpoints = None
+        self.actual_kpoints = None
+        self.actual_kpoints_weights = None
+        if not self.incar.get("KSPACING"):
+            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(input_data["kpoints"])
+
+        self.initial_structure = self._parse_structure(input_data["poscar"])
+        self.atomic_symbols = self._parse_atominfo(self.initial_structure.composition)
+
+        self.potcar = Potcar.from_str(input_data["potcar"]["content"])
+        self.potcar_symbols = [potcar.symbol for potcar in self.potcar]
+        self.potcar_spec = [
+            {"titel": potcar.symbol, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}
+            for potcar in self.potcar
+        ]
+
+        # TODO: do we want POSCAR stored?
+        self.poscar = Poscar(
+            structure=self.initial_structure,
+            comment=input_data["poscar"].get("system"),
+            selective_dynamics=self.initial_structure.site_properties.get("selective_dynamics"),
+            velocities=self.initial_structure.site_properties.get("velocities"),
+        )
+
+    def _get_ionic_steps(self, ion_dynamics) -> None:
+        # use same key accession as in vasprun.xml
+        vasp_key_to_pmg = {
+            "free energy    TOTEN": "e_fr_energy",
+            "energy without entropy": "e_wo_entrp",
+            "energy(sigma->0)": "e_0_energy",
+        }
+        self.nionic_steps = len(ion_dynamics["energies"])
+        self.ionic_steps = []
+
+        ionic_step_keys = [
+            key
+            for key in (
+                "forces",
+                "stresses",
+            )
+            if ion_dynamics.get(key)
+        ]
+
+        for istep in range(self.nionic_steps):
+            step = {
+                **{
+                    vasp_key_to_pmg[ion_dynamics["energies_tags"][ivalue]]: value
+                    for ivalue, value in enumerate(ion_dynamics["energies"][istep])
+                },
+                **{key: ion_dynamics[key][istep] for key in ionic_step_keys},
+                "structure": Structure(
+                    lattice=Lattice(ion_dynamics["lattice_vectors"][istep]),
+                    species=self.initial_structure.species,
+                    coords=ion_dynamics["position_ions"][istep],
+                    coords_are_cartesian=False,  # TODO check this is always False
+                ),
+            }
+            self.ionic_steps += [step]
+
+    def _parse_results(self, results: dict) -> None:
+        self.final_structure = self._parse_structure(results["positions"])
+
+    def _parse_dos(self, electron_dos: dict):  # type: ignore
+        self.efermi = electron_dos["efermi"]
+
+        densities: dict = {}
+        for dos_type in (
+            "dos",
+            "dosi",
+            "dospar",
+        ):
+            if electron_dos.get(dos_type):
+                densities[dos_type] = {}
+                for ispin in range(len(electron_dos[dos_type])):
+                    densities[dos_type][Spin.up if ispin == 0 else Spin.down] = electron_dos[dos_type][ispin]
+
+        self.tdos = Dos(self.efermi, electron_dos["energies"], densities["dos"])
+        self.idos = Dos(self.efermi, electron_dos["energies"], densities["dosi"])
+        self.pdos = densities["dospar"]  # TODO: check this
+
+    @staticmethod
+    def _parse_eigen(eigenvalues_complete: dict):
+        eigenvalues = {}
+        for ispin in range(eigenvalues_complete["ispin"]):
+            eigenvalues[Spin.up if ispin == 0 else Spin.down] = np.array(
+                [
+                    [
+                        [
+                            eigenvalues_complete["eigenvalues"][ispin][i][j],
+                            eigenvalues_complete["fermiweights"][ispin][i][j],
+                        ]
+                        for j in range(eigenvalues_complete["nb_tot"])
+                    ]
+                    for i in range(eigenvalues_complete["kpoints"])
+                ]
+            )
+        return eigenvalues
+
+    @property  # type: ignore
+    @unitized("eV")
+    def final_energy(self):
+        """Final energy from vaspout."""
+        return self.ionic_steps[-1]["e_0_energy"]
