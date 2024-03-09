@@ -1971,14 +1971,14 @@ class TestLobsterSet(PymatgenTest):
 @skip_if_no_psp_dir
 class TestMPAbsorptionSet(PymatgenTest):
     def setUp(self):
-        file_path = f"{TEST_FILES_DIR}/absorption/static/POSCAR"
+        file_path = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/static/POSCAR"
         self.structure = Structure.from_file(file_path)
         self.set = MPAbsorptionSet
         with pytest.raises(ValueError, match=r"STATIC not one of the support modes : \('IPA', 'RPA'\)"):
             self.set = MPAbsorptionSet(self.structure, mode="STATIC")
 
     def test_ipa(self):
-        prev_run = f"{TEST_FILES_DIR}/absorption/static"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(
             prev_calc_dir=prev_run, user_incar_settings={"NEDOS": 3000}, copy_wavecar=True, mode="IPA"
         )
@@ -2007,7 +2007,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert absorption_ipa.incar["LOPTICS"]
 
     def test_rpa(self):
-        prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/ipa"
         absorption_rpa = MPAbsorptionSet.from_prev_calc(
             prev_run, user_incar_settings={"NEDOS": 3000}, copy_wavecar=True, mode="RPA"
         )
@@ -2026,7 +2026,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert "LWAVE" not in absorption_rpa.incar
 
         # test override_from_prev_calc
-        prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/ipa"
         absorption_rpa = MPAbsorptionSet(dummy_structure, copy_wavecar=True, mode="RPA")
         absorption_rpa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorption_rpa.write_input(self.tmp_path)
@@ -2045,13 +2045,13 @@ class TestMPAbsorptionSet(PymatgenTest):
 
     def test_kpoints(self):
         # Check IPA kpoints
-        prev_run = f"{TEST_FILES_DIR}/absorption/static"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, mode="IPA")
         kpoints1 = absorption_ipa.kpoints
         assert kpoints1.kpts == [[13, 13, 13]]
         assert kpoints1.style == Kpoints.supported_modes.Gamma
         # Check RPA kpoints
-        prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/ipa"
         absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, mode="RPA")
         kpoints2 = absorption_rpa.kpoints
         assert kpoints2.kpts == [[13, 13, 13]]
@@ -2059,7 +2059,7 @@ class TestMPAbsorptionSet(PymatgenTest):
 
     def test_as_from_dict(self):
         # IPA_as_dict
-        prev_run = f"{TEST_FILES_DIR}/absorption/static"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, mode="IPA")
         dct = absorption_ipa.as_dict()
         vasp_input = dec.process_decoded(dct)
@@ -2067,7 +2067,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert vasp_input.incar["LOPTICS"]
         assert vasp_input.incar["GGA"] == "Ps"
         # RPA_as_dict
-        prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/ipa"
         absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, mode="RPA")
         dct = absorption_rpa.as_dict()
         vasp_input = dec.process_decoded(dct)
