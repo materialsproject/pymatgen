@@ -1730,7 +1730,7 @@ class TestMPScanRelaxSet(PymatgenTest):
 class TestMPScanStaticSet(PymatgenTest):
     def setUp(self):
         self.set = MPScanStaticSet
-        self.prev_run = f"{TEST_FILES_DIR}/scan_relaxation"
+        self.prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/scan_relaxation"
         # test inheriting from a previous SCAN relaxation
         self.vis = self.set.from_prev_calc(prev_calc_dir=self.prev_run)
 
