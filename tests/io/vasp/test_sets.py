@@ -1279,7 +1279,7 @@ class TestMPSOCSet(PymatgenTest):
         self.set = MPSOCSet
 
     def test_from_prev_calc(self):
-        prev_run = f"{TEST_FILES_DIR}/fe_monomer"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/fe_monomer"
         vis = self.set.from_prev_calc(
             prev_calc_dir=prev_run,
             magmom=[3],
@@ -1295,7 +1295,7 @@ class TestMPSOCSet(PymatgenTest):
 
     def test_override_from_prev_calc(self):
         # test override_from_prev_calc
-        prev_run = f"{TEST_FILES_DIR}/fe_monomer"
+        prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/fe_monomer"
         vis = self.set(
             dummy_structure,
             magmom=[3],
