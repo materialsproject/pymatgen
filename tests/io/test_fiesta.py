@@ -71,7 +71,7 @@ class TestFiestaInput(unittest.TestCase):
 
 class TestFiestaOutput(unittest.TestCase):
     def setUp(self):
-        self.log_fiesta = FiestaOutput(f"{TEST_FILES_DIR}/log_fiesta")
+        self.log_fiesta = FiestaOutput(f"{TEST_FILES_DIR}/fiesta/log_fiesta")
 
     def test_props(self):
         out = self.log_fiesta
