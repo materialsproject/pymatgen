@@ -249,7 +249,7 @@ class TestBSDOSPlotter(unittest.TestCase):
 
 class TestPlotBZ(unittest.TestCase):
     def setUp(self):
-        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/Si.cssr").lattice.reciprocal_lattice
+        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],

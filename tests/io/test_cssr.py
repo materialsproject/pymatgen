@@ -53,6 +53,6 @@ class TestCssr(unittest.TestCase):
         assert str(self.cssr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/Si.cssr"
+        filename = f"{TEST_FILES_DIR}/cssr/Si.cssr"
         cssr = Cssr.from_file(filename)
         assert isinstance(cssr.structure, Structure)

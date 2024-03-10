@@ -66,7 +66,7 @@ class TestZeoCssr(unittest.TestCase):
         assert str(self.zeo_cssr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI.cssr"
+        filename = f"{TEST_FILES_DIR}/cssr/EDI.cssr"
         zeo_cssr = ZeoCssr.from_file(filename)
         assert isinstance(zeo_cssr.structure, Structure)
 
@@ -110,7 +110,7 @@ class TestZeoCssrOxi(unittest.TestCase):
         assert str(self.zeo_cssr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI_oxistate_decorated.cssr"
+        filename = f"{TEST_FILES_DIR}/cssr/EDI_oxistate_decorated.cssr"
         zeocssr = ZeoCssr.from_file(filename)
         assert isinstance(zeocssr.structure, Structure)
 
