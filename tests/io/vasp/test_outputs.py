@@ -1913,11 +1913,11 @@ class TestWavecar(PymatgenTest):
         assert_allclose(c.data["total"], 0.0)
 
     def test_write_unks(self):
-        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/UNK.N2.std")
-        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/UNK.H2.ncl")
+        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
+        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.H2.ncl")
 
         with pytest.raises(ValueError, match="invalid directory"):
-            self.wavecar.write_unks(f"{TEST_FILES_DIR}/UNK.N2.std")
+            self.wavecar.write_unks(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
 
         # different grids
         self.wavecar.write_unks("./unk_dir")
