@@ -753,7 +753,8 @@ class PhaseDiagram(MSONable):
                 'ignore' just returns (None, None). Defaults to 'raise'.
 
         Raises:
-            ValueError: If no valid decomposition exists in this phase diagram for given entry.
+            ValueError: If on_error is 'raise' and no valid decomposition exists in this
+                phase diagram for given entry.
 
         Returns:
             tuple[decomp, energy_above_hull]: The decomposition is provided
@@ -825,9 +826,9 @@ class PhaseDiagram(MSONable):
             return 0
 
         entries = [e for e in self._get_stable_entries_in_space(frozenset(elem_space)) if e != entry]
-        modpd = PhaseDiagram(entries, elements=elem_space)
+        mod_pd = PhaseDiagram(entries, elements=elem_space)
 
-        return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
+        return mod_pd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_phase_separation_energy(
         self,
@@ -1752,6 +1753,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         Returns:
             PhaseDiagram: phase diagram that the entry is part of
+
+        Raises:
+            ValueError: If no suitable PhaseDiagram is found for the entry.
         """
         entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
 
