@@ -17,7 +17,7 @@ __email__ = "jmmshn@gmail.com"
 class TestVasprun(PymatgenTest):
     def test_optics(self):
         eps_data_path = f"{TEST_FILES_DIR}/vasp/fixtures/reproduce_eps"
-        vrun = Vasprun(f"{eps_data_path}/vasprun.xml")
+        vrun = Vasprun(f"{eps_data_path}/vasprun.xml.gz")
         dfc = DielectricFunctionCalculator.from_directory(eps_data_path)
         egrid, eps = dfc.get_epsilon(0, 0)
 
