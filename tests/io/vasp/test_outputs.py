@@ -2017,7 +2017,7 @@ class TestWaveder(PymatgenTest):
 
 class TestWSWQ(PymatgenTest):
     def setUp(self):
-        self.wswq = WSWQ.from_file(f"{TEST_FILES_DIR}/WSWQ.gz")
+        self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):
         assert self.wswq.nbands == 18
