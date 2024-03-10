@@ -958,11 +958,11 @@ Si1 Si 0 0 0 1 0.0
 
 class TestMagCif(PymatgenTest):
     def setUp(self):
-        self.mcif = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
-        self.mcif_ncl = CifParser(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif")
-        self.mcif_incommensurate = CifParser(f"{TEST_FILES_DIR}/magnetic.incommensurate.example.Cr.mcif")
-        self.mcif_disordered = CifParser(f"{TEST_FILES_DIR}/magnetic.disordered.example.CuMnO2.mcif")
-        self.mcif_ncl2 = CifParser(f"{TEST_FILES_DIR}/Mn3Ge_IR2.mcif")
+        self.mcif = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.example.NiO.mcif")
+        self.mcif_ncl = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif")
+        self.mcif_incommensurate = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.incommensurate.example.Cr.mcif")
+        self.mcif_disordered = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.disordered.example.CuMnO2.mcif")
+        self.mcif_ncl2 = CifParser(f"{TEST_FILES_DIR}/mcif/Mn3Ge_IR2.mcif")
 
     def test_mcif_detection(self):
         assert self.mcif.feature_flags["magcif"]
@@ -1028,7 +1028,7 @@ Gd1 5.05 5.05 0.0"""
         assert s_ncl.matches(s_ncl_from_msg)
 
     def test_write(self):
-        with open(f"{TEST_FILES_DIR}/GdB4-writer-ref.mcif") as file:
+        with open(f"{TEST_FILES_DIR}/mcif/GdB4-writer-ref.mcif") as file:
             cw_ref_string = file.read()
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
 
@@ -1048,7 +1048,7 @@ Gd1 5.05 5.05 0.0"""
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
-        with open(f"{TEST_FILES_DIR}/GdB4-str-magnitudes-ref.mcif") as file:
+        with open(f"{TEST_FILES_DIR}/mcif/GdB4-str-magnitudes-ref.mcif") as file:
             cw_ref_string_magnitudes = file.read()
 
         assert str(cw).strip() == cw_ref_string_magnitudes.strip()
@@ -1066,7 +1066,7 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
 
         # check oxidation state
-        with open(f"{TEST_FILES_DIR}/CsCl-manual-oxi-ref.mcif") as file:
+        with open(f"{TEST_FILES_DIR}/mcif/CsCl-manual-oxi-ref.mcif") as file:
             cw_manual_oxi_string = file.read()
         s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)

@@ -874,12 +874,12 @@ Direct
 
         # test CIF file with unicode error
         # https://github.com/materialsproject/pymatgen/issues/2947
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
         # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
         # i.e. uses same merge_tol for site merging, same primitive=False, etc.
-        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
+        assert struct == CifParser(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif").parse_structures()[0]
 
         # https://github.com/materialsproject/pymatgen/issues/3551
         json_path = Path("test-with-path.json")

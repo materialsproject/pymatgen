@@ -30,9 +30,9 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
 
         self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif", primitive=True)
 
-        self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif", primitive=True)
+        self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
 
-        self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif", primitive=True)
+        self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.example.NiO.mcif", primitive=True)
 
         # CuO.mcif sourced from https://www.cryst.ehu.es/magndata/index.php?index=1.62
         # doi: 10.1088/0022-3719/21/15/023
