@@ -141,7 +141,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert str(self.xyz) == expected
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI_voro.xyz"
+        filename = f"{TEST_FILES_DIR}/xyz/EDI_voro.xyz"
         voronoi = ZeoVoronoiXYZ.from_file(filename)
         assert isinstance(voronoi.molecule, Molecule)
 
