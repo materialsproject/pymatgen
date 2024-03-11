@@ -15,10 +15,12 @@ TEST_DIR = f"{TEST_FILES_DIR}/app_borg"
 
 class TestBorgQueen(unittest.TestCase):
     def test_get_data(self):
+        """Test get data from vasprun.xml.xe.gz file."""
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone, TEST_DIR, 1)
         data = queen.get_data()
         assert len(data) == 1
+        assert data[0].energy == 0.5559329
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

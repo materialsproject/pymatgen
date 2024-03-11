@@ -69,7 +69,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     There are some restrictions on the valid directory structures:
 
-    1. There can be only one vasp run in each directory.
+    1. There can be only one vasprun in each directory.
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
        of an aflow style run, and only "relax2" is parsed.
     3. The drone parses only the vasprun.xml file.

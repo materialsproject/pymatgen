@@ -35,7 +35,7 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
 
-        entry = self.structure_drone.assimilate(".")
+        entry = self.structure_drone.assimilate(f"{TEST_FILES_DIR}/app_borg/test_dir")
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         assert isinstance(entry, ComputedStructureEntry)
