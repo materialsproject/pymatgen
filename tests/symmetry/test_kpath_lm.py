@@ -83,7 +83,7 @@ class TestKPathLatimerMunro(PymatgenTest):
         )
 
     def test_magnetic_kpath_generation(self):
-        struct_file_path = f"{TEST_FILES_DIR}/LaMnO3_magnetic.mcif"
+        struct_file_path = f"{TEST_FILES_DIR}/mcif/LaMnO3_magnetic.mcif"
         struct = Structure.from_file(struct_file_path)
         mga = CollinearMagneticStructureAnalyzer(struct)
         col_spin_orig = mga.get_structure_with_spin()

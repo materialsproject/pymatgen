@@ -244,8 +244,8 @@ class TestGruneisen(unittest.TestCase):
 class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
-            f"{TEST_FILES_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
-            f"{TEST_FILES_DIR}/thermal_displacement_matrices/POSCAR",
+            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
+            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/POSCAR",
         )
 
         assert_allclose(

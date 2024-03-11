@@ -49,7 +49,7 @@ try:
 except ImportError:
     h5py = None
 
-kpts_opt_vrun_path = f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz"
+kpts_opt_vrun_path = f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
@@ -739,7 +739,7 @@ class TestVasprun(PymatgenTest):
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -770,7 +770,7 @@ class TestVasprun(PymatgenTest):
         # See gh-3586
         copyfile(f"{VASP_OUT_DIR}/vasprun.Al.xml.gz", "vasprun.xml.gz")
 
-        potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
+        potcar_path = f"{VASP_IN_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
         copyfile(potcar_path, "POTCAR.gz")
 
         potcar = Potcar.from_file(potcar_path)
@@ -1013,7 +1013,7 @@ class TestOutcar(PymatgenTest):
 
     def test_read_lcalcpol(self):
         # outcar with electrons Angst units
-        folder = "BTO_221_99_polarization/interpolation_6_polarization/"
+        folder = "vasp/fixtures/BTO_221_99_polarization/interpolation_6_polarization/"
         filepath = TEST_FILES_DIR / folder / "OUTCAR"
         outcar = Outcar(filepath)
 
@@ -1379,7 +1379,7 @@ class TestBSVasprun(PymatgenTest):
 
     def test_kpoints_opt(self):
         vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -1417,7 +1417,7 @@ class TestOszicar(PymatgenTest):
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
     def test_static(self):
-        fpath = f"{TEST_FILES_DIR}/static_silicon/OSZICAR"
+        fpath = f"{TEST_FILES_DIR}/vasp/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
@@ -1913,11 +1913,11 @@ class TestWavecar(PymatgenTest):
         assert_allclose(c.data["total"], 0.0)
 
     def test_write_unks(self):
-        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/UNK.N2.std")
-        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/UNK.H2.ncl")
+        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
+        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.H2.ncl")
 
         with pytest.raises(ValueError, match="invalid directory"):
-            self.wavecar.write_unks(f"{TEST_FILES_DIR}/UNK.N2.std")
+            self.wavecar.write_unks(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
 
         # different grids
         self.wavecar.write_unks("./unk_dir")
@@ -2017,7 +2017,7 @@ class TestWaveder(PymatgenTest):
 
 class TestWSWQ(PymatgenTest):
     def setUp(self):
-        self.wswq = WSWQ.from_file(f"{TEST_FILES_DIR}/WSWQ.gz")
+        self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):
         assert self.wswq.nbands == 18

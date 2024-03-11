@@ -874,12 +874,12 @@ Direct
 
         # test CIF file with unicode error
         # https://github.com/materialsproject/pymatgen/issues/2947
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
         # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
         # i.e. uses same merge_tol for site merging, same primitive=False, etc.
-        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
+        assert struct == CifParser(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif").parse_structures()[0]
 
         # https://github.com/materialsproject/pymatgen/issues/3551
         json_path = Path("test-with-path.json")
@@ -1559,7 +1559,7 @@ class TestStructure(PymatgenTest):
         assert super_cell.charge == 25, "Set charge not properly modifying _charge"
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/CON_vesta.xyz")
+        silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/CON_vesta.xyz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, vesta=True),

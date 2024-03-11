@@ -100,7 +100,7 @@ def test_get_atoms_from_structure_dyn():
 
 @skip_if_no_ase
 def test_get_atoms_from_molecule():
-    mol = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+    mol = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     atoms = AseAtomsAdaptor.get_atoms(mol)
     ase_composition = Composition(atoms.get_chemical_formula())
     assert ase_composition == mol.composition
@@ -112,7 +112,7 @@ def test_get_atoms_from_molecule():
 
 @skip_if_no_ase
 def test_get_atoms_from_molecule_mags():
-    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     atoms = AseAtomsAdaptor.get_atoms(molecule)
     mags = [1.0] * len(molecule)
     molecule.add_site_property("final_magmom", mags)
@@ -120,14 +120,14 @@ def test_get_atoms_from_molecule_mags():
     assert not atoms.has("initial_magmoms")
     assert atoms.get_magnetic_moments().tolist() == mags
 
-    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     atoms = AseAtomsAdaptor.get_atoms(molecule)
     initial_mags = [0.5] * len(molecule)
     molecule.add_site_property("magmom", initial_mags)
     atoms = AseAtomsAdaptor.get_atoms(molecule)
     assert atoms.get_initial_magnetic_moments().tolist() == initial_mags
 
-    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     molecule.set_charge_and_spin(-2, spin_multiplicity=3)
     atoms = AseAtomsAdaptor.get_atoms(molecule)
     assert atoms.calc is None
@@ -138,7 +138,7 @@ def test_get_atoms_from_molecule_mags():
 
 @skip_if_no_ase
 def test_get_atoms_from_molecule_dyn():
-    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
     atoms = AseAtomsAdaptor.get_atoms(molecule)
     assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
@@ -211,14 +211,14 @@ def test_get_structure_dyn(select_dyn):
 
 @skip_if_no_ase
 def test_get_molecule():
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/acetylene.xyz")
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     molecule = AseAtomsAdaptor.get_molecule(atoms)
     assert molecule.formula == "H2 C2"
     assert [s.species_string for s in molecule] == atoms.get_chemical_symbols()
     assert molecule.charge == 0
     assert molecule.spin_multiplicity == 1
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/acetylene.xyz")
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     initial_charges = [2.0] * len(atoms)
     initial_mags = [1.0] * len(atoms)
     atoms.set_initial_charges(initial_charges)
@@ -229,7 +229,7 @@ def test_get_molecule():
     assert molecule.site_properties.get("charge") == initial_charges
     assert molecule.site_properties.get("magmom") == initial_mags
 
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/acetylene.xyz")
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     atoms.spin_multiplicity = 3
     atoms.charge = 2
     molecule = AseAtomsAdaptor.get_molecule(atoms)
@@ -281,7 +281,7 @@ def test_back_forth_v2():
 @skip_if_no_ase
 def test_back_forth_v3():
     # Atoms --> Molecule --> Atoms --> Molecule
-    atoms = ase.io.read(f"{TEST_FILES_DIR}/acetylene.xyz")
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     atoms.info = {"test": "hi"}
     atoms.set_constraint(ase.constraints.FixAtoms(mask=[True] * len(atoms)))
     atoms.set_initial_charges([1.0] * len(atoms))
@@ -299,7 +299,7 @@ def test_back_forth_v3():
 @skip_if_no_ase
 def test_back_forth_v4():
     # Molecule --> Atoms --> Molecule --> Atoms
-    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+    molecule = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
     molecule.set_charge_and_spin(-2, spin_multiplicity=3)
     molecule.properties = {"test": "hi"}
     atoms = AseAtomsAdaptor.get_atoms(molecule)

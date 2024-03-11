@@ -20,7 +20,7 @@ def cd_tmp_path(tmp_path: Path, monkeypatch: MonkeyPatch):
 
 
 def test_pmg_analyze(cd_tmp_path: Path):
-    exit_status = os.system(f"pmg analyze {TEST_FILES_DIR}/scan_relaxation")
+    exit_status = os.system(f"pmg analyze {TEST_FILES_DIR}/vasp/fixtures/scan_relaxation")
     assert exit_status == 0
     assert os.path.exists("vasp_data.gz")
 
