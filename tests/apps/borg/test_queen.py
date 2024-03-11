@@ -12,16 +12,18 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __date__ = "Mar 18, 2012"
 
+TEST_DIR = f"{TEST_FILES_DIR}/app_borg"
+
 
 class TestBorgQueen(unittest.TestCase):
     def test_get_data(self):
         drone = VaspToComputedEntryDrone()
-        self.queen = BorgQueen(drone, TEST_FILES_DIR, 1)
+        self.queen = BorgQueen(drone, TEST_DIR, 1)
         data = self.queen.get_data()
         assert len(data) == 16
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone)
-        queen.load_data(f"{TEST_FILES_DIR}/assimilated.json")
+        queen.load_data(f"{TEST_DIR}/assimilated.json")
         assert len(queen.get_data()) == 1
