@@ -42,12 +42,15 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 
 from __future__ import annotations
 
+import hashlib
 import os
 import subprocess
+import urllib.request
 import warnings
 from glob import glob
 from shutil import which
 from typing import TYPE_CHECKING
+from zipfile import ZipFile
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -101,9 +104,13 @@ class ChargemolAnalysis:
                 " Please download the library at https://sourceforge.net/projects/ddec/files"
                 "and follow the instructions."
             )
-        if atomic_densities_path == "":
-            atomic_densities_path = os.getcwd()
-        self._atomic_densities_path = atomic_densities_path
+        self._atomic_densities_path = atomic_densities_path or os.getenv("DDEC6_ATOMIC_DENSITIES_DIR") or os.getcwd()
+
+        if not os.path.isdir(self._atomic_densities_path):
+            try:
+                self._download_and_unzip_atomic_densities()
+            except Exception as exc:
+                raise FileNotFoundError("Atomic densities not found and auto-download failed") from exc
 
         self._chgcar_path = self._get_filepath(path, "CHGCAR")
         self._potcar_path = self._get_filepath(path, "POTCAR")
@@ -131,6 +138,30 @@ class ChargemolAnalysis:
             self._execute_chargemol()
         else:
             self._from_data_dir(chargemol_output_path=path)
+
+    def _download_and_unzip_atomic_densities(self, version: str = "latest", verbose: bool = True) -> None:
+        download_url = f"https://sourceforge.net/projects/ddec/files/{version}/download"
+        if verbose:
+            print(f"Downloading atomic densities from {download_url}...")
+        download_path = f"/tmp/chargemol_{version}.zip"
+        extraction_path = "~/.cache/pymatgen/ddec"
+
+        urllib.request.urlretrieve(download_url, download_path)
+
+        sha1 = "3246a2f3ff7c6f88a8ef0796bde9f73b1da78e32"
+        # verify sha1
+        with open(download_path, "rb") as f:
+            calculated_sha1 = hashlib.sha1(f.read()).hexdigest()
+            print(f"Calculated SHA-1: {calculated_sha1}")
+            assert calculated_sha1 == sha1
+
+        with ZipFile(download_path, "r") as zip_ref:
+            # extract to only the atomic_densities directory
+            zip_ref.extractall(extraction_path, members=["atomic_densities/*"])
+
+        self._atomic_densities_path = os.path.expanduser(extraction_path)
+
+        os.remove(download_path)  # clean up downloaded file
 
     @staticmethod
     def _get_filepath(path, filename, suffix=""):
@@ -163,10 +194,9 @@ class ChargemolAnalysis:
         """Internal function to run Chargemol.
 
         Args:
-            atomic_densities_path (str): Path to the atomic densities directory
-            required by Chargemol. If None, Pymatgen assumes that this is
-            defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
-                Default: None.
+            atomic_densities_path (str): Path to the atomic densities directory required by Chargemol.
+                If None, Pymatgen assumes that this is defined in a "DDEC6_ATOMIC_DENSITIES_DIR"
+                environment variable. Default: None.
             job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         with ScratchDir("."):
@@ -531,16 +561,15 @@ class ChargemolAnalysis:
             list[float]: site-specific properties
         """
         props = []
-        if os.path.exists(xyz_path):
-            with open(xyz_path) as r:
-                for i, line in enumerate(r):
-                    if i <= 1:
-                        continue
-                    if line.strip() == "":
-                        break
-                    props.append(float(line.split()[-1]))
-        else:
+        if not os.path.exists(xyz_path):
             raise FileNotFoundError(f"{xyz_path} not found")
+        with open(xyz_path) as file:
+            for idx, line in enumerate(file):
+                if idx <= 1:
+                    continue
+                if line.strip() == "":
+                    break
+                props.append(float(line.split()[-1]))
 
         return props
 

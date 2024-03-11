@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import os
 import unittest
+from typing import TYPE_CHECKING
+
+import pytest
 
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
 from pymatgen.core import Element
 from pymatgen.util.testing import TEST_FILES_DIR
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestChargemolAnalysis(unittest.TestCase):
@@ -25,15 +32,16 @@ class TestChargemolAnalysis(unittest.TestCase):
         assert ca.ddec_rcubed_moments == [14.496002, 88.169236]
         assert ca.ddec_rfourth_moments == [37.648248, 277.371929]
         assert ca.cm5_charges == [0.420172, -0.420172]
-        assert ca.summary["ddec"]["partial_charges"] == ca.ddec_charges
-        assert ca.summary["ddec"]["dipoles"] == ca.dipoles
-        assert ca.summary["ddec"]["bond_order_sums"] == ca.bond_order_sums
-        assert ca.summary["ddec"]["rsquared_moments"] == ca.ddec_rsquared_moments
-        assert ca.summary["ddec"]["rcubed_moments"] == ca.ddec_rcubed_moments
-        assert ca.summary["ddec"]["rfourth_moments"] == ca.ddec_rfourth_moments
+        summary = ca.summary["ddec"]
+        assert summary["partial_charges"] == ca.ddec_charges
+        assert summary["dipoles"] == ca.dipoles
+        assert summary["bond_order_sums"] == ca.bond_order_sums
+        assert summary["rsquared_moments"] == ca.ddec_rsquared_moments
+        assert summary["rcubed_moments"] == ca.ddec_rcubed_moments
+        assert summary["rfourth_moments"] == ca.ddec_rfourth_moments
         assert ca.summary["cm5"]["partial_charges"] == ca.cm5_charges
-        assert ca.summary["ddec"]["bond_order_dict"] == ca.bond_order_dict
-        assert ca.summary["ddec"].get("spin_moments") is None
+        assert summary["bond_order_dict"] == ca.bond_order_dict
+        assert summary.get("spin_moments") is None
         assert ca.natoms == [1, 1]
         assert ca.structure is not None
         assert len(ca.bond_order_dict) == 2
@@ -55,3 +63,54 @@ class TestChargemolAnalysis(unittest.TestCase):
         assert ca.summary["ddec"]["spin_moments"] == ca.ddec_spin_moments
         assert ca.natoms is None
         assert ca.structure is None
+
+
+def fake_download(*args, **kwargs):
+    extraction_path = "~/.cache/pymatgen/ddec"
+    os.makedirs(os.path.expanduser(extraction_path), exist_ok=True)
+    with open(os.path.expanduser(f"{extraction_path}/fake_file"), "w") as f:
+        f.write("fake content")
+
+
+@pytest.fixture()
+def mock_xyz(tmp_path: Path):
+    test_dir = tmp_path / "chargemol" / "spin_unpolarized"
+    test_dir.mkdir(parents=True)
+    xyz_file_content = """2
+
+C       0.00000       0.00000       0.00000       0.8432
+O       1.20000       0.00000       0.00000      -0.8432"""
+
+    (test_dir / "DDEC6_even_tempered_net_atomic_charges.xyz").write_text(xyz_file_content)
+    return test_dir
+
+
+def test_parse_chargemol(monkeypatch, mock_xyz):
+    monkeypatch.setattr("pymatgen.command_line.chargemol_caller.download", fake_download)
+
+    ca = ChargemolAnalysis(path=str(mock_xyz), run_chargemol=False)
+    ca._atomic_densities_path = os.path.expanduser("~/.cache/pymatgen/ddec/fake_file")
+
+    assert ca.ddec_charges == [0.8432, -0.8432]
+
+
+def test_auto_download(monkeypatch):
+    # mock getenv to simulate that DDEC6_ATOMIC_DENSITIES_DIR is not set
+    monkeypatch.setattr(os, "getenv", lambda *args, **kwargs: None)
+
+    # mock os.path.exists to simulate atomic densities are not found
+    monkeypatch.setattr(os.path, "exists", lambda *args, **kwargs: False)
+
+    # mock subprocess.Popen to simulate a successful Chargemol execution
+    monkeypatch.setattr("subprocess.Popen", lambda *args, **kwargs: type("", (), {"returncode": 0})())
+
+    # monkeypatch download function
+    monkeypatch.setattr(
+        "pymatgen.command_line.chargemol_caller.ChargemolAnalysis._download_and_unpack_atomic_densities", fake_download
+    )
+
+    test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
+    ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
+
+    assert ca._atomic_densities_path == "~/.cache/pymatgen/ddec"
+    # TODO maybe do more tests that Chargemol was run correctly?
