@@ -76,16 +76,16 @@ class TestGaussianToComputedEntryDrone(unittest.TestCase):
     def test_assimilate(self):
         test_file = f"{TEST_FILES_DIR}/molecules/methane.log"
         entry = self.drone.assimilate(test_file)
-        for p in [
+        for param in [
             "functional",
             "basis_set",
             "charge",
             "spin_multiplicity",
             "route_parameters",
         ]:
-            assert p in entry.parameters
-        for p in ["corrections"]:
-            assert p in entry.data
+            assert param in entry.parameters
+        for param in ["corrections"]:
+            assert param in entry.data
 
         assert entry.reduced_formula == "H4C"
         assert entry.energy == approx(-39.9768775602)
@@ -94,8 +94,8 @@ class TestGaussianToComputedEntryDrone(unittest.TestCase):
         assert entry.energy == approx(-39.9768775602)
         assert isinstance(entry, ComputedStructureEntry)
         assert entry.structure is not None
-        for p in ["properly_terminated", "stationary_type"]:
-            assert p in entry.data
+        for param in ["properly_terminated", "stationary_type"]:
+            assert param in entry.data
 
     def test_as_from_dict(self):
         dct = self.structure_drone.as_dict()
