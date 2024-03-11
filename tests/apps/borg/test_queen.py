@@ -1,5 +1,3 @@
-"""Created on Mar 18, 2012."""
-
 from __future__ import annotations
 
 import unittest
@@ -18,8 +16,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/app_borg"
 class TestBorgQueen(unittest.TestCase):
     def test_get_data(self):
         drone = VaspToComputedEntryDrone()
-        self.queen = BorgQueen(drone, TEST_DIR, 1)
-        data = self.queen.get_data()
+        queen = BorgQueen(drone, TEST_DIR, 1)
+        data = queen.get_data()
         assert len(data) == 1
 
     def test_load_data(self):
