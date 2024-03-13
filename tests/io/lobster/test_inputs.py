@@ -1429,9 +1429,7 @@ class TestFatband(PymatgenTest):
                 structure_file=None,
             )
 
-        with pytest.raises(
-            ValueError, match="structure_file or structure have to be provided"
-        ):
+        with pytest.raises(ValueError, match="structure_file or structure have to be provided"):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
                     f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
@@ -1442,8 +1440,6 @@ class TestFatband(PymatgenTest):
                 structure=None,
                 structure_file=None,
             )
-
-
 
         with pytest.raises(
             ValueError,
