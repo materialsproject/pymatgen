@@ -1134,7 +1134,8 @@ class Fatband:
                 "FATBAND_*" files will be read
             kpoints_file (str): KPOINTS file for bandstructure calculation, typically "KPOINTS".
             structure_file (str): Structure file such as POSCAR.lobster
-            vasprun_file (str9: Corresponding vasprun file. Instead, the Fermi energy from the DFT run can be provided. Then,
+            vasprun_file (str9: Corresponding vasprun file.
+                Instead, the Fermi energy from the DFT run can be provided. Then,
                 this value should be set to None.
             structure (Structure): Structure object. Can be provided instead of structure_file.
             efermi (float): fermi energy in eV
