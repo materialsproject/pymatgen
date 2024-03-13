@@ -1149,7 +1149,7 @@ class Fatband:
             self.structure = Structure.from_file(structure_file)
         else:
             self.structure = structure
-        self.lattice = self.structure.lattice.reciprocal_lattice #type: ignore
+        self.lattice = self.structure.lattice.reciprocal_lattice  # type: ignore
         if vasprun_file is not None:
             self.efermi = Vasprun(
                 filename=vasprun_file,
@@ -1190,7 +1190,7 @@ class Fatband:
             orbital_names.append(parameters[4])
 
         # get atomtype orbital dict
-        atom_orbital_dict = {} #type: dict
+        atom_orbital_dict = {}  # type: dict
         for iatom, atom in enumerate(atom_names):
             if atom not in atom_orbital_dict:
                 atom_orbital_dict[atom] = []
