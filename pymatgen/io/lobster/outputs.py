@@ -1233,7 +1233,7 @@ class Fatband:
                     self.is_spinpolarized = len(linenumbers) == 2
 
             if ifilename == 0:
-                eigenvals = {} #type: dict
+                eigenvals = {}  # type: dict
                 eigenvals[Spin.up] = [
                     [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
                 ]
@@ -1242,7 +1242,7 @@ class Fatband:
                         [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
                     ]
 
-                p_eigenvals = {} #type: dict
+                p_eigenvals = {}  # type: dict
                 p_eigenvals[Spin.up] = [
                     [
                         {
