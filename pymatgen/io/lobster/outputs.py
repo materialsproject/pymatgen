@@ -1116,22 +1116,29 @@ class Fatband:
             The indices of the array are [band_index, kpoint_index].
             The dict is then built the following way: {"string of element": "string of orbital as read in
             from FATBAND file"}. If the band structure is not spin polarized, we only store one data set under Spin.up.
-        structure (Structure): Structure read in from vasprun.xml.
+        structure (Structure): Structure read in from structure_file or Structure object.
     """
 
-    def __init__(self, filenames=".", vasprun="vasprun.xml", Kpointsfile="KPOINTS"):
+    def __init__(self, filenames =".",  Kpointsfile:str ="KPOINTS", structure_file:str="POSCAR.lobster", vasprun:str="vasprun.xml",structure:Structure=None, fermi_energy: float=None):
         """
         Args:
             filenames (list or string): can be a list of file names or a path to a folder from which all
                 "FATBAND_*" files will be read
-            vasprun: corresponding vasprun file
-            Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS".
+            Kpointsfile (str): KPOINTS file for bandstructure calculation, typically "KPOINTS".
+            structure_file (str): Structure file such as POSCAR.lobster
+            vasprun (str9: Corresponding vasprun file. Instead, the Fermi energy from the DFT run can be provided. Then,
+                this value should be set to None.
+            structure (Structure): Structure object. Can be provided instead of structure_file.
+            fermi_energy (float): fermi energy in eV
         """
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
 
-        vasp_run = Vasprun(
-            filename=vasprun,
+
+        self.structure = Structure.from_file(structure_file) if structure_file is not None else structure
+
+        self.lattice = self.structure.lattice.reciprocal_lattice
+        self.efermi = Vasprun(filename=vasprun,
             ionic_step_skip=None,
             ionic_step_offset=0,
             parse_dos=True,
@@ -1140,10 +1147,7 @@ class Fatband:
             parse_potcar_file=False,
             occu_tol=1e-8,
             exception_on_bad_xml=True,
-        )
-        self.structure = vasp_run.final_structure
-        self.lattice = self.structure.lattice.reciprocal_lattice
-        self.efermi = vasp_run.efermi
+        ).efermi if vasprun is not None else fermi_energy
         kpoints_object = Kpoints.from_file(Kpointsfile)
 
         atomtype = []
