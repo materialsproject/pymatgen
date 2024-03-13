@@ -1118,7 +1118,16 @@ class Fatband:
             from FATBAND file"}. If the band structure is not spin polarized, we only store one data set under Spin.up.
         structure (Structure): Structure read in from structure_file or Structure object.
     """
-    def __init__(self, filenames:str|list =".",  kpoints_file : str ="KPOINTS", structure_file:str|None="POSCAR.lobster", vasprun_file:str|None="vasprun.xml",structure:Structure|None=None, efermi: float|None=None):
+
+    def __init__(
+        self,
+        filenames: str | list = ".",
+        kpoints_file: str = "KPOINTS",
+        structure_file: str | None = "POSCAR.lobster",
+        vasprun_file: str | None = "vasprun.xml",
+        structure: Structure | None = None,
+        efermi: float | None = None,
+    ):
         """
         Args:
             filenames (list or string): can be a list of file names or a path to a folder from which all
@@ -1138,18 +1147,18 @@ class Fatband:
         self.lattice = self.structure.lattice.reciprocal_lattice
         if vasprun_file is not None:
             self.efermi = Vasprun(
-                    filename=vasprun_file,
-                    ionic_step_skip=None,
-                    ionic_step_offset=0,
-                    parse_dos=True,
-                    parse_eigen=False,
-                    parse_projected_eigen=False,
-                    parse_potcar_file=False,
-                    occu_tol=1e-8,
-                    exception_on_bad_xml=True,
-                    ).efermi
+                filename=vasprun_file,
+                ionic_step_skip=None,
+                ionic_step_offset=0,
+                parse_dos=True,
+                parse_eigen=False,
+                parse_projected_eigen=False,
+                parse_potcar_file=False,
+                occu_tol=1e-8,
+                exception_on_bad_xml=True,
+            ).efermi
         else:
-            self.efermi=efermi
+            self.efermi = efermi
         kpoints_object = Kpoints.from_file(kpoints_file)
 
         atomtype = []

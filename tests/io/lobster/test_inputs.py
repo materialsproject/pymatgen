@@ -1296,32 +1296,36 @@ class TestFatband(PymatgenTest):
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/KPOINTS",
             vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml",
             structure_file=None,
-            structure=Vasprun(filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-            ionic_step_skip=None,
-            ionic_step_offset=0,
-            parse_dos=True,
-            parse_eigen=False,
-            parse_projected_eigen=False,
-            parse_potcar_file=False,
-            occu_tol=1e-8,
-            exception_on_bad_xml=True,
-        ).final_structure)
+            structure=Vasprun(
+                filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
+                ionic_step_skip=None,
+                ionic_step_offset=0,
+                parse_dos=True,
+                parse_eigen=False,
+                parse_projected_eigen=False,
+                parse_potcar_file=False,
+                occu_tol=1e-8,
+                exception_on_bad_xml=True,
+            ).final_structure,
+        )
         self.fatband_SiO2_p2 = Fatband(
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p",
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/KPOINTS",
             structure_file=None,
-            structure=Vasprun(filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                              ionic_step_skip=None,
-                              ionic_step_offset=0,
-                              parse_dos=True,
-                              parse_eigen=False,
-                              parse_projected_eigen=False,
-                              parse_potcar_file=False,
-                              occu_tol=1e-8,
-                              exception_on_bad_xml=True,
-                              ).final_structure,
+            structure=Vasprun(
+                filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
+                ionic_step_skip=None,
+                ionic_step_offset=0,
+                parse_dos=True,
+                parse_eigen=False,
+                parse_projected_eigen=False,
+                parse_potcar_file=False,
+                occu_tol=1e-8,
+                exception_on_bad_xml=True,
+            ).final_structure,
             vasprun_file=None,
-            efermi=1.0647039)
+            efermi=1.0647039,
+        )
         self.vasprun_SiO2_p = Vasprun(filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml")
         self.bs_symmline2 = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatband_SiO2_spin = Fatband(
@@ -1339,7 +1343,7 @@ class TestFatband(PymatgenTest):
                 parse_potcar_file=False,
                 occu_tol=1e-8,
                 exception_on_bad_xml=True,
-            ).final_structure
+            ).final_structure,
         )
 
         self.vasprun_SiO2_spin = Vasprun(
