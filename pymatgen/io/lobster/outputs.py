@@ -1119,7 +1119,15 @@ class Fatband:
         structure (Structure): Structure read in from structure_file or Structure object.
     """
 
-    def __init__(self, filenames =".",  Kpointsfile:str ="KPOINTS", structure_file:str="POSCAR.lobster", vasprun:str="vasprun.xml",structure:Structure=None, fermi_energy: float=None):
+    def __init__(
+        self,
+        filenames=".",
+        Kpointsfile: str = "KPOINTS",
+        structure_file: str = "POSCAR.lobster",
+        vasprun: str = "vasprun.xml",
+        structure: Structure = None,
+        fermi_energy: float | None = None,
+    ):
         """
         Args:
             filenames (list or string): can be a list of file names or a path to a folder from which all
@@ -1134,20 +1142,24 @@ class Fatband:
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
 
-
         self.structure = Structure.from_file(structure_file) if structure_file is not None else structure
 
         self.lattice = self.structure.lattice.reciprocal_lattice
-        self.efermi = Vasprun(filename=vasprun,
-            ionic_step_skip=None,
-            ionic_step_offset=0,
-            parse_dos=True,
-            parse_eigen=False,
-            parse_projected_eigen=False,
-            parse_potcar_file=False,
-            occu_tol=1e-8,
-            exception_on_bad_xml=True,
-        ).efermi if vasprun is not None else fermi_energy
+        self.efermi = (
+            Vasprun(
+                filename=vasprun,
+                ionic_step_skip=None,
+                ionic_step_offset=0,
+                parse_dos=True,
+                parse_eigen=False,
+                parse_projected_eigen=False,
+                parse_potcar_file=False,
+                occu_tol=1e-8,
+                exception_on_bad_xml=True,
+            ).efermi
+            if vasprun is not None
+            else fermi_energy
+        )
         kpoints_object = Kpoints.from_file(Kpointsfile)
 
         atomtype = []
