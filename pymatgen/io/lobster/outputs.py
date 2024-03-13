@@ -1143,8 +1143,9 @@ class Fatband:
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
 
+        if structure_file is None and structure is None:
+            raise ValueError("structure_file or structure have to be provided")
         self.structure = Structure.from_file(structure_file) if structure_file is not None else structure
-
         self.lattice = self.structure.lattice.reciprocal_lattice
         if vasprun_file is not None:
             self.efermi = Vasprun(
@@ -1170,14 +1171,14 @@ class Fatband:
             filenames_new = []
             if filenames is None:
                 filenames = "."
-            for file in os.listdir(filenames):
-                if fnmatch.fnmatch(file, "FATBAND_*.lobster"):
-                    filenames_new.append(os.path.join(filenames, file))
+            for name in os.listdir(filenames):
+                if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
+                    filenames_new.append(os.path.join(filenames, name))
             filenames = filenames_new
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
-        for filename in filenames:
-            with zopen(filename, mode="rt") as file:
+        for name in filenames:
+            with zopen(name, mode="rt") as file:
                 contents = file.read().split("\n")
 
             atomnames.append(os.path.split(filename)[1].split("_")[1].capitalize())

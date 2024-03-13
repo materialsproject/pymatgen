@@ -1430,6 +1430,22 @@ class TestFatband(PymatgenTest):
             )
 
         with pytest.raises(
+            ValueError, match="structure_file or structure have to be provided"
+        ):
+            self.fatband_SiO2_p_x = Fatband(
+                filenames=[
+                    f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
+                    f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
+                ],
+                kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
+                vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
+                structure=None,
+                structure_file=None,
+            )
+
+
+
+        with pytest.raises(
             ValueError,
             match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
         ):
