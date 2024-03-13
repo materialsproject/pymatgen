@@ -549,7 +549,7 @@ class CompleteCohp(Cohp):
             bonds = {
                 bond: {
                     "length": dct["bonds"][bond]["length"],
-                    "sites": tuple(PeriodicSite.from_dict(site) for site in d["bonds"][bond]["sites"]),
+                    "sites": tuple(PeriodicSite.from_dict(site) for site in dct["bonds"][bond]["sites"]),
                 }
                 for bond in dct["bonds"]
             }
