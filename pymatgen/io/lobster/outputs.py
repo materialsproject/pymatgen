@@ -1181,7 +1181,7 @@ class Fatband:
             with zopen(name, mode="rt") as file:
                 contents = file.read().split("\n")
 
-            atomnames.append(os.path.split(filename)[1].split("_")[1].capitalize())
+            atomnames.append(os.path.split(name)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
             atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
             orbital_names.append(parameters[4])
