@@ -1405,6 +1405,24 @@ class TestFatband(PymatgenTest):
         assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
+        with pytest.raises(ValueError, match="vasprun_file or efermi have to be provided"):
+            Fatband(
+                filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin",
+                kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/KPOINTS",
+                structure_file=None,
+                vasprun_file=None,
+                structure=Vasprun(
+                    filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
+                    ionic_step_skip=None,
+                    ionic_step_offset=0,
+                    parse_dos=True,
+                    parse_eigen=False,
+                    parse_projected_eigen=False,
+                    parse_potcar_file=False,
+                    occu_tol=1e-8,
+                    exception_on_bad_xml=True,
+                ).final_structure,
+            )
         with pytest.raises(
             ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
         ):
