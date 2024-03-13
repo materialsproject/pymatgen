@@ -1,5 +1,5 @@
 #
-# pylint: disable=no-member
+
 """Wrapper for netCDF readers."""
 
 from __future__ import annotations
@@ -18,6 +18,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
 
+try:
+    import netCDF4
+except ImportError:
+    netCDF4 = None
+    warnings.warn("Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.")
+
+
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -28,58 +35,34 @@ __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "Feb 21, 2013M"
 
-__all__ = [
-    "as_ncreader",
-    "as_etsfreader",
-    "NetcdfReader",
-    "ETSF_Reader",
-    "NO_DEFAULT",
-    "structure_from_ncdata",
-]
 
-try:
-    import netCDF4
-except ImportError as exc:
-    netCDF4 = None
-    warnings.warn(
-        f"""\
-`import netCDF4` failed with the following error:
-
-{exc}
-
-Please install netcdf4 with `conda install netcdf4`
-If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
-and use `pip install netcdf4`"""
-    )
-
-
-def _asreader(file, cls):
-    closeit = False
+def _as_reader(file, cls):
+    close_it = False
     if not isinstance(file, cls):
-        file, closeit = cls(file), True
-    return file, closeit
+        file, close_it = cls(file), True
+    return file, close_it
 
 
 def as_ncreader(file):
     """
     Convert file into a NetcdfReader instance.
-    Returns reader, closeit where closeit is set to True
+    Returns reader, close_it where close_it is set to True
     if we have to close the file before leaving the procedure.
     """
-    return _asreader(file, NetcdfReader)
+    return _as_reader(file, NetcdfReader)
 
 
 def as_etsfreader(file):
-    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
-    return _asreader(file, ETSF_Reader)
+    """Return an EtsfReader. Accepts filename or EtsfReader."""
+    return _as_reader(file, EtsfReader)
 
 
 class NetcdfReaderError(Exception):
-    """Base error class for NetcdfReader"""
+    """Base error class for NetcdfReader."""
 
 
 class NO_DEFAULT:
-    """Signal that read_value should raise an Error"""
+    """Signal that read_value should raise an Error."""
 
 
 class NetcdfReader:
@@ -202,59 +185,55 @@ class NetcdfReader:
         assert var.shape[-1] == 2
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
-        raise ValueError(f"Wrong value for cmode {cmode}")
+        raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
-    def _read_dimensions(self, *dimnames, **kwargs):
+    def _read_dimensions(self, *dim_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.dimensions[dname] for dname in dimnames]
+                return [self.rootgrp.dimensions[dname] for dname in dim_names]
             group = self.path2group[path]
-            return [group.dimensions[dname] for dname in dimnames]
+            return [group.dimensions[dname] for dname in dim_names]
 
         except KeyError:
-            raise self.Error(
-                f"In file {self.path}:\nError while reading dimensions: `{dimnames}` with kwargs: `{kwargs}`"
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading dimensions: {dim_names} with {kwargs=}")
 
-    def _read_variables(self, *varnames, **kwargs):
+    def _read_variables(self, *var_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.variables[vname] for vname in varnames]
+                return [self.rootgrp.variables[vname] for vname in var_names]
             group = self.path2group[path]
-            return [group.variables[vname] for vname in varnames]
+            return [group.variables[vname] for vname in var_names]
 
         except KeyError:
-            raise self.Error(
-                f"In file {self.path}:\nError while reading variables: `{varnames}` with kwargs `{kwargs}`."
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading variables: {var_names} with {kwargs=}.")
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
         Read a list of variables/dimensions from file. If a key is not present the corresponding
         entry in the output dictionary is set to None.
         """
-        od = dict_cls()
-        for k in keys:
+        dct = dict_cls()
+        for key in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(k, path=path)
+                dct[key] = self.read_value(key, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(k, path=path)
+                    dct[key] = self.read_dimvalue(key, path=path)
                 except self.Error:
-                    od[k] = None
+                    dct[key] = None
 
-        return od
+        return dct
 
 
-class ETSF_Reader(NetcdfReader):
+class EtsfReader(NetcdfReader):
     """
     This object reads data from a file written according to the ETSF-IO specifications.
 
@@ -272,7 +251,7 @@ class ETSF_Reader(NetcdfReader):
 
         return symbols
 
-    def typeidx_from_symbol(self, symbol):
+    def type_idx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
@@ -281,9 +260,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """
-        Read ixc from an Abinit file. Return :class:`XcFunc` object.
-        """
+        """Read ixc from an Abinit file. Return XcFunc object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -291,28 +268,28 @@ class ETSF_Reader(NetcdfReader):
         """
         Read the variables associated to the Abinit header.
 
-        Return :class:`AbinitHeader`
+        Return AbinitHeader
         """
-        d = {}
+        dct = {}
         for hvar in _HDR_VARIABLES.values():
             ncname = hvar.etsf_name if hvar.etsf_name is not None else hvar.name
             if ncname in self.rootgrp.variables:
-                d[hvar.name] = self.read_value(ncname)
+                dct[hvar.name] = self.read_value(ncname)
             elif ncname in self.rootgrp.dimensions:
-                d[hvar.name] = self.read_dimvalue(ncname)
+                dct[hvar.name] = self.read_dimvalue(ncname)
             else:
                 raise ValueError(f"Cannot find `{ncname}` in `{self.path}`")
             # Convert scalars to (well) scalars.
-            if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
-                d[hvar.name] = np.asarray(d[hvar.name]).item()
+            if hasattr(dct[hvar.name], "shape") and not dct[hvar.name].shape:
+                dct[hvar.name] = np.asarray(dct[hvar.name]).item()
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
+                    dct[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in dct[hvar.name])
                 else:
-                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in d[hvar.name]]
+                    dct[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in dct[hvar.name]]
 
-        return AbinitHeader(d)
+        return AbinitHeader(dct)
 
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
@@ -325,7 +302,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         site_properties: Dictionary with site properties.
         cls: The Structure class to instantiate.
     """
-    ncdata, closeit = as_ncreader(ncdata)
+    ncdata, close_it = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
     lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
@@ -344,12 +321,12 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 
-    d = {}
+    dct = {}
     if site_properties is not None:
         for prop in site_properties:
-            d[prop] = ncdata.read_value(prop)
+            dct[prop] = ncdata.read_value(prop)
 
-    structure = cls(lattice, species, red_coords, site_properties=d)
+    structure = cls(lattice, species, red_coords, site_properties=dct)
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.
@@ -360,14 +337,14 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     except ImportError:
         pass
 
-    if closeit:
+    if close_it:
         ncdata.close()
 
     return structure
 
 
 class _H:
-    __slots__ = ["name", "doc", "etsf_name"]
+    __slots__ = ("doc", "etsf_name", "name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
@@ -391,7 +368,7 @@ _HDR_VARIABLES = (
     _H("ntypat", "input variable", etsf_name="number_of_atom_species"),
     _H("occopt", "input variable"),
     _H("pertcase", "the index of the perturbation, 0 if GS calculation"),
-    _H("usepaw", "input variable (0=norm-conserving psps, 1=paw)"),
+    _H("usepaw", "input variable (0=norm-conserving PSPs, 1=paw)"),
     _H("usewvl", "input variable (0=plane-waves, 1=wavelets)"),
     _H("kptopt", "input variable (defines symmetries used for k-point sampling)"),
     _H("pawcpxocc", "input variable"),
@@ -402,7 +379,7 @@ _HDR_VARIABLES = (
     _H("nshiftk", "number of shifts after inkpts."),
     _H("icoulomb", "input variable."),
     _H("ecut", "input variable", etsf_name="kinetic_energy_cutoff"),
-    _H("ecutdg", "input variable (ecut for NC psps, pawecutdg for paw)"),
+    _H("ecutdg", "input variable (ecut for NC PSPs, pawecutdg for paw)"),
     _H("ecutsm", "input variable"),
     _H("ecut_eff", "ecut*dilatmx**2 (dilatmx is an input variable)"),
     _H("etot", "EVOLVING variable"),
@@ -421,17 +398,17 @@ _HDR_VARIABLES = (
     _H("kptrlatt_orig", "kptrlatt_orig(3,3) Original kptrlatt"),
     _H("kptrlatt", "kptrlatt(3,3) kptrlatt after inkpts."),
     _H("istwfk", "input variable istwfk(nkpt)"),
-    _H("lmn_size", "lmn_size(npsp) from psps"),
+    _H("lmn_size", "lmn_size(npsp) from PSPs"),
     _H("nband", "input variable nband(nkpt*nsppol)", etsf_name="number_of_states"),
     _H(
         "npwarr",
         "npwarr(nkpt) array holding npw for each k point",
         etsf_name="number_of_coefficients",
     ),
-    _H("pspcod", "pscod(npsp) from psps"),
-    _H("pspdat", "psdat(npsp) from psps"),
-    _H("pspso", "pspso(npsp) from psps"),
-    _H("pspxc", "pspxc(npsp) from psps"),
+    _H("pspcod", "pscod(npsp) from PSPs"),
+    _H("pspdat", "psdat(npsp) from PSPs"),
+    _H("pspso", "pspso(npsp) from PSPs"),
+    _H("pspxc", "pspxc(npsp) from PSPs"),
     _H("so_psp", "input variable so_psp(npsp)"),
     _H("symafm", "input variable symafm(nsym)"),
     # _H(symrel="input variable symrel(3,3,nsym)",  etsf_name="reduced_symmetry_matrices"),
@@ -452,14 +429,14 @@ _HDR_VARIABLES = (
     _H("shiftk", "shiftk(3,nshiftk), shiftks after inkpts"),
     _H("amu", "amu(ntypat) ! EVOLVING variable"),
     # _H("xred", "EVOLVING variable xred(3,natom)", etsf_name="reduced_atom_positions"),
-    _H("zionpsp", "zionpsp(npsp) from psps"),
+    _H("zionpsp", "zionpsp(npsp) from PSPs"),
     _H(
         "znuclpsp",
-        "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp",
+        "znuclpsp(npsp) from PSPs. Note the difference between (znucl|znucltypat) and znuclpsp",
     ),
     _H("znucltypat", "znucltypat(ntypat) from alchemy", etsf_name="atomic_numbers"),
     _H("codvsn", "version of the code"),
-    _H("title", "title(npsp) from psps"),
+    _H("title", "title(npsp) from PSPs"),
     _H(
         "md5_pseudos",
         "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)",
@@ -478,9 +455,9 @@ class AbinitHeader(AttrDict):
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, verbose=0, title=None, **kwargs):
+    def to_str(self, verbose=0, title=None, **kwargs):
         """
         String representation. kwargs are passed to `pprint.pformat`.
 
@@ -490,7 +467,11 @@ class AbinitHeader(AttrDict):
         """
         from pprint import pformat
 
-        s = pformat(self, **kwargs)
+        header_str = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join([marquee(title, mark="="), s])
-        return s
+            return "\n".join([marquee(title, mark="="), header_str])
+        return header_str
+
+    # to_string alias required for backwards compatibility
+    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
+    to_string = to_str

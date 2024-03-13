@@ -1,6 +1,4 @@
-"""
-Structure connectivity class.
-"""
+"""Structure connectivity class."""
 
 from __future__ import annotations
 
@@ -11,15 +9,9 @@ import networkx as nx
 import numpy as np
 from monty.json import MSONable, jsanitize
 
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
-)
-from pymatgen.analysis.chemenv.connectivity.environment_nodes import (
-    get_environment_node,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    LightStructureEnvironments,
-)
+from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -45,9 +37,7 @@ def get_delta_image(isite1, isite2, data1, data2):
 
 
 class StructureConnectivity(MSONable):
-    """
-    Main class containing the connectivity of a structure.
-    """
+    """Main class containing the connectivity of a structure."""
 
     def __init__(
         self,
@@ -60,14 +50,14 @@ class StructureConnectivity(MSONable):
 
         Args:
             light_structure_environment: a LightStructureEnvironments object
-                                         containing the relevant local environments
-                                         for the sites in the structure.
+                containing the relevant local environments
+                for the sites in the structure.
             connectivity_graph: the networkx MultiGraph if it has already been computed,
-                                e.g. stored in a file or dict and StructureConnectivity
-                                is reconstructed from that file or dict.
+                e.g. stored in a file or dict and StructureConnectivity
+                is reconstructed from that file or dict.
             environment_subgraphs: the different subgraphs of environments that have
-                                   been computed if any (as for connectivity_graph, only
-                                   if it is reconstructed from a file or dict).
+                been computed if any (as for connectivity_graph, only
+                if it is reconstructed from a file or dict).
         """
         self.light_structure_environments = light_structure_environment
         if connectivity_graph is None:
@@ -86,6 +76,7 @@ class StructureConnectivity(MSONable):
             only_atoms ():
 
         Returns:
+            nx.MultiGraph: The subgraph of the structure connectivity graph
         """
         if environments_symbols is not None:
             self.setup_environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
@@ -97,9 +88,7 @@ class StructureConnectivity(MSONable):
         return self._environment_subgraph
 
     def add_sites(self):
-        """
-        Add the sites in the structure connectivity graph.
-        """
+        """Add the sites in the structure connectivity graph."""
         self._graph.add_nodes_from(list(range(len(self.light_structure_environments.structure))))
 
     def add_bonds(self, isite, site_neighbors_set):
@@ -278,10 +267,8 @@ class StructureConnectivity(MSONable):
     def setup_atom_environments_subgraph(self, atoms_environments):
         raise NotImplementedError
 
-    def print_links(self):
-        """
-        Returns:
-        """
+    def print_links(self) -> None:
+        """Print all links in the graph."""
         nodes = self.environment_subgraph().nodes()
         print("Links in graph :")
         for node in nodes:
@@ -299,9 +286,7 @@ class StructureConnectivity(MSONable):
                     )
 
     def as_dict(self):
-        """
-        Returns:
-        """
+        """Convert to MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -320,11 +305,12 @@ class StructureConnectivity(MSONable):
             d ():
 
         Returns:
+            StructureConnectivity
         """
         # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
         cgraph = nx.from_dict_of_dicts(d["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True)
         cgraph = nx.relabel_nodes(cgraph, int)  # Just relabel the nodes using integer casting (maps str->int)
-        # Relabel multiedges (removes multiedges with str keys and adds them back with int keys)
+        # Relabel multi-edges (removes multi-edges with str keys and adds them back with int keys)
         edges = set(cgraph.edges())
         for n1, n2 in edges:
             new_edges = {int(iedge): edata for iedge, edata in cgraph[n1][n2].items()}

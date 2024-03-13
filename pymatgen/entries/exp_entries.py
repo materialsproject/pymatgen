@@ -1,6 +1,4 @@
-"""
-This module defines Entry classes for containing experimental data.
-"""
+"""This module defines Entry classes for containing experimental data."""
 
 from __future__ import annotations
 
@@ -19,8 +17,7 @@ __date__ = "Jun 27, 2012"
 
 
 class ExpEntry(PDEntry, MSONable):
-    """
-    An lightweight ExpEntry object containing experimental data for a
+    """An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for
     phase diagram generation and reaction calculation.
 
@@ -51,21 +48,20 @@ class ExpEntry(PDEntry, MSONable):
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
+        return f"ExpEntry {self.formula}, Energy = {self.energy:.4f}"
 
     @classmethod
     def from_dict(cls, d):
-        """
-        :param d: Dict representation.
-        :return: ExpEntry
+        """:param d: Dict representation.
+
+        Returns:
+            ExpEntry
         """
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
         return cls(d["composition"], thermodata, d["temperature"])
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

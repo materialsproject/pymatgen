@@ -1,8 +1,7 @@
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
-installed. Please consult the
-`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
+installed. Please consult the openbabel docs https://openbabel.org.
 """
 
 from __future__ import annotations
@@ -15,8 +14,7 @@ from monty.dev import requires
 from pymatgen.core.structure import IMolecule, Molecule
 
 try:
-    from openbabel import openbabel
-    from openbabel import pybel as pb
+    from openbabel import openbabel, pybel
 except Exception:
     openbabel = None
 
@@ -29,18 +27,21 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
 
+needs_openbabel = requires(
+    openbabel,
+    "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
+    "Please get it at http://openbabel.org (version >=3.0.0).",
+)
+
+
 class BabelMolAdaptor:
     """
     Adaptor serves as a bridge between OpenBabel's Molecule and pymatgen's
     Molecule.
     """
 
-    @requires(
-        openbabel,
-        "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
-        "Please get it at http://openbabel.org (version >=3.0.0).",
-    )
-    def __init__(self, mol):
+    @needs_openbabel
+    def __init__(self, mol: Molecule | openbabel.OBMol | pybel.Molecule) -> None:
         """
         Initializes with pymatgen Molecule or OpenBabel's OBMol.
 
@@ -72,30 +73,28 @@ class BabelMolAdaptor:
             ob_mol.SetTotalCharge(int(mol.charge))
             ob_mol.Center()
             ob_mol.EndModify()
-            self._obmol = ob_mol
+            self._ob_mol = ob_mol
         elif isinstance(mol, openbabel.OBMol):
-            self._obmol = mol
-        elif isinstance(mol, pb.Molecule):
-            self._obmol = mol.OBMol
+            self._ob_mol = mol
+        elif isinstance(mol, pybel.Molecule):
+            self._ob_mol = mol.OBMol
+        else:
+            raise ValueError(f"Unsupported input type {type(mol)}, must be Molecule, openbabel.OBMol or pybel.Molecule")
 
     @property
     def pymatgen_mol(self):
-        """
-        Returns pymatgen Molecule object.
-        """
+        """Returns pymatgen Molecule object."""
         sp = []
         coords = []
-        for atom in openbabel.OBMolAtomIter(self._obmol):
+        for atom in openbabel.OBMolAtomIter(self._ob_mol):
             sp.append(atom.GetAtomicNum())
             coords.append([atom.GetX(), atom.GetY(), atom.GetZ()])
         return Molecule(sp, coords)
 
     @property
     def openbabel_mol(self):
-        """
-        Returns OpenBabel's OBMol.
-        """
-        return self._obmol
+        """Returns OpenBabel's OBMol."""
+        return self._ob_mol
 
     def localopt(self, forcefield="mmff94", steps=500):
         """
@@ -106,9 +105,9 @@ class BabelMolAdaptor:
                 'mmff94', 'mmff94s', and 'uff'.
             steps: Default is 500.
         """
-        pbmol = pb.Molecule(self._obmol)
-        pbmol.localopt(forcefield=forcefield, steps=steps)
-        self._obmol = pbmol.OBMol
+        pybelmol = pybel.Molecule(self._ob_mol)
+        pybelmol.localopt(forcefield=forcefield, steps=steps)
+        self._ob_mol = pybelmol.OBMol
 
     def make3d(self, forcefield="mmff94", steps=50):
         """
@@ -129,29 +128,27 @@ class BabelMolAdaptor:
                 'mmff94', 'mmff94s', and 'uff'.
             steps: Default is 50.
         """
-        pbmol = pb.Molecule(self._obmol)
-        pbmol.make3D(forcefield=forcefield, steps=steps)
-        self._obmol = pbmol.OBMol
+        pybelmol = pybel.Molecule(self._ob_mol)
+        pybelmol.make3D(forcefield=forcefield, steps=steps)
+        self._ob_mol = pybelmol.OBMol
 
     def add_hydrogen(self):
-        """
-        Add hydrogens (make all hydrogen explicit).
-        """
-        self._obmol.AddHydrogens()
+        """Add hydrogens (make all hydrogen explicit)."""
+        self._ob_mol.AddHydrogens()
 
     def remove_bond(self, idx1, idx2):
         """
-        Remove a bond from an openbabel molecule
+        Remove a bond from an openbabel molecule.
 
         Args:
             idx1: The atom index of one of the atoms participating the in bond
             idx2: The atom index of the other atom participating in the bond
         """
-        for obbond in openbabel.OBMolBondIter(self._obmol):
+        for obbond in openbabel.OBMolBondIter(self._ob_mol):
             if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (
                 obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1
             ):
-                self._obmol.DeleteBond(obbond)
+                self._ob_mol.DeleteBond(obbond)
 
     def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch", forcefield="mmff94"):
         """
@@ -174,7 +171,7 @@ class BabelMolAdaptor:
             forcefield (str): Default is mmff94. Options are 'gaff', 'ghemical',
                 'mmff94', 'mmff94s', and 'uff'.
         """
-        if self._obmol.GetDimension() != 3:
+        if self._ob_mol.GetDimension() != 3:
             self.make3d()
         else:
             self.add_hydrogen()
@@ -182,7 +179,7 @@ class BabelMolAdaptor:
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
             warnings.warn(
-                f"This input forcefield {forcefield} is not supported "
+                f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
                 "default 'mmff94' for now."
             )
@@ -201,7 +198,7 @@ class BabelMolAdaptor:
             )
             rotor_search = ff.WeightedRotorSearch
         rotor_search(*rotor_args)
-        ff.GetConformers(self._obmol)
+        ff.GetConformers(self._ob_mol)
 
     def gen3d_conformer(self):
         """
@@ -224,7 +221,7 @@ class BabelMolAdaptor:
         between speed and finding the global energy minimum.
         """
         gen3d = openbabel.OBOp.FindType("Gen3D")
-        gen3d.Do(self._obmol)
+        gen3d.Do(self._ob_mol)
 
     def confab_conformers(
         self,
@@ -254,26 +251,23 @@ class BabelMolAdaptor:
                 default is False.
 
         Returns:
-             (list): list of pymatgen Molecule objects for generated conformers.
+            list[Molecule]: Molecule objects for generated conformers.
         """
-        if self._obmol.GetDimension() != 3:
+        if self._ob_mol.GetDimension() != 3:
             self.make3d()
         else:
             self.add_hydrogen()
 
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
-            print(
-                f"Could not find forcefield {forcefield} in openbabel, the forcefield "
-                "will be reset as default 'mmff94'"
-            )
+            print(f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'")
             ff = openbabel.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
             print(f"{len(freeze_atoms)} atoms will be freezed")
             constraints = openbabel.OBFFConstraints()
 
-            for atom in openbabel.OBMolAtomIter(self._obmol):
+            for atom in openbabel.OBMolAtomIter(self._ob_mol):
                 atom_id = atom.GetIndex() + 1
                 if id in freeze_atoms:
                     constraints.AddAtomConstraint(atom_id)
@@ -281,25 +275,23 @@ class BabelMolAdaptor:
 
         # Confab conformer generation
         ff.DiverseConfGen(rmsd_cutoff, conf_cutoff, energy_cutoff, verbose)
-        ff.GetConformers(self._obmol)
+        ff.GetConformers(self._ob_mol)
 
         # Number of conformers generated by Confab conformer generation
-        conformer_num = self._obmol.NumConformers()
+        conformer_num = self._ob_mol.NumConformers()
 
         conformers = []
         for i in range(conformer_num):
-            self._obmol.SetConformer(i)
-            conformer = copy.deepcopy(BabelMolAdaptor(self._obmol).pymatgen_mol)
+            self._ob_mol.SetConformer(i)
+            conformer = copy.deepcopy(BabelMolAdaptor(self._ob_mol).pymatgen_mol)
             conformers.append(conformer)
-        self._obmol.SetConformer(0)
+        self._ob_mol.SetConformer(0)
         return conformers
 
     @property
     def pybel_mol(self):
-        """
-        Returns Pybel's Molecule object.
-        """
-        return pb.Molecule(self._obmol)
+        """Returns Pybel's Molecule object."""
+        return pybel.Molecule(self._ob_mol)
 
     def write_file(self, filename, file_format="xyz"):
         """
@@ -309,11 +301,11 @@ class BabelMolAdaptor:
             filename: Filename of file to output
             file_format: String specifying any OpenBabel supported formats.
         """
-        mol = pb.Molecule(self._obmol)
+        mol = pybel.Molecule(self._ob_mol)
         return mol.write(file_format, filename, overwrite=True)
 
-    @staticmethod
-    def from_file(filename, file_format="xyz", return_all_molecules=False):
+    @classmethod
+    def from_file(cls, filename, file_format="xyz", return_all_molecules=False):
         """
         Uses OpenBabel to read a molecule from a file in all supported formats.
 
@@ -327,11 +319,11 @@ class BabelMolAdaptor:
         Returns:
             BabelMolAdaptor object or list thereof
         """
-        mols = pb.readfile(str(file_format), str(filename))
+        mols = pybel.readfile(str(file_format), str(filename))
         if return_all_molecules:
-            return [BabelMolAdaptor(mol.OBMol) for mol in mols]
+            return [cls(mol.OBMol) for mol in mols]
 
-        return BabelMolAdaptor(next(mols).OBMol)
+        return cls(next(mols).OBMol)
 
     @staticmethod
     def from_molecule_graph(mol):
@@ -346,8 +338,9 @@ class BabelMolAdaptor:
         """
         return BabelMolAdaptor(mol.molecule)
 
-    @staticmethod
-    def from_string(string_data, file_format="xyz"):
+    @needs_openbabel
+    @classmethod
+    def from_str(cls, string_data, file_format="xyz"):
         """
         Uses OpenBabel to read a molecule from a string in all supported
         formats.
@@ -359,5 +352,5 @@ class BabelMolAdaptor:
         Returns:
             BabelMolAdaptor object
         """
-        mols = pb.readstring(str(file_format), str(string_data))
-        return BabelMolAdaptor(mols.OBMol)
+        mols = pybel.readstring(str(file_format), str(string_data))
+        return cls(mols.OBMol)

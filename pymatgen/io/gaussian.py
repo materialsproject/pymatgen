@@ -1,6 +1,4 @@
-"""
-This module implements input and output processing from Gaussian.
-"""
+"""This module implements input and output processing from Gaussian."""
 
 from __future__ import annotations
 
@@ -10,14 +8,14 @@ import warnings
 import numpy as np
 import scipy.constants as cst
 from monty.io import zopen
+from scipy.stats import norm
 
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Element, Molecule
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
+from pymatgen.util.plotting import pretty_plot
 
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -33,7 +31,7 @@ float_patt = re.compile(r"\s*([+-]?\d+\.\d+)")
 def read_route_line(route):
     """
     read route line in gaussian input/output and return functional basis_set
-    and a dictionary of other route parameters
+    and a dictionary of other route parameters.
 
     Args:
         route (str) : the route line
@@ -45,8 +43,7 @@ def read_route_line(route):
     """
     scrf_patt = re.compile(r"^([sS][cC][rR][fF])\s*=\s*(.+)")
     multi_params_patt = re.compile(r"^([A-z]+[0-9]*)[\s=]+\((.*)\)$")
-    functional = None
-    basis_set = None
+    functional = basis_set = None
     route_params = {}
     dieze_tag = None
     if route:
@@ -81,9 +78,7 @@ def read_route_line(route):
 
 
 class GaussianInput:
-    """
-    An object representing a Gaussian input file.
-    """
+    """An object representing a Gaussian input file."""
 
     # Commonly used regex patterns
     _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
@@ -137,19 +132,19 @@ class GaussianInput:
         # Determine multiplicity and charge settings
         if isinstance(mol, Molecule):
             self.charge = charge if charge is not None else mol.charge
-            nelectrons = mol.charge + mol.nelectrons - self.charge
+            n_electrons = mol.charge + mol.nelectrons - self.charge
             if spin_multiplicity is not None:
                 self.spin_multiplicity = spin_multiplicity
-                if (nelectrons + spin_multiplicity) % 2 != 1:
+                if (n_electrons + spin_multiplicity) % 2 != 1:
                     raise ValueError(
                         f"Charge of {self.charge} and spin multiplicity of {spin_multiplicity} is"
                         " not possible for this molecule"
                     )
             else:
-                self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+                self.spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
             # Get a title from the molecule name
-            self.title = title or self._mol.composition.formula
+            self.title = title or self._mol.formula
         else:
             self.charge = charge
             self.spin_multiplicity = spin_multiplicity
@@ -170,16 +165,12 @@ class GaussianInput:
 
     @property
     def molecule(self):
-        """
-        Returns molecule associated with this GaussianInput.
-        """
+        """Returns molecule associated with this GaussianInput."""
         return self._mol
 
     @staticmethod
     def _parse_coords(coord_lines):
-        """
-        Helper method to parse coordinates.
-        """
+        """Helper method to parse coordinates."""
         paras = {}
         var_pattern = re.compile(r"^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for line in coord_lines:
@@ -199,24 +190,24 @@ class GaussianInput:
             if (not zmode) and GaussianInput._xyz_patt.match(line):
                 m = GaussianInput._xyz_patt.match(line)
                 species.append(m.group(1))
-                toks = re.split(r"[,\s]+", line.strip())
-                if len(toks) > 4:
-                    coords.append([float(i) for i in toks[2:5]])
+                tokens = re.split(r"[,\s]+", line.strip())
+                if len(tokens) > 4:
+                    coords.append([float(i) for i in tokens[2:5]])
                 else:
-                    coords.append([float(i) for i in toks[1:4]])
+                    coords.append([float(i) for i in tokens[1:4]])
             elif GaussianInput._zmat_patt.match(line):
                 zmode = True
-                toks = re.split(r"[,\s]+", line.strip())
-                species.append(toks[0])
-                toks.pop(0)
-                if len(toks) == 0:
+                tokens = re.split(r"[,\s]+", line.strip())
+                species.append(tokens[0])
+                tokens.pop(0)
+                if len(tokens) == 0:
                     coords.append(np.array([0, 0, 0]))
                 else:
                     nn = []
                     parameters = []
-                    while len(toks) > 1:
-                        ind = toks.pop(0)
-                        data = toks.pop(0)
+                    while len(tokens) > 1:
+                        ind = tokens.pop(0)
+                        data = tokens.pop(0)
                         try:
                             nn.append(int(ind))
                         except ValueError:
@@ -237,7 +228,7 @@ class GaussianInput:
                         bl = parameters[0]
                         angle = parameters[1]
                         axis = [0, 1, 0]
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle)
                         coord = op.operate(coords2)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
@@ -252,14 +243,14 @@ class GaussianInput:
                         v1 = coords3 - coords2
                         v2 = coords1 - coords2
                         axis = np.cross(v1, v2)
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle)
                         coord = op.operate(coords2)
                         v1 = coord - coords1
                         v2 = coords1 - coords2
                         v3 = np.cross(v1, v2)
                         adj = get_angle(v3, axis)
                         axis = coords1 - coords2
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, dih - adj, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, dih - adj)
                         coord = op.operate(coord)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
@@ -283,8 +274,8 @@ class GaussianInput:
 
         return Molecule(species, coords)
 
-    @staticmethod
-    def from_string(contents):
+    @classmethod
+    def from_str(cls, contents):
         """
         Creates GaussianInput from a string.
 
@@ -324,14 +315,14 @@ class GaussianInput:
             ind += 1
         title = " ".join(title)
         ind += 1
-        toks = re.split(r"[,\s]+", lines[route_index + ind])
-        charge = int(float(toks[0]))
-        spin_mult = int(toks[1])
+        tokens = re.split(r"[,\s]+", lines[route_index + ind])
+        charge = int(float(tokens[0]))
+        spin_mult = int(tokens[1])
         coord_lines = []
         spaces = 0
         input_paras = {}
         ind += 1
-        if GaussianInput._xyz_patt.match(lines[route_index + ind]):
+        if cls._xyz_patt.match(lines[route_index + ind]):
             spaces += 1
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
@@ -342,10 +333,10 @@ class GaussianInput:
                     input_paras[d[0]] = d[1]
             else:
                 coord_lines.append(lines[i].strip())
-        mol = GaussianInput._parse_coords(coord_lines)
+        mol = cls._parse_coords(coord_lines)
         mol.set_charge_and_spin(charge, spin_mult)
 
-        return GaussianInput(
+        return cls(
             mol,
             charge=charge,
             spin_multiplicity=spin_mult,
@@ -358,8 +349,8 @@ class GaussianInput:
             dieze_tag=dieze_tag,
         )
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename):
         """
         Creates GaussianInput from a file.
 
@@ -369,60 +360,24 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, "r") as f:
-            return GaussianInput.from_string(f.read())
-
-    def _find_nn_pos_before_site(self, siteindex):
-        """
-        Returns index of nearest neighbor atoms.
-        """
-        alldist = [(self._mol.get_distance(siteindex, i), i) for i in range(siteindex)]
-        alldist = sorted(alldist, key=lambda x: x[0])
-        return [d[1] for d in alldist]
+        with zopen(filename, mode="r") as file:
+            return cls.from_str(file.read())
 
     def get_zmatrix(self):
-        """
-        Returns a z-matrix representation of the molecule.
-        """
-        output = []
-        outputvar = []
-        for i, site in enumerate(self._mol):
-            if i == 0:
-                output.append(f"{site.specie}")
-            elif i == 1:
-                nn = self._find_nn_pos_before_site(i)
-                bondlength = self._mol.get_distance(i, nn[0])
-                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i}")
-                outputvar.append(f"B{i}={bondlength:.6f}")
-            elif i == 2:
-                nn = self._find_nn_pos_before_site(i)
-                bondlength = self._mol.get_distance(i, nn[0])
-                angle = self._mol.get_angle(i, nn[0], nn[1])
-                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i} {nn[1] + 1} A{i}")
-                outputvar.append(f"B{i}={bondlength:.6f}")
-                outputvar.append(f"A{i}={angle:.6f}")
-            else:
-                nn = self._find_nn_pos_before_site(i)
-                bondlength = self._mol.get_distance(i, nn[0])
-                angle = self._mol.get_angle(i, nn[0], nn[1])
-                dih = self._mol.get_dihedral(i, nn[0], nn[1], nn[2])
-                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i} {nn[1] + 1} A{i} {nn[2] + 1} D{i}")
-                outputvar.append(f"B{i}={bondlength:.6f}")
-                outputvar.append(f"A{i}={angle:.6f}")
-                outputvar.append(f"D{i}={dih:.6f}")
-        return "\n".join(output) + "\n\n" + "\n".join(outputvar)
+        """Returns a z-matrix representation of the molecule."""
+        return self._mol.get_zmatrix()
 
     def get_cart_coords(self) -> str:
-        """Return the Cartesian coordinates of the molecule"""
+        """Return the Cartesian coordinates of the molecule."""
         outs = []
         for site in self._mol:
             outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
         return "\n".join(outs)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, cart_coords=False):
+    def to_str(self, cart_coords=False):
         """Return GaussianInput string.
 
         Args:
@@ -430,14 +385,14 @@ class GaussianInput:
                 Defaults to False.
         """
 
-        def para_dict_to_string(para, joiner=" "):
+        def para_dict_to_str(para, joiner=" "):
             para_str = []
             # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
                 elif isinstance(val, dict):
-                    val_str = para_dict_to_string(val, joiner=",")
+                    val_str = para_dict_to_str(val, joiner=",")
                     para_str.append(f"{par}=({val_str})")
                 else:
                     para_str.append(f"{par}={val}")
@@ -445,9 +400,9 @@ class GaussianInput:
 
         output = []
         if self.link0_parameters:
-            output.append(para_dict_to_string(self.link0_parameters, "\n"))
+            output.append(para_dict_to_str(self.link0_parameters, "\n"))
 
-        # Handle functional or basis set set to None, empty string or whitespace
+        # Handle functional or basis set to None, empty string or whitespace
         func_str = "" if self.functional is None else self.functional.strip()
         bset_str = "" if self.basis_set is None else self.basis_set.strip()
 
@@ -457,10 +412,7 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output.append(f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}")
-        output.append("")
-        output.append(self.title)
-        output.append("")
+        output += (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
@@ -476,23 +428,20 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.append(para_dict_to_string(self.input_parameters, "\n"))
-        output.append("\n")
+        output.extend((para_dict_to_str(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):
         """
-        Write the input string into a file
+        Write the input string into a file.
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as file:
-            file.write(self.to_string(cart_coords))
+        with zopen(filename, mode="w") as file:
+            file.write(self.to_str(cart_coords))
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -509,21 +458,23 @@ class GaussianInput:
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> GaussianInput:
         """
-        :param d: dict
-        :return: GaussianInput
+        :param dct: dict
+
+        Returns:
+            GaussianInput
         """
         return cls(
-            mol=Molecule.from_dict(d["molecule"]),
-            functional=d["functional"],
-            basis_set=d["basis_set"],
-            route_parameters=d["route_parameters"],
-            title=d["title"],
-            charge=d["charge"],
-            spin_multiplicity=d["spin_multiplicity"],
-            input_parameters=d["input_parameters"],
-            link0_parameters=d["link0_parameters"],
+            mol=Molecule.from_dict(dct["molecule"]),
+            functional=dct["functional"],
+            basis_set=dct["basis_set"],
+            route_parameters=dct["route_parameters"],
+            title=dct["title"],
+            charge=dct["charge"],
+            spin_multiplicity=dct["spin_multiplicity"],
+            input_parameters=dct["input_parameters"],
+            link0_parameters=dct["link0_parameters"],
         )
 
 
@@ -531,179 +482,73 @@ class GaussianOutput:
     """
     Parser for Gaussian output files.
 
-    .. note::
-
-        Still in early beta.
+    Note: Still in early beta.
 
     Attributes:
-    .. attribute:: structures
-
-        All structures from the calculation in the standard orientation. If the
-        symmetry is not considered, the standard orientation is not printed out
-        and the input orientation is used instead. Check the `standard_orientation`
-        attribute.
-
-    .. attribute:: structures_input_orientation
-
-        All structures from the calculation in the input orientation or the
-        Z-matrix orientation (if an opt=z-matrix was requested).
-
-    .. attribute:: opt_structures
-
-        All optimized structures from the calculation in the standard orientation,
-        if the attribute 'standard_orientation' is True, otherwise in the input
-        or the Z-matrix orientation.
-
-    .. attribute:: energies
-
-        All energies from the calculation.
-
-    .. attribute:: eigenvalues
-
-        List of eigenvalues for the last geometry
-
-    .. attribute:: MO_coefficients
-
-        Matrix of MO coefficients for the last geometry
-
-    .. attribute:: cart_forces
-
-        All Cartesian forces from the calculation.
-
-    .. attribute:: frequencies
-
-        A list for each freq calculation and for each mode of a dict with
-        {
-            "frequency": freq in cm-1,
-            "symmetry": symmetry tag
-            "r_mass": Reduce mass,
-            "f_constant": force constant,
-            "IR_intensity": IR Intensity,
-            "mode": normal mode
-         }
-
-        The normal mode is a 1D vector of dx, dy dz of each atom.
-
-    .. attribute:: hessian
-
-        Matrix of second derivatives of the energy with respect to cartesian
-        coordinates in the **input orientation** frame. Need #P in the
-        route section in order to be in the output.
-
-    .. attribute:: properly_terminated
-
-        True if run has properly terminated
-
-    .. attribute:: is_pcm
-
-        True if run is a PCM run.
-
-    .. attribute:: is_spin
-
-        True if it is an unrestricted run
-
-    .. attribute:: stationary_type
-
-        If it is a relaxation run, indicates whether it is a minimum (Minimum)
-        or a saddle point ("Saddle").
-
-    .. attribute:: corrections
-
-        Thermochemical corrections if this run is a Freq run as a dict. Keys
-        are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy"
-
-    .. attribute:: functional
-
-        Functional used in the run.
-
-    .. attribute:: basis_set
-
-        Basis set used in the run
-
-    .. attribute:: route
-
-        Additional route parameters as a dict. For example,
-            {'SP':"", "SCF":"Tight"}
-
-    .. attribute:: dieze_tag
-
-        # preceding the route line, e.g. "#P"
-
-    .. attribute:: link0
-
-        Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
-
-    .. attribute:: charge
-
-        Charge for structure
-
-    .. attribute:: spin_multiplicity
-
-        Spin multiplicity for structure
-
-    .. attribute:: num_basis_func
-
-        Number of basis functions in the run.
-
-    .. attribute:: electrons
-
-        number of alpha and beta electrons as (N alpha, N beta)
-
-    .. attribute:: pcm
-
-        PCM parameters and output if available.
-
-    .. attribute:: errors
-
-        error if not properly terminated (list to be completed in error_defs)
-
-    .. attribute:: Mulliken_charges
-
-        Mulliken atomic charges
-
-    .. attribute:: eigenvectors
-
-        Matrix of shape (num_basis_func, num_basis_func). Each column is an
-        eigenvectors and contains AO coefficients of an MO.
-
-        eigenvectors[Spin] = mat(num_basis_func, num_basis_func)
-
-    .. attribute:: molecular_orbital
-
-        MO development coefficients on AO in a more convenient array dict
-        for each atom and basis set label.
-
-        mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
-
-    .. attribute:: atom_basis_labels
-
-        Labels of AO for each atoms. These labels are those used in the output
-        of molecular orbital coefficients (POP=Full) and in the
-        molecular_orbital array dict.
-
-        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
-
-    .. attribute:: resumes
-
-        List of gaussian data resume given at the end of the output file before
-        the quotation. The resumes are given as string.
-
-    .. attribute:: title
-
-        Title of the gaussian run.
-
-    .. attribute:: standard_orientation
-
-        If True, the geometries stored in the structures are in the standard
-        orientation. Else, the geometries are in the input orientation.
-
-    .. attribute:: bond_orders
-
-        Dict of bond order values read in the output file such as:
-        {(0, 1): 0.8709, (1, 6): 1.234, ...}
-
-        The keys are the atom indexes and the values are the Wiberg bond indexes
-        that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
+        structures (list[Structure]): All structures from the calculation in the standard orientation. If the
+            symmetry is not considered, the standard orientation is not printed out
+            and the input orientation is used instead. Check the `standard_orientation`
+            attribute.
+        structures_input_orientation (list): All structures from the calculation in the input
+            orientation or the Z-matrix orientation (if an opt=z-matrix was requested).
+        opt_structures (list): All optimized structures from the calculation in the standard
+            orientation, if the attribute 'standard_orientation' is True, otherwise in the input
+            or the Z-matrix orientation.
+        energies (list): All energies from the calculation.
+        eigenvalues (list): List of eigenvalues for the last geometry.
+        MO_coefficients (list): Matrix of MO coefficients for the last geometry.
+        cart_forces (list): All Cartesian forces from the calculation.
+        frequencies (list): A list for each freq calculation and for each mode of a dict with
+            {
+                "frequency": freq in cm-1,
+                "symmetry": symmetry tag
+                "r_mass": Reduce mass,
+                "f_constant": force constant,
+                "IR_intensity": IR Intensity,
+                "mode": normal mode
+             }
+            The normal mode is a 1D vector of dx, dy dz of each atom.
+        hessian (ndarray): Matrix of second derivatives of the energy with respect to cartesian
+            coordinates in the input orientation frame. Need #P in the route section in order to
+            be in the output.
+        properly_terminated (bool): True if run has properly terminated.
+        is_pcm (bool): True if run is a PCM run.
+        is_spin (bool): True if it is an unrestricted run.
+        stationary_type (str): If it is a relaxation run, indicates whether it is a minimum
+            (Minimum) or a saddle point ("Saddle").
+        corrections (dict): Thermochemical corrections if this run is a Freq run as a dict. Keys
+            are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy".
+        functional (str): Functional used in the run.
+        basis_set (str): Basis set used in the run.
+        route (dict): Additional route parameters as a dict. For example,
+            {'SP':"", "SCF":"Tight"}.
+        dieze_tag (str): # preceding the route line, e.g. "#P".
+        link0 (dict): Link0 parameters as a dict. E.g., {"%mem": "1000MW"}.
+        charge (int): Charge for structure.
+        spin_multiplicity (int): Spin multiplicity for structure.
+        num_basis_func (int): Number of basis functions in the run.
+        electrons (tuple): Number of alpha and beta electrons as (N alpha, N beta).
+        pcm (dict): PCM parameters and output if available.
+        errors (list): Error if not properly terminated (list to be completed in error_defs).
+        Mulliken_charges (list): Mulliken atomic charges.
+        eigenvectors (dict): Matrix of shape (num_basis_func, num_basis_func). Each column is an
+            eigenvectors and contains AO coefficients of an MO.
+            eigenvectors[Spin] = mat(num_basis_func, num_basis_func).
+        molecular_orbital (dict): MO development coefficients on AO in a more convenient array dict
+            for each atom and basis set label.
+            mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }.
+        atom_basis_labels (list): Labels of AO for each atoms. These labels are those used in the
+            output of molecular orbital coefficients (POP=Full) and in the molecular_orbital array
+            dict. atom_basis_labels[iatom] = [AO_k, AO_k, ...].
+        resumes (list): List of gaussian data resume given at the end of the output file before
+            the quotation. The resumes are given as string.
+        title (str): Title of the gaussian run.
+        standard_orientation (bool): If True, the geometries stored in the structures are in the
+            standard orientation. Else, the geometries are in the input orientation.
+        bond_orders (dict): Dict of bond order values read in the output file such as:
+            {(0, 1): 0.8709, (1, 6): 1.234, ...}.
+            The keys are the atom indexes and the values are the Wiberg bond indexes that are
+            printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
     .. method:: to_input()
@@ -722,7 +567,6 @@ class GaussianOutput:
     .. method:: save_scan_plot()
 
         Save a matplotlib plot of the potential energy surface to a file
-
     """
 
     def __init__(self, filename):
@@ -735,16 +579,12 @@ class GaussianOutput:
 
     @property
     def final_energy(self):
-        """
-        :return: Final energy in Gaussian output.
-        """
+        """Final energy in Gaussian output."""
         return self.energies[-1]
 
     @property
     def final_structure(self):
-        """
-        :return: Final structure in Gaussian output.
-        """
+        """Final structure in Gaussian output."""
         return self.structures[-1]
 
     def _parse(self, filename):
@@ -816,7 +656,7 @@ class GaussianOutput:
         frequencies = []
         read_mo = False
         parse_hessian = False
-        routeline = ""
+        route_line = ""
         standard_orientation = False
         parse_bond_order = False
         input_structures = []
@@ -824,17 +664,17 @@ class GaussianOutput:
         geom_orientation = None
         opt_structures = []
 
-        with zopen(filename, mode="rt") as f:
-            for line in f:
+        with zopen(filename, mode="rt") as file:
+            for line in file:
                 if parse_stage == 0:
                     if start_patt.search(line):
                         parse_stage = 1
                     elif link0_patt.match(line):
                         m = link0_patt.match(line)
                         self.link0[m.group(1)] = m.group(2)
-                    elif route_patt.search(line) or routeline != "":
+                    elif route_patt.search(line) or route_line != "":
                         if set(line.strip()) == {"-"}:
-                            params = read_route_line(routeline)
+                            params = read_route_line(route_line)
                             self.functional = params[0]
                             self.basis_set = params[1]
                             self.route_parameters = params[2]
@@ -843,7 +683,7 @@ class GaussianOutput:
                             parse_stage = 1
                         else:
                             line = line.replace(" ", "", 1).rstrip("\n")
-                            routeline += line
+                            route_line += line
                 elif parse_stage == 1:
                     if set(line.strip()) == {"-"} and self.title is None:
                         self.title = ""
@@ -867,15 +707,15 @@ class GaussianOutput:
                             self.corrections[key] = float(m.group(3))
 
                     if read_coord:
-                        [f.readline() for i in range(3)]
-                        line = f.readline()
+                        [file.readline() for i in range(3)]
+                        line = file.readline()
                         sp = []
                         coords = []
                         while set(line.strip()) != {"-"}:
-                            toks = line.split()
-                            sp.append(Element.from_Z(int(toks[1])))
-                            coords.append([float(x) for x in toks[3:6]])
-                            line = f.readline()
+                            tokens = line.split()
+                            sp.append(Element.from_Z(int(tokens[1])))
+                            coords.append([float(x) for x in tokens[3:6]])
+                            line = file.readline()
 
                         read_coord = False
                         if geom_orientation == "input":
@@ -900,13 +740,13 @@ class GaussianOutput:
                         else:
                             read_eigen = False
                             self.eigenvalues = {Spin.up: []}
-                            for eigenline in eigen_txt:
-                                if "Alpha" in eigenline:
-                                    self.eigenvalues[Spin.up] += [float(e) for e in float_patt.findall(eigenline)]
-                                elif "Beta" in eigenline:
+                            for eigen_line in eigen_txt:
+                                if "Alpha" in eigen_line:
+                                    self.eigenvalues[Spin.up] += [float(e) for e in float_patt.findall(eigen_line)]
+                                elif "Beta" in eigen_line:
                                     if Spin.down not in self.eigenvalues:
                                         self.eigenvalues[Spin.down] = []
-                                    self.eigenvalues[Spin.down] += [float(e) for e in float_patt.findall(eigenline)]
+                                    self.eigenvalues[Spin.down] += [float(e) for e in float_patt.findall(eigen_line)]
                             eigen_txt = []
 
                     # read molecular orbital coefficients
@@ -926,35 +766,35 @@ class GaussianOutput:
                             nMO = 0
                             end_mo = False
                             while nMO < self.num_basis_func and not end_mo:
-                                f.readline()
-                                f.readline()
+                                file.readline()
+                                file.readline()
                                 self.atom_basis_labels = []
-                                for i in range(self.num_basis_func):
-                                    line = f.readline()
+                                for idx in range(self.num_basis_func):
+                                    line = file.readline()
 
                                     # identify atom and OA labels
                                     m = mo_coeff_name_patt.search(line)
                                     if m.group(1).strip() != "":
-                                        iat = int(m.group(2)) - 1
+                                        atom_idx = int(m.group(2)) - 1
                                         # atname = m.group(3)
                                         self.atom_basis_labels.append([m.group(4)])
                                     else:
-                                        self.atom_basis_labels[iat].append(m.group(4))
+                                        self.atom_basis_labels[atom_idx].append(m.group(4))
 
                                     # MO coefficients
                                     coeffs = [float(c) for c in float_patt.findall(line)]
                                     for j, c in enumerate(coeffs):
-                                        mat_mo[spin][i, nMO + j] = c
+                                        mat_mo[spin][idx, nMO + j] = c
 
                                 nMO += len(coeffs)
-                                line = f.readline()
+                                line = file.readline()
                                 # manage pop=regular case (not all MO)
                                 if nMO < self.num_basis_func and (
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
                                     warnings.warn("POP=regular case, matrix coefficients not complete")
-                            f.readline()
+                            file.readline()
 
                         self.eigenvectors = mat_mo
                         read_mo = False
@@ -969,11 +809,11 @@ class GaussianOutput:
                                 [{} for iat in range(len(self.atom_basis_labels))] for j in range(self.num_basis_func)
                             ]
                             for j in range(self.num_basis_func):
-                                i = 0
-                                for iat, labels in enumerate(self.atom_basis_labels):
+                                idx = 0
+                                for atom_idx, labels in enumerate(self.atom_basis_labels):
                                     for label in labels:
-                                        mo[spin][j][iat][label] = self.eigenvectors[spin][i, j]
-                                        i += 1
+                                        mo[spin][j][atom_idx][label] = self.eigenvectors[spin][idx, j]
+                                        idx += 1
 
                         self.molecular_orbital = mo
 
@@ -1013,56 +853,40 @@ class GaussianOutput:
                                     syms = line.split()[:3]
                                     for ifreq, sym in zip(ifreqs, syms):
                                         frequencies[ifreq]["symmetry"] = sym
-                                line = f.readline()
+                                line = file.readline()
 
                             # read normal modes
-                            line = f.readline()
+                            line = file.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
-                                for i, ifreq in zip(range(0, len(values), 3), ifreqs):
-                                    frequencies[ifreq]["mode"].extend(values[i : i + 3])
-                                line = f.readline()
+                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                    frequencies[ifreq]["mode"].extend(values[idx : idx + 3])
+                                line = file.readline()
 
                         parse_freq = False
                         self.frequencies.append(frequencies)
                         frequencies = []
 
                     elif parse_hessian:
-                        # read Hessian matrix under "Force constants in Cartesian coordinates"
-                        # Hessian matrix is in the input  orientation framework
-                        # WARNING : need #P in the route line
+                        if not (input_structures or std_structures):
+                            raise ValueError("Both input_structures and std_structures are empty.")
                         parse_hessian = False
-                        ndf = 3 * len(input_structures[0])
-                        self.hessian = np.zeros((ndf, ndf))
-                        j_indices = range(5)
-                        jndf = 0
-                        while jndf < ndf:
-                            for i in range(jndf, ndf):
-                                line = f.readline()
-                                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
-                                vals = [float(val.replace("D", "E")) for val in vals]
-                                for jval, val in enumerate(vals):
-                                    j = j_indices[jval]
-                                    self.hessian[i, j] = val
-                                    self.hessian[j, i] = val
-                            jndf += len(vals)
-                            line = f.readline()
-                            j_indices = [j + 5 for j in j_indices]
+                        self._parse_hessian(file, (input_structures or std_structures)[0])
 
                     elif parse_bond_order:
                         # parse Wiberg bond order
-                        line = f.readline()
-                        line = f.readline()
-                        nat = len(input_structures[0])
+                        line = file.readline()
+                        line = file.readline()
+                        n_atoms = len(input_structures[0])
                         matrix = []
-                        for _ in range(nat):
-                            line = f.readline()
+                        for _ in range(n_atoms):
+                            line = file.readline()
                             matrix.append([float(v) for v in line.split()[2:]])
 
                         self.bond_orders = {}
-                        for iat in range(nat):
-                            for jat in range(iat + 1, nat):
-                                self.bond_orders[(iat, jat)] = matrix[iat][jat]
+                        for atom_idx in range(n_atoms):
+                            for atom_jdx in range(atom_idx + 1, n_atoms):
+                                self.bond_orders[(atom_idx, atom_jdx)] = matrix[atom_idx][atom_jdx]
                         parse_bond_order = False
 
                     elif termination_patt.search(line):
@@ -1102,10 +926,10 @@ class GaussianOutput:
                         geom_orientation = "input"
                         read_coord = True
                     elif "Optimization completed." in line:
-                        line = f.readline()
+                        line = file.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
-                                "\n" + self.filename + ": Optimization complete but this is not a stationary point"
+                                f"\n{self.filename}: Optimization complete but this is not a stationary point"
                             )
                         if standard_orientation:
                             opt_structures.append(std_structures[-1])
@@ -1121,7 +945,7 @@ class GaussianOutput:
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
-                        [f.readline() for i in range(3)]
+                        [file.readline() for i in range(3)]
                     elif mo_coeff_patt.search(line):
                         if "Alpha" in line:
                             self.is_spin = True
@@ -1132,7 +956,7 @@ class GaussianOutput:
                         resume = []
                         while not resume_end_patt.search(line):
                             resume.append(line)
-                            line = f.readline()
+                            line = file.readline()
                             # security if \\@ not in one line !
                             if line == "\n":
                                 break
@@ -1168,7 +992,36 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn("\n" + self.filename + ": Termination error or bad Gaussian output file !")
+            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+
+    def _parse_hessian(self, file, structure):
+        """
+        Parse the hessian matrix in the output file.
+
+        Args:
+            file: file object
+            structure: structure in the output file
+        """
+        # read Hessian matrix under "Force constants in Cartesian coordinates"
+        # Hessian matrix is in the input  orientation framework
+        # WARNING : need #P in the route line
+
+        ndf = 3 * len(structure)
+        self.hessian = np.zeros((ndf, ndf))
+        j_indices = range(5)
+        ndf_idx = 0
+        while ndf_idx < ndf:
+            for i in range(ndf_idx, ndf):
+                line = file.readline()
+                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
+                vals = [float(val.replace("D", "E")) for val in vals]
+                for val_idx, val in enumerate(vals):
+                    j = j_indices[val_idx]
+                    self.hessian[i, j] = val
+                    self.hessian[j, i] = val
+            ndf_idx += len(vals)
+            line = file.readline()
+            j_indices = [j + 5 for j in j_indices]
 
     def _check_pcm(self, line):
         energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy\s+\S+\s+=\s+(\S*)")
@@ -1186,27 +1039,25 @@ class GaussianOutput:
             self.pcm[m.group(1)] = float(m.group(2))
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation.
-        """
+        """JSON-serializable dict representation."""
         structure = self.final_structure
-        d = {
+        dct = {
             "has_gaussian_completed": self.properly_terminated,
             "nsites": len(structure),
         }
         comp = structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
-        d["is_pcm"] = self.is_pcm
-        d["errors"] = self.errors
-        d["Mulliken_charges"] = self.Mulliken_charges
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
+        dct["is_pcm"] = self.is_pcm
+        dct["errors"] = self.errors
+        dct["Mulliken_charges"] = self.Mulliken_charges
 
-        unique_symbols = sorted(d["unit_cell_formula"])
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
-        d["charge"] = self.charge
-        d["spin_multiplicity"] = self.spin_multiplicity
+        unique_symbols = sorted(dct["unit_cell_formula"])
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
+        dct["charge"] = self.charge
+        dct["spin_multiplicity"] = self.spin_multiplicity
 
         vin = {
             "route": self.route_parameters,
@@ -1216,43 +1067,36 @@ class GaussianOutput:
             "pcm_parameters": self.pcm,
         }
 
-        d["input"] = vin
+        dct["input"] = vin
 
-        nsites = len(self.final_structure)
+        n_sites = len(self.final_structure)
 
         vout = {
             "energies": self.energies,
             "final_energy": self.final_energy,
-            "final_energy_per_atom": self.final_energy / nsites,
+            "final_energy_per_atom": self.final_energy / n_sites,
             "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections,
         }
 
-        d["output"] = vout
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
+        dct["output"] = vout
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
 
-        return d
+        return dct
 
     def read_scan(self):
         """
         Read a potential energy surface from a gaussian scan calculation.
 
         Returns:
-            A dict: {"energies": [ values ],
-                     "coords": {"d1": [ values ], "A2", [ values ], ... }}
-
+            dict[str, list]: {"energies": [...], "coords": {"d1": [...], "A2", [...], ... }}
             "energies" are the energies of all points of the potential energy
             surface. "coords" are the internal coordinates used to compute the
             potential energy surface and the internal coordinates optimized,
             labelled by their name as defined in the calculation.
         """
-
-        def floatList(lst):
-            """Return a list of float from a list of string"""
-            return [float(val) for val in lst]
-
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
         coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
@@ -1261,42 +1105,42 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, "r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
 
             while line != "":
                 if optscan_patt.match(line):
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     endScan = False
                     while not endScan:
-                        data["energies"] += floatList(float_patt.findall(line))
-                        line = f.readline()
+                        data["energies"] += list(map(float, float_patt.findall(line)))
+                        line = file.readline()
                         while coord_patt.match(line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
-                                data["coords"][icname] += floatList(float_patt.findall(line))
+                                data["coords"][icname] += list(map(float, float_patt.findall(line)))
                             else:
-                                data["coords"][icname] = floatList(float_patt.findall(line))
-                            line = f.readline()
+                                data["coords"][icname] = list(map(float, float_patt.findall(line)))
+                            line = file.readline()
                         if not re.search(r"^\s+((\s*\d+)+)", line):
                             endScan = True
                         else:
-                            line = f.readline()
+                            line = file.readline()
 
                 elif scan_patt.match(line):
-                    line = f.readline()
+                    line = file.readline()
                     data["coords"] = {icname: [] for icname in line.split()[1:-1]}
-                    f.readline()
-                    line = f.readline()
+                    file.readline()
+                    line = file.readline()
                     while not re.search(r"^\s-+", line):
-                        values = floatList(line.split())
+                        values = list(map(float, line.split()))
                         data["energies"].append(values[-1])
                         for i, icname in enumerate(data["coords"]):
                             data["coords"][icname].append(values[i + 1])
-                        line = f.readline()
+                        line = file.readline()
                 else:
-                    line = f.readline()
+                    line = file.readline()
 
         return data
 
@@ -1307,26 +1151,25 @@ class GaussianOutput:
         Args:
             coords: internal coordinate name to use as abscissa.
         """
-        from pymatgen.util.plotting import pretty_plot
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
-        d = self.read_scan()
+        dct = self.read_scan()
 
-        if coords and coords in d["coords"]:
-            x = d["coords"][coords]
-            plt.xlabel(coords)
+        if coords and coords in dct["coords"]:
+            x = dct["coords"][coords]
+            ax.set_xlabel(coords)
         else:
-            x = range(len(d["energies"]))
-            plt.xlabel("points")
+            x = range(len(dct["energies"]))
+            ax.set_xlabel("points")
 
-        plt.ylabel("Energy (eV)")
+        ax.set_ylabel("Energy (eV)")
 
-        e_min = min(d["energies"])
-        y = [(e - e_min) * Ha_to_eV for e in d["energies"]]
+        e_min = min(dct["energies"])
+        y = [(e - e_min) * Ha_to_eV for e in dct["energies"]]
 
-        plt.plot(x, y, "ro--")
-        return plt
+        ax.plot(x, y, "ro--")
+        return ax
 
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
         """
@@ -1351,8 +1194,8 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, "r") as f:
-            line = f.readline()
+        with zopen(self.filename, mode="r") as file:
+            line = file.readline()
             td = False
             while line != "":
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
@@ -1361,7 +1204,7 @@ class GaussianOutput:
                 if td and re.search(r"^\sExcited State\s*\d", line):
                     val = [float(v) for v in float_patt.findall(line)]
                     transitions.append(tuple(val[0:3]))
-                line = f.readline()
+                line = file.readline()
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
@@ -1381,11 +1224,7 @@ class GaussianOutput:
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """
-        from scipy.stats import norm
-
-        from pymatgen.util.plotting import pretty_plot
-
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()
 
@@ -1401,12 +1240,12 @@ class GaussianOutput:
         for trans in transitions:
             spectre += trans[2] * norm(eneval, trans[0], sigma)
         spectre /= spectre.max()
-        plt.plot(lambdaval, spectre, "r-", label="spectre")
+        ax.plot(lambdaval, spectre, "r-", label="spectre")
 
         data = {"energies": eneval, "lambda": lambdaval, "xas": spectre}
 
         # plot transitions as vlines
-        plt.vlines(
+        ax.vlines(
             [val[1] for val in transitions],
             0.0,
             [val[2] for val in transitions],
@@ -1415,11 +1254,11 @@ class GaussianOutput:
             linewidth=2,
         )
 
-        plt.xlabel("$\\lambda$ (nm)")
-        plt.ylabel("Arbitrary unit")
-        plt.legend()
+        ax.set_xlabel("$\\lambda$ (nm)")
+        ax.set_ylabel("Arbitrary unit")
+        ax.legend()
 
-        return data, plt
+        return data, ax
 
     def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", sigma=0.05, step=0.01):
         """
@@ -1431,7 +1270,7 @@ class GaussianOutput:
             sigma: Full width at half maximum in eV for normal functions.
             step: bin interval in eV
         """
-        d, plt = self.get_spectre_plot(sigma, step)
+        _d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
     def to_input(

@@ -1,10 +1,11 @@
-"""
-Write Prismatic (http://prism-em.com) input files.
-"""
+"""Write Prismatic (http://prism-em.com) input files."""
 
 from __future__ import annotations
 
-from pymatgen.core.structure import Structure
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class Prismatic:
@@ -17,15 +18,16 @@ class Prismatic:
         """
         Args:
             structure: pymatgen Structure
-            comment (str): comment
+            comment (str): comment.
         """
         self.structure = structure
         self.comment = comment
 
-    def to_string(self) -> str:
+    def to_str(self) -> str:
         """
-        Returns: Prismatic XYZ file. This is similar to XYZ format
-        but has specific requirements for extra fields, headers, etc.
+        Returns:
+            str: Prismatic XYZ file. This is similar to XYZ format
+                but has specific requirements for extra fields, headers, etc.
         """
         lattice = self.structure.lattice
         lines = [self.comment, " ".join(map(str, lattice.lengths))]

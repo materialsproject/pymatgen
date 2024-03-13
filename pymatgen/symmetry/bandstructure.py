@@ -1,5 +1,4 @@
-"""
-Provides a class for interacting with KPath classes to
+"""Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
@@ -13,12 +12,8 @@ import numpy as np
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.symmetry.kpath import (
-    KPathBase,
-    KPathLatimerMunro,
-    KPathSeek,
-    KPathSetyawanCurtarolo,
-)
+from pymatgen.symmetry.analyzer import cite_conventional_cell_algo
+from pymatgen.symmetry.kpath import KPathBase, KPathLatimerMunro, KPathSeek, KPathSetyawanCurtarolo
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -29,9 +24,9 @@ __status__ = "Development"
 __date__ = "March 2020"
 
 
+@cite_conventional_cell_algo
 class HighSymmKpath(KPathBase):
-    """
-    This class generates path along high symmetry lines in the
+    """This class generates path along high symmetry lines in the
     Brillouin zone according to different conventions.
     The class is designed to be used with a specific primitive
     cell setting. The definitions for the primitive cell
@@ -85,9 +80,7 @@ class HighSymmKpath(KPathBase):
 
         self._path_type = path_type
 
-        self._equiv_labels = None
-        self._path_lengths = None
-        self._label_index = None
+        self._equiv_labels = self._path_lengths = self._label_index = None
 
         if path_type != "all":
             if path_type == "latimer_munro":
@@ -149,7 +142,7 @@ class HighSymmKpath(KPathBase):
     def path_type(self):
         """
         Returns:
-        The type of kpath chosen
+            The type of kpath chosen.
         """
         return self._path_type
 
@@ -157,7 +150,7 @@ class HighSymmKpath(KPathBase):
     def label_index(self):
         """
         Returns:
-        The correspondence between numbers and kpoint symbols for the
+            The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
@@ -166,9 +159,9 @@ class HighSymmKpath(KPathBase):
     def equiv_labels(self):
         """
         Returns:
-        The correspondence between the kpoint symbols in the Latimer and
-        Munro convention, Setyawan and Curtarolo, and Hinuma
-        conventions respectively. Only generated when path_type = 'all'.
+            The correspondence between the kpoint symbols in the Latimer and
+            Munro convention, Setyawan and Curtarolo, and Hinuma
+            conventions respectively. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
 
@@ -176,23 +169,23 @@ class HighSymmKpath(KPathBase):
     def path_lengths(self):
         """
         Returns:
-        List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
-        conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
-        None otherwise.
+            List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
+            conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
+            None otherwise.
         """
         return self._path_lengths
 
     def _get_lm_kpath(self, has_magmoms, magmom_axis, symprec, angle_tolerance, atol):
         """
         Returns:
-        Latimer and Munro k-path with labels.
+            Latimer and Munro k-path with labels.
         """
         return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
 
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
         """
         Returns:
-        Setyawan and Curtarolo k-path with labels.
+            Setyawan and Curtarolo k-path with labels.
         """
         kpath = KPathSetyawanCurtarolo(self._structure, symprec, angle_tolerance, atol)
 
@@ -206,7 +199,7 @@ class HighSymmKpath(KPathBase):
     def _get_hin_kpath(self, symprec, angle_tolerance, atol, tri):
         """
         Returns:
-        Hinuma et al. k-path with labels.
+            Hinuma et al. k-path with labels.
         """
         bs = KPathSeek(self._structure, symprec, angle_tolerance, atol, tri)
 
@@ -228,7 +221,7 @@ class HighSymmKpath(KPathBase):
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
         """
         Returns:
-        labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
+            labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
             If an exact kpoint match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
             If an equivalent label can still not be found, or the point is not in
@@ -251,11 +244,8 @@ class HighSymmKpath(KPathBase):
 
             sc_count = np.zeros(n_op)
 
-            for o_num in range(0, n_op):
-                a_tr_coord = []
-
-                for coord_a in a_path["kpoints"].values():
-                    a_tr_coord.append(np.dot(rpg[o_num], coord_a))
+            for o_num in range(n_op):
+                a_tr_coord = [np.dot(rpg[o_num], coord_a) for coord_a in a_path["kpoints"].values()]
 
                 for coord_a in a_tr_coord:
                     for value in b_path["kpoints"].values():
@@ -301,8 +291,7 @@ class HighSymmKpath(KPathBase):
 
     @staticmethod
     def get_continuous_path(bandstructure):
-        """
-        Obtain a continuous version of an inputted path using graph theory.
+        """Obtain a continuous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
         odd-degree to ensure a Eulerian path can be formed. Initial
         k-path must be able to be converted to a connected graph. See
@@ -310,17 +299,13 @@ class HighSymmKpath(KPathBase):
         for more details.
 
         Args:
-        bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
+            bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
 
         Returns:
-        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
+            bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
         """
         G = nx.Graph()
-
-        labels = []
-        for point in bandstructure.kpoints:
-            if point.label is not None:
-                labels.append(point.label)
+        labels = [point.label for point in bandstructure.kpoints if point.label is not None]
 
         plot_axis = []
         for i in range(int(len(labels) / 2)):
@@ -367,8 +352,7 @@ class HighSymmKpath(KPathBase):
                         "end_index": next_branch["end_index"],
                         "name": f"{branch['name'].split('-')[0]}-{next_branch['name'].split('-')[1]}",
                     }
-                    processed.append(branch["name"])
-                    processed.append(next_branch["name"])
+                    processed.extend((branch["name"], next_branch["name"]))
 
                     new_branches.append(combined)
 
@@ -403,7 +387,7 @@ class HighSymmKpath(KPathBase):
 
         new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
 
-        new_bandstructure = BandStructureSymmLine(
+        return BandStructureSymmLine(
             kpoints=new_kpoints,
             eigenvals=new_bands,
             lattice=bandstructure.lattice_rec,
@@ -412,5 +396,3 @@ class HighSymmKpath(KPathBase):
             structure=bandstructure.structure,
             projections=new_projections,
         )
-
-        return new_bandstructure

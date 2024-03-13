@@ -1,12 +1,11 @@
-"""
-This module implements an XRD pattern calculator.
-"""
+"""This module implements an XRD pattern calculator."""
 
 from __future__ import annotations
 
 import json
 import os
 from math import asin, cos, degrees, pi, radians, sin
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -15,8 +14,10 @@ from pymatgen.analysis.diffraction.core import (
     DiffractionPattern,
     get_unique_families,
 )
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -46,8 +47,8 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as file:
+    ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
@@ -66,43 +67,31 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     is as follows
 
     1. Calculate reciprocal lattice of structure. Find all reciprocal points
-       within the limiting sphere given by :math:` \frac{2}{ \lambda}`.
+       within the limiting sphere given by \frac{2}{\lambda}.
 
-    2. For each reciprocal point :math:` \mathbf{g_{hkl}}` corresponding to
-       lattice plane :math:`(hkl)`, compute the Bragg condition
-       :math:` \sin( \theta) =  \frac{ \lambda}{2d_{hkl}}`
+    2. For each reciprocal point \mathbf{g_{hkl}} corresponding to
+       lattice plane (hkl), compute the Bragg condition
+       \sin(\theta) = \frac{ \lambda}{2d_{hkl}}
 
     3. Compute the structure factor as the sum of the atomic scattering
        factors. The atomic scattering factors are given by
 
-       .. math::
+           f(s) = Z - 41.78214 \times s^2 \times \sum \limits_{i=1}^n a_i \exp(-b_is^2)
 
-           f(s) = Z - 41.78214 \times s^2 \times \sum \limits_{i=1}^n a_i \
-            \exp(-b_is^2)
-
-       where :math:`s = \ frac{\ sin(\ theta)}{\ lambda}` and :math:`a_i`
-       and :math:`b_i` are the fitted parameters for each element. The
+       where s = \ frac{\ sin(\ theta)}{\ lambda} and a_i
+       and b_i are the fitted parameters for each element. The
        structure factor is then given by
 
-       .. math::
+           F_{hkl} = \sum \limits_{j=1}^N f_j  \exp(2 \pi i  \mathbf{g_{hkl}} \cdot  \mathbf{r})
 
-           F_{hkl} =  \sum \limits_{j=1}^N f_j  \exp(2 \pi i  \mathbf{g_{hkl}}
-            \cdot  \mathbf{r})
-
-    4. The intensity is then given by the modulus square of the structure
-       factor.
-
-       .. math::
+    4. The intensity is then given by the modulus square of the structure factor.
 
            I_{hkl} = F_{hkl}F_{hkl}^*
 
     5. Finally, the Lorentz polarization correction factor is applied. This
        factor is given by:
 
-       .. math::
-
-           P( \theta) = \frac{1 +  \cos^2(2 \theta)}
-           { \sin^2( \theta) \cos( \theta)}
+           P(\theta) = \frac{1 + \cos^2(2 \theta)}{\sin^2(\theta) \cos(\theta)}
     """
 
     # Tuple of available radiation keywords.
@@ -132,7 +121,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         else:
-            raise TypeError("'wavelength' must be either of: float, int or str")
+            raise TypeError(f"{type(wavelength)=} must be either float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
@@ -175,13 +164,13 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of zs, coeffs, fcoords and occus. This is used to perform
+        # Create a flattened array of zs, coeffs, frac_coords and occus. This is used to perform
         # vectorized computation of atomic scattering factors later. Note that these are not
         # necessarily the same size as the structure as each partially occupied specie occupies its
         # own position in the flattened array.
         _zs = []
         _coeffs = []
-        _fcoords = []
+        _frac_coords = []
         _occus = []
         _dwfactors = []
 
@@ -196,12 +185,12 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                     )
                 _coeffs.append(c)
                 _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                _fcoords.append(site.frac_coords)
+                _frac_coords.append(site.frac_coords)
                 _occus.append(occu)
 
         zs = np.array(_zs)
         coeffs = np.array(_coeffs)
-        fcoords = np.array(_fcoords)
+        frac_coords = np.array(_frac_coords)
         occus = np.array(_occus)
         dwfactors = np.array(_dwfactors)
         peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
@@ -223,7 +212,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
-                g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
+                g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
 
                 # Highly vectorized computation of atomic scattering factors.
                 # Equivalent non-vectorized code is::
@@ -234,7 +223,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
                 fs = zs - 41.78214 * s2 * np.sum(
-                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1  # type: ignore
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2),
+                    axis=1,  # type: ignore
                 )
 
                 dw_correction = np.exp(-dwfactors * s2)

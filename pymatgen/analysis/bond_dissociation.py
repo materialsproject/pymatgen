@@ -1,6 +1,4 @@
-"""
-Module for BondDissociationEnergies.
-"""
+"""Module for BondDissociationEnergies."""
 
 from __future__ import annotations
 
@@ -69,10 +67,10 @@ class BondDissociationEnergies(MSONable):
             required_keys.append("pcm_dielectric")
         for key in required_keys:
             if key not in self.molecule_entry:
-                raise RuntimeError(key + " must be present in molecule entry! Exiting...")
+                raise RuntimeError(f"{key=} must be present in molecule entry! Exiting...")
             for entry in self.filtered_entries:
                 if key not in entry:
-                    raise RuntimeError(key + " must be present in all fragment entries! Exiting...")
+                    raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
         final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
@@ -113,11 +111,10 @@ class BondDissociationEnergies(MSONable):
                 self.fragment_and_process(bond_pair)
 
     def fragment_and_process(self, bonds):
-        """
-        Fragment and process bonds.
+        """Fragment and process bonds.
 
-        :param bonds: Bonds to process.
-        :return:
+        Args:
+            bonds (list): bonds to process.
         """
         # Try to split the principle:
         try:
@@ -152,20 +149,13 @@ class BondDissociationEnergies(MSONable):
                     # If we still have no good entries, something must have gone wrong with the calculations:
                     if len(good_entries) == 0:
                         bb = BabelMolAdaptor.from_molecule_graph(RO_frag)
-                        pbmol = bb.pybel_mol
-                        smiles = pbmol.write("smi").split()[0]
+                        pb_mol = bb.pybel_mol
+                        smiles = pb_mol.write("smi").split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
                         print(
-                            "Missing ring opening fragment resulting from the breakage of "
-                            + specie[bonds[0][0]]
-                            + " "
-                            + specie[bonds[0][1]]
-                            + " bond "
-                            + str(bonds[0][0])
-                            + " "
-                            + str(bonds[0][1])
-                            + " which would yield a molecule with this SMILES string: "
-                            + smiles
+                            f"Missing ring opening fragment resulting from the breakage of {specie[bonds[0][0]]} "
+                            f"{specie[bonds[0][1]]} bond {bonds[0][0]} {bonds[0][1]} which would yield a "
+                            f"molecule with this SMILES string: {smiles}"
                         )
                     elif len(good_entries) == 1:
                         # If we have only one good entry, format it and add it to the list that will eventually return:
@@ -194,7 +184,7 @@ class BondDissociationEnergies(MSONable):
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
                 self.done_frag_pairs += [frags]
-                num_entries_for_this_frag_pair = 0
+                n_entries_for_this_frag_pair = 0
                 frag1_entries = self.search_fragment_entries(frags[0])
                 frag2_entries = self.search_fragment_entries(frags[1])
                 frag1_charges_found = []
@@ -209,18 +199,18 @@ class BondDissociationEnergies(MSONable):
                 # If we're missing some of either, tell the user:
                 if len(frag1_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[0].molecule)
-                    pbmol = bb.pybel_mol
-                    smiles = pbmol.write("smi").split()[0]
+                    pb_mol = bb.pybel_mol
+                    smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
-                            print("Missing charge " + str(charge) + " for fragment " + smiles)
+                            print(f"Missing {charge=} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[1].molecule)
-                    pbmol = bb.pybel_mol
-                    smiles = pbmol.write("smi").split()[0]
+                    pb_mol = bb.pybel_mol
+                    smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
-                            print("Missing charge " + str(charge) + " for fragment " + smiles)
+                            print(f"Missing {charge=} for fragment {smiles}")
                 # Now we attempt to pair fragments with the right total charge, starting with only fragments with no
                 # structural change:
                 for frag1 in frag1_entries[0]:  # 0 -> no structural change
@@ -230,10 +220,10 @@ class BondDissociationEnergies(MSONable):
                             == self.molecule_entry["final_molecule"]["charge"]
                         ):
                             self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                            num_entries_for_this_frag_pair += 1
+                            n_entries_for_this_frag_pair += 1
                 # If we haven't found the number of fragment pairs that we expect, we expand our search to include
                 # fragments that do exhibit structural change:
-                if num_entries_for_this_frag_pair < len(self.expected_charges):
+                if n_entries_for_this_frag_pair < len(self.expected_charges):
                     for frag1 in frag1_entries[0]:  # 0 -> no structural change
                         for frag2 in frag2_entries[1]:  # 1 -> YES structural change
                             if (
@@ -241,7 +231,7 @@ class BondDissociationEnergies(MSONable):
                                 == self.molecule_entry["final_molecule"]["charge"]
                             ):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                                num_entries_for_this_frag_pair += 1
+                                n_entries_for_this_frag_pair += 1
                     for frag1 in frag1_entries[1]:  # 1 -> YES structural change
                         for frag2 in frag2_entries[0]:  # 0 -> no structural change
                             if (
@@ -249,14 +239,14 @@ class BondDissociationEnergies(MSONable):
                                 == self.molecule_entry["final_molecule"]["charge"]
                             ):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                                num_entries_for_this_frag_pair += 1
+                                n_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag):
         """
         Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final molgraphs are isomorphic to the
         given fragment (entries) vs those where only the initial molgraph is isomorphic to the given
-        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries)
+        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries).
 
         Args:
             frag: Fragment
@@ -278,27 +268,21 @@ class BondDissociationEnergies(MSONable):
         Filter the fragment entries.
 
         :param fragment_entries:
-        :return:
         """
         self.filtered_entries = []
         for entry in fragment_entries:
             # Check and make sure that PCM dielectric is consistent with principle:
             if "pcm_dielectric" in self.molecule_entry:
+                err_msg = (
+                    f"Principle molecule has a PCM dielectric of {self.molecule_entry['pcm_dielectric']}"
+                    " but a fragment entry has [[placeholder]] PCM dielectric! Please only pass fragment entries"
+                    " with PCM details consistent with the principle entry. Exiting..."
+                )
                 if "pcm_dielectric" not in entry:
-                    raise RuntimeError(
-                        "Principle molecule has a PCM dielectric of "
-                        + str(self.molecule_entry["pcm_dielectric"])
-                        + " but a fragment entry has no PCM dielectric! Please only pass fragment entries"
-                        " with PCM details consistent with the principle entry. Exiting..."
-                    )
+                    raise RuntimeError(err_msg.replace("[[placeholder]]", "no"))
                 if entry["pcm_dielectric"] != self.molecule_entry["pcm_dielectric"]:
-                    raise RuntimeError(
-                        "Principle molecule has a PCM dielectric of "
-                        + str(self.molecule_entry["pcm_dielectric"])
-                        + " but a fragment entry has a different PCM dielectric! Please only pass"
-                        " fragment entries with PCM details consistent with the principle entry."
-                        " Exiting..."
-                    )
+                    raise RuntimeError(err_msg.replace("[[placeholder]]", "a different"))
+
             # Build initial and final molgraphs:
             entry["initial_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["initial_molecule"]), OpenBabelNN()
@@ -345,7 +329,6 @@ class BondDissociationEnergies(MSONable):
 
         :param frags:
         :param bonds:
-        :return:
         """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:

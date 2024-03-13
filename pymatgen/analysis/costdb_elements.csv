@@ -1,21 +1,21 @@
 Ag,780.88,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 Pd,23036.01,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
-C,24,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-Cl,1.5,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-F,1900,pure F,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-Ir,42000,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-K,1000,pure K,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-Na,250,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-O,3,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-P,300,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-Pa,280000,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-Sc,14000,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
-Xe,1200,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+C,24,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Cl,1.5,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+F,1900,pure F,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Ir,42000,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+K,1000,pure K,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Na,250,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+O,3,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+P,300,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Pa,280000,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Sc,14000,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Xe,1200,,|@misc{wikipedia, title = "Wikipedia", month = "September", year = "2013", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
 Al,2.46035592,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 As,0.641103496,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 Au,45386.51194,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 B,0.871045362,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
-Ba,0.2605,,|@misc{wikipedia, title = "Wikipedia", month = "August", year = "2019", url = "http://en.wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
+Ba,0.2605,,|@misc{wikipedia, title = "Wikipedia", month = "August", year = "2019", url = "http://wikipedia.org/wiki/Prices_of_elements_and_their_compounds"}|
 Be,447.978784,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 Bi,25.3090376,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 Br,1.39001291,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
@@ -77,7 +77,7 @@ Yb,1599.892734,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "Septembe
 Zn,2.33910182,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 Zr,2.64995324,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "September", year = "2013", url = "http://www.wolframalpha.org"}|
 He,15.9,,|@misc{wolfram_alpha, title = "Wolfram Alpha", month = "June", year = "2020", url = "http://www.wolframalpha.org"}|
-H,1.4,,|@misc{wikipedia, title = "Wikipedia", month = "June", year = "2020", url = "https://en.wikipedia.org/wiki/Hydrogen_economy#Costs"}|
+H,1.4,,|@misc{wikipedia, title = "Wikipedia", month = "June", year = "2020", url = "https://wikipedia.org/wiki/Hydrogen_economy#Costs"}|
 Ar,19.56,,|@misc{internet_search, title = "Aqua-Calc", month = "June", year = "2020", url = "https://www.aqua-calc.com/calculate/materials-price/substance/argon"}|
 Ne,660000,,|@misc{internet_search, title = "Pomona College", month = "June", year = "2020", url = "http://www.chemistry.pomona.edu/chemistry/periodic_table/elements/neptunium/the%20facts.htm"}|
 Kr,330,,|@misc{internet_search, title = "Chemicool", month = "June", year = "2020", url = "https://www.chemicool.com/elements/krypton.html"}|

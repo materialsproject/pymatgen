@@ -1,8 +1,8 @@
 """
-This module implements methods for reading/manupilating/writing LAMMPS input files.
+This module implements methods for reading/manipulating/writing LAMMPS input files.
 It does not implement methods for automatically creating inputs based on a structure
 and computation type. For this, see the InputSet and InputGenerator in sets.py, or
-https://github.com/Matgenix/atomate2-lammps
+https://github.com/Matgenix/atomate2-lammps.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ import shutil
 import warnings
 from pathlib import Path
 from string import Template
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -24,12 +25,20 @@ from pymatgen.io.core import InputFile
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
+if TYPE_CHECKING:
+    from os import PathLike
+
+    from pymatgen.io.core import InputSet
+
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __version__ = "2.0"
 __maintainer__ = "Zhi Deng, Guillaume Brunin (Matgenix)"
 __email__ = "z4deng@eng.ucsd.edu, info@matgenix.com"
 __date__ = "Nov 2022"
+
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
 
 
 class LammpsInputFile(InputFile):
@@ -57,7 +66,7 @@ class LammpsInputFile(InputFile):
     "Stage 1" and "Stage 2" are examples of stage names.
     """
 
-    def __init__(self, stages: list | None = None):
+    def __init__(self, stages: list | None = None) -> None:
         """
         Args:
             stages: list of LAMMPS input settings.
@@ -88,16 +97,16 @@ class LammpsInputFile(InputFile):
         Returns the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
-        ncomments = 0
+        n_comments = 0
         for stage in self.stages:
             # Block of comment = 1 comment
             if all(cmd.strip().startswith("#") for (cmd, args) in stage["commands"]):
-                ncomments += 1
+                n_comments += 1
             else:
                 # Else, inline comment each count as one
-                ncomments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
+                n_comments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
 
-        return ncomments
+        return n_comments
 
     def get_args(self, command: str, stage_name: str | None = None) -> list | str:
         """
@@ -135,11 +144,13 @@ class LammpsInputFile(InputFile):
             stage_name (str): String giving the stage name where the change should take place.
 
         Returns:
-            True if the command is present, False if not.
+            bool: True if the command is present, False if not.
         """
         return bool(self.get_args(command, stage_name))
 
-    def set_args(self, command: str, argument: str, stage_name: str | None = None, how: str | int | list[int] = "all"):
+    def set_args(
+        self, command: str, argument: str, stage_name: str | None = None, how: str | int | list[int] = "all"
+    ) -> None:
         """
         Sets the arguments for the given command to the given string.
         If the command is not found, nothing is done. Use LammpsInputFile.add_commands instead.
@@ -172,22 +183,22 @@ class LammpsInputFile(InputFile):
             raise ValueError("""The argument 'how' should be a 'first', 'all', an integer or a list of integers.""")
 
         # Look for occurrences in the relevant stages
-        i = 0
+        idx = 0
         for i_stage, stage in enumerate(self.stages):
             if stage["stage_name"] in stages_to_look:
                 for i_cmd, (cmd, _) in enumerate(stage["commands"]):
                     if command == cmd:
-                        if i in how:
+                        if idx in how:
                             self.stages[i_stage]["commands"][i_cmd] = (cmd, argument)
-                        i += 1
+                        idx += 1
 
     def add_stage(
         self,
-        stage: dict = None,
+        stage: dict | None = None,
         commands: str | list[str] | dict[str, str | float] | None = None,
         stage_name: str | None = None,
         after_stage: str | int | None = None,
-    ):
+    ) -> None:
         r"""
         Adds a new stage to the LammpsInputFile, either from a whole stage (dict) or
         from a stage_name and commands. Both ways are mutually exclusive.
@@ -280,7 +291,7 @@ class LammpsInputFile(InputFile):
                 # Adds the commands to the created stage
                 self.add_commands(stage_name=self.stages_names[index_insert], commands=commands)
 
-    def remove_stage(self, stage_name: str):
+    def remove_stage(self, stage_name: str) -> None:
         """
         Removes a whole stage from the LammpsInputFile.
 
@@ -293,7 +304,7 @@ class LammpsInputFile(InputFile):
         else:
             raise LookupError("The given stage name is not present in this LammpsInputFile.")
 
-    def rename_stage(self, stage_name: str, new_name: str):
+    def rename_stage(self, stage_name: str, new_name: str) -> None:
         """
         Renames a stage `stage_name` from LammpsInputFile into `new_name`.
         First checks that the stage to rename is present, and that
@@ -311,14 +322,14 @@ class LammpsInputFile(InputFile):
         else:
             raise LookupError("The given stage name is not present in this LammpsInputFile.")
 
-    def merge_stages(self, stage_names: list[str]):
+    def merge_stages(self, stage_names: list[str]) -> None:
         """
         Merges multiple stages of a LammpsInputFile together.
         The merged stage will be at the same index as the first of the stages to be merged.
         The others will appear in the same order as provided in the list. Other non-merged stages will follow.
 
         Args:
-             stage_names (list): list of strings giving the names of the stages to be merged.
+            stage_names (list): list of strings giving the names of the stages to be merged.
         """
         if not all(stage in self.stages_names for stage in stage_names):
             raise ValueError("At least one of the stages to be merged is not in the LammpsInputFile.")
@@ -347,7 +358,7 @@ class LammpsInputFile(InputFile):
 
         self.stages = stages
 
-    def add_commands(self, stage_name: str, commands: str | list[str] | dict):
+    def add_commands(self, stage_name: str, commands: str | list[str] | dict) -> None:
         """
         Method to add a LAMMPS commands and their arguments to a stage of
         the LammpsInputFile. The stage name should be provided: a default behavior
@@ -402,7 +413,9 @@ class LammpsInputFile(InputFile):
         else:
             raise TypeError("The command should be a string, list of strings or dictionary.")
 
-    def remove_command(self, command: str, stage_name: str | list[str] | None = None, remove_empty_stages: bool = True):
+    def remove_command(
+        self, command: str, stage_name: str | list[str] | None = None, remove_empty_stages: bool = True
+    ) -> None:
         """
         Removes a given command from a given stage. If no stage is given, removes all occurrences of the command.
         In case removing a command completely empties a stage, the choice whether to keep this stage in the
@@ -442,7 +455,7 @@ class LammpsInputFile(InputFile):
         if n_removed == 0:
             warnings.warn(f"{command} not found in the LammpsInputFile.")
 
-    def append(self, lmp_input_file: LammpsInputFile):
+    def append(self, lmp_input_file: LammpsInputFile) -> None:
         """
         Appends a LammpsInputFile to another. The `stages` are merged,
         and the numbering of stages/comments is either kept the same or updated.
@@ -470,7 +483,7 @@ class LammpsInputFile(InputFile):
         # Append the two list of stages
         self.stages += new_list_to_add
 
-    def get_string(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
+    def get_str(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
         """
         Generates and ² the string representation of the LammpsInputFile.
         Stages are separated by empty lines.
@@ -480,10 +493,11 @@ class LammpsInputFile(InputFile):
         Args:
             ignore_comments (bool): True if only the commands should be kept from the InputFile.
             keep_stages (bool): If True, the string is formatted in a block structure with stage names
-                                and newlines that differentiate commands in the respective stages of the InputFile.
-                                If False, stage names are not printed and all commands appear in a single block.
+                and newlines that differentiate commands in the respective stages of the InputFile.
+                If False, stage names are not printed and all commands appear in a single block.
 
-        Returns: String representation of the LammpsInputFile.
+        Returns:
+            str: String representation of the LammpsInputFile.
         """
         lammps_input = f"# LAMMPS input generated from LammpsInputFile with pymatgen v{CURRENT_VER}\n"
         if not keep_stages:
@@ -507,7 +521,7 @@ class LammpsInputFile(InputFile):
 
         return lammps_input
 
-    def write_file(self, filename: str | Path, ignore_comments: bool = False, keep_stages: bool = True) -> None:
+    def write_file(self, filename: str | PathLike, ignore_comments: bool = False, keep_stages: bool = True) -> None:
         """
         Writes the input file.
 
@@ -515,14 +529,14 @@ class LammpsInputFile(InputFile):
             filename (str or path): The filename to output to, including path.
             ignore_comments (bool): True if only the commands should be kept from the InputFile.
             keep_stages (bool): True if the block structure from the InputFile should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, "wt") as f:
-            f.write(self.get_string(ignore_comments=ignore_comments, keep_stages=keep_stages))
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_string(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -536,7 +550,7 @@ class LammpsInputFile(InputFile):
             contents (str): String representation of LammpsInputFile.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
@@ -610,19 +624,19 @@ class LammpsInputFile(InputFile):
             path (str or path): Filename to read, including path.
             ignore_comments (bool): True if only the commands should be kept from the input file.
             keep_stages (bool): True if the block structure from the input file should be kept.
-                                If False, a single block is assumed.
+                If False, a single block is assumed.
 
         Returns:
             LammpsInputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, "rt") as f:
-            return cls.from_string(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
-    def __repr__(self):
-        return self.get_string()
+    def __repr__(self) -> str:
+        return self.get_str()
 
-    def _initialize_stage(self, stage_name: str | None = None, stage_index: int | None = None):
+    def _initialize_stage(self, stage_name: str | None = None, stage_index: int | None = None) -> None:
         """
         Initialize an empty stage with the given name in the LammpsInputFile.
 
@@ -659,8 +673,8 @@ class LammpsInputFile(InputFile):
             self.stages.insert(stage_index, {"stage_name": stage_name, "commands": []})
 
     @staticmethod
-    def _check_stage_format(stage: dict):
-        if list(stage.keys()) != ["stage_name", "commands"]:
+    def _check_stage_format(stage: dict) -> None:
+        if list(stage) != ["stage_name", "commands"]:
             raise KeyError(
                 "The provided stage does not have the correct keys. It should be 'stage_name' and 'commands'."
             )
@@ -674,7 +688,7 @@ class LammpsInputFile(InputFile):
         ):
             raise ValueError("The provided commands should be a list of 2-strings tuples.")
 
-    def _add_command(self, stage_name: str, command: str, args: str | float | None = None):
+    def _add_command(self, stage_name: str, command: str, args: str | float | None = None) -> None:
         """
         Helper method to add a single LAMMPS command and its arguments to
         the LammpsInputFile. The stage name should be provided: a default behavior
@@ -718,10 +732,10 @@ class LammpsInputFile(InputFile):
 
     def _add_comment(
         self, comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False
-    ):
+    ) -> None:
         """
-         Method to add a comment inside a stage (between actual commands)
-         or as a whole stage (which will do nothing when LAMMPS runs).
+        Method to add a comment inside a stage (between actual commands)
+        or as a whole stage (which will do nothing when LAMMPS runs).
 
         Args:
             comment (str): Comment string to be added. The comment will be
@@ -801,11 +815,8 @@ class LammpsInputFile(InputFile):
         lines = [string_list[0]]
 
         for idx, string in enumerate(string_list[1:-1]):
-            if (
-                string != ""
-                and not (string[0] == "#" and ignore_comments)
-                or string == ""
-                and string_list[idx + 2] != ""
+            if (string != "" and not (string[0] == "#" and ignore_comments)) or (
+                string == "" and string_list[idx + 2] != ""
             ):
                 lines.append(string)
 
@@ -848,9 +859,7 @@ class LammpsRun(MSONable):
     templates.
     """
 
-    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
-
-    def __init__(self, script_template, settings, data, script_filename):
+    def __init__(self, script_template: str, settings: dict, data: LammpsData | str, script_filename: str) -> None:
         """
         Base constructor.
 
@@ -871,7 +880,7 @@ class LammpsRun(MSONable):
         self.data = data
         self.script_filename = script_filename
 
-    def write_inputs(self, output_dir, **kwargs):
+    def write_inputs(self, output_dir: str, **kwargs) -> None:
         """
         Writes all input files (input script, and data if needed).
         Other supporting files are not handled at this moment.
@@ -890,7 +899,14 @@ class LammpsRun(MSONable):
         )
 
     @classmethod
-    def md(cls, data, force_field, temperature, nsteps, other_settings=None):
+    def md(
+        cls,
+        data: LammpsData | str,
+        force_field: str,
+        temperature: float,
+        nsteps: int,
+        other_settings: dict | None = None,
+    ) -> LammpsRun:
         r"""
         Example for a simple MD run based on template md.template.
 
@@ -904,9 +920,9 @@ class LammpsRun(MSONable):
             other_settings (dict): other settings to be filled into
                 placeholders.
         """
-        template_path = os.path.join(cls.template_dir, "md.template")
-        with open(template_path) as f:
-            script_template = f.read()
+        template_path = os.path.join(template_dir, "md.template")
+        with open(template_path) as file:
+            script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
         settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
         script_filename = "in.md"
@@ -939,7 +955,7 @@ class LammpsTemplateGen(TemplateInputGen):
         script_filename: str = "in.lammps",
         data: LammpsData | CombinedData | None = None,
         data_filename: str = "system.data",
-    ):
+    ) -> InputSet:
         """
         Args:
             script_template: String template for input script with
@@ -963,14 +979,14 @@ class LammpsTemplateGen(TemplateInputGen):
 
 @deprecated(LammpsTemplateGen, "This method will be retired in the future. Consider using LammpsTemplateSet instead.")
 def write_lammps_inputs(
-    output_dir,
-    script_template,
-    settings=None,
-    data=None,
-    script_filename="in.lammps",
-    make_dir_if_not_present=True,
+    output_dir: str,
+    script_template: str,
+    settings: dict | None = None,
+    data: LammpsData | str | None = None,
+    script_filename: str = "in.lammps",
+    make_dir_if_not_present: bool = True,
     **kwargs,
-):
+) -> None:
     """
     Writes input files for a LAMMPS run. Input script is constructed
     from a str template with placeholders to be filled by custom
@@ -1019,8 +1035,8 @@ def write_lammps_inputs(
         ...
         ... run             $nsteps'''
         >>> write_lammps_inputs('.', eam_template, settings={'temperature': 1600.0, 'nsteps': 100})
-        >>> with open('in.lammps') as f:
-        ...     script = f.read()
+        >>> with open('in.lammps') as file:
+        ...     script = file.read()
         ...
         >>> print(script)
         units           metal
@@ -1044,16 +1060,14 @@ def write_lammps_inputs(
         timestep        0.005
 
         run             100
-
-
     """
     variables = {} if settings is None else settings
     template = Template(script_template)
     input_script = template.safe_substitute(**variables)
-    if make_dir_if_not_present and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    with open(os.path.join(output_dir, script_filename), "w") as f:
-        f.write(input_script)
+    if make_dir_if_not_present:
+        os.makedirs(output_dir, exist_ok=True)
+    with open(os.path.join(output_dir, script_filename), mode="w") as file:
+        file.write(input_script)
     read_data = re.search(r"read_data\s+(.*)\n", input_script)
     if read_data:
         data_filename = read_data.group(1).split()[0]

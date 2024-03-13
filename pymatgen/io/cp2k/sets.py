@@ -66,7 +66,7 @@ from pymatgen.io.cp2k.inputs import (
 )
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
-from pymatgen.io.vasp.inputs import Kpoints_supported_modes
+from pymatgen.io.vasp.inputs import KpointsSupportedModes
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -100,7 +100,7 @@ class DftSet(Cp2kInput):
         linesearch: str = "2PNT",
         rotation: bool = True,
         occupation_preconditioner: bool = False,
-        cutoff: int | float | None = None,
+        cutoff: float | None = None,
         rel_cutoff: int = 50,
         ngrids: int = 5,
         progression_factor: int = 3,
@@ -214,10 +214,10 @@ class DftSet(Cp2kInput):
             # 0,0,0 will disable certain features. So, you have to drop it all together to
             # get full support
             if (
-                self.kpoints.style in [Kpoints_supported_modes.Gamma, Kpoints_supported_modes.Monkhorst]
+                self.kpoints.style in [KpointsSupportedModes.Gamma, KpointsSupportedModes.Monkhorst]
                 and np.array_equal(self.kpoints.kpts[0], (1, 1, 1))
             ) or (
-                self.kpoints.style in [Kpoints_supported_modes.Reciprocal, Kpoints_supported_modes.Cartesian]
+                self.kpoints.style in [KpointsSupportedModes.Reciprocal, KpointsSupportedModes.Cartesian]
                 and np.array_equal(self.kpoints.kpts[0], (0, 0, 0))
             ):
                 self.kpoints = None
@@ -226,11 +226,11 @@ class DftSet(Cp2kInput):
                 ot = False
 
         # Build the global section
-        g = Global(
+        global_sec = Global(
             project_name=self.kwargs.get("project_name", "CP2K"),
             run_type=self.kwargs.get("run_type", "ENERGY_FORCE"),
         )
-        self.insert(g)
+        self.insert(global_sec)
 
         # Build the QS Section
         qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
@@ -405,9 +405,9 @@ class DftSet(Cp2kInput):
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as file:
                     yaml = YAML(typ="unsafe", pure=True)
-                    DATA = yaml.load(f)
+                    DATA = yaml.load(file)
                     if not DATA.get("basis_sets"):
                         raise ValueError(f"No standard basis sets available in data directory for {el}")
                     if not DATA.get("potentials"):
@@ -459,13 +459,13 @@ class DftSet(Cp2kInput):
                     desired_basis = GaussianTypeOrbitalBasisSet(
                         element=Element(el),
                         potential=potential_type,
-                        info=BasisInfo.from_string(f"{basis_type}-{functional}"),
+                        info=BasisInfo.from_str(f"{basis_type}-{functional}"),
                     )
                     desired_potential = GthPotential(
                         element=Element(el), potential=potential_type, info=PotentialInfo(xc=functional)
                     )
                 if aux_basis_type and have_element_file:
-                    desired_aux_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_string(aux_basis_type))
+                    desired_aux_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_str(aux_basis_type))
 
             # If basis/potential are not explicit, match the desired ones to available ones in the element file
             if desired_basis:
@@ -507,11 +507,10 @@ class DftSet(Cp2kInput):
                     break
 
             if basis is None:
-                if basis_and_potential.get(el, {}).get("basis"):
-                    warnings.warn(f"Unable to validate basis for {el}. Exact name provided will be put in input file.")
-                    basis = basis_and_potential[el].get("basis")
-                else:
-                    raise ValueError("No explicit basis found and matching has failed.")
+                if not basis_and_potential.get(el, {}).get("basis"):
+                    raise ValueError(f"No explicit basis found for {el} and matching has failed.")
+                warnings.warn(f"Unable to validate basis for {el}. Exact name provided will be put in input file.")
+                basis = basis_and_potential[el].get("basis")
 
             if aux_basis is None and basis_and_potential.get(el, {}).get("aux_basis"):
                 warnings.warn(
@@ -528,7 +527,7 @@ class DftSet(Cp2kInput):
                 else:
                     raise ValueError("No explicit potential found and matching has failed.")
 
-            if basis.filename:
+            if hasattr(basis, "filename"):
                 data["basis_filenames"].append(basis.filename)
             pfn1 = data.get("potential_filename")
             pfn2 = potential.filename
@@ -539,16 +538,12 @@ class DftSet(Cp2kInput):
                 )
             data["potential_filename"] = pfn2
 
-            data[el] = {
-                "basis": basis,
-                "aux_basis": aux_basis,
-                "potential": potential,
-            }
+            data[el] = {"basis": basis, "aux_basis": aux_basis, "potential": potential}
         return data
 
     @staticmethod
-    def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
-        """Given a basis and a relative cutoff. Determine the ideal cutoff variable"""
+    def get_cutoff_from_basis(basis_sets, rel_cutoff) -> float:
+        """Given a basis and a relative cutoff. Determine the ideal cutoff variable."""
         for basis in basis_sets:
             if not basis.exponents:
                 raise ValueError(f"Basis set {basis} contains missing exponent info. Please specify cutoff manually")
@@ -564,8 +559,7 @@ class DftSet(Cp2kInput):
 
         exponents = [get_soft_exponents(b) for b in basis_sets if b.exponents]
         exponents = list(itertools.chain.from_iterable(exponents))
-        cutoff = np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
-        return cutoff
+        return np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
 
     @staticmethod
     def get_xc_functionals(xc_functionals: list | str | None = None) -> list:
@@ -600,17 +594,15 @@ class DftSet(Cp2kInput):
         return cp2k_names
 
     def write_basis_set_file(self, basis_sets, fn="BASIS") -> None:
-        """Write the basis sets to a file"""
+        """Write the basis sets to a file."""
         BasisFile(objects=basis_sets).write_file(fn)
 
     def write_potential_file(self, potentials, fn="POTENTIAL") -> None:
-        """Write the potentials to a file"""
+        """Write the potentials to a file."""
         PotentialFile(objects=potentials).write_file(fn)
 
     def print_forces(self) -> None:
-        """
-        Print out the forces and stress during calculation
-        """
+        """Print out the forces and stress during calculation."""
         self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
@@ -639,7 +631,7 @@ class DftSet(Cp2kInput):
 
     def print_ldos(self, nlumo: int = -1) -> None:
         """
-        Activate the printing of LDOS files, printing one for each atom kind by default
+        Activate the printing of LDOS files, printing one for each atom kind by default.
 
         Args:
             nlumo (int): Number of virtual orbitals to be added to the MO set (-1=all).
@@ -648,8 +640,8 @@ class DftSet(Cp2kInput):
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
-        for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
+        for idx in range(len(self.structure)):
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(idx + 1, alias=f"LDOS {idx + 1}", verbose=False))
 
     def print_mo_cubes(self, write_cube: bool = False, nlumo: int = -1, nhomo: int = -1) -> None:
         """
@@ -664,9 +656,7 @@ class DftSet(Cp2kInput):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
 
     def print_mo(self) -> None:
-        """
-        Print molecular orbitals when running non-OT diagonalization
-        """
+        """Print molecular orbitals when running non-OT diagonalization."""
         raise NotImplementedError
 
     def print_v_hartree(self, stride=(2, 2, 2)) -> None:
@@ -679,9 +669,7 @@ class DftSet(Cp2kInput):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
     def print_e_density(self, stride=(2, 2, 2)) -> None:
-        """
-        Controls the printing of cube files with electronic density and, for UKS, the spin density
-        """
+        """Controls the printing of cube files with electronic density and, for UKS, the spin density."""
         if not self.check("FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
@@ -704,17 +692,17 @@ class DftSet(Cp2kInput):
         self["force_eval"]["dft"]["print"].insert(bs)
 
     def print_hirshfeld(self, on=True) -> None:
-        """Activate or deactivate printing of Hirshfeld charges"""
+        """Activate or deactivate printing of Hirshfeld charges."""
         section = Section("HIRSHFELD", section_parameters=["ON" if on else "OFF"])
         self["force_eval"]["dft"]["print"].insert(section)
 
     def print_mulliken(self, on=False) -> None:
-        """Activate or deactivate printing of Mulliken charges"""
+        """Activate or deactivate printing of Mulliken charges."""
         section = Section("MULLIKEN", section_parameters=["ON" if on else "OFF"])
         self["force_eval"]["dft"]["print"].insert(section)
 
     def set_charge(self, charge: int) -> None:
-        """Set the overall charge of the simulation cell"""
+        """Set the overall charge of the simulation cell."""
         self["FORCE_EVAL"]["DFT"]["CHARGE"] = Keyword("CHARGE", int(charge))
 
     def activate_hybrid(
@@ -956,7 +944,7 @@ class DftSet(Cp2kInput):
         # Unlikely for users to override
         load_balance = Section(
             "LOAD_BALANCE",
-            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
+            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},  # noqa: FBT003
             subsections={},
         )
 
@@ -995,8 +983,8 @@ class DftSet(Cp2kInput):
         trust_radius: float = 0.25,
         line_search: str = "2PNT",
         ensemble: str = "NVE",
-        temperature: float | int = 300,
-        timestep: float | int = 0.5,
+        temperature: float = 300,
+        timestep: float = 0.5,
         nsteps: int = 3,
         thermostat: str = "NOSE",
         nproc_rep: int = 1,
@@ -1009,11 +997,8 @@ class DftSet(Cp2kInput):
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
 
-        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
-        if run_type == "GEOMETRY_OPTIMIZATION":
-            run_type = "GEO_OPT"
-        if run_type == "MOLECULAR_DYNAMICS":
-            run_type = "MD"
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
+        run_type = {"GEOMETRY_OPTIMIZATION": "GEO_OPT", "MOLECULAR_DYNAMICS": "MD"}.get(run_type, run_type)
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
@@ -1112,14 +1097,14 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["PROPERTIES"].insert(Section("TDDFPT", **kwargs))
 
     def activate_epr(self, **kwargs) -> None:
-        """Calculate g-tensor. Requires localize. Suggested with GAPW"""
+        """Calculate g-tensor. Requires localize. Suggested with GAPW."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"].update({"PRINT": {"G_TENSOR": {}}})
 
     def activate_nmr(self, **kwargs) -> None:
-        """Calculate nmr shifts. Requires localize. Suggested with GAPW"""
+        """Calculate nmr shifts. Requires localize. Suggested with GAPW."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
@@ -1196,9 +1181,7 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["DFT"]["XC"].insert(vdw)
 
     def activate_fast_minimization(self, on) -> None:
-        """
-        Method to modify the set to use fast SCF minimization.
-        """
+        """Method to modify the set to use fast SCF minimization."""
         if on:
             ot = OrbitalTransformation(
                 minimizer="DIIS",
@@ -1209,9 +1192,7 @@ class DftSet(Cp2kInput):
             self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
     def activate_robust_minimization(self) -> None:
-        """
-        Method to modify the set to use more robust SCF minimization technique
-        """
+        """Method to modify the set to use more robust SCF minimization technique."""
         ot = OrbitalTransformation(
             minimizer="CG",
             preconditioner="FULL_ALL",
@@ -1223,7 +1204,6 @@ class DftSet(Cp2kInput):
     def activate_very_strict_minimization(self) -> None:
         """
         Method to modify the set to use very strict SCF minimization scheme
-        :return:
         """
         ot = OrbitalTransformation(
             minimizer="CG",
@@ -1236,7 +1216,7 @@ class DftSet(Cp2kInput):
     def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
-        changing the poisson solver. Still requires a CELL to put the atoms
+        changing the poisson solver. Still requires a CELL to put the atoms.
         """
         kwds = {
             "POISSON_SOLVER": Keyword("POISSON_SOLVER", solver),
@@ -1245,19 +1225,14 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
 
     def create_subsys(self, structure: Structure | Molecule) -> None:
-        """
-        Create the structure for the input
-        """
+        """Create the structure for the input."""
         subsys = Subsys()
         if isinstance(structure, Structure):
             subsys.insert(Cell(structure.lattice))
         else:
-            x = max(structure.cart_coords[:, 0])
-            y = max(structure.cart_coords[:, 1])
-            z = max(structure.cart_coords[:, 2])
-            x = x if x else 1
-            y = y if y else 1
-            z = z if z else 1
+            x = max(*structure.cart_coords[:, 0], 1)
+            y = max(*structure.cart_coords[:, 1], 1)
+            z = max(*structure.cart_coords[:, 2], 1)
             cell = Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
             cell.add(Keyword("PERIODIC", "NONE"))
             subsys.insert(cell)
@@ -1332,7 +1307,7 @@ class DftSet(Cp2kInput):
                 no: do not explicitly include the last iteration
         """
         assert add_last.lower() in ["no", "numeric", "symbolic"]
-        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
         if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(
             "FORCE_EVAL/DFT/PRINT"
         ):
@@ -1351,28 +1326,28 @@ class DftSet(Cp2kInput):
                 v.keywords["ADD_LAST"] = Keyword("ADD_LAST", add_last)
 
     def validate(self):
-        """Implements a few checks for a valid input set"""
+        """Implements a few checks for a valid input set."""
         if self.check("force_eval/dft/kpoints") and self.check("force_eval/dft/xc/hf"):
             raise Cp2kValidationError("Does not support hartree fock with kpoints")
 
-        for _, v in self["force_eval"]["subsys"].subsections.items():
+        for val in self["force_eval"]["subsys"].subsections.values():
             if (
-                v.name.upper() == "KIND"
-                and v["POTENTIAL"].values[0].upper() == "ALL"
-                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"
+                val.name.upper() == "KIND"
+                and val["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
+                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"  # noqa: PD011
             ):
                 raise Cp2kValidationError("All electron basis sets require GAPW method")
 
 
 class StaticSet(DftSet):
-    """Quick Constructor for static calculations"""
+    """Quick Constructor for static calculations."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="ENERGY_FORCE", **kwargs)
 
 
 class RelaxSet(DftSet):
-    """Quick Constructor for geometry relaxation"""
+    """Quick Constructor for geometry relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="GEO_OPT", **kwargs)
@@ -1380,7 +1355,7 @@ class RelaxSet(DftSet):
 
 
 class CellOptSet(DftSet):
-    """Quick Constructor for cell optimization relaxation"""
+    """Quick Constructor for cell optimization relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="CELL_OPT", **kwargs)
@@ -1388,7 +1363,7 @@ class CellOptSet(DftSet):
 
 
 class HybridStaticSet(DftSet):
-    """Quick Constructor for static calculations"""
+    """Quick Constructor for static calculations."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="ENERGY_FORCE", **kwargs)
@@ -1396,7 +1371,7 @@ class HybridStaticSet(DftSet):
 
 
 class HybridRelaxSet(DftSet):
-    """Quick Constructor for hybrid geometry relaxation"""
+    """Quick Constructor for hybrid geometry relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="GEO_OPT", **kwargs)
@@ -1404,7 +1379,7 @@ class HybridRelaxSet(DftSet):
 
 
 class HybridCellOptSet(DftSet):
-    """Quick Constructor for hybrid cell optimization relaxation"""
+    """Quick Constructor for hybrid cell optimization relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="CELL_OPT", **kwargs)
@@ -1415,7 +1390,7 @@ class Cp2kValidationError(Exception):
     """
     Cp2k Validation Exception. Not exhausted. May raise validation
     errors for features which actually do work if using a newer version
-    of cp2k
+    of cp2k.
     """
 
     CP2K_VERSION = "v2022.1"

@@ -1,6 +1,4 @@
-"""
-Development script to test the algorithms of a given model coordination environments
-"""
+"""Development script to test the algorithms of a given model coordination environments."""
 
 from __future__ import annotations
 
@@ -11,9 +9,7 @@ from random import shuffle
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -41,7 +37,7 @@ if __name__ == "__main__":
     lgf = LocalGeometryFinder()
     lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)
 
-    my_indices = range(cg.coordination_number)
+    indices = range(cg.coordination_number)
 
     test = input(
         'Enter if you want to test all possible permutations ("all" or "a") or a given number of '
@@ -49,7 +45,7 @@ if __name__ == "__main__":
     )
 
     if test in ("all", "a"):
-        perms_iterator = itertools.permutations(my_indices)
+        perms_iterator = itertools.permutations(indices)
         n_perms = factorial(cg.coordination_number)
     else:
         try:
@@ -58,8 +54,8 @@ if __name__ == "__main__":
             raise ValueError(f"Could not turn {test} into integer ...")
         perms_iterator = []  # type: ignore[assignment]
         for _ in range(n_perms):
-            shuffle(my_indices)  # type: ignore[arg-type]
-            perms_iterator.append(list(my_indices))  # type: ignore[attr-defined]
+            shuffle(indices)  # type: ignore[arg-type]
+            perms_iterator.append(list(indices))  # type: ignore[attr-defined]
 
     idx_perm = 1
     t1 = time.perf_counter()
@@ -69,7 +65,7 @@ if __name__ == "__main__":
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
         points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
-        print(f"Perm # {idx_perm:d}/{n_perms:d} : ", indices_perm)
+        print(f"Perm # {idx_perm}/{n_perms} : ", indices_perm)
 
         algos_results = []
         for algo in cg.algorithms:
@@ -87,7 +83,7 @@ if __name__ == "__main__":
             algos_results.append(min(results[0]))
 
             if not np.isclose(min(results[0]), 0):
-                print("Following is not 0.0 ...")
+                print("Following is not 0 ...")
                 input(results)
         print("   => ", algos_results)
         idx_perm += 1

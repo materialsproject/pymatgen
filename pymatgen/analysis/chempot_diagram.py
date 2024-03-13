@@ -27,6 +27,7 @@ import os
 import warnings
 from functools import lru_cache
 from itertools import groupby
+from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.express as px
@@ -36,14 +37,22 @@ from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition, Element
-from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
+from pymatgen.util.due import Doi, due
 from pymatgen.util.string import htmlify
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as f:
-    plotly_layouts = json.load(f)
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
+
+with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
+    plotly_layouts = json.load(file)
 
 
+@due.dcite(
+    Doi("10.1021/jacs.1c06229"),
+    description="Chemical potential diagram",
+    path="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram",
+)
 class ChemicalPotentialDiagram(MSONable):
     """
     The chemical potential diagram is the mathematical dual to the compositional
@@ -104,15 +113,12 @@ class ChemicalPotentialDiagram(MSONable):
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = sorted({els for e in self.entries for els in e.composition.elements})
+        self.elements = sorted({els for ent in self.entries for els in ent.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
-        self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
+        self._entry_dict = {ent.reduced_formula: ent for ent in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
-        (
-            self._hyperplanes,
-            self._hyperplane_entries,
-        ) = self._get_hyperplanes_and_entries()
+        self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 
         if self.dim < 2:
             raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")
@@ -175,7 +181,7 @@ class ChemicalPotentialDiagram(MSONable):
         if len(elems) == 2 and self.dim == 2:
             fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
         elif len(elems) == 2 and self.dim > 2:
-            entries = [e for e in self.entries if set(e.composition.elements).issubset(elems)]
+            entries = [e for e in self.entries if set(e.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
                 entries=entries,
                 limits=self.limits,
@@ -196,7 +202,7 @@ class ChemicalPotentialDiagram(MSONable):
         return fig
 
     def _get_domains(self) -> dict[str, np.ndarray]:
-        """Returns a dictionary of domains as {formula: np.ndarray}"""
+        """Returns a dictionary of domains as {formula: np.ndarray}."""
         hyperplanes = self._hyperplanes
         border_hyperplanes = self._border_hyperplanes
         entries = self._hyperplane_entries
@@ -205,19 +211,19 @@ class ChemicalPotentialDiagram(MSONable):
         interior_point = np.min(self.lims, axis=1) + 1e-1
         hs_int = HalfspaceIntersection(hs_hyperplanes, interior_point)
 
-        domains = {entry.composition.reduced_formula: [] for entry in entries}  # type: ignore
+        domains = {entry.reduced_formula: [] for entry in entries}  # type: ignore
 
         for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
             for v in facet:
                 if v < len(entries):
                     this_entry = entries[v]
-                    formula = this_entry.composition.reduced_formula
+                    formula = this_entry.reduced_formula
                     domains[formula].append(intersection)
 
         return {k: np.array(v) for k, v in domains.items() if v}
 
     def _get_border_hyperplanes(self) -> np.ndarray:
-        """Returns an array of the bounding hyperplanes given by elemental limits"""
+        """Returns an array of the bounding hyperplanes given by elemental limits."""
         border_hyperplanes = np.array([[0] * (self.dim + 1)] * (2 * self.dim))
 
         for idx, limit in enumerate(self.lims):
@@ -235,8 +241,8 @@ class ChemicalPotentialDiagram(MSONable):
         """
         data = np.array(
             [
-                [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
-                for e in self._min_entries
+                [entry.composition.get_atomic_fraction(el) for el in self.elements] + [entry.energy_per_atom]
+                for entry in self._min_entries
             ]
         )
         vec = [self.el_refs[el].energy_per_atom for el in self.elements] + [-1]
@@ -248,12 +254,12 @@ class ChemicalPotentialDiagram(MSONable):
 
         hyperplanes = data[inds]
         hyperplanes[:, -1] = hyperplanes[:, -1] * -1
-        hyperplane_entries = [self._min_entries[i] for i in inds]
+        hyperplane_entries = [self._min_entries[idx] for idx in inds]
 
         return hyperplanes, hyperplane_entries
 
     def _get_2d_plot(self, elements: list[Element], label_stable: bool | None, element_padding: float | None) -> Figure:
-        """Returns a Plotly figure for a 2-dimensional chemical potential diagram"""
+        """Returns a Plotly figure for a 2-dimensional chemical potential diagram."""
         domains = self.domains.copy()
         elem_indices = [self.elements.index(e) for e in elements]
 
@@ -275,14 +281,14 @@ class ChemicalPotentialDiagram(MSONable):
                     pts_2d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
 
             entry = self.entry_dict[formula]
-            ann_formula = formula
+            anno_formula = formula
             if hasattr(entry, "original_entry"):
-                ann_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.reduced_formula
 
             center = pts_2d.mean(axis=0)
             normal = get_2d_orthonormal_vector(pts_2d)
             ann_loc = center + 0.25 * normal  # offset annotation location by arb. amount
-            annotation = self._get_annotation(ann_loc, ann_formula)
+            annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
 
             draw_domains[formula] = pts_2d
@@ -290,13 +296,11 @@ class ChemicalPotentialDiagram(MSONable):
         layout = plotly_layouts["default_layout_2d"].copy()
         layout.update(self._get_axis_layout_dict(elements))
         if label_stable:
-            layout.update({"annotations": annotations})
+            layout["annotations"] = annotations
 
         data = self._get_2d_domain_lines(draw_domains)
 
-        fig = Figure(data, layout)
-
-        return fig
+        return Figure(data, layout)
 
     def _get_3d_plot(
         self,
@@ -332,7 +336,7 @@ class ChemicalPotentialDiagram(MSONable):
                     col = pts_3d[:, idx]
                     pts_3d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
 
-            contains_target_elems = set(entry.composition.elements).issubset(elements)
+            contains_target_elems = set(entry.elements).issubset(elements)
 
             if formulas_to_draw and entry.composition.reduced_composition in draw_comps:
                 domain_simplexes[formula] = None
@@ -349,11 +353,11 @@ class ChemicalPotentialDiagram(MSONable):
 
             simplexes, ann_loc = self._get_3d_domain_simplexes_and_ann_loc(pts_3d)
 
-            ann_formula = formula
+            anno_formula = formula
             if hasattr(entry, "original_entry"):
-                ann_formula = entry.original_entry.composition.reduced_formula
+                anno_formula = entry.original_entry.reduced_formula
 
-            annotation = self._get_annotation(ann_loc, ann_formula)
+            annotation = self._get_annotation(ann_loc, anno_formula)
             annotations.append(annotation)
 
             domain_simplexes[formula] = simplexes
@@ -363,7 +367,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout["scene"]["annotations"] = None
 
         if label_stable:
-            layout["scene"].update({"annotations": annotations})
+            layout["scene"]["annotations"] = annotations
         layout["scene_camera"] = {
             "eye": {"x": 5, "y": 5, "z": 5},  # zoomed out
             "projection": {"type": "orthographic"},
@@ -373,18 +377,16 @@ class ChemicalPotentialDiagram(MSONable):
         data = self._get_3d_domain_lines(domain_simplexes)
 
         if formulas_to_draw:
-            for f in formulas_to_draw:
-                if f not in domain_simplexes:
-                    warnings.warn(f"Specified formula to draw, {f}, not found!")
+            for formula in formulas_to_draw:
+                if formula not in domain_simplexes:
+                    warnings.warn(f"Specified formula to draw, {formula}, not found!")
 
         if draw_formula_lines:
             data.extend(self._get_3d_formula_lines(draw_domains, formula_colors))
         if draw_formula_meshes:
             data.extend(self._get_3d_formula_meshes(draw_domains, formula_colors))
 
-        fig = Figure(data, layout)
-
-        return fig
+        return Figure(data, layout)
 
     @staticmethod
     def _get_new_limits_from_padding(
@@ -419,7 +421,7 @@ class ChemicalPotentialDiagram(MSONable):
             x.extend([*pts[:, 0].tolist(), None])
             y.extend([*pts[:, 1].tolist(), None])
 
-        lines = [
+        return [
             Scatter(
                 x=x,
                 y=y,
@@ -428,7 +430,6 @@ class ChemicalPotentialDiagram(MSONable):
                 showlegend=False,
             )
         ]
-        return lines
 
     @staticmethod
     def _get_3d_domain_lines(domains: dict[str, list[Simplex] | None]) -> list[Scatter3d]:
@@ -444,7 +445,7 @@ class ChemicalPotentialDiagram(MSONable):
                     y.extend([*s.coords[:, 1].tolist(), None])
                     z.extend([*s.coords[:, 2].tolist(), None])
 
-        lines = [
+        return [
             Scatter3d(
                 x=x,
                 y=y,
@@ -454,7 +455,6 @@ class ChemicalPotentialDiagram(MSONable):
                 showlegend=False,
             )
         ]
-        return lines
 
     @staticmethod
     def _get_3d_domain_simplexes_and_ann_loc(
@@ -466,7 +466,7 @@ class ChemicalPotentialDiagram(MSONable):
         into 2-dimensional space so that ConvexHull can be used to identify the
         bounding polygon.
         """
-        points_2d, v, w = simple_pca(points_3d, k=2)
+        points_2d, _v, w = simple_pca(points_3d, k=2)
         domain = ConvexHull(points_2d)
         centroid_2d = get_centroid_2d(points_2d[domain.vertices])
         ann_loc = centroid_2d @ w.T + np.mean(points_3d.T, axis=1)
@@ -509,7 +509,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_domains: dict[str, np.ndarray],
         formula_colors: list[str] | None,
     ) -> list[Scatter3d]:
-        """Returns a list of Scatter3d objects defining the bounding polyhedra"""
+        """Returns a list of Scatter3d objects defining the bounding polyhedra."""
         if formula_colors is None:
             formula_colors = px.colors.qualitative.Dark2
 
@@ -548,29 +548,28 @@ class ChemicalPotentialDiagram(MSONable):
         el_refs = {}
         min_entries = []
 
-        for c, g in groupby(entries, key=lambda e: e.composition.reduced_formula):
-            c = Composition(c)
-            group = list(g)
+        for formula, group in groupby(entries, key=lambda e: e.reduced_formula):
+            comp = Composition(formula)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
+            if comp.is_element:
+                el_refs[comp.elements[0]] = min_entry
             min_entries.append(min_entry)
 
         return min_entries, el_refs
 
     @staticmethod
     def _get_annotation(ann_loc: np.ndarray, formula: str) -> dict[str, str | float]:
-        """Returns a Plotly annotation dict given a formula and location"""
+        """Returns a Plotly annotation dict given a formula and location."""
         formula = htmlify(formula)
         annotation = plotly_layouts["default_annotation_layout"].copy()
         annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
         if len(ann_loc) == 3:
-            annotation.update({"z": ann_loc[2]})
+            annotation["z"] = ann_loc[2]
         return annotation
 
     @staticmethod
     def _get_axis_layout_dict(elements: list[Element]) -> dict[str, str]:
-        """Returns a Plotly layout dict for either 2-d or 3-d axes"""
+        """Returns a Plotly layout dict for either 2-d or 3-d axes."""
         axes = ["xaxis", "yaxis"]
         layout_name = "default_2d_axis_layout"
 
@@ -590,14 +589,14 @@ class ChemicalPotentialDiagram(MSONable):
         return axes_layout
 
     @property  # type: ignore
-    @lru_cache(maxsize=1)
+    @lru_cache(maxsize=1)  # noqa: B019
     def domains(self) -> dict[str, np.ndarray]:
-        """Mapping of formulas to array of domain boundary points"""
+        """Mapping of formulas to array of domain boundary points."""
         return self._get_domains()
 
     @property
     def lims(self) -> np.ndarray:
-        """Returns array of limits used in constructing hyperplanes"""
+        """Returns array of limits used in constructing hyperplanes."""
         lims = np.array([[self.default_min_limit, 0]] * self.dim)
         for idx, elem in enumerate(self.elements):
             if self.limits and elem in self.limits:
@@ -606,32 +605,32 @@ class ChemicalPotentialDiagram(MSONable):
 
     @property
     def entry_dict(self) -> dict[str, ComputedEntry]:
-        """Mapping between reduced formula and ComputedEntry"""
+        """Mapping between reduced formula and ComputedEntry."""
         return self._entry_dict
 
     @property
     def hyperplanes(self) -> np.ndarray:
-        """Returns array of hyperplane data"""
+        """Returns array of hyperplane data."""
         return self._hyperplanes
 
     @property
     def hyperplane_entries(self) -> list[PDEntry]:
-        """Returns list of entries corresponding to hyperplanes"""
+        """Returns list of entries corresponding to hyperplanes."""
         return self._hyperplane_entries
 
     @property
     def border_hyperplanes(self) -> np.ndarray:
-        """Returns bordering hyperplanes"""
+        """Returns bordering hyperplanes."""
         return self._border_hyperplanes
 
     @property
     def el_refs(self) -> dict[Element, PDEntry]:
-        """Returns a dictionary of elements and reference entries"""
+        """Returns a dictionary of elements and reference entries."""
         return self._el_refs
 
     @property
     def chemical_system(self) -> str:
-        """Returns the chemical system (A-B-C-...) of diagram object"""
+        """Returns the chemical system (A-B-C-...) of diagram object."""
         return "-".join(sorted(e.symbol for e in self.elements))
 
     def __repr__(self):
@@ -648,7 +647,7 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
         k: Number of principal components returned
 
     Returns:
-        Tuple of projected data, eigenvalues, eigenvectors
+        tuple: projected data, eigenvalues, eigenvectors
     """
     data = data - np.mean(data.T, axis=1)  # centering the data
     cov = np.cov(data.T)  # calculating covariance matrix
@@ -680,7 +679,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     cy = 0
     a = 0
 
-    for idx in range(0, len(vertices) - 1):
+    for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]
         yi = vertices[idx, 1]
         xi_p = vertices[idx + 1, 0]
@@ -692,9 +691,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
         a += common_term
 
     prefactor = 0.5 / (6 * a)
-    centroid = np.array([prefactor * cx, prefactor * cy])
-
-    return centroid
+    return np.array([prefactor * cx, prefactor * cy])
 
 
 def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
@@ -717,18 +714,13 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
 
     theta = np.pi / 2 if np.isclose(x_diff, 0) else np.arctan(y_diff / x_diff)
 
-    vec = np.array([np.sin(theta), np.cos(theta)])
-
-    return vec
+    return np.array([np.sin(theta), np.cos(theta)])
 
 
 def _renormalize_entry(entry: PDEntry, renormalization_energy_per_atom: float) -> PDEntry:
-    """
-    Regenerate the input entry with an energy per atom decreased by renormalization_energy_per_atom
-    """
+    """Regenerate the input entry with an energy per atom decreased by renormalization_energy_per_atom."""
     renormalized_entry_dict = entry.as_dict()
     renormalized_entry_dict["energy"] = entry.energy - renormalization_energy_per_atom * sum(
         entry.composition.values()
     )  # entry.energy includes MP corrections as desired
-    renormalized_entry = PDEntry.from_dict(renormalized_entry_dict)
-    return renormalized_entry
+    return PDEntry.from_dict(renormalized_entry_dict)

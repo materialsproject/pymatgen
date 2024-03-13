@@ -11,18 +11,22 @@ from __future__ import annotations
 
 import logging
 import os
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pymatgen.io.core import InputSet
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
 
 
 class LammpsInputSet(InputSet):
@@ -41,18 +45,18 @@ class LammpsInputSet(InputSet):
 
     def __init__(
         self,
-        inputfile: LammpsInputFile | str,  # pylint: disable=E1131
-        data: LammpsData | CombinedData,  # pylint: disable=E1131
+        inputfile: LammpsInputFile | str,
+        data: LammpsData | CombinedData,
         calc_type: str = "",
         template_file: str = "",
         keep_stages: bool = False,
-    ):
+    ) -> None:
         """
         Args:
-            inputfile: The input file containing settings.
-                       It can be a LammpsInputFile object or a string representation.
+            inputfile: The input file containing settings. It can be a LammpsInputFile object
+                or a string representation.
             data: The data file containing structure and topology information.
-                  It can be a LammpsData or a CombinedData object.
+                It can be a LammpsData or a CombinedData object.
             calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
             template_file: Path (string) to the template file used to create the input file for LAMMPS.
             keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
@@ -60,7 +64,7 @@ class LammpsInputSet(InputSet):
         if isinstance(inputfile, LammpsInputFile):
             self.inputfile = inputfile
         else:
-            self.inputfile = LammpsInputFile.from_string(inputfile, keep_stages=keep_stages)
+            self.inputfile = LammpsInputFile.from_str(inputfile, keep_stages=keep_stages)
         self.data = data
         self.calc_type = calc_type
         self.template_file = template_file
@@ -69,7 +73,7 @@ class LammpsInputSet(InputSet):
         super().__init__(inputs={"in.lammps": self.inputfile, "system.data": self.data})
 
     @classmethod
-    def from_directory(cls, directory: str | Path, keep_stages: bool = False):  # pylint: disable=E1131
+    def from_directory(cls, directory: str | Path, keep_stages: bool = False) -> LammpsInputSet:
         """
         Construct a LammpsInputSet from a directory of two or more files.
         TODO: accept directories with only the input file, that should include the structure as well.
@@ -79,9 +83,11 @@ class LammpsInputSet(InputSet):
                        in.lammps for the LAMMPS input file, and system.data with the system information.
             keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
         """
-        input_file = LammpsInputFile.from_file(os.path.join(directory, "in.lammps"), keep_stages=keep_stages)
+        input_file = LammpsInputFile.from_file(f"{directory}/in.lammps", keep_stages=keep_stages)
         atom_style = input_file.get_args("atom_style")
-        data_file = LammpsData.from_file(os.path.join(directory, "system.data"), atom_style=atom_style)
+        if isinstance(atom_style, list):
+            raise ValueError("Variable atom_style is specified multiple times in the input file.")
+        data_file = LammpsData.from_file(f"{directory}/system.data", atom_style=atom_style)
         return LammpsInputSet(inputfile=input_file, data=data_file, calc_type="read_from_dir")
 
     def validate(self) -> bool:
@@ -90,4 +96,4 @@ class LammpsInputSet(InputSet):
         input set. Can be as simple or as complex as desired.
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
-        raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
+        raise NotImplementedError(f".validate() has not been implemented in {type(self).__name__}")

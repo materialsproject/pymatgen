@@ -1,0 +1,87 @@
+name: Release # makes PyPI releases
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [release, test-release]
+        default: release
+        description: Release to PyPI or TestPyPI.
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # run test.yml first to ensure that the test suite is passing
+    uses: ./.github/workflows/test.yml
+
+  build_sdist:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: "3.11"
+
+      - name: Build sdist
+        run: |
+          pip install build
+          python -m build --sdist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  build_wheels:
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        python-version: ["39", "310", "311"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.5
+        env:
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  release:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
+    steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
+      - name: Publish to PyPi or TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true
+          repository-url: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'test-release' && 'https://test.pypi.org/legacy/' || '' }}

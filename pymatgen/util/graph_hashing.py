@@ -1,5 +1,4 @@
-"""
-Copyright (C) 2004-2022, NetworkX Developers
+"""Copyright (C) 2004-2022, NetworkX Developers
 Aric Hagberg <hagberg@lanl.gov>
 Dan Schult <dschult@colgate.edu>
 Pieter Swart <swart@lanl.gov>
@@ -40,37 +39,41 @@ Isomorphic graphs should be assigned identical hashes.
 For now, only Weisfeiler-Lehman hashing is implemented.
 
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict
 from hashlib import blake2b
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import networkx as nx
 
 
 def _hash_label(label, digest_size):
     return blake2b(label.encode("ascii"), digest_size=digest_size).hexdigest()
 
 
-def _init_node_labels(G, edge_attr, node_attr):
+def _init_node_labels(graph: nx.Graph, edge_attr, node_attr):
     if node_attr:
-        return {u: str(dd[node_attr]) for u, dd in G.nodes(data=True)}
+        return {u: str(dd[node_attr]) for u, dd in graph.nodes(data=True)}
     if edge_attr:
-        return {u: "" for u in G}
-    return {u: str(deg) for u, deg in G.degree()}
+        return dict.fromkeys(graph, "")
+    return {u: str(deg) for u, deg in graph.degree()}
 
 
-def _neighborhood_aggregate(G, node, node_labels, edge_attr=None):
-    """
-    Compute new labels for given node by aggregating
+def _neighborhood_aggregate(graph: nx.Graph, node, node_labels, edge_attr=None):
+    """Compute new labels for given node by aggregating
     the labels of each node's neighbors.
     """
     label_list = []
-    for nbr in G.neighbors(node):
-        prefix = "" if edge_attr is None else str(G[node][nbr][edge_attr])
+    for nbr in graph.neighbors(node):
+        prefix = "" if edge_attr is None else str(graph[node][nbr][edge_attr])
         label_list.append(prefix + node_labels[nbr])
     return node_labels[node] + "".join(sorted(label_list))
 
 
-def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
+def weisfeiler_lehman_graph_hash(graph: nx.Graph, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
     """Return Weisfeiler Lehman (WL) graph hash.
 
     The function iteratively aggregates and hashes neighborhoods of each node.
@@ -85,7 +88,7 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
     Otherwise, node and/or edge labels are used to compute the hash.
 
     Args:
-        G: graph
+        graph: nx.Graph
             The graph to be hashed.
             Can have node and/or edge attributes. Can also have no attributes.
         edge_attr: string, default=None
@@ -121,8 +124,7 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
     """
 
     def weisfeiler_lehman_step(G, labels, edge_attr=None):
-        """
-        Apply neighborhood aggregation to each node
+        """Apply neighborhood aggregation to each node
         in the graph.
         Computes a dictionary with labels for each node.
         """
@@ -133,11 +135,11 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
         return new_labels
 
     # set initial node labels
-    node_labels = _init_node_labels(G, edge_attr, node_attr)
+    node_labels = _init_node_labels(graph, edge_attr, node_attr)
 
     subgraph_hash_counts = []
     for _ in range(iterations):
-        node_labels = weisfeiler_lehman_step(G, node_labels, edge_attr=edge_attr)
+        node_labels = weisfeiler_lehman_step(graph, node_labels, edge_attr=edge_attr)
         counter = Counter(node_labels.values())
         # sort the counter, extend total counts
         subgraph_hash_counts.extend(sorted(counter.items(), key=lambda x: x[0]))
@@ -146,9 +148,8 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
     return _hash_label(str(tuple(subgraph_hash_counts)), digest_size)
 
 
-def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
-    """
-    Return a dictionary of subgraph hashes by node.
+def weisfeiler_lehman_subgraph_hashes(graph, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
+    """Return a dictionary of subgraph hashes by node.
 
     The dictionary is keyed by node to a list of hashes in increasingly
     sized induced subgraphs containing the nodes within 2*k edges
@@ -184,7 +185,7 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
     Otherwise, node and/or edge labels are used to compute the hash.
 
     Args:
-        G: graph
+        graph: nx.Graph
             The graph to be hashed.
             Can have node and/or edge attributes. Can also have no attributes.
         edge_attr: string, default=None
@@ -226,12 +227,11 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
     """
 
     def weisfeiler_lehman_step(G, labels, node_subgraph_hashes, edge_attr=None):
-        """
-        Apply neighborhood aggregation to each node
+        """Apply neighborhood aggregation to each node
         in the graph.
         Computes a dictionary with labels for each node.
         Appends the new hashed label to the dictionary of subgraph hashes
-        originating from and indexed by each node in G
+        originating from and indexed by each node in G.
         """
         new_labels = {}
         for node in G.nodes():
@@ -241,10 +241,10 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
             node_subgraph_hashes[node].append(hashed_label)
         return new_labels
 
-    node_labels = _init_node_labels(G, edge_attr, node_attr)
+    node_labels = _init_node_labels(graph, edge_attr, node_attr)
 
     node_subgraph_hashes = defaultdict(list)
     for _ in range(iterations):
-        node_labels = weisfeiler_lehman_step(G, node_labels, node_subgraph_hashes, edge_attr)
+        node_labels = weisfeiler_lehman_step(graph, node_labels, node_subgraph_hashes, edge_attr)
 
     return dict(node_subgraph_hashes)

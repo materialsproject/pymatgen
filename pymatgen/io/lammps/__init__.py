@@ -1,3 +1,1 @@
-"""
-IO for LAMMPS
-"""
+"""IO for LAMMPS."""

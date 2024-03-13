@@ -1,10 +1,8 @@
-"""
-Support for reading XCrysDen files.
-"""
+"""Support for reading XCrysDen files."""
 
 from __future__ import annotations
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element, Structure
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -13,20 +11,19 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 class XSF:
-    """
-    Class for parsing XCrysden files.
-    """
+    """Class for parsing XCrysden files."""
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
-        :param structure: Structure object.
+        Args:
+            structure (Structure): Structure object.
         """
         self.structure = structure
 
-    def to_string(self, atom_symbol=True):
+    def to_str(self, atom_symbol=True):
         """
         Returns a string with the structure in XSF format
-        See http://www.xcrysden.org/doc/XSF.html
+        See http://www.xcrysden.org/doc/XSF.html.
 
         Args:
             atom_symbol (bool): Uses atom symbol instead of atomic number. Defaults to True.
@@ -54,7 +51,7 @@ class XSF:
         return "\n".join(lines)
 
     @classmethod
-    def from_string(cls, input_string, cls_=None):
+    def from_str(cls, input_string, cls_=None):
         """
         Initialize a `Structure` object from a string with data in XSF format.
 
@@ -103,8 +100,6 @@ class XSF:
             raise ValueError("Invalid XSF data")
 
         if cls_ is None:
-            from pymatgen.core.structure import Structure
-
             cls_ = Structure
 
         s = cls_(lattice, species, coords, coords_are_cartesian=True)

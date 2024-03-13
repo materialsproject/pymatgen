@@ -26,13 +26,18 @@ If you want to implement a new InputGenerator, please take note of the following
 from __future__ import annotations
 
 import abc
+import copy
 import os
-from collections.abc import MutableMapping
+from collections.abc import Iterator, MutableMapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from monty.io import zopen
 from monty.json import MSONable
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -42,24 +47,22 @@ __date__ = "October 2021"
 
 class InputFile(MSONable):
     """
-    Abstract base class to represent a single input file. Note that use
-    of this class is optional; it is possible create an InputSet that
-    does not rely on underlying Inputfile objects.
+    Abstract base class to represent a single input file. Note that use of this class
+    is optional; it is possible create an InputSet that does not rely on underlying
+    InputFile objects.
 
-    All InputFile classes must implement a get_string method, which
-    is called by write_file.
+    All InputFile classes must implement a get_str method, which is called by
+    write_file.
 
-    If InputFile classes implement an __init__ method, they must assign all
-    arguments to __init__ as attributes.
+    If InputFile classes implement an __init__ method, they must assign all arguments
+    to __init__ as attributes.
     """
 
     @abc.abstractmethod
-    def get_string(self) -> str:
-        """
-        Return a string representation of an entire input file.
-        """
+    def get_str(self) -> str:
+        """Return a string representation of an entire input file."""
 
-    def write_file(self, filename: str | Path) -> None:
+    def write_file(self, filename: str | PathLike) -> None:
         """
         Write the input file.
 
@@ -67,14 +70,14 @@ class InputFile(MSONable):
             filename: The filename to output to, including path.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, "wt") as f:
-            f.write(self.get_string())
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str())
 
     @classmethod
     @abc.abstractmethod
-    def from_string(cls, contents: str):
+    def from_str(cls, contents: str) -> InputFile:
         """
-        Create an InputFile object from a string
+        Create an InputFile object from a string.
 
         Args:
             contents: The contents of the file as a single string
@@ -95,11 +98,11 @@ class InputFile(MSONable):
             InputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, "rt") as f:
-            return cls.from_string(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
-    def __str__(self):
-        return self.get_string()
+    def __str__(self) -> str:
+        return self.get_str()
 
 
 class InputSet(MSONable, MutableMapping):
@@ -134,46 +137,44 @@ class InputSet(MSONable, MutableMapping):
         self._kwargs = kwargs
         self.__dict__.update(**kwargs)
 
-    def __getattr__(self, k):
+    def __getattr__(self, key):
         # allow accessing keys as attributes
-        if k in self._kwargs:
-            return self.get(k)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
+        if key in self._kwargs:
+            return self.get(key)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute {key!r}")
 
     def __copy__(self) -> InputSet:
-        cls = self.__class__
+        cls = type(self)
         new_instance = cls.__new__(cls)
 
-        for k, v in self.__dict__.items():
-            setattr(new_instance, k, v)
+        for key, val in self.__dict__.items():
+            setattr(new_instance, key, val)
 
         return new_instance
 
     def __deepcopy__(self, memo: dict[int, InputSet]) -> InputSet:
-        import copy
-
-        cls = self.__class__
+        cls = type(self)
         new_instance = cls.__new__(cls)
         memo[id(self)] = new_instance
 
-        for k, v in self.__dict__.items():
-            setattr(new_instance, k, copy.deepcopy(v, memo))
+        for key, val in self.__dict__.items():
+            setattr(new_instance, key, copy.deepcopy(val, memo))
 
         return new_instance
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.inputs)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str | Path]:
         return iter(self.inputs)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str | Path) -> str | InputFile | slice:
         return self.inputs[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str | Path, value: str | InputFile) -> None:
         self.inputs[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str | Path) -> None:
         del self.inputs[key]
 
     def write_input(
@@ -184,7 +185,7 @@ class InputSet(MSONable, MutableMapping):
         zip_inputs: bool = False,
     ):
         """
-        Write Inputs to one or more files
+        Write Inputs to one or more files.
 
         Args:
             directory: Directory to write input files to
@@ -197,30 +198,30 @@ class InputSet(MSONable, MutableMapping):
         path = directory if isinstance(directory, Path) else Path(directory)
 
         for fname, contents in self.inputs.items():
-            file = path / fname
+            file_path = path / fname
 
             if not path.exists() and make_dir:
                 path.mkdir(parents=True, exist_ok=True)
 
-            if file.exists() and not overwrite:
-                raise FileExistsError(f"File {fname!s} already exists!")
-            file.touch()
+            if file_path.exists() and not overwrite:
+                raise FileExistsError(fname)
+            file_path.touch()
 
             # write the file
             if isinstance(contents, InputFile):
-                contents.write_file(file)
+                contents.write_file(file_path)
             else:
-                with zopen(file, "wt") as f:
-                    f.write(str(contents))
+                with zopen(file_path, mode="wt") as file:
+                    file.write(str(contents))
 
         if zip_inputs:
-            zipfilename = path / f"{type(self).__name__}.zip"
-            with ZipFile(zipfilename, "w") as zip:
+            filename = path / f"{type(self).__name__}.zip"
+            with ZipFile(filename, mode="w") as zip_file:
                 for fname in self.inputs:
-                    file = path / fname
+                    file_path = path / fname
                     try:
-                        zip.write(file)
-                        os.remove(file)
+                        zip_file.write(file_path)
+                        os.remove(file_path)
                     except FileNotFoundError:
                         pass
 
@@ -232,7 +233,7 @@ class InputSet(MSONable, MutableMapping):
         Args:
             directory: Directory to read input files from
         """
-        raise NotImplementedError(f"from_directory has not been implemented in {cls}")
+        raise NotImplementedError(f"from_directory has not been implemented in {cls.__name__}")
 
     def validate(self) -> bool:
         """
@@ -241,7 +242,7 @@ class InputSet(MSONable, MutableMapping):
 
         Will raise a NotImplementedError unless overloaded by the inheriting class.
         """
-        raise NotImplementedError(f".validate() has not been implemented in {self.__class__}")
+        raise NotImplementedError(f".validate() has not been implemented in {type(self).__name__}")
 
 
 class InputGenerator(MSONable):
@@ -257,3 +258,7 @@ class InputGenerator(MSONable):
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
+
+
+class ParseError(SyntaxError):
+    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""

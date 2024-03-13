@@ -1,6 +1,4 @@
-"""
-This module provides
-"""
+"""This module provides."""
 
 from __future__ import annotations
 
@@ -8,7 +6,6 @@ from collections import namedtuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
-from monty.string import is_string
 
 from pymatgen.core.libxcfunc import LibxcFunc
 
@@ -22,8 +19,8 @@ __date__ = "May 16, 2016"
 
 
 class XcFunc(MSONable):
-    """
-    This object stores information about the XC correlation functional.
+    """This object stores information about the XC correlation functional.
+
     Client code usually creates the object by calling the class methods:
 
         - from_name
@@ -75,7 +72,8 @@ class XcFunc(MSONable):
     type_name = namedtuple("type_name", "type, name")
 
     xcf = LibxcFunc
-    defined_aliases = {  # (x, c) --> type_name
+    defined_aliases = {
+        # (x, c) --> type_name
         # LDAs
         (xcf.LDA_X, xcf.LDA_C_PW): type_name("LDA", "PW"),  # ixc 7
         (xcf.LDA_X, xcf.LDA_C_PW_MOD): type_name("LDA", "PW_MOD"),
@@ -110,6 +108,7 @@ class XcFunc(MSONable):
         14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
         15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
     }
+
     del xcf
 
     @classmethod
@@ -122,13 +121,13 @@ class XcFunc(MSONable):
         """Convert object into Xcfunc."""
         if isinstance(obj, cls):
             return obj
-        if is_string(obj):
+        if isinstance(obj, str):
             return cls.from_name(obj)
         raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
-        """Build the object from Abinit ixc (integer)"""
+        """Build the object from Abinit ixc (integer)."""
         ixc = int(ixc)
         if ixc == 0:
             return None
@@ -148,7 +147,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_name(cls, name):
-        """Build the object from one of the registered names"""
+        """Build the object from one of the registered names."""
         return cls.from_type_name(None, name)
 
     @classmethod
@@ -174,27 +173,23 @@ class XcFunc(MSONable):
         xc = LibxcFunc[name]
         return cls(xc=xc)
 
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
-        return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
-
     def as_dict(self):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
+        """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
-            d["x"] = self.x.as_dict()
+            dct["x"] = self.x.as_dict()
         if self.c is not None:
-            d["c"] = self.c.as_dict()
+            dct["c"] = self.c.as_dict()
         if self.xc is not None:
-            d["xc"] = self.xc.as_dict()
-        return d
+            dct["xc"] = self.xc.as_dict()
+        return dct
 
-    def __init__(self, xc=None, x=None, c=None):
+    @classmethod
+    def from_dict(cls, dct):
+        """Deserialize from MSONable dict representation."""
+        return cls(xc=dct.get("xc"), x=dct.get("x"), c=dct.get("c"))
+
+    def __init__(self, xc=None, x=None, c=None) -> None:
         """
         Args:
             xc: LibxcFunc for XC functional.
@@ -226,9 +221,8 @@ class XcFunc(MSONable):
 
     @lazy_property
     def name(self) -> str:
-        """
-        The name of the functional. If the functional is not found in the aliases,
-        the string has the form X_NAME+C_NAME
+        """The name of the functional. If the functional is not found in the aliases,
+        the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:
             return self.defined_aliases[self.xc].name
@@ -242,7 +236,7 @@ class XcFunc(MSONable):
     def __repr__(self) -> str:
         return str(self.name)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
     def __eq__(self, other: object) -> bool:

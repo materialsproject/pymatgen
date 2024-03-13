@@ -1,3 +1,5 @@
+"""Pymatgen package configuration."""
+
 from __future__ import annotations
 
 import platform
@@ -14,7 +16,7 @@ with open("README.md") as file:
 
 # unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
 # (i.e. adaptive to OS light/dark mode)
-# TODO this manual fix won't work once we migrate to pyproject.toml
+# NOTE this manual fix won't work once we migrate to pyproject.toml
 logo_url = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg"
 long_description = (
     f"<h1 align='center'><img alt='Logo' src='{logo_url}' height='70'></h1>" + long_description.split("</picture>")[-1]
@@ -22,18 +24,14 @@ long_description = (
 
 setup(
     name="pymatgen",
-    packages=find_namespace_packages(
-        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
-        exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
-    ),
-    version="2023.5.10",
-    python_requires=">=3.8",
+    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
+    version="2024.3.1",
+    python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
-        "monty>=3.0.2",
-        "mp-api>=0.27.3",
+        "monty>=2024.2.2",
         "networkx>=2.2",
-        "numpy>=1.20.1",
+        "numpy>=1.25.0",
         "palettable>=3.1.1",
         "pandas",
         "plotly>=4.5.0",
@@ -46,15 +44,16 @@ setup(
         "tabulate",
         "tqdm",
         "uncertainties>=3.1.4",
+        "joblib",
     ],
     extras_require={
         "ase": ["ase>=3.3"],
+        "tblite": ["tblite[ase]>=0.3.0"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        "relaxation": ["m3gnet"],
+        "relaxation": ["matgl", "chgnet"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
-            "black",
             "mypy",
             "pre-commit",
             "pytest-cov",
@@ -68,23 +67,26 @@ setup(
             "doc2dash",
         ],
         "optional": [
-            # "hiphive>=0.6",
-            # "m3gnet>=0.0.8",
             "ase>=3.22.1",
-            # https://peps.python.org/pep-0508/#environment-markers
-            "BoltzTraP2>=22.3.2; platform_system!='Windows'",
+            # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
+            # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
+            # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
+            # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
+            "chgnet",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
             "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
+            "matgl",
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
+            "tblite[ase]>=0.3.0; platform_system=='Linux'",
+            # "hiphive>=0.6",
+            # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
-        "numba": [
-            "numba",
-        ],
+        "numba": ["numba"],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
@@ -99,9 +101,10 @@ setup(
         "pymatgen.analysis.diffraction": ["*.json"],
         "pymatgen.analysis.magnetism": ["default_magmoms.yaml"],
         "pymatgen.analysis.solar": ["am1.5G.dat"],
-        "pymatgen.entries": ["py.typed", "*.json.gz", "*.yaml", "data/*.json"],
-        "pymatgen.core": ["py.typed", "*.json"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
+        "pymatgen.core": ["*.json"],
+        "pymatgen": ["py.typed"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz", "*.json.bz2"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
@@ -113,9 +116,9 @@ setup(
         "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
-    author_email="ongsp@eng.ucsd.edu",
+    author_email="ongsp@ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton, Janosh Riebesell",
-    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
+    maintainer_email="ongsp@ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
     project_urls={
@@ -152,7 +155,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -168,9 +170,15 @@ setup(
             ["pymatgen/optimization/linear_assignment.pyx"],
             extra_link_args=extra_link_args,
         ),
-        Extension("pymatgen.util.coord_cython", ["pymatgen/util/coord_cython.pyx"], extra_link_args=extra_link_args),
         Extension(
-            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.pyx"], extra_link_args=extra_link_args
+            "pymatgen.util.coord_cython",
+            ["pymatgen/util/coord_cython.pyx"],
+            extra_link_args=extra_link_args,
+        ),
+        Extension(
+            "pymatgen.optimization.neighbors",
+            ["pymatgen/optimization/neighbors.pyx"],
+            extra_link_args=extra_link_args,
         ),
     ],
     entry_points={
@@ -178,7 +186,6 @@ setup(
             "pmg = pymatgen.cli.pmg:main",
             "feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main",
             "feff_plot_dos = pymatgen.cli.feff_plot_dos:main",
-            "gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main",
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },

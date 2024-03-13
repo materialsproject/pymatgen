@@ -11,23 +11,23 @@ REM entries.
 
 from __future__ import annotations
 
-import datetime
 import re
-from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
-import dateutil.parser  # type: ignore
+import dateutil.parser  # type: ignore[import]
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, PeriodicSite, Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.io.core import ParseError
 
-__all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ParseError", "ResError"]
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from datetime import date
+
+    from pymatgen.core.trajectory import Vector3D
 
 
 @dataclass(frozen=True)
@@ -45,7 +45,7 @@ class AirssTITL:
         return (
             f"TITL {self.seed:s} {self.pressure:.2f} {self.volume:.4f} {self.energy:.5f} "
             f"{self.integrated_spin_density:f} {self.integrated_absolute_spin_density:f} ({self.spacegroup_label:s}) "
-            f"n - {self.appearances:d}"
+            f"n - {self.appearances}"
         )
 
 
@@ -70,7 +70,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: tuple[float, float, float]
+    pos: Vector3D
     occupancy: float
     spin: float | None
 
@@ -91,7 +91,7 @@ class ResSFAC:
     def __str__(self) -> str:
         species = " ".join(f"{specie:<2s}" for specie in self.species)
         ions = "\n".join(map(str, self.ions))
-        return f"SFAC {species}\n{ions}\nEND"
+        return f"SFAC {species}\n{ions}\nEND\n"
 
 
 @dataclass(frozen=True)
@@ -104,23 +104,17 @@ class Res:
     SFAC: ResSFAC
 
     def __str__(self) -> str:
-        return "\n".join(
-            [
-                "TITL" if self.TITL is None else str(self.TITL),
-                "\n".join(f"REM {rem}" for rem in self.REMS),
-                str(self.CELL),
-                "LATT -1",
-                str(self.SFAC),
-            ]
-        )
+        lines = ["TITL" if self.TITL is None else str(self.TITL)]
+
+        lines += (f"REM {rem}" for rem in self.REMS)
+
+        lines += (str(self.CELL), "LATT -1", str(self.SFAC))
+
+        return "\n".join(lines)
 
 
-class ParseError(RuntimeError):
-    """
-    This exception indicates a problem was encountered during parsing due to unexpected formatting.
-    """
-
-    ...
+class ResParseError(ParseError):
+    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""
 
 
 class ResError(ValueError):
@@ -128,8 +122,6 @@ class ResError(ValueError):
     This exception indicates a problem was encountered while trying to retrieve a value or
     perform an action that a provider for the res file does not support.
     """
-
-    ...
 
 
 class ResParser:
@@ -166,7 +158,7 @@ class ResParser:
         """Parses the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
-            raise ParseError(f"Failed to parse CELL line {line}, expected 7 fields.")
+            raise ResParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
         field_1, a, b, c, alpha, beta, gamma = map(float, fields)
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
@@ -178,7 +170,7 @@ class ResParser:
         elif len(fields) == 7:
             spin = float(fields[-1])
         else:
-            raise ParseError(f"Failed to parse ion entry {line}, expected 6 or 7 fields.")
+            raise ResParseError(f"Failed to parse ion entry {line}, expected 6 or 7 fields.")
         specie = fields[0]
         specie_num = int(fields[1])
         x, y, z, occ = map(float, fields[2:6])
@@ -195,7 +187,7 @@ class ResParser:
                     break
                 ions.append(self._parse_ion(line))
         except StopIteration:
-            raise ParseError("Encountered end of file before END tag at end of SFAC block.")
+            raise ResParseError("Encountered end of file before END tag at end of SFAC block.")
         return ResSFAC(species, ions)
 
     def _parse_txt(self) -> Res:
@@ -230,11 +222,11 @@ class ResParser:
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
                 else:
-                    raise Warning(f"Skipping line {line}, tag {first} not recognized.")
+                    raise Warning(f"Skipping {line=}, tag {first} not recognized.")
         except StopIteration:
             pass
         if _CELL is None or _SFAC is None:
-            raise ParseError("Did not encounter CELL or SFAC entry when parsing.")
+            raise ResParseError("Did not encounter CELL or SFAC entry when parsing.")
         return Res(_TITL, _REMS, _CELL, _SFAC)
 
     @classmethod
@@ -249,15 +241,13 @@ class ResParser:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
-        with zopen(filename, "r") as file:
+        with zopen(filename, mode="r") as file:
             self.source = file.read()
             return self._parse_txt()
 
 
 class ResWriter:
-    """
-    This class provides a means to write a Structure or ComputedStructureEntry to a res file.
-    """
+    """This class provides a means to write a Structure or ComputedStructureEntry to a res file."""
 
     @classmethod
     def _cell_from_lattice(cls, lattice: Lattice) -> ResCELL:
@@ -288,7 +278,7 @@ class ResWriter:
     @classmethod
     def _res_from_structure(cls, structure: Structure) -> Res:
         """Produce a res file structure from a pymatgen Structure."""
-        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure.sites)))
+        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure)))
 
     @classmethod
     def _res_from_entry(cls, entry: ComputedStructureEntry) -> Res:
@@ -303,13 +293,11 @@ class ResWriter:
             AirssTITL(seed, pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
             rems,
             cls._cell_from_lattice(entry.structure.lattice),
-            cls._sfac_from_sites(list(entry.structure.sites)),
+            cls._sfac_from_sites(list(entry.structure)),
         )
 
     def __init__(self, entry: Structure | ComputedStructureEntry):
-        """
-        This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object.
-        """
+        """This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object."""
         func: Callable[[Structure], Res] | Callable[[ComputedStructureEntry], Res]
         func = self._res_from_structure
         if isinstance(entry, ComputedStructureEntry):
@@ -326,14 +314,12 @@ class ResWriter:
 
     def write(self, filename: str) -> None:
         """Write the res data to a file."""
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(str(self))
 
 
 class ResProvider(MSONable):
-    """
-    Provides access to elements of the res file in the form of familiar pymatgen objects.
-    """
+    """Provides access to elements of the res file in the form of familiar pymatgen objects."""
 
     def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
@@ -384,7 +370,7 @@ class ResProvider(MSONable):
 
 class AirssProvider(ResProvider):
     """
-    Provides access to the res file as does :class:`ResProvider`. This class additionally provides
+    Provides access to the res file as does ResProvider. This class additionally provides
     access to fields in the TITL entry and various other fields found in the REM entries
     that AIRSS puts in the file. Values in the TITL entry that AIRSS could not get end up as 0.
     If the TITL entry is malformed, empty, or missing then attempting to construct this class
@@ -397,7 +383,7 @@ class AirssProvider(ResProvider):
 
     The :attr:`parse_rems` attribute controls whether functions that fail to retrieve information
     from the REM entries should return ``None``. If this is set to ``"strict"``,
-    then a :class:`ParseError` may be raised, but the return value will not be ``None``.
+    then a ParseError may be raised, but the return value will not be ``None``.
     If it is set to ``"gentle"``, then ``None`` will be returned instead of raising an
     exception. This setting applies to all methods of this class that are typed to return
     an Optional type. Default is ``"gentle"``.
@@ -409,7 +395,7 @@ class AirssProvider(ResProvider):
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
         super().__init__(res)
         if self._res.TITL is None:
-            raise ResError(f"{self.__class__} can only be constructed from a res file with a valid TITL entry.")
+            raise ResError(f"{type(self).__name__} can only be constructed from a res file with a valid TITL entry.")
         if parse_rems not in ["gentle", "strict"]:
             raise ValueError(f"{parse_rems} not valid, must be either 'gentle' or 'strict'.")
         self._TITL = self._res.TITL  # alias for the object so it is guarded by the None check
@@ -426,20 +412,20 @@ class AirssProvider(ResProvider):
         return cls(ResParser._parse_file(filename), parse_rems)
 
     @classmethod
-    def _parse_date(cls, string: str) -> datetime.date:
+    def _parse_date(cls, string: str) -> date:
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
-            raise ParseError(f"Could not parse the date from string {string}.")
+            raise ResParseError(f"Could not parse the date from {string=}.")
         date_string = match.group(0)
-        return dateutil.parser.parse(date_string)  # type: ignore
+        return dateutil.parser.parse(date_string)
 
-    def _raise_or_none(self, err: ParseError) -> None:
+    def _raise_or_none(self, err: ResParseError) -> None:
         if self.parse_rems != "strict":
-            return None
+            return
         raise err
 
-    def get_run_start_info(self) -> tuple[datetime.date, str] | None:
+    def get_run_start_info(self) -> tuple[date, str] | None:
         """
         Retrieves the run start date and the path it was started in from the REM entries.
 
@@ -451,7 +437,8 @@ class AirssProvider(ResProvider):
                 date = self._parse_date(rem)
                 path = rem.split()[-1]
                 return date, path
-        return self._raise_or_none(ParseError("Could not find run started information."))  # type: ignore
+        self._raise_or_none(ResParseError("Could not find run started information."))
+        return None
 
     def get_castep_version(self) -> str | None:
         """
@@ -464,7 +451,8 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("CASTEP"):
                 srem = rem.split()
                 return srem[1][:-1]
-        return self._raise_or_none(ParseError("Could not find CASTEP version."))  # type: ignore
+        self._raise_or_none(ResParseError("No CASTEP version found in REM"))
+        return None
 
     def get_func_rel_disp(self) -> tuple[str, str, str] | None:
         """
@@ -477,7 +465,8 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("Functional"):
                 srem = rem.split()
                 return " ".join(srem[1:4]), srem[5], srem[7]
-        return self._raise_or_none(ParseError("Could not find functional, relativity, and dispersion."))  # type: ignore
+        self._raise_or_none(ResParseError("Could not find functional, relativity, and dispersion."))
+        return None
 
     def get_cut_grid_gmax_fsbc(self) -> tuple[float, float, float, str] | None:
         """
@@ -491,11 +480,10 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("Cut-off"):
                 srem = rem.split()
                 return float(srem[1]), float(srem[5]), float(srem[7]), srem[10]
-        return self._raise_or_none(ParseError("Could not find line with cut-off energy."))  # type: ignore
+        self._raise_or_none(ResParseError("Could not find line with cut-off energy."))
+        return None
 
-    def get_mpgrid_offset_nkpts_spacing(
-        self,
-    ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
+    def get_mpgrid_offset_nkpts_spacing(self) -> tuple[tuple[int, int, int], Vector3D, int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
@@ -508,9 +496,10 @@ class AirssProvider(ResProvider):
                 p, q, r = map(int, srem[2:5])
                 po, qo, ro = map(float, srem[6:9])
                 return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
-        return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
+        self._raise_or_none(ResParseError("Could not find line with MP grid."))
+        return None
 
-    def get_airss_version(self) -> tuple[str, datetime.date] | None:
+    def get_airss_version(self) -> tuple[str, date] | None:
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
@@ -522,7 +511,8 @@ class AirssProvider(ResProvider):
                 date = self._parse_date(rem)
                 v = rem.split()[2]
                 return v, date
-        return self._raise_or_none(ParseError("Could not find line with AIRSS version."))  # type: ignore
+        self._raise_or_none(ResParseError("Could not find line with AIRSS version."))
+        return None
 
     def _get_compiler(self):
         raise NotImplementedError
@@ -598,9 +588,7 @@ class AirssProvider(ResProvider):
 
     @property
     def entry(self) -> ComputedStructureEntry:
-        """
-        Get this res file as a ComputedStructureEntry.
-        """
+        """Get this res file as a ComputedStructureEntry."""
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
     def as_dict(self, verbose: bool = True) -> dict[str, Any]:
@@ -627,56 +615,40 @@ class ResIO:
 
     @classmethod
     def structure_from_str(cls, string: str) -> Structure:
-        """
-        Produces a pymatgen Structure from contents of a res file.
-        """
+        """Produces a pymatgen Structure from contents of a res file."""
         return ResProvider.from_str(string).structure
 
     @classmethod
     def structure_from_file(cls, filename: str) -> Structure:
-        """
-        Produces a pymatgen Structure from a res file.
-        """
+        """Produces a pymatgen Structure from a res file."""
         return ResProvider.from_file(filename).structure
 
     @classmethod
     def structure_to_str(cls, structure: Structure) -> str:
-        """
-        Produce the contents of a res file from a pymatgen Structure.
-        """
+        """Produce the contents of a res file from a pymatgen Structure."""
         return str(ResWriter(structure))
 
     @classmethod
     def structure_to_file(cls, structure: Structure, filename: str) -> None:
-        """
-        Write a pymatgen Structure to a res file.
-        """
+        """Write a pymatgen Structure to a res file."""
         return ResWriter(structure).write(filename)
 
     @classmethod
     def entry_from_str(cls, string: str) -> ComputedStructureEntry:
-        """
-        Produce a pymatgen ComputedStructureEntry from contents of a res file.
-        """
+        """Produce a pymatgen ComputedStructureEntry from contents of a res file."""
         return AirssProvider.from_str(string).entry
 
     @classmethod
     def entry_from_file(cls, filename: str) -> ComputedStructureEntry:
-        """
-        Produce a pymatgen ComputedStructureEntry from a res file.
-        """
+        """Produce a pymatgen ComputedStructureEntry from a res file."""
         return AirssProvider.from_file(filename).entry
 
     @classmethod
     def entry_to_str(cls, entry: ComputedStructureEntry) -> str:
-        """
-        Produce the contents of a res file from a pymatgen ComputedStructureEntry.
-        """
+        """Produce the contents of a res file from a pymatgen ComputedStructureEntry."""
         return str(ResWriter(entry))
 
     @classmethod
     def entry_to_file(cls, entry: ComputedStructureEntry, filename: str) -> None:
-        """
-        Write a pymatgen ComputedStructureEntry to a res file.
-        """
+        """Write a pymatgen ComputedStructureEntry to a res file."""
         return ResWriter(entry).write(filename)

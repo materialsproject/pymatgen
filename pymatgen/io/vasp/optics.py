@@ -3,18 +3,10 @@
 from __future__ import annotations
 
 import itertools
-
-__author__ = "Jimmy-Xuan Shen"
-__copyright__ = "Copyright 2022, The Materials Project"
-__maintainer__ = "Jimmy-Xuan Shen"
-__email__ = "jmmshn@gmail.com"
-
-
 from dataclasses import dataclass
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
-import numpy.typing as npt
 import scipy.constants
 import scipy.special
 from monty.json import MSONable
@@ -22,6 +14,16 @@ from tqdm import tqdm
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from numpy.typing import ArrayLike, NDArray
+
+__author__ = "Jimmy-Xuan Shen"
+__copyright__ = "Copyright 2022, The Materials Project"
+__maintainer__ = "Jimmy-Xuan Shen"
+__email__ = "jmmshn@gmail.com"
 
 au2ang = scipy.constants.physical_constants["atomic unit of length"][0] / 1e-10
 ryd2ev = scipy.constants.physical_constants["Rydberg constant times hc in eV"][0]
@@ -54,10 +56,10 @@ class DielectricFunctionCalculator(MSONable):
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
-    cder_real: npt.NDArray
-    cder_imag: npt.NDArray
-    eigs: npt.NDArray
-    kweights: npt.NDArray
+    cder_real: NDArray
+    cder_imag: NDArray
+    eigs: NDArray
+    kweights: NDArray
     nedos: int
     deltae: float
     ismear: int
@@ -110,21 +112,19 @@ class DielectricFunctionCalculator(MSONable):
     @classmethod
     def from_directory(cls, directory: Path | str):
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
-        d_ = Path(directory)
 
         def _try_reading(dtypes):
             """Return None if failed."""
             for dtype in dtypes:
                 try:
-                    waveder = Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
-                    return waveder
-                except ValueError as e:
-                    if "reshape" in str(e):
+                    return Waveder.from_binary(f"{directory}/WAVEDER", data_type=dtype)
+                except ValueError as exc:
+                    if "reshape" in str(exc):
                         continue
-                    raise e
+                    raise exc
             return None
 
-        vrun = Vasprun(d_ / "vasprun.xml")
+        vrun = Vasprun(f"{directory}/vasprun.xml")
         if "gamma" in vrun.generator["subversion"].lower():
             waveder = _try_reading(["float64", "float32"])  # large one first should give value error
         else:
@@ -146,8 +146,8 @@ class DielectricFunctionCalculator(MSONable):
         ismear: int | None = None,
         sigma: float | None = None,
         cshift: float | None = None,
-        mask: npt.NDArray | None = None,
-    ) -> tuple[npt.NDArray, npt.NDArray]:
+        mask: NDArray | None = None,
+    ) -> tuple[NDArray, NDArray]:
         """Compute the frequency dependent dielectric function.
 
         Args:
@@ -192,9 +192,7 @@ class DielectricFunctionCalculator(MSONable):
             eps += 1.0 + 0.0j
         return egrid, eps
 
-    def plot_weighted_transition_data(
-        self, idir: int, jdir: int, mask: npt.NDArray | None = None, min_val: float = 0.0
-    ):
+    def plot_weighted_transition_data(self, idir: int, jdir: int, mask: NDArray | None = None, min_val: float = 0.0):
         """Data for plotting the weight matrix elements as a scatter plot.
 
         Since the computation of the final spectrum (especially the smearing part)
@@ -253,7 +251,7 @@ def delta_methfessel_paxton(x, n):
     """
     D_n (x) = exp -x^2 * sum_i=0^n A_i H_2i(x)
     where H is a Hermite polynomial and
-    A_i = (-1)^i / ( i! 4^i sqrt(pi) )
+    A_i = (-1)^i / ( i! 4^i sqrt(pi) ).
     """
     ii = np.arange(0, n + 1)
     A = (-1) ** ii / (scipy.special.factorial(ii) * 4**ii * np.sqrt(np.pi))
@@ -265,7 +263,7 @@ def step_methfessel_paxton(x, n):
     """
     S_n (x) = (1 + erf x)/2 - exp -x^2 * sum_i=1^n A_i H_{2i-1}(x)
     where H is a Hermite polynomial and
-    A_i = (-1)^i / ( i! 4^i sqrt(pi) )
+    A_i = (-1)^i / ( i! 4^i sqrt(pi) ).
     """
     ii = np.arange(1, n + 1)
     A = (-1) ** ii / (scipy.special.factorial(ii) * 4**ii * np.sqrt(np.pi))
@@ -274,7 +272,7 @@ def step_methfessel_paxton(x, n):
 
 
 def delta_func(x, ismear):
-    """Replication of VASP's delta function"""
+    """Replication of VASP's delta function."""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
@@ -285,7 +283,7 @@ def delta_func(x, ismear):
 
 
 def step_func(x, ismear):
-    """Replication of VASP's step function"""
+    """Replication of VASP's step function."""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
@@ -310,9 +308,8 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
 
     Return:
         np.array: Array of size `nx` with delta function on the desired outputgrid.
-
     """
-    xgrid = np.arange(0, nx * dx, dx)
+    xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
     x_scaled = (xgrid + (dx / 2)) / sigma
     sfun = step_func(x_scaled, ismear)
@@ -336,16 +333,16 @@ def get_step(x0, sigma, nx, dx, ismear):
     Return:
         np.array: Array of size `nx` with step function on the desired outputgrid.
     """
-    xgrid = np.arange(0, nx * dx, dx)
+    xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
     x_scaled = (xgrid + (dx / 2)) / sigma
     return step_func(x_scaled, ismear)
 
 
 def epsilon_imag(
-    cder: npt.NDArray,
-    eigs: npt.NDArray,
-    kweights: npt.ArrayLike,
+    cder: NDArray,
+    eigs: NDArray,
+    kweights: ArrayLike,
     efermi: float,
     nedos: int,
     deltae: float,
@@ -353,7 +350,7 @@ def epsilon_imag(
     sigma: float,
     idir: int,
     jdir: int,
-    mask: npt.NDArray | None = None,
+    mask: NDArray | None = None,
 ):
     """Replicate the EPSILON_IMAG function of VASP.
 
@@ -372,10 +369,9 @@ def epsilon_imag(
 
     Return:
         np.array: Array of size `nedos` with the imaginary part of the dielectric function.
-
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
-    egrid = np.arange(0, nedos * deltae, deltae)
+    egrid = np.linspace(0, nedos * deltae, nedos, endpoint=False)
     eigs_shifted = eigs - efermi
     # np.subtract.outer results in a matrix of shape (nband, nband)
     rspin = 3 - cder.shape[3]
@@ -390,10 +386,10 @@ def epsilon_imag(
     try:
         min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
         min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
-    except ValueError as e:
-        if "zero-size array" in str(e):
-            return egrid, np.zeros_like(egrid, dtype=np.complex_)
-        raise e
+    except ValueError as exc:
+        if "zero-size array" in str(exc):
+            return egrid, np.zeros_like(egrid, dtype=np.complex128)
+        raise exc
     _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),
@@ -404,7 +400,6 @@ def epsilon_imag(
     num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
     epsdd = np.zeros_like(egrid, dtype=np.complex128)
     for ib, jb, ik, ispin in tqdm(itertools.product(*iter_idx), total=num_):
-        # print(f"{ib=}, {jb=}, {ik=}, {ispin=}")
         fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
         fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
         weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
@@ -424,7 +419,7 @@ def kramers_kronig(
     nedos: int,
     deltae: float,
     cshift: float = 0.1,
-) -> npt.NDArray:
+) -> NDArray:
     """Perform the Kramers-Kronig transformation.
 
     Perform the Kramers-Kronig transformation exactly as VASP does it.

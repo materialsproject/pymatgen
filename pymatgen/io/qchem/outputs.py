@@ -1,6 +1,4 @@
-"""
-Parsers for Qchem output files.
-"""
+"""Parsers for Qchem output files."""
 
 from __future__ import annotations
 
@@ -9,8 +7,9 @@ import logging
 import math
 import os
 import re
+import struct
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 import numpy as np
@@ -34,6 +33,8 @@ try:
 except ImportError:
     openbabel = None
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -46,22 +47,20 @@ logger = logging.getLogger(__name__)
 
 
 class QCOutput(MSONable):
-    """
-    Class to parse QChem output files.
-    """
+    """Class to parse QChem output files."""
 
     def __init__(self, filename: str):
         """
         Args:
-            filename (str): Filename to parse
+            filename (str): Filename to parse.
         """
         self.filename = filename
         self.data: dict[str, Any] = {}
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
-        with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
-            self.text = f.read()
+        with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
+            self.text = file.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.data["multiple_outputs"] = read_pattern(
@@ -69,11 +68,8 @@ class QCOutput(MSONable):
         ).get("key")
         if self.data.get("multiple_outputs") is not None and self.data.get("multiple_outputs") != [["1"]]:
             raise ValueError(
-                "ERROR: multiple calculation outputs found in file "
-                + filename
-                + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
-                + filename
-                + "')"
+                f"ERROR: multiple calculation outputs found in file {filename}. "
+                f"Please instead call QCOutput.mulitple_outputs_from_file(QCOutput, {filename!r})"
             )
 
         # Parse the Q-Chem major version
@@ -115,8 +111,7 @@ class QCOutput(MSONable):
                 self.data["walltime"] = float(temp_timings[0][0])
                 self.data["cputime"] = float(temp_timings[0][1])
             else:
-                self.data["walltime"] = None
-                self.data["cputime"] = None
+                self.data["walltime"] = self.data["cputime"] = None
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
@@ -226,8 +221,7 @@ class QCOutput(MSONable):
             self.data["gap_info"] = None
 
         # Check to see if PCM or SMD are present
-        self.data["solvent_method"] = None
-        self.data["solvent_data"] = None
+        self.data["solvent_method"] = self.data["solvent_data"] = None
 
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
@@ -295,7 +289,7 @@ class QCOutput(MSONable):
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
-                        self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
+                        self.data["warnings"]["SMD_two_solvents"] = f"{temp_solvent[0][0]} and {val[0]}"
                     elif (
                         "unrecognized_solvent" not in self.data["errors"]
                         and "unrecognized_solvent" not in self.data["warnings"]
@@ -333,10 +327,13 @@ class QCOutput(MSONable):
             temp_dict = read_pattern(
                 self.text,
                 {"final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"},
+            ) or read_pattern(  # support Q-Chem 6.1.1+ (gh-3580)
+                self.text,
+                {"final_energy": r"\s+Total energy\s+=\s+([\d\-\.]+)"},
             )
 
-            if temp_dict.get("final_energy") is not None:
-                self.data["final_energy"] = float(temp_dict.get("final_energy")[-1][0])
+            if e_final_match := temp_dict.get("final_energy"):
+                self.data["final_energy"] = float(e_final_match[-1][0])
 
         # Check if calculation is using dft_d and parse relevant info if so
         self.data["using_dft_d3"] = read_pattern(self.text, {"key": r"dft_d\s*= d3"}, terminate_on_match=True).get(
@@ -635,20 +632,20 @@ class QCOutput(MSONable):
             e.g. qcout -> qcout.0, qcout.1, qcout.2 ... qcout.N
             a.) Find delimiter for multiple calculations
             b.) Make separate output sub-files
-        2.) Creates separate QCCalcs for each one from the sub-files
+        2.) Creates separate QCCalcs for each one from the sub-files.
         """
         to_return = []
-        with zopen(filename, "rt") as f:
-            text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", f.read())
+        with zopen(filename, mode="rt") as file:
+            text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", file.read())
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
-            with open(filename + "." + str(i), "w") as temp:
+            with open(f"{filename}.{i}", mode="w") as temp:
                 temp.write(sub_text)
-            tempOutput = QCOutput(filename + "." + str(i))
+            tempOutput = QCOutput(f"{filename}.{i}")
             to_return.append(tempOutput)
             if not keep_sub_files:
-                os.remove(filename + "." + str(i))
+                os.remove(f"{filename}.{i}")
         return to_return
 
     def _read_eigenvalues(self):
@@ -767,9 +764,7 @@ class QCOutput(MSONable):
             self.data["beta_coeff_matrix"] = beta_coeff_matrix
 
     def _read_charge_and_multiplicity(self):
-        """
-        Parses charge and multiplicity.
-        """
+        """Parses charge and multiplicity."""
         temp_charge = read_pattern(self.text, {"key": r"\$molecule\s+([\-\d]+)\s+\d"}, terminate_on_match=True).get(
             "key"
         )
@@ -803,18 +798,15 @@ class QCOutput(MSONable):
                 self.data["multiplicity"] = int(float(temp_multiplicity[0][0])) + 1
 
     def _read_species_and_inital_geometry(self):
-        """
-        Parses species and initial geometry.
-        """
+        """Parses species and initial geometry."""
         header_pattern = r"Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
         table_pattern = r"\s*\d+\s+([a-zA-Z]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
         footer_pattern = r"\s*-+"
         temp_geom = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if temp_geom is None or len(temp_geom) == 0:
-            self.data["species"] = None
-            self.data["initial_geometry"] = None
-            self.data["initial_molecule"] = None
-            self.data["point_group"] = None
+            self.data["species"] = self.data["initial_geometry"] = self.data["initial_molecule"] = self.data[
+                "point_group"
+            ] = None
         else:
             temp_point_group = read_pattern(
                 self.text,
@@ -848,9 +840,7 @@ class QCOutput(MSONable):
                 self.data["initial_molecule"] = None
 
     def _read_SCF(self):
-        """
-        Parses both old and new SCFs.
-        """
+        """Parses both old and new SCFs."""
         if self.data.get("using_GEN_SCFMAN", []):
             footer_pattern = r"(^\s*\-+\n\s+SCF time|^\s*gen_scfman_exception: SCF failed to converge)"
             header_pattern = (
@@ -961,9 +951,10 @@ class QCOutput(MSONable):
     def _read_charges_and_dipoles(self):
         """
         Parses Mulliken/ESP/RESP charges.
-        Parses associated dipoles.
+        Parses associated dipole/multipole moments.
         Also parses spins given an unrestricted SCF.
         """
+
         self.data["dipoles"] = {}
         temp_dipole_total = read_pattern(
             self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
@@ -984,10 +975,85 @@ class QCOutput(MSONable):
                     total[ii] = float(val[0])
                 self.data["dipoles"]["total"] = total
                 dipole = np.zeros(shape=(len(temp_dipole_total), 3))
-                for ii, _entry in enumerate(temp_dipole):
+                for ii in range(len(temp_dipole)):
                     for jj, _val in enumerate(temp_dipole[ii]):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
+
+        self.data["multipoles"] = dict()
+
+        quad_mom_pat = (
+            r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
+            r"\s+([\-\.0-9]+)\s+XZ\s+([\-\.0-9]+)\s+YZ\s+([\-\.0-9]+)\s+ZZ\s+([\-\.0-9]+)"
+        )
+        temp_quadrupole_moment = read_pattern(self.text, {"key": quad_mom_pat}).get("key")
+        if temp_quadrupole_moment is not None:
+            keys = ("XX", "XY", "YY", "XZ", "YZ", "ZZ")
+            if len(temp_quadrupole_moment) == 1:
+                self.data["multipoles"]["quadrupole"] = {
+                    key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
+                }
+            else:
+                self.data["multipoles"]["quadrupole"] = list()
+                for qpole in temp_quadrupole_moment:
+                    self.data["multipoles"]["quadrupole"].append(
+                        {key: float(qpole[idx]) for idx, key in enumerate(keys)}
+                    )
+
+        octo_mom_pat = (
+            r"\s*Octopole Moments \(Debye\-Ang\^2\)\s+XXX\s+([\-\.0-9]+)\s+XXY\s+([\-\.0-9]+)"
+            r"\s+XYY\s+([\-\.0-9]+)\s+YYY\s+([\-\.0-9]+)\s+XXZ\s+([\-\.0-9]+)\s+XYZ\s+([\-\.0-9]+)"
+            r"\s+YYZ\s+([\-\.0-9]+)\s+XZZ\s+([\-\.0-9]+)\s+YZZ\s+([\-\.0-9]+)\s+ZZZ\s+([\-\.0-9]+)"
+        )
+        temp_octopole_moment = read_pattern(self.text, {"key": octo_mom_pat}).get("key")
+        if temp_octopole_moment is not None:
+            keys = ("XXX", "XXY", "XYY", "YYY", "XXZ", "XYZ", "YYZ", "XZZ", "YZZ", "ZZZ")
+            if len(temp_octopole_moment) == 1:
+                self.data["multipoles"]["octopole"] = {
+                    key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
+                }
+            else:
+                self.data["multipoles"]["octopole"] = list()
+                for opole in temp_octopole_moment:
+                    self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
+
+        hexadeca_mom_pat = (
+            r"\s*Hexadecapole Moments \(Debye\-Ang\^3\)\s+XXXX\s+([\-\.0-9]+)\s+XXXY\s+([\-\.0-9]+)"
+            r"\s+XXYY\s+([\-\.0-9]+)\s+XYYY\s+([\-\.0-9]+)\s+YYYY\s+([\-\.0-9]+)\s+XXXZ\s+([\-\.0-9]+)"
+            r"\s+XXYZ\s+([\-\.0-9]+)\s+XYYZ\s+([\-\.0-9]+)\s+YYYZ\s+([\-\.0-9]+)\s+XXZZ\s+([\-\.0-9]+)"
+            r"\s+XYZZ\s+([\-\.0-9]+)\s+YYZZ\s+([\-\.0-9]+)\s+XZZZ\s+([\-\.0-9]+)\s+YZZZ\s+([\-\.0-9]+)"
+            r"\s+ZZZZ\s+([\-\.0-9]+)"
+        )
+        temp_hexadecapole_moment = read_pattern(self.text, {"key": hexadeca_mom_pat}).get("key")
+        if temp_hexadecapole_moment is not None:
+            keys = (
+                "XXXX",
+                "XXXY",
+                "XXYY",
+                "XYYY",
+                "YYYY",
+                "XXXZ",
+                "XXYZ",
+                "XYYZ",
+                "YYYZ",
+                "XXZZ",
+                "XYZZ",
+                "YYZZ",
+                "XZZZ",
+                "YZZZ",
+                "ZZZZ",
+            )
+
+            if len(temp_hexadecapole_moment) == 1:
+                self.data["multipoles"]["hexadecapole"] = {
+                    key: float(temp_hexadecapole_moment[0][idx]) for idx, key in enumerate(keys)
+                }
+            else:
+                self.data["multipoles"]["hexadecapole"] = list()
+                for hpole in temp_hexadecapole_moment:
+                    self.data["multipoles"]["hexadecapole"].append(
+                        {key: float(hpole[idx]) for idx, key in enumerate(keys)}
+                    )
 
         if self.data.get("unrestricted", []):
             header_pattern = (
@@ -1056,7 +1122,7 @@ class QCOutput(MSONable):
                         RESP_total[ii] = float(val[0])
                     self.data["dipoles"]["RESP_total"] = RESP_total
                     RESP_dipole = np.zeros(shape=(len(temp_RESP_dipole_total), 3))
-                    for ii, _entry in enumerate(temp_RESP_dipole):
+                    for ii in range(len(temp_RESP_dipole)):
                         for jj, _val in enumerate(temp_RESP_dipole[ii]):
                             RESP_dipole[ii][jj] = temp_RESP_dipole[ii][jj]
                     self.data["dipoles"]["RESP_dipole"] = RESP_dipole
@@ -1175,9 +1241,7 @@ class QCOutput(MSONable):
             self.data["warnings"]["diagonalizing_BBt"] = True
 
     def _read_geometries(self):
-        """
-        Parses all geometries from an optimization trajectory.
-        """
+        """Parses all geometries from an optimization trajectory."""
         geoms = []
         if self.data.get("new_optimizer") is None:
             header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
@@ -1194,7 +1258,7 @@ class QCOutput(MSONable):
             )
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
-        else:  # pylint: disable=line-too-long
+        else:
             header_pattern = (
                 r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
                 r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
@@ -1273,7 +1337,7 @@ class QCOutput(MSONable):
     def _get_grad_format_length(self, header):
         """
         Determines the maximum number of gradient entries printed on a line,
-        which changes for different versions of Q-Chem
+        which changes for different versions of Q-Chem.
         """
         found_end = False
         index = 1
@@ -1282,14 +1346,12 @@ class QCOutput(MSONable):
             if read_pattern(self.text, {"key": pattern}, terminate_on_match=True).get("key") != [[]]:
                 found_end = True
             else:
-                pattern = pattern + r"\s+" + str(index)
+                pattern = f"{pattern}\\s+{index}"
                 index += 1
         return index - 2
 
     def _read_gradients(self):
-        """
-        Parses all gradients obtained during an optimization trajectory
-        """
+        """Parses all gradients obtained during an optimization trajectory."""
         grad_header_pattern = r"Gradient of (?:SCF)?(?:MP2)? Energy(?: \(in au\.\))?"
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
@@ -1402,11 +1464,7 @@ class QCOutput(MSONable):
                     self.text,
                     {"key": r"Maximum number of iterations reached during minimization algorithm"},
                     terminate_on_match=True,
-                ).get(
-                    "key"
-                ) == [
-                    []
-                ]:
+                ).get("key") == [[]]:
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
@@ -1424,9 +1482,7 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["svd_failed"]
 
     def _read_frequency_data(self):
-        """
-        Parses cpscf_nseg, frequencies, enthalpy, entropy, and mode vectors.
-        """
+        """Parses cpscf_nseg, frequencies, enthalpy, entropy, and mode vectors."""
         if read_pattern(self.text, {"key": r"Calculating MO derivatives via CPSCF"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
@@ -1484,7 +1540,6 @@ class QCOutput(MSONable):
             "total_enthalpy",
             "total_entropy",
         ]
-
         for key in keys:
             if temp_dict.get(key) is None:
                 self.data[key] = None
@@ -1492,13 +1547,9 @@ class QCOutput(MSONable):
                 self.data[key] = float(temp_dict.get(key)[0][0])
 
         if temp_dict.get("frequencies") is None:
-            self.data["frequencies"] = None
-            self.data["IR_intens"] = None
-            self.data["IR_active"] = None
-            self.data["raman_intens"] = None
-            self.data["raman_active"] = None
-            self.data["depolar"] = None
-            self.data["trans_dip"] = None
+            self.data["frequencies"] = self.data["IR_intens"] = self.data["IR_active"] = None
+            self.data["raman_active"] = self.data["raman_intens"] = None
+            self.data["depolar"] = self.data["trans_dip"] = None
         else:
             temp_freqs = [value for entry in temp_dict.get("frequencies") for value in entry]
             temp_IR_intens = [value for entry in temp_dict.get("IR_intens") for value in entry]
@@ -1528,9 +1579,7 @@ class QCOutput(MSONable):
                             depolar[ii] = float(entry)
                 self.data["depolar"] = depolar
             else:
-                self.data["raman_intens"] = None
-                self.data["raman_active"] = None
-                self.data["depolar"] = None
+                self.data["raman_intens"] = self.data["raman_active"] = self.data["depolar"] = None
 
             trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count("None")) / 3), 3))
             for ii, entry in enumerate(temp_trans_dip):
@@ -1720,9 +1769,7 @@ class QCOutput(MSONable):
                     )
 
     def _read_pcm_information(self):
-        """
-        Parses information from PCM solvent calculations.
-        """
+        """Parses information from PCM solvent calculations."""
         temp_dict = read_pattern(
             self.text,
             {
@@ -1747,9 +1794,7 @@ class QCOutput(MSONable):
                 self.data["solvent_data"][key] = temp_result
 
     def _read_smd_information(self):
-        """
-        Parses information from SMD solvent calculations.
-        """
+        """Parses information from SMD solvent calculations."""
         temp_dict = read_pattern(
             self.text,
             {
@@ -1807,7 +1852,7 @@ class QCOutput(MSONable):
             },
         )
 
-        for key, _v in temp_dict.items():
+        for key in temp_dict:
             if temp_dict.get(key) is None:
                 self.data["solvent_data"]["isosvp"][key] = None
             elif len(temp_dict.get(key)) == 1:
@@ -1854,7 +1899,7 @@ class QCOutput(MSONable):
             },
         )
 
-        for key, _v in temp_dict.items():
+        for key in temp_dict:
             if temp_dict.get(key) is None:
                 self.data["solvent_data"]["cmirs"][key] = None
             elif len(temp_dict.get(key)) == 1:
@@ -1866,9 +1911,7 @@ class QCOutput(MSONable):
                 self.data["solvent_data"]["cmirs"][key] = temp_result
 
     def _read_nbo_data(self):
-        """
-        Parses NBO output
-        """
+        """Parses NBO output."""
         dfs = nbo_parser(self.filename)
         nbo_data = {}
         for key, value in dfs.items():
@@ -1876,9 +1919,7 @@ class QCOutput(MSONable):
         self.data["nbo_data"] = nbo_data
 
     def _read_cdft(self):
-        """
-        Parses output from charge- or spin-constrained DFT (CDFT) calculations.
-        """
+        """Parses output from charge- or spin-constrained DFT (CDFT) calculations."""
         # Parse constraint and optimization parameters
         temp_dict = read_pattern(
             self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
@@ -1898,9 +1939,9 @@ class QCOutput(MSONable):
 
         becke_table = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if becke_table is None or len(becke_table) == 0:
-            self.data["cdft_becke_excess_electrons"] = None
-            self.data["cdft_becke_population"] = None
-            self.data["cdft_becke_net_spin"] = None
+            self.data["cdft_becke_excess_electrons"] = self.data["cdft_becke_population"] = self.data[
+                "cdft_becke_net_spin"
+            ] = None
         else:
             self.data["cdft_becke_excess_electrons"] = []
             self.data["cdft_becke_population"] = []
@@ -1923,9 +1964,7 @@ class QCOutput(MSONable):
         # TODO: CDFT-CI calculation outputs
 
     def _read_almo_msdft(self):
-        """
-        Parse output of ALMO(MSDFT) calculations for coupling between diabatic states
-        """
+        """Parse output of ALMO(MSDFT) calculations for coupling between diabatic states."""
         temp_dict = read_pattern(
             self.text,
             {
@@ -2019,9 +2058,7 @@ class QCOutput(MSONable):
             self.data["almo_coupling_eV"] = float(temp_dict["coupling"][0][0]) / 1000
 
     def _check_completion_errors(self):
-        """
-        Parses potential errors that can cause jobs to crash
-        """
+        """Parses potential errors that can cause jobs to crash."""
         if read_pattern(
             self.text,
             {"key": r"Coordinates do not transform within specified threshold"},
@@ -2086,9 +2123,7 @@ class QCOutput(MSONable):
             "key"
         ) == [[]] or read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get(
             "key"
-        ) == [
-            []
-        ]:
+        ) == [[]]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
@@ -2138,11 +2173,11 @@ class QCOutput(MSONable):
         Returns:
             MSONable dict.
         """
-        d = {}
-        d["data"] = self.data
-        d["text"] = self.text
-        d["filename"] = self.filename
-        return jsanitize(d, strict=True)
+        dct = {}
+        dct["data"] = self.data
+        dct["text"] = self.text
+        dct["filename"] = self.filename
+        return jsanitize(dct, strict=True)
 
 
 def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
@@ -2215,14 +2250,14 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
     of the new list contains the header.
 
     Args:
-            lines: List of lines.
-            header: Substring to match.
+        lines: List of lines.
+        header: Substring to match.
 
     Returns:
-            Truncated lines.
+        Truncated lines.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Search for the header
     for i, line in enumerate(lines):
@@ -2230,7 +2265,7 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
             return lines[i:]
 
     # Search failed
-    raise RuntimeError(f"Header {header} could not be found in the lines.")
+    raise RuntimeError(f"{header=} could not be found in the lines.")
 
 
 def get_percentage(line: str, orbital: str) -> str:
@@ -2238,14 +2273,14 @@ def get_percentage(line: str, orbital: str) -> str:
     Retrieve the percent character of an orbital.
 
     Args:
-            line: Line containing orbital and percentage.
-            orbital: Type of orbital (s, p, d, f).
+        line: Line containing orbital and percentage.
+        orbital: Type of orbital (s, p, d, f).
 
     Returns:
-            Percentage of character.
+        Percentage of character.
 
     Raises:
-            n/a
+        n/a
     """
     # Locate orbital in line
     index = line.find(orbital)
@@ -2265,13 +2300,13 @@ def z_int(string: str) -> int:
     If string empty, return -1.
 
     Args:
-            string: Input to be cast to int.
+        string: Input to be cast to int.
 
     Returns:
-            Int representation.
+        Int representation.
 
     Raises:
-            n/a
+        n/a
     """
     try:
         return int(string)
@@ -2284,13 +2319,13 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     Parse the natural populations section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     pop_dfs = []
@@ -2344,13 +2379,13 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
     Parse the natural populations section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     hyperbond_dfs = []
@@ -2395,7 +2430,7 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry: dict[str, str | int | float] = {}
+                entry: dict[str, str | float] = {}
                 entry["hyperbond index"] = int(line[0:4].strip())
                 entry["bond atom 1 symbol"] = str(line[5:8].strip())
                 entry["bond atom 1 index"] = int(line[8:11].strip())
@@ -2425,19 +2460,19 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     Parse the hybridization character section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frames of formatted output.
+        Data frames of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
 
     no_failures = True
-    lp_and_bd_and_tc_dfs = []
+    lp_and_bd_and_tc_dfs: list[pd.DataFrame] = []
 
     while no_failures:
         # NBO Analysis
@@ -2478,7 +2513,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    LPentry: dict[str, str | int | float] = {orbital: 0.0 for orbital in orbitals}
+                    LPentry: dict[str, str | float] = dict.fromkeys(orbitals, 0.0)
                     LPentry["bond index"] = line[0:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
@@ -2505,7 +2540,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Bonding
                 if "BD" in line:
-                    BDentry: dict[str, str | int | float] = {
+                    BDentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
                     }
                     BDentry["bond index"] = line[0:4].strip()
@@ -2565,7 +2600,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # 3-center bond
                 if "3C" in line:
-                    TCentry: dict[str, str | int | float] = {
+                    TCentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 4)
                     }
                     TCentry["bond index"] = line[0:4].strip()
@@ -2648,9 +2683,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     tc_data.append(TCentry)
 
             # Store values in a dataframe
-            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=lp_data))
-            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=bd_data))
-            lp_and_bd_and_tc_dfs.append(pd.DataFrame(data=tc_data))
+            lp_and_bd_and_tc_dfs += (pd.DataFrame(lp_data), pd.DataFrame(bd_data), pd.DataFrame(tc_data))
 
     return lp_and_bd_and_tc_dfs
 
@@ -2705,7 +2738,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry: dict[str, str | int | float] = {}
+                entry: dict[str, str | float] = {}
                 first_3C = False
                 second_3C = False
                 if line[7] == "3":
@@ -2809,17 +2842,17 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     Parse all the important sections of NBO output.
 
     Args:
-            filename: Path to QChem NBO output.
+        filename: Path to QChem NBO output.
 
     Returns:
-            Data frames of formatted output.
+        Data frames of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Open the lines
-    with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
-        lines = f.readlines()
+    with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
+        lines = file.readlines()
 
     # Compile the dataframes
     dfs = {}
@@ -2828,3 +2861,66 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     dfs["hyperbonds"] = parse_hyperbonds(lines)
     dfs["perturbation_energy"] = parse_perturbation_energy(lines)
     return dfs
+
+
+def gradient_parser(filename: str = "131.0") -> NDArray:
+    """
+    Parse the gradient data from a gradient scratch file.
+
+    Args:
+        filename: Path to the gradient scratch file. Defaults to "131.0".
+
+    Returns:
+        NDArray: The gradient, in units of Hartree/Bohr.
+    """
+    # Read the gradient scratch file in 8 byte chunks
+    tmp_grad_data: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    tmp_grad_data.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    grad = [
+        [
+            float(tmp_grad_data[ii * 3]),
+            float(tmp_grad_data[ii * 3 + 1]),
+            float(tmp_grad_data[ii * 3 + 2]),
+        ]
+        for ii in range(len(tmp_grad_data) // 3)
+    ]
+    return np.array(grad)
+
+
+def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
+    """
+    Parse the Hessian data from a Hessian scratch file.
+
+    Args:
+        filename: Path to the Hessian scratch file. Defaults to "132.0".
+        n_atoms: Number of atoms in the molecule. If None, no reshaping will be done.
+
+    Returns:
+        NDArray: Hessian, formatted as 3n_atoms x 3n_atoms. Units are Hartree/Bohr^2/amu.
+    """
+    hessian: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    hessian.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    if n_atoms:
+        return np.reshape(hessian, (n_atoms * 3, n_atoms * 3))
+    return np.array(hessian)
+
+
+def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
+    """
+    Parse the orbital coefficients from a scratch file.
+
+    Args:
+        filename: Path to the orbital coefficients file. Defaults to "53.0".
+
+    Returns:
+        NDArray: The orbital coefficients
+    """
+    orbital_coeffs: list[float] = []
+    with zopen(filename, mode="rb") as file:
+        binary = file.read()
+    orbital_coeffs.extend(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8))
+    return np.array(orbital_coeffs)
