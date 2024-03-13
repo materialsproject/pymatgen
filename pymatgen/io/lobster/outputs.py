@@ -1146,9 +1146,9 @@ class Fatband:
         if structure_file is None and structure is None:
             raise ValueError("structure_file or structure have to be provided")
         if structure_file is not None:
-            self.structure = Structure.from_file(structure_file)
+            self.structure = Structure.from_file(structure_file) # type: ignore
         else:
-            self.structure = structure
+            self.structure = structure # type: ignore
         self.lattice = self.structure.lattice.reciprocal_lattice  # type: ignore
         if vasprun_file is not None:
             self.efermi = Vasprun(
