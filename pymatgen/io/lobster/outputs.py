@@ -1166,8 +1166,8 @@ class Fatband:
             self.efermi = efermi
         kpoints_object = Kpoints.from_file(kpoints_file)
 
-        atomtype = []
-        atomnames = []
+        atom_type = []
+        atom_names = []
         orbital_names = []
 
         if not isinstance(filenames, list) or filenames is None:
@@ -1184,14 +1184,14 @@ class Fatband:
             with zopen(name, mode="rt") as file:
                 contents = file.read().split("\n")
 
-            atomnames.append(os.path.split(name)[1].split("_")[1].capitalize())
+            atom_names.append(os.path.split(name)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
-            atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
+            atom_type.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
             orbital_names.append(parameters[4])
 
         # get atomtype orbital dict
         atom_orbital_dict = {}
-        for iatom, atom in enumerate(atomnames):
+        for iatom, atom in enumerate(atom_names):
             if atom not in atom_orbital_dict:
                 atom_orbital_dict[atom] = []
             atom_orbital_dict[atom].append(orbital_names[iatom])
@@ -1233,25 +1233,25 @@ class Fatband:
                     self.is_spinpolarized = len(linenumbers) == 2
 
             if ifilename == 0:
-                eigenvals = {}
+                eigenvals = {} #type: dict
                 eigenvals[Spin.up] = [
-                    [collections.defaultdict(float) for i in range(self.number_kpts)] for j in range(self.nbands)
+                    [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
                 ]
                 if self.is_spinpolarized:
                     eigenvals[Spin.down] = [
-                        [collections.defaultdict(float) for i in range(self.number_kpts)] for j in range(self.nbands)
+                        [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
                     ]
 
-                p_eigenvals = {}
+                p_eigenvals = {} #type: dict
                 p_eigenvals[Spin.up] = [
                     [
                         {
                             str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
-                            for e in atomnames
+                            for e in atom_names
                         }
-                        for i in range(self.number_kpts)
+                        for _ in range(self.number_kpts)
                     ]
-                    for j in range(self.nbands)
+                    for _ in range(self.nbands)
                 ]
 
                 if self.is_spinpolarized:
@@ -1259,11 +1259,11 @@ class Fatband:
                         [
                             {
                                 str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
-                                for e in atomnames
+                                for e in atom_names
                             }
-                            for i in range(self.number_kpts)
+                            for _ in range(self.number_kpts)
                         ]
-                        for j in range(self.nbands)
+                        for _ in range(self.nbands)
                     ]
 
             ikpoint = -1
@@ -1289,13 +1289,13 @@ class Fatband:
                         if ifilename == 0:
                             eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
 
-                        p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
+                        p_eigenvals[Spin.up][iband][ikpoint][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
                     if linenumber >= self.nbands and self.is_spinpolarized:
                         if ifilename == 0:
                             eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
-                        p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
+                        p_eigenvals[Spin.down][iband][ikpoint][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
 
