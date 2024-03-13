@@ -288,25 +288,25 @@ class Cohpcar:
                 "orbitals": orbitals,
                 "orb_label": orb_label,
             }
+
+        line_new = line.rsplit("(", 1)
+
+        sites = line_new[0].replace("->", ":").split(":")[1:]
+
+        site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
+        if sites[0].count("[") > 1:
+            orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
+            orb_label, orbitals = get_orb_from_str(orbs)
         else:
-            line_new = line.rsplit("(", 1)
+            orbitals = None
+            orb_label = None
 
-            sites = line_new[0].replace("->", ":").split(":")[1:]
-
-            site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
-            if sites[0].count("[") > 1:
-                orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
-                orb_label, orbitals = get_orb_from_str(orbs)
-            else:
-                orbitals = None
-                orb_label = None
-
-            return {
-                "sites": site_indices,
-                "length": None,
-                "orbitals": orbitals,
-                "orb_label": orb_label,
-            }
+        return {
+            "sites": site_indices,
+            "length": None,
+            "orbitals": orbitals,
+            "orb_label": orb_label,
+        }
 
 
 class Icohplist(MSONable):
