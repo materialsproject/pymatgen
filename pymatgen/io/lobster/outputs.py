@@ -1125,7 +1125,7 @@ class Fatband:
         kpoints_file: str = "KPOINTS",
         structure_file: str | None = "POSCAR.lobster",
         vasprun_file: str | None = "vasprun.xml",
-        structure: IStructure | None = None,
+        structure: Structure | IStructure | None = None,
         efermi: float | None = None,
     ):
         """
