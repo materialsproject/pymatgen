@@ -44,7 +44,8 @@ class Cohp(MSONable):
     """Basic COHP object."""
 
     def __init__(
-        self, efermi, energies, cohp, are_coops=False, are_cobis=False, are_multicenter_cobis=False, icohp=None)-> None:
+        self, efermi, energies, cohp, are_coops=False, are_cobis=False, are_multicenter_cobis=False, icohp=None
+    ) -> None:
         """
         Args:
             are_coops: Indicates whether this object describes COOPs.
@@ -65,10 +66,8 @@ class Cohp(MSONable):
 
     def __repr__(self) -> str:
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
-        if self.are_coops:
-            cohpstring = "COOP"
-        elif self.are_cobis or self.are_multicenter_cobis:
-            cohpstring = "COBI"
+        if self.are_coops or (self.are_cobis or self.are_multicenter_cobis):
+            pass
         else:
             cohp_str = "COHP"
 
@@ -184,14 +183,11 @@ class Cohp(MSONable):
         return dict_to_return
 
     @classmethod
-
     def from_dict(cls, dct):
-        """
-        Returns a COHP object from a dict representation of the COHP.
-        """
+        """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
-        are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
-        are_multicenter_cobis = False if "are_multicenter_cobis" not in dct else dct["are_multicenter_cobis"]
+        are_cobis = dct.get("are_cobis", False)
+        are_multicenter_cobis = dct.get("are_multicenter_cobis", False)
         return Cohp(
             dct["efermi"],
             dct["energies"],
@@ -546,7 +542,7 @@ class CompleteCohp(Cohp):
         efermi = dct["efermi"]
         energies = dct["energies"]
         structure = Structure.from_dict(dct["structure"])
-        are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
+        are_cobis = dct.get("are_cobis", False)
         are_multicenter_cobis = False if "are_multicenter_cobis" not in dct else dct["are_multicener_cobis"]
         are_coops = dct["are_coops"]
         if "bonds" in dct:

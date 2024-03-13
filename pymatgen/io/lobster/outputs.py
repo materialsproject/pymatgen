@@ -105,7 +105,6 @@ class Cohpcar:
             else:
                 filename = "COHPCAR.lobster"
 
-
         with zopen(filename, mode="rt") as file:
             contents = file.read().split("\n")
 
@@ -197,7 +196,7 @@ class Cohpcar:
 
                 icohp = {spin: data[2 * (bond + s * (num_bonds)) + 2] for s, spin in enumerate(spins)}
                 if orbs is None:
-                    bond_numb = bond_num + 1
+                    bond_num + 1
                     label = str(bond_num)
                     cohp_data[label] = {
                         "COHP": cohp,
@@ -239,11 +238,11 @@ class Cohpcar:
         # present for obster older than 2.2.0
         if very_old:
             for bond_str in orb_cohp:
-                cohp_data[bond_str] ={
+                cohp_data[bond_str] = {
                     "COHP": None,
                     "ICOHP": None,
                     "length": bond_data["length"],
-                    "sites": bond_data["sites"]
+                    "sites": bond_data["sites"],
                 }
         self.orb_res_cohp = orb_cohp or None
         self.cohp_data = cohp_data
@@ -268,25 +267,7 @@ class Cohpcar:
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
         """
-        orb_labs = [
-            "s",
-            "p_y",
-            "p_z",
-            "p_x",
-            "d_xy",
-            "d_yz",
-            "d_z^2",
-            "d_xz",
-            "d_x^2-y^2",
-            "f_y(3x^2-y^2)",
-            "f_xyz",
-            "f_yz^2",
-            "f_z^3",
-            "f_xz^2",
-            "f_z(x^2-y^2)",
-            "f_x(x^2-3y^2)",
-        ]
-        #TODO: bug is somehwere here!
+        # TODO: bug is somehwere here!
         if not are_multicenter_cobis:
             line_new = line.rsplit("(", 1)
             length = float(line_new[-1][:-1])
@@ -301,13 +282,12 @@ class Cohpcar:
                 orbitals = None
                 orb_label = None
 
-            bond_data = {
+            return {
                 "length": length,
                 "sites": site_indices,
                 "orbitals": orbitals,
                 "orb_label": orb_label,
             }
-            return bond_data
         else:
             line_new = line.rsplit("(", 1)
 
@@ -321,13 +301,12 @@ class Cohpcar:
                 orbitals = None
                 orb_label = None
 
-            bond_data = {
+            return {
                 "sites": site_indices,
                 "length": None,
                 "orbitals": orbitals,
                 "orb_label": orb_label,
             }
-            return bond_data
 
 
 class Icohplist(MSONable):
