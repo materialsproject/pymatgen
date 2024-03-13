@@ -662,7 +662,7 @@ class CompleteCohp(Cohp):
             avg_cohp,
             cohp_dict,
             bonds=bonds,
-            are_coops=d["are_coops"],
+            are_coops=dct["are_coops"],
             are_cobis=are_cobis,
             are_multicenter_cobis=are_multicenter_cobis,
             orb_res_cohp=orb_cohp,
