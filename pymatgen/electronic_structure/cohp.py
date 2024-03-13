@@ -240,7 +240,7 @@ class CompleteCohp(Cohp):
                 Defaults to False for COHPs.
             are_cobis: indicates whether the Cohp objects are COBIs.
                 Defaults to False for COHPs.
-            are_multicenter_cobiss: indicates whether the Cohp objects are multicenter COBIs.
+            are_multicenter_cobis: indicates whether the Cohp objects are multicenter COBIs.
                 Defaults to False for COHPs.
             orb_res_cohp: Orbital-resolved COHPs.
         """
