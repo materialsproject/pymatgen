@@ -1119,7 +1119,7 @@ class Fatband:
         structure (Structure): Structure read in from structure_file or Structure object.
     """
 
-    def __init__(self, filenames =".",  Kpointsfile:str ="KPOINTS", structure_file:str="POSCAR.lobster", vasprun:str="vasprun.xml",structure:Structure=None, fermi_energy: float=None):
+    def __init__(self, filenames:str|list =".",  kpoints_file : str ="KPOINTS", structure_file:str="POSCAR.lobster", vasprun_file:str="vasprun.xml",structure:Structure=None, efermi: float=None):
         """
         Args:
             filenames (list or string): can be a list of file names or a path to a folder from which all
@@ -1129,7 +1129,7 @@ class Fatband:
             vasprun (str9: Corresponding vasprun file. Instead, the Fermi energy from the DFT run can be provided. Then,
                 this value should be set to None.
             structure (Structure): Structure object. Can be provided instead of structure_file.
-            fermi_energy (float): fermi energy in eV
+            efermi (float): fermi energy in eV
         """
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
