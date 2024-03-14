@@ -839,7 +839,7 @@ class Lobsterout(MSONable):
                     setattr(self, attr, val)
                 else:
                     raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
-        else:
+        elif filename:
             with zopen(filename, mode="rt") as file:  # read in file
                 data = file.read().split("\n")
             if len(data) == 0:
@@ -908,6 +908,8 @@ class Lobsterout(MSONable):
                 "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
                 and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
             )
+        else:
+            raise ValueError("must provide either filename or kwargs to initialize Lobsterout")
 
     def get_doc(self):
         """Returns: LobsterDict with all the information stored in lobsterout."""
