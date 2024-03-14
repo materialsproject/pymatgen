@@ -823,7 +823,6 @@ class Lobsterout(MSONable):
         "has_grosspopulation",
         "has_density_of_energies",
     )
-    ATTRIBUTE_DEFAULTS = dict.fromkeys(_ATTRIBUTES, None)
 
     # TODO: add tests for skipping COBI and madelung
     # TODO: add tests for including COBI and madelung
@@ -831,12 +830,12 @@ class Lobsterout(MSONable):
         """
         Args:
             filename: filename of lobsterout.
-            **kwargs:dict to initialize Lobsterout instance (see > ATTRIBUTE_DEFAULTS)
+            **kwargs: dict to initialize Lobsterout instance
         """
         self.filename = filename
         if kwargs:
             for attr, val in kwargs.items():
-                if attr in self.ATTRIBUTE_DEFAULTS:
+                if attr in self._ATTRIBUTES:
                     setattr(self, attr, val)
                 else:
                     raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
