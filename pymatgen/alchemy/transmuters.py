@@ -113,17 +113,17 @@ class StandardTransmuter:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
                 z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
-                nrafo_ew_tstructs = p.map(_apply_transformation, z, 1)
+                trafo_new_structs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
-                for ts in nrafo_ew_tstructs:
-                    self.transformed_structures.extend(ts)
+                for ts in trafo_new_structs:
+                    self.transformed_structures += ts
         else:
             new_structures = []
             for x in self.transformed_structures:
                 new = x.append_transformation(transformation, extend_collection, clear_redo=clear_redo)
                 if new is not None:
-                    new_structures.extend(new)
-            self.transformed_structures.extend(new_structures)
+                    new_structures += new
+            self.transformed_structures += new_structures
 
     def extend_transformations(self, transformations):
         """Extends a sequence of transformations to the TransformedStructure.
@@ -134,7 +134,7 @@ class StandardTransmuter:
         for trafo in transformations:
             self.append_transformation(trafo)
 
-    def apply_filter(self, structure_filter):
+    def apply_filter(self, structure_filter: Callable):
         """Applies a structure_filter to the list of TransformedStructures
         in the transmuter.
 
@@ -194,11 +194,11 @@ class StandardTransmuter:
                 transmuter.
         """
         if isinstance(trafo_structs_or_transmuter, self.__class__):
-            self.transformed_structures.extend(trafo_structs_or_transmuter.transformed_structures)
+            self.transformed_structures += trafo_structs_or_transmuter.transformed_structures
         else:
             for ts in trafo_structs_or_transmuter:
                 assert isinstance(ts, TransformedStructure)
-            self.transformed_structures.extend(trafo_structs_or_transmuter)
+            self.transformed_structures += trafo_structs_or_transmuter
 
     @classmethod
     def from_structures(cls, structures, transformations=None, extend_collection=0):
@@ -371,7 +371,7 @@ def _apply_transformation(inputs):
     """
     ts, transformation, extend_collection, clear_redo = inputs
     new = ts.append_transformation(transformation, extend_collection, clear_redo=clear_redo)
-    o = [ts]
+    out = [ts]
     if new:
-        o.extend(new)
-    return o
+        out += new
+    return out

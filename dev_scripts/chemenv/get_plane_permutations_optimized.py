@@ -209,7 +209,7 @@ if __name__ == "__main__":
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
-                all_planes_point_indices.extend(algo.other_plane_points)
+                all_planes_point_indices += algo.other_plane_points
 
             # Loop on the facets
             explicit_permutations_per_plane = []
@@ -305,7 +305,7 @@ if __name__ == "__main__":
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
-                all_planes_point_indices.extend(algo.other_plane_points)
+                all_planes_point_indices += algo.other_plane_points
 
             # Setup of the permutations to be used for this algorithm
 

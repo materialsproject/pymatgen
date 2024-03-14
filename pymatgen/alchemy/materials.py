@@ -226,7 +226,7 @@ class TransformedStructure(MSONable):
         for hist in self.history:
             hist.pop("input_structure", None)
             output.append(str(hist))
-        output.extend(("\nOther parameters", "------------", str(self.other_parameters)))
+        output += ("\nOther parameters", "------------", str(self.other_parameters))
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> TransformedStructure:
