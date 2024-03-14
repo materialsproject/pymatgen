@@ -116,12 +116,12 @@ class Cohpcar:
         self.efermi = float(parameters[-1])
         self.is_spin_polarized = int(parameters[1]) == 2
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
-
+        cohp_data: dict[str, dict[str, Any]] = {}
         if not self.are_multicenter_cobis:
             # The COHP data start in row num_bonds + 3
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
             self.energies = data[0]
-            cohp_data: dict[str, dict[str, Any]] = {
+            cohp_data= {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                     "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
@@ -131,7 +131,7 @@ class Cohpcar:
             # The COBI data start in row num_bonds + 3 if multicenter cobis exist
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
             self.energies = data[0]
-            cohp_data: dict[str, dict[str, Any]] = {}
+
         orb_cohp: dict[str, Any] = {}
         # present for Lobster versions older than Lobster 2.2.0
         very_old = False
