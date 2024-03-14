@@ -274,6 +274,7 @@ class Cohpcar:
 
             sites = line_new[0].replace("->", ":").split(":")[1:3]
             site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
+            # TODO: get cells here as well
 
             if "[" in sites[0]:
                 orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
@@ -285,15 +286,19 @@ class Cohpcar:
             return {
                 "length": length,
                 "sites": site_indices,
+                "cells": None,
                 "orbitals": orbitals,
                 "orb_label": orb_label,
             }
 
-        line_new = line.rsplit("(", 1)
+        line_new = line.rsplit(sep="(", maxsplit=1)
 
         sites = line_new[0].replace("->", ":").split(":")[1:]
-
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
+        cells = [[int(i) for i in re.split(r"\[(.*?)\]", site)[1].split(" ")] for site in sites]
+
+
+        # test orbitalwise implementations!
         if sites[0].count("[") > 1:
             orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
             orb_label, orbitals = get_orb_from_str(orbs)
@@ -303,6 +308,7 @@ class Cohpcar:
 
         return {
             "sites": site_indices,
+            "cells": cells,
             "length": None,
             "orbitals": orbitals,
             "orb_label": orb_label,
