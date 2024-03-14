@@ -1326,9 +1326,11 @@ class Bandoverlaps(MSONable):
         """
         Args:
             filename: filename of the "bandOverlaps.lobster" file.
-            band_overlaps_dict: A dictionary containing the band overlap data of the form: {spin: {"k_points" : list of
-            k-point array, "max_deviations":list of max deviations associated to each k-point, "matrices": list of the
-            overlap matrices associated with each k-point}.
+            band_overlaps_dict: A dictionary containing the band overlap data of the form: {spin: {
+                    "k_points" : list of k-point array,
+                    "max_deviations": list of max deviations associated with each k-point,
+                    "matrices": list of the overlap matrices associated with each k-point
+                }}.
             max_deviation (list[float]): A list of floats describing the maximal deviation for each problematic k-point.
         """
         self._filename = filename
@@ -1363,7 +1365,7 @@ class Bandoverlaps(MSONable):
                 kpoint_array = []
                 for kpointel in kpoint:
                     if kpointel not in ["at", "k-point", ""]:
-                        kpoint_array.append(float(kpointel))
+                        kpoint_array += [float(kpointel)]
 
             elif "maxDeviation" in line:
                 if spin not in self.band_overlaps_dict:
@@ -1375,19 +1377,19 @@ class Bandoverlaps(MSONable):
                 if "matrices" not in self.band_overlaps_dict[spin]:
                     self.band_overlaps_dict[spin]["matrices"] = []
                 maxdev = line.split(" ")[2]
-                self.band_overlaps_dict[spin]["max_deviations"].append(float(maxdev))
-                self.band_overlaps_dict[spin]["k_points"].append(kpoint_array)
-                self.max_deviation.append(float(maxdev))
+                self.band_overlaps_dict[spin]["max_deviations"] += [float(maxdev)]
+                self.band_overlaps_dict[spin]["k_points"] += [kpoint_array]
+                self.max_deviation += [float(maxdev)]
                 overlaps = []
 
             else:
                 rows = []
                 for el in line.split(" "):
                     if el != "":
-                        rows.append(float(el))
-                overlaps.append(rows)
+                        rows += [float(el)]
+                overlaps += [rows]
                 if len(overlaps) == len(rows):
-                    self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
+                    self.band_overlaps_dict[spin]["matrices"] += [np.matrix(overlaps)]
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
@@ -1448,11 +1450,8 @@ class Bandoverlaps(MSONable):
 
     @property
     def bandoverlapsdict(self):
-        warnings.warn(
-            "`bandoverlapsdict` attribute is deprecated. Use `band_overlaps_dict` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        msg = "`bandoverlapsdict` attribute is deprecated. Use `band_overlaps_dict` instead."
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
         return self.band_overlaps_dict
 
 
