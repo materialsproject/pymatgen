@@ -66,8 +66,10 @@ class Cohp(MSONable):
 
     def __repr__(self) -> str:
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
-        if self.are_coops or (self.are_cobis or self.are_multicenter_cobis):
-            pass
+        if self.are_coops:
+            cohp_str="COOP"
+        elif self.are_cobis or self.are_multicenter_cobis:
+            cohp_str="COBI"
         else:
             cohp_str = "COHP"
 

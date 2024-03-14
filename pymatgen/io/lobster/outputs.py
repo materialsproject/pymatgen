@@ -196,7 +196,7 @@ class Cohpcar:
 
                 icohp = {spin: data[2 * (bond + s * (num_bonds)) + 2] for s, spin in enumerate(spins)}
                 if orbs is None:
-                    bond_num + 1
+                    bond_num=bond_num + 1
                     label = str(bond_num)
                     cohp_data[label] = {
                         "COHP": cohp,
@@ -235,7 +235,7 @@ class Cohpcar:
                         }
                     }
 
-        # present for obster older than 2.2.0
+        # present for lobster older than 2.2.0
         if very_old:
             for bond_str in orb_cohp:
                 cohp_data[bond_str] = {
