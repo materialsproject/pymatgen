@@ -121,7 +121,7 @@ class Cohpcar:
             # The COHP data start in row num_bonds + 3
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
             self.energies = data[0]
-            cohp_data= {
+            cohp_data = {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                     "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
