@@ -1378,7 +1378,7 @@ class Bandoverlaps(MSONable):
                 self.band_overlaps_dict[spin]["max_deviations"].append(float(maxdev))
                 self.band_overlaps_dict[spin]["k_points"].append(kpoint_array)
                 self.max_deviation.append(float(maxdev))
-                overlaps = [np.ndarray]
+                overlaps = []
 
             else:
                 rows = []
