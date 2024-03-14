@@ -1326,10 +1326,10 @@ class Bandoverlaps(MSONable):
         """
         Args:
             filename: filename of the "bandOverlaps.lobster" file.
-            band_overlaps_dict: A dictionary containing the band overlap data of the form: {spin: {"kpoint as string":
-            {"max_deviation":float that describes the max deviation, "matrix": 2D array of the size number of bands
-            times number of bands including the overlap matrices with}}}.
-            max_deviation (list[float]): A list of floats describing the maximal deviation for each problematic kpoint.
+            band_overlaps_dict: A dictionary containing the band overlap data of the form: {spin: {"k_points" : list of
+            k-point array, "max_deviations":list of max deviations associated to each k-point, "matrices": list of the
+            overlap matrices associated with each k-point}.
+            max_deviation (list[float]): A list of floats describing the maximal deviation for each problematic k-point.
         """
         self._filename = filename
         self.band_overlaps_dict = {} if band_overlaps_dict is None else band_overlaps_dict
@@ -1363,24 +1363,31 @@ class Bandoverlaps(MSONable):
                 kpoint_array = []
                 for kpointel in kpoint:
                     if kpointel not in ["at", "k-point", ""]:
-                        kpoint_array.append(str(kpointel))
+                        kpoint_array.append(float(kpointel))
 
             elif "maxDeviation" in line:
                 if spin not in self.band_overlaps_dict:
                     self.band_overlaps_dict[spin] = {}
-                if " ".join(kpoint_array) not in self.band_overlaps_dict[spin]:
-                    self.band_overlaps_dict[spin][" ".join(kpoint_array)] = {}
+                if "k_points" not in self.band_overlaps_dict[spin]:
+                    self.band_overlaps_dict[spin]["k_points"] = []
+                if "max_deviations" not in self.band_overlaps_dict[spin]:
+                    self.band_overlaps_dict[spin]["max_deviations"] = []
+                if "matrices" not in self.band_overlaps_dict[spin]:
+                    self.band_overlaps_dict[spin]["matrices"] = []
                 maxdev = line.split(" ")[2]
-                self.band_overlaps_dict[spin][" ".join(kpoint_array)]["maxDeviation"] = float(maxdev)
+                self.band_overlaps_dict[spin]["max_deviations"].append(float(maxdev))
+                self.band_overlaps_dict[spin]["k_points"].append(kpoint_array)
                 self.max_deviation.append(float(maxdev))
-                self.band_overlaps_dict[spin][" ".join(kpoint_array)]["matrix"] = []
+                overlaps = [np.ndarray]
 
             else:
-                overlaps = []
+                rows = []
                 for el in line.split(" "):
                     if el != "":
-                        overlaps.append(float(el))
-                self.band_overlaps_dict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)
+                        rows.append(float(el))
+                overlaps.append(rows)
+                if len(overlaps) == len(rows):
+                    self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
@@ -1414,26 +1421,26 @@ class Bandoverlaps(MSONable):
         Returns:
             Boolean that will give you information about the quality of the projection
         """
-        for matrix in self.band_overlaps_dict[Spin.up].values():
-            for iband1, band1 in enumerate(matrix["matrix"]):
+        for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
+            for iband1, band1 in enumerate(matrix):
                 for iband2, band2 in enumerate(band1):
                     if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
                         if iband1 == iband2:
-                            if abs(band2 - 1.0) > limit_deviation:
+                            if abs(band2 - 1.0).all() > limit_deviation:
                                 return False
-                        elif band2 > limit_deviation:
+                        elif band2.all() > limit_deviation:
                             return False
 
         if spin_polarized:
-            for matrix in self.band_overlaps_dict[Spin.down].values():
-                for iband1, band1 in enumerate(matrix["matrix"]):
+            for matrix in self.band_overlaps_dict[Spin.down]["matrices"]:
+                for iband1, band1 in enumerate(matrix):
                     for iband2, band2 in enumerate(band1):
                         if number_occ_bands_spin_down is not None:
                             if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
                                 if iband1 == iband2:
-                                    if abs(band2 - 1.0) > limit_deviation:
+                                    if abs(band2 - 1.0).all() > limit_deviation:
                                         return False
-                                elif band2 > limit_deviation:
+                                elif band2.all() > limit_deviation:
                                     return False
                         else:
                             ValueError("number_occ_bands_spin_down has to be specified")
