@@ -1133,7 +1133,7 @@ class Fatband:
             filenames (list or string): can be a list of file names or a path to a folder from which all
                 "FATBAND_*" files will be read
             kpoints_file (str): KPOINTS file for bandstructure calculation, typically "KPOINTS".
-            vasprun_file (str9: Corresponding vasprun file.
+            vasprun_file (str): Corresponding vasprun file.
                 Instead, the Fermi energy from the DFT run can be provided. Then,
                 this value should be set to None.
             structure (Structure): Structure object.
@@ -1148,7 +1148,7 @@ class Fatband:
         if vasprun_file is None and efermi is None:
             raise ValueError("vasprun_file or efermi have to be provided")
 
-        self.lattice = self.structure.lattice.reciprocal_lattice  # type: ignore
+        self.lattice = self.structure.lattice.reciprocal_lattice
         if vasprun_file is not None:
             self.efermi = Vasprun(
                 filename=vasprun_file,
