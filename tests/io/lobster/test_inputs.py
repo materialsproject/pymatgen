@@ -76,19 +76,17 @@ class TestCohpcar(PymatgenTest):
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.gz",
             are_cobis=True,
         )
-        #3 center
+        # 3 center
         self.cobi2 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe",
             are_cobis=False,
             are_multicenter_cobis=True,
         )
-        #4 center
+        # 4 center
         self.cobi3 = Cohpcar(
-            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center",
-            are_cobis=False,
-            are_multicenter_cobis=True
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multicenter_cobis=True
         )
-        #TODO test orbital-resolved multicenter
+        # TODO test orbital-resolved multicenter
 
     def test_attributes(self):
         assert not self.cohp_bise.are_coops
@@ -340,7 +338,6 @@ class TestIcohplist(unittest.TestCase):
             ),
             are_cobis=True,
         )
-
 
     def test_attributes(self):
         assert not self.icohp_bise.are_coops

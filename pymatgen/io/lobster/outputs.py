@@ -297,7 +297,6 @@ class Cohpcar:
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
         cells = [[int(i) for i in re.split(r"\[(.*?)\]", site)[1].split(" ")] for site in sites]
 
-
         # test orbitalwise implementations!
         if sites[0].count("[") > 1:
             orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
