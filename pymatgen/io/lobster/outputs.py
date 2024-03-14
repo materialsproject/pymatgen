@@ -1143,8 +1143,7 @@ class Fatband:
 
         if structure is None:
             raise ValueError("A structure object has to be provided")
-        else:
-            self.structure = structure
+        self.structure = structure
         if vasprun_file is None and efermi is None:
             raise ValueError("vasprun_file or efermi have to be provided")
 
