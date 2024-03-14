@@ -1116,14 +1116,13 @@ class Fatband:
             The indices of the array are [band_index, kpoint_index].
             The dict is then built the following way: {"string of element": "string of orbital as read in
             from FATBAND file"}. If the band structure is not spin polarized, we only store one data set under Spin.up.
-        structure (Structure): Structure read in from structure_file or Structure object.
+        structure (Structure): Structure read in from Structure object.
     """
 
     def __init__(
         self,
         filenames: str | list = ".",
         kpoints_file: str = "KPOINTS",
-        structure_file: str | None = "POSCAR.lobster",
         vasprun_file: str | None = "vasprun.xml",
         structure: Structure | IStructure | None = None,
         efermi: float | None = None,
@@ -1133,24 +1132,22 @@ class Fatband:
             filenames (list or string): can be a list of file names or a path to a folder from which all
                 "FATBAND_*" files will be read
             kpoints_file (str): KPOINTS file for bandstructure calculation, typically "KPOINTS".
-            structure_file (str): Structure file such as POSCAR.lobster
             vasprun_file (str9: Corresponding vasprun file.
                 Instead, the Fermi energy from the DFT run can be provided. Then,
                 this value should be set to None.
-            structure (Structure): Structure object. Can be provided instead of structure_file.
+            structure (Structure): Structure object.
             efermi (float): fermi energy in eV
         """
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
 
-        if structure_file is None and structure is None:
-            raise ValueError("structure_file or structure have to be provided")
+        if structure is None:
+            raise ValueError("A structure object has to be provided")
+        else:
+            self.structure = structure
         if vasprun_file is None and efermi is None:
             raise ValueError("vasprun_file or efermi have to be provided")
-        if structure_file is not None:
-            self.structure = Structure.from_file(structure_file)  # type: ignore
-        else:
-            self.structure = structure  # type: ignore
+
         self.lattice = self.structure.lattice.reciprocal_lattice  # type: ignore
         if vasprun_file is not None:
             self.efermi = Vasprun(

@@ -40,7 +40,6 @@ __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
-
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -586,13 +585,16 @@ class TestNciCobiList(unittest.TestCase):
         assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == approx(0.00009)
         assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
         assert (
-            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
+                self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][
+            Spin.up]
         )
         assert (
-            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][Spin.up]
+                self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][
+            Spin.up]
         )
         assert (
-            self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
+                self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"][
+            "interaction_type"]
         )
         assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == approx(
             self.ncicobi_no_spin.ncicobi_list["2"]["ncicobi"][Spin.up]
@@ -1272,21 +1274,21 @@ class TestLobsterout(PymatgenTest):
 
 class TestFatband(PymatgenTest):
     def setUp(self):
+        self.structure = Vasprun(
+            filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
+            ionic_step_skip=None,
+            ionic_step_offset=0,
+            parse_dos=True,
+            parse_eigen=False,
+            parse_projected_eigen=False,
+            parse_potcar_file=False,
+            occu_tol=1e-8,
+            exception_on_bad_xml=True,
+        ).final_structure
         self.fatband_SiO2_p_x = Fatband(
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x",
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-            structure_file=None,
-            structure=Vasprun(
-                filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                ionic_step_skip=None,
-                ionic_step_offset=0,
-                parse_dos=True,
-                parse_eigen=False,
-                parse_projected_eigen=False,
-                parse_potcar_file=False,
-                occu_tol=1e-8,
-                exception_on_bad_xml=True,
-            ).final_structure,
+            structure=self.structure,
             vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
         )
         self.vasprun_SiO2_p_x = Vasprun(filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml")
@@ -1295,34 +1297,12 @@ class TestFatband(PymatgenTest):
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p",
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/KPOINTS",
             vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml",
-            structure_file=None,
-            structure=Vasprun(
-                filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                ionic_step_skip=None,
-                ionic_step_offset=0,
-                parse_dos=True,
-                parse_eigen=False,
-                parse_projected_eigen=False,
-                parse_potcar_file=False,
-                occu_tol=1e-8,
-                exception_on_bad_xml=True,
-            ).final_structure,
+            structure=self.structure,
         )
         self.fatband_SiO2_p2 = Fatband(
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p",
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/KPOINTS",
-            structure_file=None,
-            structure=Vasprun(
-                filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                ionic_step_skip=None,
-                ionic_step_offset=0,
-                parse_dos=True,
-                parse_eigen=False,
-                parse_projected_eigen=False,
-                parse_potcar_file=False,
-                occu_tol=1e-8,
-                exception_on_bad_xml=True,
-            ).final_structure,
+            structure=self.structure,
             vasprun_file=None,
             efermi=1.0647039,
         )
@@ -1331,19 +1311,8 @@ class TestFatband(PymatgenTest):
         self.fatband_SiO2_spin = Fatband(
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin",
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/KPOINTS",
-            structure_file=None,
             vasprun_file=os.path.join(TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_Spin/vasprun.xml"),
-            structure=Vasprun(
-                filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                ionic_step_skip=None,
-                ionic_step_offset=0,
-                parse_dos=True,
-                parse_eigen=False,
-                parse_projected_eigen=False,
-                parse_potcar_file=False,
-                occu_tol=1e-8,
-                exception_on_bad_xml=True,
-            ).final_structure,
+            structure=self.structure,
         )
 
         self.vasprun_SiO2_spin = Vasprun(
@@ -1405,26 +1374,16 @@ class TestFatband(PymatgenTest):
         assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
+
         with pytest.raises(ValueError, match="vasprun_file or efermi have to be provided"):
             Fatband(
                 filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin",
                 kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/KPOINTS",
-                structure_file=None,
                 vasprun_file=None,
-                structure=Vasprun(
-                    filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                    ionic_step_skip=None,
-                    ionic_step_offset=0,
-                    parse_dos=True,
-                    parse_eigen=False,
-                    parse_projected_eigen=False,
-                    parse_potcar_file=False,
-                    occu_tol=1e-8,
-                    exception_on_bad_xml=True,
-                ).final_structure,
+                structure=self.structure,
             )
         with pytest.raises(
-            ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
+                ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
         ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
@@ -1433,21 +1392,10 @@ class TestFatband(PymatgenTest):
                 ],
                 kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                structure=Vasprun(
-                    filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                    ionic_step_skip=None,
-                    ionic_step_offset=0,
-                    parse_dos=True,
-                    parse_eigen=False,
-                    parse_projected_eigen=False,
-                    parse_potcar_file=False,
-                    occu_tol=1e-8,
-                    exception_on_bad_xml=True,
-                ).final_structure,
-                structure_file=None,
+                structure=self.structure,
             )
 
-        with pytest.raises(ValueError, match="structure_file or structure have to be provided"):
+        with pytest.raises(ValueError, match="A structure object has to be provided"):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
                     f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
@@ -1456,12 +1404,11 @@ class TestFatband(PymatgenTest):
                 kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
                 structure=None,
-                structure_file=None,
             )
 
         with pytest.raises(
-            ValueError,
-            match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
+                ValueError,
+                match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
         ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
@@ -1470,18 +1417,7 @@ class TestFatband(PymatgenTest):
                 ],
                 kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                structure=Vasprun(
-                    filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                    ionic_step_skip=None,
-                    ionic_step_offset=0,
-                    parse_dos=True,
-                    parse_eigen=False,
-                    parse_projected_eigen=False,
-                    parse_potcar_file=False,
-                    occu_tol=1e-8,
-                    exception_on_bad_xml=True,
-                ).final_structure,
-                structure_file=None,
+                structure=self.structure,
             )
 
         with pytest.raises(ValueError, match="No FATBAND files in folder or given"):
@@ -1489,18 +1425,7 @@ class TestFatband(PymatgenTest):
                 filenames=".",
                 kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                structure=Vasprun(
-                    filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
-                    ionic_step_skip=None,
-                    ionic_step_offset=0,
-                    parse_dos=True,
-                    parse_eigen=False,
-                    parse_projected_eigen=False,
-                    parse_potcar_file=False,
-                    occu_tol=1e-8,
-                    exception_on_bad_xml=True,
-                ).final_structure,
-                structure_file=None,
+                structure=self.structure,
             )
 
     def test_get_bandstructure(self):
@@ -1797,8 +1722,8 @@ class TestLobsterin(unittest.TestCase):
             assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]
 
         assert (
-            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
-            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
+                self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
+                == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
         )
 
     def test_dict_functionality(self):
@@ -2041,16 +1966,16 @@ class TestLobsterin(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                np.isclose(kpoint[0], kpoint2[0])
-                and np.isclose(kpoint[1], kpoint2[1])
-                and np.isclose(kpoint[2], kpoint2[2])
+                    np.isclose(kpoint[0], kpoint2[0])
+                    and np.isclose(kpoint[1], kpoint2[1])
+                    and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                np.isclose(-kpoint[0], kpoint2[0])
-                and np.isclose(-kpoint[1], kpoint2[1])
-                and np.isclose(-kpoint[2], kpoint2[2])
+                    np.isclose(-kpoint[0], kpoint2[0])
+                    and np.isclose(-kpoint[1], kpoint2[1])
+                    and np.isclose(-kpoint[2], kpoint2[2])
             ) and weight == weightlist[ikpoint2]:
                 found += 1
         return found == 1
@@ -2086,8 +2011,8 @@ class TestBandoverlaps(unittest.TestCase):
         )
         assert self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["maxDeviation"] == approx(0.064369)
         assert self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][
-            -1
-        ] == approx(4.0066e-07)
+                   -1
+               ] == approx(4.0066e-07)
         assert self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["matrix"][0][-1] == approx(1.37447e-09)
 
         # maxDeviation
@@ -2632,7 +2557,7 @@ class TestLobsterMatrices(PymatgenTest):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
 
         with pytest.raises(
-            OSError,
-            match=r"Please check provided input file, it seems to be empty",
+                OSError,
+                match=r"Please check provided input file, it seems to be empty",
         ):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")
