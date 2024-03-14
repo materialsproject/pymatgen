@@ -39,7 +39,6 @@ class TestCohp(unittest.TestCase):
             cobi_dict = json.load(file)
         assert self.cobi.as_dict() == cobi_dict
 
-
     def test_attributes(self):
         assert len(self.cohp.energies) == 301
         assert self.cohp.efermi == 9.75576
