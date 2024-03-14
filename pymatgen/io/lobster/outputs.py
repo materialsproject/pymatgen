@@ -267,7 +267,7 @@ class Cohpcar:
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
         """
-        # TODO: bug is somehwere here!
+
         if not are_multicenter_cobis:
             line_new = line.rsplit("(", 1)
             length = float(line_new[-1][:-1])
