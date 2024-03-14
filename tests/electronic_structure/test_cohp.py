@@ -33,13 +33,12 @@ class TestCohp(unittest.TestCase):
     def test_as_from_dict(self):
         with open(f"{TEST_DIR}/cohp.json") as file:
             cohp_dict = json.load(file)
-        print(self.cohp.as_dict().keys())
-        print(cohp_dict.keys())
         assert self.cohp.as_dict() == cohp_dict
 
         with open(f"{TEST_DIR}/cobi.json") as file:
             cobi_dict = json.load(file)
         assert self.cobi.as_dict() == cobi_dict
+
 
     def test_attributes(self):
         assert len(self.cohp.energies) == 301
