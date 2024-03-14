@@ -2074,9 +2074,11 @@ class TestBandoverlaps(unittest.TestCase):
 
     def test_keys(self):
         bo_dict = self.band_overlaps1.band_overlaps_dict
+        bo_dict_new = self.band_overlaps1_new.band_overlaps_dict
+        bo_dict_2 = self.band_overlaps2.band_overlaps_dict
         assert len(bo_dict[Spin.up]["k_points"]) == 408
-        assert len(bo_dict[Spin.up]["max_deviations"]) == 2
-        assert len(bo_dict[Spin.down]["matrices"]) == 73
+        assert len(bo_dict_2[Spin.up]["max_deviations"]) == 2
+        assert len(bo_dict_new[Spin.down]["matrices"]) == 73
 
 
 class TestGrosspop(unittest.TestCase):
