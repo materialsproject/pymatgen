@@ -750,7 +750,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
-            if not os.path.isfile(pseudo_dir):
+            if not os.path.isdir(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
 
