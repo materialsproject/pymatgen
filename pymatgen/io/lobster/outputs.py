@@ -124,6 +124,8 @@ class Cohpcar:
         # the labeling had to be changed: there are more than one COHP for each atom combination
         # this is done to make the labeling consistent with ICOHPLIST.lobster
         bond_num = 0
+        bond_data = {}
+        label = ""
         for bond in range(num_bonds):
             bond_data = self._get_bond_data(contents[3 + bond])
 
@@ -305,6 +307,7 @@ class Icohplist(MSONable):
             # include case when there is only one ICOHP!!!
             self.orbitalwise = len(data) > 2 and "_" in data[1].split()[1]
 
+            data_orbitals: list[str] = []
             if self.orbitalwise:
                 data_without_orbitals = []
                 data_orbitals = []
@@ -332,6 +335,14 @@ class Icohplist(MSONable):
             list_translation = []
             list_num = []
             list_icohp = []
+
+            # initialize static variables
+            label = ""
+            atom1 = ""
+            atom2 = ""
+            length = None
+            num = None
+            translation = []
 
             for bond in range(num_bonds):
                 line = data_without_orbitals[bond].split()
@@ -446,7 +457,7 @@ class NciCobiList:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt") as file:  # type:ignore
             data = file.read().split("\n")[1:-1]
         if len(data) == 0:
             raise OSError("NcICOBILIST file contains no data.")
@@ -664,12 +675,12 @@ class Doscar:
         return self._energies
 
     @property
-    def tdensities(self) -> np.ndarray:
+    def tdensities(self) -> dict[Spin, np.ndarray]:
         """total densities as a np.ndarray"""
         return self._tdensities
 
     @property
-    def itdensities(self) -> np.ndarray:
+    def itdensities(self) -> dict[Spin, np.ndarray]:
         """integrated total densities as a np.ndarray"""
         return self._itdensities
 
@@ -841,7 +852,7 @@ class Lobsterout(MSONable):
                 else:
                     raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
         else:
-            with zopen(filename, mode="rt") as file:  # read in file
+            with zopen(self.filename, mode="rt") as file:  # type:ignore # read in file
                 data = file.read().split("\n")
             if len(data) == 0:
                 raise OSError("lobsterout does not contain any data")
@@ -1046,6 +1057,9 @@ class Lobsterout(MSONable):
     def _get_timing(data):
         # will give back wall, user and sys time
         begin = False
+        user_time = []
+        wall_time = []
+        sys_time = []
         # end=False
         # time=[]
 
@@ -1247,6 +1261,7 @@ class Fatband:
                     ]
 
             ikpoint = -1
+            linenumber = 0
             for line in contents[1:-1]:
                 if line.split()[0] == "#":
                     KPOINT = np.array(
@@ -1299,7 +1314,7 @@ class Fatband:
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
             lattice=self.lattice,
-            efermi=self.efermi,
+            efermi=self.efermi,  # type: ignore
             labels_dict=self.label_dict,
             structure=self.structure,
             projections=self.p_eigenvals,
@@ -1354,6 +1369,9 @@ class Bandoverlaps(MSONable):
             contents: list of strings
             spin_numbers: list of spin numbers depending on `Lobster` version.
         """
+        spin: Spin = Spin.up
+        kpoint_array: list = []
+        overlaps: list = []
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
             if f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[0]}" in line:
@@ -1479,18 +1497,18 @@ class Grosspop(MSONable):
         # opens file
         self._filename = filename
         self.list_dict_grosspop = [] if list_dict_grosspop is None else list_dict_grosspop
-
         if not self.list_dict_grosspop:
             with zopen(filename, mode="rt") as file:
                 contents = file.read().split("\n")
             # transfers content of file to list of dict
+            small_dict: dict[str, Any] = {}
             for line in contents[3:]:
                 cleanline = [i for i in line.split(" ") if i != ""]
                 if len(cleanline) == 5:
                     small_dict = {}
-                    small_dict["element"] = cleanline[1]
                     small_dict["Mulliken GP"] = {}
                     small_dict["Loewdin GP"] = {}
+                    small_dict["element"] = cleanline[1]
                     small_dict["Mulliken GP"][cleanline[2]] = float(cleanline[3])
                     small_dict["Loewdin GP"][cleanline[2]] = float(cleanline[4])
                 elif len(cleanline) > 0:
@@ -2015,6 +2033,8 @@ class LobsterMatrices:
                 end_inxs_imag.append(len(file_data))
 
         # extract matrix data and store diagonal elements
+        matrix_real = []
+        matrix_imag = []
         for start_inx_real, end_inx_real, start_inx_imag, end_inx_imag in zip(
             start_inxs_real, end_inxs_real, start_inxs_imag, end_inxs_imag
         ):
