@@ -546,14 +546,14 @@ class CompleteCohp(Cohp):
         energies = dct["energies"]
         structure = Structure.from_dict(dct["structure"])
         are_cobis = dct.get("are_cobis", False)
-        are_multicenter_cobis = False if "are_multicenter_cobis" not in dct else dct["are_multicenter_cobis"]
+        are_multicenter_cobis = dct.get("are_multicenter_cobis", False)
         are_coops = dct["are_coops"]
         if "bonds" in dct:
             bonds = {
                 bond: {
                     "length": dct["bonds"][bond]["length"],
                     "sites": tuple(PeriodicSite.from_dict(site) for site in dct["bonds"][bond]["sites"]),
-                    "cells": None if not "cells" in dct["bonds"][bond] else dct["bonds"][bond]["cells"],
+                    "cells": dct["bonds"][bond].get("cells", None),
                 }
                 for bond in dct["bonds"]
             }
