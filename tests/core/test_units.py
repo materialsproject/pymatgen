@@ -238,7 +238,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         ]
 
         for obj in objects_with_unit:
-            assert hasattr(obj, "unit")
+            assert obj.unit in (Unit("Ha"), Unit("eV"), Unit("s^-1"), Unit("Ha s"), Unit("Ha eV^-1"))
 
         # Here we could return a FloatWithUnit object but I prefer this
         # a bare scalar since FloatWithUnit extends float while we could

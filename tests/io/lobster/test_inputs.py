@@ -2309,8 +2309,8 @@ class TestWavefunction(PymatgenTest):
         )
 
         wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
-        assert hasattr(wave1, "volumetricdata_real")
-        assert hasattr(wave1, "volumetricdata_imaginary")
+        assert wave1.volumetricdata_real.data["total"][0, 0, 0] == approx(-3.0966)
+        assert wave1.volumetricdata_imaginary.data["total"][0, 0, 0] == approx(-6.45895e00)
 
     def test_get_volumetricdata_real(self):
         wave1 = Wavefunction(

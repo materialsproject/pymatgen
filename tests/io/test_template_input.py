@@ -15,7 +15,7 @@ class TestTemplateInputGen(PymatgenTest):
             variables={"TEMPERATURE": 298},
             filename="hello_world.in",
         )
-        input_set.write_input(f"{self.tmp_path}/hello_world.in")
+        input_set.write_input(self.tmp_path)
         with open(f"{self.tmp_path}/hello_world.in") as file:
             assert "298" in file.read()
 
@@ -36,13 +36,13 @@ class TestTemplateInputGen(PymatgenTest):
         assert isinstance(input_set.inputs["hello_world.in"], str)
 
         with pytest.raises(FileExistsError, match="hello_world.in"):
-            input_set.write_input(f"{self.tmp_path}", overwrite=False)
+            input_set.write_input(self.tmp_path, overwrite=False)
 
-        input_set.write_input(f"{self.tmp_path}", overwrite=True)
+        input_set.write_input(self.tmp_path, overwrite=True)
 
         with open(f"{self.tmp_path}/hello_world.in") as file:
             assert "400" in file.read()
 
-        input_set.write_input(f"{self.tmp_path}", zip_inputs=True)
+        input_set.write_input(self.tmp_path, zip_inputs=True)
 
         assert "InputSet.zip" in list(os.listdir(self.tmp_path))
