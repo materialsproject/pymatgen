@@ -897,7 +897,7 @@ class Vasprun(MSONable):
             e_fermi = efermi
 
         kpoint_file: Kpoints = None  # type: ignore
-        if kpoints_filename and os.path.exists(kpoints_filename):
+        if kpoints_filename and os.path.isfile(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
 
@@ -3987,7 +3987,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         A BandStructure Object
     """
     # TODO: Add better error handling!!!
-    if os.path.exists(f"{dir_name}/branch_0"):
+    if os.path.isfile(f"{dir_name}/branch_0"):
         # get all branch dir names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
@@ -3998,7 +3998,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         branches = []
         for dname in sorted_branch_dir_names:
             xml_file = f"{dname}/vasprun.xml"
-            if os.path.exists(xml_file):
+            if os.path.isfile(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
@@ -4009,7 +4009,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
 
     xml_file = f"{dir_name}/vasprun.xml"
     # Better handling of Errors
-    if os.path.exists(xml_file):
+    if os.path.isfile(xml_file):
         return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
             kpoints_filename=None, efermi=efermi
         )

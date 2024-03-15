@@ -2260,9 +2260,9 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
         RuntimeError
     """
     # Search for the header
-    for i, line in enumerate(lines):
+    for idx, line in enumerate(lines):
         if header in line.strip():
-            return lines[i:]
+            return lines[idx:]
 
     # Search failed
     raise RuntimeError(f"{header=} could not be found in the lines.")

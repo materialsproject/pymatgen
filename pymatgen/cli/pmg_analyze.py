@@ -36,22 +36,22 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
         fmt (str): tablefmt passed to tabulate.
     """
     if verbose:
-        logformat = "%(relativeCreated)d msecs : %(message)s"
-        logging.basicConfig(level=logging.INFO, format=logformat)
+        log_fmt = "%(relativeCreated)d msecs : %(message)s"
+        logging.basicConfig(level=logging.INFO, format=log_fmt)
 
     if quick:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True, data=["filename", "initial_structure"])
 
-    ncpus = multiprocessing.cpu_count()
-    logging.info(f"Detected {ncpus} cpus")
-    queen = BorgQueen(drone, number_of_drones=ncpus)
-    if os.path.exists(SAVE_FILE) and not reanalyze:
+    n_cpus = multiprocessing.cpu_count()
+    logging.info(f"Detected {n_cpus} cpus")
+    queen = BorgQueen(drone, number_of_drones=n_cpus)
+    if os.path.isfile(SAVE_FILE) and not reanalyze:
         msg = f"Using previously assimilated data from {SAVE_FILE}. Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
-        if ncpus > 1:
+        if n_cpus > 1:
             queen.parallel_assimilate(rootdir)
         else:
             queen.serial_assimilate(rootdir)

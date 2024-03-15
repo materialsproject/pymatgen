@@ -56,7 +56,7 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert os.path.exists(os.path.join(self.tmp_path, "packmol_out.xyz"))
+        assert os.path.isfile(os.path.join(self.tmp_path, "packmol_out.xyz"))
         out = Molecule.from_file(os.path.join(self.tmp_path, "packmol_out.xyz"))
         assert out.composition.num_atoms == 10 * 3 + 20 * 9
 
@@ -70,7 +70,7 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert os.path.exists(os.path.join(self.tmp_path, "packmol_out.xyz"))
+        assert os.path.isfile(os.path.join(self.tmp_path, "packmol_out.xyz"))
         out = Molecule.from_file(os.path.join(self.tmp_path, "packmol_out.xyz"))
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
 
@@ -86,7 +86,7 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert os.path.exists(os.path.join(self.tmp_path, "packmol_out.xyz"))
+        assert os.path.isfile(os.path.join(self.tmp_path, "packmol_out.xyz"))
         out = Molecule.from_file(os.path.join(self.tmp_path, "packmol_out.xyz"))
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
 
@@ -226,11 +226,11 @@ class TestPackmolSet(PymatgenTest):
         pw.write_input(
             os.path.join(self.tmp_path, "subdirectory with spaces"),
         )
-        assert os.path.exists(os.path.join(self.tmp_path, "subdirectory with spaces", "input.in"))
+        assert os.path.isfile(os.path.join(self.tmp_path, "subdirectory with spaces", "input.in"))
         pw.run(
             os.path.join(self.tmp_path, "subdirectory with spaces"),
         )
-        assert os.path.exists(os.path.join(self.tmp_path, "subdirectory with spaces", "output.xyz"))
-        assert os.path.exists(os.path.join(self.tmp_path, "subdirectory with spaces", "stdout.txt"))
+        assert os.path.isfile(os.path.join(self.tmp_path, "subdirectory with spaces", "output.xyz"))
+        assert os.path.isfile(os.path.join(self.tmp_path, "subdirectory with spaces", "stdout.txt"))
         out = Molecule.from_file(os.path.join(self.tmp_path, "subdirectory with spaces", "output.xyz"))
         assert out.composition.num_atoms == 10 * 3 + 20 * 9

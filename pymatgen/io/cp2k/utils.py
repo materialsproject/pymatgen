@@ -158,9 +158,9 @@ def get_unique_site_indices(struct: Structure | Molecule):
     items = [
         (
             site.species_string,
-            *[struct.site_properties[k][i] for k in struct.site_properties if k.lower() in parsable_site_properties],
+            *[struct.site_properties[k][idx] for k in struct.site_properties if k.lower() in parsable_site_properties],
         )
-        for i, site in enumerate(struct)
+        for idx, site in enumerate(struct)
     ]
     unique_itms = list(set(items))
     _sites: dict[tuple, list] = {u: [] for u in unique_itms}

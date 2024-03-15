@@ -152,7 +152,7 @@ class TestGetDisplacedStructures(PymatgenTest):
             supercell_matrix=supercell_matrix,
             yaml_fname="test.yaml",
         )
-        assert os.path.exists("test.yaml")
+        assert os.path.isfile("test.yaml")
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")

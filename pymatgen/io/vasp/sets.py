@@ -2311,10 +2311,10 @@ class MITNEBSet(DictSet):
         structures = [input_structures[0]]
         for s in input_structures[1:]:
             prev = structures[-1]
-            for i, site in enumerate(s):
-                t = np.round(prev[i].frac_coords - site.frac_coords)
-                if np.any(np.abs(t) > 0.5):
-                    s.translate_sites([i], t, to_unit_cell=False)
+            for idx, site in enumerate(s):
+                translate = np.round(prev[idx].frac_coords - site.frac_coords)
+                if np.any(np.abs(translate) > 0.5):
+                    s.translate_sites([idx], translate, to_unit_cell=False)
             structures.append(s)
         return structures
 

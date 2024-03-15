@@ -324,9 +324,9 @@ class WulffShape:
             if prev is None:
                 line = lines.pop(0)
             else:
-                for i, line in enumerate(lines):
+                for idx, line in enumerate(lines):
                     if prev in line:
-                        line = lines.pop(i)
+                        line = lines.pop(idx)
                         if line[1] == prev:
                             line.reverse()
                         break
