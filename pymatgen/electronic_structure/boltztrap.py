@@ -1937,20 +1937,20 @@ class BoltztrapAnalyzer:
 
         vol = cls.parse_struct(path_dir)
 
-        intrans = cls.parse_intrans(path_dir)
+        in_trans = cls.parse_intrans(path_dir)
 
         if run_type == "BOLTZ":
-            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
+            dos, partial_dos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
             *cond_and_hall, carrier_conc = cls.parse_cond_and_hall(path_dir, doping_levels)
 
-            return cls(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
+            return cls(gap, *cond_and_hall, in_trans, dos, partial_dos, carrier_conc, vol, warning)
 
         if run_type == "DOS":
-            trim = intrans["dos_type"] == "HISTO"
-            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
+            trim = in_trans["dos_type"] == "HISTO"
+            dos, partial_dos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
 
-            return cls(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
+            return cls(gap=gap, dos=dos, dos_partial=partial_dos, warning=warning, vol=vol)
 
         if run_type == "BANDS":
             bz_kpoints = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, -3:]
@@ -1958,9 +1958,9 @@ class BoltztrapAnalyzer:
             return cls(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
-            if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
+            if os.path.isfile(f"{path_dir}/boltztrap_BZ.cube"):
                 fs_data = read_cube_file(f"{path_dir}/boltztrap_BZ.cube")
-            elif os.path.exists(f"{path_dir}/fort.30"):
+            elif os.path.isfile(f"{path_dir}/fort.30"):
                 fs_data = read_cube_file(f"{path_dir}/fort.30")
             else:
                 raise BoltztrapError("No data file found for fermi surface")

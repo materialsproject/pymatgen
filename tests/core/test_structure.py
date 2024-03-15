@@ -1719,22 +1719,22 @@ class TestStructure(PymatgenTest):
 
     @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet(self):
-        pytest.importorskip("matgl")
+        matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
         assert relaxed.lattice.a == approx(3.867626620642243, rel=0.01)  # allow 1% error
-        assert hasattr(relaxed, "calc")
+        assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
 
     @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet_fixed_lattice(self):
-        pytest.importorskip("matgl")
+        matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax(relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == struct.lattice
-        assert hasattr(relaxed, "calc")
+        assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
     @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")

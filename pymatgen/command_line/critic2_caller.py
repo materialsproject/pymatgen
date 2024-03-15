@@ -111,10 +111,10 @@ class Critic2Caller:
         self._stdout = stdout
         self._stderr = stderr
 
-        cp_report = loadfn("cpreport.json") if os.path.exists("cpreport.json") else None
+        cp_report = loadfn("cpreport.json") if os.path.isfile("cpreport.json") else None
         self._cp_report = cp_report
 
-        yt = loadfn("yt.json") if os.path.exists("yt.json") else None
+        yt = loadfn("yt.json") if os.path.isfile("yt.json") else None
         self._yt = yt
 
     @classmethod

@@ -159,13 +159,13 @@ class Polymer:
             self._align_monomer(monomer, mon_vector, move_direction)
         # add monomer if there are no crossings
         does_cross = False
-        for i, site in enumerate(monomer):
+        for idx, site in enumerate(monomer):
             try:
                 self.molecule.append(site.specie, site.coords, properties=site.properties)
             except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
-                self.molecule.remove_sites(range(polymer_length - i, polymer_length))
+                self.molecule.remove_sites(range(polymer_length - idx, polymer_length))
                 break
         if not does_cross:
             self.length += 1
@@ -391,9 +391,9 @@ class PackmolRunner:
             assert ref.formula == mol.formula
 
             # the packed molecules have the atoms in the same order..sigh!
-            for i, site in enumerate(mol):
-                assert site.specie.symbol == ref[i].specie.symbol
-                props.append(getattr(ref[i], site_property))
+            for idx, site in enumerate(mol):
+                assert site.specie.symbol == ref[idx].specie.symbol
+                props.append(getattr(ref[idx], site_property))
 
             mol.add_site_property(site_property, props)
 

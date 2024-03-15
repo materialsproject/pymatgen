@@ -85,11 +85,11 @@ class TestSpaceGroup(unittest.TestCase):
     def test_point_group_is_set(self):
         for num in range(1, 231):
             sg = SpaceGroup.from_int_number(num)
-            assert hasattr(sg, "point_group")
+            assert isinstance(sg.point_group, str)
 
         for symbol in SYMM_DATA["space_group_encoding"]:
             sg = SpaceGroup(symbol)
-            assert hasattr(sg, "point_group")
+            assert isinstance(sg.point_group, str)
 
     def test_full_symbols(self):
         sg = SpaceGroup("P2/m2/m2/m")

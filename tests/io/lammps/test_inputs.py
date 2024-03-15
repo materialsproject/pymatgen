@@ -612,7 +612,7 @@ thermo          100  # output thermo data every N steps
 run             10000
 """
         assert md_script == script_string
-        assert os.path.exists(f"{self.tmp_path}/md/md.data")
+        assert os.path.isfile(f"{self.tmp_path}/md/md.data")
 
 
 class TestFunc(PymatgenTest):
