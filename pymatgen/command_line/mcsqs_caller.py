@@ -132,7 +132,7 @@ def run_mcsqs(
             process = Popen(["mcsqs", "-best"])
             process.communicate()
 
-        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+        if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
             return _parse_sqs_path(".")
 
         raise RuntimeError("mcsqs exited before timeout reached")
@@ -144,7 +144,7 @@ def run_mcsqs(
 
         # Find the best sqs structures
         if instances and instances > 1:
-            if not os.path.exists("bestcorr1.out"):
+            if not os.path.isfile("bestcorr1.out"):
                 raise RuntimeError(
                     "mcsqs did not generate output files, "
                     "is search_time sufficient or are number of instances too high?"
@@ -153,7 +153,7 @@ def run_mcsqs(
             process = Popen(["mcsqs", "-best"])
             process.communicate()
 
-        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+        if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
             return _parse_sqs_path(".")
 
         os.chdir(original_directory)

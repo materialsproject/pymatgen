@@ -581,7 +581,7 @@ class Cp2kOutput:
             return
         input_filename = self.data["input_filename"][0][0]
         for ext in ["", ".gz", ".GZ", ".z", ".Z", ".bz2", ".BZ2"]:
-            if os.path.exists(os.path.join(self.dir, input_filename + ext)):
+            if os.path.isfile(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename + ext))
                 return
         warnings.warn("Original input file not found. Some info may be lost.")

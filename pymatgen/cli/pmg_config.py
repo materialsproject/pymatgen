@@ -255,17 +255,17 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     """Add/update keys in .pmgrc.yaml config file."""
     if len(tokens) % 2 != 0:
         raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
-    if os.path.exists(SETTINGS_FILE):
+    if os.path.isfile(SETTINGS_FILE):
         # read and write new config file if exists
         rc_path = SETTINGS_FILE
-    elif os.path.exists(OLD_SETTINGS_FILE):
+    elif os.path.isfile(OLD_SETTINGS_FILE):
         # else use old config file if exists
         rc_path = OLD_SETTINGS_FILE
     else:
         # if neither exists, create new config file
         rc_path = SETTINGS_FILE
     dct = {}
-    if os.path.exists(rc_path):
+    if os.path.isfile(rc_path):
         if backup_suffix:
             shutil.copy(rc_path, rc_path + backup_suffix)
             print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")

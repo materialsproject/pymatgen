@@ -750,7 +750,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
-            if not os.path.exists(pseudo_dir):
+            if not os.path.isfile(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
 
@@ -1098,7 +1098,7 @@ class BasicMultiDataset:
             pseudo_dir = os.path.abspath(pseudo_dir)
             pseudo_paths = [os.path.join(pseudo_dir, p) for p in pseudos]
 
-            missing = [p for p in pseudo_paths if not os.path.exists(p)]
+            missing = [p for p in pseudo_paths if not os.path.isfile(p)]
             if missing:
                 raise self.Error(f"Cannot find the following pseudopotential files:\n{missing}")
 
