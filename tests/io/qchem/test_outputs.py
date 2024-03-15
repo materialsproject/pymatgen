@@ -264,7 +264,7 @@ class TestQCOutput(PymatgenTest):
         """Used to generate test dictionary for single jobs."""
         single_job_dict = {}
         for file in single_job_out_names:
-            single_job_dict[file] = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", file)).data
+            single_job_dict[file] = QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data
         dumpfn(single_job_dict, "single_job.json")
 
     @staticmethod
@@ -272,9 +272,7 @@ class TestQCOutput(PymatgenTest):
         """Used to generate test dictionary for multiple jobs."""
         multi_job_dict = {}
         for file in multi_job_out_names:
-            outputs = QCOutput.multiple_outputs_from_file(
-                os.path.join(TEST_FILES_DIR, "molecules", file), keep_sub_files=False
-            )
+            outputs = QCOutput.multiple_outputs_from_file(f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False)
             multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
 
@@ -301,12 +299,12 @@ class TestQCOutput(PymatgenTest):
         self.maxDiff = None
         single_outs = {}
         for file in single_job_out_names:
-            single_outs[file] = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", file)).data
+            single_outs[file] = QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data
 
         multi_outs = {}
         for file in multi_job_out_names:
             multi_outs[file] = QCOutput.multiple_outputs_from_file(
-                os.path.join(TEST_FILES_DIR, "molecules", file), keep_sub_files=False
+                f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False
             )
 
         for key in property_list:

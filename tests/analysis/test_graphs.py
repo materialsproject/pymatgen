@@ -427,10 +427,7 @@ from    to  to_image
         assert sg == self.square_sg
 
     def test_extract_molecules(self):
-        structure_file = os.path.join(
-            TEST_FILES_DIR,
-            "H6PbCI3N_mp-977013_symmetrized.cif",
-        )
+        structure_file = f"{TEST_FILES_DIR}/H6PbCI3N_mp-977013_symmetrized.cif"
 
         struct = Structure.from_file(structure_file)
 

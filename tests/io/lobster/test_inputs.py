@@ -320,11 +320,7 @@ class TestIcohplist(unittest.TestCase):
             are_cobis=True,
         )
         self.icobi_orbitalwise_spinpolarized_add = Icohplist(
-            filename=os.path.join(
-                TEST_FILES_DIR,
-                "cohp",
-                "ICOBILIST.lobster.spinpolarized.additional_case",
-            ),
+            filename=f"{TEST_FILES_DIR}/cohp/ICOBILIST.lobster.spinpolarized.additional_case",
             are_cobis=True,
         )
 
@@ -839,11 +835,7 @@ class TestLobsterout(PymatgenTest):
         # make sure .gz files are also read correctly
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_FILES_DIR}/cohp/lobsterout.normal2.gz")
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
-            filename=os.path.join(
-                TEST_FILES_DIR,
-                "cohp",
-                "lobsterout.fatband_grosspop_densityofenergy",
-            )
+            filename=f"{TEST_FILES_DIR}/cohp/lobsterout.fatband_grosspop_densityofenergy"
         )
         self.lobsterout_saveprojection = Lobsterout(filename=f"{TEST_FILES_DIR}/cohp/lobsterout.saveprojection")
         self.lobsterout_skipping_all = Lobsterout(filename=f"{TEST_FILES_DIR}/cohp/lobsterout.skipping_all")
@@ -1286,17 +1278,11 @@ class TestFatband(PymatgenTest):
         self.fatband_SiO2_spin = Fatband(
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin",
             kpoints_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/KPOINTS",
-            vasprun_file=os.path.join(TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_Spin/vasprun.xml"),
+            vasprun_file=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/vasprun.xml",
             structure=self.structure,
         )
 
-        self.vasprun_SiO2_spin = Vasprun(
-            filename=os.path.join(
-                TEST_FILES_DIR,
-                "cohp",
-                "Fatband_SiO2/Test_Spin/vasprun.xml",
-            )
-        )
+        self.vasprun_SiO2_spin = Vasprun(filename=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/vasprun.xml")
         self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
 
     def test_attributes(self):
@@ -2303,11 +2289,7 @@ class TestUtils(PymatgenTest):
 class TestWavefunction(PymatgenTest):
     def test_parse_file(self):
         grid, points, real, imaginary, distance = Wavefunction._parse_file(
-            os.path.join(
-                TEST_FILES_DIR,
-                "cohp",
-                "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
-            )
+            f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"
         )
         assert_array_equal([41, 41, 41], grid)
         assert points[4][0] == approx(0.0000)
@@ -2332,11 +2314,7 @@ class TestWavefunction(PymatgenTest):
 
     def test_get_volumetricdata_real(self):
         wave1 = Wavefunction(
-            filename=os.path.join(
-                TEST_FILES_DIR,
-                "cohp",
-                "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
-            ),
+            filename=f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
         volumetricdata_real = wave1.get_volumetricdata_real()
@@ -2344,11 +2322,7 @@ class TestWavefunction(PymatgenTest):
 
     def test_get_volumetricdata_imaginary(self):
         wave1 = Wavefunction(
-            filename=os.path.join(
-                TEST_FILES_DIR,
-                "cohp",
-                "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
-            ),
+            filename=f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
         volumetricdata_imaginary = wave1.get_volumetricdata_imaginary()
@@ -2356,7 +2330,7 @@ class TestWavefunction(PymatgenTest):
 
     def test_get_volumetricdata_density(self):
         wave1 = Wavefunction(
-            filename=os.path.join(TEST_FILES_DIR, "cohp", "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            filename=f"{TEST_FILES_DIR}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR_O.gz"),
         )
         volumetricdata_density = wave1.get_volumetricdata_density()

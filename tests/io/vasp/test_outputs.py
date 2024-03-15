@@ -511,7 +511,7 @@ class TestVasprun(PymatgenTest):
         copyfile(f"{VASP_IN_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
         copyfile(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz", Path("deeper") / "vasprun.xml.gz")
         vasp_run = Vasprun(
-            os.path.join("deeper", "vasprun.xml.gz"),
+            f"{'deeper'}/vasprun.xml.gz",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
@@ -775,7 +775,7 @@ class TestVasprun(PymatgenTest):
 
         potcar = Potcar.from_file(potcar_path)
         for leading_path in ("", "./"):
-            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml.gz"), parse_potcar_file=True)
+            vrun = Vasprun(f"{leading_path}vasprun.xml.gz", parse_potcar_file=True)
             # Note that the TITEL is not updated in Vasprun.potcar_spec
             # Since the fake POTCARs modify the TITEL (to indicate fakeness), can't compare
             for ipot in range(len(potcar)):
