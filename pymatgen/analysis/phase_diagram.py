@@ -1225,23 +1225,23 @@ class PhaseDiagram(MSONable):
         mu_ref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
 
-        for e in self.elements:
-            if e not in target_comp.elements:
-                target_comp = target_comp + Composition({e: 0.0})
+        for elem in self.elements:
+            if elem not in target_comp.elements:
+                target_comp = target_comp + Composition({elem: 0.0})
 
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
 
-        for e, chempots in chempot_ranges.items():
-            if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplier = e.composition[dep_elt] / target_comp[dep_elt]
-                ef = e.energy / multiplier
+        for elem, chempots in chempot_ranges.items():
+            if elem.composition.reduced_composition == target_comp.reduced_composition:
+                multiplier = elem.composition[dep_elt] / target_comp[dep_elt]
+                ef = elem.energy / multiplier
                 all_coords = []
-                for s in chempots:
-                    for v in s._coords:
+                for simplex in chempots:
+                    for v in simplex._coords:
                         elements = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i, el in enumerate(elements):
-                            res[el] = v[i] + mu_ref[i]
+                        for idx, el in enumerate(elements):
+                            res[el] = v[idx] + mu_ref[idx]
                         res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
@@ -1304,8 +1304,8 @@ class PhaseDiagram(MSONable):
         elems = [e for e in self.elements if e != open_elt]
         res = {}
 
-        for i, el in enumerate(elems):
-            res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
+        for idx, el in enumerate(elems):
+            res[el] = (min_mus[idx] + muref[idx], max_mus[idx] + muref[idx])
 
         res[open_elt] = (min_open, max_open)
         return res
@@ -2079,16 +2079,16 @@ def _get_slsqp_decomp(
             is the amount of the fractional composition.
     """
     # Elemental amount present in given entry
-    amts = comp.get_el_amt_dict()
-    chemical_space = tuple(amts)
-    b = np.array([amts[el] for el in chemical_space])
+    amounts = comp.get_el_amt_dict()
+    chemical_space = tuple(amounts)
+    b = np.array([amounts[el] for el in chemical_space])
 
     # Elemental amounts present in competing entries
     A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
-    for j, comp_entry in enumerate(competing_entries):
-        amts = comp_entry.composition.get_el_amt_dict()
-        for i, el in enumerate(chemical_space):
-            A_transpose[i, j] = amts.get(el, 0)
+    for ii, comp_entry in enumerate(competing_entries):
+        amounts = comp_entry.composition.get_el_amt_dict()
+        for jj, el in enumerate(chemical_space):
+            A_transpose[jj, ii] = amounts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
     b = b / np.sum(b)

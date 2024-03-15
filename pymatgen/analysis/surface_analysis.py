@@ -1360,7 +1360,7 @@ class WorkFunctionAnalyzer:
 
         # properties that can be shifted
         slab = structure.copy()
-        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, self.shift])
+        slab.translate_sites([idx for idx, site in enumerate(slab)], [0, 0, self.shift])
         self.slab = slab
         self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
 

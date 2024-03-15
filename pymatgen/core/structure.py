@@ -2240,8 +2240,8 @@ class IStructure(SiteCollection, MSONable):
         images = np.arange(nimages + 1) / nimages if not isinstance(nimages, collections.abc.Iterable) else nimages
 
         # Check that both structures have the same species
-        for i, site in enumerate(self):
-            if site.species != end_structure[i].species:
+        for idx, site in enumerate(self):
+            if site.species != end_structure[idx].species:
                 raise ValueError(f"Different species!\nStructure 1:\n{self}\nStructure 2\n{end_structure}")
 
         start_coords = np.array(self.frac_coords)
@@ -2251,31 +2251,31 @@ class IStructure(SiteCollection, MSONable):
             dist_matrix = self.lattice.get_all_distances(start_coords, end_coords)
             site_mappings: dict[int, list[int]] = collections.defaultdict(list)
             unmapped_start_ind = []
-            for i, row in enumerate(dist_matrix):
+            for idx, row in enumerate(dist_matrix):
                 ind = np.where(row < autosort_tol)[0]
                 if len(ind) == 1:
-                    site_mappings[i].append(ind[0])
+                    site_mappings[idx].append(ind[0])
                 else:
-                    unmapped_start_ind.append(i)
+                    unmapped_start_ind.append(idx)
 
             if len(unmapped_start_ind) > 1:
                 raise ValueError(f"Unable to reliably match structures with {autosort_tol = }, {unmapped_start_ind = }")
 
             sorted_end_coords = np.zeros_like(end_coords)
             matched = []
-            for i, j in site_mappings.items():
+            for idx, j in site_mappings.items():
                 if len(j) > 1:
                     raise ValueError(
                         f"Unable to reliably match structures with auto_sort_tol = {autosort_tol}. "
                         "More than one site match!"
                     )
-                sorted_end_coords[i] = end_coords[j[0]]
+                sorted_end_coords[idx] = end_coords[j[0]]
                 matched.append(j[0])
 
             if len(unmapped_start_ind) == 1:
-                i = unmapped_start_ind[0]
+                idx = unmapped_start_ind[0]
                 j = next(iter(set(range(len(start_coords))) - set(matched)))  # type: ignore
-                sorted_end_coords[i] = end_coords[j]
+                sorted_end_coords[idx] = end_coords[j]
 
             end_coords = sorted_end_coords
 

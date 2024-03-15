@@ -1035,14 +1035,14 @@ class CompleteDos(Dos):
 
         densities: Mapping[Spin, ArrayLike] = {}
         if elements:
-            for i, el in enumerate(elements):
+            for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            for i, site in enumerate(sites):
+            for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
