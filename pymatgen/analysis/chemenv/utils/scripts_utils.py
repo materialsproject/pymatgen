@@ -29,10 +29,8 @@ from pymatgen.io.cif import CifParser
 try:
     from pymatgen.vis.structure_vtk import StructureVis
 
-    no_vis = False
 except ImportError:
-    StructureVis = None  # type: ignore
-    no_vis = True
+    StructureVis = None  # type: ignore[misc]
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -163,7 +161,7 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
     :param view_index:
     :param faces_color_override:
     """
-    if vis is None:
+    if vis is None and StructureVis is not None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     species = ["O"] * (cg.coordination_number + 1)
     species[0] = "Cu"
@@ -321,7 +319,7 @@ def compute_environments(chemenv_configuration):
                     except IndexError:
                         print("This site is out of the site range")
 
-            if no_vis:
+            if StructureVis is None:
                 test = input('Go to next structure ? ("y" to do so)')
                 if test == "y":
                     break
@@ -344,7 +342,7 @@ def compute_environments(chemenv_configuration):
                             print("Not a valid multiplicity")
                 else:
                     deltas = [np.zeros(3, float)]
-                if first_time:
+                if first_time and StructureVis is not None:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False
                     first_time = False

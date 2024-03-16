@@ -14,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 try:
     import bson
 except ModuleNotFoundError:
-    bson = None  # type: ignore
+    bson = None  # type: ignore[assignment]
 
 __author__ = "waroquiers"
 

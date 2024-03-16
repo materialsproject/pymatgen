@@ -33,7 +33,7 @@ from pymatgen.transformations.advanced_transformations import (
     SubstituteSurfaceSiteTransformation,
     SubstitutionPredictorTransformation,
     SuperTransformation,
-    _find_codopant,
+    find_codopant,
 )
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -545,8 +545,8 @@ class TestDopingTransformation(PymatgenTest):
         assert trans.max_structures_per_enum == 1
 
     def test_find_codopant(self):
-        assert _find_codopant(Species("Fe", 2), 1) == Species("Cu", 1)
-        assert _find_codopant(Species("Fe", 2), 3) == Species("In", 3)
+        assert find_codopant(Species("Fe", 2), 1) == Species("Cu", 1)
+        assert find_codopant(Species("Fe", 2), 3) == Species("In", 3)
 
 
 class TestSlabTransformation(PymatgenTest):

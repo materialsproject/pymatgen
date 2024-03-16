@@ -1623,7 +1623,7 @@ class MoleculeGraph(MSONable):
             if props is not None:
                 weight = props.pop("weight", None)
                 if len(props.items()) == 0:
-                    props = None  # type: ignore
+                    props = None  # type: ignore[assignment]
             else:
                 weight = None
 

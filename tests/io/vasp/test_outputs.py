@@ -1766,7 +1766,7 @@ class TestWavecar(PymatgenTest):
 
         orig_gen_g_points = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda _x, _y, gamma: []
+            Wavecar._generate_G_points = lambda _x, _y, gamma: []  # noqa: ARG005, RUF100
             with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
                 Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2")
         finally:
