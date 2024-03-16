@@ -3593,13 +3593,8 @@ class CohpPlotter:
                 energy at the Fermi level. Defaults to True.
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
-        <<<<<<< HEAD
             are_cobis: Switch to indicate that these are COBIs or multicenter COBIs, not COHPs/COOPs.
                 Defaults to False for COHPs.
-        =======
-            are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
-                Defaults to False for COHPs.
-        >>>>>>> 668fa574ab1e3e102065c5a9d7a785213dc5ac2f
         """
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
