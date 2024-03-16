@@ -360,6 +360,9 @@ class Icohplist(MSONable):
             icohpcollection: IcohpCollection Object
 
         """
+        # to avoid circular dependencies
+        from pymatgen.electronic_structure.cohp import IcohpCollection
+
         self._filename = filename
         self.is_spin_polarized = is_spin_polarized
         self.orbitalwise = orbitalwise
@@ -423,13 +426,7 @@ class Icohplist(MSONable):
             else:
                 num_bonds = len(data_without_orbitals)
 
-            list_labels = []
-            list_atom1 = []
-            list_atom2 = []
-            list_length = []
-            list_translation = []
-            list_num = []
-            list_icohp = []
+            labels, atoms1, atoms2, lens, translations, nums, icohps = [], [], [], [], [], [], []
 
             # initialize static variables
             label = ""
@@ -465,13 +462,13 @@ class Icohplist(MSONable):
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
 
-                list_labels += [label]
-                list_atom1 += [atom1]
-                list_atom2 += [atom2]
-                list_length += [length]
-                list_translation += [translation]
-                list_num += [num]
-                list_icohp += [icohp]
+                labels += [label]
+                atoms1 += [atom1]
+                atoms2 += [atom2]
+                lens += [length]
+                translations += [translation]
+                nums += [num]
+                icohps += [icohp]
 
             list_orb_icohp: list[dict] | None = None
             if self.orbitalwise:
@@ -495,19 +492,16 @@ class Icohplist(MSONable):
                     else:
                         list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
-            # to avoid circular dependencies
-            from pymatgen.electronic_structure.cohp import IcohpCollection
-
             self._icohpcollection = IcohpCollection(
                 are_coops=are_coops,
                 are_cobis=are_cobis,
-                list_labels=list_labels,
-                list_atom1=list_atom1,
-                list_atom2=list_atom2,
-                list_length=list_length,
-                list_translation=list_translation,
-                list_num=list_num,
-                list_icohp=list_icohp,
+                list_labels=labels,
+                list_atom1=atoms1,
+                list_atom2=atoms2,
+                list_length=lens,
+                list_translation=translations,
+                list_num=nums,
+                list_icohp=icohps,
                 is_spin_polarized=self.is_spin_polarized,
                 list_orb_icohp=list_orb_icohp,
             )
@@ -1370,7 +1364,7 @@ class Fatband:
                         for _ in range(self.nbands)
                     ]
 
-            ikpoint = -1
+            idx_kpt = -1
             linenumber = 0
             for line in contents[1:-1]:
                 if line.split()[0] == "#":
@@ -1386,21 +1380,21 @@ class Fatband:
 
                     linenumber = 0
                     iband = 0
-                    ikpoint += 1
+                    idx_kpt += 1
                 if linenumber == self.nbands:
                     iband = 0
                 if line.split()[0] != "#":
                     if linenumber < self.nbands:
                         if ifilename == 0:
-                            eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
+                            eigenvals[Spin.up][iband][idx_kpt] = float(line.split()[1]) + self.efermi
 
-                        p_eigenvals[Spin.up][iband][ikpoint][atom_names[ifilename]][orbital_names[ifilename]] = float(
+                        p_eigenvals[Spin.up][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
                     if linenumber >= self.nbands and self.is_spinpolarized:
                         if ifilename == 0:
-                            eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
-                        p_eigenvals[Spin.down][iband][ikpoint][atom_names[ifilename]][orbital_names[ifilename]] = float(
+                            eigenvals[Spin.down][iband][idx_kpt] = float(line.split()[1]) + self.efermi
+                        p_eigenvals[Spin.down][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
 
@@ -1412,9 +1406,9 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
+        for idx, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
             if label is not None:
-                label_dict[label] = kpoints_array[ilabel]
+                label_dict[label] = kpoints_array[idx]
 
         self.label_dict = label_dict
 

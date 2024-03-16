@@ -85,20 +85,20 @@ class TestCohpcar(PymatgenTest):
         self.cobi3 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multi_center_cobis=True
         )
-        # partially orbital resolved
+        # partially orbital-resolved
         self.cobi4 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise",
             are_cobis=False,
             are_multi_center_cobis=True,
         )
-        # fully orbital resolved
+        # fully orbital-resolved
         self.cobi5 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise.full",
             are_cobis=False,
             are_multi_center_cobis=True,
         )
         # spin polarized
-        # fully orbital resolved
+        # fully orbital-resolved
         self.cobi6 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multi_center_cobis=True
         )

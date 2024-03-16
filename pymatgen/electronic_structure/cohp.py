@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 import sys
 import warnings
+from typing import Any
 
 import numpy as np
 from monty.json import MSONable
@@ -185,7 +186,7 @@ class Cohp(MSONable):
         return dict_to_return
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict[str, Any]) -> Cohp:
         """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
         are_cobis = dct.get("are_cobis", False)
@@ -822,24 +823,24 @@ class CompleteCohp(Cohp):
                 )
 
         cohp_dict = {
-            label: Cohp(
+            key: Cohp(
                 efermi,
                 energies,
-                v["COHP"],
-                icohp=v["ICOHP"],
+                dct["COHP"],
+                icohp=dct["ICOHP"],
                 are_coops=are_coops,
                 are_cobis=are_cobis,
                 are_multi_center_cobis=are_multi_center_cobis,
             )
-            for label, v in cohp_data.items()
+            for key, dct in cohp_data.items()
         }
 
         bond_dict = {
-            label: {
-                "length": v["length"],
-                "sites": [structure[site] for site in v["sites"]],
+            key: {
+                "length": dct["length"],
+                "sites": [structure[site] for site in dct["sites"]],
             }
-            for label, v in cohp_data.items()
+            for key, dct in cohp_data.items()
         }
 
         return CompleteCohp(
