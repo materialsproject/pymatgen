@@ -44,13 +44,13 @@ class Cohp(MSONable):
     """Basic COHP object."""
 
     def __init__(
-        self, efermi, energies, cohp, are_coops=False, are_cobis=False, are_multicenter_cobis=False, icohp=None
+        self, efermi, energies, cohp, are_coops=False, are_cobis=False, are_multi_center_cobis=False, icohp=None
     ) -> None:
         """
         Args:
             are_coops: Indicates whether this object describes COOPs.
             are_cobis: Indicates whether this object describes COBIs.
-            are_multicenter_cobis: Indicates whether this object describes multicenter COBIs
+            are_multi_center_cobis: Indicates whether this object describes multi-center COBIs
             efermi: Fermi energy.
             energies: A sequence of energies.
             cohp ({Spin: np.array}): representing the COHP for each spin.
@@ -58,7 +58,7 @@ class Cohp(MSONable):
         """
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self.are_multicenter_cobis = are_multicenter_cobis
+        self.are_multi_center_cobis = are_multi_center_cobis
         self.efermi = efermi
         self.energies = np.array(energies)
         self.cohp = cohp
@@ -68,7 +68,7 @@ class Cohp(MSONable):
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
             cohp_str = "COOP"
-        elif self.are_cobis or self.are_multicenter_cobis:
+        elif self.are_cobis or self.are_multi_center_cobis:
             cohp_str = "COBI"
         else:
             cohp_str = "COHP"
@@ -98,7 +98,7 @@ class Cohp(MSONable):
             "@class": type(self).__name__,
             "are_coops": self.are_coops,
             "are_cobis": self.are_cobis,
-            "are_multicenter_cobis": self.are_multicenter_cobis,
+            "are_multi_center_cobis": self.are_multi_center_cobis,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
             "COHP": {str(spin): pops.tolist() for spin, pops in self.cohp.items()},
@@ -189,7 +189,7 @@ class Cohp(MSONable):
         """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
         are_cobis = dct.get("are_cobis", False)
-        are_multicenter_cobis = dct.get("are_multicenter_cobis", False)
+        are_multi_center_cobis = dct.get("are_multi_center_cobis", False)
         return Cohp(
             dct["efermi"],
             dct["energies"],
@@ -197,7 +197,7 @@ class Cohp(MSONable):
             icohp=icohp,
             are_coops=dct["are_coops"],
             are_cobis=are_cobis,
-            are_multicenter_cobis=are_multicenter_cobis,
+            are_multi_center_cobis=are_multi_center_cobis,
         )
 
 
@@ -224,7 +224,7 @@ class CompleteCohp(Cohp):
         bonds=None,
         are_coops=False,
         are_cobis=False,
-        are_multicenter_cobis=False,
+        are_multi_center_cobis=False,
         orb_res_cohp=None,
     ) -> None:
         """
@@ -242,25 +242,29 @@ class CompleteCohp(Cohp):
                 Defaults to False for COHPs.
             are_cobis: indicates whether the Cohp objects are COBIs.
                 Defaults to False for COHPs.
-            are_multicenter_cobis: indicates whether the Cohp objects are multicenter COBIs.
+            are_multi_center_cobis: indicates whether the Cohp objects are multi-center COBIs.
                 Defaults to False for COHPs.
             orb_res_cohp: Orbital-resolved COHPs.
         """
-        if (are_coops and are_cobis) or (are_coops and are_multicenter_cobis) or (are_cobis and are_multicenter_cobis):
-            raise ValueError("You cannot have info about COOPs, COBIs and/or multicenter COBIS in the same file.")
+        if (
+            (are_coops and are_cobis)
+            or (are_coops and are_multi_center_cobis)
+            or (are_cobis and are_multi_center_cobis)
+        ):
+            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIS in the same file.")
         super().__init__(
             avg_cohp.efermi,
             avg_cohp.energies,
             avg_cohp.cohp,
             are_coops=are_coops,
             are_cobis=are_cobis,
-            are_multicenter_cobis=are_multicenter_cobis,
+            are_multi_center_cobis=are_multi_center_cobis,
             icohp=avg_cohp.icohp,
         )
         self.structure = structure
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self.are_multicenter_cobis = are_multicenter_cobis
+        self.are_multi_center_cobis = are_multi_center_cobis
         self.all_cohps = cohp_dict
         self.orb_res_cohp = orb_res_cohp
         self.bonds = bonds or {label: {} for label in self.all_cohps}
@@ -279,7 +283,7 @@ class CompleteCohp(Cohp):
             "@class": type(self).__name__,
             "are_coops": self.are_coops,
             "are_cobis": self.are_cobis,
-            "are_multicenter_cobis": self.are_multicenter_cobis,
+            "are_multi_center_cobis": self.are_multi_center_cobis,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
             "energies": self.energies.tolist(),
@@ -546,7 +550,7 @@ class CompleteCohp(Cohp):
         energies = dct["energies"]
         structure = Structure.from_dict(dct["structure"])
         are_cobis = dct.get("are_cobis", False)
-        are_multicenter_cobis = dct.get("are_multicenter_cobis", False)
+        are_multi_center_cobis = dct.get("are_multi_center_cobis", False)
         are_coops = dct["are_coops"]
         if "bonds" in dct:
             bonds = {
@@ -573,7 +577,7 @@ class CompleteCohp(Cohp):
                     icohp=icohp,
                     are_coops=are_coops,
                     are_cobis=are_cobis,
-                    are_multicenter_cobis=are_multicenter_cobis,
+                    are_multi_center_cobis=are_multi_center_cobis,
                 )
             else:
                 cohp_dict[label] = Cohp(efermi, energies, cohp, icohp=icohp)
@@ -646,13 +650,13 @@ class CompleteCohp(Cohp):
             bonds=bonds,
             are_coops=dct["are_coops"],
             are_cobis=are_cobis,
-            are_multicenter_cobis=are_multicenter_cobis,
+            are_multi_center_cobis=are_multi_center_cobis,
             orb_res_cohp=orb_cohp,
         )
 
     @classmethod
     def from_file(
-        cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False, are_multicenter_cobis=False
+        cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False, are_multi_center_cobis=False
     ):
         """
         Creates a CompleteCohp object from an output file of a COHP
@@ -672,7 +676,7 @@ class CompleteCohp(Cohp):
                 COHPs. Defaults to False for COHPs.
             are_cobis: Indicates whether the populations are COBIs or
                 COHPs. Defaults to False for COHPs.
-            are_multicenter_cobis: Indicates whether this file
+            are_multi_center_cobis: Indicates whether this file
                 includes information on multi-center COBIs
 
         Returns:
@@ -694,21 +698,24 @@ class CompleteCohp(Cohp):
         elif fmt == "LOBSTER":
             if (
                 (are_coops and are_cobis)
-                or (are_coops and are_multicenter_cobis)
-                or (are_cobis and are_multicenter_cobis)
+                or (are_coops and are_multi_center_cobis)
+                or (are_cobis and are_multi_center_cobis)
             ):
-                raise ValueError("You cannot have info about COOPs, COBIs and/or multicenter COBIS in the same file.")
+                raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIS in the same file.")
             if structure_file is None:
                 structure_file = "POSCAR"
             if filename is None and filename is None:
                 if are_coops:
                     filename = "COOPCAR.lobster"
-                elif are_cobis or are_multicenter_cobis:
+                elif are_cobis or are_multi_center_cobis:
                     filename = "COBICAR.lobster"
                 else:
                     filename = "COHPCAR.lobster"
             cohp_file = Cohpcar(
-                filename=filename, are_coops=are_coops, are_cobis=are_cobis, are_multicenter_cobis=are_multicenter_cobis
+                filename=filename,
+                are_coops=are_coops,
+                are_cobis=are_cobis,
+                are_multi_center_cobis=are_multi_center_cobis,
             )
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
@@ -763,7 +770,7 @@ class CompleteCohp(Cohp):
                     avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5) for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies, avg_data["COHP"], icohp=avg_data["ICOHP"])
         else:
-            if not are_multicenter_cobis:
+            if not are_multi_center_cobis:
                 avg_cohp = Cohp(
                     efermi,
                     energies,
@@ -771,7 +778,7 @@ class CompleteCohp(Cohp):
                     icohp=cohp_data["average"]["ICOHP"],
                     are_coops=are_coops,
                     are_cobis=are_cobis,
-                    are_multicenter_cobis=are_multicenter_cobis,
+                    are_multi_center_cobis=are_multi_center_cobis,
                 )
                 del cohp_data["average"]
             else:
@@ -811,7 +818,7 @@ class CompleteCohp(Cohp):
                     icohp=icohp,
                     are_coops=are_coops,
                     are_cobis=are_cobis,
-                    are_multicenter_cobis=are_multicenter_cobis,
+                    are_multi_center_cobis=are_multi_center_cobis,
                 )
 
         cohp_dict = {
@@ -822,7 +829,7 @@ class CompleteCohp(Cohp):
                 icohp=v["ICOHP"],
                 are_coops=are_coops,
                 are_cobis=are_cobis,
-                are_multicenter_cobis=are_multicenter_cobis,
+                are_multi_center_cobis=are_multi_center_cobis,
             )
             for label, v in cohp_data.items()
         }

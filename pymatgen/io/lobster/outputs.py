@@ -77,30 +77,34 @@ class Cohpcar:
         self,
         are_coops: bool = False,
         are_cobis: bool = False,
-        are_multicenter_cobis: bool = False,
+        are_multi_center_cobis: bool = False,
         filename: str | None = None,
-    ):
+    ) -> None:
         """
         Args:
             are_coops: Determines if the file includes COOPs.
               Default is False for COHPs.
             are_cobis: Determines if the file is a list of COHPs or COBIs.
               Default is False for COHPs.
-            are_multicenter_cobis: Determines if the file include multicenter COBIS.
+            are_multi_center_cobis: Determines if the file include multi-center COBIS.
                 Default is False for two-center cobis.
             filename: Name of the COHPCAR file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
-        if (are_coops and are_cobis) or (are_coops and are_multicenter_cobis) or (are_cobis and are_multicenter_cobis):
-            raise ValueError("You cannot have info about COOPs, COBIs and/or multicenter COBIS in the same file.")
+        if (
+            (are_coops and are_cobis)
+            or (are_coops and are_multi_center_cobis)
+            or (are_cobis and are_multi_center_cobis)
+        ):
+            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIS in the same file.")
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self.are_multicenter_cobis = are_multicenter_cobis
+        self.are_multi_center_cobis = are_multi_center_cobis
 
         if filename is None:
             if are_coops:
                 filename = "COOPCAR.lobster"
-            elif are_cobis or are_multicenter_cobis:
+            elif are_cobis or are_multi_center_cobis:
                 filename = "COBICAR.lobster"
             else:
                 filename = "COHPCAR.lobster"
@@ -112,12 +116,12 @@ class Cohpcar:
         # contains all parameters that are needed to map the file.
         parameters = contents[1].split()
         # Subtract 1 to skip the average
-        num_bonds = int(parameters[0]) - 1 if not self.are_multicenter_cobis else int(parameters[0])
+        num_bonds = int(parameters[0]) - 1 if not self.are_multi_center_cobis else int(parameters[0])
         self.efermi = float(parameters[-1])
         self.is_spin_polarized = int(parameters[1]) == 2
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
         cohp_data: dict[str, dict[str, Any]] = {}
-        if not self.are_multicenter_cobis:
+        if not self.are_multi_center_cobis:
             # The COHP data start in row num_bonds + 3
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
             self.energies = data[0]
@@ -128,7 +132,7 @@ class Cohpcar:
                 }
             }
         else:
-            # The COBI data start in row num_bonds + 3 if multicenter cobis exist
+            # The COBI data start in row num_bonds + 3 if multi-center cobis exist
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
             self.energies = data[0]
 
@@ -141,7 +145,7 @@ class Cohpcar:
         bond_data = {}
         label = ""
         for bond in range(num_bonds):
-            if not self.are_multicenter_cobis:
+            if not self.are_multi_center_cobis:
                 bond_data = self._get_bond_data(contents[3 + bond])
                 label = str(bond_num)
                 orbs = bond_data["orbitals"]
@@ -191,7 +195,7 @@ class Cohpcar:
                     }
 
             else:
-                bond_data = self._get_bond_data(contents[2 + bond], are_multicenter_cobis=self.are_multicenter_cobis)
+                bond_data = self._get_bond_data(contents[2 + bond], are_multi_center_cobis=self.are_multi_center_cobis)
 
                 label = str(bond_num)
 
@@ -254,7 +258,7 @@ class Cohpcar:
         self.cohp_data = cohp_data
 
     @staticmethod
-    def _get_bond_data(line: str, are_multicenter_cobis: bool = False) -> dict:
+    def _get_bond_data(line: str, are_multi_center_cobis: bool = False) -> dict:
         """
         Subroutine to extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
@@ -266,7 +270,7 @@ class Cohpcar:
 
         Args:
             line: line in the COHPCAR header describing the bond.
-            are_multicenter_cobis: indicates multi-center COBIs
+            are_multi_center_cobis: indicates multi-center COBIs
 
         Returns:
             Dict with the bond label, the bond length, a tuple of the site
@@ -274,7 +278,7 @@ class Cohpcar:
             and a label for the orbitals (if orbital-resolved).
         """
 
-        if not are_multicenter_cobis:
+        if not are_multi_center_cobis:
             line_new = line.rsplit("(", 1)
             length = float(line_new[-1][:-1])
 

@@ -847,21 +847,21 @@ class TestCompleteCohp(PymatgenTest):
 
         self.cobi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_cobis=True)
 
-        # COBI multicenter
+        # COBI multi-center
         filepath = f"{TEST_DIR}/COBICAR.lobster.GeTe.multi.orbitalwise.full"
         structure = f"{TEST_DIR}/POSCAR.GeTe"
         self.cobi_multi = CompleteCohp.from_file(
-            "lobster", filename=filepath, structure_file=structure, are_multicenter_cobis=True
+            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
         )
 
-        # COBI multicenter
+        # COBI multi-center
         filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin"
         structure = f"{TEST_DIR}/POSCAR.B2H6"
         self.cobi_multi_B2H6 = CompleteCohp.from_file(
-            "lobster", filename=filepath, structure_file=structure, are_multicenter_cobis=True
+            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
         )
 
-        # COBI multicenter
+        # COBI multi-center
         filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin.average.2"
         structure = f"{TEST_DIR}/POSCAR.B2H6"
         self.cobi_multi_B2H6_average2 = CompleteCohp.from_file(

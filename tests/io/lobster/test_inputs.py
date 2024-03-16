@@ -79,28 +79,28 @@ class TestCohpcar(PymatgenTest):
         self.cobi2 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe",
             are_cobis=False,
-            are_multicenter_cobis=True,
+            are_multi_center_cobis=True,
         )
         # 4 center
         self.cobi3 = Cohpcar(
-            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multicenter_cobis=True
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multi_center_cobis=True
         )
         # partially orbital resolved
         self.cobi4 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise",
             are_cobis=False,
-            are_multicenter_cobis=True,
+            are_multi_center_cobis=True,
         )
         # fully orbital resolved
         self.cobi5 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise.full",
             are_cobis=False,
-            are_multicenter_cobis=True,
+            are_multi_center_cobis=True,
         )
         # spin polarized
         # fully orbital resolved
         self.cobi6 = Cohpcar(
-            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multicenter_cobis=True
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multi_center_cobis=True
         )
 
     def test_attributes(self):
@@ -138,10 +138,10 @@ class TestCohpcar(PymatgenTest):
         assert self.cobi.are_cobis
         assert not self.cobi.is_spin_polarized
 
-        # test multicenter cobis
+        # test multi-center cobis
         assert not self.cobi2.are_cobis
         assert not self.cobi2.are_coops
-        assert self.cobi2.are_multicenter_cobis
+        assert self.cobi2.are_multi_center_cobis
 
     def test_energies(self):
         efermi_bise = 5.90043
