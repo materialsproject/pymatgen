@@ -54,7 +54,7 @@ class EOSBase(ABC):
         Quadratic fit to get an initial guess for the parameters.
 
         Returns:
-            tuple: (e0, b0, b1, v0)
+            tuple: 4 floats for (e0, b0, b1, v0)
         """
         a, b, c = np.polyfit(self.volumes, self.energies, 2)
         self.eos_params = [a, b, c]

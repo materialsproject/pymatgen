@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import unittest
-
+import pytest
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
@@ -16,7 +15,7 @@ except ImportError:
 
 
 class TestKPathSeek(PymatgenTest):
-    @unittest.skipIf(get_path is None, "No seek path present.")
+    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)
@@ -49,7 +48,7 @@ class TestKPathSeek(PymatgenTest):
             kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
             _ = kpath.get_kpoints()
 
-    @unittest.skipIf(get_path is None, "No seek path present.")
+    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]

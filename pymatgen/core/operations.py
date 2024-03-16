@@ -144,7 +144,7 @@ class SymmOp(MSONable):
         """
         dim = tensor.shape
         rank = len(dim)
-        assert all(i == 3 for i in dim)
+        assert all(val == 3 for val in dim)
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]

@@ -324,7 +324,7 @@ class Section(MSONable):
             return r
         raise KeyError
 
-    def __add__(self, other):
+    def __add__(self, other) -> Section:
         if isinstance(other, (Keyword, KeywordList)):
             if other.name in self.keywords:
                 self.keywords[other.name] += other
@@ -334,6 +334,8 @@ class Section(MSONable):
             self.insert(other)
         else:
             TypeError("Can only add sections or keywords.")
+
+        return self
 
     def __setitem__(self, key, value):
         self.setitem(key, value)
@@ -380,10 +382,11 @@ class Section(MSONable):
 
     def add(self, other):
         """Add another keyword to the current section."""
-        assert isinstance(other, (Keyword, KeywordList))
-        self + other
+        if not isinstance(other, (Keyword, KeywordList)):
+            raise TypeError(f"Can only add keywords, not {type(other).__name__}")
+        return self + other
 
-    def get(self, d, default=None):
+    def get(self, dct, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
         section or keyword matching d. Will not raise an error if d does not exist.
@@ -392,10 +395,10 @@ class Section(MSONable):
             d: the key to retrieve, if present
             default: what to return if d is not found
         """
-        kw = self.get_keyword(d)
+        kw = self.get_keyword(dct)
         if kw:
             return kw
-        sec = self.get_section(d)
+        sec = self.get_section(dct)
         if sec:
             return sec
         return default
@@ -747,22 +750,18 @@ class Cp2kInput(Section):
                     else subsection_params
                 )
                 alias = f"{name} {' '.join(subsection_params)}" if subsection_params else None
-                s = Section(
-                    name,
-                    section_parameters=subsection_params,
-                    alias=alias,
-                    subsections={},
-                    description=description,
+                sec = Section(
+                    name, section_parameters=subsection_params, alias=alias, subsections={}, description=description
                 )
                 description = ""
-                tmp = self.by_path(current).get_section(s.alias or s.name)
+                tmp = self.by_path(current).get_section(sec.alias or sec.name)
                 if tmp:
                     if isinstance(tmp, SectionList):
-                        self.by_path(current)[s.alias or s.name].append(s)
+                        self.by_path(current)[sec.alias or sec.name].append(sec)
                     else:
-                        self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
+                        self.by_path(current)[sec.alias or sec.name] = SectionList(sections=[tmp, sec])
                 else:
-                    self.by_path(current).insert(s)
+                    self.by_path(current).insert(sec)
                 current = f"{current}/{alias or name}"
             else:
                 kwd = Keyword.from_str(line)

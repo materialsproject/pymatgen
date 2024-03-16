@@ -1236,9 +1236,7 @@ class GrainBoundaryGenerator:
             if all(np.round(x, 5).is_integer() for x in list(check_int)):
                 n_final = idx
                 break
-        try:
-            n_final  # noqa: B018
-        except NameError:
+        if "n_final" not in locals():
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[kk, ll] = n_final
         # each row of mat_csl is the CSL lattice vector

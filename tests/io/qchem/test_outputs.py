@@ -3,9 +3,9 @@ from __future__ import annotations
 import gzip
 import os
 import shutil
-import unittest
 
 import numpy as np
+import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -294,7 +294,7 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     assert_array_equal(sub_output.data.get(key), multi_job_dict[filename][ii].get(key))
 
-    @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
+    @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
         self.maxDiff = None
         single_outs = {}
@@ -331,7 +331,7 @@ class TestQCOutput(PymatgenTest):
         assert len(mpoles["octopole"]) == 5
         assert len(mpoles["hexadecapole"]) == 5
 
-    @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
+    @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_structural_change(self):
         t1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t1.xyz")
         t2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t2.xyz")

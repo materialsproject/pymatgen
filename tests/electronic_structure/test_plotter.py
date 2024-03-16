@@ -291,7 +291,7 @@ class TestPlotBZ(unittest.TestCase):
         )
 
 
-@unittest.skipIf(not which("x_trans"), "No x_trans executable found")
+@pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
 class TestBoltztrapPlotter(unittest.TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")

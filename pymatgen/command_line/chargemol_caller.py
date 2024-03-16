@@ -290,8 +290,8 @@ class ChargemolAnalysis:
         elif self.potcar and self.natoms:
             charge = None
             potcar_indices = []
-            for i, v in enumerate(self.natoms):
-                potcar_indices += [i] * v
+            for idx, val in enumerate(self.natoms):
+                potcar_indices += [idx] * val
             nelect = self.potcar[potcar_indices[atom_index]].nelectrons
             charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
         else:
