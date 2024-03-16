@@ -724,13 +724,13 @@ class HeisenbergScreener:
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
         remove_list = []
-        for i, e in enumerate(energies):
+        for idx, energy in enumerate(energies):
             e_tol = 6  # 10^-6 eV/atom tol on energies
-            e = round(e, e_tol)
-            if i not in remove_list:
+            energy = round(energy, e_tol)
+            if idx not in remove_list:
                 for i_check, e_check in enumerate(energies):
                     e_check = round(e_check, e_tol)
-                    if i != i_check and i_check not in remove_list and e == e_check:
+                    if idx != i_check and i_check not in remove_list and energy == e_check:
                         remove_list.append(i_check)
 
         # Also discard structures with small |magmoms| < 0.1 uB

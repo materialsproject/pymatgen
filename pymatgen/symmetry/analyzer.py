@@ -600,8 +600,8 @@ class SpacegroupAnalyzer:
                     ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
-                for i in range(2):
-                    transf[i][sorted_dic[i]["orig_index"]] = 1
+                for idx in range(2):
+                    transf[idx][sorted_dic[idx]["orig_index"]] = 1
                 c = latt.abc[2]
             elif self.get_space_group_symbol().startswith(
                 "A"
@@ -612,12 +612,12 @@ class SpacegroupAnalyzer:
                     ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [1, 2]),
                     key=lambda k: k["length"],
                 )
-                for i in range(2):
-                    transf[i][sorted_dic[i]["orig_index"]] = 1
+                for idx in range(2):
+                    transf[idx][sorted_dic[idx]["orig_index"]] = 1
                 c = latt.abc[0]
             else:
-                for i, d in enumerate(sorted_dic):
-                    transf[i][d["orig_index"]] = 1
+                for idx, dct in enumerate(sorted_dic):
+                    transf[idx][dct["orig_index"]] = 1
                 a, b, c = sorted_lengths
             latt = Lattice.orthorhombic(a, b, c)
 
@@ -626,8 +626,8 @@ class SpacegroupAnalyzer:
             # it is basically the vector repeated two times
             transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
-            for i, d in enumerate(sorted_dic):
-                transf[i][d["orig_index"]] = 1
+            for idx, dct in enumerate(sorted_dic):
+                transf[idx][dct["orig_index"]] = 1
 
             if abs(b - c) < tol < abs(a - c):
                 a, c = c, a
@@ -709,8 +709,8 @@ class SpacegroupAnalyzer:
                     new_matrix = [[a, 0, 0], [0, b, 0], [0, 0, c]]
                     transf = np.zeros(shape=(3, 3))
                     transf[2] = [0, 0, 1]  # see issue #1929
-                    for i, d in enumerate(sorted_dic):
-                        transf[i][d["orig_index"]] = 1
+                    for idx, dct in enumerate(sorted_dic):
+                        transf[idx][dct["orig_index"]] = 1
             # if not C-setting
             else:
                 # try all permutations of the axis
@@ -753,8 +753,8 @@ class SpacegroupAnalyzer:
                         [0, 0, sorted_lengths[2]],
                     ]
                     transf = np.zeros(shape=(3, 3))
-                    for i, d in enumerate(sorted_dic):
-                        transf[i][d["orig_index"]] = 1
+                    for idx, dct in enumerate(sorted_dic):
+                        transf[idx][dct["orig_index"]] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.

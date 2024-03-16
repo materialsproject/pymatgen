@@ -1388,10 +1388,14 @@ class WorkFunctionAnalyzer:
         # a rough appr. of the potential in the interior of the slab
         bulk_p = []
         for r in self.slab_regions:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if r[1] >= self.along_c[i] > r[0]])
+            bulk_p.extend([pot for idx, pot in enumerate(self.locpot_along_c) if r[1] >= self.along_c[idx] > r[0]])
         if len(self.slab_regions) > 1:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[i]])
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[i]])
+            bulk_p.extend(
+                [pot for idx, pot in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[idx]]
+            )
+            bulk_p.extend(
+                [pot for idx, pot in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[idx]]
+            )
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
@@ -1423,24 +1427,24 @@ class WorkFunctionAnalyzer:
 
         # Get the local averaged signal of the locpot along c
         xg, yg = [], []
-        for i, p in enumerate(self.locpot_along_c):
+        for idx, pot in enumerate(self.locpot_along_c):
             # average signal is just the bulk-like potential when in the slab region
             in_slab = False
             for r in self.slab_regions:
-                if r[0] <= self.along_c[i] <= r[1]:
+                if r[0] <= self.along_c[idx] <= r[1]:
                     in_slab = True
             if len(self.slab_regions) > 1:
-                if self.along_c[i] >= self.slab_regions[1][1]:
+                if self.along_c[idx] >= self.slab_regions[1][1]:
                     in_slab = True
-                if self.along_c[i] <= self.slab_regions[0][0]:
+                if self.along_c[idx] <= self.slab_regions[0][0]:
                     in_slab = True
 
-            if in_slab or p < self.ave_bulk_p:
+            if in_slab or pot < self.ave_bulk_p:
                 yg.append(self.ave_bulk_p)
-                xg.append(self.along_c[i])
+                xg.append(self.along_c[idx])
             else:
-                yg.append(p)
-                xg.append(self.along_c[i])
+                yg.append(pot)
+                xg.append(self.along_c[idx])
         xg, yg = zip(*sorted(zip(xg, yg)))
         plt.plot(xg, yg, "r", linewidth=2.5, zorder=-1)
 
