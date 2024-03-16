@@ -85,7 +85,6 @@ class TestCohpcar(PymatgenTest):
         self.cobi3 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multicenter_cobis=True
         )
-<<<<<<< HEAD
         # partially orbital resolved
         self.cobi4 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise",
@@ -99,9 +98,7 @@ class TestCohpcar(PymatgenTest):
             are_multicenter_cobis=True
         )
         # spin polarized
-=======
-        # TODO test orbital-resolved multicenter
->>>>>>> cea22dc228b66ba9e865b5d90f235917ccf338d7
+
 
     def test_attributes(self):
         assert not self.cohp_bise.are_coops
@@ -2027,23 +2024,6 @@ class TestBandoverlaps(unittest.TestCase):
 
     def test_attributes(self):
         # bandoverlapsdict
-<<<<<<< HEAD
-        assert self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["maxDeviation"] == approx(0.000278953)
-        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["maxDeviation"] == approx(0.0640933)
-        assert self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][-1][-1] == approx(0.0188058)
-        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][-1][-1] == approx(1.0)
-        assert self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0] == approx(1)
-        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.up]["0 0 0"]["matrix"][0][0] == approx(0.995849)
-
-        assert self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"] == approx(
-            4.31567e-05
-        )
-        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["maxDeviation"] == approx(0.064369)
-        assert self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][
-                   -1
-               ] == approx(4.0066e-07)
-        assert self.bandoverlaps1_new.bandoverlapsdict[Spin.down]["0 0 0"]["matrix"][0][-1] == approx(1.37447e-09)
-=======
         bo_dict = self.band_overlaps1.bandoverlapsdict
         assert bo_dict[Spin.up]["max_deviations"][0] == approx(0.000278953)
         assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["max_deviations"][10] == approx(0.0640933)
@@ -2056,7 +2036,6 @@ class TestBandoverlaps(unittest.TestCase):
         assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["max_deviations"][9] == approx(0.064369)
         assert bo_dict[Spin.down]["matrices"][-1].item(0, -1) == approx(4.0066e-07)
         assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["matrices"][9].item(0, -1) == approx(1.37447e-09)
->>>>>>> 1cabdd0ad0ed9c5404a163d4a03137e1d72c75bc
 
         # maxDeviation
         assert self.band_overlaps1.max_deviation[0] == approx(0.000278953)
