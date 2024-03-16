@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 import warnings
 from shutil import which
 from unittest.mock import patch
@@ -15,7 +14,7 @@ from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_fro
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
-@unittest.skipIf(not which("bader"), "bader executable not present")
+@pytest.mark.skipif(not which("bader"), reason="bader executable not present")
 class TestBaderAnalysis(PymatgenTest):
     def setUp(self):
         warnings.catch_warnings()

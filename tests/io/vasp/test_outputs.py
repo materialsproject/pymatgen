@@ -4,7 +4,6 @@ import gzip
 import json
 import os
 import sys
-import unittest
 import xml.etree.ElementTree as ElementTree
 from io import StringIO
 from pathlib import Path
@@ -1494,7 +1493,7 @@ class TestChgcar(PymatgenTest):
         chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
 
-    @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
+    @pytest.mark.skipif(h5py is None, reason="h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{VASP_OUT_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")

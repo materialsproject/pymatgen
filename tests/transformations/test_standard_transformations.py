@@ -219,7 +219,7 @@ class TestOxidationStateRemovalTransformation(unittest.TestCase):
         assert isinstance(OxidationStateRemovalTransformation.from_dict(dct), OxidationStateRemovalTransformation)
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, "enum_lib not present.")
 class TestPartialRemoveSpecieTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
