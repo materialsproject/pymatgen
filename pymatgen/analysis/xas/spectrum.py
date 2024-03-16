@@ -103,8 +103,8 @@ class XAS(Spectrum):
         Returns:
             XAS object: The stitched spectrum.
         """
-        m = StructureMatcher()
-        if not m.fit(self.structure, other.structure):
+        matcher = StructureMatcher()
+        if not matcher.fit(self.structure, other.structure):
             raise ValueError("The input structures for spectra mismatch")
         if not self.absorbing_element == other.absorbing_element:
             raise ValueError("The absorbing elements for spectra are different")
@@ -192,7 +192,7 @@ class XAS(Spectrum):
             )
             l3_f = interp1d(l3_xanes.x, l3_xanes.y, bounds_error=True, fill_value=0, kind="cubic")
             energy = list(np.linspace(min(l3_xanes.x), max(l3_xanes.x), num=num_samples))
-            mu = [i + j for i, j in zip([0 if i < 0 else i for i in l2_f(energy)], l3_f(energy))]
+            mu = [i + j for i, j in zip([max(i, 0) for i in l2_f(energy)], l3_f(energy))]
             # check for jumps at the onset of L2-edge XANES
             idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:
@@ -218,8 +218,8 @@ def site_weighted_spectrum(xas_list: list[XAS], num_samples: int = 500) -> XAS:
     Returns:
         XAS object: The site-weighted spectrum
     """
-    m = StructureMatcher()
-    groups = m.group_structures([i.structure for i in xas_list])
+    matcher = StructureMatcher()
+    groups = matcher.group_structures([i.structure for i in xas_list])
     if len(groups) > 1:
         raise ValueError("The input structures mismatch")
     if not len({i.absorbing_element for i in xas_list}) == len({i.edge for i in xas_list}) == 1:

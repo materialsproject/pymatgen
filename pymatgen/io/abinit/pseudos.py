@@ -91,7 +91,7 @@ def str2l(s):
     return _str2l[s]
 
 
-class Pseudo(MSONable, metaclass=abc.ABCMeta):
+class Pseudo(MSONable, abc.ABC):
     """
     Abstract base class defining the methods that must be
     implemented by the concrete pseudo-potential sub-classes.
@@ -395,7 +395,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             return None
 
 
-class NcPseudo(metaclass=abc.ABCMeta):
+class NcPseudo(abc.ABC):
     """
     Abstract class defining the methods that must be implemented
     by the concrete classes representing norm-conserving pseudopotentials.
@@ -423,7 +423,7 @@ class NcPseudo(metaclass=abc.ABCMeta):
             return None
 
 
-class PawPseudo(metaclass=abc.ABCMeta):
+class PawPseudo(abc.ABC):
     """
     Abstract class that defines the methods that must be implemented
     by the concrete classes representing PAW pseudopotentials.
@@ -1247,7 +1247,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         In this case we just remove the XML root element process since Element object cannot be pickled.
         """
-        return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
+        return {k: v for k, v in self.__dict__.items() if k != "_root"}
 
     @lazy_property
     def root(self):

@@ -11,14 +11,14 @@ from pymatgen.core import Molecule, PeriodicSite, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/molecules"
 
 
 class TestSpacegroupAnalyzer(PymatgenTest):
     def setUp(self):
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure("Li10GeP2S12")
         self.disordered_sg = SpacegroupAnalyzer(self.disordered_structure, 0.001)
@@ -358,7 +358,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.tricky_symmetry")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_tricky_symmetry")
         sa = SpacegroupAnalyzer(struct, 0.1)
         assert sa.get_space_group_symbol() == "I4/mmm"
         assert sa.get_space_group_number() == 139
@@ -369,7 +369,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
 class TestSpacegroup(unittest.TestCase):
     def setUp(self):
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
@@ -609,7 +609,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
                 assert i == approx(w)
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 

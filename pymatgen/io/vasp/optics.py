@@ -388,7 +388,7 @@ def epsilon_imag(
         min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
     except ValueError as exc:
         if "zero-size array" in str(exc):
-            return egrid, np.zeros_like(egrid, dtype=np.complex_)
+            return egrid, np.zeros_like(egrid, dtype=np.complex128)
         raise exc
     _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [

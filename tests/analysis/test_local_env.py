@@ -46,7 +46,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/fragmenter_files"
 class TestValenceIonicRadiusEvaluator(PymatgenTest):
     def setUp(self):
         """Setup MgO rocksalt structure for testing Vacancy."""
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -63,12 +63,12 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
 
     def test_valences_ionic_structure(self):
         valence_dict = self._mgo_val_rad_evaluator.valences
-        for val in list(valence_dict.values()):
+        for val in valence_dict.values():
             assert val in {2, -2}
 
     def test_radii_ionic_structure(self):
         radii_dict = self._mgo_val_rad_evaluator.radii
-        for rad in list(radii_dict.values()):
+        for rad in radii_dict.values():
             assert rad in {0.86, 1.26}
 
 
@@ -112,7 +112,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
-        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure(np.eye(3), ["Cu"], [[0, 0, 0]])
 
         # Get the 1NN shell
         self.nn.targets = None
@@ -155,7 +155,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
-        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure(np.eye(3), ["Cu"], [[0, 0, 0]])
 
         # Compute the NNs with adjacency
         self.nn.targets = None
@@ -217,7 +217,7 @@ class TestVoronoiNN(PymatgenTest):
 
         # Make a bcc crystal
         bcc = Structure(
-            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            np.eye(3),
             ["Cu", "Cu"],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
             coords_are_cartesian=False,
@@ -287,8 +287,8 @@ class TestIsayevNN(PymatgenTest):
 class TestOpenBabelNN(PymatgenTest):
     def setUp(self):
         pytest.importorskip("openbabel")
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = OpenBabelNN()
@@ -318,8 +318,8 @@ class TestOpenBabelNN(PymatgenTest):
 
 class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = CovalentBondNN()
@@ -509,7 +509,7 @@ class TestMotifIdentification(PymatgenTest):
             site_properties=None,
         )
         self.square_pyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            Lattice(np.eye(3) * 100),
             ["C", "C", "C", "C", "C", "C"],
             [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1]],
             validate_proximity=False,
@@ -518,7 +518,7 @@ class TestMotifIdentification(PymatgenTest):
             site_properties=None,
         )
         self.trigonal_bipyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            Lattice(np.eye(3) * 100),
             ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
             [
                 [0, 0, 0],

@@ -172,14 +172,14 @@ class TestMoleculeMatcher(unittest.TestCase):
 
     def test_to_and_from_dict(self):
         mol_matcher = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
-        d = mol_matcher.as_dict()
-        mm2 = MoleculeMatcher.from_dict(d)
-        assert d == mm2.as_dict()
+        dct = mol_matcher.as_dict()
+        mm2 = MoleculeMatcher.from_dict(dct)
+        assert dct == mm2.as_dict()
 
         mol_matcher = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
-        d = mol_matcher.as_dict()
-        mm2 = MoleculeMatcher.from_dict(d)
-        assert d == mm2.as_dict()
+        dct = mol_matcher.as_dict()
+        mm2 = MoleculeMatcher.from_dict(dct)
+        assert dct == mm2.as_dict()
 
     def fit_with_mapper(self, mapper):
         coords = [
@@ -553,9 +553,9 @@ class TestKabschMatcherSi(unittest.TestCase):
         cls.mol_matcher = KabschMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-        d = self.mol_matcher.as_dict()
-        mol_matcher = KabschMatcher.from_dict(d)
-        assert d == mol_matcher.as_dict()
+        dct = self.mol_matcher.as_dict()
+        mol_matcher = KabschMatcher.from_dict(dct)
+        assert dct == mol_matcher.as_dict()
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
@@ -589,9 +589,9 @@ class TestBruteForceOrderMatcherSi(unittest.TestCase):
         cls.mol_matcher = BruteForceOrderMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-        d = self.mol_matcher.as_dict()
-        mol_matcher = BruteForceOrderMatcher.from_dict(d)
-        assert d == mol_matcher.as_dict()
+        dct = self.mol_matcher.as_dict()
+        mol_matcher = BruteForceOrderMatcher.from_dict(dct)
+        assert dct == mol_matcher.as_dict()
 
     def test_random_match(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si_cluster_2.xyz")
@@ -610,9 +610,9 @@ class TestHungarianOrderMatcherSi(unittest.TestCase):
         cls.mol_matcher = HungarianOrderMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-        d = self.mol_matcher.as_dict()
-        mol_matcher = HungarianOrderMatcher.from_dict(d)
-        assert d == mol_matcher.as_dict()
+        dct = self.mol_matcher.as_dict()
+        mol_matcher = HungarianOrderMatcher.from_dict(dct)
+        assert dct == mol_matcher.as_dict()
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_rotated.xyz")
@@ -649,9 +649,9 @@ class TestGeneticOrderMatcherSi(unittest.TestCase):
         cls.mol_matcher = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 
     def test_to_and_from_dict(self):
-        d = self.mol_matcher.as_dict()
-        mol_matcher = GeneticOrderMatcher.from_dict(d)
-        assert d == mol_matcher.as_dict()
+        dct = self.mol_matcher.as_dict()
+        mol_matcher = GeneticOrderMatcher.from_dict(dct)
+        assert dct == mol_matcher.as_dict()
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")

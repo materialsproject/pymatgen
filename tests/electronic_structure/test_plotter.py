@@ -7,6 +7,7 @@ from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -29,7 +30,7 @@ from pymatgen.electronic_structure.plotter import (
     plot_ellipsoid,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
@@ -182,28 +183,38 @@ class TestBSPlotterProjected(unittest.TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
-            self.bs = BandStructureSymmLine.from_dict(dct)
-            self.plotter = BSPlotterProjected(self.bs)
+        self.bs_Cu2O = BandStructureSymmLine.from_dict(dct)
+        self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
-    # Minimal baseline testing for get_plot. not a true test. Just checks that
-    # it can actually execute.
+        with open(f"{TEST_FILES_DIR}/boltztrap2/PbTe_bandstructure.json") as file:
+            dct = json.load(file)
+        self.bs_PbTe = BandStructureSymmLine.from_dict(dct)
+
     def test_methods(self):
-        self.plotter.get_elt_projected_plots()
-        self.plotter.get_elt_projected_plots_color()
-        self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
-        self.plotter.get_projected_plots_dots_patom_pmorb(
+        # Minimal baseline testing for get_plot. not a true test. Just checks that
+        # it can actually execute.
+        self.plotter_Cu2O.get_elt_projected_plots()
+        self.plotter_Cu2O.get_elt_projected_plots_color()
+        self.plotter_Cu2O.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
+        ax = self.plotter_Cu2O.get_projected_plots_dots_patom_pmorb(
             {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
             {"Cu": [3, 5], "O": [1]},
         )
+        assert isinstance(ax, plt.Axes)
+        assert len(ax.get_lines()) == 44_127
+        assert ax.get_ylim() == pytest.approx((-4.0, 4.5047))
+
+        with pytest.raises(ValueError, match="try to plot projections on a band structure without any"):
+            self.plotter_PbTe = BSPlotterProjected(self.bs_PbTe)
 
 
 class TestBSDOSPlotter(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz")
         plotter = BSDOSPlotter()
-        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()
@@ -238,7 +249,7 @@ class TestBSDOSPlotter(unittest.TestCase):
 
 class TestPlotBZ(unittest.TestCase):
     def setUp(self):
-        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/Si.cssr").lattice.reciprocal_lattice
+        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],

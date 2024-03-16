@@ -583,7 +583,7 @@ def num_valence_electrons(structure, pseudos):
     return int(nval) if int(nval) == nval else nval
 
 
-class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
+class AbstractInput(MutableMapping, abc.ABC):
     """Abstract class defining the methods that must be implemented by Input objects."""
 
     # ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__

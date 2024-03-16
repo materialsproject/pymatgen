@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.serialization import loadfn
 
@@ -34,11 +35,11 @@ if TYPE_CHECKING:
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
-sub_spgrp = partial(re.sub, r"[\s_]", "")
+sub_space_group = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
+space_groups.update({sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 
 class CifBlock:
@@ -445,9 +446,9 @@ class CifParser:
                         # Extract element name and its occupancy from the
                         # string, and store it as a
                         # key-value pair in "els_occ".
-                        els_occu[
-                            str(re.findall(r"\D+", symbol_str_lst[elocc_idx].strip())[1]).replace("<sup>", "")
-                        ] = float("0" + re.findall(r"\.?\d+", symbol_str_lst[elocc_idx].strip())[1])
+                        els_occu[str(re.findall(r"\D+", symbol_str_lst[elocc_idx].strip())[1]).replace("<sup>", "")] = (
+                            float("0" + re.findall(r"\.?\d+", symbol_str_lst[elocc_idx].strip())[1])
+                        )
 
                     x = str2float(data["_atom_site_fract_x"][idx])
                     y = str2float(data["_atom_site_fract_y"][idx])
@@ -711,7 +712,7 @@ class CifParser:
                 msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
                 if sg:
-                    sg = sub_spgrp(sg)
+                    sg = sub_space_group(sg)
                     try:
                         spg = space_groups.get(sg)
                         if spg:
@@ -1136,7 +1137,7 @@ class CifParser:
             return struct
         return None
 
-    @np.deprecate(
+    @deprecated(
         message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
         "The only difference is that primitive defaults to False in the new parse_structures method."
         "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
@@ -1184,8 +1185,12 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
-            raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
+        if (
+            os.getenv("CI")
+            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
+            and datetime.now() > datetime(2024, 10, 1)
+        ):  # pragma: no cover
+            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(
@@ -1313,13 +1318,6 @@ class CifParser:
     def check(self, structure: Structure) -> str | None:
         """Check whether a structure constructed from CIF passes sanity checks.
 
-        Args:
-            structure (Structure) : structure created from CIF
-
-        Returns:
-            str | None: If any check fails, on output, returns a human-readable str for the
-                reason why (e.g., which elements are missing). Returns None if all checks pass.
-
         Checks:
             - Composition from CIF is valid
             - CIF composition contains only valid elements
@@ -1329,6 +1327,13 @@ class CifParser:
             -  CIF and structure have same relative stoichiometry. Thus
                 if CIF reports stoichiometry LiFeO, and the structure has
                 composition (LiFeO)4, this check passes.
+
+        Args:
+            structure (Structure) : structure created from CIF
+
+        Returns:
+            str | None: If any check fails, on output, returns a human-readable str for the
+                reason why (e.g., which elements are missing). Returns None if all checks pass.
         """
         failure_reason = None
 
@@ -1336,12 +1341,16 @@ class CifParser:
         head_key = next(iter(cif_as_dict))
 
         cif_formula = None
+        check_stoichiometry = True
         for key in ("_chemical_formula_sum", "_chemical_formula_structural"):
             if cif_as_dict[head_key].get(key):
                 cif_formula = cif_as_dict[head_key][key]
                 break
 
+        # In case of missing CIF formula keys, get non-stoichiometric formula from
+        # unique sites and skip relative stoichiometry check (added in gh-3628)
         if cif_formula is None and cif_as_dict[head_key].get("_atom_site_type_symbol"):
+            check_stoichiometry = False
             cif_formula = " ".join(cif_as_dict[head_key]["_atom_site_type_symbol"])
 
         try:
@@ -1370,17 +1379,20 @@ class CifParser:
             failure_reason = f"Missing elements {missing_str} {addendum}"
 
         elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
-            # Check that stoichiometry is same, i.e., same relative ratios of elements
-            ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
+            if check_stoichiometry:
+                # Check that CIF/PMG stoichiometry has same relative ratios of elements
+                ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
-            same_stoich = all(
-                abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
-                for elt_a in orig_comp_elts
-                for elt_b in orig_comp_elts
-            )
+                same_stoich = all(
+                    abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
+                    for elt_a in orig_comp_elts
+                    for elt_b in orig_comp_elts
+                )
 
-            if not same_stoich:
-                failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
+                if not same_stoich:
+                    failure_reason = f"Incorrect stoichiometry:\n  CIF={orig_comp}\n  PMG={struct_comp}\n  {ratios=}"
+            else:
+                self.warnings += ["Skipping relative stoichiometry check because CIF does not contain formula keys."]
 
         return failure_reason
 

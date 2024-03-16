@@ -60,12 +60,21 @@ version of) `pymatgen`.
 ## Minimum Python Version
 
 As a rule of thumb, `pymatgen` will support whatever versions of Python the latest
-version of numpy supports (at the time of writing, this is Python 3.8+). You can
+version of `numpy` supports (at the time of writing, this is Python 3.8+). You can
 also check what versions of Python are being tested automatically as part of our
 continuous integration testing on GitHub. We currently test `pymatgen` on Mac,
 Windows and Linux.
 
 ## Recent Breaking Changes
+
+## v2024.1.26
+
+The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pymatgen` classes were migrated to a consistent `(get|from)_str` everywhere in [#3158](https://github.com/materialsproject/pymatgen/pull/3158) and several follow-up PRs. The deprecation release was [v2023.8.10](https://github.com/materialsproject/pymatgen/releases/tag/v2023.8.10) and the removal release resulting in a breaking change was [v2024.1.26](https://github.com/materialsproject/pymatgen/releases/tag/v2024.1.26). Migration to the new API in all cases is to replace:
+
+```diff
+- (to|from|as|get)_string
++ (to|from|as|get)_str
+```
 
 ### v2023.7.11
 

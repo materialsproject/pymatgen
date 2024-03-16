@@ -9,9 +9,13 @@ import json
 import logging
 import os
 from multiprocessing import Manager, Pool
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MontyDecoder, MontyEncoder
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = logging.getLogger("BorgQueen")
 
@@ -60,25 +64,25 @@ class BorgQueen:
         status["count"] = 0
         status["total"] = len(valid_paths)
         logger.info(f"{len(valid_paths)} valid paths found.")
-        with Pool(self._num_drones) as p:
-            p.map(
+        with Pool(self._num_drones) as pool:
+            pool.map(
                 order_assimilation,
                 ((path, self._drone, data, status) for path in valid_paths),
             )
-            for d in data:
-                self._data.append(json.loads(d, cls=MontyDecoder))
+            for string in data:
+                self._data.append(json.loads(string, cls=MontyDecoder))
 
-    def serial_assimilate(self, rootpath):
+    def serial_assimilate(self, root: str | Path) -> None:
         """Assimilate the entire subdirectory structure in rootpath serially."""
         valid_paths = []
-        for parent, subdirs, files in os.walk(rootpath):
+        for parent, subdirs, files in os.walk(root):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
-        data = []
+        data: list[str] = []
         total = len(valid_paths)
         for idx, path in enumerate(valid_paths, 1):
             new_data = self._drone.assimilate(path)
             self._data.append(new_data)
-            logger.info(f"{idx}/{total} ({idx / total:.2%}) done")
+            logger.info(f"{idx}/{total} ({idx / total:.1%}) done")
         for json_str in data:
             self._data.append(json.loads(json_str, cls=MontyDecoder))
 
@@ -86,7 +90,7 @@ class BorgQueen:
         """Returns an list of assimilated objects."""
         return self._data
 
-    def save_data(self, filename):
+    def save_data(self, filename: str | Path) -> None:
         """Save the assimilated data to a file.
 
         Args:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 import json
+import operator
 import random
 import unittest
 from shutil import which
@@ -37,7 +38,7 @@ from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
     SupercellTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 enumlib_present = which("enum.x") and which("makestr.x")
 
@@ -128,7 +129,7 @@ class TestSupercellTransformation(unittest.TestCase):
         scale_factors = [random.randint(1, 5) for i in range(3)]
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
         struct = trafo.apply_transformation(self.struct)
-        assert len(struct) == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
+        assert len(struct) == 4 * functools.reduce(operator.mul, scale_factors)
 
     def test_from_boundary_distance(self):
         struct_cubic = Structure.from_spacegroup("Pm-3m", 4 * np.eye(3), ["H"], [[0, 0, 0]])
@@ -188,7 +189,7 @@ class TestOxidationStateDecorationTransformation(unittest.TestCase):
 class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = AutoOxiStateDecorationTransformation()
-        struct = trafo.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
+        struct = trafo.apply_transformation(Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4"))
         expected_oxi = {"Li": 1, "P": 5, "O": -2, "Fe": 2}
         for site in struct:
             assert site.specie.oxi_state == expected_oxi[site.specie.symbol]
@@ -247,13 +248,13 @@ class TestPartialRemoveSpecieTransformation(unittest.TestCase):
 
     def test_apply_transformations_complete_ranking(self):
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        struct = t1.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
+        struct = t1.apply_transformation(Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4"))
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         assert len(trafo.apply_transformation(struct, 10)) == 6
 
     def test_apply_transformations_best_first(self):
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        struct = t1.apply_transformation(Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4"))
+        struct = t1.apply_transformation(Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4"))
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         assert len(trafo.apply_transformation(struct)) == 26
 

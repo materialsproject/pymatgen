@@ -158,7 +158,6 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=coords_are_cartesian,
-        properties=kwargs.get("properties"),
     )
 
 
@@ -251,7 +250,6 @@ def structure_to_abivars(
         "typat": typat,
         "znucl": znucl_type,
         "xred": x_red,
-        "properties": structure.properties,
     }
 
     # Add info on the lattice.
@@ -305,7 +303,7 @@ def contract(string):
     return " ".join(f"{c}*{t}" for c, t in count)
 
 
-class AbivarAble(metaclass=abc.ABCMeta):
+class AbivarAble(abc.ABC):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
@@ -591,7 +589,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """Json friendly dict representation."""
+        """JSON friendly dict representation."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -777,7 +775,7 @@ class KSampling(AbivarAble, MSONable):
     @property
     def is_homogeneous(self) -> bool:
         """Homogeneous sampling."""
-        return self.mode not in ["path"]
+        return self.mode != "path"
 
     @classmethod
     def gamma_only(cls):

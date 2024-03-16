@@ -101,7 +101,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self._label if self._label is not None else self.species_string
 
     @label.setter
-    def label(self, label: str) -> None:
+    def label(self, label: str | None) -> None:
         self._label = label
 
     @property
@@ -158,8 +158,7 @@ class Site(collections.abc.Hashable, MSONable):
         """String representation of species on the site."""
         if self.is_ordered:
             return str(next(iter(self.species)))
-        sorted_species = sorted(self.species)
-        return ", ".join(f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species)
+        return ", ".join(f"{sp}:{self.species[sp]:.3}" for sp in sorted(self.species))
 
     @property
     def specie(self) -> Element | Species | DummySpecies:

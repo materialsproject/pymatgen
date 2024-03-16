@@ -6,7 +6,7 @@ import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,7 +18,7 @@ __date__ = "Jan 24, 2012"
 
 class TestCssr(unittest.TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         self.cssr = Cssr(Structure.from_file(filepath))
 
     def test_str(self):
@@ -53,6 +53,6 @@ class TestCssr(unittest.TestCase):
         assert str(self.cssr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/Si.cssr"
+        filename = f"{TEST_FILES_DIR}/cssr/Si.cssr"
         cssr = Cssr.from_file(filename)
         assert isinstance(cssr.structure, Structure)

@@ -299,11 +299,11 @@ class TestMPResterOld(PymatgenTest):
         assert entry.energy == -825.5
 
     # def test_submit_query_delete_snl(self):
-    #     struct = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-    #     d = self.rester.submit_snl(
+    #     struct = Structure(np.eye(3) * 5, ["Fe"], [[0, 0, 0]])
+    #     submission_ids = self.rester.submit_snl(
     #         [struct, struct], remarks=["unittest"], authors="Test User <test@materialsproject.com>"
     #     )
-    #     assert len(d) == 2
+    #     assert len(submission_ids) == 2
     #     data = self.rester.query_snl({"about.remarks": "unittest"})
     #     assert len(data) == 2
     #     snl_ids = [d["_id"] for d in data]

@@ -5,16 +5,16 @@ import unittest
 from pymatgen.io.feff.outputs import LDos, Xmu
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/feff_reci_dos"
+FEFF_TEST_DIR = f"{TEST_FILES_DIR}/feff"
 
 
 class TestFeffLdos(unittest.TestCase):
-    filepath1 = f"{TEST_FILES_DIR}/feff.inp"
-    filepath2 = f"{TEST_FILES_DIR}/ldos"
+    filepath1 = f"{FEFF_TEST_DIR}/feff.inp"
+    filepath2 = f"{FEFF_TEST_DIR}/ldos"
     ldos = LDos.from_file(filepath1, filepath2)
 
-    reci_feffinp = f"{TEST_DIR}/feff.inp"
-    reci_ldos = f"{TEST_DIR}/ldos"
+    reci_feffinp = f"{FEFF_TEST_DIR}/feff_reci_dos/feff.inp"
+    reci_ldos = f"{FEFF_TEST_DIR}/feff_reci_dos/ldos"
     reci_dos = LDos.from_file(reci_feffinp, reci_ldos)
 
     def test_init(self):
@@ -51,14 +51,14 @@ class TestFeffLdos(unittest.TestCase):
 
 class TestXmu(unittest.TestCase):
     def test_init(self):
-        filepath1 = f"{TEST_FILES_DIR}/xmu.dat"
-        filepath2 = f"{TEST_FILES_DIR}/feff.inp"
+        filepath1 = f"{FEFF_TEST_DIR}/xmu.dat"
+        filepath2 = f"{FEFF_TEST_DIR}/feff.inp"
         x = Xmu.from_file(filepath1, filepath2)
         assert x.absorbing_atom == "O", "failed to read xmu.dat file properly"
 
     def test_as_dict_and_from_dict(self):
-        filepath1 = f"{TEST_FILES_DIR}/xmu.dat"
-        filepath2 = f"{TEST_FILES_DIR}/feff.inp"
+        filepath1 = f"{FEFF_TEST_DIR}/xmu.dat"
+        filepath2 = f"{FEFF_TEST_DIR}/feff.inp"
         x = Xmu.from_file(filepath1, filepath2)
         data = x.data.tolist()
         dct = x.as_dict()

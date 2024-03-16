@@ -136,8 +136,7 @@ class NEBAnalysis(MSONable):
                 reaction coordinate to between 0 and 1. Defaults to True.
 
         Returns:
-            (min_extrema, max_extrema), where the extrema are given as
-            [(x1, y1), (x2, y2), ...].
+            tuple[min_extrema, max_extrema]: where the extrema are given as [(x1, y1), (x2, y2), ...].
         """
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
@@ -153,14 +152,13 @@ class NEBAnalysis(MSONable):
         return min_extrema, max_extrema
 
     def get_plot(self, normalize_rxn_coordinate: bool = True, label_barrier: bool = True) -> plt.Axes:
-        """
-        Returns the NEB plot. Uses Henkelman's approach of spline fitting
+        """Get an NEB plot. Uses Henkelman's approach of spline fitting
         each section of the reaction path based on tangent force and energies.
 
         Args:
             normalize_rxn_coordinate (bool): Whether to normalize the
                 reaction coordinate to between 0 and 1. Defaults to True.
-            label_barrier (bool): Whether to label the maximum barrier.
+            label_barrier (bool): Whether to label the maximum barrier. Defaults to True.
 
         Returns:
             plt.Axes: matplotlib axes object.

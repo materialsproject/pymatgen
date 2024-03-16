@@ -5,6 +5,7 @@ from __future__ import annotations
 import collections
 import itertools
 import math
+import operator
 import warnings
 from fractions import Fraction
 from functools import reduce
@@ -954,9 +955,7 @@ class Lattice(MSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix=skip_rotation_matrix):
-            return x
-        return None
+        return next(self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix), None)
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
         """:param delta: Delta parameter.
@@ -1093,6 +1092,9 @@ class Lattice(MSONable):
                 # A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
                 G = np.dot(np.transpose(M), np.dot(G, M))
+                # update lattice parameters based on new G (gh-3657)
+                A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
+
             if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
@@ -1107,7 +1109,7 @@ class Lattice(MSONable):
                 i = -1 if ll == -1 else 1
                 j = -1 if m == -1 else 1
                 k = -1 if n == -1 else 1
-                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
             elif ll * m * n in (0, -1):
                 # A4
@@ -1122,7 +1124,7 @@ class Lattice(MSONable):
                         j = -1
                     elif ll == 0:
                         i = -1
-                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
 
             A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
@@ -1312,7 +1314,7 @@ class Lattice(MSONable):
                 [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds, image
+                frac_coords, dists, inds, image
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres
@@ -1371,7 +1373,7 @@ class Lattice(MSONable):
                 [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds, image
+                frac_coords, dists, inds, image
         """
         cart_coords = self.get_cartesian_coords(frac_points)
         neighbors = get_points_in_spheres(
@@ -1428,7 +1430,7 @@ class Lattice(MSONable):
                 [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds, image
+                frac_coords, dists, inds, image
         """
         if self.pbc != (True, True, True):
             raise RuntimeError("get_points_in_sphere_old does not support partial periodic boundary conditions")
@@ -1444,7 +1446,7 @@ class Lattice(MSONable):
 
         # Prepare the list of output atoms
         n = len(frac_points)  # type: ignore
-        fcoords = np.array(frac_points) % 1
+        frac_coords = np.array(frac_points) % 1
         indices = np.arange(n)
 
         # Generate all possible images that could be within `r` of `center`
@@ -1459,10 +1461,10 @@ class Lattice(MSONable):
         images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
 
         # Generate the coordinates of all atoms within these images
-        shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
+        shifted_coords = frac_coords[:, None, None, None, :] + images[None, :, :, :, :]
 
         # Determine distance from `center`
-        cart_coords = self.get_cartesian_coords(fcoords)
+        cart_coords = self.get_cartesian_coords(frac_coords)
         cart_images = self.get_cartesian_coords(images)
         coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]
         coords -= center[None, None, None, None, :]
@@ -1541,8 +1543,8 @@ class Lattice(MSONable):
         returned.
 
         Args:
-            frac_coords1 (3x1 array): Reference fcoords to get distance from.
-            frac_coords2 (3x1 array): fcoords to get distance from.
+            frac_coords1 (3x1 array): Reference frac_coords to get distance from.
+            frac_coords2 (3x1 array): frac_coords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
@@ -1650,7 +1652,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
 
     # deal with the case we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in mi]
-    mi *= reduce(lambda x, y: x * y, md)
+    mi *= reduce(operator.mul, md)
     int_miller_index = np.round(mi, 1).astype(int)
     mi /= np.abs(reduce(math.gcd, int_miller_index))
 

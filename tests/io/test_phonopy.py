@@ -120,13 +120,14 @@ class TestStructureConversion(PymatgenTest):
 
         # https://github.com/materialsproject/pymatgen/pull/3555
         assert list(struct_ph.magnetic_moments) == magmoms
+        assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
-        supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
+        supercell_matrix = np.diag((2, 1, 2))
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
         assert len(structures) == 49
@@ -243,8 +244,8 @@ class TestGruneisen(unittest.TestCase):
 class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
-            f"{TEST_FILES_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
-            f"{TEST_FILES_DIR}/thermal_displacement_matrices/POSCAR",
+            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
+            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/POSCAR",
         )
 
         assert_allclose(

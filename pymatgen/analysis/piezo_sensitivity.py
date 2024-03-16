@@ -232,7 +232,7 @@ class InternalStrainTensor:
             max_force (float): maximum born effective charge value
 
         Return:
-            InternalStrainTensor object
+            InternalStrainTensor
         """
         n_atoms = len(self.structure)
         IST = np.zeros((n_atoms, 3, 3, 3))
@@ -352,7 +352,7 @@ class ForceConstantMatrix:
 
     def get_unstable_FCM(self, max_force=1):
         """
-        Generate an unsymmeterized force constant matrix.
+        Generate an unsymmetrized force constant matrix.
 
         Args:
             max_charge (float): maximum born effective charge value
@@ -411,10 +411,10 @@ class ForceConstantMatrix:
 
     def get_symmetrized_FCM(self, unsymmetrized_fcm, max_force=1):
         """
-        Generate a symmeterized force constant matrix from an unsymmeterized matrix.
+        Generate a symmetrized force constant matrix from an unsymmetrized matrix.
 
         Args:
-            unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix
+            unsymmetrized_fcm (numpy array): unsymmetrized force constant matrix
             max_charge (float): maximum born effective charge value
 
         Return:
@@ -469,12 +469,12 @@ class ForceConstantMatrix:
 
     def get_stable_FCM(self, fcm, fcmasum=10):
         """
-        Generate a symmeterized force constant matrix that obeys the objects symmetry
+        Generate a symmetrized force constant matrix that obeys the objects symmetry
         constraints, has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure.
 
         Args:
-            fcm (numpy array): unsymmeterized force constant matrix
+            fcm (numpy array): unsymmetrized force constant matrix
             fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
@@ -484,18 +484,18 @@ class ForceConstantMatrix:
         check = 0
         count = 0
         while check == 0:
-            # if resymmetrizing brings back unstable modes 20 times, the method breaks
+            # if re-symmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
                 check = 1
                 break
 
             eigs, vecs = np.linalg.eig(fcm)
 
-            maxeig = np.max(-1 * eigs)
-            eigsort = np.argsort(np.abs(eigs))
-            for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-6:
-                    eigs[eigsort[i]] = -1 * maxeig * np.random.rand()
+            max_eig = np.max(-1 * eigs)
+            eig_sort = np.argsort(np.abs(eigs))
+            for idx in range(3, len(eigs)):
+                if eigs[eig_sort[idx]] > 1e-6:
+                    eigs[eig_sort[idx]] = -1 * max_eig * np.random.rand()
             diag = np.real(np.eye(len(fcm)) * eigs)
 
             fcm = np.real(np.matmul(np.matmul(vecs, diag), vecs.T))
@@ -503,9 +503,9 @@ class ForceConstantMatrix:
             fcm = self.get_asum_FCM(fcm)
             eigs, vecs = np.linalg.eig(fcm)
             unstable_modes = 0
-            eigsort = np.argsort(np.abs(eigs))
-            for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-6:
+            eig_sort = np.argsort(np.abs(eigs))
+            for idx in range(3, len(eigs)):
+                if eigs[eig_sort[idx]] > 1e-6:
                     unstable_modes = 1
             if unstable_modes == 1:
                 count = count + 1
@@ -518,11 +518,11 @@ class ForceConstantMatrix:
 
     def get_asum_FCM(self, fcm: np.ndarray, numiter: int = 15):
         """
-        Generate a symmeterized force constant matrix that obeys the objects symmetry
+        Generate a symmetrized force constant matrix that obeys the objects symmetry
         constraints and obeys the acoustic sum rule through an iterative procedure.
 
         Args:
-            fcm (numpy array): 3Nx3N unsymmeterized force constant matrix
+            fcm (numpy array): 3Nx3N unsymmetrized force constant matrix
             numiter (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
@@ -608,7 +608,7 @@ class ForceConstantMatrix:
     @requires(Phonopy, "phonopy not installed!")
     def get_rand_FCM(self, asum=15, force=10):
         """
-        Generate a symmeterized force constant matrix from an unsymmeterized matrix
+        Generate a symmetrized force constant matrix from an unsymmetrized matrix
         that has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure.
 

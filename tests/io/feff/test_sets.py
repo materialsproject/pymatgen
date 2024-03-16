@@ -11,6 +11,8 @@ from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+FEFF_TEST_DIR = f"{TEST_FILES_DIR}/feff"
+
 
 class TestFeffInputSet(PymatgenTest):
     @classmethod
@@ -119,7 +121,7 @@ TITLE sites: 4
     def test_charged_structure(self):
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
-        xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
+        xyz = f"{FEFF_TEST_DIR}/feff_radial_shell.xyz"
         mol = Molecule.from_file(xyz)
         mol.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
@@ -220,13 +222,13 @@ TITLE sites: 4
         assert struct_orig == struct_reci
 
     def test_post_dist_diff(self):
-        feff_dict_input = FEFFDictSet.from_directory(f"{TEST_FILES_DIR}/feff_dist_test")
-        assert feff_dict_input.tags == Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
-        assert str(feff_dict_input.header()) == str(Header.from_file(f"{TEST_FILES_DIR}/feff_dist_test/HEADER"))
+        feff_dict_input = FEFFDictSet.from_directory(f"{FEFF_TEST_DIR}/feff_dist_test")
+        assert feff_dict_input.tags == Tags.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp")
+        assert str(feff_dict_input.header()) == str(Header.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/HEADER"))
         feff_dict_input.write_input(f"{self.tmp_path}/feff_dist_regen")
-        origin_tags = Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/PARAMETERS")
+        origin_tags = Tags.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/PARAMETERS")
         output_tags = Tags.from_file(f"{self.tmp_path}/feff_dist_regen/PARAMETERS")
-        origin_mole = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
+        origin_mole = Atoms.cluster_from_file(f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp")
         output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/feff_dist_regen/feff.inp")
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
         output_mole_dist = np.array(output_mole.distance_matrix[0, :])

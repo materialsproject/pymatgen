@@ -83,8 +83,8 @@ def divisors(n):
     _divisors = []
     exponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
     factors = _cartesian_product(exponents)
-    for f in factors:
-        _divisors.append(reduce(lambda x, y: x * y, f, 1))
+    for factor in factors:
+        _divisors.append(reduce(lambda x, y: x * y, factor, 1))
     _divisors.sort()
     return _divisors
 

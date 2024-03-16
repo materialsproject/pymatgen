@@ -7,7 +7,7 @@ import pytest
 from matplotlib.figure import Figure as mpl_figure
 from numpy.testing import assert_allclose
 from pandas import DataFrame
-from plotly.graph_objects import Figure as plotly_figure
+from plotly.graph_objects import Figure
 from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReactivity, InterfacialReactivity
@@ -162,13 +162,14 @@ class TestInterfaceReaction(unittest.TestCase):
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with pytest.warns(
-            UserWarning,
-            match="The reactant MnO3 has no matching entry with negative formation energy, instead "
-            "convex hull energy for this composition will be used for reaction energy calculation.",
-        ) as warns:
+        with pytest.warns(UserWarning) as warns:
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
         assert len(warns) == 1
+        assert str(warns[0].message) == (
+            "The reactant MnO3 has no matching entry with negative formation energy, instead "
+            "convex hull energy for this composition will be used for reaction energy calculation."
+        )
+
         test1 = np.isclose(energy, -30, atol=1e-3)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
         # Test normal functionality
@@ -390,7 +391,7 @@ class TestInterfaceReaction(unittest.TestCase):
             assert fig, isinstance(fig, mpl_figure)
 
             fig = ir.plot(backend="plotly")
-            assert isinstance(fig, plotly_figure)
+            assert isinstance(fig, Figure)
 
     def test_get_dataframe(self):
         for ir in self.irs:
@@ -414,14 +415,8 @@ class TestInterfaceReaction(unittest.TestCase):
             (0.3333333, -3.333333),
             (0.3333333, -4.0),
         ]
-        for i, j in zip(self.irs, answer):
-            (
-                assert_allclose(i.minimum, j, atol=1e-7),
-                (
-                    f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
-                    f"gets error!{j} expected, but gets {i.minimum}"
-                ),
-            )
+        for inter_react, expected in zip(self.irs, answer):
+            assert_allclose(inter_react.minimum, expected, atol=1e-7)
 
     def test_get_no_mixing_energy(self):
         answer = [

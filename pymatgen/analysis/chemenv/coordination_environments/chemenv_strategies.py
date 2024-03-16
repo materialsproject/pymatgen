@@ -44,7 +44,7 @@ MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
 ALLCG = AllCoordinationGeometries()
 
 
-class StrategyOption(MSONable, metaclass=abc.ABCMeta):
+class StrategyOption(MSONable, abc.ABC):
     """Abstract class for the options of the chemenv strategies."""
 
     allowed_values: str | None = None
@@ -183,7 +183,7 @@ class AdditionalConditionInt(int, StrategyOption):
         return cls(dct["value"])
 
 
-class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
+class AbstractChemenvStrategy(MSONable, abc.ABC):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
     StructureEnvironments object.
@@ -1203,7 +1203,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         )
 
 
-class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
+class NbSetWeight(MSONable, abc.ABC):
     """Abstract object for neighbors sets weights estimations."""
 
     @abc.abstractmethod

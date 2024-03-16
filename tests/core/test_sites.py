@@ -126,7 +126,7 @@ class TestPeriodicSite(PymatgenTest):
         assert distance == approx(19.461500456028563)
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
-        lattice = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        lattice = Lattice(np.eye(3))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] == approx(site1.distance_and_image(site2)[0])
@@ -226,7 +226,7 @@ class TestPeriodicSite(PymatgenTest):
 
     def test_str(self):
         assert str(self.site) == "[2.5 3.5 4.5] Fe"
-        assert str(self.site2) == "[0. 0. 0.] Si:0.500"
+        assert str(self.site2) == "[0. 0. 0.] Si:0.5"
         assert str(self.propertied_site) == "[2.5 3.5 4.5] Fe2+"
         assert str(self.labeled_site) == "[2.5 3.5 4.5] Fe"
 

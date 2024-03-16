@@ -53,7 +53,7 @@ class CompatibilityError(Exception):
     """
 
 
-class Correction(metaclass=abc.ABCMeta):
+class Correction(abc.ABC):
     """A Correction class is a pre-defined scheme for correction a computed
     entry based on the type and chemistry of the structure and the
     calculation parameters. All Correction classes must implement a
@@ -476,7 +476,7 @@ class UCorrection(Correction):
         return f"{self.name} {self.compat_type} Correction"
 
 
-class Compatibility(MSONable, metaclass=abc.ABCMeta):
+class Compatibility(MSONable, abc.ABC):
     """Abstract Compatibility class, not intended for direct use.
     Compatibility classes are used to correct the energies of an entry or a set
     of entries. All Compatibility classes must implement get_adjustments() method.
@@ -793,16 +793,14 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
-"""
-Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
-instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
-When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
-require CorrectionsList.
+# Note from Ryan Kingsbury (2022-10-14): MaterialsProject2020Compatibility inherits from Compatibility
+# instead of CorrectionsList which came before it because CorrectionsList had technical limitations.
+# When we did the new scheme (MP2020) we decided to refactor the base Compatibility class to not
+# require CorrectionsList.
 
-This was particularly helpful for the AqueousCorrection class. The new system gives complete
-flexibility to process entries however needed inside the get_adjustments() method, rather than
-having to create a list of separate correction classes.
-"""
+# This was particularly helpful for the AqueousCorrection class. The new system gives complete
+# flexibility to process entries however needed inside the get_adjustments() method, rather than
+# having to create a list of separate correction classes.
 
 
 @cached_class

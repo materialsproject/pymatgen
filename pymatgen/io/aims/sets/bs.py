@@ -1,4 +1,5 @@
 """Input sets for band structure calculations."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

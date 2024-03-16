@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -125,8 +125,7 @@ class PhononDosPlotter:
         be the smeared densities, not the original densities.
 
         Returns:
-            Dict of dos data. Generally of the form, {label: {'frequencies':..,
-            'densities': ...}}
+            dict: DOS data. Generally of the form {label: {'frequencies':.., 'densities': ...}}
         """
         return jsanitize(self._doses)
 
@@ -141,15 +140,13 @@ class PhononDosPlotter:
         """Get a matplotlib plot showing the DOS.
 
         Args:
-            xlim: Specifies the x-axis limits. Set to None for automatic
-                determination.
+            xlim: Specifies the x-axis limits. Set to None for automatic determination.
             ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            units (thz | ev | mev | ha | cm-1 | cm^-1): units for the frequencies. Defaults to "thz".
             legend: dict with legend options. For example, {"loc": "upper right"}
-                will place the legend in the upper right corner. Defaults to
-                {"fontsize": 30}.
-            ax (Axes): An existing axes object onto which the plot will be
-                added. If None, a new figure will be created.
+                will place the legend in the upper right corner. Defaults to {"fontsize": 30}.
+            ax (Axes): An existing axes object onto which the plot will be added.
+                If None, a new figure will be created.
         """
         legend = legend or {}
         legend.setdefault("fontsize", 30)
@@ -390,7 +387,7 @@ class PhononBSPlotter:
 
     @staticmethod
     def _make_color(colors: Sequence[int]) -> Sequence[int]:
-        """Convert the eigendisplacements to rgb colors."""
+        """Convert the eigen-displacements to rgb colors."""
         # if there are two groups, use red and blue
         if len(colors) == 2:
             return [colors[0], 0, colors[1]]
@@ -601,22 +598,23 @@ class PhononBSPlotter:
         other_kwargs: dict | None = None,
         **kwargs,
     ) -> Axes:
-        """Plot two band structure for comparison. One is in red the other in blue.
+        """Plot two band structure for comparison. self in blue, other in red.
         The two band structures need to be defined on the same symmetry lines!
-        and the distance between symmetry lines is the one of the band structure
-        used to build the PhononBSPlotter.
+        The distance between symmetry lines is determined by the band structure used to
+        initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter (PhononBSPlotter): another PhononBSPlotter object defined along the same symmetry lines
+            other_plotter (PhononBSPlotter): another PhononBSPlotter object defined along the
+                same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
-            labels (tuple[str, str] | None): labels for the two band structures. Defaults to None, which will use the
-                label of the two PhononBSPlotter objects if present.
+            labels (tuple[str, str] | None): labels for the two band structures. Defaults to None,
+                which will use the label of the two PhononBSPlotter objects if present.
                 Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
                 on which plot_compare() is called must come first.
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
-            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures are not compatible.
-                Defaults to 'raise'.
+            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures
+                are not compatible. Defaults to 'raise'.
             other_kwargs: dict[str, Any]: kwargs passed to other_plotter ax.plot().
             **kwargs: passed to ax.plot().
 
@@ -663,15 +661,14 @@ class PhononBSPlotter:
 
     def plot_brillouin(self) -> None:
         """Plot the Brillouin zone."""
+        q_pts = self._bs.qpoints
         # get labels and lines
-        labels = {}
-        for q_pt in self._bs.qpoints:
-            if q_pt.label:
-                labels[q_pt.label] = q_pt.frac_coords
+        labels = {q_pt.label: q_pt.frac_coords for q_pt in q_pts if q_pt.label}
 
-        lines = []
-        for b in self._bs.branches:
-            lines.append([self._bs.qpoints[b["start_index"]].frac_coords, self._bs.qpoints[b["end_index"]].frac_coords])
+        lines = [
+            [q_pts[branch["start_index"]].frac_coords, q_pts[branch["end_index"]].frac_coords]
+            for branch in self._bs.branches
+        ]
 
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
@@ -693,8 +690,8 @@ class ThermoPlotter:
 
     def _plot_thermo(
         self,
-        func,
-        temperatures: Sequence,
+        func: Callable[[float, Structure | None], float],
+        temperatures: Sequence[float],
         factor: float = 1,
         ax: Axes = None,
         ylabel: str | None = None,
@@ -705,10 +702,11 @@ class ThermoPlotter:
         """Plots a thermodynamic property for a generic function from a PhononDos instance.
 
         Args:
-            func: the thermodynamic function to be used to calculate the property
-            temperatures: a list of temperatures
+            func (Callable[[float, Structure | None], float]): Takes a temperature and structure (in that order)
+                and returns a thermodynamic property (e.g., heat capacity, entropy, etc.).
+            temperatures (list[float]): temperatures (in K) at which to evaluate func.
             factor: a multiplicative factor applied to the thermodynamic property calculated. Used to change
-                the units.
+                the units. Defaults to 1.
             ax: matplotlib Axes or None if a new figure should be created.
             ylabel: label for the y axis
             label: label of the plot
@@ -722,8 +720,8 @@ class ThermoPlotter:
 
         values = []
 
-        for t in temperatures:
-            values.append(func(t, structure=self.structure) * factor)
+        for temp in temperatures:
+            values.append(func(temp, self.structure) * factor)
 
         ax.plot(temperatures, values, label=label, **kwargs)
 

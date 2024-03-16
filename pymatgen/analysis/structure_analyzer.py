@@ -330,8 +330,8 @@ class VoronoiConnectivity:
     def get_sitej(self, site_index, image_index):
         """
         Assuming there is some value in the connectivity array at indices
-        (1, 3, 12). sitei can be obtained directly from the input structure
-        (structure[1]). sitej can be obtained by passing 3, 12 to this function.
+        (1, 3, 12). site_i can be obtained directly from the input structure
+        (structure[1]). site_j can be obtained by passing 3, 12 to this function.
 
         Args:
             site_index (int): index of the site (3 in the example)
@@ -355,16 +355,16 @@ def solid_angle(center, coords):
         float: The solid angle.
     """
     origin = np.array(center)
-    r = [np.array(c) - origin for c in coords]
-    r.append(r[0])
-    n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
-    n.append(np.cross(r[1], r[0]))
+    radii = [np.array(c) - origin for c in coords]
+    radii.append(radii[0])
+    n = [np.cross(radii[i + 1], radii[i]) for i in range(len(radii) - 1)]
+    n.append(np.cross(radii[1], radii[0]))
     vals = []
     for i in range(len(n) - 1):
         v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
         vals.append(acos(np.clip(v, -1, 1)))
     phi = sum(vals)
-    return phi + (3 - len(r)) * pi
+    return phi + (3 - len(radii)) * pi
 
 
 def get_max_bond_lengths(structure, el_radius_updates=None):
@@ -380,14 +380,14 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
         dict[(Element1, Element2)], float]: The two elements are ordered by Z.
     """
     # jmc = JMolCoordFinder(el_radius_updates)
-    jmnn = JmolNN(el_radius_updates=el_radius_updates)
+    jm_nn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
     els = sorted(structure.elements, key=lambda x: x.Z)
 
     for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
-            bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
+            bonds_lens[el1, els[i1 + i2]] = jm_nn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
 
     return bonds_lens
 

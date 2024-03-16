@@ -10,13 +10,13 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestTrajectory(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/Traj_XDATCAR")
-        self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_XDATCAR")
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_traj")
+        self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures
 
         out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
@@ -221,15 +221,15 @@ class TestTrajectory(PymatgenTest):
         traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_1")
+        compatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_1")
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_Full")
+        full_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_full")
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_2")
+        incompatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_2")
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
@@ -418,7 +418,7 @@ class TestTrajectory(PymatgenTest):
         assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
-        structures = [Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")]
+        structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
         for i in range(10):
@@ -456,12 +456,12 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(traj, written_traj)
 
     def test_as_from_dict(self):
-        d = self.traj.as_dict()
-        traj = Trajectory.from_dict(d)
+        dct = self.traj.as_dict()
+        traj = Trajectory.from_dict(dct)
         assert isinstance(traj, Trajectory)
 
-        d = self.traj_mols.as_dict()
-        traj = Trajectory.from_dict(d)
+        dct = self.traj_mols.as_dict()
+        traj = Trajectory.from_dict(dct)
         assert isinstance(traj, Trajectory)
 
     def test_xdatcar_write(self):

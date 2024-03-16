@@ -335,8 +335,8 @@ def rectangle_surface_intersection(
         raise NotImplementedError("Bounds should be given right now ...")
     if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
         return 0.0, 0.0
-    xmin = bounds_lower[0] if x1 < bounds_lower[0] else x1
-    xmax = bounds_lower[1] if x2 > bounds_lower[1] else x2
+    xmin = max(x1, bounds_lower[0])
+    xmax = min(x2, bounds_lower[1])
 
     def diff(x):
         flwx = f_lower(x)
@@ -631,12 +631,12 @@ class Plane:
             raise ValueError("Normal vector is equal to 0.0")
         if self.normal_vector[non_zeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
-            dd = -np.float_(coefficients[3]) / norm_v
+            dd = -np.float64(coefficients[3]) / norm_v
         else:
-            dd = np.float_(coefficients[3]) / norm_v
+            dd = np.float64(coefficients[3]) / norm_v
         self._coefficients = np.array(
             [self.normal_vector[0], self.normal_vector[1], self.normal_vector[2], dd],
-            np.float_,
+            np.float64,
         )
         self._crosses_origin = np.isclose(dd, 0.0, atol=1e-7, rtol=0.0)
         self.p1 = p1

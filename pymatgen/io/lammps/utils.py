@@ -309,9 +309,10 @@ class PackmolRunner:
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            with open(os.path.join(scratch_dir, self.input_file)) as packmol_input, Popen(
-                self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE
-            ) as proc:
+            with (
+                open(os.path.join(scratch_dir, self.input_file)) as packmol_input,
+                Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as proc,
+            ):
                 stdout, stderr = proc.communicate()
             output_file = self.control_params["output"]
             if os.path.isfile(output_file):

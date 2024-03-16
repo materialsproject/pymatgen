@@ -113,10 +113,10 @@ class ChemicalPotentialDiagram(MSONable):
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = sorted({els for e in self.entries for els in e.elements})
+        self.elements = sorted({els for ent in self.entries for els in ent.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
-        self._entry_dict = {e.reduced_formula: e for e in self._min_entries}
+        self._entry_dict = {ent.reduced_formula: ent for ent in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
         self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 

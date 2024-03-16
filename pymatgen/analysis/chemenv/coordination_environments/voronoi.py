@@ -485,8 +485,8 @@ class DetailedVoronoiContainer(MSONable):
             dp2 = distance_bounds[idp + 1]
             if dp2 < mindist or dp1 > maxdist:
                 continue
-            d1 = mindist if dp1 < mindist else dp1
-            d2 = maxdist if dp2 > maxdist else dp2
+            d1 = max(dp1, mindist)
+            d2 = min(dp2, maxdist)
             for iap in range(len(angle_bounds) - 1):
                 ap1 = angle_bounds[iap]
                 ap2 = angle_bounds[iap + 1]
@@ -908,7 +908,7 @@ class DetailedVoronoiContainer(MSONable):
             #  'index': myindex}
             for nb_dict in voro:
                 site = nb_dict["site"]
-                site_dict = {key: val for key, val in nb_dict.items() if key not in ["site"]}
+                site_dict = {key: val for key, val in nb_dict.items() if key != "site"}
                 # site_voro.append([ps.as_dict(), dd]) [float(c) for c in self.frac_coords]
                 diff = site.frac_coords - self.structure[nb_dict["index"]].frac_coords
                 site_voro.append([[nb_dict["index"], [float(c) for c in diff]], site_dict])

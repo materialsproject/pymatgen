@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 __version__ = "0.1"
 
 
-class EnergyModel(MSONable, metaclass=abc.ABCMeta):
+class EnergyModel(MSONable, abc.ABC):
     """Abstract structure filter class."""
 
     @abc.abstractmethod

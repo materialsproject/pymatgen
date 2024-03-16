@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -27,7 +27,7 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__file__)
 
 
-class EOSBase(metaclass=ABCMeta):
+class EOSBase(ABC):
     """
     Abstract class that must be subclassed by all equation of state
     implementations.

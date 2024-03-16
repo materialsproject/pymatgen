@@ -12,10 +12,10 @@ from monty.serialization import zopen
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config
+from pymatgen.util.testing import VASP_IN_DIR
 
 
 class PotcarScrambler:
-
     """
     Takes a POTCAR and replaces its values with completely random values
     Does type matching and attempts precision matching on floats to ensure
@@ -181,7 +181,7 @@ def potcar_cleanser():
     and freely shared by VASP)
     """
 
-    search_dir = "../tests/files/fake_potcars/real_potcars/"
+    search_dir = f"{VASP_IN_DIR}/fake_potcars/real_potcars/"
     rebase_dir = search_dir.replace("real", "fake")
     potcars_to_cleanse = glob(f"{search_dir}/**/POTCAR*", recursive=True)
 

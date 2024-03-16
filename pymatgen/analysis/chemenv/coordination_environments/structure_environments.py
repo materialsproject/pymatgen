@@ -1219,7 +1219,7 @@ class StructureEnvironments(MSONable):
             else None
             for site_nbs_sets in self.neighbors_sets
         ]
-        info_dict = {key: val for key, val in self.info.items() if key not in ["sites_info"]}
+        info_dict = {key: val for key, val in self.info.items() if key != "sites_info"}
         info_dict["sites_info"] = [
             {
                 "nb_sets_info": {
@@ -1284,7 +1284,7 @@ class StructureEnvironments(MSONable):
             else None
             for site_nbs_sets_dict in dct["neighbors_sets"]
         ]
-        info = {key: val for key, val in dct["info"].items() if key not in ["sites_info"]}
+        info = {key: val for key, val in dct["info"].items() if key != "sites_info"}
         if "sites_info" in dct["info"]:
             info["sites_info"] = [
                 {

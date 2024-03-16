@@ -34,7 +34,7 @@ EXPLICIT_PERMUTATIONS = "EXPLICIT_PERMUTATIONS"
 SEPARATION_PLANE = "SEPARATION_PLANE"
 
 
-class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
+class AbstractChemenvAlgorithm(MSONable, abc.ABC):
     """
     Base class used to define a Chemenv algorithm used to identify the correct permutation for the computation
     of the Continuous Symmetry Measure.

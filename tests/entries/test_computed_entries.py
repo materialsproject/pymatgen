@@ -22,10 +22,9 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
-filepath = f"{TEST_FILES_DIR}/vasprun.xml"
-vasp_run = Vasprun(filepath)
+vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
 
 
 def test_energy_adjustment():

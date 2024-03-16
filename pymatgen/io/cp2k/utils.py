@@ -46,7 +46,7 @@ def postprocessor(data: str) -> str | float | bool | None:
         except ValueError as exc:
             raise ValueError(f"Error parsing {data!r} as float in CP2K file.") from exc
     if re.match(r"\*+", data):
-        return np.NaN
+        return np.nan
     return data
 
 

@@ -14,6 +14,7 @@ from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.io.icet import ClusterSpace
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.advanced_transformations import (
     AddAdsorbateTransformation,
@@ -40,7 +41,7 @@ from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     import hiphive
@@ -161,7 +162,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
@@ -188,10 +189,11 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         for s in alls:
             assert "energy" not in s
 
+    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -203,6 +205,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
+    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
@@ -211,13 +214,13 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
 
         m3gnet_model = Relaxer(potential=pot)
 
-        def sort_criteria(s):
-            relax_results = m3gnet_model.relax(s)
+        def sort_criteria(struct: Structure) -> tuple[Structure, float]:
+            relax_results = m3gnet_model.relax(struct)
             energy = float(relax_results["trajectory"].energies[-1])
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
@@ -298,7 +301,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
         spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
@@ -328,7 +331,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
         struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)
@@ -641,6 +644,54 @@ class TestSQSTransformation(PymatgenTest):
         struct_out_specie_strings = [site.species_string for site in struct_out]
         assert "Ti0+,spin=-5" in struct_out_specie_strings
         assert "Ti0+,spin=5" in struct_out_specie_strings
+
+
+@unittest.skipIf(ClusterSpace is None, "icet not installed.")
+class TestSQSTransformationIcet(PymatgenTest):
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    scaling: int = 8
+
+    def test_icet_import(self):
+        from pymatgen.io import icet as icet_mod
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            monkeypatch.setattr(icet_mod, "ClusterSpace", None)
+
+            with pytest.raises(ImportError):
+                icet_mod.IcetSQS(
+                    structure=self.stored_run["disordered_structure"],
+                    scaling=self.scaling,
+                    instances=None,
+                    cluster_cutoffs={2: 5.0},
+                )
+
+    def test_enumeration(self):
+        sqs = SQSTransformation(
+            scaling=self.scaling,
+            sqs_method="icet-enumeration",
+            instances=2,
+            best_only=False,
+        )
+        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+        for key in ("structure", "objective_function"):
+            assert sqs_structure[0][key] == self.stored_run[key]
+
+    def test_monte_carlo(self):
+        sqs = SQSTransformation(
+            scaling=self.scaling, sqs_method="icet-monte_carlo", icet_sqs_kwargs={"n_steps": 5}, instances=2
+        )
+        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=False)
+        assert isinstance(sqs_structure, Structure)
+        assert len(sqs_structure) == self.scaling * len(self.stored_run["disordered_structure"])
+
+        sqs_output = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+
+        assert isinstance(sqs_output, list)
+        assert len(sqs_output) == 1
+        assert isinstance(sqs_output[0], dict)
+        expected_types = {"structure": Structure, "objective_function": float}
+        for key, val in expected_types.items():
+            assert isinstance(sqs_output[0][key], val)
 
 
 class TestCubicSupercellTransformation(PymatgenTest):
