@@ -638,25 +638,6 @@ class CompleteCohp(Cohp):
             orb_cohp = None
 
         are_cobis = dct.get("are_cobis", False)
-        if "average" not in dct["COHP"]:
-            # TODO: check if this really works (e.g., spin polarization)
-            # calculate average
-            [print(np.array(c)) for c in dct["COHP"].values()]
-            cohp = np.array([np.array(c) for c in dct["COHP"].values()]).mean(axis=0)
-            try:
-                icohp = np.array([np.array(c) for c in dct["ICOHP"].values()]).mean(axis=0)
-            except KeyError:
-                icohp = None
-
-            avg_cohp = Cohp(
-                efermi,
-                energies,
-                cohp,
-                icohp=icohp,
-                are_coops=dct["are_coops"],
-                are_cobis=are_cobis,
-                are_multicenter_cobis=are_multicenter_cobis,
-            )
 
         return CompleteCohp(
             structure,
