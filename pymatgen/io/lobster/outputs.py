@@ -73,25 +73,38 @@ class Cohpcar:
             }
     """
 
-    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str | None = None):
+    def __init__(
+        self,
+        are_coops: bool = False,
+        are_cobis: bool = False,
+        are_multi_center_cobis: bool = False,
+        filename: str | None = None,
+    ) -> None:
         """
         Args:
-            are_coops: Determines if the file is a list of COHPs or COOPs.
+            are_coops: Determines if the file includes COOPs.
               Default is False for COHPs.
             are_cobis: Determines if the file is a list of COHPs or COBIs.
               Default is False for COHPs.
-
+            are_multi_center_cobis: Determines if the file include multi-center COBIS.
+                Default is False for two-center cobis.
             filename: Name of the COHPCAR file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
-        if are_coops and are_cobis:
-            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
+        if (
+            (are_coops and are_cobis)
+            or (are_coops and are_multi_center_cobis)
+            or (are_cobis and are_multi_center_cobis)
+        ):
+            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIS in the same file.")
         self.are_coops = are_coops
         self.are_cobis = are_cobis
+        self.are_multi_center_cobis = are_multi_center_cobis
+
         if filename is None:
             if are_coops:
                 filename = "COOPCAR.lobster"
-            elif are_cobis:
+            elif are_cobis or are_multi_center_cobis:
                 filename = "COBICAR.lobster"
             else:
                 filename = "COHPCAR.lobster"
@@ -103,20 +116,25 @@ class Cohpcar:
         # contains all parameters that are needed to map the file.
         parameters = contents[1].split()
         # Subtract 1 to skip the average
-        num_bonds = int(parameters[0]) - 1
+        num_bonds = int(parameters[0]) - 1 if not self.are_multi_center_cobis else int(parameters[0])
         self.efermi = float(parameters[-1])
         self.is_spin_polarized = int(parameters[1]) == 2
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
-
-        # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
-        self.energies = data[0]
-        cohp_data: dict[str, dict[str, Any]] = {
-            "average": {
-                "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
-                "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+        cohp_data: dict[str, dict[str, Any]] = {}
+        if not self.are_multi_center_cobis:
+            # The COHP data start in row num_bonds + 3
+            data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+            self.energies = data[0]
+            cohp_data = {
+                "average": {
+                    "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+                    "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+                }
             }
-        }
+        else:
+            # The COBI data start in row num_bonds + 3 if multi-center cobis exist
+            data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+            self.energies = data[0]
 
         orb_cohp: dict[str, Any] = {}
         # present for Lobster versions older than Lobster 2.2.0
@@ -127,27 +145,97 @@ class Cohpcar:
         bond_data = {}
         label = ""
         for bond in range(num_bonds):
-            bond_data = self._get_bond_data(contents[3 + bond])
-
-            label = str(bond_num)
-
-            orbs = bond_data["orbitals"]
-            cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
-
-            icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
-            if orbs is None:
-                bond_num = bond_num + 1
+            if not self.are_multi_center_cobis:
+                bond_data = self._get_bond_data(contents[3 + bond])
                 label = str(bond_num)
-                cohp_data[label] = {
-                    "COHP": cohp,
-                    "ICOHP": icohp,
-                    "length": bond_data["length"],
-                    "sites": bond_data["sites"],
-                }
+                orbs = bond_data["orbitals"]
+                cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
+                icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
+                if orbs is None:
+                    bond_num = bond_num + 1
+                    label = str(bond_num)
+                    cohp_data[label] = {
+                        "COHP": cohp,
+                        "ICOHP": icohp,
+                        "length": bond_data["length"],
+                        "sites": bond_data["sites"],
+                        "cells": None,
+                    }
 
-            elif label in orb_cohp:
-                orb_cohp[label].update(
-                    {
+                elif label in orb_cohp:
+                    orb_cohp[label].update(
+                        {
+                            bond_data["orb_label"]: {
+                                "COHP": cohp,
+                                "ICOHP": icohp,
+                                "orbitals": orbs,
+                                "length": bond_data["length"],
+                                "sites": bond_data["sites"],
+                                "cells": bond_data["cells"],
+                            }
+                        }
+                    )
+                else:
+                    # present for Lobster versions older than Lobster 2.2.0
+                    if bond_num == 0:
+                        very_old = True
+                    if very_old:
+                        bond_num += 1
+                        label = str(bond_num)
+
+                    orb_cohp[label] = {
+                        bond_data["orb_label"]: {
+                            "COHP": cohp,
+                            "ICOHP": icohp,
+                            "orbitals": orbs,
+                            "length": bond_data["length"],
+                            "sites": bond_data["sites"],
+                            "cells": bond_data["cells"],
+                        }
+                    }
+
+            else:
+                bond_data = self._get_bond_data(contents[2 + bond], are_multi_center_cobis=self.are_multi_center_cobis)
+
+                label = str(bond_num)
+
+                orbs = bond_data["orbitals"]
+
+                cohp = {spin: data[2 * (bond + s * (num_bonds)) + 1] for s, spin in enumerate(spins)}
+
+                icohp = {spin: data[2 * (bond + s * (num_bonds)) + 2] for s, spin in enumerate(spins)}
+                if orbs is None:
+                    bond_num = bond_num + 1
+                    label = str(bond_num)
+                    cohp_data[label] = {
+                        "COHP": cohp,
+                        "ICOHP": icohp,
+                        "length": bond_data["length"],
+                        "sites": bond_data["sites"],
+                        "cells": bond_data["cells"],
+                    }
+
+                elif label in orb_cohp:
+                    orb_cohp[label].update(
+                        {
+                            bond_data["orb_label"]: {
+                                "COHP": cohp,
+                                "ICOHP": icohp,
+                                "orbitals": orbs,
+                                "length": bond_data["length"],
+                                "sites": bond_data["sites"],
+                            }
+                        }
+                    )
+                else:
+                    # present for Lobster versions older than Lobster 2.2.0
+                    if bond_num == 0:
+                        very_old = True
+                    if very_old:
+                        bond_num += 1
+                        label = str(bond_num)
+
+                    orb_cohp[label] = {
                         bond_data["orb_label"]: {
                             "COHP": cohp,
                             "ICOHP": icohp,
@@ -156,24 +244,6 @@ class Cohpcar:
                             "sites": bond_data["sites"],
                         }
                     }
-                )
-            else:
-                # present for Lobster versions older than Lobster 2.2.0
-                if bond_num == 0:
-                    very_old = True
-                if very_old:
-                    bond_num += 1
-                    label = str(bond_num)
-
-                orb_cohp[label] = {
-                    bond_data["orb_label"]: {
-                        "COHP": cohp,
-                        "ICOHP": icohp,
-                        "orbitals": orbs,
-                        "length": bond_data["length"],
-                        "sites": bond_data["sites"],
-                    }
-                }
 
         # present for lobster older than 2.2.0
         if very_old:
@@ -184,45 +254,70 @@ class Cohpcar:
                     "length": bond_data["length"],
                     "sites": bond_data["sites"],
                 }
-
         self.orb_res_cohp = orb_cohp or None
         self.cohp_data = cohp_data
 
     @staticmethod
-    def _get_bond_data(line: str) -> dict:
+    def _get_bond_data(line: str, are_multi_center_cobis: bool = False) -> dict:
         """
         Subroutine to extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
         can be easily used with a Structure object.
 
         Example header line: No.4:Fe1->Fe9(2.4524893531900283)
-        Example header line for orbtial-resolved COHP:
+        Example header line for orbital-resolved COHP:
             No.1:Fe1[3p_x]->Fe2[3d_x^2-y^2](2.456180552772262)
 
         Args:
             line: line in the COHPCAR header describing the bond.
+            are_multi_center_cobis: indicates multi-center COBIs
 
         Returns:
             Dict with the bond label, the bond length, a tuple of the site
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
         """
-        line_new = line.rsplit("(", 1)
-        length = float(line_new[-1][:-1])
 
-        sites = line_new[0].replace("->", ":").split(":")[1:3]
+        if not are_multi_center_cobis:
+            line_new = line.rsplit("(", 1)
+            length = float(line_new[-1][:-1])
+
+            sites = line_new[0].replace("->", ":").split(":")[1:3]
+            site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
+            # TODO: get cells here as well
+
+            if "[" in sites[0]:
+                orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
+                orb_label, orbitals = get_orb_from_str(orbs)
+            else:
+                orbitals = None
+                orb_label = None
+
+            return {
+                "length": length,
+                "sites": site_indices,
+                "cells": None,
+                "orbitals": orbitals,
+                "orb_label": orb_label,
+            }
+
+        line_new = line.rsplit(sep="(", maxsplit=1)
+
+        sites = line_new[0].replace("->", ":").split(":")[1:]
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
-
-        if "[" in sites[0]:
-            orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
+        cells = [[int(i) for i in re.split(r"\[(.*?)\]", site)[1].split(" ") if i != ""] for site in sites]
+        # test orbitalwise implementations!
+        if sites[0].count("[") > 1:
+            orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
             orb_label, orbitals = get_orb_from_str(orbs)
-
         else:
-            orbitals = orb_label = None
+            orbitals = None
+            orb_label = None
 
         return {
-            "length": length,
             "sites": site_indices,
+            "cells": cells,
+            "length": None,
             "orbitals": orbitals,
             "orb_label": orb_label,
         }
@@ -265,6 +360,9 @@ class Icohplist(MSONable):
             icohpcollection: IcohpCollection Object
 
         """
+        # to avoid circular dependencies
+        from pymatgen.electronic_structure.cohp import IcohpCollection
+
         self._filename = filename
         self.is_spin_polarized = is_spin_polarized
         self.orbitalwise = orbitalwise
@@ -328,13 +426,7 @@ class Icohplist(MSONable):
             else:
                 num_bonds = len(data_without_orbitals)
 
-            list_labels = []
-            list_atom1 = []
-            list_atom2 = []
-            list_length = []
-            list_translation = []
-            list_num = []
-            list_icohp = []
+            labels, atoms1, atoms2, lens, translations, nums, icohps = [], [], [], [], [], [], []
 
             # initialize static variables
             label = ""
@@ -370,13 +462,13 @@ class Icohplist(MSONable):
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
 
-                list_labels += [label]
-                list_atom1 += [atom1]
-                list_atom2 += [atom2]
-                list_length += [length]
-                list_translation += [translation]
-                list_num += [num]
-                list_icohp += [icohp]
+                labels += [label]
+                atoms1 += [atom1]
+                atoms2 += [atom2]
+                lens += [length]
+                translations += [translation]
+                nums += [num]
+                icohps += [icohp]
 
             list_orb_icohp: list[dict] | None = None
             if self.orbitalwise:
@@ -400,19 +492,16 @@ class Icohplist(MSONable):
                     else:
                         list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
-            # to avoid circular dependencies
-            from pymatgen.electronic_structure.cohp import IcohpCollection
-
             self._icohpcollection = IcohpCollection(
                 are_coops=are_coops,
                 are_cobis=are_cobis,
-                list_labels=list_labels,
-                list_atom1=list_atom1,
-                list_atom2=list_atom2,
-                list_length=list_length,
-                list_translation=list_translation,
-                list_num=list_num,
-                list_icohp=list_icohp,
+                list_labels=labels,
+                list_atom1=atoms1,
+                list_atom2=atoms2,
+                list_length=lens,
+                list_translation=translations,
+                list_num=nums,
+                list_icohp=icohps,
                 is_spin_polarized=self.is_spin_polarized,
                 list_orb_icohp=list_orb_icohp,
             )
@@ -1275,7 +1364,7 @@ class Fatband:
                         for _ in range(self.nbands)
                     ]
 
-            ikpoint = -1
+            idx_kpt = -1
             linenumber = 0
             for line in contents[1:-1]:
                 if line.split()[0] == "#":
@@ -1291,21 +1380,21 @@ class Fatband:
 
                     linenumber = 0
                     iband = 0
-                    ikpoint += 1
+                    idx_kpt += 1
                 if linenumber == self.nbands:
                     iband = 0
                 if line.split()[0] != "#":
                     if linenumber < self.nbands:
                         if ifilename == 0:
-                            eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
+                            eigenvals[Spin.up][iband][idx_kpt] = float(line.split()[1]) + self.efermi
 
-                        p_eigenvals[Spin.up][iband][ikpoint][atom_names[ifilename]][orbital_names[ifilename]] = float(
+                        p_eigenvals[Spin.up][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
                     if linenumber >= self.nbands and self.is_spinpolarized:
                         if ifilename == 0:
-                            eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
-                        p_eigenvals[Spin.down][iband][ikpoint][atom_names[ifilename]][orbital_names[ifilename]] = float(
+                            eigenvals[Spin.down][iband][idx_kpt] = float(line.split()[1]) + self.efermi
+                        p_eigenvals[Spin.down][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
 
@@ -1317,9 +1406,9 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
+        for idx, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
             if label is not None:
-                label_dict[label] = kpoints_array[ilabel]
+                label_dict[label] = kpoints_array[idx]
 
         self.label_dict = label_dict
 
@@ -1724,7 +1813,7 @@ class Wavefunction:
             raise ValueError('part can be only "real" or "imaginary" or "density"')
 
 
-# madleung and sitepotential classes
+# madelung and site potential classes
 class MadelungEnergies(MSONable):
     """
     Class to read MadelungEnergies.lobster files generated by LOBSTER.
@@ -1912,7 +2001,7 @@ def get_orb_from_str(orbs):
     """
 
     Args:
-        orbs: list of two str, e.g. ["2p_x", "3s"].
+        orbs: list of two or more str, e.g. ["2p_x", "3s"].
 
     Returns:
         list of tw Orbital objects
@@ -1937,7 +2026,14 @@ def get_orb_from_str(orbs):
         "f_x(x^2-3y^2)",
     ]
     orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
-    orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
+
+    orb_label = ""
+    for iorb, orbital in enumerate(orbitals):
+        if iorb == 0:
+            orb_label += f"{orbital[0]}{orbital[1].name}"  # type: ignore
+        else:
+            orb_label += f"-{orbital[0]}{orbital[1].name}"  # type: ignore
+
     return orb_label, orbitals
 
 

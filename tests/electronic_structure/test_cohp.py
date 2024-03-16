@@ -847,6 +847,27 @@ class TestCompleteCohp(PymatgenTest):
 
         self.cobi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_cobis=True)
 
+        # COBI multi-center
+        filepath = f"{TEST_DIR}/COBICAR.lobster.GeTe.multi.orbitalwise.full"
+        structure = f"{TEST_DIR}/POSCAR.GeTe"
+        self.cobi_multi = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
+        )
+
+        # COBI multi-center
+        filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin"
+        structure = f"{TEST_DIR}/POSCAR.B2H6"
+        self.cobi_multi_B2H6 = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
+        )
+
+        # COBI multi-center
+        filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin.average.2"
+        structure = f"{TEST_DIR}/POSCAR.B2H6"
+        self.cobi_multi_B2H6_average2 = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_cobis=True
+        )
+
     def test_attributes(self):
         assert not self.cohp_lobster.are_coops
         assert not self.cohp_lobster.are_cobis
@@ -873,6 +894,34 @@ class TestCompleteCohp(PymatgenTest):
 
         assert self.cohp_lobster_forb.cohp[Spin.up][0] == 0.00000
         assert self.cohp_lobster_forb.icohp[Spin.up][0] == -0.09040
+
+    def test_average_multi_center_cobi(self):
+        # tests if the averages for a mult-center cobi are computed in the same way as in Lobster
+        for cohp1, cohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.up],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
+        ):
+            print(cohp1)
+            print(cohp2)
+            assert cohp1 == approx(cohp2, abs=1e-4)
+
+        for cohp1, cohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.down],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.down],
+        ):
+            assert cohp1 == approx(cohp2, abs=1e-4)
+
+        for icohp1, icohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.up],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.up],
+        ):
+            assert icohp1 == approx(icohp2, abs=1e-4)
+
+        for icohp1, icohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.down],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.down],
+        ):
+            assert icohp1 == approx(icohp2, abs=1e-4)
 
     def test_dict(self):
         # The json files are dict representations of the COHPs from the LMTO
@@ -902,6 +951,9 @@ class TestCompleteCohp(PymatgenTest):
                 self.cohp_lmto_dict.as_dict()[key]["average"]["1"],
                 5,
             )
+            # check if the same dicts are generated
+            cobi_new = CompleteCohp.from_dict(self.cobi_multi.as_dict())
+            assert is_equal(self.cobi_multi, cobi_new)
         # for key in cohp_lmto_dict:
         #     if key not in ["COHP", "ICOHP"]:
         #         assert cohp_lmto_dict[key] == self.cohp_lmto_dict.as_dict()[key]
