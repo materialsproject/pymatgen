@@ -39,7 +39,6 @@ class TestCohp(unittest.TestCase):
             cobi_dict = json.load(file)
         assert self.cobi.as_dict() == cobi_dict
 
-
     def test_attributes(self):
         assert len(self.cohp.energies) == 301
         assert self.cohp.efermi == 9.75576
@@ -851,18 +850,23 @@ class TestCompleteCohp(PymatgenTest):
         # COBI multicenter
         filepath = f"{TEST_DIR}/COBICAR.lobster.GeTe.multi.orbitalwise.full"
         structure = f"{TEST_DIR}/POSCAR.GeTe"
-        self.cobi_multi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_multicenter_cobis=True)
+        self.cobi_multi = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_multicenter_cobis=True
+        )
 
         # COBI multicenter
         filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin"
         structure = f"{TEST_DIR}/POSCAR.B2H6"
-        self.cobi_multi_B2H6 = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_multicenter_cobis=True)
+        self.cobi_multi_B2H6 = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_multicenter_cobis=True
+        )
 
         # COBI multicenter
         filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin.average.2"
         structure = f"{TEST_DIR}/POSCAR.B2H6"
-        self.cobi_multi_B2H6_average2 = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure,
-                                                              are_cobis=True)
+        self.cobi_multi_B2H6_average2 = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_cobis=True
+        )
 
     def test_attributes(self):
         assert not self.cohp_lobster.are_coops
@@ -893,20 +897,30 @@ class TestCompleteCohp(PymatgenTest):
 
     def test_average_multi_center_cobi(self):
         # tests if the averages for a mult-center cobi are computed in the same way as in Lobster
-        for cohp1, cohp2 in zip(self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.up], self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up]):
+        for cohp1, cohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.up],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
+        ):
             print(cohp1)
             print(cohp2)
             assert cohp1 == approx(cohp2, abs=1e-4)
 
-        for cohp1, cohp2 in zip(self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.down], self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.down]):
+        for cohp1, cohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.down],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.down],
+        ):
             assert cohp1 == approx(cohp2, abs=1e-4)
 
-        for icohp1, icohp2 in zip(self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.up],
-                                self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.up]):
+        for icohp1, icohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.up],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.up],
+        ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
-        for icohp1, icohp2 in zip(self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.down],
-                                self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.down]):
+        for icohp1, icohp2 in zip(
+            self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.down],
+            self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.down],
+        ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
     def test_dict(self):
@@ -938,7 +952,7 @@ class TestCompleteCohp(PymatgenTest):
                 5,
             )
             # check if the same dicts are generated
-            cobi_new=CompleteCohp.from_dict(self.cobi_multi.as_dict())
+            cobi_new = CompleteCohp.from_dict(self.cobi_multi.as_dict())
             assert is_equal(self.cobi_multi, cobi_new)
         # for key in cohp_lmto_dict:
         #     if key not in ["COHP", "ICOHP"]:
