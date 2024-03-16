@@ -660,7 +660,7 @@ class Tags(dict):
         eels_params = []
         ieels = -1
         ieels_max = -1
-        for i, line in enumerate(lines):
+        for idx, line in enumerate(lines):
             m = re.match(r"([A-Z]+\d*\d*)\s*(.*)", line)
             if m:
                 key = m.group(1).strip()
@@ -668,12 +668,12 @@ class Tags(dict):
                 val = Tags.proc_val(key, val)
                 if key not in ("ATOMS", "POTENTIALS", "END", "TITLE"):
                     if key in ["ELNES", "EXELFS"]:
-                        ieels = i
+                        ieels = idx
                         ieels_max = ieels + 5
                     else:
                         params[key] = val
-            if ieels >= 0 and ieels <= i <= ieels_max:
-                if i == ieels + 1 and int(line.split()[1]) == 1:
+            if ieels >= 0 and ieels <= idx <= ieels_max:
+                if idx == ieels + 1 and int(line.split()[1]) == 1:
                     ieels_max -= 1
                 eels_params.append(line)
 

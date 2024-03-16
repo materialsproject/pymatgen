@@ -339,7 +339,7 @@ class LatticeTestCase(PymatgenTest):
                 length = lattice.norm(vec)
                 assert_allclose(length[0], lattice.abc[i], 5)
                 # We always get a ndarray.
-                assert hasattr(length, "shape")
+                assert length.shape == (1,)
 
         # Passing complex arrays should raise TypeError
         with pytest.raises(TypeError, match="Complex array"):

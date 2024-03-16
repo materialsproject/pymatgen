@@ -401,7 +401,7 @@ class DftSet(Cp2kInput):
             possible_potentials = []
             basis, aux_basis, potential = None, None, None
             desired_basis, desired_aux_basis, desired_potential = None, None, None
-            have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
+            have_element_file = os.path.isfile(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 
             # Necessary if matching data to cp2k data files
             if have_element_file:

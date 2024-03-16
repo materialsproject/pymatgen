@@ -69,7 +69,7 @@ class TestStructureEnvironments(PymatgenTest):
         )
 
         struct_envs.save_environments_figure(isite=isite, imagename="image.png")
-        assert os.path.exists("image.png")
+        assert os.path.isfile("image.png")
 
         assert len(struct_envs.differences_wrt(struct_envs)) == 0
 

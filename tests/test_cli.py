@@ -22,13 +22,13 @@ def cd_tmp_path(tmp_path: Path, monkeypatch: MonkeyPatch):
 def test_pmg_analyze(cd_tmp_path: Path):
     exit_status = os.system(f"pmg analyze {TEST_FILES_DIR}/vasp/fixtures/scan_relaxation")
     assert exit_status == 0
-    assert os.path.exists("vasp_data.gz")
+    assert os.path.isfile("vasp_data.gz")
 
 
 def test_pmg_structure(cd_tmp_path: Path):
     exit_status = os.system(f"pmg structure --convert --filenames {TEST_FILES_DIR}/Li2O.cif POSCAR_Li2O_test")
     assert exit_status == 0
-    assert os.path.exists("POSCAR_Li2O_test")
+    assert os.path.isfile("POSCAR_Li2O_test")
 
     exit_status = os.system(f"pmg structure --symmetry 0.1 --filenames {TEST_FILES_DIR}/Li2O.cif")
     assert exit_status == 0

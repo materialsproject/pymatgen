@@ -161,9 +161,9 @@ class TestAdsorbateSiteFinder(PymatgenTest):
                     "Ni", sub_both_sides=True, target_species=["Mg"]
                 )
                 # Test if default parameters dope the surface site
-                for i, site in enumerate(sub_structs[0]):
-                    if site_finder.slab[i].surface_properties == "surface" and site.species_string == "Mg":
-                        assert sub_structs[0][i].surface_properties == "substitute"
+                for idx, site in enumerate(sub_structs[0]):
+                    if site_finder.slab[idx].surface_properties == "surface" and site.species_string == "Mg":
+                        assert sub_structs[0][idx].surface_properties == "substitute"
 
                 assert sub_structs[0].is_symmetric()
                 # Correctly dope the target species
