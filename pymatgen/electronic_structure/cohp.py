@@ -816,7 +816,7 @@ class CompleteCohp(Cohp):
                             [
                                 np.array(c["ICOHP"][Spin.down])
                                 for c in cohp_file.cohp_data.values()
-                                if len(c["sites"]) <=2
+                                if len(c["sites"]) <= 2
                             ]
                         ).mean(axis=0)
                     except KeyError:

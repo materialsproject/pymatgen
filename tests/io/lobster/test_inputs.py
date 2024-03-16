@@ -100,9 +100,7 @@ class TestCohpcar(PymatgenTest):
         # spin polarized
         # fully orbital resolved
         self.cobi6 = Cohpcar(
-            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin",
-            are_cobis=False,
-            are_multicenter_cobis=True
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multicenter_cobis=True
         )
 
     def test_attributes(self):
@@ -369,6 +367,7 @@ class TestCohpcar(PymatgenTest):
 
         assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.up]) == 12
         assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
+
 
 class TestIcohplist(unittest.TestCase):
     def setUp(self):
