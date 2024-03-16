@@ -1530,11 +1530,11 @@ class TestChgcar(PymatgenTest):
         with pytest.raises(
             ValueError, match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)"
         ):
-            self.chgcar_spin + self.chgcar_fe3o4
+            _ = self.chgcar_spin + self.chgcar_fe3o4
         with pytest.raises(
             ValueError, match="Data have different keys! Maybe one is spin-polarized and the other is not"
         ):
-            self.chgcar_spin + self.chgcar_no_spin
+            _ = self.chgcar_spin + self.chgcar_no_spin
 
     def test_as_dict_and_from_dict(self):
         dct = self.chgcar_NiO_soc.as_dict()

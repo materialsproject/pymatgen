@@ -14,7 +14,7 @@ except requests.exceptions.ConnectionError:
     website_down = True
 
 
-@pytest.mark.skipif(website_down, "www.crystallography.net is down.")
+@pytest.mark.skipif(website_down, reason="www.crystallography.net is down.")
 class TestCOD(unittest.TestCase):
     @pytest.mark.skipif(not which("mysql"), reason="No mysql.")
     def test_get_cod_ids(self):
