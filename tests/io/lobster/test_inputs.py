@@ -98,6 +98,12 @@ class TestCohpcar(PymatgenTest):
             are_multicenter_cobis=True
         )
         # spin polarized
+        # fully orbital resolved
+        self.cobi6 = Cohpcar(
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin",
+            are_cobis=False,
+            are_multicenter_cobis=True
+        )
 
 
     def test_attributes(self):
@@ -248,6 +254,21 @@ class TestCohpcar(PymatgenTest):
                         assert len(val["cells"]) == 4
                     else:
                         assert len(val["cells"]) == 2
+        for data in [self.cobi6.cohp_data]:
+            for bond, val in data.items():
+                if bond != "average":
+                    if int(bond) >= 21:
+                        assert len(val["cells"]) == 3
+                        assert len(val["COHP"][Spin.up]) == 12
+                        assert len(val["COHP"][Spin.down]) == 12
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                            assert cohp1 == approx(cohp2, abs=1e-4)
+                    else:
+                        assert len(val["cells"]) == 2
+                        assert len(val["COHP"][Spin.up]) == 12
+                        assert len(val["COHP"][Spin.down]) == 12
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                            assert cohp1 == approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
         orbitals = [(Orbital(i), Orbital(j)) for j in range(4) for i in range(4)]
@@ -347,6 +368,8 @@ class TestCohpcar(PymatgenTest):
         assert "5px-4px-5px-4px" in self.cobi5.orb_res_cohp["25"]
         assert len(self.cobi5.orb_res_cohp["25"]["5px-4px-5px-4px"]["COHP"][Spin.up]) == 11
 
+        assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.up]) == 12
+        assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
 
 class TestIcohplist(unittest.TestCase):
     def setUp(self):

@@ -798,25 +798,25 @@ class CompleteCohp(Cohp):
                 # do this for both spin channels
                 cohp = {}
                 cohp[Spin.up] = np.array(
-                    [np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) > 2]
+                    [np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                 ).mean(axis=0)
                 try:
                     cohp[Spin.down] = np.array(
-                        [np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) > 2]
+                        [np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                     ).mean(axis=0)
                 except KeyError:
                     pass
                 try:
                     icohp = {}
                     icohp[Spin.up] = np.array(
-                        [np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) > 2]
+                        [np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                     ).mean(axis=0)
                     try:
                         icohp[Spin.down] = np.array(
                             [
                                 np.array(c["ICOHP"][Spin.down])
                                 for c in cohp_file.cohp_data.values()
-                                if len(c["sites"]) > 2
+                                if len(c["sites"]) <=2
                             ]
                         ).mean(axis=0)
                     except KeyError:
