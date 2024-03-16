@@ -89,16 +89,15 @@ class TestCohpcar(PymatgenTest):
         self.cobi4 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise",
             are_cobis=False,
-            are_multicenter_cobis=True
+            are_multicenter_cobis=True,
         )
         # fully orbital resolved
         self.cobi5 = Cohpcar(
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise.full",
             are_cobis=False,
-            are_multicenter_cobis=True
+            are_multicenter_cobis=True,
         )
         # spin polarized
-
 
     def test_attributes(self):
         assert not self.cohp_bise.are_coops
@@ -228,7 +227,7 @@ class TestCohpcar(PymatgenTest):
             for bond, val in data.items():
                 if bond != "average":
                     if int(bond) >= 13:
-                        assert len(val["COHP"][Spin.up])==11
+                        assert len(val["COHP"][Spin.up]) == 11
                         assert len(val["cells"]) == 3
                     else:
                         assert len(val["COHP"][Spin.up]) == 11
@@ -341,7 +340,7 @@ class TestCohpcar(PymatgenTest):
 
         assert "5s-4s-5s-4s" in self.cobi4.orb_res_cohp["13"]
         assert "5px-4px-5px-4px" in self.cobi4.orb_res_cohp["13"]
-        assert len(self.cobi4.orb_res_cohp["13"]["5px-4px-5px-4px"]["COHP"][Spin.up])==11
+        assert len(self.cobi4.orb_res_cohp["13"]["5px-4px-5px-4px"]["COHP"][Spin.up]) == 11
 
         assert "5s-4s-5s-4s" in self.cobi5.orb_res_cohp["25"]
         assert "5px-4px-5px-4px" in self.cobi5.orb_res_cohp["25"]
@@ -643,16 +642,13 @@ class TestNciCobiList(unittest.TestCase):
         assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == approx(0.00009)
         assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
         assert (
-                self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][
-            Spin.up]
+            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
         )
         assert (
-                self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][
-            Spin.up]
+            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][Spin.up]
         )
         assert (
-                self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"][
-            "interaction_type"]
+            self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
         )
         assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == approx(
             self.ncicobi_no_spin.ncicobi_list["2"]["ncicobi"][Spin.up]
@@ -1408,7 +1404,7 @@ class TestFatband(PymatgenTest):
                 structure=self.structure,
             )
         with pytest.raises(
-                ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
+            ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
         ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
@@ -1432,8 +1428,8 @@ class TestFatband(PymatgenTest):
             )
 
         with pytest.raises(
-                ValueError,
-                match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
+            ValueError,
+            match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
         ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
@@ -1747,8 +1743,8 @@ class TestLobsterin(unittest.TestCase):
             assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]
 
         assert (
-                self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
-                == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
+            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
+            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
         )
 
     def test_dict_functionality(self):
@@ -1991,16 +1987,16 @@ class TestLobsterin(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                    np.isclose(kpoint[0], kpoint2[0])
-                    and np.isclose(kpoint[1], kpoint2[1])
-                    and np.isclose(kpoint[2], kpoint2[2])
+                np.isclose(kpoint[0], kpoint2[0])
+                and np.isclose(kpoint[1], kpoint2[1])
+                and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                    np.isclose(-kpoint[0], kpoint2[0])
-                    and np.isclose(-kpoint[1], kpoint2[1])
-                    and np.isclose(-kpoint[2], kpoint2[2])
+                np.isclose(-kpoint[0], kpoint2[0])
+                and np.isclose(-kpoint[1], kpoint2[1])
+                and np.isclose(-kpoint[2], kpoint2[2])
             ) and weight == weightlist[ikpoint2]:
                 found += 1
         return found == 1
@@ -2572,7 +2568,7 @@ class TestLobsterMatrices(PymatgenTest):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
 
         with pytest.raises(
-                OSError,
-                match=r"Please check provided input file, it seems to be empty",
+            OSError,
+            match=r"Please check provided input file, it seems to be empty",
         ):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")
