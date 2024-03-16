@@ -3914,7 +3914,7 @@ def plot_fermi_surface(
                             tube_radius=None,
                             figure=fig,
                         )
-        for label, coords in kpoints_dict.items():
+        for key, coords in kpoints_dict.items():
             label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
             mlab.points3d(
                 *label_coords,
@@ -3924,7 +3924,7 @@ def plot_fermi_surface(
             )
             mlab.text3d(
                 *label_coords,
-                text=label,
+                text=key,
                 scale=labels_scale_factor,
                 color=(0, 0, 0),
                 figure=fig,
@@ -3951,7 +3951,7 @@ def plot_fermi_surface(
                                 figure=fig,
                             )
 
-            for label, coords in kpoints_dict.items():
+            for key, coords in kpoints_dict.items():
                 label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
                 mlab.points3d(
                     *label_coords,
@@ -3961,7 +3961,7 @@ def plot_fermi_surface(
                 )
                 mlab.text3d(
                     *label_coords,
-                    text=label,
+                    text=key,
                     scale=labels_scale_factor,
                     color=(0, 0, 0),
                     figure=fig,

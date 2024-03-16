@@ -18,7 +18,6 @@ A quick overview of the module:
    calculation input.
 -- The rest of the classes are children of Section intended to make initialization of common
    sections easier.
-
 """
 
 from __future__ import annotations
@@ -35,6 +34,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -2050,7 +2050,7 @@ class Kpoints(Section):
         return Kpoints(kpts=kpts, weights=weights, scheme=scheme, units=units)
 
 
-class Kpoint_Set(Section):
+class KpointSet(Section):
     """Specifies a kpoint line to be calculated between special points."""
 
     def __init__(self, npoints: int, kpoints: Iterable, units: str = "B_VECTOR") -> None:
@@ -2071,10 +2071,7 @@ class Kpoint_Set(Section):
             "NPOINTS": Keyword("NPOINTS", npoints),
             "UNITS": Keyword("UNITS", units),
             "SPECIAL_POINT": KeywordList(
-                [
-                    Keyword("SPECIAL_POINT", "Gamma" if label.upper() == "\\GAMMA" else label, *kpt)
-                    for label, kpt in kpoints
-                ]
+                [Keyword("SPECIAL_POINT", "Gamma" if key.upper() == "\\GAMMA" else key, *kpt) for key, kpt in kpoints]
             ),
         }
 
@@ -2087,12 +2084,17 @@ class Kpoint_Set(Section):
         )
 
 
+@deprecated(KpointSet, "Kpoint_Set has been deprecated in favor of KpointSet on 2024-03-16")
+class Kpoint_Set(KpointSet):
+    pass
+
+
 class Band_Structure(Section):
     """Specifies high symmetry paths for outputting the band structure in CP2K."""
 
     def __init__(
         self,
-        kpoint_sets: Sequence[Kpoint_Set],
+        kpoint_sets: Sequence[KpointSet],
         filename: str = "BAND.bs",
         added_mos: int = -1,
         keywords: dict | None = None,
@@ -2100,7 +2102,7 @@ class Band_Structure(Section):
     ):
         """
         Args:
-            kpoint_sets: Sequence of Kpoint_Set objects for the band structure calculation.
+            kpoint_sets: Sequence of KpointSet objects for the band structure calculation.
             filename: Filename for the band structure output
             added_mos: Added (unoccupied) molecular orbitals for the calculation.
             keywords: additional keywords
@@ -2141,7 +2143,7 @@ class Band_Structure(Section):
                 return zip(a, a)
 
             kpoint_sets = [
-                Kpoint_Set(
+                KpointSet(
                     npoints=kpoints_line_density,
                     kpoints=[(lbls[0], kpts[0]), (lbls[1], kpts[1])],
                     units="B_VECTOR",
@@ -2153,7 +2155,7 @@ class Band_Structure(Section):
             KpointsSupportedModes.Cartesian,
         ):
             kpoint_sets = [
-                Kpoint_Set(
+                KpointSet(
                     npoints=1,
                     kpoints=[("None", kpts) for kpts in kpoints.kpts],
                     units="B_VECTOR" if kpoints.coord_type == "Reciprocal" else "CART_ANGSTROM",

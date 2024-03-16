@@ -1468,7 +1468,7 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
         tolerance (float): Tolerance for detecting symmetry.
             Gets passed as Argument into
             ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
-        epsilon (float): If the elementwise absolute difference of two
+        epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
 
@@ -1484,6 +1484,7 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
     new = mol
     n = 0
     finished = False
+    eq = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
     while not finished and n <= max_n:
         previous = new
         PA = PointGroupAnalyzer(previous, tolerance=tolerance)
@@ -1512,20 +1513,20 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
     # coordinate.
     dists: list[list[float]] = [[float(np.linalg.norm(site.coords)), 0] for site in mol]
 
-    f = scipy.cluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
+    f_cluster = scipy.cluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
     clustered_dists: dict[str, list[list[float]]] = defaultdict(list)
     for idx in range(len(mol)):
-        clustered_dists[f[idx]].append(dists[idx])
-    avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
+        clustered_dists[f_cluster[idx]].append(dists[idx])
+    avg_dist = {key: np.mean(val) for key, val in clustered_dists.items()}
     clustered_sites = defaultdict(list)
     origin_site = None
     for idx, site in enumerate(mol):
-        if avg_dist[f[idx]] < tol:
+        if avg_dist[f_cluster[idx]] < tol:
             origin_site = idx if give_only_index else site
         elif give_only_index:
-            clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
+            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(idx)
         else:
-            clustered_sites[(avg_dist[f[idx]], site.species)].append(site)
+            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(site)
     return origin_site, clustered_sites
 
 

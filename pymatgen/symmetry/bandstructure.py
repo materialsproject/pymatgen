@@ -385,7 +385,7 @@ class HighSymmKpath(KPathBase):
         for spin in spins:
             new_projections[spin] = np.array(new_projections[spin])
 
-        new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
+        new_labels_dict = {key: point.frac_coords for key, point in bandstructure.labels_dict.items()}
 
         return BandStructureSymmLine(
             kpoints=new_kpoints,
