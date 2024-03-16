@@ -625,9 +625,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
 
 class TestFunc(unittest.TestCase):
     def test_cluster_sites(self):
-        o, c = cluster_sites(CH4, 0.1)
-        assert o.specie.symbol == "C"
-        assert len(c) == 1
-        o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
-        assert o is None
-        assert len(c) == 4
+        site, cluster = cluster_sites(CH4, 0.1)
+        assert isinstance(site, PeriodicSite)
+        assert site.specie.symbol == "C"
+        assert len(cluster) == 1
+        site, cluster = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
+        assert site is None
+        assert len(cluster) == 4

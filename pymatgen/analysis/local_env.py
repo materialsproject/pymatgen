@@ -490,13 +490,13 @@ class NearNeighbors:
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
-        for i, step in enumerate(possible_steps):
+        for idx, step in enumerate(possible_steps):
             # Update the image information
             # Note: We do not update the site position yet, as making a PeriodicSite
             # for each intermediate step is too costly
             step = dict(step)
             step["image"] = tuple(np.add(step["image"], _cur_image).tolist())
-            possible_steps[i] = step
+            possible_steps[idx] = step
 
         # Get only the non-backtracking steps
         allowed_steps = [x for x in possible_steps if (x["site_index"], x["image"]) not in _previous_steps]
@@ -657,12 +657,12 @@ class NearNeighbors:
                 types.append(cn_opt_params[cn][name][0])
                 tmp = cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
                 params.append(tmp)
-            lostops = LocalStructOrderParams(types, parameters=params)
+            lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
             dct = {}
-            for i, lostop in enumerate(lostop_vals):
-                dct[names[i]] = lostop
+            for idx, lsop in enumerate(lostop_vals):
+                dct[names[idx]] = lsop
             return dct
         return None
 
@@ -813,7 +813,7 @@ class VoronoiNN(NearNeighbors):
         # are included in the tessellation
 
         sites = [x.to_unit_cell() for x in structure]
-        indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
+        indices = [(idx, 0, 0, 0) for idx in range(len(structure))]
 
         # Get all neighbors within a certain cutoff. Record both the list of these neighbors and the site indices.
         all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True, include_image=True)
@@ -1468,9 +1468,9 @@ class OpenBabelNN(NearNeighbors):
 
         # Get only the atom of interest
         site_atom = next(
-            a
-            for i, a in enumerate(openbabel.OBMolAtomDFSIter(ob_mol))
-            if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
+            atom
+            for atom in openbabel.OBMolAtomDFSIter(ob_mol)
+            if [atom.GetX(), atom.GetY(), atom.GetZ()] == list(structure[n].coords)
         )
 
         for neighbor in openbabel.OBAtomAtomIter(site_atom):

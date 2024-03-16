@@ -564,9 +564,9 @@ class StructureGraph(MSONable):
             raise ValueError("Image must be supplied, to avoid ambiguity.")
 
         if existing_edges:
-            for i, properties in existing_edges.items():
-                if properties["to_jimage"] == to_jimage:
-                    edge_index = i
+            for idx, props in existing_edges.items():
+                if props["to_jimage"] == to_jimage:
+                    edge_index = idx
 
             self.graph.remove_edge(from_index, to_index, edge_index)
 
@@ -575,9 +575,9 @@ class StructureGraph(MSONable):
                 existing_reverse = self.graph.get_edge_data(to_index, from_index)
 
             if existing_reverse:
-                for i, properties in existing_reverse.items():
-                    if properties["to_jimage"] == to_jimage:
-                        edge_index = i
+                for idx, props in existing_reverse.items():
+                    if props["to_jimage"] == to_jimage:
+                        edge_index = idx
 
                 self.graph.remove_edge(to_index, from_index, edge_index)
             else:
@@ -2086,7 +2086,7 @@ class MoleculeGraph(MSONable):
         for key, fragments in unique_frag_dict.items():
             unique_mol_graph_list = []
             for fragment in fragments:
-                mapping = {e: i for i, e in enumerate(sorted(fragment.nodes))}
+                mapping = {edge: idx for idx, edge in enumerate(sorted(fragment.nodes))}
                 remapped = nx.relabel_nodes(fragment, mapping)
 
                 species = nx.get_node_attributes(remapped, "specie")

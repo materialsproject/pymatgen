@@ -210,7 +210,7 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
         struct = trafo.apply_transformation(self.struct, 12)
         assert len(struct) == 12
 
-    @pytest.mark.skipif(not enumlib_present, "enum_lib not present.")
+    @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
     def test_apply_transformation_enumerate(self):
         trafo = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],

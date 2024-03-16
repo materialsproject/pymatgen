@@ -650,11 +650,11 @@ class SurfaceEnergyPlotter:
         # Now solve the system of linear eqns to find the chempot
         # where the slabs are at equilibrium with each other
 
-        soln = linsolve(all_eqns, all_parameters)
-        if not soln:
+        solution = linsolve(all_eqns, all_parameters)
+        if not solution:
             warnings.warn("No solution")
-            return soln
-        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
+            return solution
+        return {param: next(iter(solution))[idx] for idx, param in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,
@@ -779,7 +779,7 @@ class SurfaceEnergyPlotter:
 
         # sort the chempot ranges for each facet
         for entry, v in stable_urange_dict.items():
-            se_dict[entry] = [se for i, se in sorted(zip(v, se_dict[entry]))]
+            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry]))]
             stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
@@ -803,16 +803,16 @@ class SurfaceEnergyPlotter:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
             random.shuffle(rgb_indices)
-            for i, ind in enumerate(rgb_indices):
-                if i == 2:
+            for idx, ind in enumerate(rgb_indices):
+                if idx == 2:
                     break
                 color[ind] = np.random.uniform(0, 1)
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
-            for i, clean in enumerate(self.all_slab_entries[hkl]):
+            for idx, clean in enumerate(self.all_slab_entries[hkl]):
                 c = copy.copy(color)
-                c[rgb_indices[2]] = clean_list[i]
+                c[rgb_indices[2]] = clean_list[idx]
                 color_dict[clean] = c
 
                 # Now get the adsorbed (transparent) colors
@@ -1371,14 +1371,14 @@ class WorkFunctionAnalyzer:
         # Get the plot points between 0 and c
         # increments of the number of locpot points
         locpot_along_c_mid, locpot_end, locpot_start = [], [], []
-        for i, s in enumerate(self.along_c):
+        for idx, s in enumerate(self.along_c):
             j = s + self.shift
             if j > 1:
-                locpot_start.append(locpot_along_c[i])
+                locpot_start.append(locpot_along_c[idx])
             elif j < 0:
-                locpot_end.append(locpot_along_c[i])
+                locpot_end.append(locpot_along_c[idx])
             else:
-                locpot_along_c_mid.append(locpot_along_c[i])
+                locpot_along_c_mid.append(locpot_along_c[idx])
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
         # identify slab region

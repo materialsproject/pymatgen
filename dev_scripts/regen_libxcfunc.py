@@ -40,7 +40,7 @@ def parse_libxc_docs(path):
                 assert num not in dct
                 dct[num] = entry
                 section = []
-        assert not section
+        assert section == []
 
     return dct
 

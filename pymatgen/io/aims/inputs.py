@@ -514,7 +514,7 @@ class AimsControlIn(MSONable):
                 content += s
         content += lim + "\n"
 
-        assert not ("smearing" in parameters and "occupation_type" in parameters)
+        assert ("smearing" in parameters and "occupation_type" in parameters) is False
 
         for key, value in parameters.items():
             if key in ["species_dir", "plus_u"]:
