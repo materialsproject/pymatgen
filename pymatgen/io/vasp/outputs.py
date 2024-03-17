@@ -909,7 +909,7 @@ class Vasprun(MSONable):
         p_eig_vals: defaultdict[Spin, list] = defaultdict(list)
         eigenvals: defaultdict[Spin, list] = defaultdict(list)
 
-        nkpts = len(kpoints)
+        n_kpts = len(kpoints)
 
         if use_kpoints_opt:
             eig_vals = self.kpoints_opt_props.eigenvalues
@@ -954,17 +954,19 @@ class Vasprun(MSONable):
                         labels_dict[kpoint_file.labels[i]] = kpoint_file.kpts[i]
                 # remake the data only considering line band structure k-points
                 # (weight = 0.0 kpoints)
-                nbands = len(eigenvals[Spin.up])
-                kpoints = kpoints[start_bs_index:nkpts]
-                up_eigen = [eigenvals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
+                n_bands = len(eigenvals[Spin.up])
+                kpoints = kpoints[start_bs_index:n_kpts]
+                up_eigen = [eigenvals[Spin.up][i][start_bs_index:n_kpts] for i in range(n_bands)]
                 if self.projected_eigenvalues:
-                    p_eig_vals[Spin.up] = [p_eig_vals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
+                    p_eig_vals[Spin.up] = [p_eig_vals[Spin.up][i][start_bs_index:n_kpts] for i in range(n_bands)]
                 if self.is_spin:
-                    down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)]
+                    down_eigen = [eigenvals[Spin.down][i][start_bs_index:n_kpts] for i in range(n_bands)]
                     eigenvals[Spin.up] = up_eigen
                     eigenvals[Spin.down] = down_eigen
                     if self.projected_eigenvalues:
-                        p_eig_vals[Spin.down] = [p_eig_vals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)]
+                        p_eig_vals[Spin.down] = [
+                            p_eig_vals[Spin.down][i][start_bs_index:n_kpts] for i in range(n_bands)
+                        ]
                 else:
                     eigenvals[Spin.up] = up_eigen
             else:
@@ -4056,13 +4058,13 @@ class Xdatcar:
                     title = line
                 elif title == line:
                     preamble_done = False
-                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                         if ionicstep_cnt >= ionicstep_end:
                             break
                     ionicstep_cnt += 1
@@ -4081,25 +4083,25 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                         if ionicstep_cnt >= ionicstep_end:
                             break
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+            poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    structures.append(p.structure)
+                    structures.append(poscar.structure)
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                structures.append(p.structure)
+                structures.append(poscar.structure)
         self.structures = structures
         self.comment = comment or self.structures[0].formula
 
@@ -4160,22 +4162,22 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                     elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                        structures.append(p.structure)
+                        structures.append(poscar.structure)
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+            poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    structures.append(p.structure)
+                    structures.append(poscar.structure)
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                structures.append(p.structure)
+                structures.append(poscar.structure)
         self.structures = structures
 
     def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:

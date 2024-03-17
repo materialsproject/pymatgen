@@ -187,11 +187,11 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             fontsize: (int) fontsize for peak labels.
         """
 
-        nrows = len(structures)
-        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
+        n_rows = len(structures)
+        fig, axes = plt.subplots(nrows=n_rows, ncols=1, sharex=True, squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == nrows - 1, **kwargs)
+            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == n_rows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title(f"{structure.formula} {spg_symbol} ({spg_number}) ")
 

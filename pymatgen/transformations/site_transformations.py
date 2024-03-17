@@ -447,15 +447,15 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         num_remove_dict = {}
         total_combos = 0
-        for indices, frac in zip(self.indices, self.fractions):
-            num_to_remove = len(indices) * frac
-            if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
+        for idx, frac in zip(self.indices, self.fractions):
+            n_to_remove = len(idx) * frac
+            if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-            num_to_remove = int(round(num_to_remove))
-            num_remove_dict[tuple(indices)] = num_to_remove
-            n = len(indices)
+            n_to_remove = int(round(n_to_remove))
+            num_remove_dict[tuple(idx)] = n_to_remove
+            n = len(idx)
             total_combos += int(
-                round(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
+                round(math.factorial(n) / math.factorial(n_to_remove) / math.factorial(n - n_to_remove))
             )
 
         self.logger.debug(f"Total combinations = {total_combos}")

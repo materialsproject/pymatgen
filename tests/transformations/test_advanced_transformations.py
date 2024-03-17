@@ -704,9 +704,9 @@ class TestCubicSupercellTransformation(PymatgenTest):
         supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms, max_atoms=max_atoms, min_length=13.0)
         superstructure = supercell_generator.apply_transformation(structure)
 
-        num_atoms = len(superstructure)
-        assert num_atoms >= min_atoms
-        assert num_atoms <= max_atoms
+        n_atoms = len(superstructure)
+        assert n_atoms >= min_atoms
+        assert n_atoms <= max_atoms
         assert_allclose(
             superstructure.lattice.matrix[0],
             [1.49656087e01, -1.11448000e-03, 9.04924836e00],

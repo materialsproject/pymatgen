@@ -288,11 +288,11 @@ if __name__ == "__main__":
         ce1 = ce_pair_dict["initial_environment_symbol"]
         ce2 = ce_pair_dict["expected_final_environment_symbol"]
         cn_pair = f"{ce2.split(':')[1]}_{ce1.split(':')[1]}"
-        nb_indices = ce_pair_dict["neighbors_indices"]
+        n_indices = ce_pair_dict["neighbors_indices"]
         min_dist = ce_pair_dict["dist_factor_min"]
         max_dist = ce_pair_dict["dist_factor_max"]
         morph = CoordinationEnvironmentMorphing.simple_expansion(
-            initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=nb_indices
+            initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=n_indices
         )
         params = morph.estimate_parameters(dist_factor_min=min_dist, dist_factor_max=max_dist)
         print(f"For pair {ce1} to {ce2}, parameters are : ")

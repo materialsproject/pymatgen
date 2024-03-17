@@ -1322,30 +1322,32 @@ class BoltztrapAnalyzer:
         if doping_levels:
             sbk_mass = {}
             for dt in ("n", "p"):
-                conc = self.doping[dt]
+                concentrations = self.doping[dt]
                 seebeck = self.get_seebeck(output=output, doping_levels=True)[dt][temp]
                 sbk_mass[dt] = []
-                for i, c in enumerate(conc):
+                for idx, concen in enumerate(concentrations):
                     if output == "average":
-                        sbk_mass[dt].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), c, temp, Lambda))
+                        sbk_mass[dt].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx]), concen, temp, Lambda))
                     elif output == "tensor":
                         sbk_mass[dt].append([])
                         for j in range(3):
                             sbk_mass[dt][-1].append(
-                                seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]), c, temp, Lambda)
+                                seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx][j][j]), concen, temp, Lambda)
                             )
 
         else:
             seebeck = self.get_seebeck(output=output, doping_levels=False)[temp]
-            conc = self.get_carrier_concentration()[temp]
+            concentrations = self.get_carrier_concentration()[temp]
             sbk_mass = []
-            for i, c in enumerate(conc):
+            for idx, concen in enumerate(concentrations):
                 if output == "average":
-                    sbk_mass.append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), c, temp, Lambda))
+                    sbk_mass.append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx]), concen, temp, Lambda))
                 elif output == "tensor":
                     sbk_mass.append([])
                     for j in range(3):
-                        sbk_mass[-1].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]), c, temp, Lambda))
+                        sbk_mass[-1].append(
+                            seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx][j][j]), concen, temp, Lambda)
+                        )
         return sbk_mass
 
     def get_complexity_factor(self, output="average", temp=300, doping_levels=False, Lambda=0.5):
@@ -2161,8 +2163,8 @@ def read_cube_file(filename):
 
     if "fort.30" in filename:
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
-        nlines_data = len(energy_data)
-        last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
+        n_lines_data = len(energy_data)
+        last_line = np.genfromtxt(filename, skip_header=n_lines_data + natoms + 6)
         energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)

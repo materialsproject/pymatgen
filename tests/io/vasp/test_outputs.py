@@ -666,8 +666,8 @@ class TestVasprun(PymatgenTest):
     def test_parsing_efg_calcs(self):
         filepath = f"{TEST_FILES_DIR}/nmr/efg/AlPO4/vasprun.xml"
         vasp_run = Vasprun(filepath)
-        nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
-        assert nestep == 18
+        n_elec_steps = len(vasp_run.ionic_steps[-1]["electronic_steps"])
+        assert n_elec_steps == 18
         assert vasp_run.converged
 
     def test_charged_structure(self):

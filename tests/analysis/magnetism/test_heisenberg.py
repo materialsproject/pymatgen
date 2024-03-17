@@ -46,8 +46,8 @@ class TestHeisenbergMapper(unittest.TestCase):
 
     def test_nn_interactions(self):
         for hm in self.hms:
-            num_interacts = len(hm.nn_interactions)
-            assert num_interacts == 3
+            n_interacts = len(hm.nn_interactions)
+            assert n_interacts == 3
 
             dists = hm.dists
             assert dists["nn"] == 2.51
