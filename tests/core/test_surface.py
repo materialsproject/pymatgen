@@ -17,7 +17,7 @@ from pymatgen.core.surface import (
     Slab,
     SlabGenerator,
     generate_all_slabs,
-    get_d,
+    get_distance,
     get_slab_regions,
     get_symmetrically_distinct_miller_indices,
     get_symmetrically_equivalent_miller_indices,
@@ -663,7 +663,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         recon2 = ReconstructionGenerator(self.Si, 20, 10, "diamond_100_2x1")
         s1 = recon.get_unreconstructed_slabs()[0]
         s2 = recon2.get_unreconstructed_slabs()[0]
-        assert get_d(s1) == approx(get_d(s2))
+        assert get_distance(s1) == approx(get_distance(s2))
 
     @unittest.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):

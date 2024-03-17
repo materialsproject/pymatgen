@@ -37,6 +37,8 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from numpy.typing import ArrayLike
+
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
 
@@ -78,7 +80,7 @@ class Slab(Structure):
         lattice: Lattice | np.ndarray,
         species: Sequence[Any],
         coords: np.ndarray,
-        miller_index: tuple[int, int, int],
+        miller_index: tuple[int],
         oriented_unit_cell: Structure,
         shift: float,
         scale_factor: np.ndarray,
@@ -614,21 +616,18 @@ class Slab(Structure):
 
         return site2
 
-    def symmetrically_add_atom(self, specie: str, point, coords_are_cartesian: bool = False) -> None:
-        """Class method for adding a site at a specified point in a slab.
-            Will add the corresponding site on the other side of the
-            slab to maintain equivalent surfaces.
+    def symmetrically_add_atom(
+        self, specie: str | Element | Species, point, coords_are_cartesian: bool = False
+    ) -> None:
+        """Add a site at a specified point in a slab. Will add the corresponding
+        site on the both sides of the slab to maintain equivalent surfaces.
 
         Arg:
-            specie (str): The specie to add
+            specie (str | Element | Species): The specie to add
             point (coords): The coordinate of the site in the slab to add.
             coords_are_cartesian (bool): Is the point in Cartesian coordinates
-
-        Returns:
-            Slab: The modified slab
         """
-        # For now just use the species of the
-        # surface atom as the element to add
+        # For now just use the species of the surface atom as the element to add
 
         # Get the index of the corresponding site at the bottom
         point2 = self.get_symmetric_site(point, cartesian=coords_are_cartesian)
@@ -637,9 +636,9 @@ class Slab(Structure):
         self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
 
     def symmetrically_remove_atoms(self, indices: list[int]) -> None:
-        """Class method for removing sites corresponding to a list of indices.
-            Will remove the corresponding site on the other side of the
-            slab to maintain equivalent surfaces.
+        """Remove sites corresponding to a list of indices.
+        Will remove the corresponding site on both sides of the
+        slab to maintain equivalent surfaces.
 
         Arg:
             indices ([indices]): The indices of the sites
@@ -703,15 +702,15 @@ class SlabGenerator:
     def __init__(
         self,
         initial_structure,
-        miller_index,
-        min_slab_size,
-        min_vacuum_size,
-        lll_reduce=False,
-        center_slab=False,
-        in_unit_planes=False,
-        primitive=True,
-        max_normal_search=None,
-        reorient_lattice=True,
+        miller_index: tuple[int],
+        min_slab_size: float,
+        min_vacuum_size: float,
+        lll_reduce: bool = False,
+        center_slab: bool = False,
+        in_unit_planes: bool = False,
+        primitive: bool = True,
+        max_normal_search: int | None = None,
+        reorient_lattice: bool = True,
     ) -> None:
         """Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -1287,7 +1286,9 @@ class ReconstructionGenerator:
         - Right now there is no way to specify what atom is being added. In the future, use basis sets?
     """
 
-    def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name) -> None:
+    def __init__(
+        self, initial_structure: Structure, min_slab_size: float, min_vacuum_size: float, reconstruction_name: str
+    ) -> None:
         """Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
 
@@ -1420,7 +1421,7 @@ class ReconstructionGenerator:
         self.reconstruction_json = recon_json
         self.name = reconstruction_name
 
-    def build_slabs(self):
+    def build_slabs(self) -> list[Slab]:
         """Builds the reconstructed slab by:
             (1) Obtaining the unreconstructed slab using the specified
                 parameters for the SlabGenerator.
@@ -1430,13 +1431,13 @@ class ReconstructionGenerator:
             (4) Add any specified sites to both surfaces.
 
         Returns:
-            Slab: The reconstructed slab.
+            list[Slab]: The reconstructed slabs.
         """
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []
 
         for slab in slabs:
-            d = get_d(slab)
+            d = get_distance(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
             # Remove any specified sites
@@ -1467,7 +1468,7 @@ class ReconstructionGenerator:
 
         return recon_slabs
 
-    def get_unreconstructed_slabs(self):
+    def get_unreconstructed_slabs(self) -> list[Slab]:
         """Generates the unreconstructed or pristine super slab."""
         slabs = []
         for slab in SlabGenerator(**self.slabgen_params).get_slabs():
@@ -1476,10 +1477,8 @@ class ReconstructionGenerator:
         return slabs
 
 
-def get_d(slab):
-    """Determine the distance of space between
-    each layer of atoms along c.
-    """
+def get_distance(slab: Slab) -> float:
+    """Determine the distance of space between each layer of atoms along c."""
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for idx, site in enumerate(sorted_sites):
         if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx + 1].frac_coords[2]:.6f}":
@@ -1504,11 +1503,11 @@ def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) 
 
 
 def get_symmetrically_equivalent_miller_indices(
-    structure,
-    miller_index,
-    return_hkil=True,
+    structure: Structure,
+    miller_index: tuple[int],
+    return_hkil: bool = True,
     system: CrystalSystem | None = None,
-):
+) -> list:
     """Returns all symmetrically equivalent indices for a given structure. Analysis
     is based on the symmetry of the reciprocal lattice of the structure.
 
@@ -1522,7 +1521,8 @@ def get_symmetrically_equivalent_miller_indices(
             so that it does not need to be re-calculated.
     """
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
-    miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
+    if len(miller_index) >= 3:
+        miller_index = (miller_index[0], miller_index[1], miller_index[-1])
     mmi = max(np.abs(miller_index))
     rng = list(range(-mmi, mmi + 1))
     rng.reverse()
@@ -1562,7 +1562,7 @@ def get_symmetrically_equivalent_miller_indices(
     return equivalent_millers
 
 
-def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=False):
+def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: int, return_hkil: bool = False) -> list:
     """Returns all symmetrically distinct indices below a certain max-index for
     a given structure. Analysis is based on the symmetry of the reciprocal
     lattice of the structure.
@@ -1596,7 +1596,8 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
         miller_list = conv_hkl_list
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    unique_millers, unique_millers_conv = [], []
+    unique_millers: list = []
+    unique_millers_conv: list = []
 
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
@@ -1619,7 +1620,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
     return unique_millers_conv
 
 
-def hkl_transformation(transf, miller_index):
+def hkl_transformation(transf: np.narray, miller_index: tuple[int]) -> tuple[int]:
     """Returns the Miller index from setting
     A to B using a transformation matrix
     Args:
@@ -1648,23 +1649,23 @@ def hkl_transformation(transf, miller_index):
 
 
 def generate_all_slabs(
-    structure,
-    max_index,
-    min_slab_size,
-    min_vacuum_size,
-    bonds=None,
-    tol=0.1,
-    ftol=0.1,
-    max_broken_bonds=0,
-    lll_reduce=False,
-    center_slab=False,
-    primitive=True,
-    max_normal_search=None,
-    symmetrize=False,
-    repair=False,
-    include_reconstructions=False,
-    in_unit_planes=False,
-):
+    structure: Structure,
+    max_index: int,
+    min_slab_size: float,
+    min_vacuum_size: float,
+    bonds: dict | None = None,
+    tol: float = 0.1,
+    ftol: float = 0.1,
+    max_broken_bonds: int = 0,
+    lll_reduce: bool = False,
+    center_slab: bool = False,
+    primitive: bool = True,
+    max_normal_search: int | None = None,
+    symmetrize: bool = False,
+    repair: bool = False,
+    include_reconstructions: bool = False,
+    in_unit_planes: bool = False,
+) -> list[Slab]:
     """A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
     slabs in other Miller indices are filtered out using symmetry operations
@@ -1778,9 +1779,10 @@ def generate_all_slabs(
     return all_slabs
 
 
-def get_slab_regions(slab, blength=3.5):
+def get_slab_regions(slab: Structure, blength: float = 3.5) -> list[list]:
     """Function to get the ranges of the slab regions. Useful for discerning where
-    the slab ends and vacuum begins if the slab is not fully within the cell
+    the slab ends and vacuum begins if the slab is not fully within the cell.
+
     Args:
         slab (Structure): Structure object modelling the surface
         blength (float, Ang): The bondlength between atoms. You generally
@@ -1833,7 +1835,13 @@ def get_slab_regions(slab, blength=3.5):
     return ranges
 
 
-def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp=4, verbose=True):
+def miller_index_from_sites(
+    lattice: Lattice | ArrayLike,
+    coords: ArrayLike,
+    coords_are_cartesian: bool = True,
+    round_dp: int = 4,
+    verbose: bool = True,
+) -> tuple[int]:
     """Get the Miller index of a plane from a list of site coordinates.
 
     A minimum of 3 sets of coordinates are required. If more than 3 sets of
@@ -1841,9 +1849,9 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp
     points will be calculated.
 
     Args:
-        lattice (list or Lattice): A 3x3 lattice matrix or `Lattice` object (for
+        lattice (matrix or Lattice): A 3x3 lattice matrix or `Lattice` object (for
             example obtained from Structure.lattice).
-        coords (iterable): A list or numpy array of coordinates. Can be
+        coords (ArrayLike): A list or numpy array of coordinates. Can be
             Cartesian or fractional coordinates. If more than three sets of
             coordinates are provided, the best plane that minimises the
             distance to all sites will be calculated.
@@ -1854,7 +1862,7 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
-        (tuple): The Miller index.
+        tuple[int]: The Miller index.
     """
     if not isinstance(lattice, Lattice):
         lattice = Lattice(lattice)
@@ -1867,10 +1875,11 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp
     )
 
 
-def center_slab(slab):
-    """The goal here is to ensure the center of the slab region
-        is centered close to c=0.5. This makes it easier to
-        find the surface sites and apply operations like doping.
+def center_slab(slab: Slab) -> Slab:
+    """Relocate such that the center of the slab region
+    is centered close to c=0.5.
+
+    This makes it easier to find the surface sites and apply operations like doping.
 
     There are three cases where the slab in not centered:
 
@@ -1892,15 +1901,15 @@ def center_slab(slab):
         slab (Slab): Slab structure to center
 
     Returns:
-        Returns a centered slab structure
+        Centered slab structure
     """
-    # get a reasonable r cutoff to sample neighbors
+    # Get a reasonable r cutoff to sample neighbors
     bdists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
     r = bdists[0] * 3
 
-    all_indices = [idx for idx, site in enumerate(slab)]
+    all_indices = list(range(len(slab)))
 
-    # check if structure is case 2 or 3, shift all the
+    # Check if structure is case 2 or 3, shift all the
     # sites up to the other side until it is case 1
     for site in slab:
         if any(nn[1] > slab.lattice.c for nn in slab.get_neighbors(site, r)):
@@ -1916,8 +1925,7 @@ def center_slab(slab):
     return slab
 
 
-def _reduce_vector(vector):
-    # small function to reduce vectors
-
+def _reduce_vector(vector: tuple[int]) -> tuple[int]:
+    """Helper function to reduce vectors."""
     d = abs(reduce(gcd, vector))
     return tuple(int(i / d) for i in vector)
