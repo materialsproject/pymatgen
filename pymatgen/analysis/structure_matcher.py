@@ -1157,10 +1157,10 @@ class StructureMatcher(MSONable):
         temp.make_supercell(sc)
         temp.translate_sites(list(range(len(temp))), t)
         # translate sites to correct unit cell
-        for i, j in enumerate(mapping[: len(s1)]):
-            if j is not None:
-                vec = np.round(struct1[i].frac_coords - temp[j].frac_coords)
-                temp.translate_sites(j, vec, to_unit_cell=False)
+        for ii, jj in enumerate(mapping[: len(s1)]):
+            if jj is not None:
+                vec = np.round(struct1[ii].frac_coords - temp[jj].frac_coords)
+                temp.translate_sites(jj, vec, to_unit_cell=False)
 
         sites = [temp.sites[i] for i in mapping if i is not None]
 

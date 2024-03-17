@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from math import pi
 from shutil import which
 from typing import get_args
@@ -1326,7 +1325,7 @@ class TestCutOffDictNN(PymatgenTest):
             CutOffDictNN.from_preset("test")
 
 
-@unittest.skipIf(not which("critic2"), "critic2 executable not present")
+@pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
 class TestCritic2NN(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(

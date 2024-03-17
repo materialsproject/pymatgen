@@ -208,9 +208,9 @@ class BalancedReaction(MSONable):
     def _str_from_comp(cls, coeffs, compositions, reduce=False):
         r_coeffs = np.zeros(len(coeffs))
         r_formulas = []
-        for i, (amt, comp) in enumerate(zip(coeffs, compositions)):
+        for idx, (amt, comp) in enumerate(zip(coeffs, compositions)):
             formula, factor = comp.get_reduced_formula_and_factor()
-            r_coeffs[i] = amt * factor
+            r_coeffs[idx] = amt * factor
             r_formulas.append(formula)
         if reduce:
             factor = 1 / gcd_float(np.abs(r_coeffs))

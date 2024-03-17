@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from shutil import which
 
+import pytest
 from pytest import approx
 
 from pymatgen.command_line.critic2_caller import Critic2Analysis, Critic2Caller
@@ -17,7 +18,7 @@ __status__ = "Production"
 __date__ = "July 2017"
 
 
-@unittest.skipIf(not which("critic2"), "critic2 executable not present")
+@pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
 class TestCritic2Caller(unittest.TestCase):
     def test_from_path(self):
         # uses CHGCARs

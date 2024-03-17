@@ -663,7 +663,7 @@ class MoleculeMatcher(MSONable):
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
-        mol_hash = [(i, self._mapper.get_molecule_hash(m)) for i, m in enumerate(mol_list)]
+        mol_hash = [(idx, self._mapper.get_molecule_hash(mol)) for idx, mol in enumerate(mol_list)]
         mol_hash.sort(key=lambda x: x[1])
 
         # Use molecular hash to pre-group molecules.

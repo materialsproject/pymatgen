@@ -249,7 +249,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             assert not hasattr(obj, "unit")
 
         with pytest.raises(UnitError, match="Adding different types of units is not allowed"):
-            ene_ha + time_s
+            _ = ene_ha + time_s
 
     def test_factors(self):
         e = EnergyArray([27.21138386, 1], "eV").to("Ha")

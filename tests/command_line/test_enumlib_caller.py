@@ -19,7 +19,7 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestEnumlibAdaptor(PymatgenTest):
     def test_init(self):
         struct = self.get_structure("LiFePO4")

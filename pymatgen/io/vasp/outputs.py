@@ -1722,16 +1722,16 @@ class BSVasprun(Vasprun):
         if self.eigenvalues:
             eigen = defaultdict(dict)
             for spin, values in self.eigenvalues.items():
-                for i, v in enumerate(values):
-                    eigen[i][str(spin)] = v
+                for idx, val in enumerate(values):
+                    eigen[idx][str(spin)] = val
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]
-                for spin, v in self.projected_eigenvalues.items():
-                    for kpoint_index, vv in enumerate(v):
+                for spin, val in self.projected_eigenvalues.items():
+                    for kpoint_index, vv in enumerate(val):
                         if str(spin) not in peigen[kpoint_index]:
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen

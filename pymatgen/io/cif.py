@@ -1092,12 +1092,12 @@ class CifParser:
                 site_properties["magmom"] = all_magmoms
 
             if len(site_properties) == 0:
-                site_properties = None  # type: ignore
+                site_properties = None  # type: ignore[assignment]
 
             if any(all_labels):
                 assert len(all_labels) == len(all_species)
             else:
-                all_labels = None  # type: ignore
+                all_labels = None  # type: ignore[assignment]
 
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
