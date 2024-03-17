@@ -49,6 +49,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
     from pathlib import Path
+    from typing import Self
 
     from ase import Atoms
     from ase.calculators.calculator import Calculator
@@ -2126,7 +2127,12 @@ class IStructure(SiteCollection, MSONable):
             )
         return self.copy()
 
-    def copy(self, site_properties=None, sanitize=False, properties=None) -> Structure:
+    def copy(
+        self,
+        site_properties: dict[str, Any] | None = None,
+        sanitize: bool = False,
+        properties: dict[str, Any] | None = None,
+    ) -> Structure:
         """Convenience method to get a copy of the structure, with options to add
         site properties.
 
@@ -2686,7 +2692,7 @@ class IStructure(SiteCollection, MSONable):
         return df
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Structure:
+    def from_dict(cls, dct: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Self:
         """Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
 

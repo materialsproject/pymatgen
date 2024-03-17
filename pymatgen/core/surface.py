@@ -36,6 +36,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Self
 
     from numpy.typing import ArrayLike
 
@@ -343,7 +344,7 @@ class Slab(Structure):
             reorient_lattice=self.reorient_lattice,
         )
 
-    def copy(self, site_properties: dict | None = None) -> Slab:
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:
         """Get a copy of the structure, with options to update
         site properties.
 
@@ -464,9 +465,9 @@ class Slab(Structure):
             outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
         return "\n".join(outs)
 
-    def as_dict(self) -> dict:
+    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
         """MSONable dict."""
-        dct = super().as_dict()
+        dct = super().as_dict(**kwargs)
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
@@ -478,7 +479,7 @@ class Slab(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Slab:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """:param dct: dict
 
         Returns:
@@ -1523,9 +1524,9 @@ def get_symmetrically_equivalent_miller_indices(
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
         miller_index = (miller_index[0], miller_index[1], miller_index[-1])
-    mmi = max(np.abs(miller_index))
-    rng = list(range(-mmi, mmi + 1))
-    rng.reverse()
+    max_idx = max(np.abs(miller_index))
+    idx_range = list(range(-max_idx, max_idx + 1))
+    idx_range.reverse()
 
     sg = None
     if not system:
@@ -1541,21 +1542,21 @@ def get_symmetrically_equivalent_miller_indices(
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    equivalent_millers = [miller_index]
-    for miller in itertools.product(rng, rng, rng):
+    equivalent_millers: list[tuple[int, int, int]] = [miller_index]
+    for miller in itertools.product(idx_range, idx_range, idx_range):
         if miller == miller_index:
             continue
-        if any(i != 0 for i in miller):
+        if any(idx != 0 for idx in miller):
             if is_already_analyzed(miller, equivalent_millers, symm_ops):
-                equivalent_millers.append(miller)
+                equivalent_millers += [miller]
 
             # include larger Miller indices in the family of planes
             if (
-                all(mmi > i for i in np.abs(miller))
+                all(max_idx > i for i in np.abs(miller))
                 and not in_coord_list(equivalent_millers, miller)
-                and is_already_analyzed(mmi * np.array(miller), equivalent_millers, symm_ops)
+                and is_already_analyzed(max_idx * np.array(miller), equivalent_millers, symm_ops)
             ):
-                equivalent_millers.append(miller)
+                equivalent_millers += [miller]
 
     if return_hkil and system in ("trigonal", "hexagonal"):
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]
@@ -1599,17 +1600,17 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
     unique_millers: list = []
     unique_millers_conv: list = []
 
-    for i, miller in enumerate(miller_list):
-        d = abs(reduce(gcd, miller))
-        miller = tuple(int(i / d) for i in miller)
+    for idx, miller in enumerate(miller_list):
+        denom = abs(reduce(gcd, miller))
+        miller = tuple(int(idx / denom) for idx in miller)
         if not is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
                 # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
-                d = abs(reduce(gcd, conv_hkl_list[i]))
-                cmiller = tuple(int(i / d) for i in conv_hkl_list[i])
+                denom = abs(reduce(gcd, conv_hkl_list[idx]))
+                cmiller = tuple(int(idx / denom) for idx in conv_hkl_list[idx])
                 unique_millers_conv.append(cmiller)
             else:
                 unique_millers.append(miller)
@@ -1620,13 +1621,13 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
     return unique_millers_conv
 
 
-def hkl_transformation(transf: np.narray, miller_index: tuple[int]) -> tuple[int]:
+def hkl_transformation(transf: np.ndarray, miller_index: tuple[int, int, int]) -> tuple[int, int, int]:
     """Returns the Miller index from setting
     A to B using a transformation matrix
     Args:
         transf (3x3 array): The transformation matrix
             that transforms a lattice of A to B
-        miller_index ([h, k, l]): Miller index to transform to setting B.
+        miller_index (tuple[int, int, int]): Miller index [h, k, l] to transform to setting B.
     """
     # Get a matrix of whole numbers (ints)
 
@@ -1645,7 +1646,7 @@ def hkl_transformation(transf: np.narray, miller_index: tuple[int]) -> tuple[int
     if len([i for i in t_hkl if i < 0]) > 1:
         t_hkl *= -1
 
-    return tuple(t_hkl)
+    return tuple(t_hkl)  # type: ignore[return-value]
 
 
 def generate_all_slabs(
