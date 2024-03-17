@@ -113,9 +113,9 @@ class StandardTransmuter:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
                 z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
-                nrafo_ew_tstructs = p.map(_apply_transformation, z, 1)
+                trafo_new_structs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
-                for ts in nrafo_ew_tstructs:
+                for ts in trafo_new_structs:
                     self.transformed_structures.extend(ts)
         else:
             new_structures = []

@@ -333,20 +333,20 @@ class HighSymmKpath(KPathBase):
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
-        num_branches = len(bandstructure.branches)
+        n_branches = len(bandstructure.branches)
         new_branches = []
 
         # This ensures proper format of bandstructure.branches
         processed = []
-        for ind in range(num_branches):
-            branch = bandstructure.branches[ind]
+        for idx in range(n_branches):
+            branch = bandstructure.branches[idx]
 
             if branch["name"] not in processed:
                 if tuple(branch["name"].split("-")) in plot_axis:
                     new_branches.append(branch)
                     processed.append(branch["name"])
                 else:
-                    next_branch = bandstructure.branches[ind + 1]
+                    next_branch = bandstructure.branches[idx + 1]
                     combined = {
                         "start_index": branch["start_index"],
                         "end_index": next_branch["end_index"],

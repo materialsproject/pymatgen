@@ -71,7 +71,7 @@ def run_mcsqs(
         tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-    num_atoms = len(structure)
+    n_atoms = len(structure)
 
     if structure.is_ordered:
         raise ValueError("Pick a disordered structure")
@@ -87,14 +87,14 @@ def run_mcsqs(
     if isinstance(scaling, (int, float)):
         if scaling % 1 != 0:
             raise ValueError(f"{scaling=} should be an integer")
-        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
+        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * n_atoms}"]
 
     else:
         # Set supercell to identity (will make supercell with pymatgen)
         with open("sqscell.out", mode="w") as file:
             file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
         structure = structure * scaling
-        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {num_atoms}"]
+        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {n_atoms}"]
 
     structure.to(filename="rndstr.in")
 

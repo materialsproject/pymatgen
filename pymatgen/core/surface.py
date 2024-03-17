@@ -991,10 +991,10 @@ class SlabGenerator:
         possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
 
         # Calculate the shifts
-        nshifts = len(possible_c)
+        n_shifts = len(possible_c)
         shifts = []
-        for i in range(nshifts):
-            if i == nshifts - 1:
+        for i in range(n_shifts):
+            if i == n_shifts - 1:
                 # There is an additional shift between the first and last c
                 # coordinate. But this needs special handling because of PBC.
                 shift = (possible_c[0] + 1 + possible_c[i]) * 0.5

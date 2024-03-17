@@ -330,8 +330,8 @@ class CollinearMagneticStructureAnalyzer:
                 warnings.warn(str(exc))
 
             # and finally round roughly to the number of significant figures in our kde width
-            num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
-            magmoms = np.around(magmoms, decimals=num_decimals)
+            n_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
+            magmoms = np.around(magmoms, decimals=n_decimals)
 
         return np.array(magmoms)
 

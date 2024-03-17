@@ -776,8 +776,8 @@ class NwOutput:
                     parse_freq = False
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
-                    num_vibs = len(vibs)
-                    for mode, dis in zip(normal_frequencies[-num_vibs:], vibs):
+                    n_vibs = len(vibs)
+                    for mode, dis in zip(normal_frequencies[-n_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_projected_freq:
@@ -787,8 +787,8 @@ class NwOutput:
                     parse_projected_freq = False
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
-                    num_vibs = len(vibs)
-                    for mode, dis in zip(frequencies[-num_vibs:], vibs):
+                    n_vibs = len(vibs)
+                    for mode, dis in zip(frequencies[-n_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_bset:

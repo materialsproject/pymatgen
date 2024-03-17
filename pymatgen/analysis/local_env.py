@@ -2442,8 +2442,8 @@ class LocalStructOrderParams:
         """
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
-        nnn = len(self._pow_sin_t[1])
-        nnn_range = range(nnn)
+        n_nn = len(self._pow_sin_t[1])
+        n_nn_range = range(n_nn)
 
         sqrt_15_2pi = sqrt(15 / (2 * pi))
         sqrt_5_pi = sqrt(5 / pi)
@@ -2455,39 +2455,39 @@ class LocalStructOrderParams:
 
         # Y_2_-2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
             imag -= pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_2_-1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_2_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_0
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][idx] - 1.0)
         acc += real * real
 
         # Y_2_1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_2_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
             imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
-        return sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
+        return sqrt(4 * pi * acc / (5 * float(n_nn * n_nn)))
 
     def get_q4(self, thetas=None, phis=None):
         """
@@ -2507,8 +2507,8 @@ class LocalStructOrderParams:
         """
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
-        nnn = len(self._pow_sin_t[1])
-        nnn_range = range(nnn)
+        n_nn = len(self._pow_sin_t[1])
+        n_nn_range = range(n_nn)
 
         i16_3 = 3 / 16.0
         i8_3 = 3 / 8.0
@@ -2533,67 +2533,67 @@ class LocalStructOrderParams:
 
         # Y_4_-4
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
             imag -= pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_4_-3
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_-2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
             imag -= pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_-1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_0
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][idx] - 30 * self._pow_cos_t[2][idx] + 3.0)
         acc += real * real
 
         # Y_4_1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_4_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
             imag += pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_3
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_4_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_4
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
             imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
-        return sqrt(4 * pi * acc / (9 * float(nnn * nnn)))
+        return sqrt(4 * pi * acc / (9 * float(n_nn * n_nn)))
 
     def get_q6(self, thetas=None, phis=None):
         """
@@ -2613,8 +2613,8 @@ class LocalStructOrderParams:
         """
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
-        nnn = len(self._pow_sin_t[1])
-        nnn_range = range(nnn)
+        n_nn = len(self._pow_sin_t[1])
+        n_nn_range = range(n_nn)
 
         i64 = 1 / 64.0
         i32 = 1 / 32.0
@@ -2656,7 +2656,7 @@ class LocalStructOrderParams:
         # Y_6_-6
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) = cos(-x)
             imag -= pre_y_6_6[idx] * self._sin_n_p[6][idx]  # sin(x) = -sin(-x)
         acc += real * real + imag * imag
@@ -2664,7 +2664,7 @@ class LocalStructOrderParams:
         # Y_6_-5
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_5[idx] * self._cos_n_p[5][idx]
             imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
@@ -2672,7 +2672,7 @@ class LocalStructOrderParams:
         # Y_6_-4
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
             imag -= pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
@@ -2680,7 +2680,7 @@ class LocalStructOrderParams:
         # Y_6_-3
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
@@ -2688,7 +2688,7 @@ class LocalStructOrderParams:
         # Y_6_-2
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
             imag -= pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
@@ -2696,7 +2696,7 @@ class LocalStructOrderParams:
         # Y_6_-1
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
@@ -2704,7 +2704,7 @@ class LocalStructOrderParams:
         # Y_6_0
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += (
                 i32
                 * sqrt_13_pi
@@ -2715,7 +2715,7 @@ class LocalStructOrderParams:
         # Y_6_1
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_6_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
@@ -2723,7 +2723,7 @@ class LocalStructOrderParams:
         # Y_6_2
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
             imag += pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
@@ -2731,7 +2731,7 @@ class LocalStructOrderParams:
         # Y_6_3
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_6_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
@@ -2739,7 +2739,7 @@ class LocalStructOrderParams:
         # Y_6_4
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
             imag += pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
@@ -2747,7 +2747,7 @@ class LocalStructOrderParams:
         # Y_6_5
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_6_5[idx] * self._cos_n_p[5][idx]
             imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
@@ -2755,12 +2755,12 @@ class LocalStructOrderParams:
         # Y_6_6
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_6[idx] * self._cos_n_p[6][idx]
             imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
-        return sqrt(4 * pi * acc / (13 * float(nnn * nnn)))
+        return sqrt(4 * pi * acc / (13 * float(n_nn * n_nn)))
 
     def get_type(self, index):
         """
@@ -2886,8 +2886,8 @@ class LocalStructOrderParams:
                 neighsites = list(neighsitestmp)
             else:
                 neighsites[:] = [site for site in neighsitestmp if site.specie.symbol == target_spec]
-        nneigh = len(neighsites)
-        self._last_nneigh = nneigh
+        n_neighbors = len(neighsites)
+        self._last_nneigh = n_neighbors
 
         # Prepare angle calculations, if applicable.
         rij: list[np.ndarray] = []
@@ -2924,7 +2924,7 @@ class LocalStructOrderParams:
         # First, coordination number and distance-based OPs.
         for idx, typ in enumerate(self._types):
             if typ == "cn":
-                ops[idx] = nneigh / self._params[idx]["norm"]
+                ops[idx] = n_neighbors / self._params[idx]["norm"]
             elif typ == "sgl_bd":
                 dist_sorted = sorted(dist)
                 if len(dist_sorted) == 1:
@@ -2974,16 +2974,16 @@ class LocalStructOrderParams:
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak: list[float] = [0 for t in self._types]  # not used by all OPs
-            qsp_theta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
-            norms = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
+            qsp_theta = [[[] for j in range(n_neighbors)] for t in self._types]  # type: ignore
+            norms = [[[] for j in range(n_neighbors)] for t in self._types]  # type: ignore
             ipi = 1 / pi
             piover2 = pi / 2.0
             onethird = 1 / 3
             twothird = 2 / 3.0
-            for j in range(nneigh):  # Neighbor j is put to the North pole.
+            for j in range(n_neighbors):  # Neighbor j is put to the North pole.
                 zaxis = rij_norm[j]
                 kc = 0
-                for k in range(nneigh):  # From neighbor k, we construct
+                for k in range(n_neighbors):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         for idx in range(len(self._types)):
                             qsp_theta[idx][j].append(0.0)
@@ -3067,7 +3067,7 @@ class LocalStructOrderParams:
                                 qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[idx][j][kc] += 1
 
-                        for m in range(nneigh):
+                        for m in range(n_neighbors):
                             if (m != j) and (m != k) and (not flag_xaxis):
                                 tmp = max(-1.0, min(np.inner(zaxis, rij_norm[m]), 1.0))
                                 thetam = acos(tmp)
@@ -3271,7 +3271,7 @@ class LocalStructOrderParams:
                     "pent_plan",
                 ]:
                     ops[idx] = tmp_norm = 0.0
-                    for j in range(nneigh):
+                    for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                         tmp_norm += float(sum(norms[idx][j]))
                     ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore
@@ -3296,8 +3296,8 @@ class LocalStructOrderParams:
                     "sq_face_cap_trig_pris",
                 ]:
                     ops[idx] = None  # type: ignore[call-overload]
-                    if nneigh > 1:
-                        for j in range(nneigh):
+                    if n_neighbors > 1:
+                        for j in range(n_neighbors):
                             for k in range(len(qsp_theta[idx][j])):
                                 qsp_theta[idx][j][k] = (
                                     qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1.0e-12 else 0.0
@@ -3305,22 +3305,24 @@ class LocalStructOrderParams:
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
                 elif typ == "bcc":
                     ops[idx] = 0.0
-                    for j in range(nneigh):
+                    for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
-                    if nneigh > 3:
-                        ops[idx] = ops[idx] / float(0.5 * float(nneigh * (6 + (nneigh - 2) * (nneigh - 3))))
+                    if n_neighbors > 3:
+                        ops[idx] = ops[idx] / float(
+                            0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3)))
+                        )
                     else:
                         ops[idx] = None  # type: ignore[call-overload]
                 elif typ == "sq_pyr_legacy":
-                    if nneigh > 1:
+                    if n_neighbors > 1:
                         dmean = np.mean(dist)
                         acc = 0.0
                         for d in dist:
                             tmp = self._params[idx][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
-                        for j in range(nneigh):
+                        for j in range(n_neighbors):
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
-                        ops[idx] = acc * ops[idx] / float(nneigh)
+                        ops[idx] = acc * ops[idx] / float(n_neighbors)
                         # nneigh * (nneigh - 1))
                     else:
                         ops[idx] = None  # type: ignore[call-overload]
@@ -3339,15 +3341,15 @@ class LocalStructOrderParams:
             neighscent = np.array([0.0, 0.0, 0.0])
             for neigh in neighsites:
                 neighscent = neighscent + neigh.coords
-            if nneigh > 0:
-                neighscent = neighscent / float(nneigh)
+            if n_neighbors > 0:
+                neighscent = neighscent / float(n_neighbors)
             h = np.linalg.norm(neighscent - centvec)
             b = min(distjk_unique) if len(distjk_unique) > 0 else 0
             dhalf = max(distjk_unique) / 2 if len(distjk_unique) > 0 else 0
 
             for idx, typ in enumerate(self._types):
                 if typ in ("reg_tri", "sq"):
-                    if nneigh < 3:
+                    if n_neighbors < 3:
                         ops[idx] = None  # type: ignore[call-overload]
                     else:
                         ops[idx] = 1.0
@@ -3357,7 +3359,7 @@ class LocalStructOrderParams:
                         elif typ == "sq":
                             a = 2 * asin(b / (2 * sqrt(h * h + dhalf * dhalf)))  # type: ignore
                             nmax = 4
-                        for j in range(min([nneigh, nmax])):
+                        for j in range(min([n_neighbors, nmax])):
                             ops[idx] = ops[idx] * exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)
 
         return ops
