@@ -88,7 +88,7 @@ class TestIStructure(PymatgenTest):
         )
         self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
 
-    @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
+    @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered
@@ -668,7 +668,7 @@ Direct
             assert_allclose(cy_indices2, py_indices2)
             assert len(cy_offsets) == len(py_offsets)
 
-    # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
+    # @skipIf(not os.getenv("CI"), reason="Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
     #
     #     for i in range(100):

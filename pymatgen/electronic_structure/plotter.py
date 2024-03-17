@@ -3593,7 +3593,7 @@ class CohpPlotter:
                 energy at the Fermi level. Defaults to True.
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
-            are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
+            are_cobis: Switch to indicate that these are COBIs or multi-center COBIs, not COHPs/COOPs.
                 Defaults to False for COHPs.
         """
         self.zero_at_efermi = zero_at_efermi
@@ -3914,7 +3914,7 @@ def plot_fermi_surface(
                             tube_radius=None,
                             figure=fig,
                         )
-        for label, coords in kpoints_dict.items():
+        for key, coords in kpoints_dict.items():
             label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
             mlab.points3d(
                 *label_coords,
@@ -3924,7 +3924,7 @@ def plot_fermi_surface(
             )
             mlab.text3d(
                 *label_coords,
-                text=label,
+                text=key,
                 scale=labels_scale_factor,
                 color=(0, 0, 0),
                 figure=fig,
@@ -3951,7 +3951,7 @@ def plot_fermi_surface(
                                 figure=fig,
                             )
 
-            for label, coords in kpoints_dict.items():
+            for key, coords in kpoints_dict.items():
                 label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
                 mlab.points3d(
                     *label_coords,
@@ -3961,7 +3961,7 @@ def plot_fermi_surface(
                 )
                 mlab.text3d(
                     *label_coords,
-                    text=label,
+                    text=key,
                     scale=labels_scale_factor,
                     color=(0, 0, 0),
                     figure=fig,

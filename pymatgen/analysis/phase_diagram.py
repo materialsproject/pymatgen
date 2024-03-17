@@ -1520,8 +1520,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         # Map terminal compositions to unique dummy species.
         sp_mapping = {}
-        for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+        for idx, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
 
         for entry in entries:
             if getattr(entry, "attribute", None) is None:
@@ -2340,18 +2340,18 @@ class PDPlotter:
         num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
         element_energy = evolution[0]["chempot"]
         x1, x2, y1 = None, None, None
-        for i, d in enumerate(evolution):
-            v = -(d["chempot"] - element_energy)
-            if i != 0:
-                ax.plot([x2, x2], [y1, d["evolution"] / num_atoms], "k", linewidth=2.5)
+        for idx, dct in enumerate(evolution):
+            v = -(dct["chempot"] - element_energy)
+            if idx != 0:
+                ax.plot([x2, x2], [y1, dct["evolution"] / num_atoms], "k", linewidth=2.5)
             x1 = v
-            y1 = d["evolution"] / num_atoms
+            y1 = dct["evolution"] / num_atoms
 
-            x2 = -(evolution[i + 1]["chempot"] - element_energy) if i != len(evolution) - 1 else 5.0
-            if show_label_index is not None and i in show_label_index:
+            x2 = -(evolution[idx + 1]["chempot"] - element_energy) if idx != len(evolution) - 1 else 5.0
+            if show_label_index is not None and idx in show_label_index:
                 products = [
                     re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)
-                    for p in d["reaction"].products
+                    for p in dct["reaction"].products
                     if p.reduced_formula != element.symbol
                 ]
                 ax.annotate(
@@ -2509,8 +2509,8 @@ class PDPlotter:
 
         ax = self._get_matplotlib_2d_plot()
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
-        for i, e in enumerate(entries):
-            data[i, 2] = self._pd.get_e_above_hull(e)
+        for idx, entry in enumerate(entries):
+            data[idx, 2] = self._pd.get_e_above_hull(entry)
 
         gridsize = 0.005
         xnew = np.arange(0, 1.0, gridsize)
@@ -2518,9 +2518,9 @@ class PDPlotter:
 
         f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
         znew = np.zeros((len(ynew), len(xnew)))
-        for i, xval in enumerate(xnew):
+        for idx, xval in enumerate(xnew):
             for j, yval in enumerate(ynew):
-                znew[j, i] = f(xval, yval)
+                znew[j, idx] = f(xval, yval)
 
         contourf = ax.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
@@ -2576,16 +2576,16 @@ class PDPlotter:
         unstable_entries = {}
         stable = pd.stable_entries
 
-        for i, entry in enumerate(all_entries):
+        for idx, entry in enumerate(all_entries):
             if entry not in stable:
                 if self._dim < 3:
-                    x = [all_data[i][0], all_data[i][0]]
+                    x = [all_data[idx][0], all_data[idx][0]]
                     y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
-                    coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])
+                    coord = triangular_coord([all_data[idx, 0:2], all_data[idx, 0:2]])
                 else:
-                    coord = tet_coord([all_data[i, 0:3], all_data[i, 0:3], all_data[i, 0:3]])
+                    coord = tet_coord([all_data[idx, 0:3], all_data[idx, 0:3], all_data[idx, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 

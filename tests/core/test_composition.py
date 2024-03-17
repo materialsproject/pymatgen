@@ -454,7 +454,7 @@ class TestComposition(PymatgenTest):
         assert (self.comps[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
 
         with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
-            Composition("O") - Composition("H")
+            _ = Composition("O") - Composition("H")
 
         # check that S is completely removed by subtraction
         c1 = Composition({"S": 1 + Composition.amount_tolerance / 2, "O": 1})
@@ -521,7 +521,7 @@ class TestComposition(PymatgenTest):
             TypeError,
             match="'<' not supported between instances of 'Composition' and 'Element'",
         ):
-            c1 < Fe  # noqa: B015
+            _ = c1 < Fe
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
@@ -817,7 +817,7 @@ class TestChemicalPotential(unittest.TestCase):
 
         # test multiplication
         with pytest.raises(TypeError, match="unsupported operand type"):
-            pots * pots
+            _ = pots * pots
         assert pots * 2 == pots_x2
         assert 2 * pots == pots_x2
 

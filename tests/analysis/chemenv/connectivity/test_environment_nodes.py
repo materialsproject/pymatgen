@@ -6,7 +6,7 @@ from pymatgen.util.testing import PymatgenTest
 try:
     import bson
 except ModuleNotFoundError:
-    bson = None  # type: ignore
+    bson = None  # type: ignore[assignment]
 
 __author__ = "waroquiers"
 

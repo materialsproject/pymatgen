@@ -244,7 +244,7 @@ Magmoms Sites
 
 
 class TestMagneticStructureEnumerator(unittest.TestCase):
-    @unittest.skipIf(not enumlib_present, "enumlib not present")
+    @pytest.mark.skipif(not enumlib_present, reason="enumlib not present")
     def test_ordering_enumeration(self):
         # simple afm
         structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/LaMnO3.json")

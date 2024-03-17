@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import pytest
@@ -18,7 +17,7 @@ __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 TEST_DIR = f"{TEST_FILES_DIR}/mcsqs"
 
 
-@unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
+@pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")
 class TestMcsqsCaller(PymatgenTest):
     def setUp(self):
         self.pzt_structs = loadfn(f"{TEST_DIR}/pzt-structs.json")

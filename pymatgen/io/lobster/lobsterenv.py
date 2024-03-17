@@ -554,7 +554,7 @@ class LobsterNeighbors(NearNeighbors):
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
-            for label, atompair, isite in zip(labels, atoms, final_isites):
+            for key, atompair, isite in zip(labels, atoms, final_isites):
                 present = False
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly!
@@ -571,7 +571,7 @@ class LobsterNeighbors(NearNeighbors):
                         present = True
 
                 if present:
-                    new_labels.append(label)
+                    new_labels.append(key)
                     new_atoms.append(atompair)
             if len(new_labels) > 0:
                 divisor = len(new_labels) if per_bond else 1

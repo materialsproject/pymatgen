@@ -7,7 +7,7 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core import Molecule, PeriodicSite, Species, Structure
+from pymatgen.core import Molecule, PeriodicSite, Site, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -573,10 +573,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert {2, 3, 4, 5} in eq_sets.values()
 
         coords = sym_mol.cart_coords
-        for i, eq_set in eq_sets.items():
+        for idx, eq_set in eq_sets.items():
             for j in eq_set:
-                _ = np.dot(ops[i][j], coords[i])
-                assert_allclose(np.dot(ops[i][j], coords[i]), coords[j])
+                _ = np.dot(ops[idx][j], coords[idx])
+                assert_allclose(np.dot(ops[idx][j], coords[idx]), coords[j])
 
     def test_symmetrize_molecule2(self):
         np.random.seed(77)
@@ -597,8 +597,8 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == approx(w)
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+                assert weight == approx(expected)
 
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             struct = PymatgenTest.get_structure(name)
@@ -606,8 +606,8 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == approx(w)
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+                assert weight == approx(expected)
 
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
@@ -625,9 +625,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
 
 class TestFunc(unittest.TestCase):
     def test_cluster_sites(self):
-        o, c = cluster_sites(CH4, 0.1)
-        assert o.specie.symbol == "C"
-        assert len(c) == 1
-        o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
-        assert o is None
-        assert len(c) == 4
+        site, cluster = cluster_sites(CH4, 0.1)
+        assert isinstance(site, Site)
+        assert site.specie.symbol == "C"
+        assert len(cluster) == 1
+        site, cluster = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
+        assert site is None
+        assert len(cluster) == 4

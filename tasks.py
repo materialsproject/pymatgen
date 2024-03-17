@@ -165,7 +165,7 @@ def update_changelog(ctx, version=None, dry_run=False):
             pr_number = re_match.group(1)
             contributor, pr_name = re_match.group(2).split("/", 1)
             response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
-            lines.append(f"* PR #{pr_number} from @{contributor} {pr_name}")
+            lines += [f"* PR #{pr_number} from @{contributor} {pr_name}"]
             json_resp = response.json()
             if body := json_resp["body"]:
                 for ll in map(str.strip, body.split("\n")):
@@ -173,8 +173,8 @@ def update_changelog(ctx, version=None, dry_run=False):
                         continue
                     if ll.startswith(("## Checklist", "## TODO")):
                         break
-                    lines.append(f"    {ll}")
-        ignored_commits.append(line)
+                    lines += [f"    {ll}"]
+        ignored_commits += [line]
     with open("docs/CHANGES.md") as file:
         contents = file.read()
     delim = "##"

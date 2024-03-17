@@ -4,6 +4,7 @@ import json
 import unittest
 from shutil import which
 
+import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
@@ -25,7 +26,7 @@ except ImportError:
 x_trans = which("x_trans")
 
 
-@unittest.skipIf(not x_trans, "No x_trans.")
+@pytest.mark.skipif(not x_trans, reason="No x_trans.")
 class TestBoltztrapAnalyzer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -83,7 +84,7 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert self.bz_fermi.fermi_surface_data.shape == approx((121, 121, 65))
         assert self.bz_fermi.fermi_surface_data[21][79][19] == approx(-1.8831911809439161, abs=1e-5)
 
-    @unittest.skipIf(not fdint, "No FDINT")
+    @pytest.mark.skipif(not fdint, reason="No FDINT")
     def test_get_seebeck_eff_mass(self):
         ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
         ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
@@ -99,7 +100,7 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert sbk_mass_avg_mu == approx(4361.4744008038842, abs=1e-1)
         assert sbk_mass_avg_dop == approx(1.661553842105382, abs=1e-4)
 
-    @unittest.skipIf(not fdint, "No FDINT")
+    @pytest.mark.skipif(not fdint, reason="No FDINT")
     def test_get_complexity_factor(self):
         ref = [2.7658776815227828, 2.9826088215568403, 0.28881335881640308]
         ref2 = [0.0112022048620205, 0.0036001049607186602, 0.0083028947173193028]

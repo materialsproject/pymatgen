@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -1072,7 +1070,7 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
         assert str(cw) == cw_manual_oxi_string
 
-    @unittest.skipIf(pybtex is None, "pybtex not present")
+    @pytest.mark.skipif(pybtex is None, reason="pybtex not present")
     def test_bibtex(self):
         ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",

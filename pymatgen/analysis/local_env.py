@@ -490,13 +490,13 @@ class NearNeighbors:
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
-        for i, step in enumerate(possible_steps):
+        for idx, step in enumerate(possible_steps):
             # Update the image information
             # Note: We do not update the site position yet, as making a PeriodicSite
             # for each intermediate step is too costly
             step = dict(step)
             step["image"] = tuple(np.add(step["image"], _cur_image).tolist())
-            possible_steps[i] = step
+            possible_steps[idx] = step
 
         # Get only the non-backtracking steps
         allowed_steps = [x for x in possible_steps if (x["site_index"], x["image"]) not in _previous_steps]
@@ -657,12 +657,12 @@ class NearNeighbors:
                 types.append(cn_opt_params[cn][name][0])
                 tmp = cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
                 params.append(tmp)
-            lostops = LocalStructOrderParams(types, parameters=params)
+            lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
             dct = {}
-            for i, lostop in enumerate(lostop_vals):
-                dct[names[i]] = lostop
+            for idx, lsop in enumerate(lostop_vals):
+                dct[names[idx]] = lsop
             return dct
         return None
 
@@ -813,7 +813,7 @@ class VoronoiNN(NearNeighbors):
         # are included in the tessellation
 
         sites = [x.to_unit_cell() for x in structure]
-        indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
+        indices = [(idx, 0, 0, 0) for idx in range(len(structure))]
 
         # Get all neighbors within a certain cutoff. Record both the list of these neighbors and the site indices.
         all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True, include_image=True)
@@ -1208,7 +1208,7 @@ class JmolNN(NearNeighbors):
                 Defaults to 0.56.
             min_bond_distance (float): minimum bond distance for consideration
                 Defaults to 0.4.
-            el_radius_updates: (dict) symbol->float to override default atomic
+            el_radius_updates (dict): symbol->float to override default atomic
                 radii table values.
         """
         self.tol = tol
@@ -1254,8 +1254,8 @@ class JmolNN(NearNeighbors):
         Use Jmol algorithm to determine bond length from atomic parameters
 
         Args:
-            el1_sym: (str) symbol of atom 1
-            el2_sym: (str) symbol of atom 2.
+            el1_sym (str): symbol of atom 1
+            el2_sym (str): symbol of atom 2.
 
         Returns:
             float: max bond length
@@ -1468,9 +1468,9 @@ class OpenBabelNN(NearNeighbors):
 
         # Get only the atom of interest
         site_atom = next(
-            a
-            for i, a in enumerate(openbabel.OBMolAtomDFSIter(ob_mol))
-            if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
+            atom
+            for atom in openbabel.OBMolAtomDFSIter(ob_mol)
+            if [atom.GetX(), atom.GetY(), atom.GetZ()] == list(structure[n].coords)
         )
 
         for neighbor in openbabel.OBAtomAtomIter(site_atom):
@@ -2030,7 +2030,7 @@ def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, 
             "voronoi" the VoronoiNN class, "min_OKeeffe" the
             MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
         delta (float): tolerance involved in neighbor finding.
-        cutoff (float): (large) radius to find tentative neighbors.
+        cutoff (float): radius to find tentative neighbors.
 
     Returns:
         neighbor sites.
@@ -2067,7 +2067,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
             "voronoi" the VoronoiNN class, "min_OKeeffe" the
             MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
         delta (float): tolerance involved in neighbor finding.
-        cutoff (float): (large) radius to find tentative neighbors.
+        cutoff (float): radius to find tentative neighbors.
         thresh (dict): thresholds for motif criteria (currently, required
             keys and their default values are "qtet": 0.5,
             "qoct": 0.5, "qbcc": 0.5, "q6": 0.4).
@@ -3295,7 +3295,7 @@ class LocalStructOrderParams:
                     "hex_plan_max",
                     "sq_face_cap_trig_pris",
                 ]:
-                    ops[idx] = None  # type: ignore
+                    ops[idx] = None  # type: ignore[call-overload]
                     if nneigh > 1:
                         for j in range(nneigh):
                             for k in range(len(qsp_theta[idx][j])):
@@ -3310,7 +3310,7 @@ class LocalStructOrderParams:
                     if nneigh > 3:
                         ops[idx] = ops[idx] / float(0.5 * float(nneigh * (6 + (nneigh - 2) * (nneigh - 3))))
                     else:
-                        ops[idx] = None  # type: ignore
+                        ops[idx] = None  # type: ignore[call-overload]
                 elif typ == "sq_pyr_legacy":
                     if nneigh > 1:
                         dmean = np.mean(dist)
@@ -3323,7 +3323,7 @@ class LocalStructOrderParams:
                         ops[idx] = acc * ops[idx] / float(nneigh)
                         # nneigh * (nneigh - 1))
                     else:
-                        ops[idx] = None  # type: ignore
+                        ops[idx] = None  # type: ignore[call-overload]
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
@@ -3348,7 +3348,7 @@ class LocalStructOrderParams:
             for idx, typ in enumerate(self._types):
                 if typ in ("reg_tri", "sq"):
                     if nneigh < 3:
-                        ops[idx] = None  # type: ignore
+                        ops[idx] = None  # type: ignore[call-overload]
                     else:
                         ops[idx] = 1.0
                         if typ == "reg_tri":
@@ -3787,23 +3787,23 @@ class CrystalNN(NearNeighbors):
         geometric match.
 
         Args:
-            weighted_cn: (bool) if set to True, will return fractional weights
+            weighted_cn (bool): if set to True, will return fractional weights
                 for each potential near neighbor.
-            cation_anion: (bool) if set True, will restrict bonding targets to
+            cation_anion (bool): if set True, will restrict bonding targets to
                 sites with opposite or zero charge. Requires an oxidation states
                 on all sites in the structure.
-            distance_cutoffs: ([float, float]) - if not None, penalizes neighbor
+            distance_cutoffs ([float, float]): - if not None, penalizes neighbor
                 distances greater than sum of covalent radii plus
                 distance_cutoffs[0]. Distances greater than covalent radii sum
                 plus distance_cutoffs[1] are enforced to have zero weight.
-            x_diff_weight: (float) - if multiple types of neighbor elements are
+            x_diff_weight (float): - if multiple types of neighbor elements are
                 possible, this sets preferences for targets with higher
                 electronegativity difference.
-            porous_adjustment: (bool) - if True, readjusts Voronoi weights to
+            porous_adjustment (bool): - if True, readjusts Voronoi weights to
                 better describe layered / porous structures
-            search_cutoff: (float) cutoff in Angstroms for initial neighbor
+            search_cutoff (float): cutoff in Angstroms for initial neighbor
                 search; this will be adjusted if needed internally
-            fingerprint_length: (int) if a fixed_length CN "fingerprint" is
+            fingerprint_length (int): if a fixed_length CN "fingerprint" is
                 desired from get_nn_data(), set this parameter
         """
         self.weighted_cn = weighted_cn

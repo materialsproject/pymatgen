@@ -33,7 +33,7 @@ from pymatgen.transformations.advanced_transformations import (
     SubstituteSurfaceSiteTransformation,
     SubstitutionPredictorTransformation,
     SuperTransformation,
-    _find_codopant,
+    find_codopant,
 )
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -98,7 +98,7 @@ class TestSuperTransformation(unittest.TestCase):
         for s_and_t in s:
             assert s_and_t["transformation"].apply_transformation(struct) == s_and_t["structure"]
 
-    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
     def test_apply_transformation_mult(self):
         # Test returning multiple structures from each transformation.
         disord = Structure(
@@ -157,7 +157,7 @@ class TestChargeBalanceTransformation(unittest.TestCase):
         assert s.charge == approx(0, abs=1e-5)
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
@@ -273,7 +273,7 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
         assert trafo._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestMagOrderingTransformation(PymatgenTest):
     def setUp(self):
         latt = Lattice.cubic(4.17)
@@ -485,7 +485,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         assert len(alls) == 6
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestDopingTransformation(PymatgenTest):
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
@@ -545,8 +545,8 @@ class TestDopingTransformation(PymatgenTest):
         assert trans.max_structures_per_enum == 1
 
     def test_find_codopant(self):
-        assert _find_codopant(Species("Fe", 2), 1) == Species("Cu", 1)
-        assert _find_codopant(Species("Fe", 2), 3) == Species("In", 3)
+        assert find_codopant(Species("Fe", 2), 1) == Species("Cu", 1)
+        assert find_codopant(Species("Fe", 2), 3) == Species("In", 3)
 
 
 class TestSlabTransformation(PymatgenTest):
@@ -600,7 +600,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
         assert output[-1].species.as_dict() == {"Ni": 0.5, "Ba": 0.5}
 
 
-@unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
+@pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
         pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
@@ -646,7 +646,7 @@ class TestSQSTransformation(PymatgenTest):
         assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
-@unittest.skipIf(ClusterSpace is None, "icet not installed.")
+@pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
     stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
@@ -781,7 +781,7 @@ class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
         assert out.reduced_formula == "Pt3Au"
 
 
-@unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
+@pytest.mark.skipif(not hiphive, reason="hiphive not present")
 class TestMonteCarloRattleTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Si")
