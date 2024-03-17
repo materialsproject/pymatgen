@@ -86,7 +86,6 @@ class Slab(Structure):
         coords_are_cartesian=False,
         site_properties=None,
         energy=None,
-        properties=None,
     ) -> None:
         """Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
@@ -132,8 +131,6 @@ class Slab(Structure):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
             energy (float): A value for the energy.
-            properties (dict): dictionary containing properties associated
-                with the whole slab.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = tuple(miller_index)
@@ -449,9 +446,6 @@ class Slab(Structure):
         return self
 
     def __str__(self) -> str:
-        def to_str(x) -> str:
-            return f"{x:0.6f}"
-
         comp = self.composition
         outs = [
             f"Slab Summary ({comp.formula})",
@@ -501,7 +495,6 @@ class Slab(Structure):
             scale_factor=dct["scale_factor"],
             site_properties=struct.site_properties,
             energy=dct["energy"],
-            properties=dct.get("properties"),
         )
 
     def get_surface_sites(self, tag=False):
@@ -1246,7 +1239,7 @@ class SlabGenerator:
                 # surfaces are symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
 
-                c_dir = [site[2] for idx, site in enumerate(slab.frac_coords)]
+                c_dir = [site[2] for site in slab.frac_coords]
 
                 if top:
                     slab.remove_sites([c_dir.index(max(c_dir))])
@@ -1267,7 +1260,7 @@ class SlabGenerator:
 
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(f"{module_dir}/reconstructions_archive.json") as data_file:
+with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
     reconstructions_archive = json.load(data_file)
 
 
@@ -1633,10 +1626,10 @@ def hkl_transformation(transf, miller_index):
     """
     # Get a matrix of whole numbers (ints)
 
-    def lcm(a, b):
+    def _lcm(a, b):
         return a * b // math.gcd(a, b)
 
-    reduced_transf = reduce(lcm, [int(1 / i) for i in itertools.chain(*transf) if i != 0]) * transf
+    reduced_transf = reduce(_lcm, [int(1 / i) for i in itertools.chain(*transf) if i != 0]) * transf
     reduced_transf = reduced_transf.astype(int)
 
     # perform the transformation
@@ -1825,7 +1818,7 @@ def get_slab_regions(slab, blength=3.5):
         for site in slab:
             if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
                 upper_fcoords.append(site.frac_coords[2])
-        coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
+        coords = copy.copy(fcoords) if fcoords else copy.copy(last_fcoords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
         ranges = [[0, max(upper_fcoords)], [min_top, 1]]
     else:
