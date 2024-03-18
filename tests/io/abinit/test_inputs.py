@@ -33,7 +33,7 @@ def abiref_files(*filenames):
     return [f"{TEST_DIR}/{file}" for file in filenames]
 
 
-class AbinitInputTestCase(PymatgenTest):
+class TestAbinitInput(PymatgenTest):
     """Unit tests for BasicAbinitInput."""
 
     def test_api(self):

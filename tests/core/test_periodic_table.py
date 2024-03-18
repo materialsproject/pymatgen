@@ -14,7 +14,7 @@ from pymatgen.core.periodic_table import ElementBase
 from pymatgen.util.testing import PymatgenTest
 
 
-class ElementTestCase(PymatgenTest):
+class TestElement(PymatgenTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -366,7 +366,7 @@ class ElementTestCase(PymatgenTest):
         assert [el.atomic_mass for el in elems] == [1.00794, 2.013553212712, 3.0155007134]
 
 
-class SpeciesTestCase(PymatgenTest):
+class TestSpecies(PymatgenTest):
     def setUp(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
@@ -525,7 +525,7 @@ def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     assert species._oxi_state == expected_oxi_state
 
 
-class DummySpeciesTestCase(unittest.TestCase):
+class TestDummySpecies(unittest.TestCase):
     def test_init(self):
         self.specie1 = DummySpecies("X")
         with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
