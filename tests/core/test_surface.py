@@ -322,7 +322,7 @@ class TestSlab(PymatgenTest):
             self.zno55.miller_index,
             self.zno55.oriented_unit_cell,
             0,
-            self.zno55.scale_factor.tolist(),
+            self.zno55.scale_factor,
         )
         dict_str = json.dumps(slab.as_dict())
         d = json.loads(dict_str)

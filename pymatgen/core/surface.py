@@ -36,9 +36,9 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Self
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
@@ -58,11 +58,10 @@ logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
-    """Subclass of Structure representing a Slab. Implements additional
+    """Dummy class to hold information a Slab. Implements additional
     attributes pertaining to slabs, but the init method does not
-    actually implement any algorithm that creates a slab. This is a
-    DUMMY class who's init method only holds information about the
-    slab. Also has additional methods that returns other information
+    actually implement any algorithm that creates a slab. Also has
+    additional methods that returns other information
     about a slab such as the surface area, normal, and atom adsorption.
 
     Note that all Slabs have the surface normal oriented perpendicular to the a
@@ -473,7 +472,7 @@ class Slab(Structure):
         dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
         dct["miller_index"] = self.miller_index
         dct["shift"] = self.shift
-        dct["scale_factor"] = self.scale_factor.tolist()
+        dct["scale_factor"] = self.scale_factor
         dct["reconstruction"] = self.reconstruction
         dct["energy"] = self.energy
         return dct
