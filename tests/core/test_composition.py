@@ -212,10 +212,7 @@ class TestComposition(PymatgenTest):
         assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
 
         assert Composition("NaN").reduced_formula == "NaN"
-        with pytest.raises(
-            ValueError,
-            match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?",
-        ):
+        with pytest.raises(ValueError, match=r"Can't parse Element or Species from nan"):
             Composition(float("NaN"))
 
         # test bad formulas raise ValueError
