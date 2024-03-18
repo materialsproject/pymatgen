@@ -1597,7 +1597,7 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @staticmethod
-    def with_edges(molecule: Molecule, edges: dict[tuple[int, int], dict]):
+    def with_edges(molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> MoleculeGraph:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -1609,7 +1609,7 @@ class MoleculeGraph(MSONable):
             additional properties are to be specified.
 
         Returns:
-            mg, a MoleculeGraph
+            A MoleculeGraph
         """
         mg = MoleculeGraph.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
@@ -1620,12 +1620,13 @@ class MoleculeGraph(MSONable):
             except TypeError:
                 raise ValueError("Edges must be given as (from_index, to_index) tuples")
 
-            if props is not None:
+            if props is None:
+                weight = None
+
+            else:
                 weight = props.pop("weight", None)
                 if len(props.items()) == 0:
-                    props = None  # type: ignore[assignment]
-            else:
-                weight = None
+                    props = None
 
             nodes = mg.graph.nodes
             if not (from_index in nodes and to_index in nodes):
