@@ -89,7 +89,7 @@ def publish(ctx: Context) -> None:
 
 
 @task
-def set_ver(version: str):
+def set_ver(ctx: Context, version: str):
     with open("setup.py") as file:
         contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
@@ -99,7 +99,7 @@ def set_ver(version: str):
 
 
 @task
-def release_github(version: str) -> None:
+def release_github(ctx: Context, version: str) -> None:
     """
     Release to Github using Github API.
 
@@ -216,13 +216,13 @@ def release(ctx: Context, version: str| None=None, nodoc: bool=False) -> None:
     """
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
-    set_ver(version)
+    set_ver(ctx, version)
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
         ctx.run('git commit --no-verify -a -m "Update docs"')
         ctx.run("git push")
-    release_github(version)
+    release_github(ctx, version)
 
     ctx.run("rm -f dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel", warn=True)
@@ -232,7 +232,7 @@ def release(ctx: Context, version: str| None=None, nodoc: bool=False) -> None:
 
 
 @task
-def open_doc() -> None:
+def open_doc(ctx: Context) -> None:
     """
     Open local documentation in web browser.
     """
