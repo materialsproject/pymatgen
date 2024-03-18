@@ -11,7 +11,7 @@ from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -32,6 +32,16 @@ try:
 except ImportError:
     igraph = None
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from igraph import Graph
+    from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
+    from pymatgen.analysis.local_env import NearNeighbors
+    from pymatgen.core import Species
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -46,12 +56,12 @@ __date__ = "August 2017"
 ConnectedSite = namedtuple("ConnectedSite", "site, jimage, index, weight, dist")
 
 
-def _compare(g1, g2, i1, i2):
+def _compare(g1, g2, i1, i2) -> bool:
     """Helper function called by isomorphic to ensure comparison of node identities."""
     return g1.vs[i1]["species"] == g2.vs[i2]["species"]
 
 
-def _igraph_from_nxgraph(graph):
+def _igraph_from_nxgraph(graph) -> Graph:
     """Helper function that converts a networkx graph object into an igraph graph object."""
     nodes = graph.nodes(data=True)
     new_igraph = igraph.Graph()
@@ -63,7 +73,7 @@ def _igraph_from_nxgraph(graph):
 
 def _isomorphic(frag1: nx.Graph, frag2: nx.Graph) -> bool:
     """
-    Internal function to check if two graph objects are isomorphic, using igraph if
+    Helper function to check if two graph objects are isomorphic, using igraph if
     if is available and networkx if it is not.
     """
     f1_nodes = frag1.nodes(data=True)
@@ -103,7 +113,7 @@ class StructureGraph(MSONable):
     any kind of information that connects two Sites.
     """
 
-    def __init__(self, structure: Structure, graph_data=None):
+    def __init__(self, structure: Structure, graph_data: dict | None = None) -> None:
         """
         If constructing this class manually, use the with_empty_graph method or
         with_local_env_strategy method (using an algorithm provided by the local_env
@@ -149,7 +159,7 @@ class StructureGraph(MSONable):
         name: str = "bonds",
         edge_weight_name: str | None = None,
         edge_weight_units: str | None = None,
-    ) -> StructureGraph:
+    ) -> Self:
         """
         Constructor for an empty StructureGraph, i.e. no edges, containing only nodes corresponding
         to sites in Structure.
@@ -187,17 +197,18 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
-    def with_edges(structure, edges):
+    def with_edges(structure: Structure, edges: dict) -> StructureGraph:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
 
-        :param molecule: Molecule object
-        :param edges: dict representing the bonds of the functional
-            group (format: {(from_index, to_index, from_image, to_image): props},
-            where props is a dictionary of properties, including weight.
-            Props should be None if no additional properties are to be
-            specified.
+        Args:
+            structure: Structure object
+            edges: dict representing the bonds of the functional
+                group (format: {(from_index, to_index, from_image, to_image): props},
+                where props is a dictionary of properties, including weight.
+                Props should be None if no additional properties are to be
+                specified.
 
         Returns:
             sg, a StructureGraph
@@ -240,17 +251,18 @@ class StructureGraph(MSONable):
         return sg
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
+    def with_local_env_strategy(
+        structure: Structure, strategy: NearNeighbors, weights: bool = False, edge_properties: bool = False
+    ) -> StructureGraph:
         """
         Constructor for StructureGraph, using a strategy
         from pymatgen.analysis.local_env.
 
-        :param structure: Structure object
-        :param strategy: an instance of a
-            pymatgen.analysis.local_env.NearNeighbors object
-        :param weights: if True, use weights from local_env class
-            (consult relevant class for their meaning)
-        :param edge_properties: if True, edge_properties from neighbors will be used
+        Args:
+            structure: Structure object
+            strategy: an instance of a pymatgen.analysis.local_env.NearNeighbors object
+            weights(bool): if True, use weights from local_env class (consult relevant class for their meaning)
+            edge_properties(bool): if True, edge_properties from neighbors will be used
         """
         if not strategy.structures_allowed:
             raise ValueError("Chosen strategy is not designed for use with structures! Please choose another strategy.")
@@ -276,12 +288,12 @@ class StructureGraph(MSONable):
         return sg
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of graph"""
         return self.graph.graph["name"]
 
     @property
-    def edge_weight_name(self):
+    def edge_weight_name(self) -> str:
         """Name of the edge weight property of graph"""
         return self.graph.graph["edge_weight_name"]
 
@@ -292,14 +304,14 @@ class StructureGraph(MSONable):
 
     def add_edge(
         self,
-        from_index,
-        to_index,
-        from_jimage=(0, 0, 0),
-        to_jimage=None,
-        weight=None,
-        warn_duplicates=True,
-        edge_properties=None,
-    ):
+        from_index: int,
+        to_index: int,
+        from_jimage: tuple[int, int, int] = (0, 0, 0),
+        to_jimage: tuple[int, int, int] | None = None,
+        weight: float | None = None,
+        warn_duplicates: bool = True,
+        edge_properties: dict | None = None,
+    ) -> None:
         """
         Add edge to graph.
 
@@ -310,17 +322,18 @@ class StructureGraph(MSONable):
         However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
-        :param from_index: index of site connecting from
-        :param to_index: index of site connecting to
-        :param from_jimage (tuple of ints): lattice vector of periodic
-            image, e.g. (1, 0, 0) for periodic image in +x direction
-        :param to_jimage (tuple of ints): lattice vector of image
-        :param weight (float): e.g. bond length
-        :param warn_duplicates (bool): if True, will warn if
-            trying to add duplicate edges (duplicate edges will not
-            be added in either case)
-        :param edge_properties (dict): any other information to
-            store on graph edges, similar to Structure's site_properties
+        Args:
+            from_index: index of site connecting from
+            to_index: index of site connecting to
+            from_jimage (tuple of ints): lattice vector of periodic
+                image, e.g. (1, 0, 0) for periodic image in +x direction
+            to_jimage (tuple of ints): lattice vector of image
+            weight (float): e.g. bond length
+            warn_duplicates (bool): if True, will warn if
+                trying to add duplicate edges (duplicate edges will not
+                be added in either case)
+            edge_properties (dict): any other information to
+                store on graph edges, similar to Structure's site_properties
         """
         # this is not necessary for the class to work, but
         # just makes it neater
@@ -420,28 +433,29 @@ class StructureGraph(MSONable):
 
     def insert_node(
         self,
-        idx,
-        species,
-        coords,
-        coords_are_cartesian=False,
-        validate_proximity=False,
-        site_properties=None,
-        edges=None,
-    ):
+        idx: int,
+        species: Species,
+        coords: ArrayLike,
+        coords_are_cartesian: bool = False,
+        validate_proximity: bool = False,
+        site_properties: dict | None = None,
+        edges: list | dict | None = None,
+    ) -> None:
         """
         A wrapper around Molecule.insert(), which also incorporates the new
         site into the MoleculeGraph.
 
-        :param idx: Index at which to insert the new site
-        :param species: Species for the new site
-        :param coords: 3x1 array representing coordinates of the new site
-        :param coords_are_cartesian: Whether coordinates are cartesian.
-            Defaults to False.
-        :param validate_proximity: For Molecule.insert(); if True (default
-            False), distance will be checked to ensure that site can be safely
-            added.
-        :param site_properties: Site properties for Molecule
-        :param edges: List of dicts representing edges to be added to the
+        Args:
+            idx: Index at which to insert the new site
+            species: Species for the new site
+            coords: 3x1 array representing coordinates of the new site
+            coords_are_cartesian: Whether coordinates are cartesian.
+                Defaults to False.
+            validate_proximity: For Molecule.insert(); if True (default
+                False), distance will be checked to ensure that
+                site can be safely added.
+            site_properties: Site properties for Molecule
+            edges: List of dicts representing edges to be added to the
             MoleculeGraph. These edges must include the index of the new site i,
             and all indices used for these edges should reflect the
             MoleculeGraph AFTER the insertion, NOT before. Each dict should at
@@ -482,7 +496,7 @@ class StructureGraph(MSONable):
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
 
-    def set_node_attributes(self):
+    def set_node_attributes(self) -> None:
         """
         Gives each node a "specie" and a "coords" attribute, updated with the
         current species and coordinates.
@@ -501,27 +515,28 @@ class StructureGraph(MSONable):
 
     def alter_edge(
         self,
-        from_index,
-        to_index,
-        to_jimage=None,
-        new_weight=None,
-        new_edge_properties=None,
+        from_index: int,
+        to_index: int,
+        to_jimage: tuple | None = None,
+        new_weight: float | None = None,
+        new_edge_properties: dict | None = None,
     ):
         """
         Alters either the weight or the edge_properties of
         an edge in the StructureGraph.
 
-        :param from_index: int
-        :param to_index: int
-        :param to_jimage: tuple
-        :param new_weight: alter_edge does not require
-            that weight be altered. As such, by default, this
-            is None. If weight is to be changed, it should be a
-            float.
-        :param new_edge_properties: alter_edge does not require
-            that edge_properties be altered. As such, by default,
-            this is None. If any edge properties are to be changed,
-            it should be a dictionary of edge properties to be changed.
+        Args:
+            from_index: int
+            to_index: int
+            to_jimage: tuple
+            new_weight: alter_edge does not require
+                that weight be altered. As such, by default, this
+                is None. If weight is to be changed, it should be a
+                float.
+            new_edge_properties: alter_edge does not require
+                that edge_properties be altered. As such, by default,
+                this is None. If any edge properties are to be changed,
+                it should be a dictionary of edge properties to be changed.
         """
         existing_edges = self.graph.get_edge_data(from_index, to_index)
 
@@ -545,16 +560,19 @@ class StructureGraph(MSONable):
             for prop in list(new_edge_properties):
                 self.graph[from_index][to_index][edge_index][prop] = new_edge_properties[prop]
 
-    def break_edge(self, from_index, to_index, to_jimage=None, allow_reverse=False):
+    def break_edge(
+        self, from_index: int, to_index: int, to_jimage: tuple | None = None, allow_reverse: bool = False
+    ) -> None:
         """
         Remove an edge from the StructureGraph. If no image is given, this method will fail.
 
-        :param from_index: int
-        :param to_index: int
-        :param to_jimage: tuple
-        :param allow_reverse: If allow_reverse is True, then break_edge will
-            attempt to break both (from_index, to_index) and, failing that,
-            will attempt to break (to_index, from_index).
+        Args:
+            from_index: int
+            to_index: int
+            to_jimage: tuple
+            allow_reverse: If allow_reverse is True, then break_edge will
+                attempt to break both (from_index, to_index) and, failing that,
+                will attempt to break (to_index, from_index).
         """
         # ensure that edge exists before attempting to remove it
         existing_edges = self.graph.get_edge_data(from_index, to_index)
@@ -586,12 +604,13 @@ class StructureGraph(MSONable):
                     f"no edge exists between those sites."
                 )
 
-    def remove_nodes(self, indices):
+    def remove_nodes(self, indices: Sequence[int | None]) -> None:
         """
         A wrapper for Molecule.remove_sites().
 
-        :param indices: list of indices in the current Molecule (and graph) to
-            be removed.
+        Args:
+            indices: list of indices in the current Molecule (and graph) to
+                be removed.
         """
         self.structure.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
@@ -603,12 +622,12 @@ class StructureGraph(MSONable):
 
     def substitute_group(
         self,
-        index,
-        func_grp,
-        strategy,
-        bond_order=1,
-        graph_dict=None,
-        strategy_params=None,
+        index: int,
+        func_grp: Molecule | str,
+        strategy: Any,
+        bond_order: int = 1,
+        graph_dict: dict | None = None,
+        strategy_params: dict | None = None,
     ):
         """
         Builds off of Structure.substitute to replace an atom in self.structure
@@ -619,34 +638,34 @@ class StructureGraph(MSONable):
         substituted will not place atoms to close to each other, or violate the
         dimensions of the Lattice.
 
-        :param index: Index of atom to substitute.
-        :param func_grp: Substituent molecule. There are two options:
-
-            1. Providing an actual Molecule as the input. The first atom
-                must be a DummySpecies X, indicating the position of
-                nearest neighbor. The second atom must be the next
-                nearest atom. For example, for a methyl group
-                substitution, func_grp should be X-CH3, where X is the
-                first site and C is the second site. What the code will
-                do is to remove the index site, and connect the nearest
-                neighbor to the C atom in CH3. The X-C bond indicates the
-                directionality to connect the atoms.
-            2. A string name. The molecule will be obtained from the
-                relevant template in func_groups.json.
-        :param strategy: Class from pymatgen.analysis.local_env.
-        :param bond_order: A specified bond order to calculate the bond
-            length between the attached functional group and the nearest
-            neighbor site. Defaults to 1.
-        :param graph_dict: Dictionary representing the bonds of the functional
-            group (format: {(u, v): props}, where props is a dictionary of
-            properties, including weight. If None, then the algorithm
-            will attempt to automatically determine bonds using one of
-            a list of strategies defined in pymatgen.analysis.local_env.
-        :param strategy_params: dictionary of keyword arguments for strategy.
-            If None, default parameters will be used.
+        Args:
+            index: Index of atom to substitute.
+            func_grp: Substituent molecule. There are two options:
+                1. Providing an actual Molecule as the input. The first atom
+                    must be a DummySpecies X, indicating the position of
+                    nearest neighbor. The second atom must be the next
+                    nearest atom. For example, for a methyl group
+                    substitution, func_grp should be X-CH3, where X is the
+                    first site and C is the second site. What the code will
+                    do is to remove the index site, and connect the nearest
+                    neighbor to the C atom in CH3. The X-C bond indicates the
+                    directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                    relevant template in func_groups.json.
+            strategy: Class from pymatgen.analysis.local_env.
+            bond_order: A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+            graph_dict: Dictionary representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. If None, then the algorithm
+                will attempt to automatically determine bonds using one of
+                a list of strategies defined in pymatgen.analysis.local_env.
+            strategy_params: dictionary of keyword arguments for strategy.
+                If None, default parameters will be used.
         """
 
-        def map_indices(grp):
+        def map_indices(grp: Molecule) -> dict[int, int]:
             grp_map = {}
 
             # Get indices now occupied by functional group
@@ -706,15 +725,17 @@ class StructureGraph(MSONable):
                         warn_duplicates=False,
                     )
 
-    def get_connected_sites(self, n, jimage=(0, 0, 0)):
+    def get_connected_sites(self, n: int, jimage: tuple[int, int, int] = (0, 0, 0)) -> list[ConnectedSite]:
         """
         Returns a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
         in the original structure, weight can be
         None if not defined.
-        :param n: index of Site in Structure
-        :param jimage: lattice vector of site
+
+        Args:
+            n: index of Site in Structure
+            jimage: lattice vector of site
 
         Returns:
             list of ConnectedSite tuples,
@@ -739,6 +760,8 @@ class StructureGraph(MSONable):
             site = PeriodicSite.from_dict(site_d)
 
             # from_site if jimage arg != (0, 0, 0)
+            # TODO (@DanielYang59): distance should only take one arg
+            # DEBUG
             relative_jimage = np.subtract(to_jimage, jimage)
             dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
 
@@ -751,35 +774,38 @@ class StructureGraph(MSONable):
                 connected_site_images.add((v, to_jimage))
 
         # return list sorted by closest sites first
-        connected_sites = list(connected_sites)
-        connected_sites.sort(key=lambda x: x.dist)
+        _connected_sites = list(connected_sites)
+        _connected_sites.sort(key=lambda x: x.dist)
 
-        return connected_sites
+        return _connected_sites
 
-    def get_coordination_of_site(self, n):
+    def get_coordination_of_site(self, n: int) -> int:
         """
-        Returns the number of neighbors of site n.
-        In graph terms, simply returns degree
-        of node corresponding to site n.
-        :param n: index of site
-        :return (int):
+        Returns the number of neighbors of site n. In graph terms,
+        simply returns degree of node corresponding to site n.
+
+        Args:
+            n: index of site
+
+        Returns:
+            (int): number of neighbors of site n.
         """
         n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - n_self_loops
 
     def draw_graph_to_file(
         self,
-        filename="graph",
-        diff=None,
-        hide_unconnected_nodes=False,
-        hide_image_edges=True,
-        edge_colors=False,
-        node_labels=False,
-        weight_labels=False,
-        image_labels=False,
-        color_scheme="VESTA",
-        keep_dot=False,
-        algo="fdp",
+        filename: str = "graph",
+        diff: StructureGraph = None,
+        hide_unconnected_nodes: bool = False,
+        hide_image_edges: bool = True,
+        edge_colors: bool = False,
+        node_labels: bool = False,
+        weight_labels: bool = False,
+        image_labels: bool = False,
+        color_scheme: str = "VESTA",
+        keep_dot: bool = False,
+        algo: str = "fdp",
     ):
         """
         Draws graph using GraphViz.
@@ -793,31 +819,27 @@ class StructureGraph(MSONable):
         `hide_image_edges` can help, especially in larger
         graphs.
 
-        :param filename: filename to output, will detect filetype
-            from extension (any graphviz filetype supported, such as
-            pdf or png)
-        :param diff (StructureGraph): an additional graph to
-            compare with, will color edges red that do not exist in diff
-            and edges green that are in diff graph but not in the
-            reference graph
-        :param hide_unconnected_nodes: if True, hide unconnected
-            nodes
-        :param hide_image_edges: if True, do not draw edges that
-            go through periodic boundaries
-        :param edge_colors (bool): if True, use node colors to
-            color edges
-        :param node_labels (bool): if True, label nodes with
-            species and site index
-        :param weight_labels (bool): if True, label edges with
-            weights
-        :param image_labels (bool): if True, label edges with
-            their periodic images (usually only used for debugging,
-            edges to periodic images always appear as dashed lines)
-        :param color_scheme (str): "VESTA" or "JMOL"
-        :param keep_dot (bool): keep GraphViz .dot file for later
-            visualization
-        :param algo: any graphviz algo, "neato" (for simple graphs)
-            or "fdp" (for more crowded graphs) usually give good outputs
+        Args:
+            filename: filename to output, will detect filetype
+                from extension (any graphviz filetype supported, such as
+                pdf or png)
+            diff (StructureGraph): an additional graph to
+                compare with, will color edges red that do not exist in diff
+                and edges green that are in diff graph but not in the
+                reference graph
+            hide_unconnected_nodes: if True, hide unconnected nodes
+            hide_image_edges: if True, do not draw edges that
+                go through periodic boundaries
+            edge_colors (bool): if True, use node colors to color edges
+            node_labels (bool): if True, label nodes with species and site index
+            weight_labels (bool): if True, label edges with weights
+            image_labels (bool): if True, label edges with
+                their periodic images (usually only used for debugging,
+                edges to periodic images always appear as dashed lines)
+            color_scheme (str): "VESTA" or "JMOL"
+            keep_dot (bool): keep GraphViz .dot file for later visualization
+            algo: any graphviz algo, "neato" (for simple graphs)
+                or "fdp" (for more crowded graphs) usually give good outputs
         """
         if not which(algo):
             raise RuntimeError("StructureGraph graph drawing requires GraphViz binaries to be in the path.")
@@ -907,14 +929,14 @@ class StructureGraph(MSONable):
 
         # optionally highlight differences with another graph
         if diff:
-            diff = self.diff(diff, strict=True)
+            _diff = self.diff(diff, strict=True)
             green_edges = []
             red_edges = []
             for u, v, k, d in g.edges(keys=True, data=True):
-                if (u, v, d["to_jimage"]) in diff["self"]:
+                if (u, v, d["to_jimage"]) in _diff["self"]:
                     # edge has been deleted
                     red_edges.append((u, v, k))
-                elif (u, v, d["to_jimage"]) in diff["other"]:
+                elif (u, v, d["to_jimage"]) in _diff["other"]:
                     # edge has been added
                     green_edges.append((u, v, k))
             for u, v, k in green_edges:
@@ -938,7 +960,7 @@ class StructureGraph(MSONable):
             os.remove(f"{basename}.dot")
 
     @property
-    def types_and_weights_of_connections(self):
+    def types_and_weights_of_connections(self) -> dict:
         """
         Extract a dictionary summarizing the types and weights
         of edges in the graph.
@@ -963,7 +985,7 @@ class StructureGraph(MSONable):
         return dict(types)
 
     @property
-    def weight_statistics(self):
+    def weight_statistics(self) -> dict:
         """
         Extract a statistical summary of edge weights present in
         the graph.
@@ -983,17 +1005,16 @@ class StructureGraph(MSONable):
             "variance": stats.variance,
         }
 
-    def types_of_coordination_environments(self, anonymous=False):
+    def types_of_coordination_environments(self, anonymous: bool = False) -> set[str]:
         """
         Extract information on the different co-ordination environments
         present in the graph.
 
-        :param anonymous: if anonymous, will replace specie names
-            with A, B, C, etc.
+        Args:
+            anonymous: if anonymous, will replace specie names with A, B, C, etc.
 
         Returns:
-            a list of co-ordination environments,
-            e.g. ['Mo-S(6)', 'S-Mo(3)']
+            Set of coordination environments, e.g. {'Mo-S(6)', 'S-Mo(3)'}
         """
         motifs = set()
         for idx, site in enumerate(self.structure):
@@ -1002,30 +1023,30 @@ class StructureGraph(MSONable):
             connected_sites = self.get_connected_sites(idx)
             connected_species = [connected_site.site.species_string for connected_site in connected_sites]
 
-            labels = []
+            sp_counts = []
             for sp in set(connected_species):
                 count = connected_species.count(sp)
-                labels.append((count, sp))
+                sp_counts.append((count, sp))
 
-            labels = sorted(labels, reverse=True)
+            sp_counts = sorted(sp_counts, reverse=True)
 
             if anonymous:
                 mapping = {centre_sp: "A"}
                 available_letters = [chr(66 + idx) for idx in range(25)]
-                for label in labels:
+                for label in sp_counts:
                     sp = label[1]
                     if sp not in mapping:
                         mapping[sp] = available_letters.pop(0)
                 centre_sp = "A"
-                labels = [(label[0], mapping[label[1]]) for label in labels]
+                sp_counts = [(label[0], mapping[label[1]]) for label in sp_counts]
 
-            labels = [f"{label[1]}({label[0]})" for label in labels]
+            labels = [f"{label[1]}({label[0]})" for label in sp_counts]
             motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
-        return sorted(motifs)
+        return set(motifs)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         As in pymatgen.core.Structure except
         with using `to_dict_of_dicts` from NetworkX
@@ -1039,7 +1060,7 @@ class StructureGraph(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> Self:
         """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """
@@ -1055,7 +1076,9 @@ class StructureGraph(MSONable):
         graph could also be done on the original
         graph, but a larger graph can be easier to
         visualize and reason about.
-        :param scaling_matrix: same as Structure.__mul__
+
+        Args:
+            scaling_matrix: same as Structure.__mul__
         """
         # Developer note: a different approach was also trialed, using
         # a simple Graph (instead of MultiDiGraph), with node indices
@@ -1299,7 +1322,7 @@ class StructureGraph(MSONable):
         """length of Structure / number of nodes in graph"""
         return len(self.structure)
 
-    def sort(self, key=None, reverse=False):
+    def sort(self, key=None, reverse: bool = False) -> None:
         """Same as Structure.sort(). Also remaps nodes in graph.
 
         Args:
@@ -1340,8 +1363,8 @@ class StructureGraph(MSONable):
         and have the same edges between Sites. Edge weights can be
         different and StructureGraphs can still be considered equal.
 
-        :param other: StructureGraph
-        :return (bool):
+        Args:
+            other: StructureGraph
         """
         if not isinstance(other, StructureGraph):
             return NotImplemented
@@ -1357,7 +1380,7 @@ class StructureGraph(MSONable):
 
         return (edges == edges_other) and (self.structure == other_sorted.structure)
 
-    def diff(self, other, strict=True):
+    def diff(self, other: StructureGraph, strict: bool = True) -> dict:
         """
         Compares two StructureGraphs. Returns dict with
         keys 'self', 'other', 'both' with edges that are
@@ -1377,14 +1400,15 @@ class StructureGraph(MSONable):
         same if the underlying Structures are ordered
         differently.
 
-        :param other: StructureGraph
-        :param strict: if False, will compare bonds
-            from different Structures, with node indices
-            replaced by Species strings, will not count
-            number of occurrences of bonds
+        Args:
+            other: StructureGraph
+            strict: if False, will compare bonds
+                from different Structures, with node indices
+                replaced by Species strings, will not count
+                number of occurrences of bonds
         """
         if self.structure != other.structure and strict:
-            return ValueError("Meaningless to compare StructureGraphs if corresponding Structures are different.")
+            raise ValueError("Meaningless to compare StructureGraphs if corresponding Structures are different.")
 
         if strict:
             # sort for consistent node indices
@@ -1409,9 +1433,9 @@ class StructureGraph(MSONable):
             }
 
         if len(edges) == 0 and len(edges_other) == 0:
-            jaccard_dist = 0  # by definition
+            jaccard_dist = 0.0  # by definition
         else:
-            jaccard_dist = 1 - len(edges & edges_other) / len(edges | edges_other)
+            jaccard_dist = 1.0 - len(edges & edges_other) / len(edges | edges_other)
 
         return {
             "self": edges - edges_other,
@@ -1420,7 +1444,7 @@ class StructureGraph(MSONable):
             "dist": jaccard_dist,
         }
 
-    def get_subgraphs_as_molecules(self, use_weights=False):
+    def get_subgraphs_as_molecules(self, use_weights: bool = False) -> list[Molecule]:
         """
         Retrieve subgraphs as molecules, useful for extracting
         molecules from periodic crystals.
@@ -1429,12 +1453,13 @@ class StructureGraph(MSONable):
         present in the crystal (a duplicate defined as an
         isomorphic subgraph).
 
-        :param use_weights (bool): If True, only treat subgraphs
-            as isomorphic if edges have the same weights. Typically,
-            this means molecules will need to have the same bond
-            lengths to be defined as duplicates, otherwise bond
-            lengths can differ. This is a fairly robust approach,
-            but will treat e.g. enantiomers as being duplicates.
+        Args:
+            use_weights (bool): If True, only treat subgraphs
+                as isomorphic if edges have the same weights. Typically,
+                this means molecules will need to have the same bond
+                lengths to be defined as duplicates, otherwise bond
+                lengths can differ. This is a fairly robust approach,
+                but will treat e.g. enantiomers as being duplicates.
 
         Returns:
             list of unique Molecules in Structure
@@ -1474,7 +1499,7 @@ class StructureGraph(MSONable):
             return True
 
         # prune duplicate subgraphs
-        unique_subgraphs = []
+        unique_subgraphs: list = []
         for subgraph in molecule_subgraphs:
             already_present = [
                 nx.is_isomorphic(subgraph, g, node_match=node_match, edge_match=edge_match) for g in unique_subgraphs
@@ -1531,11 +1556,12 @@ class MoleculeGraph(MSONable):
         Use cases for this include storing bonding information,
         NMR J-couplings, Heisenberg exchange parameters, etc.
 
-        :param molecule: Molecule object
+        Args:
+            molecule: Molecule object
 
-        :param graph_data: dict containing graph information in
-            dict format (not intended to be constructed manually,
-            see as_dict method for format)
+            graph_data: dict containing graph information in
+                dict format (not intended to be constructed manually,
+                see as_dict method for format)
         """
         if isinstance(molecule, MoleculeGraph):
             # just make a copy from input
@@ -1560,19 +1586,22 @@ class MoleculeGraph(MSONable):
         self.set_node_attributes()
 
     @classmethod
-    def with_empty_graph(cls, molecule, name="bonds", edge_weight_name=None, edge_weight_units=None):
+    def with_empty_graph(cls, molecule, name="bonds", edge_weight_name=None, edge_weight_units=None) -> Self:
         """
         Constructor for MoleculeGraph, returns a MoleculeGraph
         object with an empty graph (no edges, only nodes defined
         that correspond to Sites in Molecule).
 
-        :param molecule (Molecule):
-        :param name (str): name of graph, e.g. "bonds"
-        :param edge_weight_name (str): name of edge weights,
-            e.g. "bond_length" or "exchange_constant"
-        :param edge_weight_units (str): name of edge weight units
+        Args:
+            molecule (Molecule):
+            name (str): name of graph, e.g. "bonds"
+            edge_weight_name (str): name of edge weights,
+                e.g. "bond_length" or "exchange_constant"
+            edge_weight_units (str): name of edge weight units
             e.g. "Å" or "eV"
-        :return (MoleculeGraph):
+
+        Returns:
+            MoleculeGraph
         """
         if edge_weight_name and (edge_weight_units is None):
             raise ValueError(
@@ -1602,11 +1631,12 @@ class MoleculeGraph(MSONable):
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
 
-        :param molecule: Molecule object
-        :param edges: dict representing the bonds of the functional
-            group (format: {(u, v): props}, where props is a dictionary of
-            properties, including weight. Props should be None if no
-            additional properties are to be specified.
+        Args:
+            molecule: Molecule object
+            edges: dict representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. Props should be None if no
+                additional properties are to be specified.
 
         Returns:
             A MoleculeGraph
@@ -1640,14 +1670,14 @@ class MoleculeGraph(MSONable):
         return mg
 
     @staticmethod
-    def with_local_env_strategy(molecule, strategy):
+    def with_local_env_strategy(molecule, strategy) -> MoleculeGraph:
         """
         Constructor for MoleculeGraph, using a strategy
         from pymatgen.analysis.local_env.
 
-        :param molecule: Molecule object
-        :param strategy: an instance of a
-            pymatgen.analysis.local_env.NearNeighbors object
+            molecule: Molecule object
+            strategy: an instance of a
+                pymatgen.analysis.local_env.NearNeighbors object
 
         Returns:
             mg, a MoleculeGraph
@@ -1737,14 +1767,15 @@ class MoleculeGraph(MSONable):
         However, images will always be shifted so that
         from_index < to_index and from_jimage becomes (0, 0, 0).
 
-        :param from_index: index of site connecting from
-        :param to_index: index of site connecting to
-        :param weight (float): e.g. bond length
-        :param warn_duplicates (bool): if True, will warn if
-            trying to add duplicate edges (duplicate edges will not
-            be added in either case)
-        :param edge_properties (dict): any other information to
-            store on graph edges, similar to Structure's site_properties
+        Args:
+            from_index: index of site connecting from
+            to_index: index of site connecting to
+            weight (float): e.g. bond length
+            warn_duplicates (bool): if True, will warn if
+                trying to add duplicate edges (duplicate edges will not
+                be added in either case)
+            edge_properties (dict): any other information to
+                store on graph edges, similar to Structure's site_properties
         """
         # this is not necessary for the class to work, but
         # just makes it neater
@@ -1784,19 +1815,20 @@ class MoleculeGraph(MSONable):
         A wrapper around Molecule.insert(), which also incorporates the new
         site into the MoleculeGraph.
 
-        :param idx: Index at which to insert the new site
-        :param species: Species for the new site
-        :param coords: 3x1 array representing coordinates of the new site
-        :param validate_proximity: For Molecule.insert(); if True (default
-            False), distance will be checked to ensure that site can be safely
-            added.
-        :param site_properties: Site properties for Molecule
-        :param edges: List of dicts representing edges to be added to the
-            MoleculeGraph. These edges must include the index of the new site i,
-            and all indices used for these edges should reflect the
-            MoleculeGraph AFTER the insertion, NOT before. Each dict should at
-            least have a "to_index" and "from_index" key, and can also have a
-            "weight" and a "properties" key.
+        Args:
+            idx: Index at which to insert the new site
+            species: Species for the new site
+            coords: 3x1 array representing coordinates of the new site
+            validate_proximity: For Molecule.insert(); if True (default
+                False), distance will be checked to ensure that site can be safely
+                added.
+            site_properties: Site properties for Molecule
+            edges: List of dicts representing edges to be added to the
+                MoleculeGraph. These edges must include the index of the new site i,
+                and all indices used for these edges should reflect the
+                MoleculeGraph AFTER the insertion, NOT before. Each dict should at
+                least have a "to_index" and "from_index" key, and can also have a
+                "weight" and a "properties" key.
         """
         self.molecule.insert(
             idx,
@@ -1851,16 +1883,17 @@ class MoleculeGraph(MSONable):
         Alters either the weight or the edge_properties of
         an edge in the MoleculeGraph.
 
-        :param from_index: int
-        :param to_index: int
-        :param new_weight: alter_edge does not require
-            that weight be altered. As such, by default, this
-            is None. If weight is to be changed, it should be a
-            float.
-        :param new_edge_properties: alter_edge does not require
-            that edge_properties be altered. As such, by default,
-            this is None. If any edge properties are to be changed,
-            it should be a dictionary of edge properties to be changed.
+        Args:
+            from_index: int
+            to_index: int
+            new_weight: alter_edge does not require
+                that weight be altered. As such, by default, this
+                is None. If weight is to be changed, it should be a
+                float.
+            new_edge_properties: alter_edge does not require
+                that edge_properties be altered. As such, by default,
+                this is None. If any edge properties are to be changed,
+                it should be a dictionary of edge properties to be changed.
         """
         existing_edge = self.graph.get_edge_data(from_index, to_index)
 
@@ -1882,11 +1915,12 @@ class MoleculeGraph(MSONable):
         """
         Remove an edge from the MoleculeGraph.
 
-        :param from_index: int
-        :param to_index: int
-        :param allow_reverse: If allow_reverse is True, then break_edge will
-            attempt to break both (from_index, to_index) and, failing that,
-            will attempt to break (to_index, from_index).
+        Args:
+            from_index: int
+            to_index: int
+            allow_reverse: If allow_reverse is True, then break_edge will
+                attempt to break both (from_index, to_index) and, failing that,
+                will attempt to break (to_index, from_index).
         """
         # ensure that edge exists before attempting to remove it
         existing_edge = self.graph.get_edge_data(from_index, to_index)
@@ -1907,12 +1941,12 @@ class MoleculeGraph(MSONable):
                     f"no edge exists between those sites."
                 )
 
-    def remove_nodes(self, indices):
+    def remove_nodes(self, indices: list[int]) -> None:
         """
         A wrapper for Molecule.remove_sites().
 
-        :param indices: list of indices in the current Molecule (and graph) to
-            be removed.
+        Args:
+            indices: indices in the current Molecule (and graph) to be removed.
         """
         self.molecule.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
@@ -2010,14 +2044,16 @@ class MoleculeGraph(MSONable):
         NOTE: This function does not modify the original
         MoleculeGraph. It creates a copy, modifies that, and
         returns two or more new MoleculeGraph objects.
-        :param bonds: list of tuples (from_index, to_index)
-            representing bonds to be broken to split the MoleculeGraph.
-        :param alterations: a dict {(from_index, to_index): alt},
-            where alt is a dictionary including weight and/or edge
-            properties to be changed following the split.
-        :param allow_reverse: If allow_reverse is True, then break_edge will
-            attempt to break both (from_index, to_index) and, failing that,
-            will attempt to break (to_index, from_index).
+
+        Args:
+            bonds: list of tuples (from_index, to_index)
+                representing bonds to be broken to split the MoleculeGraph.
+            alterations: a dict {(from_index, to_index): alt},
+                where alt is a dictionary including weight and/or edge
+                properties to be changed following the split.
+            allow_reverse: If allow_reverse is True, then break_edge will
+                attempt to break both (from_index, to_index) and, failing that,
+                will attempt to break (to_index, from_index).
 
         Returns:
             list of MoleculeGraphs.
@@ -2129,31 +2165,31 @@ class MoleculeGraph(MSONable):
         NOTE: using a MoleculeGraph will generally produce a different graph
         compared with using a Molecule or str (when not using graph_dict).
 
-        :param index: Index of atom to substitute.
-        :param func_grp: Substituent molecule. There are three options:
-
-            1. Providing an actual molecule as the input. The first atom
-                must be a DummySpecies X, indicating the position of
-                nearest neighbor. The second atom must be the next
-                nearest atom. For example, for a methyl group
-                substitution, func_grp should be X-CH3, where X is the
-                first site and C is the second site. What the code will
-                do is to remove the index site, and connect the nearest
-                neighbor to the C atom in CH3. The X-C bond indicates the
-                directionality to connect the atoms.
-            2. A string name. The molecule will be obtained from the
-                relevant template in func_groups.json.
-            3. A MoleculeGraph object.
-        :param strategy: Class from pymatgen.analysis.local_env.
-        :param bond_order: A specified bond order to calculate the bond
+        Args:
+            index: Index of atom to substitute.
+            func_grp: Substituent molecule. There are three options:
+                1. Providing an actual molecule as the input. The first atom
+                    must be a DummySpecies X, indicating the position of
+                    nearest neighbor. The second atom must be the next
+                    nearest atom. For example, for a methyl group
+                    substitution, func_grp should be X-CH3, where X is the
+                    first site and C is the second site. What the code will
+                    do is to remove the index site, and connect the nearest
+                    neighbor to the C atom in CH3. The X-C bond indicates the
+                    directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                    relevant template in func_groups.json.
+                3. A MoleculeGraph object.
+            strategy: Class from pymatgen.analysis.local_env.
+            bond_order: A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
-        :param graph_dict: Dictionary representing the bonds of the functional
+            graph_dict: Dictionary representing the bonds of the functional
                 group (format: {(u, v): props}, where props is a dictionary of
                 properties, including weight. If None, then the algorithm
                 will attempt to automatically determine bonds using one of
                 a list of strategies defined in pymatgen.analysis.local_env.
-        :param strategy_params: dictionary of keyword arguments for strategy.
+            strategy_params: dictionary of keyword arguments for strategy.
                 If None, default parameters will be used.
         """
 
@@ -2243,32 +2279,32 @@ class MoleculeGraph(MSONable):
 
         TODO: Figure out how to replace into a ring structure.
 
-        :param index: Index of atom to substitute.
-        :param func_grp: Substituent molecule. There are three options:
-
-            1. Providing an actual molecule as the input. The first atom
-               must be a DummySpecies X, indicating the position of
-               nearest neighbor. The second atom must be the next
-               nearest atom. For example, for a methyl group
-               substitution, func_grp should be X-CH3, where X is the
-               first site and C is the second site. What the code will
-               do is to remove the index site, and connect the nearest
-               neighbor to the C atom in CH3. The X-C bond indicates the
-               directionality to connect the atoms.
-            2. A string name. The molecule will be obtained from the
-               relevant template in func_groups.json.
-            3. A MoleculeGraph object.
-        :param strategy: Class from pymatgen.analysis.local_env.
-        :param bond_order: A specified bond order to calculate the bond
-            length between the attached functional group and the nearest
-            neighbor site. Defaults to 1.
-        :param graph_dict: Dictionary representing the bonds of the functional
-            group (format: {(u, v): props}, where props is a dictionary of
-            properties, including weight. If None, then the algorithm
-            will attempt to automatically determine bonds using one of
-            a list of strategies defined in pymatgen.analysis.local_env.
-        :param strategy_params: dictionary of keyword arguments for strategy.
-            If None, default parameters will be used.
+        Args:
+            index: Index of atom to substitute.
+            func_grp: Substituent molecule. There are three options:
+                1. Providing an actual molecule as the input. The first atom
+                must be a DummySpecies X, indicating the position of
+                nearest neighbor. The second atom must be the next
+                nearest atom. For example, for a methyl group
+                substitution, func_grp should be X-CH3, where X is the
+                first site and C is the second site. What the code will
+                do is to remove the index site, and connect the nearest
+                neighbor to the C atom in CH3. The X-C bond indicates the
+                directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                relevant template in func_groups.json.
+                3. A MoleculeGraph object.
+            strategy: Class from pymatgen.analysis.local_env.
+            bond_order: A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+            graph_dict: Dictionary representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. If None, then the algorithm
+                will attempt to automatically determine bonds using one of
+                a list of strategies defined in pymatgen.analysis.local_env.
+            strategy_params: dictionary of keyword arguments for strategy.
+                If None, default parameters will be used.
         """
         self.set_node_attributes()
         neighbors = self.get_connected_sites(index)
@@ -2369,8 +2405,9 @@ class MoleculeGraph(MSONable):
         Index is the index of the corresponding site
         in the original structure, weight can be
         None if not defined.
-        :param n: index of Site in Molecule
-        :param jimage: lattice vector of site
+        Args:
+            n: index of Site in Molecule
+            jimage: lattice vector of site
 
         Returns:
             list of ConnectedSite tuples,
@@ -2403,13 +2440,17 @@ class MoleculeGraph(MSONable):
 
         return connected_sites
 
-    def get_coordination_of_site(self, n):
+    def get_coordination_of_site(self, n) -> int:
         """
         Returns the number of neighbors of site n.
         In graph terms, simply returns degree
         of node corresponding to site n.
-        :param n: index of site
-        :return (int):
+
+        Args:
+            n: index of site
+
+        Returns:
+            (int): the number of neighbors of site n.
         """
         n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - n_self_loops
@@ -2440,31 +2481,28 @@ class MoleculeGraph(MSONable):
         `hide_image_edges` can help, especially in larger
         graphs.
 
-        :param filename: filename to output, will detect filetype
-            from extension (any graphviz filetype supported, such as
-            pdf or png)
-        :param diff (StructureGraph): an additional graph to
-            compare with, will color edges red that do not exist in diff
-            and edges green that are in diff graph but not in the
-            reference graph
-        :param hide_unconnected_nodes: if True, hide unconnected
-            nodes
-        :param hide_image_edges: if True, do not draw edges that
-            go through periodic boundaries
-        :param edge_colors (bool): if True, use node colors to
-            color edges
-        :param node_labels (bool): if True, label nodes with
-            species and site index
-        :param weight_labels (bool): if True, label edges with
-            weights
-        :param image_labels (bool): if True, label edges with
-            their periodic images (usually only used for debugging,
-            edges to periodic images always appear as dashed lines)
-        :param color_scheme (str): "VESTA" or "JMOL"
-        :param keep_dot (bool): keep GraphViz .dot file for later
-            visualization
-        :param algo: any graphviz algo, "neato" (for simple graphs)
-            or "fdp" (for more crowded graphs) usually give good outputs
+        Args:
+            filename: filename to output, will detect filetype
+                from extension (any graphviz filetype supported, such as
+                pdf or png)
+            diff (StructureGraph): an additional graph to
+                compare with, will color edges red that do not exist in diff
+                and edges green that are in diff graph but not in the
+                reference graph
+            hide_unconnected_nodes: if True, hide unconnected nodes
+            hide_image_edges: if True, do not draw edges that
+                go through periodic boundaries
+            edge_colors (bool): if True, use node colors to color edges
+            node_labels (bool): if True, label nodes with
+                species and site index
+            weight_labels (bool): if True, label edges with weights
+            image_labels (bool): if True, label edges with
+                their periodic images (usually only used for debugging,
+                edges to periodic images always appear as dashed lines)
+            color_scheme (str): "VESTA" or "JMOL"
+            keep_dot (bool): keep GraphViz .dot file for later visualization
+            algo: any graphviz algo, "neato" (for simple graphs)
+                or "fdp" (for more crowded graphs) usually give good outputs
         """
         if not which(algo):
             raise RuntimeError("StructureGraph graph drawing requires GraphViz binaries to be in the path.")
@@ -2695,9 +2733,6 @@ class MoleculeGraph(MSONable):
         Two MoleculeGraphs are equal if they have equal Molecules,
         and have the same edges between Sites. Edge weights can be
         different and MoleculeGraphs can still be considered equal.
-
-        :param other: MoleculeGraph
-        :return (bool):
         """
         if not isinstance(other, type(self)):
             return NotImplemented
@@ -2717,13 +2752,14 @@ class MoleculeGraph(MSONable):
 
         return (edges == edges_other) and (self.molecule == other_sorted.molecule)
 
-    def isomorphic_to(self, other):
+    def isomorphic_to(self, other: MoleculeGraph) -> bool:
         """
         Checks if the graphs of two MoleculeGraphs are isomorphic to one
         another. In order to prevent problems with misdirected edges, both
         graphs are converted into undirected nx.Graph objects.
 
-        :param other: MoleculeGraph object to be compared.
+        Args:
+            other: MoleculeGraph object to be compared.
 
         Returns:
             bool
@@ -2756,11 +2792,11 @@ class MoleculeGraph(MSONable):
         same if the underlying Molecules are ordered
         differently.
 
-        :param other: MoleculeGraph
-        :param strict: if False, will compare bonds
-            from different Molecules, with node indices
-            replaced by Species strings, will not count
-            number of occurrences of bonds
+        Args:
+            other: MoleculeGraph
+            strict: if False, will compare bonds
+                from different Molecules, with node indices replaced by Species
+                strings, will not count number of occurrences of bonds
         """
         if self.molecule != other.molecule and strict:
             return ValueError("Meaningless to compare MoleculeGraphs if corresponding Molecules are different.")
