@@ -58,11 +58,10 @@ logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
-    """Dummy class to hold information a Slab. Implements additional
+    """Dummy class to hold information for a Slab, with additional
     attributes pertaining to slabs, but the init method does not
-    actually implement any algorithm that creates a slab. Also has
-    additional methods that returns other information
-    about a slab such as the surface area, normal, and atom adsorption.
+    actually create a slab. Also has additional methods that returns other information
+    about a Slab such as the surface area, normal, and atom adsorption.
 
     Note that all Slabs have the surface normal oriented perpendicular to the a
     and b lattice vectors. This means the lattice vectors a and b are in the
@@ -70,8 +69,8 @@ class Slab(Structure):
     necessarily perpendicular to the surface).
 
     Attributes:
-        miller_index (tuple): Miller index of plane parallel to surface.
-        scale_factor (np.ndarray): Final computed scale factor that brings the parent cell to the surface cell.
+        miller_index (tuple): Miller index of the plane parallel to surface.
+        scale_factor (np.ndarray): Scale factor that brings the source cell to the surface cell.
         shift (float): The shift value in Angstrom that indicates how much this slab has been shifted.
     """
 
@@ -92,8 +91,8 @@ class Slab(Structure):
         site_properties: dict | None = None,
         energy: float | None = None,
     ) -> None:
-        """Makes a Slab structure, a structure object with additional information
-        and methods pertaining to slabs.
+        """A structure object with additional information
+        and methods pertaining to Slabs.
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
