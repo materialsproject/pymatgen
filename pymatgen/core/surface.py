@@ -1607,7 +1607,7 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(gcd, miller))
         miller = tuple(int(idx / denom) for idx in miller)
-        if not is_already_analyzed(miller, unique_millers, symm_ops):
+        if not _is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
