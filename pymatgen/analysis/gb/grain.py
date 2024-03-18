@@ -1236,9 +1236,7 @@ class GrainBoundaryGenerator:
             if all(np.round(x, 5).is_integer() for x in list(check_int)):
                 n_final = idx
                 break
-        try:
-            n_final  # noqa: B018
-        except NameError:
+        if "n_final" not in locals():
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[kk, ll] = n_final
         # each row of mat_csl is the CSL lattice vector
@@ -1291,7 +1289,7 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                 Note: the angles are the rotation angles of one grain respect to
                 the other grain.
-                When generate the microstructures of the grain boundary using these angles,
+                When generating the microstructures of the grain boundary using these angles,
                 you need to analyze the symmetry of the structure. Different angles may
                 result in equivalent microstructures.
         """
@@ -1369,7 +1367,7 @@ class GrainBoundaryGenerator:
                     {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                     Note: the angles are the rotation angle of one grain respect to the
                     other grain.
-                    When generate the microstructure of the grain boundary using these
+                    When generating the microstructure of the grain boundary using these
                     angles, you need to analyze the symmetry of the structure. Different
                     angles may result in equivalent microstructures.
         """
@@ -1484,7 +1482,7 @@ class GrainBoundaryGenerator:
                     {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                     Note: the angles are the rotation angle of one grain respect to the
                     other grain.
-                    When generate the microstructure of the grain boundary using these
+                    When generating the microstructure of the grain boundary using these
                     angles, you need to analyze the symmetry of the structure. Different
                     angles may result in equivalent microstructures.
         """
@@ -1610,7 +1608,7 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                 Note: the angles are the rotation angle of one grain respect to the
                 other grain.
-                When generate the microstructure of the grain boundary using these
+                When generating the microstructure of the grain boundary using these
                 angles, you need to analyze the symmetry of the structure. Different
                 angles may result in equivalent microstructures.
         """
@@ -1712,7 +1710,7 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                 Note: the angles are the rotation angle of one grain respect to the
                 other grain.
-                When generate the microstructure of the grain boundary using these
+                When generating the microstructure of the grain boundary using these
                 angles, you need to analyze the symmetry of the structure. Different
                 angles may result in equivalent microstructures.
         """

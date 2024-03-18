@@ -149,8 +149,8 @@ class TestStructureMatcher(PymatgenTest):
             [True, False, True, False],
             [True, True, False, True],
         ]
-        m, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
+        assert np.all(mask == result)
         assert idx == 2
         assert inds == [2]
 
@@ -160,10 +160,10 @@ class TestStructureMatcher(PymatgenTest):
             [1, 1, 0, 0, 1, 1, 0, 0],
             [1, 1, 1, 1, 0, 0, 1, 1],
         ]
-        m, inds, idx = sm._get_mask(s1, s2, 2, s1_supercell=True)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s1, s2, 2, s1_supercell=True)
+        assert np.all(mask == result)
         assert idx == 2
-        assert_allclose(inds, np.array([4]))
+        assert list(inds) == [4]
 
         # test supercell without match
         result = [
@@ -172,10 +172,10 @@ class TestStructureMatcher(PymatgenTest):
             [1, 1, 1, 1, 0, 0],
             [0, 0, 0, 0, 1, 1],
         ]
-        m, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=True)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=True)
+        assert np.all(mask == result)
         assert idx == 0
-        assert_allclose(inds, np.array([]))
+        assert list(inds) == []
 
         # test s2_supercell
         result = [
@@ -188,20 +188,20 @@ class TestStructureMatcher(PymatgenTest):
             [0, 0, 1],
             [0, 0, 1],
         ]
-        m, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=False)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=False)
+        assert np.all(mask == result)
         assert idx == 0
-        assert_allclose(inds, np.array([]))
+        assert list(inds) == []
 
         # test for multiple translation indices
         s1 = Structure(latt, ["Cu", "Ag", "Cu", "Ag", "Ag"], [[0] * 3] * 5)
         s2 = Structure(latt, ["Ag", "Cu", "Ag"], [[0] * 3] * 3)
         result = [[1, 0, 1, 0, 0], [0, 1, 0, 1, 1], [1, 0, 1, 0, 0]]
-        m, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
+        mask, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
 
-        assert np.all(m == result)
+        assert np.all(mask == result)
         assert idx == 1
-        assert_allclose(inds, [0, 2])
+        assert list(inds) == [0, 2]
 
     def test_get_supercells(self):
         sm = StructureMatcher(comparator=ElementComparator())

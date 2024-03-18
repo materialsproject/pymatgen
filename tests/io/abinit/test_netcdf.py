@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
@@ -26,7 +24,7 @@ class TestEtsfReader(PymatgenTest):
         for formula in formulas:
             dct[formula] = f"{TEST_DIR}/{formula}_GSR.nc"
 
-    @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
+    @pytest.mark.skipif(netCDF4 is None, reason="Requires Netcdf4")
     def test_read_si2(self):
         path = self.GSR_paths["Si2"]
 

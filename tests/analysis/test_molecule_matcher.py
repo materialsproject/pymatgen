@@ -146,7 +146,7 @@ def generate_Si2O_cluster():
     XYZ(mol2).write_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
 
 
-@unittest.skipIf(ob_align_missing, "OBAlign is missing, Skipping")
+@pytest.mark.skipif(ob_align_missing, reason="OBAlign is missing, Skipping")
 class TestMoleculeMatcher(unittest.TestCase):
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())

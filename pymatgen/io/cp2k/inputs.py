@@ -18,7 +18,6 @@ A quick overview of the module:
    calculation input.
 -- The rest of the classes are children of Section intended to make initialization of common
    sections easier.
-
 """
 
 from __future__ import annotations
@@ -35,6 +34,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -324,7 +324,7 @@ class Section(MSONable):
             return r
         raise KeyError
 
-    def __add__(self, other):
+    def __add__(self, other) -> Section:
         if isinstance(other, (Keyword, KeywordList)):
             if other.name in self.keywords:
                 self.keywords[other.name] += other
@@ -334,6 +334,8 @@ class Section(MSONable):
             self.insert(other)
         else:
             TypeError("Can only add sections or keywords.")
+
+        return self
 
     def __setitem__(self, key, value):
         self.setitem(key, value)
@@ -380,10 +382,11 @@ class Section(MSONable):
 
     def add(self, other):
         """Add another keyword to the current section."""
-        assert isinstance(other, (Keyword, KeywordList))
-        self + other
+        if not isinstance(other, (Keyword, KeywordList)):
+            raise TypeError(f"Can only add keywords, not {type(other).__name__}")
+        return self + other
 
-    def get(self, d, default=None):
+    def get(self, dct, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
         section or keyword matching d. Will not raise an error if d does not exist.
@@ -392,10 +395,10 @@ class Section(MSONable):
             d: the key to retrieve, if present
             default: what to return if d is not found
         """
-        kw = self.get_keyword(d)
+        kw = self.get_keyword(dct)
         if kw:
             return kw
-        sec = self.get_section(d)
+        sec = self.get_section(dct)
         if sec:
             return sec
         return default
@@ -747,22 +750,18 @@ class Cp2kInput(Section):
                     else subsection_params
                 )
                 alias = f"{name} {' '.join(subsection_params)}" if subsection_params else None
-                s = Section(
-                    name,
-                    section_parameters=subsection_params,
-                    alias=alias,
-                    subsections={},
-                    description=description,
+                sec = Section(
+                    name, section_parameters=subsection_params, alias=alias, subsections={}, description=description
                 )
                 description = ""
-                tmp = self.by_path(current).get_section(s.alias or s.name)
+                tmp = self.by_path(current).get_section(sec.alias or sec.name)
                 if tmp:
                     if isinstance(tmp, SectionList):
-                        self.by_path(current)[s.alias or s.name].append(s)
+                        self.by_path(current)[sec.alias or sec.name].append(sec)
                     else:
-                        self.by_path(current)[s.alias or s.name] = SectionList(sections=[tmp, s])
+                        self.by_path(current)[sec.alias or sec.name] = SectionList(sections=[tmp, sec])
                 else:
-                    self.by_path(current).insert(s)
+                    self.by_path(current).insert(sec)
                 current = f"{current}/{alias or name}"
             else:
                 kwd = Keyword.from_str(line)
@@ -2051,7 +2050,7 @@ class Kpoints(Section):
         return Kpoints(kpts=kpts, weights=weights, scheme=scheme, units=units)
 
 
-class Kpoint_Set(Section):
+class KpointSet(Section):
     """Specifies a kpoint line to be calculated between special points."""
 
     def __init__(self, npoints: int, kpoints: Iterable, units: str = "B_VECTOR") -> None:
@@ -2072,10 +2071,7 @@ class Kpoint_Set(Section):
             "NPOINTS": Keyword("NPOINTS", npoints),
             "UNITS": Keyword("UNITS", units),
             "SPECIAL_POINT": KeywordList(
-                [
-                    Keyword("SPECIAL_POINT", "Gamma" if label.upper() == "\\GAMMA" else label, *kpt)
-                    for label, kpt in kpoints
-                ]
+                [Keyword("SPECIAL_POINT", "Gamma" if key.upper() == "\\GAMMA" else key, *kpt) for key, kpt in kpoints]
             ),
         }
 
@@ -2088,12 +2084,17 @@ class Kpoint_Set(Section):
         )
 
 
+@deprecated(KpointSet, "Kpoint_Set has been deprecated in favor of KpointSet on 2024-03-16")
+class Kpoint_Set(KpointSet):
+    pass
+
+
 class Band_Structure(Section):
     """Specifies high symmetry paths for outputting the band structure in CP2K."""
 
     def __init__(
         self,
-        kpoint_sets: Sequence[Kpoint_Set],
+        kpoint_sets: Sequence[KpointSet],
         filename: str = "BAND.bs",
         added_mos: int = -1,
         keywords: dict | None = None,
@@ -2101,7 +2102,7 @@ class Band_Structure(Section):
     ):
         """
         Args:
-            kpoint_sets: Sequence of Kpoint_Set objects for the band structure calculation.
+            kpoint_sets: Sequence of KpointSet objects for the band structure calculation.
             filename: Filename for the band structure output
             added_mos: Added (unoccupied) molecular orbitals for the calculation.
             keywords: additional keywords
@@ -2142,7 +2143,7 @@ class Band_Structure(Section):
                 return zip(a, a)
 
             kpoint_sets = [
-                Kpoint_Set(
+                KpointSet(
                     npoints=kpoints_line_density,
                     kpoints=[(lbls[0], kpts[0]), (lbls[1], kpts[1])],
                     units="B_VECTOR",
@@ -2154,7 +2155,7 @@ class Band_Structure(Section):
             KpointsSupportedModes.Cartesian,
         ):
             kpoint_sets = [
-                Kpoint_Set(
+                KpointSet(
                     npoints=1,
                     kpoints=[("None", kpts) for kpts in kpoints.kpts],
                     units="B_VECTOR" if kpoints.coord_type == "Reciprocal" else "CART_ANGSTROM",

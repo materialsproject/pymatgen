@@ -80,9 +80,9 @@ class AimsOutChunk:
         Returns:
             The last time one of the keys appears in self.lines
         """
-        for ll, line in enumerate(self.lines[line_start:][::-1]):
+        for idx, line in enumerate(self.lines[line_start:][::-1]):
             if any(key in line for key in keys):
-                return len(self.lines) - ll - 1
+                return len(self.lines) - idx - 1
 
         return LINE_NOT_FOUND
 

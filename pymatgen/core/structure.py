@@ -561,7 +561,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     except Exception:
                         comp += {new_sp: amt}
                 site.species = comp
-                site.label = None  # type: ignore
+                site.label = None  # type: ignore[assignment]
 
         return site_coll
 
@@ -3696,7 +3696,7 @@ class IMolecule(SiteCollection, MSONable):
 class Structure(IStructure, collections.abc.MutableSequence):
     """Mutable version of structure."""
 
-    __hash__ = None  # type: ignore
+    __hash__ = None  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -4504,7 +4504,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     it allows a user to perform edits on the molecule.
     """
 
-    __hash__ = None  # type: ignore
+    __hash__ = None  # type: ignore[assignment]
 
     def __init__(
         self,

@@ -2374,10 +2374,11 @@ def _gen_potcar_summary_stats(
     append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
-    This function solely intended to be used for PMG development to regenerate the
-    potcar-summary-stats.json.bz2 file used to validate POTCARs
+    This function is intended for internal use only. It regenerates the reference data in
+    potcar-summary-stats.json.bz2 used to validate POTCARs by comparing header values and
+    several statistics of copyrighted POTCAR data without having to record the POTCAR data itself.
 
-    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar-summary-stats.json.bz2.
+    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite potcar-summary-stats.json.bz2.
 
     Args:
         append (bool): Change whether data is appended to the existing potcar-summary-stats.json.bz2,
@@ -2404,10 +2405,7 @@ def _gen_potcar_summary_stats(
     for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
 
-        potcar_list = [
-            *glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*"),
-            *glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*"),
-        ]
+        potcar_list = glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*") + glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*")
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
             titel_key = psp.TITEL.replace(" ", "")

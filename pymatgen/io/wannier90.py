@@ -25,7 +25,7 @@ class Unk:
 
     Attributes:
         ik (int): Index of kpoint for this file.
-        data (numpy.ndarray): Numpy array that contains the wavefunction data for in the UNK file.
+        data (numpy.ndarray): Numpy array that contains the wavefunction data in the UNK file.
             The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and (nbnd, 2, ngx, ngy, ngz)
             for noncollinear calculations.
         is_noncollinear (bool): Boolean that specifies if data is from a noncollinear calculation.
@@ -54,7 +54,7 @@ class Unk:
     @property
     def data(self) -> np.ndarray:
         """
-        np.ndarray: contains the wavefunction data for in the UNK file.
+        np.ndarray: contains the wavefunction data in the UNK file.
         The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
         (nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.
         """

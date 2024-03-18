@@ -58,7 +58,7 @@ class TestInterface(PymatgenTest):
         init_coords = np.array(self.interface.frac_coords)
         interface.in_plane_offset = np.array([0.2, 0.2])
 
-        assert_allclose(interface.in_plane_offset, np.array([0.2, 0.2]))
+        assert_allclose(interface.in_plane_offset, [0.2, 0.2])
 
         test_coords = np.array(init_coords)
         for i in interface.film_indices:
