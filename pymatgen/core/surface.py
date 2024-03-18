@@ -773,7 +773,7 @@ class SlabGenerator:
                 "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
             )
         latt = initial_structure.lattice
-        miller_index = _reduce_vector(miller_index)
+        miller_index = self._reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
@@ -840,7 +840,7 @@ class SlabGenerator:
         # Make sure the slab_scale_factor is reduced to avoid
         # unnecessarily large slabs
 
-        reduced_scale_factor = [_reduce_vector(v) for v in slab_scale_factor]
+        reduced_scale_factor = [self._reduce_vector(v) for v in slab_scale_factor]
         slab_scale_factor = np.array(reduced_scale_factor)
 
         single = initial_structure.copy()
@@ -1024,6 +1024,12 @@ class SlabGenerator:
                             elif c_range[0] != c_range[1]:
                                 c_ranges.append((c_range[0], c_range[1]))
         return c_ranges
+
+    @staticmethod
+    def _reduce_vector(vector: tuple[int]) -> tuple[int]:
+        """Helper method to reduce vectors."""
+        d = abs(reduce(gcd, vector))
+        return tuple(int(i / d) for i in vector)
 
     def get_slabs(
         self,
@@ -1266,6 +1272,16 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
     reconstructions_archive = json.load(data_file)
 
 
+def get_d(slab: Slab) -> float:
+    """Determine the distance of space between each layer of atoms along c."""
+    sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+    for idx, site in enumerate(sorted_sites):
+        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx + 1].frac_coords[2]:.6f}":
+            d = abs(site.frac_coords[2] - sorted_sites[idx + 1].frac_coords[2])
+            break
+    return slab.lattice.get_cartesian_coords([0, 0, d])[2]
+
+
 class ReconstructionGenerator:
     """This class takes in a pre-defined dictionary specifying the parameters
     need to build a reconstructed slab such as the SlabGenerator parameters,
@@ -1437,7 +1453,7 @@ class ReconstructionGenerator:
         recon_slabs = []
 
         for slab in slabs:
-            d = get_distance(slab)
+            d = get_d(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
             # Remove any specified sites
@@ -1477,31 +1493,6 @@ class ReconstructionGenerator:
         return slabs
 
 
-def get_distance(slab: Slab) -> float:
-    """Determine the distance of space between each layer of atoms along c."""
-    sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-    for idx, site in enumerate(sorted_sites):
-        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx + 1].frac_coords[2]:.6f}":
-            d = abs(site.frac_coords[2] - sorted_sites[idx + 1].frac_coords[2])
-            break
-    return slab.lattice.get_cartesian_coords([0, 0, d])[2]
-
-
-def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
-    """Helper function to check if a given Miller index is
-    part of the family of indices of any index in a list.
-
-    Args:
-        miller_index (tuple): The Miller index to analyze
-        miller_list (list): List of Miller indices. If the given
-            Miller index belongs in the same family as any of the
-            indices in this list, return True, else return False
-        symm_ops (list): Symmetry operations of a
-            lattice, used to define family of indices
-    """
-    return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
-
-
 def get_symmetrically_equivalent_miller_indices(
     structure: Structure,
     miller_index: tuple[int],
@@ -1520,6 +1511,21 @@ def get_symmetrically_equivalent_miller_indices(
         system: If known, specify the crystal system of the structure
             so that it does not need to be re-calculated.
     """
+
+    def _is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
+        """Helper function to check if a given Miller index is
+        part of the family of indices of any index in a list.
+
+        Args:
+            miller_index (tuple): The Miller index to analyze
+            miller_list (list): List of Miller indices. If the given
+                Miller index belongs in the same family as any of the
+                indices in this list, return True, else return False
+            symm_ops (list): Symmetry operations of a
+                lattice, used to define family of indices
+        """
+        return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
+
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
         miller_index = (miller_index[0], miller_index[1], miller_index[-1])
@@ -1546,14 +1552,14 @@ def get_symmetrically_equivalent_miller_indices(
         if miller == miller_index:
             continue
         if any(idx != 0 for idx in miller):
-            if is_already_analyzed(miller, equivalent_millers, symm_ops):
+            if _is_already_analyzed(miller, equivalent_millers, symm_ops):
                 equivalent_millers += [miller]
 
             # include larger Miller indices in the family of planes
             if (
                 all(max_idx > i for i in np.abs(miller))
                 and not in_coord_list(equivalent_millers, miller)
-                and is_already_analyzed(max_idx * np.array(miller), equivalent_millers, symm_ops)
+                and _is_already_analyzed(max_idx * np.array(miller), equivalent_millers, symm_ops)
             ):
                 equivalent_millers += [miller]
 
@@ -1563,9 +1569,8 @@ def get_symmetrically_equivalent_miller_indices(
 
 
 def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: int, return_hkil: bool = False) -> list:
-    """Returns all symmetrically distinct indices below a certain max-index for
-    a given structure. Analysis is based on the symmetry of the reciprocal
-    lattice of the structure.
+    """Returns all symmetrically distinct indices below a certain max-index for a given structure.
+    Analysis is based on the symmetry of the reciprocal lattice of the structure.
 
     Args:
         structure (Structure): input structure.
@@ -1621,11 +1626,10 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
 
 
 def hkl_transformation(transf: np.ndarray, miller_index: tuple[int, int, int]) -> tuple[int, int, int]:
-    """Returns the Miller index from setting
-    A to B using a transformation matrix
+    """Returns the Miller index from setting A to B using a transformation matrix.
+
     Args:
-        transf (3x3 array): The transformation matrix
-            that transforms a lattice of A to B
+        transf (3x3 array): The transformation matrix that transforms a lattice of A to B
         miller_index (tuple[int, int, int]): Miller index [h, k, l] to transform to setting B.
     """
     # Get a matrix of whole numbers (ints)
@@ -1923,9 +1927,3 @@ def center_slab(slab: Slab) -> Slab:
     slab.translate_sites(all_indices, [0, 0, shift])
 
     return slab
-
-
-def _reduce_vector(vector: tuple[int]) -> tuple[int]:
-    """Helper function to reduce vectors."""
-    d = abs(reduce(gcd, vector))
-    return tuple(int(i / d) for i in vector)
