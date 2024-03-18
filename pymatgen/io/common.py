@@ -34,7 +34,11 @@ class VolumetricData(MSONable):
     """
 
     def __init__(
-        self, structure: Structure, data: np.ndarray, distance_matrix: np.ndarray = None, data_aug: np.ndarray = None
+        self,
+        structure: Structure,
+        data: dict[str, np.ndarray],
+        distance_matrix: np.ndarray | None = None,
+        data_aug: np.ndarray | None = None,
     ) -> None:
         """
         Typically, this constructor is not used directly and the static
@@ -43,8 +47,7 @@ class VolumetricData(MSONable):
 
         Args:
             structure (Structure): associated with the volumetric data
-            data (np.array): Actual volumetric data. If the data is provided as in list format,
-                it will be converted into an np.array automatically
+            data (dict[str, np.array]): Actual volumetric data.
             distance_matrix (np.array): A pre-computed distance matrix if available.
                 Useful so pass distance_matrices between sums,
                 short-circuiting an otherwise expensive operation.
@@ -61,7 +64,7 @@ class VolumetricData(MSONable):
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = distance_matrix if distance_matrix else {}
+        self._distance_matrix = distance_matrix or {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])

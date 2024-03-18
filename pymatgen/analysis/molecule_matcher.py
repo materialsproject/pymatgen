@@ -281,10 +281,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             c1x += float(oa1.x())
             c1y += float(oa1.y())
             c1z += float(oa1.z())
-        num_atoms = len(group_atoms)
-        c1x /= num_atoms
-        c1y /= num_atoms
-        c1z /= num_atoms
+        n_atoms = len(group_atoms)
+        c1x /= n_atoms
+        c1y /= n_atoms
+        c1z /= n_atoms
         return c1x, c1y, c1z
 
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
@@ -663,7 +663,7 @@ class MoleculeMatcher(MSONable):
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
-        mol_hash = [(i, self._mapper.get_molecule_hash(m)) for i, m in enumerate(mol_list)]
+        mol_hash = [(idx, self._mapper.get_molecule_hash(mol)) for idx, mol in enumerate(mol_list)]
         mol_hash.sort(key=lambda x: x[1])
 
         # Use molecular hash to pre-group molecules.

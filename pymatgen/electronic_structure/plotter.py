@@ -1214,7 +1214,7 @@ class BSPlotterProjected(BSPlotter):
             "f3": 15,
         }
 
-        num_branches = len(self._bs.branches)
+        n_branches = len(self._bs.branches)
         if selected_branches is not None:
             indices = []
             if not isinstance(selected_branches, list):
@@ -1226,14 +1226,14 @@ class BSPlotterProjected(BSPlotter):
                     raise ValueError(
                         "You do not give a correct type of index of symmetry lines. It should be 'int' type"
                     )
-                if index > num_branches or index < 1:
+                if index > n_branches or index < 1:
                     raise ValueError(
                         f"You give a incorrect index of symmetry lines: {index}. The index should be in range of "
-                        f"[1, {num_branches}]."
+                        f"[1, {n_branches}]."
                     )
                 indices.append(index - 1)
         else:
-            indices = range(num_branches)
+            indices = range(n_branches)
 
         proj = self._bs.projections
         proj_br = []
@@ -2501,11 +2501,11 @@ class BSDOSPlotter:
         pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
-        nseg = len(k) - 1
-        r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
-        g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
-        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
-        a = np.ones(nseg, float) * alpha
+        n_seg = len(k) - 1
+        r = [0.5 * (red[i] + red[i + 1]) for i in range(n_seg)]
+        g = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
+        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
+        a = np.ones(n_seg, float) * alpha
         lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
@@ -3593,7 +3593,7 @@ class CohpPlotter:
                 energy at the Fermi level. Defaults to True.
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
-            are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
+            are_cobis: Switch to indicate that these are COBIs or multi-center COBIs, not COHPs/COOPs.
                 Defaults to False for COHPs.
         """
         self.zero_at_efermi = zero_at_efermi
@@ -3914,7 +3914,7 @@ def plot_fermi_surface(
                             tube_radius=None,
                             figure=fig,
                         )
-        for label, coords in kpoints_dict.items():
+        for key, coords in kpoints_dict.items():
             label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
             mlab.points3d(
                 *label_coords,
@@ -3924,7 +3924,7 @@ def plot_fermi_surface(
             )
             mlab.text3d(
                 *label_coords,
-                text=label,
+                text=key,
                 scale=labels_scale_factor,
                 color=(0, 0, 0),
                 figure=fig,
@@ -3951,7 +3951,7 @@ def plot_fermi_surface(
                                 figure=fig,
                             )
 
-            for label, coords in kpoints_dict.items():
+            for key, coords in kpoints_dict.items():
                 label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
                 mlab.points3d(
                     *label_coords,
@@ -3961,7 +3961,7 @@ def plot_fermi_surface(
                 )
                 mlab.text3d(
                     *label_coords,
-                    text=label,
+                    text=key,
                     scale=labels_scale_factor,
                     color=(0, 0, 0),
                     figure=fig,

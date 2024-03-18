@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 from functools import reduce
 from math import sqrt
 
@@ -84,7 +85,7 @@ def divisors(n):
     exponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
     factors = _cartesian_product(exponents)
     for factor in factors:
-        _divisors.append(reduce(lambda x, y: x * y, factor, 1))
+        _divisors.append(reduce(operator.mul, factor, 1))
     _divisors.sort()
     return _divisors
 

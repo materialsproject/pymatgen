@@ -105,26 +105,26 @@ class NEBAnalysis(MSONable):
         # which serves as the reaction coordinate. Note that these are
         # calculated from the final relaxed structures as the coordinates may
         # have changed from the initial interpolation.
-        r = [0]
+        rms_dist = [0]
         prev = structures[0]
         for st in structures[1:]:
             dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st)])
-            r.append(np.sqrt(np.sum(dists**2)))
+            rms_dist.append(np.sqrt(np.sum(dists**2)))
             prev = st
-        r = np.cumsum(r)
+        rms_dist = np.cumsum(rms_dist)
 
         energies = []
         forces = []
-        for i, o in enumerate(outcars):
-            o.read_neb()
-            energies.append(o.data["energy"])
-            if i in [0, len(outcars) - 1]:
+        for idx, outcar in enumerate(outcars):
+            outcar.read_neb()
+            energies.append(outcar.data["energy"])
+            if idx in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                forces.append(o.data["tangent_force"])
+                forces.append(outcar.data["tangent_force"])
         forces = np.array(forces)
-        r = np.array(r)
-        return cls(r=r, energies=energies, forces=forces, structures=structures, **kwargs)
+        rms_dist = np.array(rms_dist)
+        return cls(r=rms_dist, energies=energies, forces=forces, structures=structures, **kwargs)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
@@ -229,8 +229,8 @@ class NEBAnalysis(MSONable):
         for digit in os.listdir(root_dir):
             pth = os.path.join(root_dir, digit)
             if os.path.isdir(pth) and digit.isdigit():
-                i = int(digit)
-                neb_dirs.append((i, pth))
+                idx = int(digit)
+                neb_dirs.append((idx, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
         outcars = []
         structures = []
@@ -244,21 +244,21 @@ class NEBAnalysis(MSONable):
         terminal_dirs.append([os.path.join(root_dir, d) for d in ["start", "end"]])
         terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
 
-        for i, d in neb_dirs:
-            outcar = glob(f"{d}/OUTCAR*")
-            contcar = glob(f"{d}/CONTCAR*")
-            poscar = glob(f"{d}/POSCAR*")
-            terminal = i in [0, neb_dirs[-1][0]]
+        for idx, neb_dir in neb_dirs:
+            outcar = glob(f"{neb_dir}/OUTCAR*")
+            contcar = glob(f"{neb_dir}/CONTCAR*")
+            poscar = glob(f"{neb_dir}/POSCAR*")
+            terminal = idx in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
-                    od = ds[0] if i == 0 else ds[1]
+                    od = ds[0] if idx == 0 else ds[1]
                     outcar = glob(f"{od}/OUTCAR*")
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
-                    raise ValueError(f"OUTCAR cannot be found for terminal point {d}")
+                    raise ValueError(f"OUTCAR cannot be found for terminal point {neb_dir}")
                 structures.append(Structure.from_file(poscar[0]))
             else:
                 outcars.append(Outcar(outcar[0]))

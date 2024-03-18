@@ -7,11 +7,10 @@ from zipfile import ZipFile
 
 import numpy as np
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import approx, mark
+from pytest import MonkeyPatch, approx, mark
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure

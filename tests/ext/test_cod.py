@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from shutil import which
 
+import pytest
 import requests
 
 from pymatgen.ext.cod import COD
@@ -13,14 +14,14 @@ except requests.exceptions.ConnectionError:
     website_down = True
 
 
-@unittest.skipIf(website_down, "www.crystallography.net is down.")
+@pytest.mark.skipif(website_down, reason="www.crystallography.net is down.")
 class TestCOD(unittest.TestCase):
-    @unittest.skipIf(not which("mysql"), "No mysql.")
+    @pytest.mark.skipif(not which("mysql"), reason="No mysql.")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")
         assert len(ids) > 15
 
-    @unittest.skipIf(not which("mysql"), "No mysql.")
+    @pytest.mark.skipif(not which("mysql"), reason="No mysql.")
     def test_get_structure_by_formula(self):
         data = COD().get_structure_by_formula("Li2O")
         assert len(data) > 15

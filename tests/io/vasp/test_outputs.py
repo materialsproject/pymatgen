@@ -4,7 +4,6 @@ import gzip
 import json
 import os
 import sys
-import unittest
 import xml.etree.ElementTree as ElementTree
 from io import StringIO
 from pathlib import Path
@@ -667,8 +666,8 @@ class TestVasprun(PymatgenTest):
     def test_parsing_efg_calcs(self):
         filepath = f"{TEST_FILES_DIR}/nmr/efg/AlPO4/vasprun.xml"
         vasp_run = Vasprun(filepath)
-        nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
-        assert nestep == 18
+        n_elec_steps = len(vasp_run.ionic_steps[-1]["electronic_steps"])
+        assert n_elec_steps == 18
         assert vasp_run.converged
 
     def test_charged_structure(self):
@@ -1494,7 +1493,7 @@ class TestChgcar(PymatgenTest):
         chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
 
-    @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
+    @pytest.mark.skipif(h5py is None, reason="h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{VASP_OUT_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
@@ -1531,11 +1530,11 @@ class TestChgcar(PymatgenTest):
         with pytest.raises(
             ValueError, match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)"
         ):
-            self.chgcar_spin + self.chgcar_fe3o4
+            _ = self.chgcar_spin + self.chgcar_fe3o4
         with pytest.raises(
             ValueError, match="Data have different keys! Maybe one is spin-polarized and the other is not"
         ):
-            self.chgcar_spin + self.chgcar_no_spin
+            _ = self.chgcar_spin + self.chgcar_no_spin
 
     def test_as_dict_and_from_dict(self):
         dct = self.chgcar_NiO_soc.as_dict()
@@ -1766,7 +1765,7 @@ class TestWavecar(PymatgenTest):
 
         orig_gen_g_points = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda _x, _y, gamma: []
+            Wavecar._generate_G_points = lambda _x, _y, gamma: []  # noqa: ARG005, RUF100
             with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
                 Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2")
         finally:

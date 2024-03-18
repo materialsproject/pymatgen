@@ -1503,12 +1503,12 @@ class LightStructureEnvironments(MSONable):
         elif valences_origin is None:
             valences_origin = "user-specified"
 
-        for isite, site in enumerate(structure):
+        for idx, site in enumerate(structure):
             site_ces_and_nbs_list = strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
             if site_ces_and_nbs_list is None:
                 continue
-            coordination_environments[isite] = []
-            neighbors_sets[isite] = []
+            coordination_environments[idx] = []
+            neighbors_sets[idx] = []
             site_ces = []
             site_nbs_sets = []
             for ce_and_neighbors in site_ces_and_nbs_list:
@@ -1530,7 +1530,7 @@ class LightStructureEnvironments(MSONable):
                 for nb_site_and_index in neighbors:
                     nb_site = nb_site_and_index["site"]
                     try:
-                        nb_allnbs_sites_index = all_nbs_sites.index(nb_site)
+                        n_all_nbs_sites_index = all_nbs_sites.index(nb_site)
                     except ValueError:
                         nb_index_unitcell = nb_site_and_index["index"]
                         diff = nb_site.frac_coords - structure[nb_index_unitcell].frac_coords
@@ -1540,22 +1540,22 @@ class LightStructureEnvironments(MSONable):
                                 "Weird, differences between one site in a periodic image cell is not integer ..."
                             )
                         nb_image_cell = np.array(rounddiff, int)
-                        nb_allnbs_sites_index = len(_all_nbs_sites)
+                        n_all_nbs_sites_index = len(_all_nbs_sites)
                         _all_nbs_sites.append(
                             {"site": nb_site, "index": nb_index_unitcell, "image_cell": nb_image_cell}
                         )
                         all_nbs_sites.append(nb_site)
-                    _all_nbs_sites_indices.append(nb_allnbs_sites_index)
+                    _all_nbs_sites_indices.append(n_all_nbs_sites_index)
 
                 nb_set = cls.NeighborsSet(
                     structure=structure,
-                    isite=isite,
+                    isite=idx,
                     all_nbs_sites=_all_nbs_sites,
                     all_nbs_sites_indices=_all_nbs_sites_indices,
                 )
                 site_nbs_sets.append(nb_set)
-            coordination_environments[isite] = site_ces
-            neighbors_sets[isite] = site_nbs_sets
+            coordination_environments[idx] = site_ces
+            neighbors_sets[idx] = site_nbs_sets
         return cls(
             strategy=strategy,
             coordination_environments=coordination_environments,

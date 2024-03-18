@@ -25,7 +25,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 try:
     import bson  # type: ignore
 except ModuleNotFoundError:
-    bson = None  # type: ignore
+    bson = None  # type: ignore[assignment]
 
 __author__ = "waroquiers"
 
@@ -379,7 +379,7 @@ class TestConnectedComponent(PymatgenTest):
         assert not cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "2D"
-        assert_allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
+        assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0]])
         assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
@@ -449,10 +449,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "3D"
-        assert_allclose(
-            cc.periodicity_vectors,
-            [np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([1, 1, 1])],
-        )
+        assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0], [1, 1, 1]])
         assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 

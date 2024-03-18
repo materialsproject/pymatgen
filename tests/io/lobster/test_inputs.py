@@ -75,6 +75,33 @@ class TestCohpcar(PymatgenTest):
             filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.gz",
             are_cobis=True,
         )
+        # 3 center
+        self.cobi2 = Cohpcar(
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe",
+            are_cobis=False,
+            are_multi_center_cobis=True,
+        )
+        # 4 center
+        self.cobi3 = Cohpcar(
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multi_center_cobis=True
+        )
+        # partially orbital-resolved
+        self.cobi4 = Cohpcar(
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise",
+            are_cobis=False,
+            are_multi_center_cobis=True,
+        )
+        # fully orbital-resolved
+        self.cobi5 = Cohpcar(
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.GeTe.multi.orbitalwise.full",
+            are_cobis=False,
+            are_multi_center_cobis=True,
+        )
+        # spin polarized
+        # fully orbital-resolved
+        self.cobi6 = Cohpcar(
+            filename=f"{TEST_FILES_DIR}/cohp/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multi_center_cobis=True
+        )
 
     def test_attributes(self):
         assert not self.cohp_bise.are_coops
@@ -110,6 +137,11 @@ class TestCohpcar(PymatgenTest):
         assert not self.cobi.are_coops
         assert self.cobi.are_cobis
         assert not self.cobi.is_spin_polarized
+
+        # test multi-center cobis
+        assert not self.cobi2.are_cobis
+        assert not self.cobi2.are_coops
+        assert self.cobi2.are_multi_center_cobis
 
     def test_energies(self):
         efermi_bise = 5.90043
@@ -194,6 +226,46 @@ class TestCohpcar(PymatgenTest):
                     assert val["sites"] == lengths_sites_KF[bond][1]
                     assert len(val["COHP"][Spin.up]) == 6
                     assert len(val["ICOHP"][Spin.up]) == 6
+
+        for data in [self.cobi2.cohp_data]:
+            for bond, val in data.items():
+                if bond != "average":
+                    if int(bond) >= 13:
+                        assert len(val["COHP"][Spin.up]) == 11
+                        assert len(val["cells"]) == 3
+                    else:
+                        assert len(val["COHP"][Spin.up]) == 11
+                        assert len(val["cells"]) == 2
+
+        for data in [self.cobi3.cohp_data, self.cobi4.cohp_data]:
+            for bond, val in data.items():
+                if bond != "average":
+                    if int(bond) >= 13:
+                        assert len(val["cells"]) == 4
+                    else:
+                        assert len(val["cells"]) == 2
+        for data in [self.cobi5.cohp_data]:
+            for bond, val in data.items():
+                if bond != "average":
+                    if int(bond) >= 25:
+                        assert len(val["cells"]) == 4
+                    else:
+                        assert len(val["cells"]) == 2
+        for data in [self.cobi6.cohp_data]:
+            for bond, val in data.items():
+                if bond != "average":
+                    if int(bond) >= 21:
+                        assert len(val["cells"]) == 3
+                        assert len(val["COHP"][Spin.up]) == 12
+                        assert len(val["COHP"][Spin.down]) == 12
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                            assert cohp1 == approx(cohp2, abs=1e-4)
+                    else:
+                        assert len(val["cells"]) == 2
+                        assert len(val["COHP"][Spin.up]) == 12
+                        assert len(val["COHP"][Spin.down]) == 12
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                            assert cohp1 == approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
         orbitals = [(Orbital(i), Orbital(j)) for j in range(4) for i in range(4)]
@@ -282,7 +354,19 @@ class TestCohpcar(PymatgenTest):
             ],
             axis=0,
         )
+
         assert_allclose(tot_Na2UO4, icohp_Na2UO4, atol=1e-3)
+
+        assert "5s-4s-5s-4s" in self.cobi4.orb_res_cohp["13"]
+        assert "5px-4px-5px-4px" in self.cobi4.orb_res_cohp["13"]
+        assert len(self.cobi4.orb_res_cohp["13"]["5px-4px-5px-4px"]["COHP"][Spin.up]) == 11
+
+        assert "5s-4s-5s-4s" in self.cobi5.orb_res_cohp["25"]
+        assert "5px-4px-5px-4px" in self.cobi5.orb_res_cohp["25"]
+        assert len(self.cobi5.orb_res_cohp["25"]["5px-4px-5px-4px"]["COHP"][Spin.up]) == 11
+
+        assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.up]) == 12
+        assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
 
 
 class TestIcohplist(unittest.TestCase):
@@ -304,7 +388,6 @@ class TestIcohplist(unittest.TestCase):
             filename=f"{TEST_FILES_DIR}/cohp/ICOBILIST.lobster",
             are_cobis=True,
         )
-        # TODO: test orbitalwise ICOHPs with and without spin polarization
 
         self.icobi = Icohplist(
             filename=f"{TEST_FILES_DIR}/cohp/ICOBILIST.lobster.withoutorbitals",

@@ -119,10 +119,10 @@ class Polymer:
 
     def _next_move_direction(self) -> np.ndarray:
         """Pick a move at random from the list of moves."""
-        nmoves = len(self.moves)
-        move = np.random.randint(1, nmoves + 1)
-        while self.prev_move == (move + 3) % nmoves:
-            move = np.random.randint(1, nmoves + 1)
+        n_moves = len(self.moves)
+        move = np.random.randint(1, n_moves + 1)
+        while self.prev_move == (move + 3) % n_moves:
+            move = np.random.randint(1, n_moves + 1)
         self.prev_move = move
         return np.array(self.moves[move])
 

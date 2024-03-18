@@ -227,7 +227,7 @@ class LatticeTestCase(PymatgenTest):
             [-0.831059, 2.067413, 1.547813],
             [-0.458407, -2.480895, 1.129126],
         ]
-        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected, atol=1e-5)
 
         lattice = Lattice([-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229])
         expected = [
@@ -235,7 +235,7 @@ class LatticeTestCase(PymatgenTest):
             [0.1878, 0.7571, 0.902],
             [-0.4468, 0.4295, -1.0255],
         ]
-        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
+        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected, atol=1e-5)
 
     def test_find_mapping(self):
         matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
@@ -564,17 +564,17 @@ class LatticeTestCase(PymatgenTest):
         a1 = 10
         assert_allclose(
             Lattice.cubic(a1).selling_vector.round(4),
-            np.array([0, 0, 0, -(a1**2), -(a1**2), -(a1**2)]),
+            [0, 0, 0, -(a1**2), -(a1**2), -(a1**2)],
         )
         a2, c2 = 5, 8
         assert_allclose(
             Lattice.tetragonal(a2, c2).selling_vector.round(4),
-            np.array([0, 0, 0, -(a2**2), -(a2**2), -(c2**2)]),
+            [0, 0, 0, -(a2**2), -(a2**2), -(c2**2)],
         )
         a3, b3, c3 = 4, 6, 7
         assert_allclose(
             Lattice.orthorhombic(a3, b3, c3).selling_vector.round(4),
-            np.array([0, 0, 0, -(a3**2), -(b3**2), -(c3**2)]),
+            [0, 0, 0, -(a3**2), -(b3**2), -(c3**2)],
         )
 
     def test_is_3d_periodic(self):

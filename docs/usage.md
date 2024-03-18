@@ -188,8 +188,8 @@ example, to read a POSCAR and write a cif::
     from pymatgen.io.vasp import Poscar
     from pymatgen.io.cif import CifWriter
 
-    p = Poscar.from_file('POSCAR')
-    w = CifWriter(p.structure)
+    poscar = Poscar.from_file('POSCAR')
+    w = CifWriter(poscar.structure)
     w.write_file('mystructure.cif')
 
 For molecules, pymatgen has in-built support for XYZ and Gaussian input and
@@ -227,6 +227,7 @@ If you need guarantees of immutability for Structure/Molecule,
 you should use the IStructure and IMolecule classes instead.
 
 Modifying Structures or Molecules
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pymatgen supports a highly Pythonic interface for modifying Structures and
