@@ -939,11 +939,11 @@ class Species(MSONable, Stringify):
             ValueError: If oxidation state passed both in symbol string and via
                 oxidation_state kwarg.
         """
-        if oxidation_state is not None and isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
+        if oxidation_state is not None and isinstance(symbol, str) and symbol.endswith(("+", "-")):
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
             )
-        if isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
+        if isinstance(symbol, str) and symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
             symbol, oxi = re.match(r"([A-Za-z]+)([0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
             self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
@@ -954,15 +954,15 @@ class Species(MSONable, Stringify):
 
         self._spin = spin
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         """Allows Specie to inherit properties of underlying element."""
         return getattr(self._el, attr)
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict:
         return self.__dict__
 
-    def __setstate__(self, d):
-        self.__dict__.update(d)
+    def __setstate__(self, dct: dict) -> None:
+        self.__dict__.update(dct)
 
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
