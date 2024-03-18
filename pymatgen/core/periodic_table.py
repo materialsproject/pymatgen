@@ -1446,28 +1446,33 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         Species | Element: with a bias for the maximum number of properties
             that can be determined.
     """
+    # if obj is already an Element or Species, return as is
     if isinstance(obj, (Element, Species, DummySpecies)):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
+    # if obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
-        integer = int(flt)
-        integer = integer if integer == flt else None  # type: ignore
-        return Element.from_Z(integer)
-    except (ValueError, TypeError):
+        assert flt == int(flt)
+        return Element.from_Z(int(flt))
+    except (AssertionError, ValueError, TypeError, KeyError):
         pass
 
+    # if obj is a string, attempt to parse it as a Species
     try:
         return Species.from_str(obj)  # type: ignore
-    except (ValueError, KeyError):
+    except (ValueError, TypeError, KeyError):
         pass
+    # if Species parsing failed, try Element
     try:
         return Element(obj)  # type: ignore
-    except (ValueError, KeyError):
+    except (ValueError, TypeError, KeyError):
         pass
+
+    # if Element parsing failed, try DummySpecies
     try:
         return DummySpecies.from_str(obj)  # type: ignore
     except Exception:
-        raise ValueError(f"Can't parse Element or Species from {type(obj).__name__}: {obj}.")
+        raise ValueError(f"Can't parse Element or Species from {obj!r}")

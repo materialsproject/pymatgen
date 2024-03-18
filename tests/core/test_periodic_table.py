@@ -579,11 +579,17 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert sp.spin == 5
 
 
-class TestFunc(unittest.TestCase):
-    def test_get_el_sp(self):
-        assert get_el_sp("Fe2+") == Species("Fe", 2)
-        assert get_el_sp("3") == Element.Li
-        assert get_el_sp("3.0") == Element.Li
-        assert get_el_sp("U") == Element.U
-        assert get_el_sp("X2+") == DummySpecies("X", 2)
-        assert get_el_sp("Mn3+") == Species("Mn", 3)
+def test_get_el_sp():
+    assert get_el_sp("Fe2+") == Species("Fe", 2)
+    assert get_el_sp("3") == Element.Li
+    assert get_el_sp(5) == Element.B
+    assert get_el_sp("3.0") == Element.Li
+    assert get_el_sp("+3.0") == Element.Li
+    assert get_el_sp(2.0) == Element.He
+    assert get_el_sp("U") == Element.U
+    assert get_el_sp("X2+") == DummySpecies("X", 2)
+    assert get_el_sp("Mn3+") == Species("Mn", 3)
+    assert get_el_sp("X2+spin=5") == DummySpecies("X", 2, spin=5)
+
+    with pytest.raises(ValueError, match="Can't parse Element or Species from None"):
+        get_el_sp(None)
