@@ -307,14 +307,14 @@ class LammpsData(MSONable):
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
         species = molecule.species
-        latt = self.box.to_lattice()
+        lattice = self.box.to_lattice()
         site_properties = {}
         if "q" in atoms:
             site_properties["charge"] = atoms["q"].to_numpy()
         if self.velocities is not None:
             site_properties["velocities"] = self.velocities.to_numpy()
         return Structure(
-            latt,
+            lattice,
             species,
             coords,
             coords_are_cartesian=True,

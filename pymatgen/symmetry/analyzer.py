@@ -510,15 +510,15 @@ class SpacegroupAnalyzer:
         )
 
         new_sites = []
-        latt = Lattice(np.dot(transf, conv.lattice.matrix))
-        for s in conv:
+        lattice = Lattice(np.dot(transf, conv.lattice.matrix))
+        for site in conv:
             new_s = PeriodicSite(
-                s.specie,
-                s.coords,
-                latt,
+                site.specie,
+                site.coords,
+                lattice,
                 to_unit_cell=True,
                 coords_are_cartesian=True,
-                properties=s.properties,
+                properties=site.properties,
             )
             if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
@@ -539,14 +539,14 @@ class SpacegroupAnalyzer:
                 ],
             ]
             new_sites = []
-            latt = Lattice(new_matrix)
-            for s in prim:
+            lattice = Lattice(new_matrix)
+            for site in prim:
                 new_s = PeriodicSite(
-                    s.specie,
-                    s.frac_coords,
-                    latt,
+                    site.specie,
+                    site.frac_coords,
+                    lattice,
                     to_unit_cell=True,
-                    properties=s.properties,
+                    properties=site.properties,
                 )
                 if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
@@ -581,11 +581,11 @@ class SpacegroupAnalyzer:
         """
         tol = 1e-5
         struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
-        latt = struct.lattice
+        lattice = struct.lattice
         latt_type = self.get_lattice_type()
-        sorted_lengths = sorted(latt.abc)
+        sorted_lengths = sorted(lattice.abc)
         sorted_dic = sorted(
-            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in range(3)),
+            ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in range(3)),
             key=lambda k: k["length"],
         )
 
@@ -595,31 +595,31 @@ class SpacegroupAnalyzer:
             transf = np.zeros(shape=(3, 3))
             if self.get_space_group_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
-                a, b = sorted(latt.abc[:2])
+                a, b = sorted(lattice.abc[:2])
                 sorted_dic = sorted(
-                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
                     transf[idx][sorted_dic[idx]["orig_index"]] = 1
-                c = latt.abc[2]
+                c = lattice.abc[2]
             elif self.get_space_group_symbol().startswith(
                 "A"
             ):  # change to C-centering to match Setyawan/Curtarolo convention
                 transf[2] = [1, 0, 0]
-                a, b = sorted(latt.abc[1:])
+                a, b = sorted(lattice.abc[1:])
                 sorted_dic = sorted(
-                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [1, 2]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [1, 2]),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
                     transf[idx][sorted_dic[idx]["orig_index"]] = 1
-                c = latt.abc[0]
+                c = lattice.abc[0]
             else:
                 for idx, dct in enumerate(sorted_dic):
                     transf[idx][dct["orig_index"]] = 1
                 a, b, c = sorted_lengths
-            latt = Lattice.orthorhombic(a, b, c)
+            lattice = Lattice.orthorhombic(a, b, c)
 
         elif latt_type == "tetragonal":
             # find the "a" vectors
@@ -632,7 +632,7 @@ class SpacegroupAnalyzer:
             if abs(b - c) < tol < abs(a - c):
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
-            latt = Lattice.tetragonal(a, c)
+            lattice = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
             # for the conventional cell representation,
             # we always show the rhombohedral lattices as hexagonal
@@ -640,7 +640,7 @@ class SpacegroupAnalyzer:
             # check first if we have the refined structure shows a rhombohedral
             # cell
             # if so, make a supercell
-            a, b, c = latt.abc
+            a, b, c = lattice.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
                 a, b, c = sorted(struct.lattice.abc)
@@ -652,7 +652,7 @@ class SpacegroupAnalyzer:
                 [a / 2, a * math.sqrt(3) / 2, 0],
                 [0, 0, c],
             ]
-            latt = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)
             transf = np.eye(3, 3)
 
         elif latt_type == "monoclinic":
@@ -662,15 +662,15 @@ class SpacegroupAnalyzer:
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
-                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
                 a = sorted_dic[0]["length"]
                 b = sorted_dic[1]["length"]
-                c = latt.abc[2]
+                c = lattice.abc[2]
                 new_matrix = None
                 for t in itertools.permutations(list(range(2)), 2):
-                    m = latt.matrix
+                    m = lattice.matrix
                     latt2 = Lattice([m[t[0]], m[t[1]], m[2]])
                     lengths = latt2.lengths
                     angles = latt2.angles
@@ -718,7 +718,7 @@ class SpacegroupAnalyzer:
                 # and b<c
                 new_matrix = None
                 for t in itertools.permutations(list(range(3)), 3):
-                    m = latt.matrix
+                    m = lattice.matrix
                     a, b, c, alpha, beta, gamma = Lattice([m[t[0]], m[t[1]], m[t[2]]]).parameters
                     if alpha > 90 and b < c:
                         a, b, c, alpha, beta, gamma = Lattice([-m[t[0]], -m[t[1]], m[t[2]]]).parameters
@@ -769,15 +769,15 @@ class SpacegroupAnalyzer:
                     transf = np.dot(op, transf)
                     new_matrix = np.dot(op, new_matrix)
 
-            latt = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)
 
         elif latt_type == "triclinic":
             # we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
-            latt = struct.lattice
+            lattice = struct.lattice
 
-            a, b, c = latt.lengths
-            alpha, beta, gamma = (math.pi * i / 180 for i in latt.angles)
+            a, b, c = lattice.lengths
+            alpha, beta, gamma = (math.pi * i / 180 for i in lattice.angles)
             new_matrix = None
             test_matrix = [
                 [a, 0, 0],
@@ -854,11 +854,11 @@ class SpacegroupAnalyzer:
                 transf = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
                 new_matrix = test_matrix
 
-            latt = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(
-            latt,
+            lattice,
             struct.species_and_occu,
             new_coords,
             site_properties=struct.site_properties,

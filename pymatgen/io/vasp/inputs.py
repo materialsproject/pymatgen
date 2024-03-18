@@ -1231,25 +1231,25 @@ class Kpoints(MSONable):
             structure: Input structure
             kppa: Grid density
         """
-        latt = structure.lattice
-        a, b, c = latt.abc
-        ngrid = kppa / len(structure)
+        lattice = structure.lattice
+        a, b, c = lattice.abc
+        n_grid = kppa / len(structure)
 
-        mult = (ngrid * a * b * c) ** (1 / 3)
-        num_div = [int(round(mult / length)) for length in latt.abc]
+        multip = (n_grid * a * b * c) ** (1 / 3)
+        n_div = [int(round(multip / length)) for length in lattice.abc]
 
         # ensure that all num_div[i] > 0
-        num_div = [idx if idx > 0 else 1 for idx in num_div]
+        n_div = [idx if idx > 0 else 1 for idx in n_div]
 
         # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
-        num_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in num_div]
+        n_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in n_div]
 
         style = Kpoints.supported_modes.Gamma
 
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
+        n_kpts = 0
+        return Kpoints(comment, n_kpts, style, [n_div], (0, 0, 0))
 
     @staticmethod
     def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False) -> Kpoints:

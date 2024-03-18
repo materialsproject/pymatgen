@@ -50,9 +50,9 @@ class TestSlab(PymatgenTest):
         )
 
         m = [[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]]
-        latt = Lattice(m)
+        lattice = Lattice(m)
         fcoords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
-        non_laue = Structure(latt, ["Nb", "Nb", "N", "N", "N"], fcoords)
+        non_laue = Structure(lattice, ["Nb", "Nb", "N", "N", "N"], fcoords)
 
         self.ti = Ti
         self.agfcc = Ag_fcc
@@ -387,11 +387,11 @@ class TestSlabGenerator(PymatgenTest):
                     in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
                 )
             ):
-                latt = Lattice.hexagonal(5, 10)
+                lattice = Lattice.hexagonal(5, 10)
             else:
                 # Cubic lattice is compatible with all other space groups.
-                latt = Lattice.cubic(5)
-            struct = Structure.from_spacegroup(i, latt, ["H"], [[0, 0, 0]])
+                lattice = Lattice.cubic(5)
+            struct = Structure.from_spacegroup(i, lattice, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
             while miller == (0, 0, 0):
                 miller = (
@@ -601,14 +601,14 @@ class TestSlabGenerator(PymatgenTest):
 
 class ReconstructionGeneratorTests(PymatgenTest):
     def setUp(self):
-        latt = Lattice.cubic(3.51)
+        lattice = Lattice.cubic(3.51)
         species = ["Ni"]
         coords = [[0, 0, 0]]
-        self.Ni = Structure.from_spacegroup("Fm-3m", latt, species, coords)
-        latt = Lattice.cubic(2.819000)
+        self.Ni = Structure.from_spacegroup("Fm-3m", lattice, species, coords)
+        lattice = Lattice.cubic(2.819000)
         species = ["Fe"]
         coords = [[0, 0, 0]]
-        self.Fe = Structure.from_spacegroup("Im-3m", latt, species, coords)
+        self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
         pmg_core_dir = os.path.dirname(pymatgen.core.__file__)

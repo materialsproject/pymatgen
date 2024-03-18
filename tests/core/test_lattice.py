@@ -180,9 +180,9 @@ class LatticeTestCase(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
         assert reduced_latt.volume == approx(lattice.volume)
-        latt = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
+        lattice = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
         expected = Lattice([-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000])
-        reduced_latt = Lattice(latt).get_lll_reduced_lattice()
+        reduced_latt = Lattice(lattice).get_lll_reduced_lattice()
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
@@ -239,23 +239,23 @@ class LatticeTestCase(PymatgenTest):
 
     def test_find_mapping(self):
         matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
-        latt = Lattice(matrix)
+        lattice = Lattice(matrix)
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, 3, 3], 35)
         rot = op.rotation_matrix
         scale = np.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]])
 
         latt2 = Lattice(np.dot(rot, np.dot(scale, matrix).T).T)
-        mapping = latt2.find_mapping(latt)
+        mapping = latt2.find_mapping(lattice)
         assert isinstance(mapping, tuple)
         aligned_out, rot_out, scale_out = mapping
         assert abs(np.linalg.det(rot)) == approx(1)
 
-        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)
+        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(lattice.matrix)
 
         assert_allclose(rotated, aligned_out.matrix)
         assert_allclose(np.dot(scale_out, latt2.matrix), aligned_out.matrix)
-        assert_allclose(aligned_out.parameters, latt.parameters)
+        assert_allclose(aligned_out.parameters, lattice.parameters)
         assert not np.allclose(aligned_out.parameters, latt2.parameters)
 
     def test_find_all_mappings(self):
@@ -283,15 +283,15 @@ class LatticeTestCase(PymatgenTest):
             assert isinstance(latt, Lattice)
 
     def test_mapping_symmetry(self):
-        latt = Lattice.cubic(1)
+        lattice = Lattice.cubic(1)
         l2 = Lattice.orthorhombic(1.1001, 1, 1)
-        assert latt.find_mapping(l2, ltol=0.1) == l2.find_mapping(latt, ltol=0.1)
-        assert l2.find_mapping(latt, ltol=0.1) is None
+        assert lattice.find_mapping(l2, ltol=0.1) == l2.find_mapping(lattice, ltol=0.1)
+        assert l2.find_mapping(lattice, ltol=0.1) is None
         l2 = Lattice.orthorhombic(1.0999, 1, 1)
-        mapping = l2.find_mapping(latt, ltol=0.1)
+        mapping = l2.find_mapping(lattice, ltol=0.1)
         assert isinstance(mapping, tuple)
         assert len(mapping) == 3
-        assert latt.find_mapping(l2, ltol=0.1) is not None
+        assert lattice.find_mapping(l2, ltol=0.1) is not None
 
     def test_as_from_dict(self):
         dct = self.tetragonal.as_dict()
@@ -355,13 +355,13 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_points_in_sphere(self):
         # This is a non-niggli representation of a cubic lattice
-        latt = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]])
+        lattice = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]])
         # evenly spaced points array between 0 and 1
         pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
-        pts = latt.get_fractional_coords(pts)
+        pts = lattice.get_fractional_coords(pts)
 
         # Test getting neighbors within 1 neighbor distance of the origin
-        fcoords, dists, inds, images = latt.get_points_in_sphere(pts, [0, 0, 0], 0.20001, zip_results=False)
+        fcoords, dists, inds, images = lattice.get_points_in_sphere(pts, [0, 0, 0], 0.20001, zip_results=False)
         assert len(fcoords) == 7  # There are 7 neighbors
         assert np.isclose(dists, 0.2).sum() == 6  # 6 are at 0.2
         assert np.isclose(dists, 0).sum() == 1  # 1 is at 0
@@ -369,7 +369,7 @@ class LatticeTestCase(PymatgenTest):
         assert_array_equal(images[np.isclose(dists, 0)], [[0, 0, 0]])
 
         # More complicated case, using the zip output
-        result = latt.get_points_in_sphere(pts, [0.5, 0.5, 0.5], 1.0001)
+        result = lattice.get_points_in_sphere(pts, [0.5, 0.5, 0.5], 1.0001)
         assert len(result) == 552
         assert len(result[0]) == 4  # coords, dists, ind, supercell
 

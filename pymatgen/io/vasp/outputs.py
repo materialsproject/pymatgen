@@ -1381,9 +1381,9 @@ class Vasprun(MSONable):
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
-        latt = _parse_vasp_array(elem.find("crystal").find("varray"))
+        lattice = _parse_vasp_array(elem.find("crystal").find("varray"))
         pos = _parse_vasp_array(elem.find("varray"))
-        struct = Structure(latt, self.atomic_symbols, pos)
+        struct = Structure(lattice, self.atomic_symbols, pos)
         sdyn = elem.find("varray/[@name='selective']")
         if sdyn:
             struct.add_site_property("selective_dynamics", _parse_vasp_array(sdyn))
@@ -4198,10 +4198,10 @@ class Xdatcar:
             raise Exception("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_end < 1:
             raise Exception("End ionic step cannot be less than 1")
-        latt = self.structures[0].lattice
-        if np.linalg.det(latt.matrix) < 0:
-            latt = Lattice(-latt.matrix)
-        lines = [self.comment, "1.0", str(latt)]
+        lattice = self.structures[0].lattice
+        if np.linalg.det(lattice.matrix) < 0:
+            lattice = Lattice(-lattice.matrix)
+        lines = [self.comment, "1.0", str(lattice)]
         lines.extend((" ".join(self.site_symbols), " ".join(str(x) for x in self.natoms)))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
