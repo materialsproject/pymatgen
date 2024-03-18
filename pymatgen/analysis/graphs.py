@@ -1005,7 +1005,7 @@ class StructureGraph(MSONable):
             "variance": stats.variance,
         }
 
-    def types_of_coordination_environments(self, anonymous: bool = False) -> set[str]:
+    def types_of_coordination_environments(self, anonymous: bool = False) -> list[str]:
         """
         Extract information on the different co-ordination environments
         present in the graph.
@@ -1014,7 +1014,7 @@ class StructureGraph(MSONable):
             anonymous: if anonymous, will replace specie names with A, B, C, etc.
 
         Returns:
-            Set of coordination environments, e.g. {'Mo-S(6)', 'S-Mo(3)'}
+            List of coordination environments, e.g. {'Mo-S(6)', 'S-Mo(3)'}
         """
         motifs = set()
         for idx, site in enumerate(self.structure):
@@ -1044,7 +1044,7 @@ class StructureGraph(MSONable):
             motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
-        return set(motifs)
+        return list(set(motifs))
 
     def as_dict(self) -> dict:
         """
