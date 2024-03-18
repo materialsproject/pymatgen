@@ -82,8 +82,8 @@ class Fragmenter(MSONable):
         if edges is None:
             self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN())
         else:
-            edges = {(e[0], e[1]): None for e in edges}
-            self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
+            _edges = {(edge[0], edge[1]): None for edge in edges}
+            self.mol_graph = MoleculeGraph.with_edges(molecule, _edges)
 
         if ("Li" in molecule.composition or "Mg" in molecule.composition) and use_metal_edge_extender:
             self.mol_graph = metal_edge_extender(self.mol_graph)
@@ -225,7 +225,7 @@ class Fragmenter(MSONable):
         alph_formula = self.mol_graph.molecule.composition.alphabetical_formula
         mol_key = f"{alph_formula} E{len(self.mol_graph.graph.edges())}"
         self.all_unique_frag_dict[mol_key] = [self.mol_graph]
-        new_frag_keys = {"0": []}
+        new_frag_keys: dict[str, list] = {"0": []}
         new_frag_key_dict = {}
         for key in self.all_unique_frag_dict:
             for fragment in self.all_unique_frag_dict[key]:
@@ -295,7 +295,7 @@ class Fragmenter(MSONable):
         self.all_unique_frag_dict.pop(mol_key)
 
 
-def open_ring(mol_graph: MoleculeGraph, bond, opt_steps: int):
+def open_ring(mol_graph: MoleculeGraph, bond, opt_steps: int) -> MoleculeGraph:
     """
     Function to actually open a ring using OpenBabel's local opt. Given a molecule
     graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
@@ -306,4 +306,5 @@ def open_ring(mol_graph: MoleculeGraph, bond, opt_steps: int):
     ob_mol = BabelMolAdaptor.from_molecule_graph(mol_graph)
     ob_mol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
     ob_mol.localopt(steps=opt_steps, forcefield="uff")
+
     return MoleculeGraph.with_local_env_strategy(ob_mol.pymatgen_mol, OpenBabelNN())
