@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 
 import networkx as nx
 from monty.json import MSONable
@@ -48,7 +49,7 @@ class BondDissociationEnergies(MSONable):
 
         Args:
             molecule_entry (dict): Entry for the principle molecule. Should have the keys mentioned above.
-            fragment_entries (list of dicts): List of fragment entries. Each should have the keys mentioned above.
+            fragment_entries (list[dict]): Rragment entries. Each should have the keys mentioned above.
             allow_additional_charge_separation (bool): If True, consider larger than normal charge separation
                 among fragments. Defaults to False. See the definition of self.expected_charges below for more
                 specific information.
@@ -98,7 +99,7 @@ class BondDissociationEnergies(MSONable):
             self.fragment_and_process(bonds)
         # If multibreak, loop through pairs of ring bonds.
         if multibreak:
-            print(
+            warnings.warn(
                 "Breaking pairs of ring bonds. WARNING: Structure changes much more likely, meaning dissociation values"
                 " are less reliable! This is a bad idea!"
             )
@@ -114,7 +115,7 @@ class BondDissociationEnergies(MSONable):
         """Fragment and process bonds.
 
         Args:
-            bonds (list): list of bonds to process.
+            bonds (list): bonds to process.
         """
         # Try to split the principle:
         try:
@@ -152,7 +153,7 @@ class BondDissociationEnergies(MSONable):
                         pb_mol = bb.pybel_mol
                         smiles = pb_mol.write("smi").split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-                        print(
+                        warnings.warn(
                             f"Missing ring opening fragment resulting from the breakage of {specie[bonds[0][0]]} "
                             f"{specie[bonds[0][1]]} bond {bonds[0][0]} {bonds[0][1]} which would yield a "
                             f"molecule with this SMILES string: {smiles}"
@@ -166,8 +167,7 @@ class BondDissociationEnergies(MSONable):
             elif len(bonds) == 2:
                 raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
             else:
-                print("No reason to try and break more than two bonds at once! Exiting...")
-                raise ValueError
+                raise ValueError("No reason to try and break more than two bonds at once! Exiting...")
             frag_success = False
         if frag_success:
             # If the principle did successfully split, then we aren't dealing with a ring bond.
@@ -203,14 +203,14 @@ class BondDissociationEnergies(MSONable):
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
-                            print(f"Missing {charge=} for fragment {smiles}")
+                            warnings.warn(f"Missing {charge=} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[1].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
-                            print(f"Missing {charge=} for fragment {smiles}")
+                            warnings.warn(f"Missing {charge=} for fragment {smiles}")
                 # Now we attempt to pair fragments with the right total charge, starting with only fragments with no
                 # structural change:
                 for frag1 in frag1_entries[0]:  # 0 -> no structural change
@@ -268,7 +268,7 @@ class BondDissociationEnergies(MSONable):
         Filter the fragment entries.
 
         Args:
-            fragment_entries (List): List of fragment entries to be filtered.
+            fragment_entries (List): Fragment entries to be filtered.
         """
         self.filtered_entries: list = []
         for entry in fragment_entries:
@@ -330,11 +330,11 @@ class BondDissociationEnergies(MSONable):
         Build a new entry for bond dissociation that will be returned to the user.
 
         Args:
-            frags (list): List of fragments involved in the bond dissociation.
-            bonds (list): List of bonds broken in the dissociation process.
+            frags (list): Fragments involved in the bond dissociation.
+            bonds (list): Bonds broken in the dissociation process.
 
         Returns:
-            list: Formatted bond dissociation entry.
+            list: Formatted bond dissociation entries.
         """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:
@@ -354,6 +354,7 @@ class BondDissociationEnergies(MSONable):
                 frags[1]["initial_molecule"]["spin_multiplicity"],
                 frags[1]["final_energy"],
             ]
+
         else:
             new_entry = [
                 self.molecule_entry["final_energy"] - frags[0]["final_energy"],
@@ -366,4 +367,5 @@ class BondDissociationEnergies(MSONable):
                 frags[0]["initial_molecule"]["spin_multiplicity"],
                 frags[0]["final_energy"],
             ]
+
         return new_entry
