@@ -110,11 +110,11 @@ class BondDissociationEnergies(MSONable):
             for bond_pair in self.bond_pairs:
                 self.fragment_and_process(bond_pair)
 
-    def fragment_and_process(self, bonds):
+    def fragment_and_process(self, bonds: list) -> None:
         """Fragment and process bonds.
 
         Args:
-            bonds (list): bonds to process.
+            bonds (list): list of bonds to process.
         """
         # Try to split the principle:
         try:
@@ -241,7 +241,7 @@ class BondDissociationEnergies(MSONable):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
                                 n_entries_for_this_frag_pair += 1
 
-    def search_fragment_entries(self, frag):
+    def search_fragment_entries(self, frag) -> list:
         """
         Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final molgraphs are isomorphic to the
@@ -263,13 +263,14 @@ class BondDissociationEnergies(MSONable):
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
-    def filter_fragment_entries(self, fragment_entries):
+    def filter_fragment_entries(self, fragment_entries: list) -> None:
         """
         Filter the fragment entries.
 
-        :param fragment_entries:
+        Args:
+            fragment_entries (List): List of fragment entries to be filtered.
         """
-        self.filtered_entries = []
+        self.filtered_entries: list = []
         for entry in fragment_entries:
             # Check and make sure that PCM dielectric is consistent with principle:
             if "pcm_dielectric" in self.molecule_entry:
@@ -305,8 +306,9 @@ class BondDissociationEnergies(MSONable):
                 else:
                     entry["structure_change"] = "bond_change"
             found_similar_entry = False
+
             # Check for uniqueness
-            for ii, filtered_entry in enumerate(self.filtered_entries):
+            for idx, filtered_entry in enumerate(self.filtered_entries):
                 if filtered_entry["formula_pretty"] == entry["formula_pretty"] and (
                     filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"])
                     and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"])
@@ -316,19 +318,23 @@ class BondDissociationEnergies(MSONable):
                     # If two entries are found that pass the above similarity check, take the one with the lower
                     # energy:
                     if entry["final_energy"] < filtered_entry["final_energy"]:
-                        self.filtered_entries[ii] = entry
+                        self.filtered_entries[idx] = entry
                     # Note that this will essentially choose between singlet and triplet entries assuming both have
                     # the same structural details
                     break
             if not found_similar_entry:
                 self.filtered_entries += [entry]
 
-    def build_new_entry(self, frags, bonds):
+    def build_new_entry(self, frags: list, bonds: list) -> list:
         """
-        Simple function to format a bond dissociation entry that will eventually be returned to the user.
+        Build a new entry for bond dissociation that will be returned to the user.
 
-        :param frags:
-        :param bonds:
+        Args:
+            frags (list): List of fragments involved in the bond dissociation.
+            bonds (list): List of bonds broken in the dissociation process.
+
+        Returns:
+            list: Formatted bond dissociation entry.
         """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:
