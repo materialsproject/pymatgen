@@ -1511,21 +1511,6 @@ def get_symmetrically_equivalent_miller_indices(
         system: If known, specify the crystal system of the structure
             so that it does not need to be re-calculated.
     """
-
-    def _is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
-        """Helper function to check if a given Miller index is
-        part of the family of indices of any index in a list.
-
-        Args:
-            miller_index (tuple): The Miller index to analyze
-            miller_list (list): List of Miller indices. If the given
-                Miller index belongs in the same family as any of the
-                indices in this list, return True, else return False
-            symm_ops (list): Symmetry operations of a
-                lattice, used to define family of indices
-        """
-        return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
-
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
         miller_index = (miller_index[0], miller_index[1], miller_index[-1])
@@ -1623,6 +1608,21 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
     if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in unique_millers_conv]
     return unique_millers_conv
+
+
+def _is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
+    """Helper function to check if a given Miller index is
+    part of the family of indices of any index in a list.
+
+    Args:
+        miller_index (tuple): The Miller index to analyze
+        miller_list (list): List of Miller indices. If the given
+            Miller index belongs in the same family as any of the
+            indices in this list, return True, else return False
+        symm_ops (list): Symmetry operations of a
+            lattice, used to define family of indices
+    """
+    return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
 
 
 def hkl_transformation(transf: np.ndarray, miller_index: tuple[int, int, int]) -> tuple[int, int, int]:
