@@ -1090,12 +1090,12 @@ class ForceField(MSONable):
             )
 
         index, masses, self.mass_info, atoms_map = [], [], [], {}
-        for i, m in enumerate(mass_info):
-            index.append(i + 1)
+        for idx, m in enumerate(mass_info):
+            index.append(idx + 1)
             mass = map_mass(m[1])
             masses.append(mass)
             self.mass_info.append((m[0], mass))
-            atoms_map[m[0]] = i + 1
+            atoms_map[m[0]] = idx + 1
         self.masses = pd.DataFrame({"mass": masses}, index=index)
         self.maps = {"Atoms": atoms_map}
 

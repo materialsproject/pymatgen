@@ -780,11 +780,11 @@ class SlabGenerator:
             initial_structure.add_site_property(
                 "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
             )
-        latt = initial_structure.lattice
+        lattice = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
-        recp = latt.reciprocal_lattice_crystallographic
-        normal = recp.get_cartesian_coords(miller_index)
+        recip_lattice = lattice.reciprocal_lattice_crystallographic
+        normal = recip_lattice.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
 
         slab_scale_factor = []
@@ -798,7 +798,7 @@ class SlabGenerator:
                 slab_scale_factor.append(eye[ii])
             else:
                 # Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, latt.matrix[ii])) / latt.abc[ii]
+                d = abs(np.dot(normal, lattice.matrix[ii])) / lattice.abc[ii]
                 non_orth_ind.append((ii, d))
 
         # We want the vector that has maximum magnitude in the
@@ -827,7 +827,7 @@ class SlabGenerator:
             for uvw in itertools.product(index_range, index_range, index_range):
                 if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
                     continue
-                vec = latt.get_cartesian_coords(uvw)
+                vec = lattice.get_cartesian_coords(uvw)
                 osdm = np.linalg.norm(vec)
                 cosine = abs(np.dot(vec, normal) / osdm)
                 candidates.append((uvw, cosine, osdm))

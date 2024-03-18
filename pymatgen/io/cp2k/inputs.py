@@ -2251,17 +2251,17 @@ class BasisInfo(MSONable):
         data["polarization"] = string.count("P")
         data["diffuse"] = string.count("X")
         string = f"#{string}"
-        for i, s in enumerate(string):
-            if s == "Z":
-                z = int(tmp.get(string[i - 1], string[i - 1]))
+        for idx, char in enumerate(string):
+            if char == "Z":
+                z = int(tmp.get(string[idx - 1], string[idx - 1]))
                 data["core"] = z if bool_core else None
                 data["valence"] = z
-            elif s == "P" and string[i - 1].isnumeric():
-                data["polarization"] = int(string[i - 1])
-            elif s == "X" and string[i - 1].isnumeric():
-                data["diffuse"] = int(string[i - 1])
-            elif s == "Q" and string[i + 1].isnumeric():
-                data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
+            elif char == "P" and string[idx - 1].isnumeric():
+                data["polarization"] = int(string[idx - 1])
+            elif char == "X" and string[idx - 1].isnumeric():
+                data["diffuse"] = int(string[idx - 1])
+            elif char == "Q" and string[idx + 1].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[idx + 1 :] if _.isnumeric()))
 
         if not data["diffuse"]:
             data["diffuse"] = string.count("AUG")
@@ -2526,9 +2526,9 @@ class PotentialInfo(MSONable):
             data["nlcc"] = True
         if "GTH" in string:
             data["potential_type"] = "GTH"
-        for i, s in enumerate(string):
-            if s == "Q" and string[i + 1].isnumeric():
-                data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
+        for idx, char in enumerate(string):
+            if char == "Q" and string[idx + 1].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[idx + 1 :] if _.isnumeric()))
 
         for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
             if x in string:
@@ -2671,8 +2671,8 @@ class GthPotential(AtomicMetadata):
             info.electrons = Element(element).Z
         else:
             potential = "Pseudopotential"
-        nelecs = {i: int(n) for i, n in enumerate(lines[1].split())}
-        info.electrons = sum(nelecs.values())  # override, more reliable than name
+        n_elecs = {idx: int(n_elec) for idx, n_elec in enumerate(lines[1].split())}
+        info.electrons = sum(n_elecs.values())  # override, more reliable than name
         thirdline = lines[2].split()
         r_loc, nexp_ppl, c_exp_ppl = (
             float(thirdline[0]),
@@ -2711,7 +2711,7 @@ class GthPotential(AtomicMetadata):
             name=name,
             alias_names=aliases,
             potential=potential,
-            n_elecs=nelecs,
+            n_elecs=n_elecs,
             r_loc=r_loc,
             nexp_ppl=nexp_ppl,
             c_exp_ppl=c_exp_ppl,

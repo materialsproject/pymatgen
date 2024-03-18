@@ -1039,8 +1039,8 @@ class MagneticStructureEnumerator:
                 f"Removing {len(ordered_structures) - len(structs_to_keep)} low symmetry ordered structures"
             )
 
-            ordered_structures = [ordered_structures[i] for i, _ in structs_to_keep]
-            ordered_structures_origins = [ordered_structures_origins[i] for i, _ in structs_to_keep]
+            ordered_structures = [ordered_structures[idx] for idx, _struct in structs_to_keep]
+            ordered_structures_origins = [ordered_structures_origins[idx] for idx, _struct in structs_to_keep]
 
             # and ensure fm is always at index 0
             fm_index = ordered_structures_origins.index("fm")

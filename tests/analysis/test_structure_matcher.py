@@ -546,27 +546,27 @@ class TestStructureMatcher(PymatgenTest):
             allow_subset=True,
         )
         latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
-        s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        struct1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        struct1.make_supercell([2, 1, 1])
+        struct2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [2, 0, 1, 3, 5, 4]
-        s1 = Structure.from_sites([s1[i] for i in shuffle])
+        struct1 = Structure.from_sites([struct1[i] for i in shuffle])
         # test the mapping
-        s2.make_supercell([2, 1, 1])
+        struct2.make_supercell([2, 1, 1])
         # equal sizes
-        for i, x in enumerate(sm.get_mapping(s1, s2)):
-            assert s1[x].species == s2[i].species
+        for ii, jj in enumerate(sm.get_mapping(struct1, struct2)):
+            assert struct1[jj].species == struct2[ii].species
 
-        del s1[0]
+        del struct1[0]
         # s1 is subset of s2
-        for i, x in enumerate(sm.get_mapping(s2, s1)):
-            assert s1[i].species == s2[x].species
+        for ii, jj in enumerate(sm.get_mapping(struct2, struct1)):
+            assert struct1[ii].species == struct2[jj].species
         # s2 is smaller than s1
-        del s2[0]
-        del s2[1]
+        del struct2[0]
+        del struct2[1]
         with pytest.raises(ValueError, match="subset is larger than superset"):
-            sm.get_mapping(s2, s1)
+            sm.get_mapping(struct2, struct1)
 
     def test_get_supercell_matrix(self):
         sm = StructureMatcher(

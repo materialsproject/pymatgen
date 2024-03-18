@@ -2615,7 +2615,7 @@ class IStructure(SiteCollection, MSONable):
                 for idx in range(1, len(dists)):
                     if dists[idx] - dists[idx - 1] > 0.1:
                         unique_dists.append(dists[idx])
-                clusters = {(i + 2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
+                clusters = {(idx + 2): dist + 0.01 for idx, dist in enumerate(unique_dists) if idx < 2}
                 kwargs["clusters"] = clusters
             return [run_mcsqs(self, **kwargs).bestsqs]
         raise ValueError("Invalid mode!")

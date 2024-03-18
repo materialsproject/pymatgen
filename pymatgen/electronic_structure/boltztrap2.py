@@ -849,20 +849,23 @@ class BztTransportProperties:
         self.mu_doping_eV = {k: v / units.eV - self.efermi for k, v in mu_doping.items()}
         self.contain_props_doping = True
 
-    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.0):
     #     """
-    #     Find the mu.
+    #     Find the chemical potential (mu).
 
     #     Args:
-    #         epsilon:
-    #         dos:
-    #         N0:
-    #         T:
-    #         dosweight:
+    #         epsilon (np.array): Array of energy values.
+    #         dos (np.array): Array of density of states values.
+    #         N0 (float): Background carrier concentration.
+    #         T (float): Temperature in Kelvin.
+    #         dosweight (float, optional): Weighting factor for the density of states. Default is 2.0.
+
+    #     Returns:
+    #         float: The chemical potential (mu) value.
     #     """
     #     delta = np.empty_like(epsilon)
-    #     for i, e in enumerate(epsilon):
-    #         delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+    #     for idx, eps in enumerate(epsilon):
+    #         delta[idx] = BL.calc_N(epsilon, dos, eps, T, dosweight) + N0
     #     delta = np.abs(delta)
     #     # Find the position optimizing this distance
     #     pos = np.abs(delta).argmin()

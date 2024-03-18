@@ -881,8 +881,8 @@ class SpacegroupAnalyzer:
         kpts = np.array(kpoints)
         shift = []
         mesh = []
-        for i in range(3):
-            nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
+        for idx in range(3):
+            nonzero = [i for i in kpts[:, idx] if abs(i) > 1e-5]
             if len(nonzero) != len(kpts):
                 # gamma centered
                 if not nonzero:
@@ -902,11 +902,11 @@ class SpacegroupAnalyzer:
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
         mapped = defaultdict(int)
-        for k in kpoints:
-            for i, g in enumerate(grid):
-                if np.allclose(pbc_diff(k, g), (0, 0, 0), atol=atol):
+        for kpt in kpoints:
+            for idx, g in enumerate(grid):
+                if np.allclose(pbc_diff(kpt, g), (0, 0, 0), atol=atol):
                     mapped[tuple(g)] += 1
-                    weights.append(mapping.count(mapping[i]))
+                    weights.append(mapping.count(mapping[idx]))
                     break
         if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
             raise ValueError("Unable to find 1:1 corresponding between input kpoints and irreducible grid!")
