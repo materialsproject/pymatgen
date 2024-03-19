@@ -171,7 +171,7 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     """Build enum.
 
     Args:
-        fortran_command:
+        fortran_command: The Fortran compiler command.
     """
     cwd = os.getcwd()
     state = True
@@ -198,7 +198,7 @@ def build_bader(fortran_command="gfortran"):
     """Build bader package.
 
     Args:
-        fortran_command:
+        fortran_command: The Fortran compiler command.
     """
     bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     cwd = os.getcwd()

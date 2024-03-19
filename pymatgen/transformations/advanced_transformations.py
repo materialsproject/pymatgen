@@ -583,7 +583,7 @@ class MagOrderParameterConstraint(MSONable):
         Args:
             order_parameter (float): any number from 0.0 to 1.0,
                 typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
-            species_constraint (list): str or list of strings
+            species_constraints (list): str or list of strings
                 of Species symbols that the constraint should apply to
             site_constraint_name (str): name of the site property
                 that the constraint should apply to, e.g. "coordination_no"

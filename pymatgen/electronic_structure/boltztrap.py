@@ -366,11 +366,12 @@ class BoltztrapRunner(MSONable):
                 "'formatted',0\n"
             )
 
-    def write_proj(self, output_file_proj, output_file_def) -> None:
+    def write_proj(self, output_file_proj: str, output_file_def: str) -> None:
         """Writes the projections to an output file.
 
         Args:
-            output_file: Filename
+            output_file_proj: output file name
+            output_file_def: output file name
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def

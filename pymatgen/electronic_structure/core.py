@@ -13,6 +13,8 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
 
 @unique
 class Spin(Enum):
@@ -151,7 +153,7 @@ class Magmom(MSONable):
         self.saxis = saxis / np.linalg.norm(saxis)
 
     @classmethod
-    def from_global_moment_and_saxis(cls, global_moment, saxis):
+    def from_global_moment_and_saxis(cls, global_moment, saxis) -> Self:
         """Convenience method to initialize Magmom from a given global
         magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
         provided saxis.
@@ -160,7 +162,7 @@ class Magmom(MSONable):
         magnetic moment in frame of your desired saxis.
 
         Args:
-            global_moment:
+            global_moment: global magnetic moment
             saxis: desired saxis
         """
         magmom = Magmom(global_moment)

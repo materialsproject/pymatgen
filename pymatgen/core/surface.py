@@ -591,6 +591,7 @@ class Slab(Structure):
 
         Args:
             point: Fractional coordinate.
+            cartesian: Where to use Cartesian coordinate.
 
         Returns:
             point: Fractional coordinate. A point equivalent to the

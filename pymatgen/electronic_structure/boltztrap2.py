@@ -951,11 +951,13 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
-        """
+        """Placeholder.
+
+        TODO: missing docstrings for __init__
 
         Args:
-            bzt_transP:
-            bzt_interp:
+            bzt_transP (_type_, optional): _description_. Defaults to None.
+            bzt_interp (_type_, optional): _description_. Defaults to None.
         """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp

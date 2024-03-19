@@ -267,7 +267,7 @@ class Critic2Caller:
         for the charge difference (magnetization density).
 
         Args:
-        path: path to folder to search in
+            path: path to folder to search in
             suffix: specific suffix to look for (e.g. '.relax1' for
                 'CHGCAR.relax1.gz')
             zpsp: manually specify ZPSP if POTCAR not present
@@ -876,7 +876,7 @@ class Critic2Analysis(MSONable):
             idx: index
             unique_idx: index of unique CriticalPoint,
                 used to look up more information of point (field etc.)
-            frac_coord: fractional coordinates of point
+            frac_coords: fractional coordinates of point
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
