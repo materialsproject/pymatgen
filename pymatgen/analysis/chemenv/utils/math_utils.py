@@ -61,7 +61,7 @@ def prime_factors(n: int) -> list[int]:
     return [n]  # n is prime
 
 
-def _factor_generator(n: int):
+def _factor_generator(n: int) -> dict[int, int]:
     """
     From a given natural integer, returns the prime factors and their multiplicity
 
@@ -69,7 +69,7 @@ def _factor_generator(n: int):
         n: Natural integer
     """
     p = prime_factors(n)
-    factors = {}
+    factors: dict[int, int] = {}
     for p1 in p:
         try:
             factors[p1] += 1
@@ -78,7 +78,7 @@ def _factor_generator(n: int):
     return factors
 
 
-def divisors(n: int):
+def divisors(n):
     """
     From a given natural integer, returns the list of divisors in ascending order
 

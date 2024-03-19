@@ -535,18 +535,21 @@ class Tensor(np.ndarray, MSONable):
         # TODO: refactor rank inheritance to make this easier
         indices = np.array(indices)
         if voigt_rank:
-            shape = [3] * (voigt_rank % 2) + [6] * (voigt_rank // 2)
+            shape = np.array([3] * (voigt_rank % 2) + [6] * (voigt_rank // 2))
         else:
             shape = np.ceil(np.max(indices + 1, axis=0) / 3.0) * 3
+
         base = np.zeros(shape.astype(int))
         for v, idx in zip(values, indices):
             base[tuple(idx)] = v
         obj = cls.from_voigt(base) if 6 in shape else cls(base)
+
         if populate:
             assert structure, "Populate option must include structure input"
             obj = obj.populate(structure, vsym=vsym, verbose=verbose)
         elif structure:
             obj = obj.fit_to_structure(structure)
+
         return obj
 
     def populate(
@@ -826,7 +829,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """TensorCollection where all tensors are voigt symmetrized."""
         return type(self)([tensor.voigt_symmetrized for tensor in self])
 
-    def as_dict(self, voigt: bool = False) -> dict:
+    def as_dict(self, voigt=False):
         """
 
         Args:

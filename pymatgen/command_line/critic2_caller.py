@@ -96,16 +96,16 @@ class Critic2Caller:
         # not otherwise used
         self._input_script = input_script
 
-        with open("input_script.cri", mode="w") as file:
+        with open("input_script.cri", mode="w", encoding="utf-8") as file:
             file.write(input_script)
 
         args = ["critic2", "input_script.cri"]
         with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-            stdout, stderr = rs.communicate()
-        stdout = stdout.decode()
+            _stdout, _stderr = rs.communicate()
+        stdout = _stdout.decode()
 
-        if stderr:
-            stderr = stderr.decode()
+        if _stderr:
+            stderr = _stderr.decode()
             warnings.warn(stderr)
 
         if rs.returncode != 0:
@@ -223,7 +223,7 @@ class Critic2Caller:
             input_script += ["yt"]
             input_script += ["yt JSON yt.json"]
 
-        input_script = "\n".join(input_script)
+        input_script_str = "\n".join(input_script)
 
         with ScratchDir("."):
             structure.to(filename="POSCAR")
@@ -238,7 +238,7 @@ class Critic2Caller:
             elif chgcar_ref:
                 os.symlink(chgcar_ref, "ref.CHGCAR")
 
-            caller = cls(input_script)
+            caller = cls(input_script_str)
 
             caller.output = Critic2Analysis(
                 structure,

@@ -2624,7 +2624,7 @@ class VaspInput(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct):
         """
 
         Args:

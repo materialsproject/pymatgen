@@ -572,12 +572,12 @@ $geometry
             FiestaInput
         """
         return cls(
-            Molecule.from_dict(d["mol"]),
+            mol=Molecule.from_dict(d["mol"]),
             correlation_grid=d["correlation_grid"],
-            Exc_DFT_option=d["Exc_DFT_option"],
-            COHSEX_options=d["geometry_options"],
-            GW_options=d["symmetry_options"],
-            BSE_TDDFT_options=d["memory_options"],
+            exc_dft_option=d["Exc_DFT_option"],
+            cohsex_options=d["geometry_options"],
+            gw_options=d["symmetry_options"],
+            bse_tddft_options=d["memory_options"],
         )
 
     @classmethod

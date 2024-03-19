@@ -130,7 +130,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
-    def normalize(self, factor: float) -> float:
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
 

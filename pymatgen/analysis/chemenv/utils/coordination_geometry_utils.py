@@ -1077,7 +1077,8 @@ class Plane:
             return cls.from_npoints_least_square_distance(points)
         if best_fit == "maximum_distance":
             return cls.from_npoints_maximum_distance(points)
-        return None
+
+        raise ValueError("Cannot initialize Plane.")
 
     @classmethod
     def from_npoints_least_square_distance(cls, points) -> Self:
