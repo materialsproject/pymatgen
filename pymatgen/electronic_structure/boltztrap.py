@@ -252,7 +252,8 @@ class BoltztrapRunner(MSONable):
     def write_energy(self, output_file) -> None:
         """Writes the energy to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         with open(output_file, mode="w") as file:
             file.write("test\n")
@@ -304,7 +305,8 @@ class BoltztrapRunner(MSONable):
     def write_struct(self, output_file) -> None:
         """Writes the structure to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         if self._symprec is not None:
             sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
@@ -338,7 +340,8 @@ class BoltztrapRunner(MSONable):
     def write_def(self, output_file) -> None:
         """Writes the def to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
@@ -366,7 +369,8 @@ class BoltztrapRunner(MSONable):
     def write_proj(self, output_file_proj, output_file_def) -> None:
         """Writes the projections to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
@@ -421,7 +425,8 @@ class BoltztrapRunner(MSONable):
     def write_intrans(self, output_file) -> None:
         """Writes the intrans to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         setgap = 1 if self.scissor > 0.0001 else 0
 
@@ -497,7 +502,8 @@ class BoltztrapRunner(MSONable):
     def write_input(self, output_dir) -> None:
         """Writes the input files.
 
-        :param output_dir: Directory to write the input files.
+        Args:
+            output_dir: Directory to write the input files.
         """
         if self._bs.is_spin_polarized or self.soc:
             self.write_energy(f"{output_dir}/boltztrap.energyso")
@@ -2140,7 +2146,10 @@ class BoltztrapAnalyzer:
 
 
 def read_cube_file(filename):
-    """:param filename: Cube filename
+    """
+
+    Args:
+        filename: Cube filename.
 
     Returns:
         Energy data.

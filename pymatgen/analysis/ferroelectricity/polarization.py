@@ -424,7 +424,11 @@ class EnergyTrend:
     """Class for fitting trends to energies."""
 
     def __init__(self, energies):
-        """:param energies: Energies"""
+        """
+
+        Args:
+            energies: Energies
+        """
         self.energies = energies
 
     def spline(self):

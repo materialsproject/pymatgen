@@ -64,18 +64,19 @@ def draw_cg(
     """
     Draw cg.
 
-    :param vis:
-    :param site:
-    :param neighbors:
-    :param cg:
-    :param perm:
-    :param perfect2local_map:
-    :param show_perfect:
-    :param csm_info:
-    :param symmetry_measure_type:
-    :param perfect_radius:
-    :param show_distorted:
-    :param faces_color_override:
+    Args:
+        site:
+        vis:
+        neighbors:
+        cg:
+        perm:
+        perfect2local_map:
+        show_perfect:
+        csm_info:
+        symmetry_measure_type:
+        perfect_radius:
+        show_distorted:
+        faces_color_override:
     """
     if show_perfect:
         if csm_info is None:
@@ -154,12 +155,13 @@ def draw_cg(
 def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_override=None):
     """
     Visualizing a coordination geometry
-    :param cg:
-    :param zoom:
-    :param vis:
-    :param factor:
-    :param view_index:
-    :param faces_color_override:
+    Args:
+        cg:
+        zoom:
+        vis:
+        factor:
+        view_index:
+        faces_color_override:
     """
     if vis is None and StructureVis is not None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
@@ -192,7 +194,8 @@ def compute_environments(chemenv_configuration):
     """
     Compute the environments.
 
-    :param chemenv_configuration:
+    Args:
+        chemenv_configuration:
     """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},
