@@ -111,7 +111,7 @@ class BondDissociationEnergies(MSONable):
             for bond_pair in self.bond_pairs:
                 self.fragment_and_process(bond_pair)
 
-    def fragment_and_process(self, bonds: list) -> None:
+    def fragment_and_process(self, bonds):
         """Fragment and process bonds.
 
         Args:
@@ -121,6 +121,7 @@ class BondDissociationEnergies(MSONable):
         try:
             frags = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
             frag_success = True
+
         except MolGraphSplitError:
             # If split is unsuccessful, then we have encountered a ring bond
             if len(bonds) == 1:
@@ -169,6 +170,7 @@ class BondDissociationEnergies(MSONable):
             else:
                 raise ValueError("No reason to try and break more than two bonds at once! Exiting...")
             frag_success = False
+
         if frag_success:
             # If the principle did successfully split, then we aren't dealing with a ring bond.
             # As above, we begin by making sure we haven't already encountered an identical pair of fragments:
