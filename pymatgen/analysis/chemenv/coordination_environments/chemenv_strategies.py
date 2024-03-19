@@ -1227,7 +1227,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
             "max_csm": self.max_csm,
         }
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
 
@@ -2107,7 +2107,8 @@ class CNBiasNbSetWeight(NbSetWeight):
             return cls.geometrically_equidistant(weight_cn1=dct["weight_cn1"], weight_cn13=dct["weight_cn13"])
         if dct["type"] == "explicit":
             return cls.explicit(cn_weights=dct["cn_weights"])
-        return None
+
+        raise RuntimeError("Cannot initialize Weights.")
 
 
 class DistanceAngleAreaNbSetWeight(NbSetWeight):
