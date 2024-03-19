@@ -1045,7 +1045,7 @@ class StructureGraph(MSONable):
             motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
-        return sorted(list(set(motifs)))
+        return sorted(set(motifs))
 
     def as_dict(self) -> dict:
         """
