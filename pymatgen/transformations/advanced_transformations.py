@@ -578,14 +578,17 @@ class MagOrderParameterConstraint(MSONable):
         site_constraint_name=None,
         site_constraints=None,
     ):
-        """:param order_parameter (float): any number from 0.0 to 1.0,
-            typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
-        :param species_constraint (list): str or list of strings
-            of Species symbols that the constraint should apply to
-        :param site_constraint_name (str): name of the site property
-            that the constraint should apply to, e.g. "coordination_no"
-        :param site_constraints (list): list of values of the site
-            property that the constraints should apply to
+        """
+
+        Args:
+            order_parameter (float): any number from 0.0 to 1.0,
+                typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
+            species_constraint (list): str or list of strings
+                of Species symbols that the constraint should apply to
+            site_constraint_name (str): name of the site property
+                that the constraint should apply to, e.g. "coordination_no"
+            site_constraints (list): list of values of the site
+                property that the constraints should apply to.
         """
         # validation
         if site_constraints and site_constraints != [None] and not site_constraint_name:
@@ -632,22 +635,25 @@ class MagOrderingTransformation(AbstractTransformation):
     """
 
     def __init__(self, mag_species_spin, order_parameter=0.5, energy_model=None, **kwargs):
-        """:param mag_species_spin: A mapping of elements/species to their
-            spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
-        :param order_parameter (float or list): if float, a specifies a
-            global order parameter and can take values from 0.0 to 1.0
-            (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
-            list has to be a list of
-            pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint
-            to specify more complicated orderings, see documentation for
-            MagOrderParameterConstraint more details on usage
-        :param energy_model: Energy model to rank the returned structures,
-            see :mod: `pymatgen.analysis.energy_models` for more information (note
-            that this is not necessarily a physical energy). By default, returned
-            structures use SymmetryModel() which ranks structures from most
-            symmetric to least.
-        :param kwargs: Additional kwargs that are passed to
-        EnumerateStructureTransformation such as min_cell_size etc.
+        """
+
+        Args:
+            mag_species_spin: A mapping of elements/species to their
+                spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
+            order_parameter (float or list): if float, a specifies a
+                global order parameter and can take values from 0.0 to 1.0
+                (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
+                list has to be a list of
+                pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint
+                to specify more complicated orderings, see documentation for
+                MagOrderParameterConstraint more details on usage
+            energy_model: Energy model to rank the returned structures,
+                see :mod: `pymatgen.analysis.energy_models` for more information (note
+                that this is not necessarily a physical energy). By default, returned
+                structures use SymmetryModel() which ranks structures from most
+                symmetric to least.
+            kwargs: Additional kwargs that are passed to
+                EnumerateStructureTransformation such as min_cell_size etc.
         """
         # checking for sensible order_parameter values
         if isinstance(order_parameter, float):
@@ -710,8 +716,11 @@ class MagOrderingTransformation(AbstractTransformation):
 
     @staticmethod
     def _add_dummy_species(structure, order_parameters):
-        """:param structure: ordered Structure
-        :param order_parameters: list of MagOrderParameterConstraints
+        """
+
+        Args:
+            structure: ordered Structure
+            order_parameters: list of MagOrderParameterConstraints.
 
         Returns:
             A structure decorated with disordered

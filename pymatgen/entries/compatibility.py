@@ -194,7 +194,10 @@ class GasCorrection(Correction):
         self.cpd_energies = c["Advanced"]["CompoundEnergies"]
 
     def get_correction(self, entry) -> ufloat:
-        """:param entry: A ComputedEntry/ComputedStructureEntry
+        """
+
+        Args:
+            entry: A ComputedEntry/ComputedStructureEntry.
 
         Returns:
             Correction.
@@ -235,7 +238,10 @@ class AnionCorrection(Correction):
         self.correct_peroxide = correct_peroxide
 
     def get_correction(self, entry) -> ufloat:
-        """:param entry: A ComputedEntry/ComputedStructureEntry
+        """
+
+        Args:
+            entry: A ComputedEntry/ComputedStructureEntry.
 
         Returns:
             Correction.
@@ -332,7 +338,9 @@ class AqueousCorrection(Correction):
             self.cpd_errors = defaultdict(float)
 
     def get_correction(self, entry) -> ufloat:
-        """:param entry: A ComputedEntry/ComputedStructureEntry
+        """
+        Args:
+            entry: A ComputedEntry/ComputedStructureEntry.
 
         Returns:
             Correction, Uncertainty.
@@ -446,7 +454,10 @@ class UCorrection(Correction):
             self.u_errors = {}
 
     def get_correction(self, entry) -> ufloat:
-        """:param entry: A ComputedEntry/ComputedStructureEntry
+        """
+
+        Args:
+            entry: A ComputedEntry/ComputedStructureEntry.
 
         Returns:
             Correction, Uncertainty.

@@ -78,8 +78,11 @@ class XPS(Spectrum):
     @classmethod
     def from_dos(cls, dos: CompleteDos):
         """
-        :param dos: CompleteDos object with project element-orbital DOS. Can be obtained from Vasprun.get_complete_dos.
-        :param sigma: Smearing for Gaussian.
+
+        Args:
+            dos: CompleteDos object with project element-orbital DOS.
+            Can be obtained from Vasprun.get_complete_dos.
+            sigma: Smearing for Gaussian.
 
         Returns:
             XPS

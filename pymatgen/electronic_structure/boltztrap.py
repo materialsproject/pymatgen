@@ -1614,7 +1614,10 @@ class BoltztrapAnalyzer:
         return CompleteDos(structure, total_dos=total_dos, pdoss=pdoss)
 
     def get_mu_bounds(self, temp=300):
-        """:param temp: Temperature.
+        """
+
+        Args:
+            temp: Temperature.
 
         Returns:
             The chemical potential bounds at that temperature.
@@ -1996,7 +1999,10 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def from_dict(data):
-        """:param data: Dict representation.
+        """
+
+        Args:
+            data: Dict representation.
 
         Returns:
             BoltztrapAnalyzer

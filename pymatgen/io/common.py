@@ -306,7 +306,8 @@ class VolumetricData(MSONable):
         """
         Reads VolumetricData from HDF5 file.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             VolumetricData

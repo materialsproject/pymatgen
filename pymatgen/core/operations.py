@@ -452,7 +452,10 @@ class SymmOp(MSONable):
 
     @classmethod
     def from_dict(cls, dct) -> SymmOp:
-        """:param dct: dict
+        """
+
+        Args:
+            dct: dict.
 
         Returns:
             SymmOp from dict representation.
@@ -610,7 +613,10 @@ class MagSymmOp(SymmOp):
 
     @classmethod
     def from_dict(cls, dct: dict) -> MagSymmOp:
-        """:param dct: dict
+        """
+
+        Args:
+            dct: dict.
 
         Returns:
             MagneticSymmOp from dict representation.

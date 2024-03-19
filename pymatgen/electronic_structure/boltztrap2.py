@@ -853,11 +853,12 @@ class BztTransportProperties:
     #     """
     #     Find the mu.
 
-    #     :param epsilon:
-    #     :param dos:
-    #     :param N0:
-    #     :param T:
-    #     :param dosweight:
+    #     Args:
+    #         epsilon:
+    #         dos:
+    #         N0:
+    #         T:
+    #         dosweight:
     #     """
     #     delta = np.empty_like(epsilon)
     #     for i, e in enumerate(epsilon):
@@ -950,8 +951,11 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
-        """:param bzt_transP:
-        :param bzt_interp:
+        """
+
+        Args:
+            bzt_transP:
+            bzt_interp:
         """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp

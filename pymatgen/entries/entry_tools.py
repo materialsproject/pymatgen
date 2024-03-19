@@ -211,14 +211,16 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def add(self, element):
         """Add an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.add(element)
 
     def discard(self, element):
         """Discard an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.discard(element)
 

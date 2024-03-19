@@ -47,7 +47,8 @@ class COD:
     def query(self, sql: str) -> str:
         """Perform a query.
 
-        :param sql: SQL string
+        Args:
+            sql: SQL string
 
         Returns:
             Response from SQL query.

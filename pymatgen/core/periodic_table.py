@@ -1227,7 +1227,10 @@ class Species(MSONable, Stringify):
 
     @classmethod
     def from_dict(cls, d) -> Species:
-        """:param d: Dict representation.
+        """
+
+        Args:
+            d: Dict representation.
 
         Returns:
             Species.
@@ -1384,7 +1387,10 @@ class DummySpecies(Species):
 
     @classmethod
     def from_dict(cls, d) -> DummySpecies:
-        """:param d: Dict representation
+        """
+
+        Args:
+            d: Dict representation.
 
         Returns:
             DummySpecies

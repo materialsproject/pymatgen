@@ -482,7 +482,10 @@ class Slab(Structure):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Slab:  # type: ignore[override]
-        """:param dct: dict
+        """
+
+        Args:
+            dct: dict.
 
         Returns:
             Creates slab from dict.

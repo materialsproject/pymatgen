@@ -460,7 +460,9 @@ class GaussianInput:
     @classmethod
     def from_dict(cls, dct: dict) -> GaussianInput:
         """
-        :param dct: dict
+
+        Args:
+            dct: dict
 
         Returns:
             GaussianInput

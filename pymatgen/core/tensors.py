@@ -669,8 +669,11 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     """
 
     def __init__(self, tensor_list: Sequence, base_class=Tensor) -> None:
-        """:param tensor_list: List of tensors.
-        :param base_class: Class to be used.
+        """
+
+        Args:
+            tensor_list: List of tensors.
+            base_class: Class to be used.
         """
         self.tensors = [tensor if isinstance(tensor, base_class) else base_class(tensor) for tensor in tensor_list]
 
