@@ -539,7 +539,7 @@ class Tags(dict):
         Feff tags. Also cleans the parameter and val by stripping leading and
         trailing white spaces.
 
-        Arg:
+        Args:
             key: dict key value
             value: value associated with key in dictionary
         """
@@ -857,7 +857,7 @@ class Potential(MSONable):
         Creates atomic symbol/potential number dictionary
         forward and reverse.
 
-        Arg:
+        Args:
             pot_data: potential data in string format
 
         Returns:

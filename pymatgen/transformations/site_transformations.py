@@ -49,7 +49,7 @@ class InsertSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
@@ -99,7 +99,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
@@ -140,7 +140,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
@@ -187,7 +187,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
@@ -509,7 +509,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 

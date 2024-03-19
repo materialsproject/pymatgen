@@ -967,7 +967,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         """Returns a copy of structure with lattice parameters
         and sites scaled to the same degree as the relaxed_structure.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
         """
