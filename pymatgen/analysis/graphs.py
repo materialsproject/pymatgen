@@ -1418,19 +1418,21 @@ class StructureGraph(MSONable):
             other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
-            edges = {(u, v, d["to_jimage"]) for u, v, d in self.graph.edges(keys=False, data=True)}
+            edges: set[tuple] = {(u, v, d["to_jimage"]) for u, v, d in self.graph.edges(keys=False, data=True)}
 
-            edges_other = {(u, v, d["to_jimage"]) for u, v, d in other_sorted.graph.edges(keys=False, data=True)}
+            edges_other: set[tuple] = {
+                (u, v, d["to_jimage"]) for u, v, d in other_sorted.graph.edges(keys=False, data=True)
+            }
 
         else:
             edges = {
                 (str(self.structure[u].specie), str(self.structure[v].specie))
-                for u, v, d in self.graph.edges(keys=False, data=True)
+                for u, v, _d in self.graph.edges(keys=False, data=True)
             }
 
             edges_other = {
                 (str(other.structure[u].specie), str(other.structure[v].specie))
-                for u, v, d in other.graph.edges(keys=False, data=True)
+                for u, v, _d in other.graph.edges(keys=False, data=True)
             }
 
         if len(edges) == 0 and len(edges_other) == 0:
