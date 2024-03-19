@@ -1106,6 +1106,7 @@ class Kpoints(MSONable):
     @style.setter
     def style(self, style) -> None:
         """
+        Sets the style for the Kpoints. One of Kpoints_supported_modes enum.
 
         Args:
             style: Style
