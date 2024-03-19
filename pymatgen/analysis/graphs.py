@@ -383,7 +383,7 @@ class StructureGraph(MSONable):
 
         # sanitize types
         # TODO(@DanielYang59) fix mypy error
-        from_jimage,  = tuple(map(int, from_jimage)), tuple(map(int, to_jimage))
+        from_jimage, to_jimage = tuple(map(int, from_jimage)), tuple(map(int, to_jimage))
         from_index, to_index = int(from_index), int(to_index)
 
         # if edge is from site i to site i, constrain direction of edge
