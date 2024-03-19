@@ -49,7 +49,7 @@ class BondDissociationEnergies(MSONable):
 
         Args:
             molecule_entry (dict): Entry for the principle molecule. Should have the keys mentioned above.
-            fragment_entries (list[dict]): Rragment entries. Each should have the keys mentioned above.
+            fragment_entries (list[dict]): Fragment entries. Each should have the keys mentioned above.
             allow_additional_charge_separation (bool): If True, consider larger than normal charge separation
                 among fragments. Defaults to False. See the definition of self.expected_charges below for more
                 specific information.
