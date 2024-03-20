@@ -176,7 +176,7 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     cwd = os.getcwd()
     state = True
     try:
-        subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib.git"])
+        subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib"])
         os.chdir(f"{cwd}/enumlib/symlib/src")
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
