@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
-    """Dummy class to hold information for a Slab, with additional
+    """Class to hold information for a Slab, with additional
     attributes pertaining to slabs, but the init method does not
     actually create a slab. Also has additional methods that returns other information
     about a Slab such as the surface area, normal, and atom adsorption.
@@ -178,7 +178,7 @@ class Slab(Structure):
 
     @property
     def dipole(self) -> np.ndarray:
-        """Calculate the dipole moment of the Slab in the direction of the surface normal.
+        """The dipole moment of the Slab in the direction of the surface normal.
 
         Note that the Slab must be oxidation state decorated for this to work properly.
         Otherwise, the Slab will always have a dipole moment of 0.
@@ -193,21 +193,21 @@ class Slab(Structure):
 
     @property
     def normal(self) -> np.ndarray:
-        """Calculates the surface normal vector of the slab."""
+        """The surface normal vector of the Slab, normalized to unit length."""
         normal = np.cross(self.lattice.matrix[0], self.lattice.matrix[1])
         normal /= np.linalg.norm(normal)
         return normal
 
     @property
     def surface_area(self) -> float:
-        """Calculates the surface area of the slab."""
+        """The surface area of the Slab."""
         matrix = self.lattice.matrix
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @property
     def center_of_mass(self) -> np.ndarray:
-        """Calculates the center of mass of the slab."""
-        weights = [s.species.weight for s in self]
+        """The center of mass of the Slab in fractional coordinates."""
+        weights = [site.species.weight for site in self]
         return np.average(self.frac_coords, weights=weights, axis=0)
 
     @classmethod
@@ -247,8 +247,7 @@ class Slab(Structure):
         return dct
 
     def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:
-        """Get a copy of the structure, with options to update
-        site properties.
+        """Get a copy of the structure, with options to update site properties.
 
         Args:
             site_properties (dict): Properties to update. The
@@ -275,7 +274,7 @@ class Slab(Structure):
         )
 
     def is_symmetric(self, symprec: float = 0.1) -> bool:
-        """Whether Slab is symmetric, i.e., contains inversion, mirror on (hkl) plane,
+        """Check if Slab is symmetric, i.e., contains inversion, mirror on (hkl) plane,
             or screw axis (rotation and translation) about [hkl].
 
         Args:
@@ -312,15 +311,16 @@ class Slab(Structure):
         dip_per_unit_area = self.dipole / self.surface_area
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
-    def get_surface_sites(self, tag: bool = False) -> dict:
-        """Returns the surface sites and their indices in a dictionary. The
-        oriented unit cell of the slab will determine the coordination number
-        of a typical site. We use VoronoiNN to determine the
-        coordination number of bulk sites and slab sites. Due to the
-        pathological error resulting from some surface sites in the
+    def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
+        """Returns the surface sites and their indices in a dictionary.
+        The oriented unit cell of the slab will determine the
+        coordination number of a typical site.
+
+        We use VoronoiNN to determine the coordination number of sites.
+        Due to the pathological error resulting from some surface sites in the
         VoronoiNN, we assume any site that has this error is a surface
-        site as well. This will work for elemental systems only for now. Useful
-        for analysis involving broken bonds and for finding adsorption sites.
+        site as well. This will work for single-element systems only for now.
+        Useful for analysis involving broken bonds and for finding adsorption sites.
 
         Args:
             tag (bool): Option to adds site attribute "is_surfsite" (bool)
@@ -328,7 +328,7 @@ class Slab(Structure):
 
         Returns:
             A dictionary grouping sites on top and bottom of the slab together.
-                {"top": [sites with indices], "bottom": [sites with indices}
+                {"top": [sites with indices], "bottom": [sites with indices]}
 
         Todo:
             Is there a way to determine site equivalence between sites in a slab
@@ -339,8 +339,7 @@ class Slab(Structure):
         """
         from pymatgen.analysis.local_env import VoronoiNN
 
-        # Get a dictionary of coordination numbers
-        # for each distinct site in the structure
+        # Get a dictionary of coordination numbers for each distinct site in the structure
         spga = SpacegroupAnalyzer(self.oriented_unit_cell)
         u_cell = spga.get_symmetrized_structure()
         cn_dict: dict = {}
