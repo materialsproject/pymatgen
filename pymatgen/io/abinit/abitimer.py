@@ -66,10 +66,11 @@ class AbinitTimerParser(collections.abc.Iterable):
         Scan directory tree starting from top, look for files with extension `ext` and
         parse timing data.
 
-        Return: (parser, paths, okfiles)
-            where `parser` is the new object, `paths` is the list of files found and `okfiles`
-            is the list of files that have been parsed successfully.
-            (okfiles == paths) if all files have been parsed.
+        Returns:
+            (parser, paths, okfiles)
+                where `parser` is the new object, `paths` is the list of files found and `okfiles`
+                is the list of files that have been parsed successfully.
+                (okfiles == paths) if all files have been parsed.
         """
         paths = []
         for root, _dirs, files in os.walk(top):
@@ -106,7 +107,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         Read and parse a filename or a list of filenames.
         Files that cannot be opened are ignored. A single filename may also be given.
 
-        Return: list of successfully read files.
+        Returns:
+            list of successfully read files.
         """
         if isinstance(filenames, str):
             filenames = [filenames]
@@ -251,7 +253,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         Analyze the parallel efficiency.
 
-        Return: ParallelEfficiency object.
+        Returns:
+            ParallelEfficiency object.
         """
         timers = self.timers()
 

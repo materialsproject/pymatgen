@@ -53,7 +53,7 @@ class InsertSitesTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
+        Returns:
             Returns a copy of structure with sites inserted.
         """
         struct = structure.copy()
@@ -103,7 +103,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
+        Returns:
             Returns a copy of structure with sites replaced.
         """
         struct = structure.copy()
@@ -144,7 +144,7 @@ class RemoveSitesTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
+        Returns:
             Returns a copy of structure with sites removed.
         """
         struct = structure.copy()
@@ -191,7 +191,7 @@ class TranslateSitesTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
+        Returns:
             Returns a copy of structure with sites translated.
         """
         struct = structure.copy()
@@ -513,7 +513,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
+        Returns:
             Returns a copy of structure with sites properties added.
         """
         new_struct = structure.copy()

@@ -1554,7 +1554,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                     we try to open all files in top
             exclude_dirs: Wildcard used to exclude directories.
 
-        return: PseudoTable sorted by atomic number Z.
+        Returns:
+            PseudoTable sorted by atomic number Z.
         """
         pseudos = []
 
@@ -1825,8 +1826,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         Sort the table according to the value of attribute attrname.
 
-        Return:
-            New class:`PseudoTable` object
+        Returns:
+            New class: `PseudoTable` object
         """
         attrs = []
         for i, pseudo in self:

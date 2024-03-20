@@ -1168,7 +1168,7 @@ def merge_up_down_doses(dos_up, dos_dn):
     Args:
     dos_up: Up DOS.
     dos_dn: Down DOS
-    Return:
+    Returns:
     CompleteDos object
     """
     warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")

@@ -394,7 +394,7 @@ class SymmOp(MSONable):
             origin (3x1 array): Point left invariant by roto-reflection.
                 Defaults to (0, 0, 0).
 
-        Return:
+        Returns:
             Roto-reflection operation
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)

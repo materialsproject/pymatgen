@@ -299,7 +299,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
 
-        Return:
+        Returns:
             The virtual molecule
         """
         vmol = openbabel.OBMol()
@@ -350,7 +350,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             ilabel2: inchi label map of the second molecule
             eq_atoms: equivalent atom labels
 
-        Return:
+        Returns:
             corrected inchi labels of heavy atoms of the second molecule
         """
         n_virtual = vmol1.NumAtoms()
@@ -423,7 +423,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             heavy_indices1: inchi label map of the first molecule
             heavy_indices2: label map of the second molecule
 
-        Return:
+        Returns:
             corrected label map of all atoms of the second molecule
         """
         num_atoms = mol2.NumAtoms()

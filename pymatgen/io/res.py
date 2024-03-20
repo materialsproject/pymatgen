@@ -503,7 +503,7 @@ class AirssProvider(ResProvider):
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
-        Return:
+        Returns:
             (version string, date)
         """
         for rem in self._res.REMS:

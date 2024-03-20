@@ -160,7 +160,7 @@ class BondDissociationEnergies(MSONable):
                             f"molecule with this SMILES string: {smiles}"
                         )
                     elif len(good_entries) == 1:
-                        # If we have only one good entry, format it and add it to the list that will eventually return:
+                        # If we have only one good entry, format it and add it to the list that will eventually return
                         self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
                     else:
                         # We shouldn't ever encounter more than one good entry.

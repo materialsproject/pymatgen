@@ -407,7 +407,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): Input structure
-        Return:
+        Returns:
             List of NN site information for each site in the structure. Each
                 entry has the same format as `get_nn_info`
         """

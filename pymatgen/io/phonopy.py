@@ -246,7 +246,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
             the outputting displacement yaml file, e.g. disp.yaml.
         **kwargs: Parameters used in Phonopy.generate_displacement method.
 
-    Return:
+    Returns:
         A list of symmetrically inequivalent structures with displacements, in
         which the first element is the perfect supercell structure.
     """

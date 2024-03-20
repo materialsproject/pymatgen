@@ -378,7 +378,7 @@ class WulffShape:
             units_in_JPERM2 (bool): Units of surface energy, defaults to
                 Joules per square meter (True)
 
-        Return:
+        Returns:
             (matplotlib.pyplot)
         """
         from mpl_toolkits.mplot3d import art3d
@@ -498,7 +498,7 @@ class WulffShape:
             units_in_JPERM2 (bool): Units of surface energy, defaults to
                 Joules per square meter (True)
 
-        Return:
+        Returns:
             (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"

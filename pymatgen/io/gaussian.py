@@ -36,7 +36,7 @@ def read_route_line(route):
     Args:
         route (str) : the route line
 
-    Return:
+    Returns:
         functional (str) : the method (HF, PBE ...)
         basis_set (str) : the basis set
         route (dict) : dictionary of parameters

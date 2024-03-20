@@ -21,7 +21,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
         struct: Pymatgen structure
         precision (float): tolerance to find symmetry operations
 
-    Return:
+    Returns:
         list of lists of point operations for each atomic site
     """
     point_ops: list[list[SymmOp]] = []
@@ -55,7 +55,7 @@ def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp
         pointops: list of point group operations from get_site_symmetries method
         tol (float): tolerance to find symmetry operations
 
-    Return:
+    Returns:
         list of lists of shared point operations for each pair of atomic sites
     """
     n_sites = len(struct)
