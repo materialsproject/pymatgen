@@ -4,7 +4,6 @@ import gzip
 import json
 import os
 import sys
-import unittest
 import xml.etree.ElementTree as ElementTree
 from io import StringIO
 from pathlib import Path
@@ -49,7 +48,7 @@ try:
 except ImportError:
     h5py = None
 
-kpts_opt_vrun_path = f"{TEST_FILES_DIR}/kpoints_opt/vasprun.xml.gz"
+kpts_opt_vrun_path = f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
@@ -511,7 +510,7 @@ class TestVasprun(PymatgenTest):
         copyfile(f"{VASP_IN_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
         copyfile(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz", Path("deeper") / "vasprun.xml.gz")
         vasp_run = Vasprun(
-            os.path.join("deeper", "vasprun.xml.gz"),
+            f"{'deeper'}/vasprun.xml.gz",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
@@ -667,8 +666,8 @@ class TestVasprun(PymatgenTest):
     def test_parsing_efg_calcs(self):
         filepath = f"{TEST_FILES_DIR}/nmr/efg/AlPO4/vasprun.xml"
         vasp_run = Vasprun(filepath)
-        nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
-        assert nestep == 18
+        n_elec_steps = len(vasp_run.ionic_steps[-1]["electronic_steps"])
+        assert n_elec_steps == 18
         assert vasp_run.converged
 
     def test_charged_structure(self):
@@ -739,7 +738,7 @@ class TestVasprun(PymatgenTest):
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -770,12 +769,12 @@ class TestVasprun(PymatgenTest):
         # See gh-3586
         copyfile(f"{VASP_OUT_DIR}/vasprun.Al.xml.gz", "vasprun.xml.gz")
 
-        potcar_path = f"{TEST_FILES_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
+        potcar_path = f"{VASP_IN_DIR}/fake_potcars/POTPAW_PBE_54/POTCAR.Al.gz"
         copyfile(potcar_path, "POTCAR.gz")
 
         potcar = Potcar.from_file(potcar_path)
         for leading_path in ("", "./"):
-            vrun = Vasprun(os.path.join(leading_path, "vasprun.xml.gz"), parse_potcar_file=True)
+            vrun = Vasprun(f"{leading_path}vasprun.xml.gz", parse_potcar_file=True)
             # Note that the TITEL is not updated in Vasprun.potcar_spec
             # Since the fake POTCARs modify the TITEL (to indicate fakeness), can't compare
             for ipot in range(len(potcar)):
@@ -1013,7 +1012,7 @@ class TestOutcar(PymatgenTest):
 
     def test_read_lcalcpol(self):
         # outcar with electrons Angst units
-        folder = "BTO_221_99_polarization/interpolation_6_polarization/"
+        folder = "vasp/fixtures/BTO_221_99_polarization/interpolation_6_polarization/"
         filepath = TEST_FILES_DIR / folder / "OUTCAR"
         outcar = Outcar(filepath)
 
@@ -1379,7 +1378,7 @@ class TestBSVasprun(PymatgenTest):
 
     def test_kpoints_opt(self):
         vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -1417,7 +1416,7 @@ class TestOszicar(PymatgenTest):
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
     def test_static(self):
-        fpath = f"{TEST_FILES_DIR}/static_silicon/OSZICAR"
+        fpath = f"{TEST_FILES_DIR}/vasp/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
@@ -1494,7 +1493,7 @@ class TestChgcar(PymatgenTest):
         chg_from_file = Chgcar.from_file(out_path)
         assert chg_from_file.is_soc
 
-    @unittest.skipIf(h5py is None, "h5py required for HDF5 support.")
+    @pytest.mark.skipif(h5py is None, reason="h5py required for HDF5 support.")
     def test_hdf5(self):
         chgcar = Chgcar.from_file(f"{VASP_OUT_DIR}/CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5(out_path := f"{self.tmp_path}/chgcar_test.hdf5")
@@ -1531,11 +1530,11 @@ class TestChgcar(PymatgenTest):
         with pytest.raises(
             ValueError, match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)"
         ):
-            self.chgcar_spin + self.chgcar_fe3o4
+            _ = self.chgcar_spin + self.chgcar_fe3o4
         with pytest.raises(
             ValueError, match="Data have different keys! Maybe one is spin-polarized and the other is not"
         ):
-            self.chgcar_spin + self.chgcar_no_spin
+            _ = self.chgcar_spin + self.chgcar_no_spin
 
     def test_as_dict_and_from_dict(self):
         dct = self.chgcar_NiO_soc.as_dict()
@@ -1766,7 +1765,7 @@ class TestWavecar(PymatgenTest):
 
         orig_gen_g_points = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda _x, _y, gamma: []
+            Wavecar._generate_G_points = lambda _x, _y, gamma: []  # noqa: ARG005, RUF100
             with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
                 Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2")
         finally:
@@ -1913,11 +1912,11 @@ class TestWavecar(PymatgenTest):
         assert_allclose(c.data["total"], 0.0)
 
     def test_write_unks(self):
-        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/UNK.N2.std")
-        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/UNK.H2.ncl")
+        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
+        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.H2.ncl")
 
         with pytest.raises(ValueError, match="invalid directory"):
-            self.wavecar.write_unks(f"{TEST_FILES_DIR}/UNK.N2.std")
+            self.wavecar.write_unks(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
 
         # different grids
         self.wavecar.write_unks("./unk_dir")
@@ -2017,7 +2016,7 @@ class TestWaveder(PymatgenTest):
 
 class TestWSWQ(PymatgenTest):
     def setUp(self):
-        self.wswq = WSWQ.from_file(f"{TEST_FILES_DIR}/WSWQ.gz")
+        self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):
         assert self.wswq.nbands == 18

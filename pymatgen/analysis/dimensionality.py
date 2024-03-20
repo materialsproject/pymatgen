@@ -507,18 +507,17 @@ def get_dimensionality_gorai(
     Note that if you pass both, el_radius_updates are ignored.
 
     Args:
-        structure: (Structure) structure to analyze dimensionality for
-        max_hkl: (int) max index of planes to look for layers
-        el_radius_updates: (dict) symbol->float to update atomic radii
-        min_slab_size: (float) internal surface construction parameter
-        min_vacuum_size: (float) internal surface construction parameter
+        structure (Structure): structure to analyze dimensionality for
+        max_hkl (int): max index of planes to look for layers
+        el_radius_updates (dict): symbol->float to update atomic radii
+        min_slab_size (float): internal surface construction parameter
+        min_vacuum_size (float): internal surface construction parameter
         standardize (bool): whether to standardize the structure before
             analysis. Set to False only if you already have the structure in a
             convention where layers / chains will be along low <hkl> indexes.
-        bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
+        bonds (dict[tuple, float]): bonds are specified as a dict of 2-tuples of Species mapped to floats,
+            the max bonding distance. For example, PO4 groups may be
+            defined as {("P", "O"): 3}.
 
     Returns:
         int: the dimensionality of the structure - 1 (molecules/chains),

@@ -41,7 +41,7 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
     from typing import Any
 
 try:
@@ -928,22 +928,23 @@ class MagOrderingTransformation(AbstractTransformation):
         return True
 
 
-def _find_codopant(target, oxidation_state, allowed_elements=None):
+def find_codopant(target: Species, oxidation_state: float, allowed_elements: Sequence[str] | None = None) -> Species:
     """Finds the element from "allowed elements" that (i) possesses the desired
     "oxidation state" and (ii) is closest in ionic radius to the target specie.
 
     Args:
-        target: (Species) provides target ionic radius.
-        oxidation_state: (float) codopant oxidation state.
-        allowed_elements: ([str]) List of allowed elements. If None,
+        target (Species): provides target ionic radius.
+        oxidation_state (float): co-dopant oxidation state.
+        allowed_elements (list[str]): List of allowed elements. If None,
             all elements are tried.
 
     Returns:
-        (Species) with oxidation_state that has ionic radius closest to
-        target.
+        Species: with oxidation_state that has ionic radius closest to target.
     """
     ref_radius = target.ionic_radius
-    candidates = []
+    if ref_radius is None:
+        raise ValueError(f"Target species {target} has no ionic radius.")
+    candidates: list[tuple[float, Species]] = []
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
         try:
@@ -1070,7 +1071,7 @@ class DopingTransformation(AbstractTransformation):
                 supercell.replace_species({sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}})  # type: ignore
                 logger.info(f"Doping {sp} for {self.dopant} at level {1 / nsp:.3f}")
             elif self.codopant:
-                codopant = _find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore
+                codopant = find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore
                 supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})  # type: ignore
                 logger.info(f"Doping {sp} for {self.dopant} + {codopant} at level {1 / nsp:.3f}")
             elif abs(sp.oxi_state) < abs(ox):  # type: ignore

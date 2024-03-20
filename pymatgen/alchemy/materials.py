@@ -229,14 +229,19 @@ class TransformedStructure(MSONable):
         output.extend(("\nOther parameters", "------------", str(self.other_parameters)))
         return "\n".join(output)
 
-    def set_parameter(self, key: str, value: Any) -> None:
+    def set_parameter(self, key: str, value: Any) -> TransformedStructure:
         """Sets a parameter.
 
         Args:
             key (str): The string key.
             value (Any): The value.
+
+        Returns:
+            TransformedStructure
         """
         self.other_parameters[key] = value
+
+        return self
 
     @property
     def was_modified(self) -> bool:

@@ -95,7 +95,7 @@ class TestPhonopyParser(PymatgenTest):
         assert Element.Cl in cdos.get_element_dos()
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestStructureConversion(PymatgenTest):
     def test_structure_conversion(self):
         struct_pmg = PymatgenTest.get_structure("LiFePO4")
@@ -123,7 +123,7 @@ class TestStructureConversion(PymatgenTest):
         assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
@@ -133,12 +133,12 @@ class TestGetDisplacedStructures(PymatgenTest):
         assert len(structures) == 49
         assert_allclose(
             structures[4].frac_coords[0],
-            np.array([0.10872682, 0.21783039, 0.12595286]),
+            [0.10872682, 0.21783039, 0.12595286],
             atol=1e-7,
         )
         assert_allclose(
             structures[-1].frac_coords[9],
-            np.array([0.89127318, 0.78130015, 0.37404715]),
+            [0.89127318, 0.78130015, 0.37404715],
             atol=1e-7,
         )
         assert len(structures[0]) == 128
@@ -152,10 +152,10 @@ class TestGetDisplacedStructures(PymatgenTest):
             supercell_matrix=supercell_matrix,
             yaml_fname="test.yaml",
         )
-        assert os.path.exists("test.yaml")
+        assert os.path.isfile("test.yaml")
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestPhonopyFromForceConstants(unittest.TestCase):
     def setUp(self) -> None:
         test_path = Path(TEST_DIR)
@@ -206,7 +206,6 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         assert bs.bands[2][10] == approx(2.869229797603161)
 
 
-# @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGruneisen(unittest.TestCase):
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
@@ -240,12 +239,12 @@ class TestGruneisen(unittest.TestCase):
             get_gruneisenparameter(f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
-            f"{TEST_FILES_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
-            f"{TEST_FILES_DIR}/thermal_displacement_matrices/POSCAR",
+            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
+            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/POSCAR",
         )
 
         assert_allclose(

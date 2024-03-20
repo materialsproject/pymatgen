@@ -330,8 +330,8 @@ class VoronoiConnectivity:
     def get_sitej(self, site_index, image_index):
         """
         Assuming there is some value in the connectivity array at indices
-        (1, 3, 12). sitei can be obtained directly from the input structure
-        (structure[1]). sitej can be obtained by passing 3, 12 to this function.
+        (1, 3, 12). site_i can be obtained directly from the input structure
+        (structure[1]). site_j can be obtained by passing 3, 12 to this function.
 
         Args:
             site_index (int): index of the site (3 in the example)

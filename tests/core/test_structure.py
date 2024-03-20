@@ -88,7 +88,7 @@ class TestIStructure(PymatgenTest):
         )
         self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
 
-    @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
+    @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered
@@ -668,7 +668,7 @@ Direct
             assert_allclose(cy_indices2, py_indices2)
             assert len(cy_offsets) == len(py_offsets)
 
-    # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
+    # @skipIf(not os.getenv("CI"), reason="Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
     #
     #     for i in range(100):
@@ -874,12 +874,12 @@ Direct
 
         # test CIF file with unicode error
         # https://github.com/materialsproject/pymatgen/issues/2947
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
         # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
         # i.e. uses same merge_tol for site merging, same primitive=False, etc.
-        assert struct == CifParser(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif").parse_structures()[0]
+        assert struct == CifParser(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif").parse_structures()[0]
 
         # https://github.com/materialsproject/pymatgen/issues/3551
         json_path = Path("test-with-path.json")
@@ -1559,7 +1559,7 @@ class TestStructure(PymatgenTest):
         assert super_cell.charge == 25, "Set charge not properly modifying _charge"
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/CON_vesta.xyz")
+        silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/CON_vesta.xyz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, vesta=True),
@@ -1719,22 +1719,22 @@ class TestStructure(PymatgenTest):
 
     @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet(self):
-        pytest.importorskip("matgl")
+        matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
         assert relaxed.lattice.a == approx(3.867626620642243, rel=0.01)  # allow 1% error
-        assert hasattr(relaxed, "calc")
+        assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
 
     @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet_fixed_lattice(self):
-        pytest.importorskip("matgl")
+        matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax(relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == struct.lattice
-        assert hasattr(relaxed, "calc")
+        assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
     @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")

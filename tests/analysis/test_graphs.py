@@ -341,7 +341,9 @@ from    to  to_image
         for n in range(len(nio_sg)):
             assert nio_sg.get_coordination_of_site(n) == 6
 
-    @unittest.skipIf(pygraphviz is None or not (which("neato") and which("fdp")), "graphviz executables not present")
+    @pytest.mark.skipif(
+        pygraphviz is None or not (which("neato") and which("fdp")), reason="graphviz executables not present"
+    )
     def test_draw(self):
         # draw MoS2 graph
         self.mos2_sg.draw_graph_to_file(f"{self.tmp_path}/MoS2_single.pdf", image_labels=True, hide_image_edges=False)
@@ -427,10 +429,7 @@ from    to  to_image
         assert sg == self.square_sg
 
     def test_extract_molecules(self):
-        structure_file = os.path.join(
-            TEST_FILES_DIR,
-            "H6PbCI3N_mp-977013_symmetrized.cif",
-        )
+        structure_file = f"{TEST_FILES_DIR}/H6PbCI3N_mp-977013_symmetrized.cif"
 
         struct = Structure.from_file(structure_file)
 

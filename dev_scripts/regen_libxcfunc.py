@@ -34,13 +34,13 @@ def parse_libxc_docs(path):
         section = []
         for line in file:
             if not line.startswith("-"):
-                section.append(line)
+                section += [line]
             else:
                 num, entry = parse_section(section)
                 assert num not in dct
                 dct[num] = entry
                 section = []
-        assert not section
+        assert section == []
 
     return dct
 
@@ -95,7 +95,7 @@ def main():
     for num, d in xc_funcs.items():
         # Remove XC_ from codename
         codename = d["Codename"][3:]
-        enum_list.append(f"    {codename} = {num}")
+        enum_list += [f"    {codename} = {num}"]
     enum_list = "\n".join(enum_list) + "\n"
 
     # Re-generate enumerations.

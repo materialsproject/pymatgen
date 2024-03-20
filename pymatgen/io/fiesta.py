@@ -358,7 +358,7 @@ class FiestaInput(MSONable):
     @staticmethod
     def make_full_bse_densities_folder(folder):
         """Mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder."""
-        if os.path.exists(f"{folder}/FULL_BSE_Densities"):
+        if os.path.isfile(f"{folder}/FULL_BSE_Densities"):
             return "FULL_BSE_Densities folder already exists"
 
         os.makedirs(f"{folder}/FULL_BSE_Densities")

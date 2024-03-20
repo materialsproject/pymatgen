@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 import numpy as np
@@ -147,7 +146,7 @@ def generate_Si2O_cluster():
     XYZ(mol2).write_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
 
 
-@unittest.skipIf(ob_align_missing, "OBAlign is missing, Skipping")
+@pytest.mark.skipif(ob_align_missing, reason="OBAlign is missing, Skipping")
 class TestMoleculeMatcher(unittest.TestCase):
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())
@@ -163,7 +162,7 @@ class TestMoleculeMatcher(unittest.TestCase):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{TEST_DIR}/mol_list.txt") as file:
             filename_list = [line.strip() for line in file.readlines()]
-        mol_list = [Molecule.from_file(os.path.join(TEST_DIR, f)) for f in filename_list]
+        mol_list = [Molecule.from_file(f"{TEST_DIR}/{file}") for file in filename_list]
         mol_groups = mol_matcher.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
         with open(f"{TEST_DIR}/grouped_mol_list.txt") as file:

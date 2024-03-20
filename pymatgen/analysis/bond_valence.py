@@ -286,7 +286,7 @@ class BVAnalyzer:
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
-                score = functools.reduce(operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
+                score = functools.reduce(operator.mul, [all_prob[idx][val] for idx, val in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score

@@ -182,8 +182,8 @@ class WulffShape:
         self.on_wulff, self.color_area = self._get_simpx_plane()
 
         miller_area = []
-        for m, in_mill_fig in enumerate(self.input_miller_fig):
-            miller_area.append(f"{in_mill_fig} : {round(self.color_area[m], 4)}")
+        for miller, in_mill_fig in enumerate(self.input_miller_fig):
+            miller_area.append(f"{in_mill_fig} : {round(self.color_area[miller], 4)}")
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
@@ -324,9 +324,9 @@ class WulffShape:
             if prev is None:
                 line = lines.pop(0)
             else:
-                for i, line in enumerate(lines):
+                for idx, line in enumerate(lines):
                     if prev in line:
-                        line = lines.pop(i)
+                        line = lines.pop(idx)
                         if line[1] == prev:
                             line.reverse()
                         break

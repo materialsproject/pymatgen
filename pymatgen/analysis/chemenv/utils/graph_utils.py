@@ -176,10 +176,7 @@ class SimpleGraphCycle(MSONable):
                 raise
             res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
             if not res:
-                return (
-                    False,
-                    "The list of nodes in the cycle cannot be strictly ordered.",
-                )
+                return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""
 
     def validate(self, check_strict_ordering=False):
@@ -364,10 +361,7 @@ class MultiGraphCycle(MSONable):
                 raise
             res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
             if not res:
-                return (
-                    False,
-                    "The list of nodes in the cycle cannot be strictly ordered.",
-                )
+                return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""
 
     def validate(self, check_strict_ordering=False):

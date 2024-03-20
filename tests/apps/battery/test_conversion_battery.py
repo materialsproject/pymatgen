@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 
 from monty.json import MontyDecoder
@@ -16,17 +15,17 @@ class TestConversionElectrode(unittest.TestCase):
     def setUp(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
-        for f in self.formulas:
-            with open(os.path.join(TEST_FILES_DIR, f + "_batt.json")) as fid:
+        for formula in self.formulas:
+            with open(f"{TEST_FILES_DIR}/{formula}_batt.json") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
-            if f in ["LiCoO2", "FeF3"]:
+            if formula in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
-            elif f == "MnO2":
+            elif formula == "MnO2":
                 working_ion = "Mg"
-            c = ConversionElectrode.from_composition_and_entries(
-                Composition(f), entries, working_ion_symbol=working_ion
+            conv_elec = ConversionElectrode.from_composition_and_entries(
+                Composition(formula), entries, working_ion_symbol=working_ion
             )
-            self.conversion_electrodes[f] = {"working_ion": working_ion, "CE": c}
+            self.conversion_electrodes[formula] = {"working_ion": working_ion, "CE": conv_elec}
 
         self.expected_properties = {
             "LiCoO2": {

@@ -74,7 +74,7 @@ jobs:
       - name: Install Enumlib
         if: matrix.os == 'ubuntu-latest'
         run: |
-          git clone --recursive https://github.com/msg-byu/enumlib.git
+          git clone --recursive https://github.com/msg-byu/enumlib
           cd enumlib/symlib/src
           export F90=gfortran
           make
@@ -100,6 +100,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # TODO remove temporary fix. added since uv install torch is flaky.
+          # track https://github.com/astral-sh/uv/issues/1921 for resolution
+          pip install torch
+
           uv pip install numpy cython --system
 
           uv pip install -e '.[dev,optional]' --system

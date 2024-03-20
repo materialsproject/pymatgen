@@ -38,19 +38,19 @@ class TestStructureEnvironments(PymatgenTest):
 
         _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_allclose(
-            np.array(envs_ax.patches[0].get_xy()),
+            envs_ax.patches[0].get_xy(),
             [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
         )
         assert_allclose(
-            np.array(envs_ax.patches[1].get_xy()),
+            envs_ax.patches[1].get_xy(),
             [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
         )
         assert_allclose(
-            np.array(envs_ax.patches[2].get_xy()),
+            envs_ax.patches[2].get_xy(),
             [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
         )
         assert_allclose(
-            np.array(envs_ax.patches[3].get_xy()),
+            envs_ax.patches[3].get_xy(),
             [
                 [1.00179228, 0.99301365],
                 [1.00179228, 0],
@@ -63,13 +63,13 @@ class TestStructureEnvironments(PymatgenTest):
             atol=1e-8,
         )
         assert_allclose(
-            np.array(envs_ax.patches[4].get_xy()),
+            envs_ax.patches[4].get_xy(),
             [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
             atol=1e-8,
         )
 
         struct_envs.save_environments_figure(isite=isite, imagename="image.png")
-        assert os.path.exists("image.png")
+        assert os.path.isfile("image.png")
 
         assert len(struct_envs.differences_wrt(struct_envs)) == 0
 
@@ -162,10 +162,10 @@ class TestStructureEnvironments(PymatgenTest):
         stats = lse.get_statistics()
 
         neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-        assert_allclose(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
-        assert_allclose(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
-        assert_allclose(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
-        assert_allclose(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
+        assert_allclose(neighbors[0].coords, [0.2443798, 1.80409653, -1.13218359])
+        assert_allclose(neighbors[1].coords, [1.44020353, 1.11368738, 1.13218359])
+        assert_allclose(neighbors[2].coords, [2.75513098, 2.54465207, -0.70467298])
+        assert_allclose(neighbors[3].coords, [0.82616785, 3.65833945, 0.70467298])
 
         site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
         assert site_idx == 0

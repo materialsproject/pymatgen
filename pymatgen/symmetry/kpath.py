@@ -2188,14 +2188,14 @@ class KPathLatimerMunro(KPathBase):
         pop_orbits = []
         pop_labels = []
         unassigned_orbits = []
-        for i, ind in enumerate(inds):
-            if counts[i] == 1:
+        for idx, ind in enumerate(inds):
+            if counts[idx] == 1:
                 max_cosine_label_inds[ind] = initial_max_cosine_label_inds[ind]
                 pop_orbits.append(ind)
                 pop_labels.append(initial_max_cosine_label_inds[ind])
             else:
                 next_choices = []
-                for grouped_ind in grouped_inds[i]:
+                for grouped_ind in grouped_inds[idx]:
                     j = 1
                     while True:
                         if max_cosine_orbits_copy[grouped_ind][j][0] not in initial_max_cosine_label_inds:
@@ -2203,20 +2203,20 @@ class KPathLatimerMunro(KPathBase):
                             break
                         j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
-                for grouped_ind in grouped_inds[i]:
+                for grouped_ind in grouped_inds[idx]:
                     if grouped_ind != worst_next_choice:
                         unassigned_orbits.append(grouped_ind)
-                max_cosine_label_inds[grouped_inds[i][worst_next_choice]] = initial_max_cosine_label_inds[
-                    grouped_inds[i][worst_next_choice]
+                max_cosine_label_inds[grouped_inds[idx][worst_next_choice]] = initial_max_cosine_label_inds[
+                    grouped_inds[idx][worst_next_choice]
                 ]
-                pop_orbits.append(grouped_inds[i][worst_next_choice])
-                pop_labels.append(initial_max_cosine_label_inds[grouped_inds[i][worst_next_choice]])
+                pop_orbits.append(grouped_inds[idx][worst_next_choice])
+                pop_labels.append(initial_max_cosine_label_inds[grouped_inds[idx][worst_next_choice]])
 
         if len(unassigned_orbits) != 0:
             max_cosine_orbits_copy = self._reduce_cosines_array(max_cosine_orbits_copy, pop_orbits, pop_labels)
             unassigned_orbits_labels = self._get_orbit_labels(max_cosine_orbits_copy, key_points_inds_orbits, atol)
-            for i, unassigned_orbit in enumerate(unassigned_orbits):
-                max_cosine_label_inds[unassigned_orbit] = unassigned_orbits_labels[i]
+            for idx, unassigned_orbit in enumerate(unassigned_orbits):
+                max_cosine_label_inds[unassigned_orbit] = unassigned_orbits_labels[idx]
 
         return max_cosine_label_inds
 

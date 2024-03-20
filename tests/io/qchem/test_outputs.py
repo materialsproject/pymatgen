@@ -3,9 +3,9 @@ from __future__ import annotations
 import gzip
 import os
 import shutil
-import unittest
 
 import numpy as np
+import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -264,7 +264,7 @@ class TestQCOutput(PymatgenTest):
         """Used to generate test dictionary for single jobs."""
         single_job_dict = {}
         for file in single_job_out_names:
-            single_job_dict[file] = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", file)).data
+            single_job_dict[file] = QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data
         dumpfn(single_job_dict, "single_job.json")
 
     @staticmethod
@@ -272,9 +272,7 @@ class TestQCOutput(PymatgenTest):
         """Used to generate test dictionary for multiple jobs."""
         multi_job_dict = {}
         for file in multi_job_out_names:
-            outputs = QCOutput.multiple_outputs_from_file(
-                os.path.join(TEST_FILES_DIR, "molecules", file), keep_sub_files=False
-            )
+            outputs = QCOutput.multiple_outputs_from_file(f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False)
             multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
 
@@ -296,17 +294,17 @@ class TestQCOutput(PymatgenTest):
                 except ValueError:
                     assert_array_equal(sub_output.data.get(key), multi_job_dict[filename][ii].get(key))
 
-    @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
+    @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
         self.maxDiff = None
         single_outs = {}
         for file in single_job_out_names:
-            single_outs[file] = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", file)).data
+            single_outs[file] = QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data
 
         multi_outs = {}
         for file in multi_job_out_names:
             multi_outs[file] = QCOutput.multiple_outputs_from_file(
-                os.path.join(TEST_FILES_DIR, "molecules", file), keep_sub_files=False
+                f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False
             )
 
         for key in property_list:
@@ -333,7 +331,7 @@ class TestQCOutput(PymatgenTest):
         assert len(mpoles["octopole"]) == 5
         assert len(mpoles["hexadecapole"]) == 5
 
-    @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
+    @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_structural_change(self):
         t1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t1.xyz")
         t2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t2.xyz")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from math import pi
 from shutil import which
 from typing import get_args
@@ -173,9 +172,9 @@ class TestVoronoiNN(PymatgenTest):
         all_sites = self.nn.get_all_voronoi_polyhedra(self.struct)
 
         # Make sure they are the same as the single-atom ones
-        for i, site in enumerate(all_sites):
+        for idx, site in enumerate(all_sites):
             # Compute the tessellation using only one site
-            by_one = self.nn.get_voronoi_polyhedra(self.struct, i)
+            by_one = self.nn.get_voronoi_polyhedra(self.struct, idx)
 
             # Match the coordinates the of the neighbors, as site matching does not seem to work?
             all_coords = np.sort([x["site"].coords for x in site.values()], axis=0)
@@ -185,9 +184,9 @@ class TestVoronoiNN(PymatgenTest):
 
         # Test the nn_info operation
         all_nn_info = self.nn.get_all_nn_info(self.struct)
-        for i, info in enumerate(all_nn_info):
+        for idx, info in enumerate(all_nn_info):
             # Compute using the by-one method
-            by_one = self.nn.get_nn_info(self.struct, i)
+            by_one = self.nn.get_nn_info(self.struct, idx)
 
             # Get the weights
             all_weights = sorted(x["weight"] for x in info)
@@ -287,8 +286,8 @@ class TestIsayevNN(PymatgenTest):
 class TestOpenBabelNN(PymatgenTest):
     def setUp(self):
         pytest.importorskip("openbabel")
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = OpenBabelNN()
@@ -318,8 +317,8 @@ class TestOpenBabelNN(PymatgenTest):
 
 class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = CovalentBondNN()
@@ -1326,7 +1325,7 @@ class TestCutOffDictNN(PymatgenTest):
             CutOffDictNN.from_preset("test")
 
 
-@unittest.skipIf(not which("critic2"), "critic2 executable not present")
+@pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
 class TestCritic2NN(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(

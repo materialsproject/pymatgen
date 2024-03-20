@@ -519,13 +519,13 @@ class Poscar(MSONable):
         # This corrects for VASP really annoying bug of crashing on lattices
         # which have triple product < 0. We will just invert the lattice
         # vectors.
-        latt = self.structure.lattice
-        if np.linalg.det(latt.matrix) < 0:
-            latt = Lattice(-latt.matrix)
+        lattice = self.structure.lattice
+        if np.linalg.det(lattice.matrix) < 0:
+            lattice = Lattice(-lattice.matrix)
 
         format_str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
-        for vec in latt.matrix:
+        for vec in lattice.matrix:
             lines.append(" ".join(format_str.format(c) for c in vec))
 
         if self.true_names and not vasp4_compatible:
@@ -535,11 +535,11 @@ class Poscar(MSONable):
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
 
-        for i, site in enumerate(self.structure):
+        for idx, site in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join(format_str.format(c) for c in coords)
             if self.selective_dynamics is not None:
-                sd = ["T" if j else "F" for j in self.selective_dynamics[i]]
+                sd = ["T" if j else "F" for j in self.selective_dynamics[idx]]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += f" {site.species_string}"
             lines.append(line)
@@ -2374,10 +2374,11 @@ def _gen_potcar_summary_stats(
     append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
-    This function solely intended to be used for PMG development to regenerate the
-    potcar-summary-stats.json.bz2 file used to validate POTCARs
+    This function is intended for internal use only. It regenerates the reference data in
+    potcar-summary-stats.json.bz2 used to validate POTCARs by comparing header values and
+    several statistics of copyrighted POTCAR data without having to record the POTCAR data itself.
 
-    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar-summary-stats.json.bz2.
+    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite potcar-summary-stats.json.bz2.
 
     Args:
         append (bool): Change whether data is appended to the existing potcar-summary-stats.json.bz2,
@@ -2404,10 +2405,7 @@ def _gen_potcar_summary_stats(
     for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
 
-        potcar_list = [
-            *glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*"),
-            *glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*"),
-        ]
+        potcar_list = glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*") + glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*")
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
             titel_key = psp.TITEL.replace(" ", "")

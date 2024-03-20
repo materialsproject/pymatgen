@@ -285,7 +285,7 @@ class TestSlab(PymatgenTest):
         struct = self.get_structure("LiFePO4")
         slab_gen = SlabGenerator(struct, (0, 0, 1), 15, 15)
         slab = slab_gen.get_slabs()[0]
-        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, -0.25])
+        slab.translate_sites([idx for idx, site in enumerate(slab)], [0, 0, -0.25])
         bottom_c, top_c = [], []
         for site in slab:
             if site.frac_coords[2] < 0.5:

@@ -995,10 +995,10 @@ class SlabGenerator:
         possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
 
         # Calculate the shifts
-        nshifts = len(possible_c)
+        n_shifts = len(possible_c)
         shifts = []
-        for i in range(nshifts):
-            if i == nshifts - 1:
+        for i in range(n_shifts):
+            if i == n_shifts - 1:
                 # There is an additional shift between the first and last c
                 # coordinate. But this needs special handling because of PBC.
                 shift = (possible_c[0] + 1 + possible_c[i]) * 0.5
@@ -1129,13 +1129,13 @@ class SlabGenerator:
             # e.g. P for a PO4 bond. Find integer coordination
             # numbers of the pair of elements w.r.t. to each other
             cn_dict = {}
-            for i, el in enumerate(pair):
+            for idx, el in enumerate(pair):
                 cn_list = []
                 for site in self.oriented_unit_cell:
                     poly_coord = 0
                     if site.species_string == el:
                         for nn in self.oriented_unit_cell.get_neighbors(site, bond_len):
-                            if nn[0].species_string == pair[i - 1]:
+                            if nn[0].species_string == pair[idx - 1]:
                                 poly_coord += 1
                     cn_list.append(poly_coord)
                 cn_dict[el] = cn_list
@@ -1146,7 +1146,7 @@ class SlabGenerator:
             else:
                 element2, element1 = pair
 
-            for i, site in enumerate(slab):
+            for idx, site in enumerate(slab):
                 # Determine the coordination of our reference
                 if site.species_string == element1:
                     poly_coord = 0
@@ -1157,13 +1157,13 @@ class SlabGenerator:
                     if poly_coord not in cn_dict[element1]:
                         # We get the reference atom of the broken bonds
                         # (undercoordinated), move it to the other surface
-                        slab = self.move_to_other_side(slab, [i])
+                        slab = self.move_to_other_side(slab, [idx])
 
                         # find its NNs with the corresponding
                         # species it should be coordinated with
-                        neighbors = slab.get_neighbors(slab[i], bond_len, include_index=True)
+                        neighbors = slab.get_neighbors(slab[idx], bond_len, include_index=True)
                         to_move = [nn[2] for nn in neighbors if nn[0].species_string == element2]
-                        to_move.append(i)
+                        to_move.append(idx)
                         # and then move those NNs along with the central
                         # atom back to the other side of the slab again
                         slab = self.move_to_other_side(slab, to_move)
@@ -1246,7 +1246,7 @@ class SlabGenerator:
                 # surfaces are symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
 
-                c_dir = [site[2] for i, site in enumerate(slab.frac_coords)]
+                c_dir = [site[2] for idx, site in enumerate(slab.frac_coords)]
 
                 if top:
                     slab.remove_sites([c_dir.index(max(c_dir))])
@@ -1485,9 +1485,9 @@ def get_d(slab):
     each layer of atoms along c.
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-    for i, site in enumerate(sorted_sites):
-        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[i + 1].frac_coords[2]:.6f}":
-            d = abs(site.frac_coords[2] - sorted_sites[i + 1].frac_coords[2])
+    for idx, site in enumerate(sorted_sites):
+        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx + 1].frac_coords[2]:.6f}":
+            d = abs(site.frac_coords[2] - sorted_sites[idx + 1].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
@@ -1902,7 +1902,7 @@ def center_slab(slab):
     bdists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
     r = bdists[0] * 3
 
-    all_indices = [i for i, site in enumerate(slab)]
+    all_indices = [idx for idx, site in enumerate(slab)]
 
     # check if structure is case 2 or 3, shift all the
     # sites up to the other side until it is case 1

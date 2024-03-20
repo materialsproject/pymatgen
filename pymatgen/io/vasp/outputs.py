@@ -907,7 +907,7 @@ class Vasprun(MSONable):
             e_fermi = efermi
 
         kpoint_file: Kpoints = None  # type: ignore
-        if kpoints_filename and os.path.exists(kpoints_filename):
+        if kpoints_filename and os.path.isfile(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
 
@@ -919,7 +919,7 @@ class Vasprun(MSONable):
         p_eig_vals: defaultdict[Spin, list] = defaultdict(list)
         eigenvals: defaultdict[Spin, list] = defaultdict(list)
 
-        nkpts = len(kpoints)
+        n_kpts = len(kpoints)
 
         if use_kpoints_opt:
             eig_vals = self.kpoints_opt_props.eigenvalues
@@ -964,17 +964,19 @@ class Vasprun(MSONable):
                         labels_dict[kpoint_file.labels[i]] = kpoint_file.kpts[i]
                 # remake the data only considering line band structure k-points
                 # (weight = 0.0 kpoints)
-                nbands = len(eigenvals[Spin.up])
-                kpoints = kpoints[start_bs_index:nkpts]
-                up_eigen = [eigenvals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
+                n_bands = len(eigenvals[Spin.up])
+                kpoints = kpoints[start_bs_index:n_kpts]
+                up_eigen = [eigenvals[Spin.up][i][start_bs_index:n_kpts] for i in range(n_bands)]
                 if self.projected_eigenvalues:
-                    p_eig_vals[Spin.up] = [p_eig_vals[Spin.up][i][start_bs_index:nkpts] for i in range(nbands)]
+                    p_eig_vals[Spin.up] = [p_eig_vals[Spin.up][i][start_bs_index:n_kpts] for i in range(n_bands)]
                 if self.is_spin:
-                    down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)]
+                    down_eigen = [eigenvals[Spin.down][i][start_bs_index:n_kpts] for i in range(n_bands)]
                     eigenvals[Spin.up] = up_eigen
                     eigenvals[Spin.down] = down_eigen
                     if self.projected_eigenvalues:
-                        p_eig_vals[Spin.down] = [p_eig_vals[Spin.down][i][start_bs_index:nkpts] for i in range(nbands)]
+                        p_eig_vals[Spin.down] = [
+                            p_eig_vals[Spin.down][i][start_bs_index:n_kpts] for i in range(n_bands)
+                        ]
                 else:
                     eigenvals[Spin.up] = up_eigen
             else:
@@ -1732,16 +1734,16 @@ class BSVasprun(Vasprun):
         if self.eigenvalues:
             eigen = defaultdict(dict)
             for spin, values in self.eigenvalues.items():
-                for i, v in enumerate(values):
-                    eigen[i][str(spin)] = v
+                for idx, val in enumerate(values):
+                    eigen[idx][str(spin)] = val
             vout["eigenvalues"] = eigen
             (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
             vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]
-                for spin, v in self.projected_eigenvalues.items():
-                    for kpoint_index, vv in enumerate(v):
+                for spin, val in self.projected_eigenvalues.items():
+                    for kpoint_index, vv in enumerate(val):
                         if str(spin) not in peigen[kpoint_index]:
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen
@@ -3997,7 +3999,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         A BandStructure Object
     """
     # TODO: Add better error handling!!!
-    if os.path.exists(f"{dir_name}/branch_0"):
+    if os.path.isfile(f"{dir_name}/branch_0"):
         # get all branch dir names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
@@ -4008,7 +4010,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         branches = []
         for dname in sorted_branch_dir_names:
             xml_file = f"{dname}/vasprun.xml"
-            if os.path.exists(xml_file):
+            if os.path.isfile(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
@@ -4019,7 +4021,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
 
     xml_file = f"{dir_name}/vasprun.xml"
     # Better handling of Errors
-    if os.path.exists(xml_file):
+    if os.path.isfile(xml_file):
         return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
             kpoints_filename=None, efermi=efermi
         )
@@ -4066,13 +4068,13 @@ class Xdatcar:
                     title = line
                 elif title == line:
                     preamble_done = False
-                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                         if ionicstep_cnt >= ionicstep_end:
                             break
                     ionicstep_cnt += 1
@@ -4091,25 +4093,25 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                         if ionicstep_cnt >= ionicstep_end:
                             break
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+            poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    structures.append(p.structure)
+                    structures.append(poscar.structure)
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                structures.append(p.structure)
+                structures.append(poscar.structure)
         self.structures = structures
         self.comment = comment or self.structures[0].formula
 
@@ -4170,22 +4172,22 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
-                            structures.append(p.structure)
+                            structures.append(poscar.structure)
                     elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                        structures.append(p.structure)
+                        structures.append(poscar.structure)
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+            poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    structures.append(p.structure)
+                    structures.append(poscar.structure)
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                structures.append(p.structure)
+                structures.append(poscar.structure)
         self.structures = structures
 
     def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:

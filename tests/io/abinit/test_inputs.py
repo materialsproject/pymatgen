@@ -25,12 +25,12 @@ TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 def abiref_file(filename):
     """Return absolute path to filename in ~pymatgen/tests/files/abinit."""
-    return os.path.join(TEST_DIR, filename)
+    return f"{TEST_DIR}/{filename}"
 
 
 def abiref_files(*filenames):
     """Return list of absolute paths to filenames in ~pymatgen/tests/files/abinit."""
-    return [os.path.join(TEST_DIR, f) for f in filenames]
+    return [f"{TEST_DIR}/{file}" for file in filenames]
 
 
 class AbinitInputTestCase(PymatgenTest):
@@ -55,7 +55,6 @@ class AbinitInputTestCase(PymatgenTest):
         assert_array_equal(calc_shiftk(inp.structure), shift_k)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
-        repr(inp), str(inp)
         assert len(inp) == 0
         assert not inp
         assert inp.get("foo", "bar") == "bar"
@@ -225,8 +224,6 @@ class TestMultiDataset(PymatgenTest):
         split = multi.split_datasets()
         assert len(split) == 2
         assert all(split[i] == multi[i] for i in range(multi.ndtset))
-        repr(multi)
-        str(multi)
         assert multi.to_str(with_pseudos=False)
 
         tmpdir = tempfile.mkdtemp()

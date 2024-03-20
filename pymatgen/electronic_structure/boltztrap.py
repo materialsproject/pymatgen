@@ -1322,30 +1322,32 @@ class BoltztrapAnalyzer:
         if doping_levels:
             sbk_mass = {}
             for dt in ("n", "p"):
-                conc = self.doping[dt]
+                concentrations = self.doping[dt]
                 seebeck = self.get_seebeck(output=output, doping_levels=True)[dt][temp]
                 sbk_mass[dt] = []
-                for i, c in enumerate(conc):
+                for idx, concen in enumerate(concentrations):
                     if output == "average":
-                        sbk_mass[dt].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), c, temp, Lambda))
+                        sbk_mass[dt].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx]), concen, temp, Lambda))
                     elif output == "tensor":
                         sbk_mass[dt].append([])
                         for j in range(3):
                             sbk_mass[dt][-1].append(
-                                seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]), c, temp, Lambda)
+                                seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx][j][j]), concen, temp, Lambda)
                             )
 
         else:
             seebeck = self.get_seebeck(output=output, doping_levels=False)[temp]
-            conc = self.get_carrier_concentration()[temp]
+            concentrations = self.get_carrier_concentration()[temp]
             sbk_mass = []
-            for i, c in enumerate(conc):
+            for idx, concen in enumerate(concentrations):
                 if output == "average":
-                    sbk_mass.append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), c, temp, Lambda))
+                    sbk_mass.append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx]), concen, temp, Lambda))
                 elif output == "tensor":
                     sbk_mass.append([])
                     for j in range(3):
-                        sbk_mass[-1].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]), c, temp, Lambda))
+                        sbk_mass[-1].append(
+                            seebeck_eff_mass_from_seebeck_carr(abs(seebeck[idx][j][j]), concen, temp, Lambda)
+                        )
         return sbk_mass
 
     def get_complexity_factor(self, output="average", temp=300, doping_levels=False, Lambda=0.5):
@@ -1937,20 +1939,20 @@ class BoltztrapAnalyzer:
 
         vol = cls.parse_struct(path_dir)
 
-        intrans = cls.parse_intrans(path_dir)
+        in_trans = cls.parse_intrans(path_dir)
 
         if run_type == "BOLTZ":
-            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
+            dos, partial_dos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
             *cond_and_hall, carrier_conc = cls.parse_cond_and_hall(path_dir, doping_levels)
 
-            return cls(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
+            return cls(gap, *cond_and_hall, in_trans, dos, partial_dos, carrier_conc, vol, warning)
 
         if run_type == "DOS":
-            trim = intrans["dos_type"] == "HISTO"
-            dos, pdos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
+            trim = in_trans["dos_type"] == "HISTO"
+            dos, partial_dos = cls.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
 
-            return cls(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
+            return cls(gap=gap, dos=dos, dos_partial=partial_dos, warning=warning, vol=vol)
 
         if run_type == "BANDS":
             bz_kpoints = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, -3:]
@@ -1958,9 +1960,9 @@ class BoltztrapAnalyzer:
             return cls(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
-            if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
+            if os.path.isfile(f"{path_dir}/boltztrap_BZ.cube"):
                 fs_data = read_cube_file(f"{path_dir}/boltztrap_BZ.cube")
-            elif os.path.exists(f"{path_dir}/fort.30"):
+            elif os.path.isfile(f"{path_dir}/fort.30"):
                 fs_data = read_cube_file(f"{path_dir}/fort.30")
             else:
                 raise BoltztrapError("No data file found for fermi surface")
@@ -2161,8 +2163,8 @@ def read_cube_file(filename):
 
     if "fort.30" in filename:
         energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
-        nlines_data = len(energy_data)
-        last_line = np.genfromtxt(filename, skip_header=nlines_data + natoms + 6)
+        n_lines_data = len(energy_data)
+        last_line = np.genfromtxt(filename, skip_header=n_lines_data + natoms + 6)
         energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
         energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)

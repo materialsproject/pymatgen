@@ -33,7 +33,7 @@ gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.pla
 gulp_present = False
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestGulpCaller(unittest.TestCase):
     def test_run(self):
         mgo_lattice = np.eye(3) * 4.212
@@ -96,7 +96,7 @@ class TestGulpCaller(unittest.TestCase):
         caller.run(buckingham_input)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestGulpIO(unittest.TestCase):
     def setUp(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
@@ -245,7 +245,7 @@ class TestGulpIO(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_FILES_DIR}/example21.gout") as file:
+        with open(f"{TEST_FILES_DIR}/gulp/example21.gout") as file:
             out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
@@ -258,7 +258,7 @@ class TestGulpIO(unittest.TestCase):
         self.gio.tersoff_input(self.structure)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestGlobalFunctions(unittest.TestCase):
     def setUp(self):
         mgo_latt = np.eye(3) * 4.212
@@ -304,7 +304,7 @@ class TestGlobalFunctions(unittest.TestCase):
         assert site_len == len(self.mgo_uc)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestBuckinghamPotentialLewis(unittest.TestCase):
     def setUp(self):
         self.bpl = BuckinghamPotential("lewis")
@@ -332,7 +332,7 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
         assert self.bpl.spring_dict["O"] != ""
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestBuckinghamPotentialBush(unittest.TestCase):
     def setUp(self):
         self.bpb = BuckinghamPotential("bush")

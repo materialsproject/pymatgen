@@ -412,22 +412,19 @@ class Cp2kOutput:
     def convergence(self):
         """Check whether or not the SCF and geometry optimization cycles converged."""
         # SCF Loops
-        uncoverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
+        unconverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
         scf_converged = re.compile(r"(SCF run converged)|(SCF run NOT converged)")
         self.read_pattern(
             patterns={
-                "uncoverged_inner_loop": uncoverged_inner_loop,
+                "unconverged_inner_loop": unconverged_inner_loop,
                 "scf_converged": scf_converged,
             },
             reverse=True,
             terminate_on_match=False,
             postprocess=bool,
         )
-        for i, x in enumerate(self.data["scf_converged"]):
-            if x[0]:
-                self.data["scf_converged"][i] = True
-            else:
-                self.data["scf_converged"][i] = False
+        for idx, val in enumerate(self.data["scf_converged"]):
+            self.data["scf_converged"][idx] = bool(val[0])
 
         # GEO_OPT
         geo_opt_not_converged = re.compile(r"(MAXIMUM NUMBER OF OPTIMIZATION STEPS REACHED)")
@@ -453,7 +450,7 @@ class Cp2kOutput:
     def parse_energies(self):
         """
         Get the total energy from a CP2K calculation. Presently, the energy reported in the
-        trajectory (pos.xyz) file takes presidence over the energy reported in the main output
+        trajectory (pos.xyz) file takes precedence over the energy reported in the main output
         file. This is because the trajectory file keeps track of energies in between restarts,
         while the main output file may or may not depending on whether a particular machine
         overwrites or appends it.
@@ -581,7 +578,7 @@ class Cp2kOutput:
             return
         input_filename = self.data["input_filename"][0][0]
         for ext in ["", ".gz", ".GZ", ".z", ".Z", ".bz2", ".BZ2"]:
-            if os.path.exists(os.path.join(self.dir, input_filename + ext)):
+            if os.path.isfile(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename + ext))
                 return
         warnings.warn("Original input file not found. Some info may be lost.")
@@ -1157,14 +1154,14 @@ class Cp2kOutput:
             self.cbm = self.data["cbm"][Spin.up]
             self.efermi = efermi[-1][Spin.up]
 
-        num_occ = len(eigenvalues[-1]["occupied"][Spin.up])
-        num_unocc = len(eigenvalues[-1]["unoccupied"][Spin.up])
+        n_occ = len(eigenvalues[-1]["occupied"][Spin.up])
+        n_unocc = len(eigenvalues[-1]["unoccupied"][Spin.up])
         self.data["tdos"] = Dos(
             efermi=self.vbm + 1e-6,
             energies=list(eigenvalues[-1]["occupied"][Spin.up]) + list(eigenvalues[-1]["unoccupied"][Spin.down]),
             densities={
-                Spin.up: [1 for _ in range(num_occ)] + [0 for _ in range(num_unocc)],
-                Spin.down: [1 for _ in range(num_occ)] + [0 for _ in range(num_unocc)],
+                Spin.up: [1 for _ in range(n_occ)] + [0 for _ in range(n_unocc)],
+                Spin.down: [1 for _ in range(n_occ)] + [0 for _ in range(n_unocc)],
             },
         )
 

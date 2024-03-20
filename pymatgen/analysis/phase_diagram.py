@@ -753,7 +753,8 @@ class PhaseDiagram(MSONable):
                 'ignore' just returns (None, None). Defaults to 'raise'.
 
         Raises:
-            ValueError: If no valid decomposition exists in this phase diagram for given entry.
+            ValueError: If on_error is 'raise' and no valid decomposition exists in this
+                phase diagram for given entry.
 
         Returns:
             tuple[decomp, energy_above_hull]: The decomposition is provided
@@ -825,9 +826,9 @@ class PhaseDiagram(MSONable):
             return 0
 
         entries = [e for e in self._get_stable_entries_in_space(frozenset(elem_space)) if e != entry]
-        modpd = PhaseDiagram(entries, elements=elem_space)
+        mod_pd = PhaseDiagram(entries, elements=elem_space)
 
-        return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
+        return mod_pd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_phase_separation_energy(
         self,
@@ -1224,23 +1225,23 @@ class PhaseDiagram(MSONable):
         mu_ref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
 
-        for e in self.elements:
-            if e not in target_comp.elements:
-                target_comp = target_comp + Composition({e: 0.0})
+        for elem in self.elements:
+            if elem not in target_comp.elements:
+                target_comp = target_comp + Composition({elem: 0.0})
 
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
 
-        for e, chempots in chempot_ranges.items():
-            if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplier = e.composition[dep_elt] / target_comp[dep_elt]
-                ef = e.energy / multiplier
+        for elem, chempots in chempot_ranges.items():
+            if elem.composition.reduced_composition == target_comp.reduced_composition:
+                multiplier = elem.composition[dep_elt] / target_comp[dep_elt]
+                ef = elem.energy / multiplier
                 all_coords = []
-                for s in chempots:
-                    for v in s._coords:
+                for simplex in chempots:
+                    for v in simplex._coords:
                         elements = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i, el in enumerate(elements):
-                            res[el] = v[i] + mu_ref[i]
+                        for idx, el in enumerate(elements):
+                            res[el] = v[idx] + mu_ref[idx]
                         res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
@@ -1303,8 +1304,8 @@ class PhaseDiagram(MSONable):
         elems = [e for e in self.elements if e != open_elt]
         res = {}
 
-        for i, el in enumerate(elems):
-            res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
+        for idx, el in enumerate(elems):
+            res[el] = (min_mus[idx] + muref[idx], max_mus[idx] + muref[idx])
 
         res[open_elt] = (min_open, max_open)
         return res
@@ -1519,8 +1520,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         # Map terminal compositions to unique dummy species.
         sp_mapping = {}
-        for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+        for idx, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
 
         for entry in entries:
             if getattr(entry, "attribute", None) is None:
@@ -1752,6 +1753,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         Returns:
             PhaseDiagram: phase diagram that the entry is part of
+
+        Raises:
+            ValueError: If no suitable PhaseDiagram is found for the entry.
         """
         entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
 
@@ -2075,16 +2079,16 @@ def _get_slsqp_decomp(
             is the amount of the fractional composition.
     """
     # Elemental amount present in given entry
-    amts = comp.get_el_amt_dict()
-    chemical_space = tuple(amts)
-    b = np.array([amts[el] for el in chemical_space])
+    amounts = comp.get_el_amt_dict()
+    chemical_space = tuple(amounts)
+    b = np.array([amounts[el] for el in chemical_space])
 
     # Elemental amounts present in competing entries
     A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
-    for j, comp_entry in enumerate(competing_entries):
-        amts = comp_entry.composition.get_el_amt_dict()
-        for i, el in enumerate(chemical_space):
-            A_transpose[i, j] = amts.get(el, 0)
+    for ii, comp_entry in enumerate(competing_entries):
+        amounts = comp_entry.composition.get_el_amt_dict()
+        for jj, el in enumerate(chemical_space):
+            A_transpose[jj, ii] = amounts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
     b = b / np.sum(b)
@@ -2336,18 +2340,18 @@ class PDPlotter:
         num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
         element_energy = evolution[0]["chempot"]
         x1, x2, y1 = None, None, None
-        for i, d in enumerate(evolution):
-            v = -(d["chempot"] - element_energy)
-            if i != 0:
-                ax.plot([x2, x2], [y1, d["evolution"] / num_atoms], "k", linewidth=2.5)
+        for idx, dct in enumerate(evolution):
+            v = -(dct["chempot"] - element_energy)
+            if idx != 0:
+                ax.plot([x2, x2], [y1, dct["evolution"] / num_atoms], "k", linewidth=2.5)
             x1 = v
-            y1 = d["evolution"] / num_atoms
+            y1 = dct["evolution"] / num_atoms
 
-            x2 = -(evolution[i + 1]["chempot"] - element_energy) if i != len(evolution) - 1 else 5.0
-            if show_label_index is not None and i in show_label_index:
+            x2 = -(evolution[idx + 1]["chempot"] - element_energy) if idx != len(evolution) - 1 else 5.0
+            if show_label_index is not None and idx in show_label_index:
                 products = [
                     re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)
-                    for p in d["reaction"].products
+                    for p in dct["reaction"].products
                     if p.reduced_formula != element.symbol
                 ]
                 ax.annotate(
@@ -2505,8 +2509,8 @@ class PDPlotter:
 
         ax = self._get_matplotlib_2d_plot()
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
-        for i, e in enumerate(entries):
-            data[i, 2] = self._pd.get_e_above_hull(e)
+        for idx, entry in enumerate(entries):
+            data[idx, 2] = self._pd.get_e_above_hull(entry)
 
         gridsize = 0.005
         xnew = np.arange(0, 1.0, gridsize)
@@ -2514,9 +2518,9 @@ class PDPlotter:
 
         f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
         znew = np.zeros((len(ynew), len(xnew)))
-        for i, xval in enumerate(xnew):
+        for idx, xval in enumerate(xnew):
             for j, yval in enumerate(ynew):
-                znew[j, i] = f(xval, yval)
+                znew[j, idx] = f(xval, yval)
 
         contourf = ax.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
@@ -2572,16 +2576,16 @@ class PDPlotter:
         unstable_entries = {}
         stable = pd.stable_entries
 
-        for i, entry in enumerate(all_entries):
+        for idx, entry in enumerate(all_entries):
             if entry not in stable:
                 if self._dim < 3:
-                    x = [all_data[i][0], all_data[i][0]]
+                    x = [all_data[idx][0], all_data[idx][0]]
                     y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
-                    coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])
+                    coord = triangular_coord([all_data[idx, 0:2], all_data[idx, 0:2]])
                 else:
-                    coord = tet_coord([all_data[i, 0:3], all_data[i, 0:3], all_data[i, 0:3]])
+                    coord = tet_coord([all_data[idx, 0:3], all_data[idx, 0:3], all_data[idx, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 

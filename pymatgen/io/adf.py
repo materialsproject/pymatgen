@@ -223,9 +223,9 @@ class AdfKey(MSONable):
         """
         if len(self.subkeys) > 0:
             key = subkey if isinstance(subkey, str) else subkey.key
-            for i, v in enumerate(self.subkeys):
-                if v.key == key:
-                    self.subkeys.pop(i)
+            for idx, subkey in enumerate(self.subkeys):
+                if subkey.key == key:
+                    self.subkeys.pop(idx)
                     break
 
     def add_option(self, option):

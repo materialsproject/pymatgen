@@ -31,10 +31,10 @@ class TestHeader(unittest.TestCase):
     def test_init(self):
         filepath = f"{FEFF_TEST_DIR}/HEADER"
         header = Header.header_string_from_file(filepath)
-        h = header.splitlines()
-        hs = header_string.splitlines()
-        for i, line in enumerate(h):
-            assert line == hs[i]
+        h_lines = header.splitlines()
+        h_str = header_string.splitlines()
+        for idx, line in enumerate(h_lines):
+            assert line == h_str[idx]
         assert header_string.splitlines() == header.splitlines(), "Failed to read HEADER file"
 
     def test_from_str(self):

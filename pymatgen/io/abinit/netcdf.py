@@ -308,7 +308,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
-    natom = len(red_coords)
+    n_atom = len(red_coords)
 
     znucl_type = ncdata.read_value("atomic_numbers")
 
@@ -316,8 +316,8 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
-    species = natom * [None]
-    for atom in range(natom):
+    species = n_atom * [None]
+    for atom in range(n_atom):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 

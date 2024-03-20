@@ -295,7 +295,7 @@ class TestElasticTensorExpansion(PymatgenTest):
     def test_gruneisen(self):
         # Get GGT
         ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
-        assert_allclose(np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]), ggt)
+        assert_allclose(ggt, np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]))
         # Get TGT
         tgt = self.exp_cu.get_tgt()
         assert_allclose(tgt, np.eye(3) * 2.59631832, atol=1e-12)

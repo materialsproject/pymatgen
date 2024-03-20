@@ -203,8 +203,8 @@ cart
 0.000000   0.00000000   0.00000000
 3.840198   1.50000000   2.35163175
 """
-        p = Poscar.from_str(poscar_string)
-        site = p.structure[1]
+        poscar = Poscar.from_str(poscar_string)
+        site = poscar.structure[1]
         assert_allclose(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_significant_figures(self):
@@ -422,7 +422,7 @@ direct
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
         copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
-        copyfile(f"{TEST_FILES_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
+        copyfile(f"{VASP_IN_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
 
         poscar = Poscar.from_file(tmp_poscar_path)
         structure = poscar.structure

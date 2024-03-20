@@ -433,20 +433,20 @@ def label_termination(slab: Structure) -> str:
     h = slab.lattice.c
     # Projection of c lattice vector in
     # direction of surface normal.
-    for i, j in combinations(list(range(n)), 2):
-        if i != j:
-            cdist = frac_coords[i][2] - frac_coords[j][2]
+    for ii, jj in combinations(list(range(n)), 2):
+        if ii != jj:
+            cdist = frac_coords[ii][2] - frac_coords[jj][2]
             cdist = abs(cdist - round(cdist)) * h
-            dist_matrix[i, j] = cdist
-            dist_matrix[j, i] = cdist
+            dist_matrix[ii, jj] = cdist
+            dist_matrix[jj, ii] = cdist
 
     condensed_m = squareform(dist_matrix)
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
-    for i, c in enumerate(clusters):
-        clustered_sites[c].append(slab[i])
+    for idx, cluster in enumerate(clusters):
+        clustered_sites[cluster].append(slab[idx])
 
     plane_heights = {
         np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()

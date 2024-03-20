@@ -237,11 +237,11 @@ class ConversionElectrode(AbstractElectrode):
             rxn = pair.rxn
             frac.extend((pair.frac_charge, pair.frac_discharge))
             dct["reactions"].append(str(rxn))
-            for i, v in enumerate(rxn.coeffs):
-                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
-                    comps.append(rxn.all_comp[i])
-                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != dct["working_ion"]:
-                    reduced_comp = rxn.all_comp[i].reduced_composition
+            for idx, coeff in enumerate(rxn.coeffs):
+                if abs(coeff) > 1e-5 and rxn.all_comp[idx] not in comps:
+                    comps.append(rxn.all_comp[idx])
+                if abs(coeff) > 1e-5 and rxn.all_comp[idx].reduced_formula != dct["working_ion"]:
+                    reduced_comp = rxn.all_comp[idx].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     dct["reactant_compositions"].append(comp_dict)
         return dct

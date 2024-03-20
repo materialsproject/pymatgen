@@ -95,6 +95,11 @@ class TestTransformedStructure(PymatgenTest):
         ts.undo_last_change()
         ts.redo_next_change()
 
+    def test_set_parameter(self):
+        trans = self.trans.set_parameter("author", "will")
+        assert trans.other_parameters["author"] == "will"
+        assert trans is self.trans
+
     def test_as_dict(self):
         self.trans.set_parameter("author", "will")
         dct = self.trans.as_dict()

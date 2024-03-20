@@ -290,7 +290,7 @@ class Pseudo(MSONable, abc.ABC):
         # Copy dojo report file if present.
         root, _ext = os.path.splitext(self.filepath)
         dj_report = root + ".djrepo"
-        if os.path.exists(dj_report):
+        if os.path.isfile(dj_report):
             shutil.copy(dj_report, os.path.join(tmpdir, os.path.basename(dj_report)))
 
         # Build new object and copy dojo_report if present.
@@ -312,7 +312,7 @@ class Pseudo(MSONable, abc.ABC):
 
         root, _ext = os.path.splitext(self.filepath)
         return root + ".djrepo"
-        # if os.path.exists(path): return path
+        # if os.path.isfile(path): return path
         # return None
 
     def hint_for_accuracy(self, accuracy="normal"):
