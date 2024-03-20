@@ -1430,7 +1430,7 @@
     "tests/entries/test_computed_entries.py::TestGibbsComputedStructureEntry::test_gf_sisso": 0.012284540978726,
     "tests/entries/test_computed_entries.py::TestGibbsComputedStructureEntry::test_interpolation": 0.014316249988041818,
     "tests/entries/test_computed_entries.py::TestGibbsComputedStructureEntry::test_normalize": 0.048159833007957786,
-    "tests/entries/test_computed_entries.py::TestGibbsComputedStructureEntry::test_str": 0.012615332962013781,
+    "tests/entries/test_computed_entries.py::TestGibbsComputedStructureEntry::test_repr": 0.012615332962013781,
     "tests/entries/test_computed_entries.py::TestGibbsComputedStructureEntry::test_as_from_dict": 0.01511958398623392,
     "tests/entries/test_computed_entries.py::test_composition_energy_adjustment": 0.00030474894447252154,
     "tests/entries/test_computed_entries.py::test_constant_energy_adjustment": 0.00030654098372906446,

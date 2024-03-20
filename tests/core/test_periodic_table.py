@@ -211,8 +211,8 @@ class TestElement(PymatgenTest):
             ],  # f3
             "Ne": [["1S0"]],
         }
-        for k, v in cases.items():
-            assert Element(k).term_symbols == v
+        for key, val in cases.items():
+            assert Element(key).term_symbols == val
 
     def test_ground_state_term_symbol(self):
         cases = {
@@ -222,8 +222,8 @@ class TestElement(PymatgenTest):
             "Ti": "3F2.0",  # d2
             "Pr": "4I4.5",
         }  # f3
-        for k, v in cases.items():
-            assert Element(k).ground_state_term_symbol == v
+        for key, val in cases.items():
+            assert Element(key).ground_state_term_symbol == val
 
     def test_attributes(self):
         is_true = {
@@ -238,9 +238,9 @@ class TestElement(PymatgenTest):
             ("O", "Te"): "is_chalcogen",
         }
 
-        for key, v in is_true.items():
+        for key, val in is_true.items():
             for sym in key:
-                assert getattr(Element(sym), v), f"{sym=} is false"
+                assert getattr(Element(sym), val), f"{sym=} is false"
 
         keys = [
             "mendeleev_no",

@@ -967,8 +967,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         )
 
     def __repr__(self):
-        output = [
-            f"GibbsComputedStructureEntry {self.entry_id} - {self.formula}",
-            f"Gibbs Free Energy (Formation) = {self.energy:.4f}",
-        ]
-        return "\n".join(output)
+        return (
+            f"GibbsComputedStructureEntry {self.entry_id} - {self.formula}\n"
+            f"Gibbs Free Energy (Formation) = {self.energy:.4f}"
+        )

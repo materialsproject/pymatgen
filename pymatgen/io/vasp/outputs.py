@@ -1264,7 +1264,7 @@ class Vasprun(MSONable):
         if self.eigenvalues:
             eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
-            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
@@ -1279,7 +1279,7 @@ class Vasprun(MSONable):
             eigen = {str(spin): v.tolist() for spin, v in kpt_opt_props.eigenvalues.items()}
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO implement kpoints_opt eigenvalue_band_proprties.
-            # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            # gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if kpt_opt_props.projected_eigenvalues:
@@ -1623,11 +1623,7 @@ class BSVasprun(Vasprun):
                         elif tag == "incar":
                             self.incar = self._parse_params(elem)
                         elif tag == "kpoints":
-                            (
-                                self.kpoints,
-                                self.actual_kpoints,
-                                self.actual_kpoints_weights,
-                            ) = self._parse_kpoints(elem)
+                            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
                         elif tag == "parameters":
                             self.parameters = self._parse_params(elem)
                         elif tag == "atominfo":
@@ -1731,7 +1727,7 @@ class BSVasprun(Vasprun):
                 for idx, val in enumerate(values):
                     eigen[idx][str(spin)] = val
             vout["eigenvalues"] = eigen
-            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
@@ -1746,7 +1742,7 @@ class BSVasprun(Vasprun):
             eigen = {str(spin): v.tolist() for spin, v in kpt_opt_props.eigenvalues.items()}
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO implement kpoints_opt eigenvalue_band_proprties.
-            # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            # gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if kpt_opt_props.projected_eigenvalues:
@@ -3727,17 +3723,17 @@ class Elfcar(VolumetricData):
         Returns:
             Elfcar
         """
-        (poscar, data, _data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, _data_aug = VolumetricData.parse_file(filename)
         return cls(poscar, data)
 
     def get_alpha(self):
         """Get the parameter alpha where ELF = 1/(1+alpha^2)."""
         alpha_data = {}
-        for k, v in self.data.items():
-            alpha = 1 / v
+        for key, val in self.data.items():
+            alpha = 1 / val
             alpha = alpha - 1
             alpha = np.sqrt(alpha)
-            alpha_data[k] = alpha
+            alpha_data[key] = alpha
         return VolumetricData(self.structure, alpha_data)
 
 
@@ -3765,10 +3761,10 @@ class Procar:
         headers = None
 
         with zopen(filename, mode="rt") as file_handle:
-            preambleexpr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
-            kpointexpr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
-            bandexpr = re.compile(r"^band\s+(\d+)")
-            ionexpr = re.compile(r"^ion.*")
+            preamble_expr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
+            kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
+            band_expr = re.compile(r"^band\s+(\d+)")
+            ion_expr = re.compile(r"^ion.*")
             expr = re.compile(r"^([0-9]+)\s+")
             current_kpoint = 0
             current_band = 0
@@ -3778,18 +3774,18 @@ class Procar:
 
             for line in file_handle:
                 line = line.strip()
-                if bandexpr.match(line):
-                    m = bandexpr.match(line)
-                    current_band = int(m.group(1)) - 1
+                if band_expr.match(line):
+                    match = band_expr.match(line)
+                    current_band = int(match.group(1)) - 1
                     done = False
-                elif kpointexpr.match(line):
-                    m = kpointexpr.match(line)
-                    current_kpoint = int(m.group(1)) - 1
-                    weights[current_kpoint] = float(m.group(2))
+                elif kpoint_expr.match(line):
+                    match = kpoint_expr.match(line)
+                    current_kpoint = int(match.group(1)) - 1
+                    weights[current_kpoint] = float(match.group(2))
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
-                elif headers is None and ionexpr.match(line):
+                elif headers is None and ion_expr.match(line):
                     headers = line.split()
                     headers.pop(0)
                     headers.pop(-1)
@@ -3797,11 +3793,7 @@ class Procar:
                     data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
                     phase_factors = defaultdict(
-                        lambda: np.full(
-                            (n_kpoints, n_bands, n_ions, len(headers)),
-                            np.nan,
-                            dtype=np.complex128,
-                        )
+                        lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
                 elif expr.match(line):
                     tokens = line.split()
@@ -3823,11 +3815,11 @@ class Procar:
                         phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
                 elif line.startswith("tot"):
                     done = True
-                elif preambleexpr.match(line):
-                    m = preambleexpr.match(line)
-                    n_kpoints = int(m.group(1))
-                    n_bands = int(m.group(2))
-                    n_ions = int(m.group(3))
+                elif preamble_expr.match(line):
+                    match = preamble_expr.match(line)
+                    n_kpoints = int(match.group(1))
+                    n_bands = int(match.group(2))
+                    n_ions = int(match.group(3))
                     weights = np.zeros(n_kpoints)
 
             self.nkpoints = n_kpoints

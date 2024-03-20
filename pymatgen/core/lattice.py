@@ -884,7 +884,7 @@ class Lattice(MSONable):
             None is returned if no matches are found.
         """
         lengths = other_lattice.lengths
-        (alpha, beta, gamma) = other_lattice.angles
+        alpha, beta, gamma = other_lattice.angles
 
         frac, dist, _, _ = self.get_points_in_sphere(  # type: ignore[misc]
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False

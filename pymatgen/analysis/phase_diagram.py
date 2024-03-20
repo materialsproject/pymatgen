@@ -2420,7 +2420,7 @@ class PDPlotter:
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
             for line in lines:
-                (x, y) = line.coords.transpose()
+                x, y = line.coords.transpose()
                 plt.plot(x, y, "k-")
 
                 for coord in line.coords:

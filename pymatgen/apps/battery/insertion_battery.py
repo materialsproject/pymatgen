@@ -405,7 +405,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         if entry_charge.composition.get_atomic_fraction(working_element) > entry2.composition.get_atomic_fraction(
             working_element
         ):
-            (entry_charge, entry_discharge) = (entry_discharge, entry_charge)
+            entry_charge, entry_discharge = entry_discharge, entry_charge
 
         comp_charge = entry_charge.composition
         comp_discharge = entry_discharge.composition
