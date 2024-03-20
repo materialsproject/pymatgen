@@ -366,7 +366,7 @@ class FiestaInput(MSONable):
             nv__band: number of valence bands to correct with GW
             nc_band: number of conduction bands to correct with GW
             n_iteration: number of iteration
-            n_grid and dE_grid:: number of points and spacing in eV for correlation grid.
+            n_grid and dE_grid: number of points and spacing in eV for correlation grid.
         """
         self.GW_options.update(nv_corr=nv_band, nc_corr=nc_band, nit_gw=n_iteration)
         self.correlation_grid.update(dE_grid=dE_grid, n_grid=n_grid)

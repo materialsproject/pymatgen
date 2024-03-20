@@ -553,22 +553,18 @@ class GaussianOutput:
             printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
-    .. method:: to_input()
+        to_input()
+            Return a GaussianInput object using the last geometry and the same
+            calculation parameters.
 
-        Return a GaussianInput object using the last geometry and the same
-        calculation parameters.
+        read_scan()
+            Read a potential energy surface from a gaussian scan calculation.
 
-    .. method:: read_scan()
+        get_scan_plot()
+            Get a matplotlib plot of the potential energy surface
 
-        Read a potential energy surface from a gaussian scan calculation.
-
-    .. method:: get_scan_plot()
-
-        Get a matplotlib plot of the potential energy surface
-
-    .. method:: save_scan_plot()
-
-        Save a matplotlib plot of the potential energy surface to a file
+        save_scan_plot()
+            Save a matplotlib plot of the potential energy surface to a file
     """
 
     def __init__(self, filename):

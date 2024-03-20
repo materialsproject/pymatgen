@@ -86,7 +86,7 @@ def get_structure_from_dict(dct):
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
     r"""
     Converts a single eigenvector to an eigendisplacement in the primitive cell
-    according to the formula::
+    according to the formula:
 
         exp(2*pi*i*(frac_coords \\dot q) / sqrt(mass) * v
 
@@ -110,7 +110,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
     extracted by the band.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
     key is found the eigendisplacements will be calculated according to the
-    formula::
+    formula:
 
         exp(2*pi*i*(frac_coords \\dot q) / sqrt(mass) * v
 
@@ -479,7 +479,7 @@ def get_gs_ph_bs_symm_line_from_dict(
     extracted by the gruneisen.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
     key is found the eigendisplacements will be calculated according to the
-    formula::
+    formula:
 
         exp(2*pi*i*(frac_coords \\dot q) / sqrt(mass) * v
 
