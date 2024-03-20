@@ -3732,7 +3732,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
-            charge (int): overall charge of the structure. Defaults to behavior
+            charge (float): overall charge of the structure. Defaults to behavior
                 in SiteCollection where total charge is the sum of the oxidation
                 states.
             validate_proximity (bool): Whether to check if there are sites

@@ -67,11 +67,6 @@ class Slab(Structure):
     and b lattice vectors. This means the lattice vectors a and b are in the
     surface plane and the c vector is out of the surface plane (though not
     necessarily perpendicular to the surface).
-
-    Attributes:
-        miller_index (tuple): Miller index of the plane parallel to surface.
-        scale_factor (np.ndarray): Scale factor that brings the source cell to the surface cell.
-        shift (float): The shift value in Angstrom that indicates how much this slab has been shifted.
     """
 
     def __init__(
@@ -91,7 +86,7 @@ class Slab(Structure):
         site_properties: dict | None = None,
         energy: float | None = None,
     ) -> None:
-        """A structure object with additional information
+        """A Structure object with additional information
         and methods pertaining to Slabs.
 
         Args:
@@ -166,10 +161,9 @@ class Slab(Structure):
         )
 
     def __str__(self) -> str:
-        comp = self.composition
         outs = [
-            f"Slab Summary ({comp.formula})",
-            f"Reduced Formula: {comp.reduced_formula}",
+            f"Slab Summary ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
             f"abc   : {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.abc)}",
@@ -179,61 +173,22 @@ class Slab(Structure):
 
         for idx, site in enumerate(self):
             outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
+
         return "\n".join(outs)
 
     @property
-    def is_symmetric(self, symprec: float = 0.1) -> bool:
-        """Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
-            or screw axis (rotation and translation) about [hkl].
-
-        Args:
-            symprec (float): Symmetry precision used for SpaceGroup analyzer.
-
-        Returns:
-            bool: Whether surfaces are symmetric.
-        """
-        sg = SpacegroupAnalyzer(self, symprec=symprec)
-        symm_ops = sg.get_point_group_operations()
-
-        # Check for inversion symmetry. Or if sites from surface (a) can be translated
-        # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
-        # two surfaces of our slabs are always parallel to the (hkl) plane,
-        # any operation where there's an (hkl) mirror plane has surface symmetry
-        return (
-            sg.is_laue()
-            or any(op.translation_vector[2] != 0 for op in symm_ops)
-            or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
-        )
-
-    @property
-    def is_polar(self, tol_dipole_per_unit_area: float = 1e-3) -> bool:
-        """Checks whether the surface is polar by computing the dipole per unit
-        area. Note that the Slab must be oxidation state-decorated for this
-        to work properly. Otherwise, the Slab will always be non-polar.
-
-        Args:
-            tol_dipole_per_unit_area (float): A tolerance. If the dipole
-                magnitude per unit area is less than this value, the Slab is
-                considered non-polar. Defaults to 1e-3, which is usually
-                pretty good. Normalized dipole per unit area is used as it is
-                more reliable than using the total, which tends to be larger for
-                slabs with larger surface areas.
-        """
-        dip_per_unit_area = self.dipole / self.surface_area
-        return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
-
-    @property
     def dipole(self) -> np.ndarray:
-        """Calculate the dipole of the Slab in the direction of the surface
-        normal. Note that the Slab must be oxidation state-decorated for this
-        to work properly. Otherwise, the Slab will always have a dipole of 0.
+        """Calculate the dipole moment of the Slab in the direction of the surface normal.
+
+        Note that the Slab must be oxidation state decorated for this to work properly.
+        Otherwise, the Slab will always have a dipole moment of 0.
         """
+        centroid = np.sum(self.cart_coords, axis=0) / len(self)
+
         dipole = np.zeros(3)
-        mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
-        normal = self.normal
         for site in self:
             charge = sum(getattr(sp, "oxi_state", 0) * amt for sp, amt in site.species.items())
-            dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
+            dipole += charge * np.dot(site.coords - centroid, self.normal) * self.normal
         return dipole
 
     @property
@@ -318,6 +273,44 @@ class Slab(Structure):
             site_properties=props,
             reorient_lattice=self.reorient_lattice,
         )
+
+    def is_symmetric(self, symprec: float = 0.1) -> bool:
+        """Whether Slab is symmetric, i.e., contains inversion, mirror on (hkl) plane,
+            or screw axis (rotation and translation) about [hkl].
+
+        Args:
+            symprec (float): Symmetry precision used for SpaceGroup analyzer.
+
+        Returns:
+            bool: Whether surfaces are symmetric.
+        """
+        sg = SpacegroupAnalyzer(self, symprec=symprec)
+        symm_ops = sg.get_point_group_operations()
+
+        # Check for inversion symmetry. Or if sites from surface (a) can be translated
+        # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
+        # two surfaces of our slabs are always parallel to the (hkl) plane,
+        # any operation where there's an (hkl) mirror plane has surface symmetry
+        return (
+            sg.is_laue()
+            or any(op.translation_vector[2] != 0 for op in symm_ops)
+            or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
+        )
+
+    def is_polar(self, tol_dipole_per_unit_area: float = 1e-3) -> bool:
+        """Check if the Slab is polar by computing the normalized dipole per unit area.
+        Normalized dipole per unit area is used as it is more reliable than
+        using the absolute value, which varies with surface area.
+
+        Note that the Slab must be oxidation state decorated for this to work properly.
+        Otherwise, the Slab will always have a dipole moment of 0.
+
+        Args:
+            tol_dipole_per_unit_area (float): A tolerance above which the Slab is
+                considered polar.
+        """
+        dip_per_unit_area = self.dipole / self.surface_area
+        return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
     def get_surface_sites(self, tag: bool = False) -> dict:
         """Returns the surface sites and their indices in a dictionary. The
