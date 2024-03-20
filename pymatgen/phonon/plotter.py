@@ -133,6 +133,7 @@ class PhononDosPlotter:
         self,
         xlim: float | None = None,
         ylim: float | None = None,
+        invert_axes: bool = False,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         legend: dict | None = None,
         ax: Axes | None = None,
@@ -142,6 +143,8 @@ class PhononDosPlotter:
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic determination.
             ylim: Specifies the y-axis limits.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units (thz | ev | mev | ha | cm-1 | cm^-1): units for the frequencies. Defaults to "thz".
             legend: dict with legend options. For example, {"loc": "upper right"}
                 will place the legend in the upper right corner. Defaults to {"fontsize": 30}.
@@ -158,7 +161,7 @@ class PhononDosPlotter:
         y = None
         all_densities = []
         all_frequencies = []
-        ax = pretty_plot(12, 8, ax=ax)
+        ax = pretty_plot(8, 12, ax=ax) if invert_axes else pretty_plot(12, 8, ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
@@ -183,24 +186,40 @@ class PhononDosPlotter:
         for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
             color = self._doses[key].get("color", colors[idx % n_colors])
             all_pts.extend(list(zip(frequencies, densities)))
-            if self.stack:
-                ax.fill(frequencies, densities, color=color, label=str(key))
+            if invert_axes:
+                x, y = densities, frequencies
             else:
-                ax.plot(frequencies, densities, color=color, label=str(key), linewidth=3)
+                x, y = frequencies, densities
+            if self.stack:
+                ax.fill(x, y, color=color, label=str(key))
+            else:
+                ax.plot(x, y, color=color, label=str(key), linewidth=3)
 
         if xlim:
             ax.set_xlim(xlim)
         if ylim:
             ax.set_ylim(ylim)
         else:
-            _xlim = ax.get_xlim()
-            relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
-            ax.set_ylim((min(relevant_y), max(relevant_y)))
+            if invert_axes:
+                _ylim = ax.get_ylim()
+                relevant_x = [p[1] for p in all_pts if _ylim[0] < p[0] < _ylim[1]] or ax.get_xlim()
+                ax.set_xlim((min(relevant_x), max(relevant_x)))
+            else:
+                _xlim = ax.get_xlim()
+                relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
+                ax.set_ylim((min(relevant_y), max(relevant_y)))
 
-        ax.axvline(0, linewidth=2, color="black", linestyle="--")
+        if invert_axes:
+            ax.axhline(0, linewidth=2, color="black", linestyle="--")
 
-        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
-        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
+            ax.set_xlabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
+            ax.set_ylabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+
+        else:
+            ax.axvline(0, linewidth=2, color="black", linestyle="--")
+
+            ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+            ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
 
         # only show legend if there are labels
         if sum(map(len, keys)) > 0:
@@ -214,6 +233,7 @@ class PhononDosPlotter:
         img_format: str = "eps",
         xlim: float | None = None,
         ylim: float | None = None,
+        invert_axes: bool = False,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Save matplotlib plot to a file.
@@ -224,9 +244,11 @@ class PhononDosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes: Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1
         """
-        self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, invert_axes=invert_axes, units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -234,6 +256,7 @@ class PhononDosPlotter:
         self,
         xlim: float | None = None,
         ylim: None = None,
+        invert_axes: bool = False,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Show the plot using matplotlib.
@@ -242,9 +265,11 @@ class PhononDosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes: Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, invert_axes=invert_axes, units=units)
         plt.show()
 
 
@@ -753,7 +778,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp)
+        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
 
         ylabel = "$C_v$ (J/K/mol)" if self.structure else "$C_v$ (J/K/mol-c)"
 
@@ -773,7 +798,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp)
+        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
 
         ylabel = "$S$ (J/K/mol)" if self.structure else "$S$ (J/K/mol-c)"
 
@@ -793,7 +818,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp)
+        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
 
         ylabel = "$\\Delta E$ (kJ/mol)" if self.structure else "$\\Delta E$ (kJ/mol-c)"
 
@@ -817,7 +842,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp)
+        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
 
         ylabel = "$\\Delta F$ (kJ/mol)" if self.structure else "$\\Delta F$ (kJ/mol-c)"
 
@@ -841,7 +866,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp)
+        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
 
         mol = "" if self.structure else "-c"
 
