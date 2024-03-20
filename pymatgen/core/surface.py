@@ -1,4 +1,4 @@
-"""This module implements representations of slabs and surfaces + algorithms for generating them.
+"""This module implements representations of Slabs, and algorithms for generating them.
 
 If you use this module, please consider citing the following work:
 
@@ -165,133 +165,23 @@ class Slab(Structure):
             site_properties=site_properties,
         )
 
-    def get_orthogonal_c_slab(self) -> Slab:
-        """This method returns a Slab where the normal (c lattice vector) is
-        "forced" to be exactly orthogonal to the surface a and b lattice
-        vectors.
+    def __str__(self) -> str:
+        comp = self.composition
+        outs = [
+            f"Slab Summary ({comp.formula})",
+            f"Reduced Formula: {comp.reduced_formula}",
+            f"Miller index: {self.miller_index}",
+            f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
+            f"abc   : {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.abc)}",
+            f"angles: {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.angles)}",
+            f"Sites ({len(self)})",
+        ]
 
-        **Note that this breaks inherent symmetries in the slab.**
+        for idx, site in enumerate(self):
+            outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
+        return "\n".join(outs)
 
-        It should be pointed out that orthogonality is not required to get good
-        surface energies, but it can be useful in cases where the slabs are
-        subsequently used for postprocessing of some kind, e.g. generating
-        GBs or interfaces.
-        """
-        a, b, c = self.lattice.matrix
-        new_c = np.cross(a, b)
-        new_c /= np.linalg.norm(new_c)
-        new_c = np.dot(c, new_c) * new_c
-        new_latt = Lattice([a, b, new_c])
-        return Slab(
-            lattice=new_latt,
-            species=self.species_and_occu,
-            coords=self.cart_coords,
-            miller_index=self.miller_index,
-            oriented_unit_cell=self.oriented_unit_cell,
-            shift=self.shift,
-            scale_factor=self.scale_factor,
-            coords_are_cartesian=True,
-            energy=self.energy,
-            reorient_lattice=self.reorient_lattice,
-            site_properties=self.site_properties,
-        )
-
-    def get_tasker2_slabs(self, tol: float = 0.01, same_species_only: bool = True) -> list[Slab]:
-        """Get a list of slabs that have been Tasker 2 corrected.
-
-        Args:
-            tol (float): Tolerance to determine if atoms are within same plane.
-                This is a fractional tolerance, not an absolute one.
-            same_species_only (bool): If True, only that are of the exact same
-                species as the atom at the outermost surface are considered for
-                moving. Otherwise, all atoms regardless of species that is
-                within tol are considered for moving. Default is True (usually
-                the desired behavior).
-
-        Returns:
-            list[Slab]: tasker 2 corrected slabs.
-        """
-        sites = list(self.sites)
-        slabs = []
-
-        sorted_csites = sorted(sites, key=lambda site: site.c)
-
-        # Determine what fraction the slab is of the total cell size in the
-        # c direction. Round to nearest rational number.
-        n_layers_total = int(round(self.lattice.c / self.oriented_unit_cell.lattice.c))
-        n_layers_slab = int(round((sorted_csites[-1].c - sorted_csites[0].c) * n_layers_total))
-        slab_ratio = n_layers_slab / n_layers_total
-
-        spga = SpacegroupAnalyzer(self)
-        symm_structure = spga.get_symmetrized_structure()
-
-        def equi_index(site: PeriodicSite) -> int:
-            for idx, equi_sites in enumerate(symm_structure.equivalent_sites):
-                if site in equi_sites:
-                    return idx
-            raise ValueError("Cannot determine equi index!")
-
-        for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
-            to_move = []
-            fixed = []
-            for site in sites:
-                if abs(site.c - surface_site.c) < tol and (
-                    (not same_species_only) or site.species == surface_site.species
-                ):
-                    to_move.append(site)
-                else:
-                    fixed.append(site)
-
-            # Sort and group the sites by the species and symmetry equivalence
-            to_move = sorted(to_move, key=equi_index)
-
-            grouped = [list(sites) for k, sites in itertools.groupby(to_move, key=equi_index)]
-
-            if len(to_move) == 0 or any(len(g) % 2 != 0 for g in grouped):
-                warnings.warn(
-                    "Odd number of sites to divide! Try changing "
-                    "the tolerance to ensure even division of "
-                    "sites or create supercells in a or b directions "
-                    "to allow for atoms to be moved!"
-                )
-                continue
-            combinations = []
-            for g in grouped:
-                combinations.append(list(itertools.combinations(g, int(len(g) / 2))))
-
-            for selection in itertools.product(*combinations):
-                species = [site.species for site in fixed]
-                frac_coords = [site.frac_coords for site in fixed]
-
-                for s in to_move:
-                    species.append(s.species)
-                    for group in selection:
-                        if s in group:
-                            frac_coords.append(s.frac_coords)
-                            break
-                    else:
-                        # Move unselected atom to the opposite surface.
-                        frac_coords.append(s.frac_coords + [0, 0, shift])  # noqa: RUF005
-
-                # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
-                species = [x[0] for x in sp_fcoord]
-                frac_coords = [x[1] for x in sp_fcoord]
-                slab = Slab(
-                    self.lattice,
-                    species,
-                    frac_coords,
-                    self.miller_index,
-                    self.oriented_unit_cell,
-                    self.shift,
-                    self.scale_factor,
-                    energy=self.energy,
-                    reorient_lattice=self.reorient_lattice,
-                )
-                slabs.append(slab)
-        s = StructureMatcher()
-        return [ss[0] for ss in s.group_structures(slabs)]
-
+    @property
     def is_symmetric(self, symprec: float = 0.1) -> bool:
         """Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
             or screw axis (rotation and translation) about [hkl].
@@ -315,74 +205,7 @@ class Slab(Structure):
             or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
         )
 
-    def get_sorted_structure(self, key=None, reverse: bool = False) -> Slab:
-        """Get a sorted copy of the structure. The parameters have the same
-        meaning as in list.sort. By default, sites are sorted by the
-        electronegativity of the species. Note that Slab has to override this
-        because of the different __init__ args.
-
-        Args:
-            key: Specifies a function of one argument that is used to extract
-                a comparison key from each list element: key=str.lower. The
-                default value is None (compare the elements directly).
-            reverse (bool): If set to True, then the list elements are sorted
-                as if each comparison were reversed.
-        """
-        sites = sorted(self, key=key, reverse=reverse)
-        struct = Structure.from_sites(sites)
-        return Slab(
-            struct.lattice,
-            struct.species_and_occu,
-            struct.frac_coords,
-            self.miller_index,
-            self.oriented_unit_cell,
-            self.shift,
-            self.scale_factor,
-            site_properties=struct.site_properties,
-            reorient_lattice=self.reorient_lattice,
-        )
-
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:
-        """Get a copy of the structure, with options to update
-        site properties.
-
-        Args:
-            site_properties (dict): Properties to update. The
-                properties are specified in the same way as the constructor,
-                i.e., as a dict of the form {property: [values]}.
-
-        Returns:
-            A copy of the Structure, with optionally new site_properties
-        """
-        props = self.site_properties
-        if site_properties:
-            props.update(site_properties)
-        return Slab(
-            self.lattice,
-            self.species_and_occu,
-            self.frac_coords,
-            self.miller_index,
-            self.oriented_unit_cell,
-            self.shift,
-            self.scale_factor,
-            site_properties=props,
-            reorient_lattice=self.reorient_lattice,
-        )
-
     @property
-    def dipole(self) -> np.ndarray:
-        """Calculate the dipole of the Slab in the direction of the surface
-        normal. Note that the Slab must be oxidation state-decorated for this
-        to work properly. Otherwise, the Slab will always have a dipole of 0.
-        """
-        dipole = np.zeros(3)
-        mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
-        normal = self.normal
-        for site in self:
-            charge = sum(getattr(sp, "oxi_state", 0) * amt for sp, amt in site.species.items())
-            dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
-        return dipole
-
     def is_polar(self, tol_dipole_per_unit_area: float = 1e-3) -> bool:
         """Checks whether the surface is polar by computing the dipole per unit
         area. Note that the Slab must be oxidation state-decorated for this
@@ -398,6 +221,20 @@ class Slab(Structure):
         """
         dip_per_unit_area = self.dipole / self.surface_area
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
+
+    @property
+    def dipole(self) -> np.ndarray:
+        """Calculate the dipole of the Slab in the direction of the surface
+        normal. Note that the Slab must be oxidation state-decorated for this
+        to work properly. Otherwise, the Slab will always have a dipole of 0.
+        """
+        dipole = np.zeros(3)
+        mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
+        normal = self.normal
+        for site in self:
+            charge = sum(getattr(sp, "oxi_state", 0) * amt for sp, amt in site.species.items())
+            dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
+        return dipole
 
     @property
     def normal(self) -> np.ndarray:
@@ -417,64 +254,6 @@ class Slab(Structure):
         """Calculates the center of mass of the slab."""
         weights = [s.species.weight for s in self]
         return np.average(self.frac_coords, weights=weights, axis=0)
-
-    def add_adsorbate_atom(
-        self,
-        indices: list[int],
-        specie: Species | Element | str,
-        distance: float,
-    ) -> Slab:
-        """Gets the structure of single atom adsorption.
-        slab structure from the Slab class(in [0, 0, 1]).
-
-        Args:
-            indices ([int]): Indices of sites on which to put the adsorbate.
-                Absorbed atom will be displaced relative to the center of
-                these sites.
-            specie (Species/Element/str): adsorbed atom species
-            distance (float): between centers of the adsorbed atom and the
-                given site in Angstroms.
-
-        Returns:
-            Slab: self with adsorbed atom.
-        """
-        # Work in Cartesian coords
-        center = np.sum([self[idx].coords for idx in indices], axis=0) / len(indices)
-
-        coords = center + self.normal * distance / np.linalg.norm(self.normal)
-
-        self.append(specie, coords, coords_are_cartesian=True)
-
-        return self
-
-    def __str__(self) -> str:
-        comp = self.composition
-        outs = [
-            f"Slab Summary ({comp.formula})",
-            f"Reduced Formula: {comp.reduced_formula}",
-            f"Miller index: {self.miller_index}",
-            f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
-            f"abc   : {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.abc)}",
-            f"angles: {' '.join(f'{i:0.6f}'.rjust(10) for i in self.lattice.angles)}",
-            f"Sites ({len(self)})",
-        ]
-
-        for idx, site in enumerate(self):
-            outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
-        return "\n".join(outs)
-
-    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
-        """MSONable dict."""
-        dct = super().as_dict(**kwargs)
-        dct["@module"] = type(self).__module__
-        dct["@class"] = type(self).__name__
-        dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
-        dct["miller_index"] = self.miller_index
-        dct["shift"] = self.shift
-        dct["scale_factor"] = self.scale_factor
-        dct["reconstruction"] = self.reconstruction
-        dct["energy"] = self.energy
-        return dct
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -497,6 +276,47 @@ class Slab(Structure):
             scale_factor=dct["scale_factor"],
             site_properties=struct.site_properties,
             energy=dct["energy"],
+        )
+
+    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
+        """MSONable dict."""
+        dct = super().as_dict(**kwargs)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
+        dct["miller_index"] = self.miller_index
+        dct["shift"] = self.shift
+        dct["scale_factor"] = self.scale_factor
+        dct["reconstruction"] = self.reconstruction
+        dct["energy"] = self.energy
+        return dct
+
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:
+        """Get a copy of the structure, with options to update
+        site properties.
+
+        Args:
+            site_properties (dict): Properties to update. The
+                properties are specified in the same way as the constructor,
+                i.e., as a dict of the form {property: [values]}.
+
+        Returns:
+            A copy of the Structure, with optionally new site_properties
+        """
+        props = self.site_properties
+        if site_properties:
+            props.update(site_properties)
+
+        return Slab(
+            self.lattice,
+            self.species_and_occu,
+            self.frac_coords,
+            self.miller_index,
+            self.oriented_unit_cell,
+            self.shift,
+            self.scale_factor,
+            site_properties=props,
+            reorient_lattice=self.reorient_lattice,
         )
 
     def get_surface_sites(self, tag: bool = False) -> dict:
@@ -614,6 +434,189 @@ class Slab(Structure):
             slab.remove_sites([len(slab) - 1])
 
         return site2
+
+    def get_orthogonal_c_slab(self) -> Slab:
+        """This method returns a Slab where the normal (c lattice vector) is
+        "forced" to be exactly orthogonal to the surface a and b lattice
+        vectors.
+
+        **Note that this breaks inherent symmetries in the slab.**
+
+        It should be pointed out that orthogonality is not required to get good
+        surface energies, but it can be useful in cases where the slabs are
+        subsequently used for postprocessing of some kind, e.g. generating
+        grain boundaries or interfaces.
+        """
+        a, b, c = self.lattice.matrix
+        new_c = np.cross(a, b)
+        new_c /= np.linalg.norm(new_c)
+        new_c = np.dot(c, new_c) * new_c
+        new_latt = Lattice([a, b, new_c])
+
+        return Slab(
+            lattice=new_latt,
+            species=self.species_and_occu,
+            coords=self.cart_coords,
+            miller_index=self.miller_index,
+            oriented_unit_cell=self.oriented_unit_cell,
+            shift=self.shift,
+            scale_factor=self.scale_factor,
+            coords_are_cartesian=True,
+            energy=self.energy,
+            reorient_lattice=self.reorient_lattice,
+            site_properties=self.site_properties,
+        )
+
+    def get_tasker2_slabs(self, tol: float = 0.01, same_species_only: bool = True) -> list[Slab]:
+        """Get a list of slabs that have been Tasker 2 corrected.
+
+        Args:
+            tol (float): Fractional tolerance to determine if atoms are within same plane.
+            same_species_only (bool): If True, only that are of the exact same
+                species as the atom at the outermost surface are considered for
+                moving. Otherwise, all atoms regardless of species that is
+                within tol are considered for moving. Default is True (usually
+                the desired behavior).
+
+        Returns:
+            list[Slab]: Tasker 2 corrected slabs.
+        """
+        sites = list(self.sites)
+        slabs = []
+
+        sorted_csites = sorted(sites, key=lambda site: site.c)
+
+        # Determine what fraction the slab is of the total cell size in the
+        # c direction. Round to nearest rational number.
+        n_layers_total = int(round(self.lattice.c / self.oriented_unit_cell.lattice.c))
+        n_layers_slab = int(round((sorted_csites[-1].c - sorted_csites[0].c) * n_layers_total))
+        slab_ratio = n_layers_slab / n_layers_total
+
+        spga = SpacegroupAnalyzer(self)
+        symm_structure = spga.get_symmetrized_structure()
+
+        def equi_index(site: PeriodicSite) -> int:
+            for idx, equi_sites in enumerate(symm_structure.equivalent_sites):
+                if site in equi_sites:
+                    return idx
+            raise ValueError("Cannot determine equi index!")
+
+        for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
+            to_move = []
+            fixed = []
+            for site in sites:
+                if abs(site.c - surface_site.c) < tol and (
+                    (not same_species_only) or site.species == surface_site.species
+                ):
+                    to_move.append(site)
+                else:
+                    fixed.append(site)
+
+            # Sort and group the sites by the species and symmetry equivalence
+            to_move = sorted(to_move, key=equi_index)
+
+            grouped = [list(sites) for k, sites in itertools.groupby(to_move, key=equi_index)]
+
+            if len(to_move) == 0 or any(len(g) % 2 != 0 for g in grouped):
+                warnings.warn(
+                    "Odd number of sites to divide! Try changing "
+                    "the tolerance to ensure even division of "
+                    "sites or create supercells in a or b directions "
+                    "to allow for atoms to be moved!"
+                )
+                continue
+            combinations = []
+            for g in grouped:
+                combinations.append(list(itertools.combinations(g, int(len(g) / 2))))
+
+            for selection in itertools.product(*combinations):
+                species = [site.species for site in fixed]
+                frac_coords = [site.frac_coords for site in fixed]
+
+                for s in to_move:
+                    species.append(s.species)
+                    for group in selection:
+                        if s in group:
+                            frac_coords.append(s.frac_coords)
+                            break
+                    else:
+                        # Move unselected atom to the opposite surface.
+                        frac_coords.append(s.frac_coords + [0, 0, shift])  # noqa: RUF005
+
+                # sort by species to put all similar species together.
+                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
+                species = [x[0] for x in sp_fcoord]
+                frac_coords = [x[1] for x in sp_fcoord]
+                slab = Slab(
+                    self.lattice,
+                    species,
+                    frac_coords,
+                    self.miller_index,
+                    self.oriented_unit_cell,
+                    self.shift,
+                    self.scale_factor,
+                    energy=self.energy,
+                    reorient_lattice=self.reorient_lattice,
+                )
+                slabs.append(slab)
+        s = StructureMatcher()
+        return [ss[0] for ss in s.group_structures(slabs)]
+
+    def get_sorted_structure(self, key=None, reverse: bool = False) -> Slab:
+        """Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species. Note that Slab has to override this
+        because of the different __init__ args.
+
+        Args:
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
+        """
+        sites = sorted(self, key=key, reverse=reverse)
+        struct = Structure.from_sites(sites)
+        return Slab(
+            struct.lattice,
+            struct.species_and_occu,
+            struct.frac_coords,
+            self.miller_index,
+            self.oriented_unit_cell,
+            self.shift,
+            self.scale_factor,
+            site_properties=struct.site_properties,
+            reorient_lattice=self.reorient_lattice,
+        )
+
+    def add_adsorbate_atom(
+        self,
+        indices: list[int],
+        specie: Species | Element | str,
+        distance: float,
+    ) -> Slab:
+        """Gets the structure of single atom adsorption.
+        slab structure from the Slab class(in [0, 0, 1]).
+
+        Args:
+            indices ([int]): Indices of sites on which to put the adsorbate.
+                Absorbed atom will be displaced relative to the center of
+                these sites.
+            specie (Species/Element/str): adsorbed atom species
+            distance (float): between centers of the adsorbed atom and the
+                given site in Angstroms.
+
+        Returns:
+            Slab: self with adsorbed atom.
+        """
+        # Work in Cartesian coords
+        center = np.sum([self[idx].coords for idx in indices], axis=0) / len(indices)
+
+        coords = center + self.normal * distance / np.linalg.norm(self.normal)
+
+        self.append(specie, coords, coords_are_cartesian=True)
+
+        return self
 
     def symmetrically_add_atom(
         self, specie: str | Element | Species, point, coords_are_cartesian: bool = False
