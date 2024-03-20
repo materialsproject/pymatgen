@@ -478,6 +478,8 @@ class AimsControlIn(MSONable):
         Returns:
             str: The line to add to the control.in file
         """
+        if value is None:
+            return ""
         return f"{key:35s}{fmt % value}\n"
 
     def get_content(
