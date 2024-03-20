@@ -4,6 +4,7 @@ import json
 import unittest
 
 from matplotlib import axes, rc
+from numpy.testing import assert_allclose
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -19,6 +20,7 @@ class TestPhononDosPlotter(unittest.TestCase):
             self.dos = CompletePhononDos.from_dict(json.load(file))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
+            self.plotter_no_sigma = PhononDosPlotter(sigma=None, stack=False)
 
     def test_add_dos_dict(self):
         dct = self.plotter.get_dos_dict()
@@ -41,6 +43,12 @@ class TestPhononDosPlotter(unittest.TestCase):
         assert isinstance(ax, axes.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Density\\ of\\ states}$"
         assert ax.get_xlabel() == "$\\mathrm{Frequencies\\ (meV)}$"
+        self.plotter_no_sigma.add_dos("Total", self.dos)
+        ax2 = self.plotter_no_sigma.get_plot(units="mev")
+        assert_allclose(ax2.get_ylim(), (min(self.dos.densities), max(self.dos.densities)))
+        ax3 = self.plotter_no_sigma.get_plot(units="mev", invert_axes=True)
+        assert ax3.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
+        assert ax3.get_xlabel() == "$\\mathrm{Density\\ of\\ states}$"
 
 
 class TestPhononBSPlotter(unittest.TestCase):
@@ -62,7 +70,10 @@ class TestPhononBSPlotter(unittest.TestCase):
         assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 8, "wrong number of tick labels"
 
     def test_plot(self):
-        self.plotter.get_plot(units="mev")
+        ax = self.plotter.get_plot(units="mev")
+        assert isinstance(ax, axes.Axes)
+        assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
+        assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
 
     def test_proj_plot(self):
         self.plotter.get_proj_plot(units="mev")
