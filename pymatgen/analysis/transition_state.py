@@ -296,7 +296,9 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
     Note that the barrier labeled in y-axis in the combined plot might be
     different from that in the individual plot due to the reference energy used.
     reverse_plot: reverse the plot or percolation direction.
-    Returns: a NEBAnalysis object
+
+    Returns:
+        a NEBAnalysis object
     """
     x = StructureMatcher()
     for neb_index, neb in enumerate(neb_analyses):

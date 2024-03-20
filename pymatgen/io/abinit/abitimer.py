@@ -67,9 +67,9 @@ class AbinitTimerParser(collections.abc.Iterable):
         parse timing data.
 
         Returns:
-            (parser, paths, okfiles)
-                where `parser` is the new object, `paths` is the list of files found and `okfiles`
-                is the list of files that have been parsed successfully.
+            parser: the new object
+            paths: the list of files found
+            okfiles: list of files that have been parsed successfully.
                 (okfiles == paths) if all files have been parsed.
         """
         paths = []

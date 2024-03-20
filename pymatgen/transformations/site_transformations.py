@@ -54,7 +54,7 @@ class InsertSitesTransformation(AbstractTransformation):
                 regards to crystal and site positions.
 
         Returns:
-            Returns a copy of structure with sites inserted.
+            A copy of structure with sites inserted.
         """
         struct = structure.copy()
         for idx, sp in enumerate(self.species):
@@ -104,7 +104,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
                 regards to crystal and site positions.
 
         Returns:
-            Returns a copy of structure with sites replaced.
+            A copy of structure with sites replaced.
         """
         struct = structure.copy()
         for i, sp in self.indices_species_map.items():
@@ -145,7 +145,7 @@ class RemoveSitesTransformation(AbstractTransformation):
                 regards to crystal and site positions.
 
         Returns:
-            Returns a copy of structure with sites removed.
+            A copy of structure with sites removed.
         """
         struct = structure.copy()
         struct.remove_sites(self.indices_to_remove)
@@ -192,7 +192,7 @@ class TranslateSitesTransformation(AbstractTransformation):
                 regards to crystal and site positions.
 
         Returns:
-            Returns a copy of structure with sites translated.
+            A copy of structure with sites translated.
         """
         struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
@@ -514,7 +514,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
                 regards to crystal and site positions.
 
         Returns:
-            Returns a copy of structure with sites properties added.
+            A copy of structure with sites properties added.
         """
         new_struct = structure.copy()
         for prop in self.site_properties:
