@@ -313,14 +313,14 @@ class Slab(Structure):
 
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
         """Returns the surface sites and their indices in a dictionary.
+        Useful for analysis involving broken bonds and for finding adsorption sites.
+
         The oriented unit cell of the slab will determine the
         coordination number of a typical site.
-
         We use VoronoiNN to determine the coordination number of sites.
         Due to the pathological error resulting from some surface sites in the
         VoronoiNN, we assume any site that has this error is a surface
-        site as well. This will work for single-element systems only for now.
-        Useful for analysis involving broken bonds and for finding adsorption sites.
+        site as well. This will only work for single-element systems for now.
 
         Args:
             tag (bool): Option to adds site attribute "is_surfsite" (bool)
@@ -350,10 +350,10 @@ class Slab(Structure):
             el = u_cell[idx].species_string
             if el not in cn_dict:
                 cn_dict[el] = []
-            # Since this will get the cn as a result of the weighted polyhedra, the
-            # slightest difference in cn will indicate a different environment for a
+            # Since this will get the CN as a result of the weighted polyhedra, the
+            # slightest difference in CN will indicate a different environment for a
             # species, eg. bond distance of each neighbor or neighbor species. The
-            # decimal place to get some cn to be equal.
+            # decimal place to get some CN to be equal.
             cn = voronoi_nn.get_cn(u_cell, idx, use_weights=True)
             cn = float(f"{round(cn, 5):.5f}")
             if cn not in cn_dict[el]:
@@ -365,7 +365,7 @@ class Slab(Structure):
         properties: list = []
         for idx, site in enumerate(self):
             # Determine if site is closer to the top or bottom of the slab
-            top = site.frac_coords[2] > self.center_of_mass[2]
+            is_top: bool = site.frac_coords[2] > self.center_of_mass[2]
 
             try:
                 # A site is a surface site, if its environment does
@@ -373,51 +373,55 @@ class Slab(Structure):
                 cn = float(f"{round(voronoi_nn.get_cn(self, idx, use_weights=True), 5):.5f}")
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
-                    key = "top" if top else "bottom"
+                    key = "top" if is_top else "bottom"
                     surf_sites_dict[key].append([site, idx])
                 else:
                     properties.append(False)
             except RuntimeError:
                 # or if pathological error is returned, indicating a surface site
                 properties.append(True)
-                key = "top" if top else "bottom"
+                key = "top" if is_top else "bottom"
                 surf_sites_dict[key].append([site, idx])
 
         if tag:
             self.add_site_property("is_surf_site", properties)
         return surf_sites_dict
 
-    def get_symmetric_site(self, point, cartesian: bool = False):
-        """This method uses symmetry operations to find equivalent sites on
-        both sides of the slab. Works mainly for slabs with Laue
-        symmetry. This is useful for retaining the non-polar and
+    def get_symmetric_site(
+        self,
+        point: ArrayLike,
+        cartesian: bool = False,
+    ) -> ArrayLike:
+        """This method uses symmetry operations to find an equivalent site on
+        the other side of the slab. Works mainly for slabs with Laue symmetry.
+
+        This is useful for retaining the non-polar and
         symmetric properties of a slab when creating adsorbed
         structures or symmetric reconstructions.
 
         Args:
-            point: Fractional coordinate.
+            point (ArrayLike): Fractional coordinate of the original site.
             cartesian (bool): Use Cartesian coordinates.
 
         Returns:
-            point: Fractional coordinate. A point equivalent to the
-                parameter point, but on the other side of the slab
+            ArrayLike: Fractional coordinate. A point equivalent to the
+                original point, but on the other side of the slab
         """
-        sg = SpacegroupAnalyzer(self)
-        ops = sg.get_symmetry_operations(cartesian=cartesian)
+        spga = SpacegroupAnalyzer(self)
+        ops = spga.get_symmetry_operations(cartesian=cartesian)
 
         # Each operation on a point will return an equivalent point.
         # We want to find the point on the other side of the slab.
         for op in ops:
             slab = self.copy()
-            site2 = op.operate(point)
-            if f"{site2[2]:.6f}" == f"{point[2]:.6f}":
+            site_other = op.operate(point)
+            if f"{site_other[2]:.6f}" == f"{point[2]:.6f}":
                 continue
 
-            # Add dummy site to check the overall structure is symmetric
+            # Add dummy sites to check if the overall structure is symmetric
             slab.append("O", point, coords_are_cartesian=cartesian)
-            slab.append("O", site2, coords_are_cartesian=cartesian)
-            sg = SpacegroupAnalyzer(slab)
-            if sg.is_laue():
+            slab.append("O", site_other, coords_are_cartesian=cartesian)
+            if SpacegroupAnalyzer(slab).is_laue():
                 break
 
             # If not symmetric, remove the two added
@@ -425,12 +429,11 @@ class Slab(Structure):
             slab.remove_sites([len(slab) - 1])
             slab.remove_sites([len(slab) - 1])
 
-        return site2
+        return site_other
 
     def get_orthogonal_c_slab(self) -> Slab:
-        """This method returns a Slab where the normal (c lattice vector) is
-        "forced" to be exactly orthogonal to the surface a and b lattice
-        vectors.
+        """Generate a Slab where the normal (c lattice vector) is
+        forced to be orthogonal to the surface a and b lattice vectors.
 
         **Note that this breaks inherent symmetries in the slab.**
 
@@ -440,9 +443,9 @@ class Slab(Structure):
         grain boundaries or interfaces.
         """
         a, b, c = self.lattice.matrix
-        new_c = np.cross(a, b)
-        new_c /= np.linalg.norm(new_c)
-        new_c = np.dot(c, new_c) * new_c
+        _new_c = np.cross(a, b)
+        _new_c /= np.linalg.norm(_new_c)
+        new_c = np.dot(c, _new_c) * _new_c
         new_latt = Lattice([a, b, new_c])
 
         return Slab(
@@ -459,7 +462,11 @@ class Slab(Structure):
             site_properties=self.site_properties,
         )
 
-    def get_tasker2_slabs(self, tol: float = 0.01, same_species_only: bool = True) -> list[Slab]:
+    def get_tasker2_slabs(
+        self,
+        tol: float = 0.01,
+        same_species_only: bool = True,
+    ) -> list[Slab]:
         """Get a list of slabs that have been Tasker 2 corrected.
 
         Args:
@@ -473,6 +480,14 @@ class Slab(Structure):
         Returns:
             list[Slab]: Tasker 2 corrected slabs.
         """
+
+        def get_equi_index(site: PeriodicSite) -> int:
+            """Get the index of the equivalent site for a given site."""
+            for idx, equi_sites in enumerate(symm_structure.equivalent_sites):
+                if site in equi_sites:
+                    return idx
+            raise ValueError("Cannot determine equi index!")
+
         sites = list(self.sites)
         slabs = []
 
@@ -487,12 +502,6 @@ class Slab(Structure):
         spga = SpacegroupAnalyzer(self)
         symm_structure = spga.get_symmetrized_structure()
 
-        def equi_index(site: PeriodicSite) -> int:
-            for idx, equi_sites in enumerate(symm_structure.equivalent_sites):
-                if site in equi_sites:
-                    return idx
-            raise ValueError("Cannot determine equi index!")
-
         for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
             to_move = []
             fixed = []
@@ -505,9 +514,9 @@ class Slab(Structure):
                     fixed.append(site)
 
             # Sort and group the sites by the species and symmetry equivalence
-            to_move = sorted(to_move, key=equi_index)
+            to_move = sorted(to_move, key=get_equi_index)
 
-            grouped = [list(sites) for k, sites in itertools.groupby(to_move, key=equi_index)]
+            grouped = [list(sites) for k, sites in itertools.groupby(to_move, key=get_equi_index)]
 
             if len(to_move) == 0 or any(len(g) % 2 != 0 for g in grouped):
                 warnings.warn(
@@ -586,39 +595,37 @@ class Slab(Structure):
         indices: list[int],
         specie: Species | Element | str,
         distance: float,
-    ) -> Slab:
-        """Gets the structure of single atom adsorption.
-        slab structure from the Slab class(in [0, 0, 1]).
+    ) -> Self:
+        """Add adsorbate onto the Slab, along the c lattice vector.
 
         Args:
-            indices ([int]): Indices of sites on which to put the adsorbate.
-                Absorbed atom will be displaced relative to the center of
-                these sites.
-            specie (Species/Element/str): adsorbed atom species
+            indices (list[int]): Indices of sites on which to put the adsorbate.
+                Adsorbate will be placed relative to the center of these sites.
+            specie (Species/Element/str): adsorbate species
             distance (float): between centers of the adsorbed atom and the
-                given site in Angstroms.
+                given site in Angstroms, along the c lattice vector.
 
         Returns:
             Slab: self with adsorbed atom.
         """
-        # Work in Cartesian coords
+        # Calculate target site as the center of sites
         center = np.sum([self[idx].coords for idx in indices], axis=0) / len(indices)
 
-        coords = center + self.normal * distance / np.linalg.norm(self.normal)
+        coords = center + self.normal * distance
 
         self.append(specie, coords, coords_are_cartesian=True)
 
         return self
 
     def symmetrically_add_atom(
-        self, specie: str | Element | Species, point, coords_are_cartesian: bool = False
+        self, specie: str | Element | Species, point: ArrayLike, coords_are_cartesian: bool = False
     ) -> None:
         """Add a site at a specified point in a slab. Will add the corresponding
         site on the both sides of the slab to maintain equivalent surfaces.
 
         Arg:
             specie (str | Element | Species): The specie to add
-            point (coords): The coordinate of the site in the slab to add.
+            point (ArrayLike): The coordinate of the site in the slab to add.
             coords_are_cartesian (bool): Is the point in Cartesian coordinates
         """
         # For now just use the species of the surface atom as the element to add
@@ -696,7 +703,7 @@ class SlabGenerator:
     def __init__(
         self,
         initial_structure,
-        miller_index: tuple[int],
+        miller_index: tuple[int, int, int],
         min_slab_size: float,
         min_vacuum_size: float,
         lll_reduce: bool = False,
