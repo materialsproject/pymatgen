@@ -471,11 +471,10 @@ class Slab(Structure):
 
         Args:
             tol (float): Fractional tolerance to determine if atoms are within same plane.
-            same_species_only (bool): If True, only that are of the exact same
-                species as the atom at the outermost surface are considered for
-                moving. Otherwise, all atoms regardless of species that is
-                within tol are considered for moving. Default is True (usually
-                the desired behavior).
+            same_species_only (bool): If True, only those are of the exact same
+                species as the atom at the outermost surface are considered for moving.
+                Otherwise, all atoms regardless of species within tol are considered for moving.
+                Default is True (usually the desired behavior).
 
         Returns:
             list[Slab]: Tasker 2 corrected slabs.
@@ -618,23 +617,33 @@ class Slab(Structure):
         return self
 
     def symmetrically_add_atom(
-        self, specie: str | Element | Species, point: ArrayLike, coords_are_cartesian: bool = False
+        self,
+        point: ArrayLike,
+        species: str | Element | Species,
+        specie: str | Element | Species | None = None,
+        coords_are_cartesian: bool = False,
     ) -> None:
-        """Add a site at a specified point in a slab. Will add the corresponding
-        site on the both sides of the slab to maintain equivalent surfaces.
+        """Add a species at a specified point in a slab. Will also add an equivalent
+        point on the other side of the slab to maintain symmetry.
 
         Arg:
-            specie (str | Element | Species): The specie to add
-            point (ArrayLike): The coordinate of the site in the slab to add.
-            coords_are_cartesian (bool): Is the point in Cartesian coordinates
+            point (ArrayLike): The coordinate of the target site.
+            species (str | Element | Species): The species to add.
+            specie: Deprecated argument name with typo. Use 'species' instead.
+            coords_are_cartesian (bool): If the point is in Cartesian coordinates.
         """
         # For now just use the species of the surface atom as the element to add
 
-        # Get the index of the corresponding site at the bottom
-        point2 = self.get_symmetric_site(point, cartesian=coords_are_cartesian)
+        # Check if deprecated argument is used
+        if specie is not None:
+            warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
+            species = specie
 
-        self.append(specie, point, coords_are_cartesian=coords_are_cartesian)
-        self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
+        # Get the index of the equivalent site on the other side
+        point_equi = self.get_symmetric_site(point, cartesian=coords_are_cartesian)
+
+        self.append(species, point, coords_are_cartesian=coords_are_cartesian)
+        self.append(species, point_equi, coords_are_cartesian=coords_are_cartesian)
 
     def symmetrically_remove_atoms(self, indices: list[int]) -> None:
         """Remove sites corresponding to a list of indices.
