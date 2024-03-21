@@ -1162,7 +1162,7 @@ class Vasprun(MSONable):
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
-                {"titel": sym, "hash": ps.md5_header_hash, "summary_stats": ps._summary_stats}
+                ps.spec
                 for sym in self.potcar_symbols
                 for ps in potcar
                 if ps.symbol == sym.split()[1]
@@ -5269,6 +5269,8 @@ class Vaspout(Vasprun):
             reported for each individual spin channel. Defaults to False,
             which computes the eigenvalue band properties independent of
             the spin orientation. If True, the calculation must be spin-polarized.
+        store_potcar : bool
+            Whether to store the full POTCAR data.
     """
 
     def __init__(
@@ -5279,10 +5281,12 @@ class Vaspout(Vasprun):
         parse_eigen: bool = True,
         parse_projected_eigen: bool = False,
         separate_spins: bool = False,
+        store_potcar : bool = True,
     ) -> None:
         self.filename = str(filename)
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
+        self.store_potcar = store_potcar
 
         self._parse(parse_dos, parse_eigen, parse_projected_eigen)
 
@@ -5422,12 +5426,10 @@ class Vaspout(Vasprun):
         self.initial_structure = self._parse_structure(input_data["poscar"])
         self.atomic_symbols = self._parse_atominfo(self.initial_structure.composition)
 
-        self.potcar = Potcar.from_str(input_data["potcar"]["content"])
-        self.potcar_symbols = [potcar.symbol for potcar in self.potcar]
-        self.potcar_spec = [
-            {"titel": potcar.symbol, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}
-            for potcar in self.potcar
-        ]
+        calc_potcar = Potcar.from_str(input_data["potcar"]["content"])
+        self.potcar = calc_potcar if self.store_potcar else None
+        self.potcar_symbols = [potcar.symbol for potcar in calc_potcar]
+        self.potcar_spec = calc_potcar.spec
 
         # TODO: do we want POSCAR stored?
         self.poscar = Poscar(
