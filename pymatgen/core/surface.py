@@ -137,6 +137,7 @@ class Slab(Structure):
         self.scale_factor = scale_factor
         self.energy = energy
         self.reorient_lattice = reorient_lattice
+
         if self.reorient_lattice:
             if coords_are_cartesian:
                 coords = lattice.get_fractional_coords(coords)
@@ -211,7 +212,7 @@ class Slab(Structure):
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
         """:param dct: dict
 
         Returns:
@@ -246,7 +247,7 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:  # type: ignore[override]
         """Get a copy of the structure, with options to update site properties.
 
         Args:
@@ -604,7 +605,7 @@ class Slab(Structure):
             species (str | Element | Species): The species to add.
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms, along the c lattice vector.
-            specie: Deprecated argument. Use 'species' instead.
+            specie: Deprecated argument in #3691. Use 'species' instead.
 
         Returns:
             Slab: self with adsorbed atom.
@@ -636,7 +637,7 @@ class Slab(Structure):
         Args:
             species (str | Element | Species): The species to add.
             point (ArrayLike): The coordinate of the target site.
-            specie: Deprecated argument name. Use 'species' instead.
+            specie: Deprecated argument name in #3691. Use 'species' instead.
             coords_are_cartesian (bool): If the point is in Cartesian coordinates.
         """
         # For now just use the species of the surface atom as the element to add
