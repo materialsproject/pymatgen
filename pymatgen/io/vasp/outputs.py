@@ -1159,9 +1159,12 @@ class Vasprun(MSONable):
 
         Returns:
             Potcar spec from path.
+
+        Note that the vasprun.xml spec typically hasn't included the POTCAR symbols,
+        since these are derived from the TITEL.
         """
         if potcar := self.get_potcars(path):
-            self.potcar_spec = [ps.spec for sym in self.potcar_symbols for ps in potcar if ps.symbol == sym.split()[1]]
+            self.potcar_spec = [ps.spec(extra_spec=[]) for sym in self.potcar_symbols for ps in potcar if ps.symbol == sym.split()[1]]
 
     def update_charge_from_potcar(self, path):
         """
@@ -5424,7 +5427,11 @@ class Vaspout(Vasprun):
         calc_potcar = Potcar.from_str(input_data["potcar"]["content"])
         self.potcar = calc_potcar if self.store_potcar else None
         self.potcar_symbols = [potcar.symbol for potcar in calc_potcar]
-        self.potcar_spec = calc_potcar.spec
+
+        # For parity with vasprun.xml, we do not store the POTCAR symbols in
+        # the vaspout.h5 POTCAR spec. These are derived from the TITEL fields
+        # and are thus redundant.
+        self.potcar_spec = calc_potcar.spec(extra_spec=[])
 
         # TODO: do we want POSCAR stored?
         self.poscar = Poscar(
@@ -5513,3 +5520,47 @@ class Vaspout(Vasprun):
     def final_energy(self):
         """Final energy from vaspout."""
         return self.ionic_steps[-1]["e_0_energy"]
+
+    def remove_potcar_and_write_file(self, filename : str | None = None) -> None:
+        """
+        Utility function to replace the full POTCAR with its spec, and write a vaspout.h5.
+
+        This is needed for applications where one might upload VASP output
+        to a public database. Since the vaspout.h5 includes the full POTCAR, it's necessary
+        to replace it here with just the spec.
+
+        Args: 
+            filename : str or None (default)
+                Name of the output file. If None, defaults to self.filename (in-place modification).
+        """
+        from shutil import copyfile
+
+        def recursive_as_dict(obj):
+            if hasattr(obj,"items"):
+                return {k: recursive_as_dict(v) for k,v in obj.items()}
+            return self._parse_hdf5_value(obj)
+        
+        def recursive_to_dataset(h5_obj, obj):
+            if hasattr(obj,"items"):
+                for k, v in obj.items():
+                    h5_obj.create_group(k)
+                    recursive_to_dataset(h5_obj[k],v)
+            
+            data = np.array(obj)
+            if "U" in str(data.dtype):
+                data = data.astype(f"S{len(obj)}")
+            h5_obj = data
+        
+        filename = filename or self.filename
+
+        if filename != self.filename:
+            # For non-in-place modifications, first copy the file over
+            copyfile(self.filename, filename)
+
+        with zopen(filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:   
+            hdf5_data = recursive_as_dict(h5_file)
+        hdf5_data["input"]["potcar"]["content"] = self.potcar_spec
+
+        with zopen(filename,"wb") as vout_file:
+            with h5py.File(vout_file, "w") as h5_file:
+                recursive_to_dataset(h5_file, hdf5_data)

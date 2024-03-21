@@ -1200,8 +1200,9 @@ class TestPotcarSingle(unittest.TestCase):
                 "titel": psingle.TITEL,
                 "hash": psingle.md5_header_hash,
                 "summary_stats": psingle._summary_stats,
+                "symbol": psingle.symbol
             }
-            assert expected_spec == psingle.spec
+            assert expected_spec == psingle.spec()
 
 
 class TestPotcar(PymatgenTest):

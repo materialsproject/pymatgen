@@ -2387,19 +2387,29 @@ class PotcarSingle:
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
-    @property
-    def spec(self) -> dict:
+    def spec(self, extra_spec : Sequence[str] | None = None) -> dict[str,Any]:
         """
         POTCAR spec used in vasprun.xml.
 
         Args:
-            filename : str or None
-                If a str, the name of a file to write the POTCAR spec to.
-                If None, no file is written.
+            extra_spec : Sequence[str] or None (default)
+                A list of extra POTCAR fields to include in the spec.
+                If None, defaults to ["symbol"] (needed for compatibility with LOBSTER).
         Returns:
             dict of POTCAR spec
         """
-        return {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
+        if extra_spec is None:
+            extra_spec = ["symbol"]
+        spec = {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
+        for attr in extra_spec:
+            if hasattr(self,attr):
+                try:
+                    # Float attributes are accessed via __getattr__
+                    spec[attr] = self.__getattr__(attr)
+                except AttributeError:
+                    # other attributes are accessed via __getattribute__
+                    spec[attr] = self.__getattribute__(attr)
+        return spec
 
 
 def _gen_potcar_summary_stats(
@@ -2581,15 +2591,19 @@ class Potcar(list, MSONable):
     def symbols(self, symbols):
         self.set_symbols(symbols, functional=self.functional)
 
-    @property
-    def spec(self) -> list[dict]:
+    def spec(self, extra_spec : Sequence[str] | None = None) -> list[dict]:
         """
         POTCAR spec for all POTCARs in this instance.
+
+        Args:
+            extra_spec : Sequence[str] or None (default)
+                A list of extra POTCAR fields to include in the spec.
+                If None, defaults to ["symbol"] (needed for compatibility with LOBSTER).
 
         Return:
             list[dict], a list of PotcarSingle.spec dicts
         """
-        return [psingle.spec for psingle in self]
+        return [psingle.spec(extra_spec=extra_spec) for psingle in self]
 
     def write_potcar_spec(self, filename: str = "POTCAR.spec.json.gz") -> None:
         """
