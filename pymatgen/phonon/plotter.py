@@ -185,15 +185,19 @@ class PhononDosPlotter:
         colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
             color = self._doses[key].get("color", colors[idx % n_colors])
+            linewidth = self._doses[key].get("linewidth", 3)
+            kwargs = {
+                k: v for k, v in self._doses[key].items() if k not in ["frequencies", "densities", "color", "linewidth"]
+            }
             all_pts.extend(list(zip(frequencies, densities)))
             if invert_axes:
                 x, y = densities, frequencies
             else:
                 x, y = frequencies, densities
             if self.stack:
-                ax.fill(x, y, color=color, label=str(key))
+                ax.fill(x, y, color=color, label=str(key), **kwargs)
             else:
-                ax.plot(x, y, color=color, label=str(key), linewidth=3)
+                ax.plot(x, y, color=color, label=str(key), linewidth=linewidth, **kwargs)
 
         if xlim:
             ax.set_xlim(xlim)
