@@ -656,43 +656,67 @@ class Slab(Structure):
         """Remove sites from a list of indices. Will also remove the
         equivalent site on the other side of the slab to maintain symmetry.
 
-        Arg:
+        Args:
             indices (list[int]): The indices of the sites to remove.
+
+        TODO(@DanielYang59):
+        1. Reuse public method get_symmetric_site to get equi points?
+        2. If not 1, get_equi_point has multiple nested loops
         """
+
+        def get_equi_points(slab: Slab, points: list[int]) -> list[int]:
+            """
+            Get the indices of the equivalent points of given points.
+
+            Parameters:
+                slab (Slab): The slab structure.
+                points (list[int]): Original indices of points.
+
+            Returns:
+                list[int]: Indices of the equivalent points.
+            """
+            equi_points = []
+
+            for pt in points:
+                # Get the index of the original site
+                cart_point = slab.lattice.get_cartesian_coords(pt)
+                dist = [site.distance_from_point(cart_point) for site in slab]
+                site1 = dist.index(min(dist))
+
+                # Get the index of the equivalent site on the other side
+                for i, eq_sites in enumerate(slab.equivalent_sites):
+                    if slab[site1] in eq_sites:
+                        eq_indices = slab.equivalent_indices[i]
+                        break
+                i1 = eq_indices[eq_sites.index(slab[site1])]
+
+                for i2 in eq_indices:
+                    if i2 == i1:
+                        continue
+                    if slab[i2].frac_coords[2] == slab[i1].frac_coords[2]:
+                        continue
+                    # Test site remove to see if it results in symmetric slab
+                    slab = self.copy()
+                    slab.remove_sites([i1, i2])
+                    if slab.is_symmetric():
+                        equi_points.append(i2)
+                        break
+
+            return equi_points
+
+        # Generate the equivalent points of the original points
         slab_copy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         points = [slab_copy[i].frac_coords for i in indices]
-        removal_list = []
 
-        for pt in points:
-            # Get the index of the original site on top
-            cart_point = slab_copy.lattice.get_cartesian_coords(pt)
-            dist = [site.distance_from_point(cart_point) for site in slab_copy]
-            site1 = dist.index(min(dist))
+        equi_points = get_equi_points(slab_copy, points)
 
-            # Get the index of the corresponding site at the bottom
-            for i, eq_sites in enumerate(slab_copy.equivalent_sites):
-                if slab_copy[site1] in eq_sites:
-                    eq_indices = slab_copy.equivalent_indices[i]
-                    break
-            i1 = eq_indices[eq_sites.index(slab_copy[site1])]
+        # Check if found an equivalent point for all
+        if len(equi_points) == len(indices):
+            self.remove_sites(indices)
+            self.remove_sites(equi_points)
 
-            for i2 in eq_indices:
-                if i2 == i1:
-                    continue
-                if slab_copy[i2].frac_coords[2] == slab_copy[i1].frac_coords[2]:
-                    continue
-                # Test site remove to see if it results in symmetric slab
-                slab = self.copy()
-                slab.remove_sites([i1, i2])
-                if slab.is_symmetric():
-                    removal_list.extend([i1, i2])
-                    break
-
-        # If expected, 2 atoms are removed per index
-        if len(removal_list) == 2 * len(indices):
-            self.remove_sites(removal_list)
         else:
-            warnings.warn("Equivalent sites could not be found for removal for all indices. Surface unchanged.")
+            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
 
 
 class SlabGenerator:
