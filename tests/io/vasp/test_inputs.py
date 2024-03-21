@@ -1199,7 +1199,7 @@ class TestPotcarSingle(unittest.TestCase):
             expected_spec = {
                 "titel": psingle.TITEL,
                 "hash": psingle.md5_header_hash,
-                "summary_stats": psingle._summary_stats
+                "summary_stats": psingle._summary_stats,
             }
             assert expected_spec == psingle.spec
 
@@ -1267,13 +1267,12 @@ class TestPotcar(PymatgenTest):
         pickle.dumps(self.potcar)
 
     def test_from_spec(self):
-        orig_potcar = Potcar(symbols=["Fe","P","O"],functional="PBE")
+        orig_potcar = Potcar(symbols=["Fe", "P", "O"], functional="PBE")
         new_potcar = Potcar.from_spec(orig_potcar.spec)
         assert str(new_potcar) == str(orig_potcar)
         assert all(
-            [
-                PotcarSingle.compare_potcar_stats(p._summary_stats, orig_potcar[ip]._summary_stats)
-            ] for ip, p in enumerate(new_potcar)
+            [PotcarSingle.compare_potcar_stats(p._summary_stats, orig_potcar[ip]._summary_stats)]
+            for ip, p in enumerate(new_potcar)
             if p.TITEL == orig_potcar[ip].TITEL
         )
 

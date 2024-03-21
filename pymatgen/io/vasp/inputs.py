@@ -1956,12 +1956,12 @@ class PotcarSingle:
     def compare_potcar_stats(
         potcar_stats_1: dict,
         potcar_stats_2: dict,
-        tolerance : float = 1.e-6,
-        check_potcar_fields : Sequence[str] = ["header", "data"]
+        tolerance: float = 1.0e-6,
+        check_potcar_fields: Sequence[str] = ["header", "data"],
     ) -> bool:
         """
         Compare PotcarSingle._summary_stats to assess if they are the same within a tolerance.
-        
+
         Args:
             potcar_stats_1 : dict
                 Dict of potcar summary stats from the first PotcarSingle, from the PotcarSingle._summary stats attr
@@ -1977,23 +1977,21 @@ class PotcarSingle:
                 Whether the POTCARs are identical according to their summary stats.
         """
 
-
         key_match = all(
-            set(potcar_stats_1["keywords"].get(key)) == set(potcar_stats_2["keywords"].get(key)) # type: ignore
+            set(potcar_stats_1["keywords"].get(key)) == set(potcar_stats_2["keywords"].get(key))  # type: ignore
             for key in check_potcar_fields
         )
 
         data_match = False
         if key_match:
             data_diff = [
-                abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat)) # type: ignore
+                abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))  # type: ignore
                 for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                 for key in check_potcar_fields
             ]
             data_match = all(np.array(data_diff) < tolerance)
 
         return key_match and data_match
-
 
     def identify_potcar(
         self, mode: Literal["data", "file"] = "data", data_tol: float = 1e-6
@@ -2029,8 +2027,10 @@ class PotcarSingle:
             for ref_psp in self._potcar_summary_stats[func].get(self.TITEL.replace(" ", ""), []):
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
-                
-                if self.compare_potcar_stats(ref_psp, self._summary_stats, tolerance=data_tol, check_potcar_fields=check_modes):
+
+                if self.compare_potcar_stats(
+                    ref_psp, self._summary_stats, tolerance=data_tol, check_potcar_fields=check_modes
+                ):
                     identity["potcar_functionals"].append(func)
                     identity["potcar_symbols"].append(ref_psp["symbol"])
 
@@ -2386,7 +2386,7 @@ class PotcarSingle:
         symbol, functional = self.symbol, self.functional
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
-    
+
     @property
     def spec(self) -> dict:
         """
@@ -2399,12 +2399,9 @@ class PotcarSingle:
         Returns:
             dict of POTCAR spec
         """
-        return {
-            "titel": self.TITEL,
-            "hash": self.md5_header_hash,
-            "summary_stats": self._summary_stats
-        }
-    
+        return {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
+
+
 def _gen_potcar_summary_stats(
     append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
@@ -2594,7 +2591,7 @@ class Potcar(list, MSONable):
         """
         return [psingle.spec for psingle in self]
 
-    def write_potcar_spec(self, filename : str = "POTCAR.spec.json.gz") -> None:
+    def write_potcar_spec(self, filename: str = "POTCAR.spec.json.gz") -> None:
         """
         Write POTCAR spec to file.
 
@@ -2628,7 +2625,7 @@ class Potcar(list, MSONable):
             self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
 
     @classmethod
-    def from_spec(cls, potcar_spec : list[dict], functionals : list[str] | None = None) -> Potcar:
+    def from_spec(cls, potcar_spec: list[dict], functionals: list[str] | None = None) -> Potcar:
         """
         Generate a POTCAR from a list of POTCAR spec dicts.
 
@@ -2638,31 +2635,29 @@ class Potcar(list, MSONable):
                 List of POTCAR specs, from Potcar.spec or [PotcarSingle.spec]
             functionals : list[str] or None (default)
                 If a list of strings, the functionals to restrict the search to.
-            
+
         Returns:
             Potcar, a POTCAR using a single functional that matches the input spec.
         """
-        
+
         functionals = functionals or list(PotcarSingle._potcar_summary_stats)
         for functional in functionals:
-
             potcar = Potcar()
             matched = [False for _ in range(len(potcar_spec))]
             for ispec, spec in enumerate(potcar_spec):
-                titel = spec.get("titel","")
-                titel_no_spc = titel.replace(" ","")
+                titel = spec.get("titel", "")
+                titel_no_spc = titel.replace(" ", "")
                 symbol = titel.split(" ")[1].strip()
-                    
-                for stats in PotcarSingle._potcar_summary_stats[functional].get(titel_no_spc,[]):
-                    
+
+                for stats in PotcarSingle._potcar_summary_stats[functional].get(titel_no_spc, []):
                     if PotcarSingle.compare_potcar_stats(spec["summary_stats"], stats):
                         potcar.append(PotcarSingle.from_symbol_and_functional(symbol=symbol, functional=functional))
                         matched[ispec] = True
                         break
-                        
+
                 if all(matched):
                     return potcar
-                
+
         raise ValueError("Cannot match the give POTCAR spec to a set of POTCARs generated with the same functional.")
 
 

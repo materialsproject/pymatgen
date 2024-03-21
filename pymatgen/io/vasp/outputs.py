@@ -1161,12 +1161,7 @@ class Vasprun(MSONable):
             Potcar spec from path.
         """
         if potcar := self.get_potcars(path):
-            self.potcar_spec = [
-                ps.spec
-                for sym in self.potcar_symbols
-                for ps in potcar
-                if ps.symbol == sym.split()[1]
-            ]
+            self.potcar_spec = [ps.spec for sym in self.potcar_symbols for ps in potcar if ps.symbol == sym.split()[1]]
 
     def update_charge_from_potcar(self, path):
         """
@@ -5281,7 +5276,7 @@ class Vaspout(Vasprun):
         parse_eigen: bool = True,
         parse_projected_eigen: bool = False,
         separate_spins: bool = False,
-        store_potcar : bool = True,
+        store_potcar: bool = True,
     ) -> None:
         self.filename = str(filename)
         self.occu_tol = occu_tol
