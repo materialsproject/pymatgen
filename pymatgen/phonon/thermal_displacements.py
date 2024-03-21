@@ -22,8 +22,7 @@ if TYPE_CHECKING:
 
 try:
     import phonopy
-except ImportError as exc:
-    print(exc)
+except ImportError:
     phonopy = None
 
 __author__ = "J. George"

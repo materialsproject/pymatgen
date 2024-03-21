@@ -19,8 +19,7 @@ from pymatgen.phonon.dos import PhononDos
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError as exc:
-    print(exc)
+except ImportError:
     phonopy = None
 
 if TYPE_CHECKING:
