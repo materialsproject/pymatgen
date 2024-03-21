@@ -177,6 +177,12 @@ class Slab(Structure):
         return "\n".join(outs)
 
     @property
+    def center_of_mass(self) -> np.ndarray:
+        """The center of mass of the Slab in fractional coordinates."""
+        weights = [site.species.weight for site in self]
+        return np.average(self.frac_coords, weights=weights, axis=0)
+
+    @property
     def dipole(self) -> np.ndarray:
         """The dipole moment of the Slab in the direction of the surface normal.
 
@@ -203,12 +209,6 @@ class Slab(Structure):
         """The surface area of the Slab."""
         matrix = self.lattice.matrix
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
-
-    @property
-    def center_of_mass(self) -> np.ndarray:
-        """The center of mass of the Slab in fractional coordinates."""
-        weights = [site.species.weight for site in self]
-        return np.average(self.frac_coords, weights=weights, axis=0)
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -592,44 +592,51 @@ class Slab(Structure):
     def add_adsorbate_atom(
         self,
         indices: list[int],
-        specie: Species | Element | str,
+        species: str | Element | Species,
         distance: float,
+        specie: Species | Element | str | None = None,
     ) -> Self:
         """Add adsorbate onto the Slab, along the c lattice vector.
 
         Args:
             indices (list[int]): Indices of sites on which to put the adsorbate.
                 Adsorbate will be placed relative to the center of these sites.
-            specie (Species/Element/str): adsorbate species
+            species (str | Element | Species): The species to add.
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms, along the c lattice vector.
+            specie: Deprecated argument. Use 'species' instead.
 
         Returns:
             Slab: self with adsorbed atom.
         """
+        # Check if deprecated argument is used
+        if specie is not None:
+            warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
+            species = specie
+
         # Calculate target site as the center of sites
         center = np.sum([self[idx].coords for idx in indices], axis=0) / len(indices)
 
         coords = center + self.normal * distance
 
-        self.append(specie, coords, coords_are_cartesian=True)
+        self.append(species, coords, coords_are_cartesian=True)
 
         return self
 
     def symmetrically_add_atom(
         self,
-        point: ArrayLike,
         species: str | Element | Species,
+        point: ArrayLike,
         specie: str | Element | Species | None = None,
         coords_are_cartesian: bool = False,
     ) -> None:
         """Add a species at a specified point in a slab. Will also add an equivalent
         point on the other side of the slab to maintain symmetry.
 
-        Arg:
-            point (ArrayLike): The coordinate of the target site.
+        Args:
             species (str | Element | Species): The species to add.
-            specie: Deprecated argument name with typo. Use 'species' instead.
+            point (ArrayLike): The coordinate of the target site.
+            specie: Deprecated argument name. Use 'species' instead.
             coords_are_cartesian (bool): If the point is in Cartesian coordinates.
         """
         # For now just use the species of the surface atom as the element to add
@@ -646,13 +653,11 @@ class Slab(Structure):
         self.append(species, point_equi, coords_are_cartesian=coords_are_cartesian)
 
     def symmetrically_remove_atoms(self, indices: list[int]) -> None:
-        """Remove sites corresponding to a list of indices.
-        Will remove the corresponding site on both sides of the
-        slab to maintain equivalent surfaces.
+        """Remove sites from a list of indices. Will also remove the
+        equivalent site on the other side of the slab to maintain symmetry.
 
         Arg:
-            indices ([indices]): The indices of the sites
-                in the slab to remove.
+            indices (list[int]): The indices of the sites to remove.
         """
         slab_copy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         points = [slab_copy[i].frac_coords for i in indices]

@@ -163,7 +163,7 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def specie(self) -> Element | Species | DummySpecies:
         """The Species/Element at the site. Only works for ordered sites. Otherwise
-        an AttributeError is raised. Use this property sparingly.  Robust
+        an AttributeError is raised. Use this property sparingly. Robust
         design should make use of the property species instead. Note that the
         singular of species is also species. So the choice of this variable
         name is governed by programmatic concerns as opposed to grammar.
