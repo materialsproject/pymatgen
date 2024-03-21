@@ -2387,7 +2387,7 @@ class PotcarSingle:
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
-    def spec(self, extra_spec : Sequence[str] | None = None) -> dict[str,Any]:
+    def spec(self, extra_spec: Sequence[str] | None = None) -> dict[str, Any]:
         """
         POTCAR spec used in vasprun.xml.
 
@@ -2402,7 +2402,7 @@ class PotcarSingle:
             extra_spec = ["symbol"]
         spec = {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
         for attr in extra_spec:
-            if hasattr(self,attr):
+            if hasattr(self, attr):
                 try:
                     # Float attributes are accessed via __getattr__
                     spec[attr] = self.__getattr__(attr)
@@ -2591,7 +2591,7 @@ class Potcar(list, MSONable):
     def symbols(self, symbols):
         self.set_symbols(symbols, functional=self.functional)
 
-    def spec(self, extra_spec : Sequence[str] | None = None) -> list[dict]:
+    def spec(self, extra_spec: Sequence[str] | None = None) -> list[dict]:
         """
         POTCAR spec for all POTCARs in this instance.
 
