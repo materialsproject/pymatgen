@@ -51,7 +51,7 @@ def get_dimensionality_larsen(bonded_structure):
     due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -85,7 +85,7 @@ def get_structure_components(
     structure type or improper connections due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 

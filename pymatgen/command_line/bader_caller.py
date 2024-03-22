@@ -508,8 +508,10 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
     3. Runs Bader analysis twice: once for charge, and a second time
     for the charge difference (magnetization density).
 
-    :param path: path to folder to search in
-    :param suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+    Args:
+        path: path to folder to search in
+        suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+
     Returns:
         summary dict
     """
@@ -566,10 +568,11 @@ def bader_analysis_from_objects(
     2. Runs Bader analysis twice: once for charge, and a second time
     for the charge difference (magnetization density).
 
-    :param chgcar: Chgcar object
-    :param potcar: (optional) Potcar object
-    :param aeccar0: (optional) Chgcar object from aeccar0 file
-    :param aeccar2: (optional) Chgcar object from aeccar2 file
+    Args:
+        chgcar: Chgcar object
+        potcar: (optional) Potcar object
+        aeccar0: (optional) Chgcar object from aeccar0 file
+        aeccar2: (optional) Chgcar object from aeccar2 file
 
     Returns:
         summary dict

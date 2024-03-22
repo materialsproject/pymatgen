@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import webbrowser
+from typing import TYPE_CHECKING
 
 import requests
 from invoke import task
@@ -21,13 +22,17 @@ from monty.os import cd
 
 from pymatgen.core import __version__
 
+if TYPE_CHECKING:
+    from invoke import Context
+
 
 @task
-def make_doc(ctx):
+def make_doc(ctx: Context) -> None:
     """
     Generate API documentation + run Sphinx.
 
-    :param ctx:
+    Args:
+        ctx (Context): The context.
     """
     with cd("docs"):
         ctx.run("touch apidoc/index.rst", warn=True)
@@ -70,11 +75,12 @@ def make_doc(ctx):
 
 
 @task
-def publish(ctx):
+def publish(ctx: Context) -> None:
     """
     Upload release to Pypi using twine.
 
-    :param ctx: Context
+    Args:
+        ctx (Context): The context.
     """
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
@@ -82,7 +88,7 @@ def publish(ctx):
 
 
 @task
-def set_ver(ctx, version):
+def set_ver(ctx: Context, version: str):
     with open("setup.py") as file:
         contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
@@ -92,11 +98,12 @@ def set_ver(ctx, version):
 
 
 @task
-def release_github(ctx, version):
+def release_github(ctx: Context, version: str) -> None:
     """
     Release to Github using Github API.
 
-    :param ctx:
+    Args:
+        version (str): The version.
     """
     with open("docs/CHANGES.md") as file:
         contents = file.read()
@@ -120,11 +127,12 @@ def release_github(ctx, version):
     print(response.text)
 
 
-def post_discourse(version):
+def post_discourse(version: str) -> None:
     """
     Post release announcement to http://discuss.matsci.org/c/pymatgen.
 
-    :param ctx:
+    Args:
+        version (str): The version.
     """
     with open("CHANGES.rst") as file:
         contents = file.read()
@@ -149,11 +157,16 @@ def post_discourse(version):
 
 
 @task
-def update_changelog(ctx, version=None, dry_run=False):
+def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = False) -> None:
     """
     Create a preliminary change log using the git logs.
 
-    :param ctx:
+    Args:
+        ctx (invoke.Context): The context object.
+        version (str, optional): The version to use for the change log. If not provided, it will
+            use the current date in the format 'YYYY.M.D'. Defaults to None.
+        dry_run (bool, optional): If True, the function will only print the changes without
+            updating the actual change log file. Defaults to False.
     """
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
@@ -191,12 +204,14 @@ def update_changelog(ctx, version=None, dry_run=False):
 
 
 @task
-def release(ctx, version=None, nodoc=False):
+def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> None:
     """
     Run full sequence for releasing pymatgen.
 
-    :param ctx:
-    :param nodoc: Whether to skip doc generation.
+    Args:
+        ctx (invoke.Context): The context object.
+        version (str, optional): The version to release.
+        nodoc (bool, optional): Whether to skip documentation generation.
     """
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
@@ -216,7 +231,7 @@ def release(ctx, version=None, nodoc=False):
 
 
 @task
-def open_doc(ctx):
+def open_doc(ctx: Context) -> None:
     """
     Open local documentation in web browser.
     """
@@ -225,6 +240,12 @@ def open_doc(ctx):
 
 
 @task
-def lint(ctx):
+def lint(ctx: Context) -> None:
+    """
+    Run linting tools.
+
+    Args:
+        ctx (invoke.Context): The context object.
+    """
     for cmd in ["ruff", "mypy", "ruff format"]:
         ctx.run(f"{cmd} pymatgen")

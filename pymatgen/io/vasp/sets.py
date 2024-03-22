@@ -2347,13 +2347,13 @@ class MITNEBSet(DictSet):
         self.kpoints.write_file(str(output_dir / "KPOINTS"))
         self.potcar.write_file(str(output_dir / "POTCAR"))
 
-        for i, p in enumerate(self.poscars):
-            d = output_dir / str(i).zfill(2)
+        for idx, poscar in enumerate(self.poscars):
+            d = output_dir / str(idx).zfill(2)
             if not d.exists():
                 d.mkdir(parents=True)
-            p.write_file(str(d / "POSCAR"))
+            poscar.write_file(str(d / "POSCAR"))
             if write_cif:
-                p.structure.to(filename=str(d / f"{i}.cif"))
+                poscar.structure.to(filename=str(d / f"{idx}.cif"))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(self.structures[0], user_incar_settings=self.user_incar_settings)
 

@@ -294,7 +294,7 @@ class LammpsData(MSONable):
         Exports a periodic structure object representing the simulation
         box.
 
-        Return:
+        Returns:
             Structure
         """
         masses = self.masses
@@ -307,14 +307,14 @@ class LammpsData(MSONable):
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
         species = molecule.species
-        latt = self.box.to_lattice()
+        lattice = self.box.to_lattice()
         site_properties = {}
         if "q" in atoms:
             site_properties["charge"] = atoms["q"].to_numpy()
         if self.velocities is not None:
             site_properties["velocities"] = self.velocities.to_numpy()
         return Structure(
-            latt,
+            lattice,
             species,
             coords,
             coords_are_cartesian=True,
@@ -1090,12 +1090,12 @@ class ForceField(MSONable):
             )
 
         index, masses, self.mass_info, atoms_map = [], [], [], {}
-        for i, m in enumerate(mass_info):
-            index.append(i + 1)
+        for idx, m in enumerate(mass_info):
+            index.append(idx + 1)
             mass = map_mass(m[1])
             masses.append(mass)
             self.mass_info.append((m[0], mass))
-            atoms_map[m[0]] = i + 1
+            atoms_map[m[0]] = idx + 1
         self.masses = pd.DataFrame({"mass": masses}, index=index)
         self.maps = {"Atoms": atoms_map}
 
@@ -1330,7 +1330,7 @@ class CombinedData(LammpsData):
         Exports a periodic structure object representing the simulation
         box.
 
-        Return:
+        Returns:
             Structure
         """
         ld_cp = self.as_lammpsdata()

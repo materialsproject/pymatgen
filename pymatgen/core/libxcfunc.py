@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import os
-from enum import Enum
+from enum import Enum, unique
 
 from monty.json import MontyEncoder
 
@@ -29,7 +29,7 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as file:
     _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
 
 
-# @unique
+@unique
 class LibxcFunc(Enum):
     """Enumerator with the identifiers. This object is used by Xcfunc
     declared in xcfunc.py to create an internal representation of the XC functional.

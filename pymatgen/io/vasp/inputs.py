@@ -16,7 +16,7 @@ import re
 import subprocess
 import warnings
 from collections import namedtuple
-from enum import Enum
+from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
 from typing import TYPE_CHECKING, Any, Literal
@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import PathLike
@@ -608,7 +609,8 @@ class Poscar(MSONable):
     @classmethod
     def from_dict(cls, dct: dict) -> Poscar:
         """
-        :param dct: Dict representation.
+        Args:
+            dct: Dict representation.
 
         Returns:
             Poscar
@@ -989,6 +991,7 @@ class BadIncarWarning(UserWarning):
     """Warning class for bad INCAR parameters."""
 
 
+@unique
 class KpointsSupportedModes(Enum):
     """Enum type of all supported modes for Kpoint generation."""
 
@@ -1005,7 +1008,8 @@ class KpointsSupportedModes(Enum):
     @classmethod
     def from_str(cls, mode: str) -> KpointsSupportedModes:
         """
-        :param s: String
+        Args:
+            mode: String
 
         Returns:
             Kpoints_supported_modes
@@ -1099,13 +1103,12 @@ class Kpoints(MSONable):
         return self._style
 
     @style.setter
-    def style(self, style):
+    def style(self, style) -> None:
         """
-        :param style: Style
+        Sets the style for the Kpoints. One of Kpoints_supported_modes enum.
 
-        Returns:
-            Sets the style for the Kpoints. One of Kpoints_supported_modes
-            enum.
+        Args:
+            style: Style
         """
         if isinstance(style, str):
             style = Kpoints.supported_modes.from_str(style)
@@ -1228,25 +1231,25 @@ class Kpoints(MSONable):
             structure: Input structure
             kppa: Grid density
         """
-        latt = structure.lattice
-        a, b, c = latt.abc
-        ngrid = kppa / len(structure)
+        lattice = structure.lattice
+        a, b, c = lattice.abc
+        n_grid = kppa / len(structure)
 
-        mult = (ngrid * a * b * c) ** (1 / 3)
-        num_div = [int(round(mult / length)) for length in latt.abc]
+        multip = (n_grid * a * b * c) ** (1 / 3)
+        n_div = [int(round(multip / length)) for length in lattice.abc]
 
         # ensure that all num_div[i] > 0
-        num_div = [idx if idx > 0 else 1 for idx in num_div]
+        n_div = [idx if idx > 0 else 1 for idx in n_div]
 
         # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
-        num_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in num_div]
+        n_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in n_div]
 
         style = Kpoints.supported_modes.Gamma
 
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
+        n_kpts = 0
+        return Kpoints(comment, n_kpts, style, [n_div], (0, 0, 0))
 
     @staticmethod
     def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False) -> Kpoints:
@@ -1518,7 +1521,7 @@ class Kpoints(MSONable):
             lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict."""
         dct = {
             "comment": self.comment,
@@ -1545,7 +1548,8 @@ class Kpoints(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation.
+        Args:
+            d: Dict representation.
 
         Returns:
             Kpoints
@@ -1829,10 +1833,11 @@ class PotcarSingle:
         return PotcarSingle(self.data, symbol=self.symbol)
 
     @classmethod
-    def from_file(cls, filename: str) -> PotcarSingle:
+    def from_file(cls, filename: str) -> Self:
         """Reads PotcarSingle from file.
 
-        :param filename: Filename.
+        Args:
+            filename: Filename.
 
         Returns:
             PotcarSingle
@@ -2523,9 +2528,10 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            d: Dict representation
 
         Returns:
             Potcar
@@ -2536,7 +2542,7 @@ class Potcar(list, MSONable):
     def from_str(cls, data: str):
         """
         Read Potcar from a string.
-
+        
         :param data: Potcar as a string.
 
         Returns:
@@ -2725,13 +2731,14 @@ class VaspInput(dict, MSONable):
     @classmethod
     def from_dict(cls, dct):
         """
-        :param d: Dict representation.
+        Args:
+            d: Dict representation.
 
         Returns:
             VaspInput
         """
         dec = MontyDecoder()
-        sub_dct = {"optional_files": {}}
+        sub_dct: dict[str, dict] = {"optional_files": {}}
         for key, val in dct.items():
             if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
                 sub_dct[key.lower()] = dec.process_decoded(val)
@@ -2800,15 +2807,16 @@ class VaspInput(dict, MSONable):
         vasp_cmd: list | None = None,
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
-    ):
+    ) -> None:
         """
         Write input files and run VASP.
 
-        :param run_dir: Where to write input files and do the run.
-        :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the
-            PMG_VASP_EXE in .pmgrc.yaml is used.
-        :param output_file: File to write output.
-        :param err_file: File to write err.
+        Args:
+            run_dir: Where to write input files and do the run.
+            vasp_cmd: Args to be supplied to run VASP. Otherwise, the
+                PMG_VASP_EXE in .pmgrc.yaml is used.
+            output_file: File to write output.
+            err_file: File to write err.
         """
         self.write_input(output_dir=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")  # type: ignore[assignment]

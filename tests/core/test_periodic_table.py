@@ -14,7 +14,7 @@ from pymatgen.core.periodic_table import ElementBase
 from pymatgen.util.testing import PymatgenTest
 
 
-class ElementTestCase(PymatgenTest):
+class TestElement(PymatgenTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -211,8 +211,8 @@ class ElementTestCase(PymatgenTest):
             ],  # f3
             "Ne": [["1S0"]],
         }
-        for k, v in cases.items():
-            assert Element(k).term_symbols == v
+        for key, val in cases.items():
+            assert Element(key).term_symbols == val
 
     def test_ground_state_term_symbol(self):
         cases = {
@@ -222,8 +222,8 @@ class ElementTestCase(PymatgenTest):
             "Ti": "3F2.0",  # d2
             "Pr": "4I4.5",
         }  # f3
-        for k, v in cases.items():
-            assert Element(k).ground_state_term_symbol == v
+        for key, val in cases.items():
+            assert Element(key).ground_state_term_symbol == val
 
     def test_attributes(self):
         is_true = {
@@ -238,9 +238,9 @@ class ElementTestCase(PymatgenTest):
             ("O", "Te"): "is_chalcogen",
         }
 
-        for key, v in is_true.items():
+        for key, val in is_true.items():
             for sym in key:
-                assert getattr(Element(sym), v), f"{sym=} is false"
+                assert getattr(Element(sym), val), f"{sym=} is false"
 
         keys = [
             "mendeleev_no",
@@ -366,7 +366,7 @@ class ElementTestCase(PymatgenTest):
         assert [el.atomic_mass for el in elems] == [1.00794, 2.013553212712, 3.0155007134]
 
 
-class SpeciesTestCase(PymatgenTest):
+class TestSpecies(PymatgenTest):
     def setUp(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
@@ -525,7 +525,7 @@ def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     assert species._oxi_state == expected_oxi_state
 
 
-class DummySpeciesTestCase(unittest.TestCase):
+class TestDummySpecies(unittest.TestCase):
     def test_init(self):
         self.specie1 = DummySpecies("X")
         with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
@@ -579,11 +579,17 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert sp.spin == 5
 
 
-class TestFunc(unittest.TestCase):
-    def test_get_el_sp(self):
-        assert get_el_sp("Fe2+") == Species("Fe", 2)
-        assert get_el_sp("3") == Element.Li
-        assert get_el_sp("3.0") == Element.Li
-        assert get_el_sp("U") == Element.U
-        assert get_el_sp("X2+") == DummySpecies("X", 2)
-        assert get_el_sp("Mn3+") == Species("Mn", 3)
+def test_get_el_sp():
+    assert get_el_sp("Fe2+") == Species("Fe", 2)
+    assert get_el_sp("3") == Element.Li
+    assert get_el_sp(5) == Element.B
+    assert get_el_sp("3.0") == Element.Li
+    assert get_el_sp("+3.0") == Element.Li
+    assert get_el_sp(2.0) == Element.He
+    assert get_el_sp("U") == Element.U
+    assert get_el_sp("X2+") == DummySpecies("X", 2)
+    assert get_el_sp("Mn3+") == Species("Mn", 3)
+    assert get_el_sp("X2+spin=5") == DummySpecies("X", 2, spin=5)
+
+    with pytest.raises(ValueError, match="Can't parse Element or Species from None"):
+        get_el_sp(None)

@@ -849,19 +849,23 @@ class BztTransportProperties:
         self.mu_doping_eV = {k: v / units.eV - self.efermi for k, v in mu_doping.items()}
         self.contain_props_doping = True
 
-    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.0):
     #     """
-    #     Find the mu.
+    #     Find the chemical potential (mu).
 
-    #     :param epsilon:
-    #     :param dos:
-    #     :param N0:
-    #     :param T:
-    #     :param dosweight:
+    #     Args:
+    #         epsilon (np.array): Array of energy values.
+    #         dos (np.array): Array of density of states values.
+    #         N0 (float): Background carrier concentration.
+    #         T (float): Temperature in Kelvin.
+    #         dosweight (float, optional): Weighting factor for the density of states. Default is 2.0.
+
+    #     Returns:
+    #         float: The chemical potential (mu) value.
     #     """
     #     delta = np.empty_like(epsilon)
-    #     for i, e in enumerate(epsilon):
-    #         delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+    #     for idx, eps in enumerate(epsilon):
+    #         delta[idx] = BL.calc_N(epsilon, dos, eps, T, dosweight) + N0
     #     delta = np.abs(delta)
     #     # Find the position optimizing this distance
     #     pos = np.abs(delta).argmin()
@@ -950,8 +954,13 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
-        """:param bzt_transP:
-        :param bzt_interp:
+        """Placeholder.
+
+        TODO: missing docstrings for __init__
+
+        Args:
+            bzt_transP (_type_, optional): _description_. Defaults to None.
+            bzt_interp (_type_, optional): _description_. Defaults to None.
         """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
@@ -1160,10 +1169,11 @@ def merge_up_down_doses(dos_up, dos_dn):
     """Merge the up and down DOSs.
 
     Args:
-    dos_up: Up DOS.
-    dos_dn: Down DOS
-    Return:
-    CompleteDos object
+        dos_up: Up DOS.
+        dos_dn: Down DOS
+
+    Returns:
+        CompleteDos object
     """
     warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
     cdos = Dos(

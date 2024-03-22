@@ -212,12 +212,12 @@ cart
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
-        latt = [
+        lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(latt, [si, si], coords)
+        struct = Structure(lattice, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = """Si2
 1.0
@@ -239,12 +239,12 @@ direct
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
-        latt = [
+        lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(latt, [si, si], coords)
+        struct = Structure(lattice, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = """Si2
 1.0
@@ -384,12 +384,12 @@ direct
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
-        latt = [
+        lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(latt, [si, si], coords)
+        struct = Structure(lattice, [si, si], coords)
         poscar = Poscar(struct)
         poscar.set_temperature(900)
 

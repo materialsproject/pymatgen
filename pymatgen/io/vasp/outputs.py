@@ -54,6 +54,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 
 def _parse_parameters(val_type, val):
     """
@@ -1172,7 +1175,8 @@ class Vasprun(MSONable):
         """
         Sets the charge of a structure based on the POTCARs found.
 
-        :param path: Path to search for POTCARs
+        Args:
+            path: Path to search for POTCARs
         """
         potcar = self.get_potcars(path)
 
@@ -1270,7 +1274,7 @@ class Vasprun(MSONable):
         if self.eigenvalues:
             eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
-            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
@@ -1285,7 +1289,7 @@ class Vasprun(MSONable):
             eigen = {str(spin): v.tolist() for spin, v in kpt_opt_props.eigenvalues.items()}
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO implement kpoints_opt eigenvalue_band_proprties.
-            # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            # gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if kpt_opt_props.projected_eigenvalues:
@@ -1387,9 +1391,9 @@ class Vasprun(MSONable):
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
-        latt = _parse_vasp_array(elem.find("crystal").find("varray"))
+        lattice = _parse_vasp_array(elem.find("crystal").find("varray"))
         pos = _parse_vasp_array(elem.find("varray"))
-        struct = Structure(latt, self.atomic_symbols, pos)
+        struct = Structure(lattice, self.atomic_symbols, pos)
         sdyn = elem.find("varray/[@name='selective']")
         if sdyn:
             struct.add_site_property("selective_dynamics", _parse_vasp_array(sdyn))
@@ -1629,11 +1633,7 @@ class BSVasprun(Vasprun):
                         elif tag == "incar":
                             self.incar = self._parse_params(elem)
                         elif tag == "kpoints":
-                            (
-                                self.kpoints,
-                                self.actual_kpoints,
-                                self.actual_kpoints_weights,
-                            ) = self._parse_kpoints(elem)
+                            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
                         elif tag == "parameters":
                             self.parameters = self._parse_params(elem)
                         elif tag == "atominfo":
@@ -1737,7 +1737,7 @@ class BSVasprun(Vasprun):
                 for idx, val in enumerate(values):
                     eigen[idx][str(spin)] = val
             vout["eigenvalues"] = eigen
-            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if self.projected_eigenvalues:
@@ -1752,7 +1752,7 @@ class BSVasprun(Vasprun):
             eigen = {str(spin): v.tolist() for spin, v in kpt_opt_props.eigenvalues.items()}
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO implement kpoints_opt eigenvalue_band_proprties.
-            # (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            # gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
             # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
 
             if kpt_opt_props.projected_eigenvalues:
@@ -3671,7 +3671,7 @@ class Chgcar(VolumetricData):
         self._distance_matrix = {}
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str) -> Self:
         """Read a CHGCAR file.
 
         Args:
@@ -3723,26 +3723,27 @@ class Elfcar(VolumetricData):
         self.data = data
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str) -> Self:
         """
         Reads a ELFCAR file.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             Elfcar
         """
-        (poscar, data, _data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, _data_aug = VolumetricData.parse_file(filename)
         return cls(poscar, data)
 
     def get_alpha(self):
         """Get the parameter alpha where ELF = 1/(1+alpha^2)."""
         alpha_data = {}
-        for k, v in self.data.items():
-            alpha = 1 / v
+        for key, val in self.data.items():
+            alpha = 1 / val
             alpha = alpha - 1
             alpha = np.sqrt(alpha)
-            alpha_data[k] = alpha
+            alpha_data[key] = alpha
         return VolumetricData(self.structure, alpha_data)
 
 
@@ -3770,10 +3771,10 @@ class Procar:
         headers = None
 
         with zopen(filename, mode="rt") as file_handle:
-            preambleexpr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
-            kpointexpr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
-            bandexpr = re.compile(r"^band\s+(\d+)")
-            ionexpr = re.compile(r"^ion.*")
+            preamble_expr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
+            kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
+            band_expr = re.compile(r"^band\s+(\d+)")
+            ion_expr = re.compile(r"^ion.*")
             expr = re.compile(r"^([0-9]+)\s+")
             current_kpoint = 0
             current_band = 0
@@ -3783,18 +3784,18 @@ class Procar:
 
             for line in file_handle:
                 line = line.strip()
-                if bandexpr.match(line):
-                    m = bandexpr.match(line)
-                    current_band = int(m.group(1)) - 1
+                if band_expr.match(line):
+                    match = band_expr.match(line)
+                    current_band = int(match.group(1)) - 1
                     done = False
-                elif kpointexpr.match(line):
-                    m = kpointexpr.match(line)
-                    current_kpoint = int(m.group(1)) - 1
-                    weights[current_kpoint] = float(m.group(2))
+                elif kpoint_expr.match(line):
+                    match = kpoint_expr.match(line)
+                    current_kpoint = int(match.group(1)) - 1
+                    weights[current_kpoint] = float(match.group(2))
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
-                elif headers is None and ionexpr.match(line):
+                elif headers is None and ion_expr.match(line):
                     headers = line.split()
                     headers.pop(0)
                     headers.pop(-1)
@@ -3802,11 +3803,7 @@ class Procar:
                     data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
                     phase_factors = defaultdict(
-                        lambda: np.full(
-                            (n_kpoints, n_bands, n_ions, len(headers)),
-                            np.nan,
-                            dtype=np.complex128,
-                        )
+                        lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
                 elif expr.match(line):
                     tokens = line.split()
@@ -3828,11 +3825,11 @@ class Procar:
                         phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
                 elif line.startswith("tot"):
                     done = True
-                elif preambleexpr.match(line):
-                    m = preambleexpr.match(line)
-                    n_kpoints = int(m.group(1))
-                    n_bands = int(m.group(2))
-                    n_ions = int(m.group(3))
+                elif preamble_expr.match(line):
+                    match = preamble_expr.match(line)
+                    n_kpoints = int(match.group(1))
+                    n_bands = int(match.group(2))
+                    n_ions = int(match.group(3))
                     weights = np.zeros(n_kpoints)
 
             self.nkpoints = n_kpoints
@@ -4203,10 +4200,10 @@ class Xdatcar:
             raise Exception("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_end < 1:
             raise Exception("End ionic step cannot be less than 1")
-        latt = self.structures[0].lattice
-        if np.linalg.det(latt.matrix) < 0:
-            latt = Lattice(-latt.matrix)
-        lines = [self.comment, "1.0", str(latt)]
+        lattice = self.structures[0].lattice
+        if np.linalg.det(lattice.matrix) < 0:
+            lattice = Lattice(-lattice.matrix)
+        lines = [self.comment, "1.0", str(lattice)]
         lines.extend((" ".join(self.site_symbols), " ".join(str(x) for x in self.natoms)))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
@@ -5033,7 +5030,7 @@ class Waveder(MSONable):
     cder_imag: np.ndarray
 
     @classmethod
-    def from_formatted(cls, filename):
+    def from_formatted(cls, filename: str) -> Self:
         """Reads the WAVEDERF file and returns a Waveder object.
 
         Note: This file is only produced when LOPTICS is true AND vasp has been
@@ -5063,7 +5060,7 @@ class Waveder(MSONable):
         return cls(cder_real, cder_imag)
 
     @classmethod
-    def from_binary(cls, filename, data_type="complex64"):
+    def from_binary(cls, filename: str, data_type: str = "complex64") -> Self:
         """Read the WAVEDER file and returns a Waveder object.
 
         Args:
@@ -5183,7 +5180,7 @@ class WSWQ(MSONable):
         return self.me_real + 1j * self.me_imag
 
     @classmethod
-    def from_file(cls, filename: str) -> WSWQ:
+    def from_file(cls, filename: str) -> Self:
         """Constructs a WSWQ object from a file.
 
         Args:

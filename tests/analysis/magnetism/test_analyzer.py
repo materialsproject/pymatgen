@@ -234,10 +234,10 @@ Magmoms Sites
         # This test catches the case where a structure has some species with
         # Species.spin=None. This previously raised an error upon construction
         # of the analyzer).
-        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
         species = [Species("Ni", spin=-5), Species("Ni", spin=5), Species("O", spin=None), Species("O", spin=None)]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
-        struct = Structure(latt, species, coords)
+        struct = Structure(lattice, species, coords)
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
         assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]

@@ -12,7 +12,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/abinit"
 
 
-class PseudoTestCase(PymatgenTest):
+class TestPseudo(PymatgenTest):
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]

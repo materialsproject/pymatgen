@@ -64,7 +64,7 @@ class BornEffectiveCharge:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -117,7 +117,7 @@ class BornEffectiveCharge:
         Args:
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             np.array Born effective charge tensor
         """
         n_atoms = len(self.structure)
@@ -197,7 +197,7 @@ class InternalStrainTensor:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -231,7 +231,7 @@ class InternalStrainTensor:
         Args:
             max_force (float): maximum born effective charge value
 
-        Return:
+        Returns:
             InternalStrainTensor
         """
         n_atoms = len(self.structure)
@@ -289,7 +289,7 @@ class ForceConstantMatrix:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -357,7 +357,7 @@ class ForceConstantMatrix:
         Args:
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             numpy array representing the force constant matrix
         """
         struct = self.structure
@@ -417,7 +417,7 @@ class ForceConstantMatrix:
             unsymmetrized_fcm (numpy array): unsymmetrized force constant matrix
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             3Nx3N numpy array representing the force constant matrix
         """
         operations = self.FCM_operations
@@ -478,7 +478,7 @@ class ForceConstantMatrix:
             fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             3Nx3N numpy array representing the force constant matrix
         """
         check = 0
@@ -526,7 +526,7 @@ class ForceConstantMatrix:
             numiter (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             numpy array representing the force constant matrix
         """
         # set max force in reciprocal space
@@ -617,7 +617,7 @@ class ForceConstantMatrix:
             asum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             NxNx3x3 np.array representing the force constant matrix
         """
         from pymatgen.io.phonopy import get_phonopy_structure
@@ -664,7 +664,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         rcondy (float): condition for excluding eigenvalues in the pseudoinverse
 
-    Return:
+    Returns:
         3x3x3 calculated Piezo tensor
     """
     n_sites = len(BEC)
@@ -694,7 +694,7 @@ def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         anumiter (int): number of iterations for acoustic sum rule convergence
-    Return:
+    Returns:
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """

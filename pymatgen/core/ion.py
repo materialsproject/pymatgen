@@ -34,7 +34,8 @@ class Ion(Composition, MSONable, Stringify):
 
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
-        :param formula:
+        Args:
+            formula (str): The formula to create ion from.
 
         Returns:
             Ion
@@ -137,7 +138,7 @@ class Ion(Composition, MSONable, Stringify):
                 comp = self.composition - nH2O * Composition("H2O")
 
         el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")

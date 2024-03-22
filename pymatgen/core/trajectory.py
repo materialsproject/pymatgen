@@ -306,7 +306,7 @@ class Trajectory(MSONable):
         Args:
             frames: Indices of the trajectory to return.
 
-        Return:
+        Returns:
             Subset of trajectory
         """
         # Convert to position mode if not already

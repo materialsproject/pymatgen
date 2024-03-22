@@ -434,17 +434,16 @@ class AtomConfig(MSONable):
             str: String representation of atom.config
         """
         # This corrects for VASP really annoying bug of crashing on lattices
-        # which have triple product < 0. We will just invert the lattice
-        # vectors.
-        latt = self.structure.lattice
-        if np.linalg.det(latt.matrix) < 0:
-            latt = Lattice(-latt.matrix)
+        # which have triple product < 0. We will just invert the lattice vectors.
+        lattice = self.structure.lattice
+        if np.linalg.det(lattice.matrix) < 0:
+            lattice = Lattice(-lattice.matrix)
 
         lines: list[str] = []
         lines.append(f"\t{self.structure.num_sites} atoms\n")
         lines.append("Lattice vector\n")
         for ii in range(3):
-            lines.append(f"{latt.matrix[ii][0]:>15f}{latt.matrix[ii][1]:>15f}{latt.matrix[ii][2]:>15f}\n")
+            lines.append(f"{lattice.matrix[ii][0]:>15f}{lattice.matrix[ii][1]:>15f}{lattice.matrix[ii][2]:>15f}\n")
         lines.append("Position, move_x, move_y, move_z\n")
         for ii in range(self.structure.num_sites):
             lines.append(f"{int(self.structure.species[ii].Z):>4d}")

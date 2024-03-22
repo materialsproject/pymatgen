@@ -42,7 +42,10 @@ class ChemEnvConfig:
     )
 
     def __init__(self, package_options=None):
-        """:param package_options:"""
+        """
+        Args:
+            package_options:
+        """
         if SETTINGS.get("PMG_MAPI_KEY"):
             self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
@@ -135,7 +138,9 @@ class ChemEnvConfig:
     def save(self, root_dir=None):
         """
         Save the options.
-        :param root_dir:
+
+        Args:
+            root_dir:
         """
         if root_dir is None:
             home = expanduser("~")
@@ -158,7 +163,9 @@ class ChemEnvConfig:
     def auto_load(cls, root_dir=None):
         """
         Autoload options.
-        :param root_dir:
+
+        Args:
+            root_dir:
         """
         if root_dir is None:
             home = expanduser("~")

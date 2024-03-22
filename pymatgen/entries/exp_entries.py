@@ -52,7 +52,9 @@ class ExpEntry(PDEntry, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """:param d: Dict representation.
+        """
+        Args:
+            d: Dict representation.
 
         Returns:
             ExpEntry

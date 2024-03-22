@@ -125,7 +125,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         elif len(args) == 1 and isinstance(args[0], str):
             elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
         elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
-            raise ValueError("float('NaN') is not a valid Composition, did you mean str('NaN')?")
+            raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore
         elem_amt = {}
@@ -1180,7 +1180,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 m_points1 = m_points
                 m_form1 = fuzzy_formula
                 m_dict1 = dict(m_dict)
-                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
+                m_form1, m_dict1, m_points1 = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
                 if m_dict1:
                     # there was a real match
                     for match in Composition._comps_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
@@ -1192,7 +1192,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 m_points2 = m_points
                 m_form2 = fuzzy_formula
                 m_dict2 = dict(m_dict)
-                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
+                m_form2, m_dict2, m_points2 = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
                 if m_dict2:
                     # there was a real match
                     for match in Composition._comps_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
@@ -1229,7 +1229,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
     # if the composition contains a poly anion
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
         poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
-        (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
+        poly_form, poly_factor = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
             poly_anions.append(f"({poly_form}){poly_factor}")

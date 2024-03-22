@@ -735,16 +735,15 @@ class HeisenbergScreener:
 
         # Also discard structures with small |magmoms| < 0.1 uB
         # xx - get rid of these or just bury them in the list?
-        # for i, s in enumerate(ordered_structures):
-        #     magmoms = s.site_properties['magmom']
-        #     if i not in remove_list:
-        #         if any(abs(m) < 0.1 for m in magmoms):
-        #             remove_list.append(i)
+        # for idx, struct in enumerate(ordered_structures):
+        #     magmoms = struct.site_properties["magmom"]
+        #     if idx not in remove_list and any(abs(m) < 0.1 for m in magmoms):
+        #         remove_list.append(idx)
 
         # Remove duplicates
         if len(remove_list) > 0:
-            ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
-            energies = [e for i, e in enumerate(energies) if i not in remove_list]
+            ordered_structures = [struct for idx, struct in enumerate(ordered_structures) if idx not in remove_list]
+            energies = [energy for idx, energy in enumerate(energies) if idx not in remove_list]
 
         # Sort by energy if not already sorted
         ordered_structures = [s for _, s in sorted(zip(energies, ordered_structures), reverse=False)]
