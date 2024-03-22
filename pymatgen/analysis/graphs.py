@@ -748,8 +748,8 @@ class StructureGraph(MSONable):
         out_edges = [(u, v, d, "out") for u, v, d in self.graph.out_edges(n, data=True)]
         in_edges = [(u, v, d, "in") for u, v, d in self.graph.in_edges(n, data=True)]
 
-        for u, v, d, dir in out_edges + in_edges:
-            to_jimage = d["to_jimage"]
+        for u, v, data, dir in out_edges + in_edges:
+            to_jimage = data["to_jimage"]
 
             if dir == "in":
                 u, v = v, u
@@ -760,14 +760,11 @@ class StructureGraph(MSONable):
             site_d["abc"] = np.add(site_d["abc"], to_jimage).tolist()
             site = PeriodicSite.from_dict(site_d)
 
-            # from_site if jimage arg != (0, 0, 0)
-            # TODO (@DanielYang59): distance should only take one arg
-            # DEBUG
             relative_jimage = np.subtract(to_jimage, jimage)
             u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
-            weight = d.get("weight")
+            weight = data.get("weight")
 
             if (v, to_jimage) not in connected_site_images:
                 connected_site = ConnectedSite(site=site, jimage=to_jimage, index=v, weight=weight, dist=dist)
