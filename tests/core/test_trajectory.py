@@ -45,7 +45,7 @@ class TestTrajectory(PymatgenTest):
         if traj_1.species != traj_2.species:
             return False
 
-        return all(i == j for i, j in zip(self.traj, traj_2))
+        return all(frame1 == frame2 for frame1, frame2 in zip(self.traj, traj_2))
 
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))

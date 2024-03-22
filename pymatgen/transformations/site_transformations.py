@@ -107,13 +107,13 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             A copy of structure with sites replaced.
         """
         struct = structure.copy()
-        for i, sp in self.indices_species_map.items():
-            struct[int(i)] = sp
+        for idx, sp in self.indices_species_map.items():
+            struct[int(idx)] = sp
         return struct
 
     def __repr__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
-            [f"{k}->{v}" + v for k, v in self.indices_species_map.items()]
+            [f"{key}->{val}" + val for key, val in self.indices_species_map.items()]
         )
 
     @property

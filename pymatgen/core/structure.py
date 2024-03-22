@@ -1124,11 +1124,11 @@ class IStructure(SiteCollection, MSONable):
         except ValueError:
             spg = SpaceGroup(sg)  # type: ignore
 
-        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
+        lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
-        if not spg.is_compatible(latt):
+        if not spg.is_compatible(lattice):
             raise ValueError(
-                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup "
+                f"Supplied lattice with parameters {lattice.parameters} is incompatible with supplied spacegroup "
                 f"{spg.symbol}!"
             )
 
@@ -1136,7 +1136,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
-            np.array(coords, dtype=np.float64) if not coords_are_cartesian else latt.get_fractional_coords(coords)
+            np.array(coords, dtype=np.float64) if not coords_are_cartesian else lattice.get_fractional_coords(coords)
         )
 
         props = {} if site_properties is None else site_properties
@@ -1154,7 +1154,7 @@ class IStructure(SiteCollection, MSONable):
             for k, v in props.items():
                 all_site_properties[k].extend([v[idx]] * len(cc))
 
-        return cls(latt, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
+        return cls(lattice, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
 
     @classmethod
     def from_magnetic_spacegroup(
@@ -1226,11 +1226,11 @@ class IStructure(SiteCollection, MSONable):
         if not isinstance(msg, MagneticSpaceGroup):
             msg = MagneticSpaceGroup(msg)
 
-        latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
+        lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
-        if not msg.is_compatible(latt):
+        if not msg.is_compatible(lattice):
             raise ValueError(
-                f"Supplied lattice with parameters {latt.parameters} is incompatible with supplied spacegroup "
+                f"Supplied lattice with parameters {lattice.parameters} is incompatible with supplied spacegroup "
                 f"{msg.sg_symbol}!"
             )
 
@@ -1238,7 +1238,7 @@ class IStructure(SiteCollection, MSONable):
             if len(var) != len(species):
                 raise ValueError(f"Length mismatch: len({name})={len(var)} != {len(species)=}")
 
-        frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
+        frac_coords = coords if not coords_are_cartesian else lattice.get_fractional_coords(coords)
 
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
@@ -1258,7 +1258,7 @@ class IStructure(SiteCollection, MSONable):
 
         all_site_properties["magmom"] = all_magmoms
 
-        return cls(latt, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
+        return cls(lattice, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
 
     def unset_charge(self) -> None:
         """Reset the charge to None. E.g. to compute it dynamically based on oxidation states."""
@@ -1724,11 +1724,11 @@ class IStructure(SiteCollection, MSONable):
                 sgp = SpaceGroup(sg)
             ops = sgp.symmetry_ops
 
-        latt = self.lattice
+        lattice = self.lattice
 
-        if not sgp.is_compatible(latt):
+        if not sgp.is_compatible(lattice):
             raise ValueError(
-                f"Supplied lattice with parameters {latt.parameters} is incompatible with "
+                f"Supplied lattice with parameters {lattice.parameters} is incompatible with "
                 f"supplied spacegroup {sgp.symbol}!"
             )
 
@@ -2028,8 +2028,8 @@ class IStructure(SiteCollection, MSONable):
         nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
         all_ranges = list(itertools.starmap(np.arange, zip(nmin, nmax)))
-        latt = self._lattice
-        matrix = latt.matrix
+        lattice = self._lattice
+        matrix = lattice.matrix
         neighbors = [[] for _ in range(len(self))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
@@ -2047,7 +2047,7 @@ class IStructure(SiteCollection, MSONable):
                     nnsite = PeriodicSite(
                         self[j].species,
                         coords[j],
-                        latt,
+                        lattice,
                         properties=self[j].properties,
                         coords_are_cartesian=True,
                         skip_checks=True,
@@ -2615,7 +2615,7 @@ class IStructure(SiteCollection, MSONable):
                 for idx in range(1, len(dists)):
                     if dists[idx] - dists[idx - 1] > 0.1:
                         unique_dists.append(dists[idx])
-                clusters = {(i + 2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
+                clusters = {(idx + 2): dist + 0.01 for idx, dist in enumerate(unique_dists) if idx < 2}
                 kwargs["clusters"] = clusters
             return [run_mcsqs(self, **kwargs).bestsqs]
         raise ValueError("Invalid mode!")

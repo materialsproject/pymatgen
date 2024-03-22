@@ -472,7 +472,7 @@ class Lobsterin(UserDict, MSONable):
 
         # The following code is taken from: SpacegroupAnalyzer
         # we need to switch off symmetry here
-        latt = structure.lattice.matrix
+        matrix = structure.lattice.matrix
         positions = structure.frac_coords
         unique_species: list[Composition] = []
         zs = []
@@ -495,7 +495,7 @@ class Lobsterin(UserDict, MSONable):
                 magmoms.append(0)
 
         # For now, we are setting magmom to zero. (Taken from INCAR class)
-        cell = latt, positions, zs, magmoms
+        cell = matrix, positions, zs, magmoms
         # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 

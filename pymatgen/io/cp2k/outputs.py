@@ -1684,11 +1684,11 @@ def parse_dos(dos_file=None):
     data = np.loadtxt(dos_file)
     data[:, 0] *= Ha_to_eV
     energies = data[:, 0]
-    for i, o in enumerate(data[:, 1]):
-        if o == 0:
+    for idx, val in enumerate(data[:, 1]):
+        if val == 0:
             break
-        vbmtop = i
-    efermi = energies[vbmtop] + 1e-6
+        vbm_top = idx
+    efermi = energies[vbm_top] + 1e-6
     densities = {Spin.up: data[:, 1]}
     if data.shape[1] > 3:
         densities[Spin.down] = data[:, 3]
@@ -1727,38 +1727,38 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         header = re.split(r"\s{2,}", lines[1].replace("#", "").strip())[2:]
         dat = np.loadtxt(dos_file)
 
-        def cp2k_to_pmg_labels(x):
-            if x == "p":
+        def cp2k_to_pmg_labels(label: str) -> str:
+            if label == "p":
                 return "px"
-            if x == "d":
+            if label == "d":
                 return "dxy"
-            if x == "f":
+            if label == "f":
                 return "f_3"
-            if x == "d-2":
+            if label == "d-2":
                 return "dxy"
-            if x == "d-1":
+            if label == "d-1":
                 return "dyz"
-            if x == "d0":
+            if label == "d0":
                 return "dz2"
-            if x == "d+1":
+            if label == "d+1":
                 return "dxz"
-            if x == "d+2":
+            if label == "d+2":
                 return "dx2"
-            if x == "f-3":
+            if label == "f-3":
                 return "f_3"
-            if x == "f-2":
+            if label == "f-2":
                 return "f_2"
-            if x == "f-1":
+            if label == "f-1":
                 return "f_1"
-            if x == "f0":
+            if label == "f0":
                 return "f0"
-            if x == "f+1":
+            if label == "f+1":
                 return "f1"
-            if x == "f+2":
+            if label == "f+2":
                 return "f2"
-            if x == "f+3":
+            if label == "f+3":
                 return "f3"
-            return x
+            return label
 
         header = [cp2k_to_pmg_labels(h) for h in header]
 
@@ -1767,15 +1767,15 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         data = np.delete(data, 1, 1)
         data[:, 0] *= Ha_to_eV
         energies = data[:, 0]
-        for i, o in enumerate(occupations):
-            if o == 0:
+        for idx, occu in enumerate(occupations):
+            if occu == 0:
                 break
-            vbmtop = i
+            vbm_top = idx
 
         # set Fermi level to be vbm plus tolerance for
         # PMG compatibility
         # *not* middle of the gap, which pdos might report
-        efermi = energies[vbmtop] + 1e-6
+        efermi = energies[vbm_top] + 1e-6
 
         # for pymatgen's dos class. VASP creates an evenly spaced grid of energy states, which
         # leads to 0 density states in the band gap. CP2K does not do this. PMG's Dos class was
@@ -1783,10 +1783,10 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         # in between VBM and CBM, so here we introduce trivial ones
         energies = np.insert(
             energies,
-            vbmtop + 1,
-            np.linspace(energies[vbmtop] + 1e-6, energies[vbmtop + 1] - 1e-6, 2),
+            vbm_top + 1,
+            np.linspace(energies[vbm_top] + 1e-6, energies[vbm_top + 1] - 1e-6, 2),
         )
-        data = np.insert(data, vbmtop + 1, np.zeros((2, data.shape[1])), axis=0)
+        data = np.insert(data, vbm_top + 1, np.zeros((2, data.shape[1])), axis=0)
 
         pdos = {
             kind: {

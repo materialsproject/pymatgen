@@ -157,8 +157,8 @@ class TestGetVoronoiNodes(unittest.TestCase):
         el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
-        for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Species(k, v).ionic_radius)
+        for key, val in valence_dict.items():
+            self.rad_dict[key] = float(Species(key, val).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
@@ -176,14 +176,7 @@ class TestGetFreeSphereParams(unittest.TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/free_sph.cif"
         self.structure = Structure.from_file(filepath)
-        self.rad_dict = {
-            "Ge": 0.67,
-            "P": 0.52,
-            "S": 1.7,
-            "La": 1.17,
-            "Zr": 0.86,
-            "O": 1.26,
-        }
+        self.rad_dict = {"Ge": 0.67, "P": 0.52, "S": 1.7, "La": 1.17, "Zr": 0.86, "O": 1.26}
 
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)

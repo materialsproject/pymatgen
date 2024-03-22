@@ -360,23 +360,23 @@ def get_entry_dict(filename):
     entry_dict = {}
     with open(filename) as file:
         entries = json.loads(file.read())
-    for k in entries:
-        n = k[25:]
+    for entry in entries:
+        sub_str = entry[25:]
         miller_index = []
-        for i, s in enumerate(n):
-            if s == "_":
+        for idx, char in enumerate(sub_str):
+            if char == "_":
                 break
-            if s == "-":
+            if char == "-":
                 continue
-            t = int(s)
-            if n[i - 1] == "-":
+            t = int(char)
+            if sub_str[idx - 1] == "-":
                 t *= -1
             miller_index.append(t)
         hkl = tuple(miller_index)
         if hkl not in entry_dict:
             entry_dict[hkl] = {}
-        entry = ComputedStructureEntry.from_dict(entries[k])
-        entry_dict[hkl][SlabEntry(entry.structure, entry.energy, hkl, label=k)] = []
+        entry = ComputedStructureEntry.from_dict(entries[entry])
+        entry_dict[hkl][SlabEntry(entry.structure, entry.energy, hkl, label=entry)] = []
 
     return entry_dict
 

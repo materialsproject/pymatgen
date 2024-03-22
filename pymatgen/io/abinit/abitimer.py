@@ -740,12 +740,12 @@ class AbinitTimer:
         if minval is not None:
             assert minfract is None
 
-            for n, v in zip(names, values):
-                if v >= minval:
-                    new_names.append(n)
-                    new_values.append(v)
+            for name, val in zip(names, values):
+                if val >= minval:
+                    new_names.append(name)
+                    new_values.append(val)
                 else:
-                    other_val += v
+                    other_val += val
 
             new_names.append(f"below minval {minval}")
             new_values.append(other_val)
@@ -755,12 +755,12 @@ class AbinitTimer:
 
             total = self.sum_sections(key)
 
-            for n, v in zip(names, values):
-                if v / total >= minfract:
-                    new_names.append(n)
-                    new_values.append(v)
+            for name, val in zip(names, values):
+                if val / total >= minfract:
+                    new_names.append(name)
+                    new_values.append(val)
                 else:
-                    other_val += v
+                    other_val += val
 
             new_names.append(f"below minfract {minfract}")
             new_values.append(other_val)
@@ -801,8 +801,7 @@ class AbinitTimer:
         """
         ax, fig = get_ax_fig(ax=ax)
 
-        nk = len(self.sections)
-        ind = np.arange(nk)  # the x locations for the groups
+        ind = np.arange(len(self.sections))  # the x locations for the groups
         width = 0.35  # the width of the bars
 
         cpu_times = self.get_values("cpu_time")
