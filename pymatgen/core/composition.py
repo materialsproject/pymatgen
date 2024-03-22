@@ -125,7 +125,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         elif len(args) == 1 and isinstance(args[0], str):
             elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
         elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
-            raise ValueError("float('NaN') is not a valid Composition, did you mean str('NaN')?")
+            raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore
         elem_amt = {}

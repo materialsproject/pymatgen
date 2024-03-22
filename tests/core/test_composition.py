@@ -93,7 +93,7 @@ class TestComposition(PymatgenTest):
 
         # Test float in Composition
         comp = Composition({Element("Fe"): 2})
-        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+        with pytest.raises(TypeError, match="Invalid key=1.5 for Composition"):
             assert 1.5 in comp
 
         # Test DummySpecies in Composition
@@ -132,7 +132,7 @@ class TestComposition(PymatgenTest):
 
         assert Composition({"Fe": 4, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
 
-        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+        with pytest.raises(ValueError, match="Can't parse Element or Species from"):
             Composition({None: 4, "Li": 4, "O": 16, "P": 4})
 
         assert Composition({1: 2, 8: 1}).formula == "H2 O1"
@@ -140,6 +140,11 @@ class TestComposition(PymatgenTest):
 
         comp = Composition({"S": Composition.amount_tolerance / 2})
         assert len(comp.elements) == 0
+
+        # test Composition from int/float raises
+        for val in (1, 2.5):
+            with pytest.raises(TypeError, match=f"{type(val).__name__!r} object is not iterable"):
+                Composition(val)
 
     def test_str_and_repr(self):
         test_cases = [
@@ -212,7 +217,7 @@ class TestComposition(PymatgenTest):
         assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
 
         assert Composition("NaN").reduced_formula == "NaN"
-        with pytest.raises(ValueError, match=r"Can't parse Element or Species from nan"):
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?"):
             Composition(float("NaN"))
 
         # test bad formulas raise ValueError
