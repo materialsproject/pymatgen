@@ -26,7 +26,6 @@ class EnergyModel(MSONable, abc.ABC):
     @abc.abstractmethod
     def get_energy(self, structure) -> float:
         """
-
         Args:
             structure: Structure
 
@@ -75,7 +74,6 @@ class EwaldElectrostaticModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-
         Args:
             structure: Structure
 
@@ -125,7 +123,6 @@ class SymmetryModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-
         Args:
             structure: Structure
 
@@ -162,7 +159,6 @@ class IsingModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-
         Args:
             structure: Structure
 
@@ -196,7 +192,6 @@ class NsitesModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-
         Args:
             structure: Structure
 

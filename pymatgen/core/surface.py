@@ -483,7 +483,6 @@ class Slab(Structure):
     @classmethod
     def from_dict(cls, dct: dict) -> Slab:  # type: ignore[override]
         """
-
         Args:
             dct: dict.
 

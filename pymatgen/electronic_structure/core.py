@@ -128,7 +128,6 @@ class Magmom(MSONable):
         self, moment: float | Sequence[float] | np.ndarray | Magmom, saxis: Sequence[float] = (0, 0, 1)
     ) -> None:
         """
-
         Args:
             moment: magnetic moment, supplied as float or list/np.ndarray
             saxis: spin axis, supplied as list/np.ndarray, parameter will

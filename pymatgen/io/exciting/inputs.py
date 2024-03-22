@@ -135,7 +135,6 @@ class ExcitingInput(MSONable):
     @classmethod
     def from_file(cls, filename):
         """
-
         Args:
             filename: Filename
 

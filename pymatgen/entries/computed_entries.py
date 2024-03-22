@@ -475,7 +475,6 @@ class ComputedEntry(Entry):
     @classmethod
     def from_dict(cls, d) -> ComputedEntry:
         """
-
         Args:
             d: Dict representation.
 
@@ -613,7 +612,6 @@ class ComputedStructureEntry(ComputedEntry):
     @classmethod
     def from_dict(cls, d) -> ComputedStructureEntry:
         """
-
         Args:
             d: Dict representation.
 
@@ -948,7 +946,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     @classmethod
     def from_dict(cls, d) -> GibbsComputedStructureEntry:
         """
-
         Args:
             d: Dict representation.
 

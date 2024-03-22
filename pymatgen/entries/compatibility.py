@@ -195,7 +195,6 @@ class GasCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """
-
         Args:
             entry: A ComputedEntry/ComputedStructureEntry.
 
@@ -239,7 +238,6 @@ class AnionCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """
-
         Args:
             entry: A ComputedEntry/ComputedStructureEntry.
 
@@ -455,7 +453,6 @@ class UCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """
-
         Args:
             entry: A ComputedEntry/ComputedStructureEntry.
 

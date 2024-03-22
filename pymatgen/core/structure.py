@@ -81,7 +81,6 @@ class Neighbor(Site):
         label: str | None = None,
     ) -> None:
         """
-
         Args:
             species: Same as Site
             coords: Same as Site, but must be fractional.

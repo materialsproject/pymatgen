@@ -16,7 +16,6 @@ class AbstractChemenvError(Exception):
 
     def __init__(self, cls, method, msg):
         """
-
         Args:
             cls:
             method:
@@ -35,7 +34,6 @@ class NeighborsNotComputedChemenvError(AbstractChemenvError):
 
     def __init__(self, site):
         """
-
         Args:
             site:
         """
@@ -50,7 +48,6 @@ class EquivalentSiteSearchError(AbstractChemenvError):
 
     def __init__(self, site):
         """
-
         Args:
             site:
         """
@@ -65,7 +62,6 @@ class SolidAngleError(AbstractChemenvError):
 
     def __init__(self, cosinus):
         """
-
         Args:
             cosinus:
         """
@@ -80,7 +76,6 @@ class ChemenvError(Exception):
 
     def __init__(self, cls: str, method: str, msg: str):
         """
-
         Args:
             cls:
             method:

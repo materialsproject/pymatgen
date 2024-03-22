@@ -90,7 +90,6 @@ class Nwchem2Fiesta(MSONable):
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         """
-
         Args:
             d: Dict representation.
 
@@ -190,7 +189,6 @@ class FiestaRun(MSONable):
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         """
-
         Args:
             d: Dict representation
 
@@ -311,7 +309,6 @@ class FiestaInput(MSONable):
         bse_tddft_options: dict[str, str] | None = None,
     ):
         """
-
         Args:
             mol: pymatgen mol
             correlation_grid: dict
@@ -394,7 +391,6 @@ class FiestaInput(MSONable):
 
     def dump_bse_data_in_gw_run(self, BSE_dump=True):
         """
-
         Args:
             BSE_dump: boolean
 
@@ -408,7 +404,6 @@ class FiestaInput(MSONable):
 
     def dump_tddft_data_in_gw_run(self, tddft_dump: bool = True):
         """
-
         Args:
             TDDFT_dump: boolean
 
@@ -564,7 +559,6 @@ $geometry
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         """
-
         Args:
             d: Dict representation
 

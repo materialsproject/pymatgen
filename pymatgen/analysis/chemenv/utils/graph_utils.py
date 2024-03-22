@@ -144,7 +144,6 @@ class SimpleGraphCycle(MSONable):
 
     def __init__(self, nodes, validate=True, ordered=None):
         """
-
         Args:
             nodes:
             validate:
@@ -191,7 +190,6 @@ class SimpleGraphCycle(MSONable):
 
     def validate(self, check_strict_ordering=False):
         """
-
         Args:
             check_strict_ordering:
         """
@@ -328,7 +326,6 @@ class MultiGraphCycle(MSONable):
 
     def __init__(self, nodes, edge_indices, validate=True, ordered=None):
         """
-
         Args:
             nodes:
             edge_indices:
@@ -382,7 +379,6 @@ class MultiGraphCycle(MSONable):
 
     def validate(self, check_strict_ordering=False):
         """
-
         Args:
             check_strict_ordering:
         """

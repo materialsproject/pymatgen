@@ -195,7 +195,6 @@ class AbstractGeometry:
     @classmethod
     def from_cg(cls, cg, centering_type="standard", include_central_site_in_centroid=False) -> Self:
         """
-
         Args:
             cg:
             centering_type:
@@ -212,7 +211,6 @@ class AbstractGeometry:
 
     def points_wcs_csc(self, permutation=None):
         """
-
         Args:
             permutation:
         """
@@ -222,7 +220,6 @@ class AbstractGeometry:
 
     def points_wocs_csc(self, permutation=None):
         """
-
         Args:
             permutation:
         """
@@ -232,7 +229,6 @@ class AbstractGeometry:
 
     def points_wcs_ctwcc(self, permutation=None):
         """
-
         Args:
             permutation:
         """
@@ -247,7 +243,6 @@ class AbstractGeometry:
 
     def points_wocs_ctwcc(self, permutation=None):
         """
-
         Args:
             permutation:
         """
@@ -257,7 +252,6 @@ class AbstractGeometry:
 
     def points_wcs_ctwocc(self, permutation=None):
         """
-
         Args:
             permutation:
         """
@@ -272,7 +266,6 @@ class AbstractGeometry:
 
     def points_wocs_ctwocc(self, permutation=None):
         """
-
         Args:
             permutation:
         """
@@ -532,7 +525,6 @@ class LocalGeometryFinder:
         initial_structure_environments=None,
     ):
         """
-
         Args:
             structure:
             indices:
@@ -890,7 +882,6 @@ class LocalGeometryFinder:
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
         """
-
         Args:
             se:
             isite:
@@ -985,7 +976,6 @@ class LocalGeometryFinder:
         points=None,
     ):
         """
-
         Args:
             symbol:
             randomness:

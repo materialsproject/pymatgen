@@ -959,7 +959,6 @@ class Lattice(MSONable):
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
         """
-
         Args:
             delta: Delta parameter.
 
@@ -1513,7 +1512,6 @@ class Lattice(MSONable):
 
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
         """
-
         Args:
             hex_angle_tol: Angle tolerance
             hex_length_tol: Length tolerance.

@@ -74,7 +74,6 @@ class WulffFacet:
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig, miller):
         """
-
         Args:
             normal:
             e_surf:

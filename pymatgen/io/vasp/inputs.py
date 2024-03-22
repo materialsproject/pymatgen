@@ -609,7 +609,6 @@ class Poscar(MSONable):
     @classmethod
     def from_dict(cls, dct: dict) -> Poscar:
         """
-
         Args:
             dct: Dict representation.
 
@@ -1008,7 +1007,6 @@ class KpointsSupportedModes(Enum):
     @classmethod
     def from_str(cls, mode: str) -> KpointsSupportedModes:
         """
-
         Args:
             mode: String
 
@@ -1549,7 +1547,6 @@ class Kpoints(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d: Dict representation.
 
@@ -2490,7 +2487,6 @@ class Potcar(list, MSONable):
     @classmethod
     def from_dict(cls, d) -> Self:
         """
-
         Args:
             d: Dict representation
 
@@ -2626,7 +2622,6 @@ class VaspInput(dict, MSONable):
     @classmethod
     def from_dict(cls, dct):
         """
-
         Args:
             d: Dict representation.
 

@@ -1623,7 +1623,6 @@ class BoltztrapAnalyzer:
 
     def get_mu_bounds(self, temp=300):
         """
-
         Args:
             temp: Temperature.
 
@@ -2008,7 +2007,6 @@ class BoltztrapAnalyzer:
     @staticmethod
     def from_dict(data):
         """
-
         Args:
             data: Dict representation.
 

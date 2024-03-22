@@ -78,7 +78,6 @@ class XPS(Spectrum):
     @classmethod
     def from_dos(cls, dos: CompleteDos):
         """
-
         Args:
             dos: CompleteDos object with project element-orbital DOS.
             Can be obtained from Vasprun.get_complete_dos.

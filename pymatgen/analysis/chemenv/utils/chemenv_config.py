@@ -43,7 +43,6 @@ class ChemEnvConfig:
 
     def __init__(self, package_options=None):
         """
-
         Args:
             package_options:
         """

@@ -77,7 +77,6 @@ class AbstractComparator(MSONable, abc.ABC):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d: Dict representation
 
@@ -269,7 +268,6 @@ class OccupancyComparator(AbstractComparator):
 
     def get_hash(self, composition):
         """
-
         Args:
             composition: Composition.
 
@@ -862,7 +860,6 @@ class StructureMatcher(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d: Dict representation
 

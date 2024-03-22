@@ -70,7 +70,6 @@ class AdditionalConditions:
 
     def check_condition(self, condition, structure: Structure, parameters):
         """
-
         Args:
             condition:
             structure:

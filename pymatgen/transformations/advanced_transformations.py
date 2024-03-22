@@ -579,7 +579,6 @@ class MagOrderParameterConstraint(MSONable):
         site_constraints=None,
     ):
         """
-
         Args:
             order_parameter (float): any number from 0.0 to 1.0,
                 typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
@@ -636,7 +635,6 @@ class MagOrderingTransformation(AbstractTransformation):
 
     def __init__(self, mag_species_spin, order_parameter=0.5, energy_model=None, **kwargs):
         """
-
         Args:
             mag_species_spin: A mapping of elements/species to their
                 spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
@@ -717,7 +715,6 @@ class MagOrderingTransformation(AbstractTransformation):
     @staticmethod
     def _add_dummy_species(structure, order_parameters):
         """
-
         Args:
             structure: ordered Structure
             order_parameters: list of MagOrderParameterConstraints.

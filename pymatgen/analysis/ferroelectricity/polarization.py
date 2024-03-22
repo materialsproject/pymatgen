@@ -425,7 +425,6 @@ class EnergyTrend:
 
     def __init__(self, energies):
         """
-
         Args:
             energies: Energies
         """

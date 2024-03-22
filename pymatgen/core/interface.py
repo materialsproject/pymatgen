@@ -284,7 +284,6 @@ class Interface(Structure):
     @classmethod
     def from_dict(cls, dct: dict) -> Interface:  # type: ignore[override]
         """
-
         Args:
             dct: dict.
 

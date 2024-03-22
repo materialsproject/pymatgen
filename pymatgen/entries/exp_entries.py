@@ -53,7 +53,6 @@ class ExpEntry(PDEntry, MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-
         Args:
             d: Dict representation.
 
