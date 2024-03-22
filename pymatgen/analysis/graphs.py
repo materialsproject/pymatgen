@@ -11,7 +11,7 @@ from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -383,7 +383,7 @@ class StructureGraph(MSONable):
 
         # sanitize types
         # TODO(@DanielYang59) fix mypy error
-        from_jimage, to_jimage = tuple(map(int, from_jimage)), tuple(map(int, to_jimage))
+        from_jimage, to_jimage = tuple(map(int, from_jimage)), tuple(map(int, to_jimage))  # type: ignore[assignment]
         from_index, to_index = int(from_index), int(to_index)
 
         # if edge is from site i to site i, constrain direction of edge
@@ -400,7 +400,7 @@ class StructureGraph(MSONable):
             if not is_positive:
                 # let's flip the jimage,
                 # e.g. (0, 1, 0) is equivalent to (0, -1, 0) in this case
-                to_jimage = tuple(-idx for idx in to_jimage)
+                to_jimage = tuple(-idx for idx in to_jimage)  # type: ignore[assignment]
 
         # check we're not trying to add a duplicate edge
         # there should only ever be at most one edge
@@ -764,7 +764,8 @@ class StructureGraph(MSONable):
             # TODO (@DanielYang59): distance should only take one arg
             # DEBUG
             relative_jimage = np.subtract(to_jimage, jimage)
-            dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
+            u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
+            dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
             weight = d.get("weight")
 
