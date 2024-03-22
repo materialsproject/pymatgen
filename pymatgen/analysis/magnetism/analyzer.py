@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.serialization import loadfn
+from ruamel.yaml.error import MarkedYAMLError
 from scipy.signal import argrelextrema
 from scipy.stats import gaussian_kde
 
@@ -40,10 +41,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
     DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/default_magmoms.yaml")
-except Exception:
+except (FileNotFoundError, MarkedYAMLError):
     warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = DEFAULT_MAGMOMS["MAGMOM"]
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")["INCAR"]["MAGMOM"]
 
 
 @unique
@@ -315,11 +315,11 @@ class CollinearMagneticStructureAnalyzer:
                 kernel = gaussian_kde(magmoms, bw_method=round_magmoms_mode)
 
                 # with a linearly spaced grid 1000x finer than width
-                xgrid = np.linspace(-range_m, range_m, int(1000 * range_m / round_magmoms_mode))
+                x_grid = np.linspace(-range_m, range_m, int(1000 * range_m / round_magmoms_mode))
 
                 # and evaluate the kde on this grid, extracting the maxima of the kde peaks
-                kernel_m = kernel.evaluate(xgrid)
-                extrema = xgrid[argrelextrema(kernel_m, comparator=np.greater)]
+                kernel_m = kernel.evaluate(x_grid)
+                extrema = x_grid[argrelextrema(kernel_m, comparator=np.greater)]
 
                 # round magmoms to these extrema
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
