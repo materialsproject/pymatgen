@@ -382,7 +382,6 @@ class StructureGraph(MSONable):
             return
 
         # sanitize types
-        # TODO(@DanielYang59) fix mypy error
         from_jimage, to_jimage = tuple(map(int, from_jimage)), tuple(map(int, to_jimage))  # type: ignore[assignment]
         from_index, to_index = int(from_index), int(to_index)
 
