@@ -2542,7 +2542,7 @@ class Potcar(list, MSONable):
     def from_str(cls, data: str):
         """
         Read Potcar from a string.
-        
+
         :param data: Potcar as a string.
 
         Returns:
