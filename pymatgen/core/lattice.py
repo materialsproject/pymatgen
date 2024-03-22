@@ -958,7 +958,9 @@ class Lattice(MSONable):
         return next(self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix), None)
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
-        """:param delta: Delta parameter.
+        """
+        Args:
+            delta: Delta parameter.
 
         Returns:
             LLL reduced Lattice.
@@ -1509,8 +1511,10 @@ class Lattice(MSONable):
         return np.sqrt(d2)
 
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
-        """:param hex_angle_tol: Angle tolerance
-        :param hex_length_tol: Length tolerance
+        """
+        Args:
+            hex_angle_tol: Angle tolerance
+            hex_length_tol: Length tolerance.
 
         Returns:
             Whether lattice corresponds to hexagonal lattice.

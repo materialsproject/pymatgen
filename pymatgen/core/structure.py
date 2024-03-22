@@ -80,12 +80,14 @@ class Neighbor(Site):
         index: int = 0,
         label: str | None = None,
     ) -> None:
-        """:param species: Same as Site
-        :param coords: Same as Site, but must be fractional.
-        :param properties: Same as Site
-        :param nn_distance: Distance to some other Site.
-        :param index: Index within structure.
-        :param label: Label for the site. Defaults to None.
+        """
+        Args:
+            species: Same as Site
+            coords: Same as Site, but must be fractional.
+            properties: Same as Site
+            nn_distance: Distance to some other Site.
+            index: Index within structure.
+            label: Label for the site. Defaults to None.
         """
         self.coords = coords
         self._species = species

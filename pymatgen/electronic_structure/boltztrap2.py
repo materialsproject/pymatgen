@@ -853,11 +853,12 @@ class BztTransportProperties:
     #     """
     #     Find the mu.
 
-    #     :param epsilon:
-    #     :param dos:
-    #     :param N0:
-    #     :param T:
-    #     :param dosweight:
+    #     Args:
+    #         epsilon:
+    #         dos:
+    #         N0:
+    #         T:
+    #         dosweight:
     #     """
     #     delta = np.empty_like(epsilon)
     #     for i, e in enumerate(epsilon):
@@ -950,8 +951,13 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
-        """:param bzt_transP:
-        :param bzt_interp:
+        """Placeholder.
+
+        TODO: missing docstrings for __init__
+
+        Args:
+            bzt_transP (_type_, optional): _description_. Defaults to None.
+            bzt_interp (_type_, optional): _description_. Defaults to None.
         """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
@@ -1160,10 +1166,11 @@ def merge_up_down_doses(dos_up, dos_dn):
     """Merge the up and down DOSs.
 
     Args:
-    dos_up: Up DOS.
-    dos_dn: Down DOS
-    Return:
-    CompleteDos object
+        dos_up: Up DOS.
+        dos_dn: Down DOS
+
+    Returns:
+        CompleteDos object
     """
     warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
     cdos = Dos(

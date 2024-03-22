@@ -1004,7 +1004,7 @@ class IcohpValue(MSONable):
     @property
     def icohp(self):
         """Dict with icohps for spinup and spindown
-        Return:
+        Returns:
             dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}.
         """
         return self._icohp

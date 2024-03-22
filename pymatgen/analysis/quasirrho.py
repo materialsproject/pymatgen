@@ -135,7 +135,6 @@ class QuasiRRHO:
     @classmethod
     def from_gaussian_output(cls, output: GaussianOutput, **kwargs) -> QuasiRRHO:
         """
-
         Args:
             output (GaussianOutput): Pymatgen GaussianOutput object
 
@@ -151,7 +150,6 @@ class QuasiRRHO:
     @classmethod
     def from_qc_output(cls, output: QCOutput, **kwargs) -> QuasiRRHO:
         """
-
         Args:
             output (QCOutput): Pymatgen QCOutput object
 

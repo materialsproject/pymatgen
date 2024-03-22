@@ -59,6 +59,8 @@ from pymatgen.io.vasp.outputs import Chgcar
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from pymatgen.core import Structure
+
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -109,21 +111,26 @@ class ChargemolAnalysis:
         self._potcar_path = self._get_filepath(path, "POTCAR")
         self._aeccar0_path = self._get_filepath(path, "AECCAR0")
         self._aeccar2_path = self._get_filepath(path, "AECCAR2")
+
         if run_chargemol and not (
             self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
         ):
             raise FileNotFoundError("CHGCAR, AECCAR0, AECCAR2, and POTCAR are all needed for Chargemol.")
+
         if self._chgcar_path:
-            self.chgcar = Chgcar.from_file(self._chgcar_path)
-            self.structure = self.chgcar.structure
-            self.natoms = self.chgcar.poscar.natoms
+            self.chgcar: Chgcar | None = Chgcar.from_file(self._chgcar_path)
+            self.structure: Structure | None = self.chgcar.structure
+            self.natoms: list[int] | None = self.chgcar.poscar.natoms
+
         else:
             self.chgcar = self.structure = self.natoms = None
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
+
         if self._potcar_path:
             self.potcar = Potcar.from_file(self._potcar_path)
         else:
             warnings.warn("No POTCAR found. Some properties may be unavailable.", UserWarning)
+
         self.aeccar0 = Chgcar.from_file(self._aeccar0_path) if self._aeccar0_path else None
         self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
 

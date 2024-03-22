@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import itertools
 import operator
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "waroquiers"
 
@@ -15,9 +19,11 @@ __author__ = "waroquiers"
 def get_delta(node1, node2, edge_data):
     """
     Get the delta.
-    :param node1:
-    :param node2:
-    :param edge_data:
+
+    Args:
+        node1:
+        node2:
+        edge_data:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
         return np.array(edge_data["delta"], dtype=int)
@@ -29,11 +35,13 @@ def get_delta(node1, node2, edge_data):
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     """
     Get all the simple path and edges.
-    :param graph:
-    :param source:
-    :param target:
-    :param cutoff:
-    :param data:
+
+    Args:
+        graph:
+        source:
+        target:
+        cutoff:
+        data:
     """
     edge_paths = []
     if not graph.is_multigraph():
@@ -136,9 +144,10 @@ class SimpleGraphCycle(MSONable):
 
     def __init__(self, nodes, validate=True, ordered=None):
         """
-        :param nodes:
-        :param validate:
-        :param ordered:
+        Args:
+            nodes:
+            validate:
+            ordered:
         """
         self.nodes = tuple(nodes)
         if validate:
@@ -181,7 +190,8 @@ class SimpleGraphCycle(MSONable):
 
     def validate(self, check_strict_ordering=False):
         """
-        :param check_strict_ordering:
+        Args:
+            check_strict_ordering:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -249,7 +259,7 @@ class SimpleGraphCycle(MSONable):
         return self.nodes == other.nodes
 
     @classmethod
-    def from_edges(cls, edges, edges_are_ordered=True):
+    def from_edges(cls, edges, edges_are_ordered: bool = True) -> Self:
         """Constructs SimpleGraphCycle from a list edges.
 
         By default, the edges list is supposed to be ordered as it will be
@@ -282,7 +292,7 @@ class SimpleGraphCycle(MSONable):
             nodes.pop()
         return cls(nodes)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict"""
         dct = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
@@ -290,11 +300,13 @@ class SimpleGraphCycle(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d, validate=False):
+    def from_dict(cls, d: dict, validate: bool = False) -> Self:
         """
         Serialize from dict.
-        :param d:
-        :param validate:
+
+        Args:
+            d:
+            validate:
         """
         return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
 
@@ -314,10 +326,11 @@ class MultiGraphCycle(MSONable):
 
     def __init__(self, nodes, edge_indices, validate=True, ordered=None):
         """
-        :param nodes:
-        :param edge_indices:
-        :param validate:
-        :param ordered:
+        Args:
+            nodes:
+            edge_indices:
+            validate:
+            ordered:
         """
         self.nodes = tuple(nodes)
         self.edge_indices = tuple(edge_indices)
@@ -366,13 +379,14 @@ class MultiGraphCycle(MSONable):
 
     def validate(self, check_strict_ordering=False):
         """
-        :param check_strict_ordering:
+        Args:
+            check_strict_ordering:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
             raise ValueError(f"MultiGraphCycle is not valid : {msg}")
 
-    def order(self, raise_on_fail=True):
+    def order(self, raise_on_fail: bool = True):
         """Orders the SimpleGraphCycle.
 
         The ordering is performed such that the first node is the "lowest" one
@@ -380,7 +394,8 @@ class MultiGraphCycle(MSONable):
         first node. If raise_on_fail is set to True a RuntimeError will be
         raised if the ordering fails.
 
-        :param raise_on_fail: If set to True, will raise a RuntimeError if the ordering fails.
+        Args:
+            raise_on_fail: If set to True, will raise a RuntimeError if the ordering fails.
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered
@@ -453,7 +468,9 @@ class MultiGraphCycle(MSONable):
 
 def get_all_elementary_cycles(graph):
     """
-    :param graph:
+
+    Args:
+        graph:
     """
     if not isinstance(graph, nx.Graph):
         raise TypeError("graph should be a networkx Graph object.")

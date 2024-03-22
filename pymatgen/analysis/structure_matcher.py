@@ -77,7 +77,8 @@ class AbstractComparator(MSONable, abc.ABC):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation
+        Args:
+            d: Dict representation
 
         Returns:
             Comparator.
@@ -267,7 +268,10 @@ class OccupancyComparator(AbstractComparator):
 
     def get_hash(self, composition):
         """
-        :param composition: Composition.
+        Args:
+            composition: Composition.
+
+        TODO: might need a proper hash method
 
         Returns:
             1. Difficult to define sensible hash
@@ -856,7 +860,8 @@ class StructureMatcher(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation
+        Args:
+            d: Dict representation
 
         Returns:
             StructureMatcher

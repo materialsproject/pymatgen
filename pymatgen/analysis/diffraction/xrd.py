@@ -215,7 +215,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
 
                 # Highly vectorized computation of atomic scattering factors.
-                # Equivalent non-vectorized code is::
+                # Equivalent non-vectorized code is:
                 #
                 #   for site in structure:
                 #      el = site.specie

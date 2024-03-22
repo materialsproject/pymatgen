@@ -172,7 +172,8 @@ class CifBlock:
         """
         Reads CifBlock from string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifBlock
@@ -237,7 +238,8 @@ class CifFile:
     def from_str(cls, string) -> CifFile:
         """Reads CifFile from a string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifFile
@@ -264,7 +266,8 @@ class CifFile:
         """
         Reads CifFile from a filename.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             CifFile
@@ -384,16 +387,16 @@ class CifParser:
 
         This function is here so that CifParser can assume its
         input conforms to spec, simplifying its implementation.
-        :param data: CifBlock
+
+        Args:
+            data: CifBlock
 
         Returns:
             data CifBlock
         """
-        """
-        This part of the code deals with handling formats of data as found in
-        CIF files extracted from the Springer Materials/Pauling File
-        databases, and that are different from standard ICSD formats.
-        """
+        # This part of the code deals with handling formats of data as found in
+        # CIF files extracted from the Springer Materials/Pauling File
+        # databases, and that are different from standard ICSD formats.
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
@@ -1232,10 +1235,12 @@ class CifParser:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
 
-    def get_bibtex_string(self):
+    def get_bibtex_string(self) -> str:
         """
         Get BibTeX reference from CIF file.
-        :param data:
+
+        args:
+            data:
 
         Returns:
             BibTeX string.

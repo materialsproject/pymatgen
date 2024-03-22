@@ -344,19 +344,21 @@ class TransformedStructure(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> TransformedStructure:
+    def from_dict(cls, dct: dict) -> TransformedStructure:
         """Creates a TransformedStructure from a dict."""
         struct = Structure.from_dict(dct)
         return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 
-    def to_snl(self, authors, **kwargs) -> StructureNL:
-        """Generate SNL from TransformedStructure.
+    def to_snl(self, authors: list[str], **kwargs) -> StructureNL:
+        """
+        Generate a StructureNL from TransformedStructure.
 
-        :param authors: List of authors
-        :param **kwargs: All kwargs supported by StructureNL.
+        Args:
+            authors (List[str]): List of authors contributing to the generated StructureNL.
+            **kwargs (Any): All kwargs supported by StructureNL.
 
         Returns:
-            StructureNL
+            StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
             warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")

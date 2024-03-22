@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import PathLike
@@ -608,7 +609,8 @@ class Poscar(MSONable):
     @classmethod
     def from_dict(cls, dct: dict) -> Poscar:
         """
-        :param dct: Dict representation.
+        Args:
+            dct: Dict representation.
 
         Returns:
             Poscar
@@ -1005,7 +1007,8 @@ class KpointsSupportedModes(Enum):
     @classmethod
     def from_str(cls, mode: str) -> KpointsSupportedModes:
         """
-        :param s: String
+        Args:
+            mode: String
 
         Returns:
             Kpoints_supported_modes
@@ -1099,13 +1102,12 @@ class Kpoints(MSONable):
         return self._style
 
     @style.setter
-    def style(self, style):
+    def style(self, style) -> None:
         """
-        :param style: Style
+        Sets the style for the Kpoints. One of Kpoints_supported_modes enum.
 
-        Returns:
-            Sets the style for the Kpoints. One of Kpoints_supported_modes
-            enum.
+        Args:
+            style: Style
         """
         if isinstance(style, str):
             style = Kpoints.supported_modes.from_str(style)
@@ -1518,7 +1520,7 @@ class Kpoints(MSONable):
             lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict."""
         dct = {
             "comment": self.comment,
@@ -1545,7 +1547,8 @@ class Kpoints(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation.
+        Args:
+            d: Dict representation.
 
         Returns:
             Kpoints
@@ -1829,10 +1832,11 @@ class PotcarSingle:
         return PotcarSingle(self.data, symbol=self.symbol)
 
     @classmethod
-    def from_file(cls, filename: str) -> PotcarSingle:
+    def from_file(cls, filename: str) -> Self:
         """Reads PotcarSingle from file.
 
-        :param filename: Filename.
+        Args:
+            filename: Filename.
 
         Returns:
             PotcarSingle
@@ -2481,9 +2485,10 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            d: Dict representation
 
         Returns:
             Potcar
@@ -2491,11 +2496,12 @@ class Potcar(list, MSONable):
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str) -> Self:
         """
         Reads Potcar from file.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             Potcar
@@ -2616,13 +2622,14 @@ class VaspInput(dict, MSONable):
     @classmethod
     def from_dict(cls, dct):
         """
-        :param d: Dict representation.
+        Args:
+            d: Dict representation.
 
         Returns:
             VaspInput
         """
         dec = MontyDecoder()
-        sub_dct = {"optional_files": {}}
+        sub_dct: dict[str, dict] = {"optional_files": {}}
         for key, val in dct.items():
             if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
                 sub_dct[key.lower()] = dec.process_decoded(val)
@@ -2691,15 +2698,16 @@ class VaspInput(dict, MSONable):
         vasp_cmd: list | None = None,
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
-    ):
+    ) -> None:
         """
         Write input files and run VASP.
 
-        :param run_dir: Where to write input files and do the run.
-        :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the
-            PMG_VASP_EXE in .pmgrc.yaml is used.
-        :param output_file: File to write output.
-        :param err_file: File to write err.
+        Args:
+            run_dir: Where to write input files and do the run.
+            vasp_cmd: Args to be supplied to run VASP. Otherwise, the
+                PMG_VASP_EXE in .pmgrc.yaml is used.
+            output_file: File to write output.
+            err_file: File to write err.
         """
         self.write_input(output_dir=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")  # type: ignore[assignment]
