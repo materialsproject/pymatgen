@@ -1227,15 +1227,15 @@ class Species(MSONable, Stringify):
         }
 
     @classmethod
-    def from_dict(cls, d) -> Species:
+    def from_dict(cls, dct) -> Species:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Species.
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
+        return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
 
 @functools.total_ordering
@@ -1386,15 +1386,15 @@ class DummySpecies(Species):
         }
 
     @classmethod
-    def from_dict(cls, d) -> DummySpecies:
+    def from_dict(cls, dct) -> DummySpecies:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
+        return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
     def __repr__(self) -> str:
         return f"DummySpecies {self}"

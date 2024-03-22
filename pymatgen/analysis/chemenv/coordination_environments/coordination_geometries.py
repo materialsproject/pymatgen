@@ -13,10 +13,14 @@ import abc
 import itertools
 import json
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 from scipy.special import factorial
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -109,7 +113,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstruct ExplicitPermutationsAlgorithm from its JSON-serializable dict representation.
         """
@@ -324,7 +328,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
@@ -497,7 +501,7 @@ class CoordinationGeometry:
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
-        def from_dict(cls, dct):
+        def from_dict(cls, dct: dict) -> Self:
             """Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation."""
             return cls(hints_type=dct["hints_type"], options=dct["options"])
 
@@ -592,7 +596,7 @@ class CoordinationGeometry:
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
@@ -602,7 +606,6 @@ class CoordinationGeometry:
         Returns:
             CoordinationGeometry
         """
-        dec = MontyDecoder()
         return cls(
             mp_symbol=dct["mp_symbol"],
             name=dct["name"],
@@ -620,7 +623,7 @@ class CoordinationGeometry:
             deactivate=dct["deactivate"],
             faces=dct["_faces"],
             edges=dct["_edges"],
-            algorithms=[dec.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+            algorithms=[MontyDecoder.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
             if dct["_algorithms"] is not None
             else None,
             equivalent_indices=dct.get("equivalent_indices"),

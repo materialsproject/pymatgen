@@ -612,7 +612,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (Structure): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quad (dict): quadrature for integration, should be
+            quadct (dict): quadrature for integration, should be
                 dictionary with "points" and "weights" keys defaults
                 to quadpy.sphere.Lebedev(19) as read from file
         """
@@ -645,7 +645,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (float): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quad (dict): quadrature for integration, should be
+            quadct (dict): quadrature for integration, should be
                 dictionary with "points" and "weights" keys defaults
                 to quadpy.sphere.Lebedev(19) as read from file
         """

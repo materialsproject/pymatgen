@@ -56,8 +56,6 @@ from pymatgen.io.vasp.sets import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
-dec = MontyDecoder()
-
 MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
@@ -528,15 +526,15 @@ class TestMITMPRelaxSet(PymatgenTest):
         )
 
         dct = mit_set.as_dict()
-        val = dec.process_decoded(dct)
+        val = MontyDecoder.process_decoded(dct)
         assert val._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 4
 
         dct = mp_set.as_dict()
-        val = dec.process_decoded(dct)
+        val = MontyDecoder.process_decoded(dct)
         assert val._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 5.3
 
         dct = mp_user_set.as_dict()
-        val = dec.process_decoded(dct)
+        val = MontyDecoder.process_decoded(dct)
         assert isinstance(val, VaspInputSet)
         assert val.user_incar_settings["MAGMOM"] == {"Fe": 10, "S": -5, "Mn3+": 100}
 
@@ -1134,7 +1132,7 @@ class TestMITMDSet(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.mit_md_param.as_dict()
-        input_set = dec.process_decoded(dct)
+        input_set = MontyDecoder.process_decoded(dct)
         assert isinstance(input_set, self.set)
         assert input_set.incar["TEBEG"] == 300
         assert input_set.incar["TEEND"] == 1200
@@ -1183,7 +1181,7 @@ class TestMVLNPTMDSet(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.mvl_npt_set.as_dict()
-        input_set = dec.process_decoded(dct)
+        input_set = MontyDecoder.process_decoded(dct)
         assert isinstance(input_set, MVLNPTMDSet)
         assert input_set.incar["NSW"] == 1000
 
@@ -1225,7 +1223,7 @@ class TestMPMDSet(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.mp_md_set_noTS.as_dict()
-        v = dec.process_decoded(dct)
+        v = MontyDecoder.process_decoded(dct)
         assert isinstance(v, MPMDSet)
         assert v.incar["NSW"] == 1000
 
@@ -1262,7 +1260,7 @@ class TestMITNEBSet(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.vis.as_dict()
-        v = dec.process_decoded(dct)
+        v = MontyDecoder.process_decoded(dct)
         assert v.incar["IMAGES"] == 2
 
     @skip_if_no_psp_dir
@@ -1608,7 +1606,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.mvl_scan_set.as_dict()
-        v = dec.process_decoded(dct)
+        v = MontyDecoder.process_decoded(dct)
         assert isinstance(v, self.set)
         assert v.incar["METAGGA"] == "Scan"
         assert v.user_incar_settings["NSW"] == 500
@@ -1712,7 +1710,7 @@ class TestMPScanRelaxSet(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.mp_scan_set.as_dict()
-        input_set = dec.process_decoded(dct)
+        input_set = MontyDecoder.process_decoded(dct)
         assert isinstance(input_set, MPScanRelaxSet)
         assert input_set._config_dict["INCAR"]["METAGGA"] == "R2SCAN"
         assert input_set.user_incar_settings["NSW"] == 500
@@ -1882,7 +1880,7 @@ class TestMVLRelax52Set(PymatgenTest):
 
     def test_as_from_dict(self):
         dct = self.mvl_rlx_set.as_dict()
-        vasp_input = dec.process_decoded(dct)
+        vasp_input = MontyDecoder.process_decoded(dct)
         assert isinstance(vasp_input, self.set)
         assert vasp_input.incar["NSW"] == 500
 
@@ -2061,7 +2059,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, mode="IPA")
         dct = absorption_ipa.as_dict()
-        vasp_input = dec.process_decoded(dct)
+        vasp_input = MontyDecoder.process_decoded(dct)
         assert vasp_input.incar["ALGO"] == "Exact"
         assert vasp_input.incar["LOPTICS"]
         assert vasp_input.incar["GGA"] == "Ps"
@@ -2069,7 +2067,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/vasp/fixtures/absorption/ipa"
         absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, mode="RPA")
         dct = absorption_rpa.as_dict()
-        vasp_input = dec.process_decoded(dct)
+        vasp_input = MontyDecoder.process_decoded(dct)
         assert vasp_input.incar["ALGO"] == "Chi"
         assert vasp_input.incar["NBANDS"] == 48
         assert vasp_input.incar["GGA"] == "Ps"

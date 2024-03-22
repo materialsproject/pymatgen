@@ -300,15 +300,15 @@ class SimpleGraphCycle(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict, validate: bool = False) -> Self:
+    def from_dict(cls, dct: dict, validate: bool = False) -> Self:
         """
         Serialize from dict.
 
         Args:
-            d:
-            validate:
+            dct (dict): Dict representation.
+            validate: If True, will validate the cycle.
         """
-        return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
+        return cls(nodes=dct["nodes"], validate=validate, ordered=dct["ordered"])
 
 
 class MultiGraphCycle(MSONable):

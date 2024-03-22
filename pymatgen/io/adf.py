@@ -16,6 +16,8 @@ from pymatgen.core.structure import Molecule
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from typing_extensions import Self
+
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
@@ -312,23 +314,19 @@ class AdfKey(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Construct a MSONable AdfKey object from the JSON dict.
 
-        Parameters
-        ----------
-        d : dict
-            A dict of saved attributes.
+        Args:
+            dct (dict): A dict of saved attributes.
 
         Returns:
-        -------
-        adfkey : AdfKey
-            An AdfKey object recovered from the JSON dict ``d``.
+            AdfKey: An AdfKey object recovered from the JSON dict.
         """
-        key = d.get("name")
-        options = d.get("options")
-        subkey_list = d.get("subkeys", [])
+        key = dct.get("name")
+        options = dct.get("options")
+        subkey_list = dct.get("subkeys", [])
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
@@ -562,13 +560,13 @@ class AdfTask(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Construct a MSONable AdfTask object from the JSON dict.
 
         Parameters
         ----------
-        d : dict
+        dct : dict
             A dict of saved attributes.
 
         Returns:
@@ -580,14 +578,14 @@ class AdfTask(MSONable):
         def _from_dict(_d):
             return AdfKey.from_dict(_d) if _d is not None else None
 
-        operation = d.get("operation")
-        title = d.get("title")
-        basis_set = _from_dict(d.get("basis_set"))
-        xc = _from_dict(d.get("xc"))
-        units = _from_dict(d.get("units"))
-        scf = _from_dict(d.get("scf"))
-        others = [AdfKey.from_dict(o) for o in d.get("others", [])]
-        geo = _from_dict(d.get("geo"))
+        operation = dct.get("operation")
+        title = dct.get("title")
+        basis_set = _from_dict(dct.get("basis_set"))
+        xc = _from_dict(dct.get("xc"))
+        units = _from_dict(dct.get("units"))
+        scf = _from_dict(dct.get("scf"))
+        others = [AdfKey.from_dict(o) for o in dct.get("others", [])]
+        geo = _from_dict(dct.get("geo"))
 
         return cls(operation, basis_set, xc, title, units, geo.subkeys, scf, others)
 

@@ -1059,12 +1059,12 @@ class StructureGraph(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d) -> Self:
+    def from_dict(cls, dct) -> Self:
         """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """
-        struct = Structure.from_dict(d["structure"])
-        return cls(struct, d["graphs"])
+        struct = Structure.from_dict(dct["structure"])
+        return cls(struct, dct["graphs"])
 
     def __mul__(self, scaling_matrix):
         """
@@ -1573,16 +1573,16 @@ class MoleculeGraph(MSONable):
 
         # tidy up edge attr dicts, reading to/from json duplicates
         # information
-        for _, _, _, d in self.graph.edges(keys=True, data=True):
+        for _, _, _, data in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):
-                d.pop(key, None)
+                data.pop(key, None)
             # ensure images are tuples (conversion to lists happens
             # when serializing back from json), it's important images
             # are hashable/immutable
-            if "to_jimage" in d:
-                d["to_jimage"] = tuple(d["to_jimage"])
-            if "from_jimage" in d:
-                d["from_jimage"] = tuple(d["from_jimage"])
+            if "to_jimage" in data:
+                data["to_jimage"] = tuple(data["to_jimage"])
+            if "from_jimage" in data:
+                data["from_jimage"] = tuple(data["from_jimage"])
 
         self.set_node_attributes()
 
@@ -2635,7 +2635,7 @@ class MoleculeGraph(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         As in pymatgen.core.Molecule except
         restoring graphs using `from_dict_of_dicts`

@@ -563,21 +563,21 @@ class Tags(dict):
         return tags_dict
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(dct):
         """
         Creates Tags object from a dictionary.
 
         Args:
-            d: Dict of feff parameters and values.
+            dct (dict): Dict of feff parameters and values.
 
         Returns:
             Tags object
         """
-        i = Tags()
-        for k, v in d.items():
+        instance = Tags()
+        for k, v in dct.items():
             if k not in ("@module", "@class"):
-                i[k] = v
-        return i
+                instance[k] = v
+        return instance
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """

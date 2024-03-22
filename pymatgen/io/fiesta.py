@@ -88,15 +88,15 @@ class Nwchem2Fiesta(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Nwchem2Fiesta
         """
-        return cls(folder=d["folder"], filename=d["filename"])
+        return cls(folder=dct["folder"], filename=dct["filename"])
 
 
 class FiestaRun(MSONable):
@@ -187,15 +187,15 @@ class FiestaRun(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation
+            dct (dict): Dict representation
 
         Returns:
             FiestaRun
         """
-        return cls(folder=d["folder"], grid=d["grid"], log_file=d["log_file"])
+        return cls(folder=dct["folder"], grid=dct["grid"], log_file=dct["log_file"])
 
 
 class BasisSetReader:
@@ -557,21 +557,21 @@ $geometry
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation
+            dct (dict): Dict representation
 
         Returns:
             FiestaInput
         """
         return cls(
-            mol=Molecule.from_dict(d["mol"]),
-            correlation_grid=d["correlation_grid"],
-            exc_dft_option=d["Exc_DFT_option"],
-            cohsex_options=d["geometry_options"],
-            gw_options=d["symmetry_options"],
-            bse_tddft_options=d["memory_options"],
+            mol=Molecule.from_dict(dct["mol"]),
+            correlation_grid=dct["correlation_grid"],
+            exc_dft_option=dct["Exc_DFT_option"],
+            cohsex_options=dct["geometry_options"],
+            gw_options=dct["symmetry_options"],
+            bse_tddft_options=dct["memory_options"],
         )
 
     @classmethod

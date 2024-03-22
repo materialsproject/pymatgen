@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from typing import TYPE_CHECKING
 
 from monty.functools import lazy_property
 from monty.json import MSONable
 
 from pymatgen.core.libxcfunc import LibxcFunc
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -185,7 +189,7 @@ class XcFunc(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Deserialize from MSONable dict representation."""
         return cls(xc=dct.get("xc"), x=dct.get("x"), c=dct.get("c"))
 

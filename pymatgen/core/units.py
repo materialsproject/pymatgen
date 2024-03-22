@@ -231,9 +231,9 @@ class Unit(collections.abc.Mapping):
         factor = 1
         for k, v in self.items():
             derived = False
-            for d in DERIVED_UNITS.values():
-                if k in d:
-                    for k2, v2 in d[k].items():
+            for dct in DERIVED_UNITS.values():
+                if k in dct:
+                    for k2, v2 in dct[k].items():
                         if isinstance(k2, numbers.Number):
                             factor *= k2 ** (v2 * v)
                         else:
@@ -307,8 +307,8 @@ class FloatWithUnit(float):
         num, unit = float(s[:idx]), s[idx:]
 
         # Find unit type (set it to None if it cannot be detected)
-        for unit_type, d in BASE_UNITS.items():  # noqa: B007
-            if unit in d:
+        for unit_type, dct in BASE_UNITS.items():  # noqa: B007
+            if unit in dct:
                 break
         else:
             unit_type = None

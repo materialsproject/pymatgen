@@ -458,10 +458,8 @@ def recursive_update(dct: dict, up: dict) -> dict:
 
     Parameters
     ----------
-    dct: Dict
-        Input dictionary to modify
-    up: Dict
-        Dictionary of updates to apply
+    dct (dict): Input dictionary to modify
+    up (dict): updates to apply
 
     Returns
     -------

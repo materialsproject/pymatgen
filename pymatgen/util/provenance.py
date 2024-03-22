@@ -8,21 +8,22 @@ import re
 import sys
 from collections import namedtuple
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder
+
+from pymatgen.core.structure import Molecule, Structure
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from typing_extensions import Self
 
 try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
     pybtex = bibtex = None
-
-from typing import TYPE_CHECKING
-
-from pymatgen.core.structure import Molecule, Structure
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"
@@ -121,15 +122,15 @@ class Author(namedtuple("Author", ["name", "email"])):
         return {"name": self.name, "email": self.email}
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(dct):
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Author
         """
-        return Author(d["name"], d["email"])
+        return Author(dct["name"], dct["email"])
 
     @staticmethod
     def parse_author(author):
@@ -272,30 +273,29 @@ class StructureNL:
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Class
         """
-        a = d["about"]
-        dec = MontyDecoder()
+        about = dct["about"]
 
-        created_at = dec.process_decoded(a.get("created_at"))
-        data = {k: v for k, v in d["about"].items() if k.startswith("_")}
-        data = dec.process_decoded(data)
+        created_at = MontyDecoder.process_decoded(about.get("created_at"))
+        data = {k: v for k, v in dct["about"].items() if k.startswith("_")}
+        data = MontyDecoder.process_decoded(data)
 
-        structure = Structure.from_dict(d) if "lattice" in d else Molecule.from_dict(d)
+        structure = Structure.from_dict(dct) if "lattice" in dct else Molecule.from_dict(dct)
         return cls(
             structure,
-            a["authors"],
-            projects=a.get("projects"),
-            references=a.get("references", ""),
-            remarks=a.get("remarks"),
+            about["authors"],
+            projects=about.get("projects"),
+            references=about.get("references", ""),
+            remarks=about.get("remarks"),
             data=data,
-            history=a.get("history"),
+            history=about.get("history"),
             created_at=created_at,
         )
 

@@ -255,7 +255,7 @@ class LammpsData(MSONable):
                 ["vx", "vy", "vz"] for Velocities section. Optional
                 with default to None. If not None, its index should be
                 consistent with atoms.
-            force_field (dict): Data for force field sections. Optional
+            force_fieldct (dict): Data for force field sections. Optional
                 with default to None. Only keywords in force field and
                 class 2 force field are valid keys, and each value is a
                 DataFrame.
@@ -1029,7 +1029,7 @@ class ForceField(MSONable):
 
     Attributes:
         masses (pandas.DataFrame): DataFrame for Masses section.
-        force_field (dict): Force field section keywords (keys) and
+        force_fieldct (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
     """
@@ -1212,7 +1212,7 @@ class ForceField(MSONable):
         Constructor that reads in a dictionary.
 
         Args:
-            d (dict): Dictionary to read.
+            dct (dict): Dictionary to read.
         """
         dct["mass_info"] = [tuple(m) for m in dct["mass_info"]]
         if dct.get("topo_coeffs"):
@@ -1494,7 +1494,7 @@ class CombinedData(LammpsData):
         Convert a CombinedData object to a LammpsData object. attributes are deep-copied.
 
         box (LammpsBox): Simulation box.
-        force_field (dict): Data for force field sections. Optional
+        force_fieldct (dict): Data for force field sections. Optional
             with default to None. Only keywords in force field and
             class 2 force field are valid keys, and each value is a
             DataFrame.

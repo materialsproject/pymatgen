@@ -1138,8 +1138,8 @@ class Plane:
         convex_hull = ConvexHull(points)
         heights = []
         ipoints_heights = []
-        for isimplex, _simplex in enumerate(convex_hull.simplices):
-            cc = convex_hull.equations[isimplex]
+        for idx, _simplex in enumerate(convex_hull.simplices):
+            cc = convex_hull.equations[idx]
             plane = Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3])
             distances = [plane.distance_to_point(pp) for pp in points]
             ipoint_height = np.argmax(distances)

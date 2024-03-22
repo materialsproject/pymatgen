@@ -2026,11 +2026,10 @@ class LightStructureEnvironments(MSONable):
         Returns:
             LightStructureEnvironments object.
         """
-        dec = MontyDecoder()
-        structure = dec.process_decoded(dct["structure"])
+        structure = MontyDecoder.process_decoded(dct["structure"])
         all_nbs_sites = []
         for nb_site in dct["all_nbs_sites"]:
-            periodic_site = dec.process_decoded(nb_site["site"])
+            periodic_site = MontyDecoder.process_decoded(nb_site["site"])
             site = PeriodicNeighbor(
                 species=periodic_site.species,
                 coords=periodic_site.frac_coords,
@@ -2056,7 +2055,7 @@ class LightStructureEnvironments(MSONable):
             for site_nb_sets in dct["neighbors_sets"]
         ]
         return cls(
-            strategy=dec.process_decoded(dct["strategy"]),
+            strategy=MontyDecoder.process_decoded(dct["strategy"]),
             coordination_environments=dct["coordination_environments"],
             all_nbs_sites=all_nbs_sites,
             neighbors_sets=neighbors_sets,
