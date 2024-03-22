@@ -205,7 +205,7 @@ if __name__ == "__main__":
     replace the POTCAR with its spec (`remove_potcar_and_write_file`),
     for test purposes, its often useful to have a fake POTCAR in place
     of the real one.
-    
+
     To use the scrambler on a vaspout.h5:
     ```
     vout = Vaspout("< path to vaspout.h5>")

@@ -5432,7 +5432,7 @@ class Vaspout(Vasprun):
             # Unmodified vaspout.h5 with full POTCAR
             calc_potcar = Potcar.from_str(input_data["potcar"]["content"])
             self.potcar = calc_potcar if self.store_potcar else None
-            # The `potcar_symbols` attr is extraordinarily confusingly 
+            # The `potcar_symbols` attr is extraordinarily confusingly
             # named, these are really TITELs
             self.potcar_symbols = [potcar.TITEL for potcar in calc_potcar]
 
@@ -5444,8 +5444,9 @@ class Vaspout(Vasprun):
         elif input_data["potcar"].get("spec"):
             # modified vaspout.h5 with only POTCAR spec
             import json
+
             self.potcar_spec = json.loads(input_data["potcar"]["spec"])
-            self.potcar_symbols = [spec["titel"] for spec in self.potcar_spec]                
+            self.potcar_symbols = [spec["titel"] for spec in self.potcar_spec]
 
         # TODO: do we want POSCAR stored?
         self.poscar = Poscar(
@@ -5489,7 +5490,7 @@ class Vaspout(Vasprun):
                 ),
                 # Placeholder - there's currently no info about electronic steps
                 # in vaspout.h5
-                "electronic_steps": [] 
+                "electronic_steps": [],
             }
             self.ionic_steps += [step]
 
@@ -5538,11 +5539,7 @@ class Vaspout(Vasprun):
         """Final energy from vaspout."""
         return self.ionic_steps[-1]["e_0_energy"]
 
-    def remove_potcar_and_write_file(
-        self,
-        filename: str | None = None,
-        fake_potcar_str : str | None = None
-    ) -> None:
+    def remove_potcar_and_write_file(self, filename: str | None = None, fake_potcar_str: str | None = None) -> None:
         """
         Utility function to replace the full POTCAR with its spec, and write a vaspout.h5.
 
@@ -5566,14 +5563,13 @@ class Vaspout(Vasprun):
             return self._parse_hdf5_value(obj)
 
         def recursive_to_dataset(h5_obj, level, obj):
-
             if hasattr(obj, "items"):
                 if level != "/":
                     h5_obj.create_group(level)
                 for k, v in obj.items():
                     recursive_to_dataset(h5_obj[level], k, v)
             else:
-                if isinstance(obj,str):
+                if isinstance(obj, str):
                     obj = obj.encode()
                 data = np.array(obj)
                 if "U" in str(data.dtype):
@@ -5609,7 +5605,7 @@ class Vaspout(Vasprun):
         # if file is to be compressed, first write uncompressed file
         with h5py.File(fname_prefix if compressor else filename, "w") as h5_file:
             recursive_to_dataset(h5_file, "/", hdf5_data)
-        
+
         # now compress the file
         if compressor:
             if os.path.isfile(filename):
