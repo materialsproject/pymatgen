@@ -202,7 +202,7 @@ class ElectricFieldGradient(SquareTensor):
                     Can take a isotope or element string, Species object,
                     or Site object
 
-        Return:
+        Returns:
             the coupling constant as a FloatWithUnit in MHz
         """
         planks_constant = FloatWithUnit(6.62607004e-34, "m^2 kg s^-1")

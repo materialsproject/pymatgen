@@ -910,7 +910,7 @@ class SlabGenerator:
         method. Instead, it is used by other generation algorithms to obtain
         all slabs.
 
-        Arg:
+        Args:
             shift (float): A shift value in Angstrom that determines how much a
                 slab should be shifted.
             tol (float): Tolerance to determine primitive cell.
@@ -1152,7 +1152,7 @@ class SlabGenerator:
         In a future release of surface.py, the ghost_sites will be
         used to tell us how the repair bonds should look like.
 
-        Arg:
+        Args:
             slab (structure): A structure object representing a slab.
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
                 specified as a dict of tuples: float of specie1, specie2
@@ -1215,7 +1215,7 @@ class SlabGenerator:
         """This method will Move a set of sites to the
         other side of the slab (opposite surface).
 
-        Arg:
+        Args:
             init_slab (structure): A structure object representing a slab.
             index_of_sites (list of ints): The list of indices representing
                 the sites we want to move to the other side.
@@ -1266,7 +1266,7 @@ class SlabGenerator:
         can destroy the stoichiometry of the slab. For non-elemental
         structures, the chemical potential will be needed to calculate surface energy.
 
-        Arg:
+        Args:
             init_slab (Structure): A single slab structure
 
         Returns:

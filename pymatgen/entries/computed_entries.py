@@ -130,10 +130,12 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by.
+
+        Args:
+            factor: factor to divide by.
         """
         self._value /= factor
         self._uncertainty /= factor
@@ -200,10 +202,12 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by.
+
+        Args:
+            factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -259,10 +263,12 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by.
+
+        Args:
+            factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -468,7 +474,9 @@ class ComputedEntry(Entry):
 
     @classmethod
     def from_dict(cls, d) -> ComputedEntry:
-        """:param d: Dict representation.
+        """
+        Args:
+            d: Dict representation.
 
         Returns:
             ComputedEntry
@@ -603,7 +611,9 @@ class ComputedStructureEntry(ComputedEntry):
 
     @classmethod
     def from_dict(cls, d) -> ComputedStructureEntry:
-        """:param d: Dict representation.
+        """
+        Args:
+            d: Dict representation.
 
         Returns:
             ComputedStructureEntry
@@ -935,7 +945,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_dict(cls, d) -> GibbsComputedStructureEntry:
-        """:param d: Dict representation.
+        """
+        Args:
+            d: Dict representation.
 
         Returns:
             GibbsComputedStructureEntry

@@ -70,9 +70,10 @@ class AdditionalConditions:
 
     def check_condition(self, condition, structure: Structure, parameters):
         """
-        :param condition:
-        :param structure:
-        :param parameters:
+        Args:
+            condition:
+            structure:
+            parameters:
         """
         if condition == self.NONE:
             return True

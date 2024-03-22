@@ -24,9 +24,10 @@ class ConnectivityFinder:
         """
         Constructor for the ConnectivityFinder.
 
-        :param multiple_environments_choice: defines the procedure to apply when
-        the environment of a given site is described as a "mix" of more than one
-        coordination environments.
+        Args:
+            multiple_environments_choice: defines the procedure to apply when
+            the environment of a given site is described as a "mix" of more than one
+            coordination environments.
         """
         self.setup_parameters(multiple_environments_choice=multiple_environments_choice)
 
@@ -35,8 +36,9 @@ class ConnectivityFinder:
         Get the structure connectivity from the coordination environments provided
         as an input.
 
-        :param light_structure_environments: LightStructureEnvironments with the
-        relevant coordination environments in the structure
+        Args:
+            light_structure_environments: LightStructureEnvironments with the
+            relevant coordination environments in the structure
 
         Returns:
             a StructureConnectivity object describing the connectivity of

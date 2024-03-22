@@ -174,7 +174,7 @@ class Substitutor(MSONable):
         There are an exceptionally large number of substitutions to
         look at (260^n), where n is the number of species in the
         list. We need a more efficient than brute force way of going
-        through these possibilities. The brute force method would be::
+        through these possibilities. The brute force method would be:
 
             output = []
             for p in itertools.product(self._sp.species_list, repeat=len(species_list)):

@@ -394,7 +394,7 @@ class SymmOp(MSONable):
             origin (3x1 array): Point left invariant by roto-reflection.
                 Defaults to (0, 0, 0).
 
-        Return:
+        Returns:
             Roto-reflection operation
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
@@ -452,7 +452,9 @@ class SymmOp(MSONable):
 
     @classmethod
     def from_dict(cls, dct) -> SymmOp:
-        """:param dct: dict
+        """
+        Args:
+            dct: dict.
 
         Returns:
             SymmOp from dict representation.
@@ -610,7 +612,9 @@ class MagSymmOp(SymmOp):
 
     @classmethod
     def from_dict(cls, dct: dict) -> MagSymmOp:
-        """:param dct: dict
+        """
+        Args:
+            dct: dict.
 
         Returns:
             MagneticSymmOp from dict representation.

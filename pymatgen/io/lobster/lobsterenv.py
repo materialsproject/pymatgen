@@ -79,7 +79,6 @@ class LobsterNeighbors(NearNeighbors):
         id_blist_sg2: str = "ICOBI",
     ) -> None:
         """
-
         Args:
             filename_icohp: (str) Path to ICOHPLIST.lobster or ICOOPLIST.lobster or ICOBILIST.lobster
             obj_icohp: Icohplist object
