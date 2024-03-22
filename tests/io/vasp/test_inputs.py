@@ -1202,7 +1202,7 @@ class TestPotcarSingle(unittest.TestCase):
                 "summary_stats": psingle._summary_stats,
                 "symbol": psingle.symbol,
             }
-            assert expected_spec == psingle.spec()
+            assert expected_spec == psingle.spec(extra_spec=["symbol"])
 
 
 class TestPotcar(PymatgenTest):

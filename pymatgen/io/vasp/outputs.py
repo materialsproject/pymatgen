@@ -5333,6 +5333,8 @@ class Vaspout(Vasprun):
         if parse_eigen:
             self.eigenvalues = self._parse_eigen(data["results"]["electron_eigenvalues"])
 
+        self.projected_eigenvalues = None
+        self.projected_magnetisation = None
         if parse_projected_eigen:
             # TODO: are these contained in vaspout.h5?
             self.projected_eigenvalues = None
@@ -5423,14 +5425,27 @@ class Vaspout(Vasprun):
         self.initial_structure = self._parse_structure(input_data["poscar"])
         self.atomic_symbols = self._parse_atominfo(self.initial_structure.composition)
 
-        calc_potcar = Potcar.from_str(input_data["potcar"]["content"])
-        self.potcar = calc_potcar if self.store_potcar else None
-        self.potcar_symbols = [potcar.symbol for potcar in calc_potcar]
+        self.potcar = None
+        self.potcar_symbols = []
+        self.potcar_spec = []
+        if input_data["potcar"].get("content"):
+            # Unmodified vaspout.h5 with full POTCAR
+            calc_potcar = Potcar.from_str(input_data["potcar"]["content"])
+            self.potcar = calc_potcar if self.store_potcar else None
+            # The `potcar_symbols` attr is extraordinarily confusingly 
+            # named, these are really TITELs
+            self.potcar_symbols = [potcar.TITEL for potcar in calc_potcar]
 
-        # For parity with vasprun.xml, we do not store the POTCAR symbols in
-        # the vaspout.h5 POTCAR spec. These are derived from the TITEL fields
-        # and are thus redundant.
-        self.potcar_spec = calc_potcar.spec(extra_spec=[])
+            # For parity with vasprun.xml, we do not store the POTCAR symbols in
+            # the vaspout.h5 POTCAR spec. These are derived from the TITEL fields
+            # and are thus redundant.
+            self.potcar_spec = [p.spec(extra_spec=[]) for p in calc_potcar]
+
+        elif input_data["potcar"].get("spec"):
+            # modified vaspout.h5 with only POTCAR spec
+            import json
+            self.potcar_spec = json.loads(input_data["potcar"]["spec"])
+            self.potcar_symbols = [spec["titel"] for spec in self.potcar_spec]                
 
         # TODO: do we want POSCAR stored?
         self.poscar = Poscar(
@@ -5472,6 +5487,9 @@ class Vaspout(Vasprun):
                     coords=ion_dynamics["position_ions"][istep],
                     coords_are_cartesian=False,  # TODO check this is always False
                 ),
+                # Placeholder - there's currently no info about electronic steps
+                # in vaspout.h5
+                "electronic_steps": [] 
             }
             self.ionic_steps += [step]
 
@@ -5520,7 +5538,11 @@ class Vaspout(Vasprun):
         """Final energy from vaspout."""
         return self.ionic_steps[-1]["e_0_energy"]
 
-    def remove_potcar_and_write_file(self, filename: str | None = None) -> None:
+    def remove_potcar_and_write_file(
+        self,
+        filename: str | None = None,
+        fake_potcar_str : str | None = None
+    ) -> None:
         """
         Utility function to replace the full POTCAR with its spec, and write a vaspout.h5.
 
@@ -5531,34 +5553,66 @@ class Vaspout(Vasprun):
         Args:
             filename : str or None (default)
                 Name of the output file. If None, defaults to self.filename (in-place modification).
+            fake_potcar_str : str or None (default)
+                If a str, a POTCAR represented as a str. Used in the context of tests to replace
+                a POTCAR with a scrambled/fake POTCAR. If None, the Vaspout.potcar Field
+                ("/input/potcar/content" field of vaspout.h5) is removed.
         """
-        from shutil import copyfile
+        import json
 
         def recursive_as_dict(obj):
             if hasattr(obj, "items"):
                 return {k: recursive_as_dict(v) for k, v in obj.items()}
             return self._parse_hdf5_value(obj)
 
-        def recursive_to_dataset(h5_obj, obj):
-            if hasattr(obj, "items"):
-                for k, v in obj.items():
-                    h5_obj.create_group(k)
-                    recursive_to_dataset(h5_obj[k], v)
+        def recursive_to_dataset(h5_obj, level, obj):
 
-            data = np.array(obj)
-            if "U" in str(data.dtype):
-                data = data.astype(f"S{len(obj)}")
-            h5_obj = data
+            if hasattr(obj, "items"):
+                if level != "/":
+                    h5_obj.create_group(level)
+                for k, v in obj.items():
+                    recursive_to_dataset(h5_obj[level], k, v)
+            else:
+                if isinstance(obj,str):
+                    obj = obj.encode()
+                data = np.array(obj)
+                if "U" in str(data.dtype):
+                    data = data.astype("S")
+                h5_obj.create_dataset(level, data=data)
 
         filename = filename or self.filename
+        fname_prefix, fname_ext = os.path.splitext(filename)
 
-        if filename != self.filename:
-            # For non-in-place modifications, first copy the file over
-            copyfile(self.filename, filename)
+        # determine if output file is to be compressed
+        fname_ext = fname_ext.upper()
+        compressor = None
+        if fname_ext == ".BZ2":
+            compressor = "bzip"
+        elif fname_ext in (".GZ", ".Z"):
+            compressor = "gzip"
+        elif fname_ext in (".XZ", ".LZMA"):
+            compressor = "lzma"
 
-        with zopen(filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
+        with zopen(self.filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
             hdf5_data = recursive_as_dict(h5_file)
-        hdf5_data["input"]["potcar"]["content"] = self.potcar_spec
 
-        with zopen(filename, "wb") as vout_file, h5py.File(vout_file, "w") as h5_file:
-            recursive_to_dataset(h5_file, hdf5_data)
+        if fake_potcar_str:
+            hdf5_data["input"]["potcar"]["content"] = fake_potcar_str
+            potcar_spec = [psingle.spec() for psingle in Potcar.from_str(fake_potcar_str)]
+        else:
+            del hdf5_data["input"]["potcar"]["content"]
+            potcar_spec = self.potcar_spec
+
+        # rather than define custom HDF5 hierarchy for POTCAR spec, just dump JSONable dict to str
+        hdf5_data["input"]["potcar"]["spec"] = json.dumps(potcar_spec)
+
+        # if file is to be compressed, first write uncompressed file
+        with h5py.File(fname_prefix if compressor else filename, "w") as h5_file:
+            recursive_to_dataset(h5_file, "/", hdf5_data)
+        
+        # now compress the file
+        if compressor:
+            if os.path.isfile(filename):
+                warnings.warn(f"File {filename} already exists, skipping compression.")
+            else:
+                os.system(f"{compressor} {fname_prefix}")

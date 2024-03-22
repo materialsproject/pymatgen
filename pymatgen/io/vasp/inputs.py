@@ -2399,12 +2399,12 @@ class PotcarSingle:
         Args:
             extra_spec : Sequence[str] or None (default)
                 A list of extra POTCAR fields to include in the spec.
-                If None, defaults to ["symbol"] (needed for compatibility with LOBSTER).
+                If None, defaults to no extra spec.
         Returns:
             dict of POTCAR spec
         """
         if extra_spec is None:
-            extra_spec = ["symbol"]
+            extra_spec = []
         spec = {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
         for attr in extra_spec:
             if hasattr(self, attr):
@@ -2597,7 +2597,8 @@ class Potcar(list, MSONable):
     def symbols(self, symbols):
         self.set_symbols(symbols, functional=self.functional)
 
-    def spec(self, extra_spec: Sequence[str] | None = None) -> list[dict]:
+    @property
+    def spec(self) -> list[dict]:
         """
         POTCAR spec for all POTCARs in this instance.
 
@@ -2609,7 +2610,7 @@ class Potcar(list, MSONable):
         Return:
             list[dict], a list of PotcarSingle.spec dicts
         """
-        return [psingle.spec(extra_spec=extra_spec) for psingle in self]
+        return [psingle.spec(extra_spec=["symbol"]) for psingle in self]
 
     def write_potcar_spec(self, filename: str = "POTCAR.spec.json.gz") -> None:
         """

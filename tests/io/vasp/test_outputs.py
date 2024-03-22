@@ -36,6 +36,7 @@ from pymatgen.io.vasp.outputs import (
     UnconvergedVASPWarning,
     VaspParseError,
     Vasprun,
+    Vaspout,
     Wavecar,
     Waveder,
     Xdatcar,
@@ -2029,3 +2030,67 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
+
+class TestVasprun(PymatgenTest):
+
+    def setUp(self):
+        self.vaspout = Vaspout(
+            f"{VASP_OUT_DIR}/vaspout.line_mode_band_structure.h5.gz"
+        )
+    
+    def test_parse(self):
+        from pymatgen.io.vasp.inputs import Incar
+
+        assert self.vaspout.final_energy == approx(-8.953035077096956)
+        assert self.vaspout.kpoints.num_kpts == 163
+        assert all(not attr for attr in [self.vaspout.is_spin, self.vaspout.is_hubbard])
+
+        input_docs = [
+            (self.vaspout.incar, Incar),
+            (self.vaspout.kpoints, Kpoints),
+            (self.vaspout.potcar, Potcar)
+        ]
+        assert all(isinstance(*doc) for doc in input_docs)
+        
+        assert len(self.vaspout.ionic_steps) == 1
+
+        # double check that these POTCARs have been scrambled
+        assert all("FAKE" in psingle.data for psingle in self.vaspout.potcar)
+
+    def test_as_dict(self):
+
+        vout_dict = self.vaspout.as_dict()
+        assert isinstance(vout_dict,dict)
+        assert all(
+            key in vout_dict for key in [
+                "vasp_version", 
+                "has_vasp_completed",
+                "nsites",
+                "unit_cell_formula",
+                "reduced_cell_formula",
+                "pretty_formula",
+                "is_hubbard",
+                "hubbards",
+                "elements",
+                "nelements",
+                "run_type",
+                "input",
+                "output"
+            ]
+        )
+    
+    def test_remove_potcar(self):
+
+        new_vaspout_file = f"{self.tmp_path}/vaspout.h5.gz"
+        self.vaspout.remove_potcar_and_write_file(
+            filename = new_vaspout_file
+        )
+        cleansed_vout = Vaspout(new_vaspout_file)
+
+        cleansed_vout_d = cleansed_vout.as_dict()
+        assert all(
+            cleansed_vout_d[k] == v
+            for k, v in self.vaspout.as_dict().items()
+            if k != "potcar"
+        )
+        assert cleansed_vout.potcar is None
