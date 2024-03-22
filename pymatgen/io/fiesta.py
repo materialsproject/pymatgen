@@ -415,7 +415,7 @@ class FiestaInput(MSONable):
         Returns:
             set the do_tddft variable to one in cell.in
         """
-        self.bse_tddft_options.update(do_bse=0, do_tddft=1 if tddft_dump else 0)
+        self.bse_tddft_options.update(do_bse="0", do_tddft="1" if tddft_dump else "0")
 
     @property
     def infos_on_system(self):
