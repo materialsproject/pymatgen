@@ -25,6 +25,7 @@ from pymatgen.core import __version__
 if TYPE_CHECKING:
     from invoke import Context
 
+
 @task
 def make_doc(ctx: Context) -> None:
     """
@@ -156,7 +157,7 @@ def post_discourse(version: str) -> None:
 
 
 @task
-def update_changelog(ctx: Context, version: str | None=None, dry_run: bool=False) -> None:
+def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = False) -> None:
     """
     Create a preliminary change log using the git logs.
 
@@ -203,7 +204,7 @@ def update_changelog(ctx: Context, version: str | None=None, dry_run: bool=False
 
 
 @task
-def release(ctx: Context, version: str| None=None, nodoc: bool=False) -> None:
+def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> None:
     """
     Run full sequence for releasing pymatgen.
 
