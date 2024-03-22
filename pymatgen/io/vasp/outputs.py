@@ -5539,7 +5539,9 @@ class Vaspout(Vasprun):
         """Final energy from vaspout."""
         return self.ionic_steps[-1]["e_0_energy"]
 
-    def remove_potcar_and_write_file(self, filename: str | None = None, fake_potcar_str: str | None = None) -> None:
+    def remove_potcar_and_write_file(
+        self, filename: str | Path | None = None, fake_potcar_str: str | None = None
+    ) -> None:
         """
         Utility function to replace the full POTCAR with its spec, and write a vaspout.h5.
 
@@ -5548,7 +5550,7 @@ class Vaspout(Vasprun):
         to replace it here with just the spec.
 
         Args:
-            filename : str or None (default)
+            filename : str, Path, or None (default)
                 Name of the output file. If None, defaults to self.filename (in-place modification).
             fake_potcar_str : str or None (default)
                 If a str, a POTCAR represented as a str. Used in the context of tests to replace
@@ -5577,10 +5579,10 @@ class Vaspout(Vasprun):
                 h5_obj.create_dataset(level, data=data)
 
         filename = filename or self.filename
-        fname_prefix, fname_ext = os.path.splitext(filename)
+        fname_prefix, fname_ext = os.path.splitext(filename)  # type: ignore[type-var]
 
         # determine if output file is to be compressed
-        fname_ext = fname_ext.upper()
+        fname_ext = fname_ext.upper()  # type: ignore[union-attr]
         compressor = None
         if fname_ext == ".BZ2":
             compressor = "bzip"
@@ -5608,7 +5610,7 @@ class Vaspout(Vasprun):
 
         # now compress the file
         if compressor:
-            if os.path.isfile(filename):
+            if os.path.isfile(filename):  # type: ignore[arg-type]
                 warnings.warn(f"File {filename} already exists, skipping compression.")
             else:
                 os.system(f"{compressor} {fname_prefix}")
