@@ -13,7 +13,7 @@ class SpectrumPlotter:
     """
     Class for plotting Spectrum objects and subclasses. Note that the interface
     is extremely flexible given that there are many different ways in which
-    people want to view spectra. The typical usage is::
+    people want to view spectra. The typical usage is:
 
         # Initializes plotter with some optional args. Defaults are usually
         # fine,

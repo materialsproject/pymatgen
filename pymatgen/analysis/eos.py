@@ -522,7 +522,7 @@ class EOS:
 
     Fit equation of state for bulk systems.
 
-    The following equations are supported::
+    The following equations are supported:
 
         murnaghan: PRB 28, 5480 (1983)
 
@@ -539,7 +539,7 @@ class EOS:
 
         numerical_eos: 10.1103/PhysRevB.90.174107.
 
-    Usage::
+    Usage:
 
        eos = EOS(eos_name='murnaghan')
        eos_fit = eos.fit(volumes, energies)

@@ -294,7 +294,7 @@ class LammpsData(MSONable):
         Exports a periodic structure object representing the simulation
         box.
 
-        Return:
+        Returns:
             Structure
         """
         masses = self.masses
@@ -1330,7 +1330,7 @@ class CombinedData(LammpsData):
         Exports a periodic structure object representing the simulation
         box.
 
-        Return:
+        Returns:
             Structure
         """
         ld_cp = self.as_lammpsdata()

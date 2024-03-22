@@ -60,7 +60,8 @@ class Mcsqs:
         Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen's
         Structure format.
 
-        :param data: contents of a rndstr.in, lat.in or bestsqs.out file
+        Args:
+            data: contents of a rndstr.in, lat.in or bestsqs.out file
 
         Returns:
             Structure object

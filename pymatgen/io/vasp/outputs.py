@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from glob import glob
 from io import StringIO
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.io import reverse_readfile, zopen
@@ -43,6 +43,9 @@ from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 def _parse_parameters(val_type, val):
@@ -1162,7 +1165,8 @@ class Vasprun(MSONable):
         """
         Sets the charge of a structure based on the POTCARs found.
 
-        :param path: Path to search for POTCARs
+        Args:
+            path: Path to search for POTCARs
         """
         potcar = self.get_potcars(path)
 
@@ -3661,7 +3665,7 @@ class Chgcar(VolumetricData):
         self._distance_matrix = {}
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str) -> Self:
         """Read a CHGCAR file.
 
         Args:
@@ -3713,11 +3717,12 @@ class Elfcar(VolumetricData):
         self.data = data
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str) -> Self:
         """
         Reads a ELFCAR file.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             Elfcar
@@ -5023,7 +5028,7 @@ class Waveder(MSONable):
     cder_imag: np.ndarray
 
     @classmethod
-    def from_formatted(cls, filename):
+    def from_formatted(cls, filename: str) -> Self:
         """Reads the WAVEDERF file and returns a Waveder object.
 
         Note: This file is only produced when LOPTICS is true AND vasp has been
@@ -5053,7 +5058,7 @@ class Waveder(MSONable):
         return cls(cder_real, cder_imag)
 
     @classmethod
-    def from_binary(cls, filename, data_type="complex64"):
+    def from_binary(cls, filename: str, data_type: str = "complex64") -> Self:
         """Read the WAVEDER file and returns a Waveder object.
 
         Args:
@@ -5173,7 +5178,7 @@ class WSWQ(MSONable):
         return self.me_real + 1j * self.me_imag
 
     @classmethod
-    def from_file(cls, filename: str) -> WSWQ:
+    def from_file(cls, filename: str) -> Self:
         """Constructs a WSWQ object from a file.
 
         Args:

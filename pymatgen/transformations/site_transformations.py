@@ -49,12 +49,12 @@ class InsertSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites inserted.
+        Returns:
+            A copy of structure with sites inserted.
         """
         struct = structure.copy()
         for idx, sp in enumerate(self.species):
@@ -99,12 +99,12 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites replaced.
+        Returns:
+            A copy of structure with sites replaced.
         """
         struct = structure.copy()
         for i, sp in self.indices_species_map.items():
@@ -140,12 +140,12 @@ class RemoveSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites removed.
+        Returns:
+            A copy of structure with sites removed.
         """
         struct = structure.copy()
         struct.remove_sites(self.indices_to_remove)
@@ -187,12 +187,12 @@ class TranslateSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites translated.
+        Returns:
+            A copy of structure with sites translated.
         """
         struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
@@ -509,12 +509,12 @@ class AddSitePropertyTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites properties added.
+        Returns:
+            A copy of structure with sites properties added.
         """
         new_struct = structure.copy()
         for prop in self.site_properties:

@@ -135,7 +135,8 @@ class ExcitingInput(MSONable):
     @classmethod
     def from_file(cls, filename):
         """
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             ExcitingInput
@@ -325,8 +326,9 @@ class ExcitingInput(MSONable):
         """
         Helper method to indent elements.
 
-        :param elem:
-        :param level:
+        Args:
+            elem:
+            level:
         """
         i = "\n" + level * "  "
         if len(elem):

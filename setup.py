@@ -60,6 +60,7 @@ setup(
             "pytest-split",
             "pytest",
             "ruff",
+            "typing-extensions",
         ],
         "docs": [
             "sphinx",
