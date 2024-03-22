@@ -24,6 +24,7 @@ import os
 import re
 import warnings
 from string import Template
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -32,6 +33,9 @@ from monty.json import MSONable
 from pymatgen.analysis.excitation import ExcitationSpectrum
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 NWCHEM_BASIS_LIBRARY = None
 if os.getenv("NWCHEM_BASIS_LIBRARY"):
@@ -197,24 +201,24 @@ $theory_spec
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             NwTask
         """
         return NwTask(
-            charge=d["charge"],
-            spin_multiplicity=d["spin_multiplicity"],
-            title=d["title"],
-            theory=d["theory"],
-            operation=d["operation"],
-            basis_set=d["basis_set"],
-            basis_set_option=d["basis_set_option"],
-            theory_directives=d["theory_directives"],
-            alternate_directives=d["alternate_directives"],
+            charge=dct["charge"],
+            spin_multiplicity=dct["spin_multiplicity"],
+            title=dct["title"],
+            theory=dct["theory"],
+            operation=dct["operation"],
+            basis_set=dct["basis_set"],
+            basis_set_option=dct["basis_set_option"],
+            theory_directives=dct["theory_directives"],
+            alternate_directives=dct["alternate_directives"],
         )
 
     @classmethod
@@ -399,21 +403,21 @@ class NwInput(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             NwInput
         """
         return NwInput(
-            Molecule.from_dict(d["mol"]),
-            tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
-            directives=[tuple(li) for li in d["directives"]],
-            geometry_options=d["geometry_options"],
-            symmetry_options=d["symmetry_options"],
-            memory_options=d["memory_options"],
+            Molecule.from_dict(dct["mol"]),
+            tasks=[NwTask.from_dict(dt) for dt in dct["tasks"]],
+            directives=[tuple(li) for li in dct["directives"]],
+            geometry_options=dct["geometry_options"],
+            symmetry_options=dct["symmetry_options"],
+            memory_options=dct["memory_options"],
         )
 
     @classmethod

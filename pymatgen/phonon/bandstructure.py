@@ -633,7 +633,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     def from_dict(cls, dct: dict) -> PhononBandStructureSymmLine:
         """
         Args:
-            dct: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             PhononBandStructureSymmLine

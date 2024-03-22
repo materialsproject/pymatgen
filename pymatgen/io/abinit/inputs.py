@@ -14,6 +14,7 @@ import os
 from collections import namedtuple
 from collections.abc import Mapping, MutableMapping, Sequence
 from enum import Enum, unique
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
@@ -24,6 +25,9 @@ from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 logger = logging.getLogger(__file__)
 
@@ -787,10 +791,10 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self._vars
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """JSON interface used in pymatgen for easier serialization."""
-        pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
-        return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
+        pseudos = [Pseudo.from_file(p["filepath"]) for p in dct["pseudos"]]
+        return cls(dct["structure"], pseudos, comment=dct["comment"], abi_args=dct["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
         """

@@ -82,13 +82,13 @@ class DistanceCutoffFloat(float, StrategyOption):
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """Initialize distance cutoff from dict.
 
         Args:
-            d: Dict representation of the distance cutoff.
+            dct (dict): Dict representation of the distance cutoff.
         """
-        return cls(d["value"])
+        return cls(dct["value"])
 
 
 class AngleCutoffFloat(float, StrategyOption):
@@ -116,13 +116,13 @@ class AngleCutoffFloat(float, StrategyOption):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Initialize angle cutoff from dict.
 
         Args:
-            d: Dict representation of the angle cutoff.
+            dct (dict): Dict representation of the angle cutoff.
         """
-        return cls(d["value"])
+        return cls(dct["value"])
 
 
 class CSMFloat(float, StrategyOption):
@@ -154,7 +154,7 @@ class CSMFloat(float, StrategyOption):
         """Initialize CSM from dict.
 
         Args:
-            d: Dict representation of the CSM.
+           dct (dict): Dict representation of the CSM.
         """
         return cls(dct["value"])
 
@@ -188,7 +188,7 @@ class AdditionalConditionInt(int, StrategyOption):
         """Initialize additional condition from dict.
 
         Args:
-            d: Dict representation of the additional condition.
+           dct (dict): Dict representation of the additional condition.
         """
         return cls(dct["value"])
 
@@ -1350,7 +1350,7 @@ class AngleNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Construct AngleNbSetWeight from dict representation."""
         return cls(aa=dct["aa"])
 
@@ -1418,7 +1418,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of NormalizedAngleDistanceNbSetWeight.
+            dct (dict): Dict representation of NormalizedAngleDistanceNbSetWeight.
 
         Returns:
             NormalizedAngleDistanceNbSetWeight.
@@ -1722,7 +1722,7 @@ class SelfCSMNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of SelfCSMNbSetWeight.
+            dct (dict): Dict representation of SelfCSMNbSetWeight.
 
         Returns:
             SelfCSMNbSetWeight.
@@ -1960,7 +1960,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of DeltaCSMNbSetWeight.
+            dct (dict): Dict representation of DeltaCSMNbSetWeight.
 
         Returns:
             DeltaCSMNbSetWeight.
@@ -2026,7 +2026,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of CNBiasNbSetWeight.
+            dct (dict): Dict representation of CNBiasNbSetWeight.
 
         Returns:
             CNBiasNbSetWeight.
@@ -2096,7 +2096,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         """Initialize weights from description.
 
         Args:
-            dct: Dictionary description.
+            dct (dict): Dictionary description.
 
         Returns:
             CNBiasNbSetWeight.
@@ -2334,7 +2334,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of DistanceAngleAreaNbSetWeight.
+            dct (dict): Dict representation of DistanceAngleAreaNbSetWeight.
 
         Returns:
             DistanceAngleAreaNbSetWeight.
@@ -2404,7 +2404,7 @@ class DistancePlateauNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of DistancePlateauNbSetWeight.
+            dct (dict): Dict representation of DistancePlateauNbSetWeight.
 
         Returns:
             DistancePlateauNbSetWeight.
@@ -2471,7 +2471,7 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of AnglePlateauNbSetWeight.
+            dct (dict): Dict representation of AnglePlateauNbSetWeight.
 
         Returns:
             AnglePlateauNbSetWeight.
@@ -2552,7 +2552,7 @@ class DistanceNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of DistanceNbSetWeight.
+            dct (dict): Dict representation of DistanceNbSetWeight.
 
         Returns:
             DistanceNbSetWeight.
@@ -2636,7 +2636,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         Args:
-            dct: Dict representation of DeltaDistanceNbSetWeight.
+            dct (dict): Dict representation of DeltaDistanceNbSetWeight.
 
         Returns:
             DeltaDistanceNbSetWeight.

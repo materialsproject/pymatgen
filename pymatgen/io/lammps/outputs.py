@@ -74,7 +74,7 @@ class LammpsDump(MSONable):
     def from_dict(cls, dct: dict) -> LammpsDump:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             LammpsDump

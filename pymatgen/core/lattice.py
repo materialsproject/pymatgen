@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
 
@@ -362,7 +363,7 @@ class Lattice(MSONable):
         return Lattice([vector_a, vector_b, vector_c], pbc)
 
     @classmethod
-    def from_dict(cls, dct: dict, fmt: str | None = None, **kwargs):
+    def from_dict(cls, dct: dict, fmt: str | None = None, **kwargs) -> Self:
         """Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
 

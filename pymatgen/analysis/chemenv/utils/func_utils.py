@@ -106,7 +106,7 @@ class AbstractRatioFunction:
         """Construct ratio function from dict.
 
         Args:
-            dct: Dict representation of the ratio function
+            dct (dict): Dict representation of the ratio function
         """
         return cls(function=dct["function"], options_dict=dct["options"])
 

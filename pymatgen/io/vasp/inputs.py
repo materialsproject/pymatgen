@@ -19,7 +19,7 @@ from collections import namedtuple
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 import scipy.constants as const
@@ -610,7 +610,7 @@ class Poscar(MSONable):
     def from_dict(cls, dct: dict) -> Poscar:
         """
         Args:
-            dct: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Poscar
@@ -1546,31 +1546,31 @@ class Kpoints(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Kpoints
         """
-        comment = d.get("comment", "")
-        generation_style = d.get("generation_style")
-        kpts = d.get("kpoints", [[1, 1, 1]])
-        kpts_shift = d.get("usershift", [0, 0, 0])
-        num_kpts = d.get("nkpoints", 0)
+        comment = dct.get("comment", "")
+        generation_style = cast(KpointsSupportedModes, dct.get("generation_style"))
+        kpts = dct.get("kpoints", [[1, 1, 1]])
+        kpts_shift = dct.get("usershift", [0, 0, 0])
+        num_kpts = dct.get("nkpoints", 0)
         return cls(
             comment=comment,
             kpts=kpts,
             style=generation_style,
             kpts_shift=kpts_shift,
             num_kpts=num_kpts,
-            kpts_weights=d.get("kpts_weights"),
-            coord_type=d.get("coord_type"),
-            labels=d.get("labels"),
-            tet_number=d.get("tet_number", 0),
-            tet_weight=d.get("tet_weight", 0),
-            tet_connections=d.get("tet_connections"),
+            kpts_weights=dct.get("kpts_weights"),
+            coord_type=dct.get("coord_type"),
+            labels=dct.get("labels"),
+            tet_number=dct.get("tet_number", 0),
+            tet_weight=dct.get("tet_weight", 0),
+            tet_connections=dct.get("tet_connections"),
         )
 
 
@@ -2486,15 +2486,15 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d) -> Self:
+    def from_dict(cls, dct) -> Self:
         """
         Args:
-            d: Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Potcar
         """
-        return Potcar(symbols=d["symbols"], functional=d["functional"])
+        return Potcar(symbols=dct["symbols"], functional=dct["functional"])
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
@@ -2582,7 +2582,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(
         self,
-        incar: Incar,
+        incar: dict | Incar,
         kpoints: Kpoints | None,
         poscar: Poscar,
         potcar: Potcar | None,
@@ -2621,22 +2621,21 @@ class VaspInput(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             VaspInput
         """
-        dec = MontyDecoder()
         sub_dct: dict[str, dict] = {"optional_files": {}}
         for key, val in dct.items():
             if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
-                sub_dct[key.lower()] = dec.process_decoded(val)
+                sub_dct[key.lower()] = MontyDecoder().process_decoded(val)
             elif key not in ["@module", "@class"]:
-                sub_dct["optional_files"][key] = dec.process_decoded(val)
-        return cls(**sub_dct)
+                sub_dct["optional_files"][key] = MontyDecoder().process_decoded(val)
+        return cls(**sub_dct)  # type: ignore[arg-type]
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """

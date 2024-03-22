@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 import sys
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MSONable
@@ -27,6 +27,9 @@ from pymatgen.io.lobster import Cohpcar
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -543,7 +546,7 @@ class CompleteCohp(Cohp):
         )
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns CompleteCohp object from dict representation."""
         # TODO: clean that mess up?
         cohp_dict = {}
@@ -584,7 +587,7 @@ class CompleteCohp(Cohp):
                 cohp_dict[label] = Cohp(efermi, energies, cohp, icohp=icohp)
 
         if "orb_res_cohp" in dct:
-            orb_cohp = {}
+            orb_cohp: dict[str, dict] = {}
             for label in dct["orb_res_cohp"]:
                 orb_cohp[label] = {}
                 for orb in dct["orb_res_cohp"][label]:
@@ -607,7 +610,7 @@ class CompleteCohp(Cohp):
                     }
                 # If no total COHPs are present, calculate the total
                 # COHPs from the single-orbital populations. Total COHPs
-                # may not be present when the cohpgenerator keyword is used
+                # may not be present when the COHP generator keyword is used
                 # in LOBSTER versions 2.2.0 and earlier.
                 if label not in dct["COHP"] or dct["COHP"][label] is None:
                     cohp = {
@@ -640,7 +643,7 @@ class CompleteCohp(Cohp):
                     except KeyError:
                         pass
         else:
-            orb_cohp = None
+            orb_cohp = {}
 
         are_cobis = dct.get("are_cobis", False)
 

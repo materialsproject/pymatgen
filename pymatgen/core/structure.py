@@ -56,6 +56,7 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
@@ -2691,7 +2692,7 @@ class IStructure(SiteCollection, MSONable):
         return df
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Structure:
+    def from_dict(cls, dct: dict[str, Any], fmt: Literal["abivars"] | None = None) -> Self:
         """Reconstitute a Structure object from a dict representation of Structure
         created using as_dict().
 
