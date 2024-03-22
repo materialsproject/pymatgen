@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections import namedtuple
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Callable
 
 import matplotlib.pyplot as plt
@@ -18,7 +19,6 @@ from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from os import PathLike
     from typing import Any, Literal
 
@@ -619,7 +619,7 @@ class PhononBSPlotter:
 
     def plot_compare(
         self,
-        other_plotter: PhononBSPlotter,
+        other_plotter: PhononBSPlotter | Sequence[PhononBSPlotter],
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         labels: tuple[str, str] | None = None,
         legend_kwargs: dict | None = None,
@@ -633,8 +633,8 @@ class PhononBSPlotter:
         initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter (PhononBSPlotter): another PhononBSPlotter object defined along the
-                same symmetry lines
+            other_plotter (PhononBSPlotter | Sequence[PhononBSPlotter]): another PhononBSPlotter object or Sequence of
+                PhononBSPPLotters defined along the same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
             labels (tuple[str, str] | None): labels for the two band structures. Defaults to None,
@@ -654,36 +654,51 @@ class PhononBSPlotter:
         legend_kwargs = legend_kwargs or {}
         other_kwargs = other_kwargs or {}
         legend_kwargs.setdefault("fontsize", 20)
+        colors = ("red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
 
         self_data = self.bs_plot_data()
-        other_data = other_plotter.bs_plot_data()
-
-        if len(self_data["distances"]) != len(other_data["distances"]):
-            if on_incompatible == "raise":
-                raise ValueError("The two band structures are not compatible.")
-            if on_incompatible == "warn":
-                logger.warning("The two band structures are not compatible.")
-            return None  # ignore/warn
+        if isinstance(other_plotter, PhononBSPlotter):
+            other_plotter = [other_plotter]
+        assert isinstance(other_plotter, Sequence)
+        assert all(isinstance(p, PhononBSPlotter) for p in other_plotter)
 
         line_width = kwargs.setdefault("linewidth", 1)
-
         ax = self.get_plot(units=units, **kwargs)
 
-        kwargs.setdefault("color", "red")  # don't move this line up! it would mess up self.get_plot color
+        colors_other = []
 
-        for band_idx in range(other_plotter.n_bands):
-            for dist_idx, dists in enumerate(self_data["distances"]):
-                xs = dists
-                ys = [other_data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
-                ax.plot(xs, ys, **(kwargs | other_kwargs))
+        for idx, plotter in enumerate(other_plotter):
+            other_data = plotter.bs_plot_data()
+
+            if len(self_data["distances"]) != len(other_data["distances"]):
+                if on_incompatible == "raise":
+                    raise ValueError("The two band structures are not compatible.")
+                if on_incompatible == "warn":
+                    logger.warning("The two band structures are not compatible.")
+                return None  # ignore/warn
+
+            color = colors[idx % len(colors)]
+            _kwargs = kwargs.copy()  # Don't set the color in kwargs, or every band will be red
+            colors_other.append(
+                _kwargs.setdefault("color", color)
+            )  # don't move this line up! it would mess up self.get_plot color
+
+            for band_idx in range(plotter.n_bands):
+                for dist_idx, dists in enumerate(self_data["distances"]):
+                    xs = dists
+                    ys = [other_data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
+                    ax.plot(xs, ys, **(_kwargs | other_kwargs))
 
         # add legend showing which color corresponds to which band structure
-        if labels or (self._label and other_plotter._label):
-            color_self, color_other = ax.lines[0].get_color(), ax.lines[-1].get_color()
-            label_self, label_other = labels or (self._label, other_plotter._label)
+        other_labels = [plotter._label for plotter in other_plotter]
+        if labels or (self._label and other_labels):
+            color_self = ax.lines[0].get_color()
+            label_self = labels[0] if labels else self._label
+            labels_other = labels[1:] if labels else other_labels
             ax.plot([], [], label=label_self, linewidth=2 * line_width, color=color_self)
             linestyle = other_kwargs.get("linestyle", "-")
-            ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
+            for color_other, label_other in zip(colors_other, labels_other):
+                ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 
         return ax
