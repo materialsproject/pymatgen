@@ -7,7 +7,7 @@ from __future__ import annotations
 import abc
 from collections import namedtuple
 from collections.abc import Iterable
-from enum import Enum
+from enum import Enum, unique
 from pprint import pformat
 from typing import cast
 
@@ -636,6 +636,7 @@ class Electrons(AbivarAble, MSONable):
         return abivars
 
 
+@unique
 class KSamplingModes(Enum):
     """Enum if the different samplings of the BZ."""
 
@@ -1132,6 +1133,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         return cls(**d)
 
 
+@unique
 class PPModelModes(Enum):
     """Different kind of plasmon-pole models."""
 

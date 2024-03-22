@@ -8,7 +8,7 @@ import json
 import re
 import warnings
 from collections import Counter
-from enum import Enum
+from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Literal
@@ -30,6 +30,7 @@ _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
 @functools.total_ordering
+@unique
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed.
 

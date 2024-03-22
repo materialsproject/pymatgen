@@ -16,7 +16,7 @@ import re
 import subprocess
 import warnings
 from collections import namedtuple
-from enum import Enum
+from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
 from typing import TYPE_CHECKING, Any, Literal
@@ -991,6 +991,7 @@ class BadIncarWarning(UserWarning):
     """Warning class for bad INCAR parameters."""
 
 
+@unique
 class KpointsSupportedModes(Enum):
     """Enum type of all supported modes for Kpoint generation."""
 

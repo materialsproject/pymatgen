@@ -42,7 +42,7 @@ import logging
 import os
 import subprocess
 import warnings
-from enum import Enum
+from enum import Enum, unique
 from glob import glob
 from shutil import which
 from typing import TYPE_CHECKING
@@ -311,6 +311,7 @@ class Critic2Caller:
         return cls.from_chgcar(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 
 
+@unique
 class CriticalPointType(Enum):
     """Enum type for the different varieties of critical point."""
 

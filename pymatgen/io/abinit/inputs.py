@@ -13,7 +13,7 @@ import logging
 import os
 from collections import namedtuple
 from collections.abc import Mapping, MutableMapping, Sequence
-from enum import Enum
+from enum import Enum, unique
 
 import numpy as np
 from monty.collections import AttrDict
@@ -124,6 +124,7 @@ def as_structure(obj):
     raise TypeError(f"Don't know how to convert {type(obj)} into a structure")
 
 
+@unique
 class ShiftMode(Enum):
     """
     Class defining the mode to be used for the shifts.
