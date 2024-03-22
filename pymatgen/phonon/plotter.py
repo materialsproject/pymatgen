@@ -285,7 +285,7 @@ class PhononBSPlotter:
         Args:
             bs: A PhononBandStructureSymmLine object.
             label: A label for the plot. Defaults to None for no label. Esp. useful with
-                the plot_compare method to distinguish the two band structures.
+                the plot_compare method to distinguish the band structures.
         """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
@@ -627,8 +627,8 @@ class PhononBSPlotter:
         other_kwargs: dict | None = None,
         **kwargs,
     ) -> Axes:
-        """Plot two band structure for comparison. self in blue, other in red.
-        The two band structures need to be defined on the same symmetry lines!
+        """Plot two band structure for comparison. self in blue, others in red, green, ...
+        The band structures need to be defined on the same symmetry lines!
         The distance between symmetry lines is determined by the band structure used to
         initialize PhononBSPlotter (self).
 
@@ -637,12 +637,12 @@ class PhononBSPlotter:
                 PhononBSPPLotters defined along the same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
-            labels (tuple[str, str] | None): labels for the two band structures. Defaults to None,
-                which will use the label of the two PhononBSPlotter objects if present.
+            labels (tuple[str, str] | None): labels for the band structures. Defaults to None,
+                which will use the labels of the PhononBSPlotter objects if present.
                 Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
                 on which plot_compare() is called must come first.
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
-            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures
+            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the band structures
                 are not compatible. Defaults to 'raise'.
             other_kwargs: dict[str, Any]: kwargs passed to other_plotter ax.plot().
             **kwargs: passed to ax.plot().
