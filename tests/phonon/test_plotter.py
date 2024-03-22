@@ -94,6 +94,11 @@ class TestPhononBSPlotter(unittest.TestCase):
         assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
         assert ax.get_title() == ""
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
+        labels = ("NaCl", "NaCl 2", "NaCl 3")
+        ax = self.plotter.plot_compare([self.plotter, self.plotter], units="mev", labels=labels)
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
+        colors = tuple([itm.get_color() for itm in ax.get_legend().get_lines()])
+        assert colors == ("blue", "red", "green")
 
 
 class TestThermoPlotter(unittest.TestCase):
