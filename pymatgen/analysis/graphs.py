@@ -759,6 +759,7 @@ class StructureGraph(MSONable):
             site_d["abc"] = np.add(site_d["abc"], to_jimage).tolist()
             site = PeriodicSite.from_dict(site_d)
 
+            # from_site if jimage arg != (0, 0, 0)
             relative_jimage = np.subtract(to_jimage, jimage)
             u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
