@@ -14,15 +14,13 @@ import os
 import re
 import subprocess
 import webbrowser
+from typing import TYPE_CHECKING
 
 import requests
 from invoke import task
 from monty.os import cd
 
-from typing import TYPE_CHECKING
-
 from pymatgen.core import __version__
-
 
 if TYPE_CHECKING:
     from invoke import Context
