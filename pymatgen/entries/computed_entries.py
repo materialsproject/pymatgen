@@ -488,8 +488,8 @@ class ComputedEntry(Entry):
                 dct["composition"],
                 dct["energy"],
                 dct["correction"],
-                parameters={k: MontyDecoder.process_decoded(v) for k, v in dct.get("parameters", {}).items()},
-                data={k: MontyDecoder.process_decoded(v) for k, v in dct.get("data", {}).items()},
+                parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+                data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
                 entry_id=dct.get("entry_id"),
             )
         # this is the preferred / modern way of instantiating ComputedEntry
@@ -499,9 +499,9 @@ class ComputedEntry(Entry):
             dct["composition"],
             dct["energy"],
             correction=0,
-            energy_adjustments=[MontyDecoder.process_decoded(e) for e in dct.get("energy_adjustments", {})],
-            parameters={k: MontyDecoder.process_decoded(v) for k, v in dct.get("parameters", {}).items()},
-            data={k: MontyDecoder.process_decoded(v) for k, v in dct.get("data", {}).items()},
+            energy_adjustments=[MontyDecoder().process_decoded(e) for e in dct.get("energy_adjustments", {})],
+            parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+            data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
             entry_id=dct.get("entry_id"),
         )
 
@@ -620,26 +620,26 @@ class ComputedStructureEntry(ComputedEntry):
         # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
         if dct["correction"] != 0 and not dct.get("energy_adjustments"):
-            struct = MontyDecoder.process_decoded(dct["structure"])
+            struct = MontyDecoder().process_decoded(dct["structure"])
             return cls(
                 struct,
                 dct["energy"],
                 correction=dct["correction"],
-                parameters={k: MontyDecoder.process_decoded(v) for k, v in dct.get("parameters", {}).items()},
-                data={k: MontyDecoder.process_decoded(v) for k, v in dct.get("data", {}).items()},
+                parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+                data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
                 entry_id=dct.get("entry_id"),
             )
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
         return cls(
-            MontyDecoder.process_decoded(dct["structure"]),
+            MontyDecoder().process_decoded(dct["structure"]),
             dct["energy"],
             composition=dct.get("composition"),
             correction=0,
-            energy_adjustments=[MontyDecoder.process_decoded(e) for e in dct.get("energy_adjustments", {})],
-            parameters={k: MontyDecoder.process_decoded(v) for k, v in dct.get("parameters", {}).items()},
-            data={k: MontyDecoder.process_decoded(v) for k, v in dct.get("data", {}).items()},
+            energy_adjustments=[MontyDecoder().process_decoded(e) for e in dct.get("energy_adjustments", {})],
+            parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+            data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
             entry_id=dct.get("entry_id"),
         )
 

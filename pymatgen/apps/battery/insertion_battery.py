@@ -365,8 +365,8 @@ class InsertionElectrode(AbstractElectrode):
             InsertionElectrode
         """
         return InsertionElectrode(
-            MontyDecoder.process_decoded(dct["entries"]),
-            MontyDecoder.process_decoded(dct["working_ion_entry"]),
+            MontyDecoder().process_decoded(dct["entries"]),
+            MontyDecoder().process_decoded(dct["working_ion_entry"]),
         )
 
     def as_dict_legacy(self):

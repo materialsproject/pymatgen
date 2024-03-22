@@ -623,7 +623,7 @@ class CoordinationGeometry:
             deactivate=dct["deactivate"],
             faces=dct["_faces"],
             edges=dct["_edges"],
-            algorithms=[MontyDecoder.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+            algorithms=[MontyDecoder().process_decoded(algo_d) for algo_d in dct["_algorithms"]]
             if dct["_algorithms"] is not None
             else None,
             equivalent_indices=dct.get("equivalent_indices"),

@@ -121,8 +121,8 @@ class Author(namedtuple("Author", ["name", "email"])):
         """Returns: MSONable dict."""
         return {"name": self.name, "email": self.email}
 
-    @staticmethod
-    def from_dict(dct):
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -130,7 +130,7 @@ class Author(namedtuple("Author", ["name", "email"])):
         Returns:
             Author
         """
-        return Author(dct["name"], dct["email"])
+        return cls(dct["name"], dct["email"])
 
     @staticmethod
     def parse_author(author):
@@ -283,9 +283,9 @@ class StructureNL:
         """
         about = dct["about"]
 
-        created_at = MontyDecoder.process_decoded(about.get("created_at"))
+        created_at = MontyDecoder().process_decoded(about.get("created_at"))
         data = {k: v for k, v in dct["about"].items() if k.startswith("_")}
-        data = MontyDecoder.process_decoded(data)
+        data = MontyDecoder().process_decoded(data)
 
         structure = Structure.from_dict(dct) if "lattice" in dct else Molecule.from_dict(dct)
         return cls(

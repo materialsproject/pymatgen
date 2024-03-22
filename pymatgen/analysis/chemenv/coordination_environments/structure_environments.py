@@ -8,6 +8,8 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
@@ -21,6 +23,9 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import Detailed
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -366,7 +371,7 @@ class StructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dct, structure: Structure, detailed_voronoi):
+        def from_dict(cls, dct, structure: Structure, detailed_voronoi) -> Self:
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
@@ -1419,7 +1424,7 @@ class LightStructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dct, structure: Structure, all_nbs_sites):
+        def from_dict(cls, dct, structure: Structure, all_nbs_sites) -> Self:
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
@@ -2026,10 +2031,10 @@ class LightStructureEnvironments(MSONable):
         Returns:
             LightStructureEnvironments object.
         """
-        structure = MontyDecoder.process_decoded(dct["structure"])
+        structure = MontyDecoder().process_decoded(dct["structure"])
         all_nbs_sites = []
         for nb_site in dct["all_nbs_sites"]:
-            periodic_site = MontyDecoder.process_decoded(nb_site["site"])
+            periodic_site = MontyDecoder().process_decoded(nb_site["site"])
             site = PeriodicNeighbor(
                 species=periodic_site.species,
                 coords=periodic_site.frac_coords,
@@ -2055,7 +2060,7 @@ class LightStructureEnvironments(MSONable):
             for site_nb_sets in dct["neighbors_sets"]
         ]
         return cls(
-            strategy=MontyDecoder.process_decoded(dct["strategy"]),
+            strategy=MontyDecoder().process_decoded(dct["strategy"]),
             coordination_environments=dct["coordination_environments"],
             all_nbs_sites=all_nbs_sites,
             neighbors_sets=neighbors_sets,

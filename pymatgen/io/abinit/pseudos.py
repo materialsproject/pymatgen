@@ -1685,7 +1685,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         pseudos = []
         for k, v in dct.items():
             if not k.startswith("@"):
-                pseudos.append(MontyDecoder.process_decoded(v))
+                pseudos.append(MontyDecoder().process_decoded(v))
         return cls(pseudos)
 
     def is_complete(self, zmax=118) -> bool:

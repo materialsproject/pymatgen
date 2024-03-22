@@ -502,6 +502,6 @@ class ComputedReaction(Reaction):
         Returns:
             A ComputedReaction object.
         """
-        reactants = [MontyDecoder.process_decoded(e) for e in dct["reactants"]]
-        products = [MontyDecoder.process_decoded(e) for e in dct["products"]]
+        reactants = [MontyDecoder().process_decoded(e) for e in dct["reactants"]]
+        products = [MontyDecoder().process_decoded(e) for e in dct["products"]]
         return cls(reactants, products)

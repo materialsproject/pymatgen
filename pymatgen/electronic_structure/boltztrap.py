@@ -45,6 +45,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
@@ -2004,8 +2005,8 @@ class BoltztrapAnalyzer:
         }
         return jsanitize(results)
 
-    @staticmethod
-    def from_dict(data):
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
         """
         Args:
             data: Dict representation.
@@ -2124,7 +2125,7 @@ class BoltztrapAnalyzer:
         vol = data.get("vol")
         warning = data.get("warning")
 
-        return BoltztrapAnalyzer(
+        return cls(
             gap=gap,
             mu_steps=mu_steps,
             cond=cond,

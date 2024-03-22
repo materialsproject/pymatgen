@@ -2632,9 +2632,9 @@ class VaspInput(dict, MSONable):
         sub_dct: dict[str, dict] = {"optional_files": {}}
         for key, val in dct.items():
             if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
-                sub_dct[key.lower()] = MontyDecoder.process_decoded(val)
+                sub_dct[key.lower()] = MontyDecoder().process_decoded(val)
             elif key not in ["@module", "@class"]:
-                sub_dct["optional_files"][key] = MontyDecoder.process_decoded(val)
+                sub_dct["optional_files"][key] = MontyDecoder().process_decoded(val)
         return cls(**sub_dct)  # type: ignore[arg-type]
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):

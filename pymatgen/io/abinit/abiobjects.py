@@ -498,10 +498,10 @@ class Smearing(AbivarAble, MSONable):
             "tsmear": self.tsmear,
         }
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dict."""
-        return Smearing(d["occopt"], d["tsmear"])
+        return cls(dct["occopt"], dct["tsmear"])
 
 
 class ElectronsAlgorithm(dict, AbivarAble, MSONable):
@@ -611,9 +611,9 @@ class Electrons(AbivarAble, MSONable):
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
-        dct["spin_mode"] = MontyDecoder.process_decoded(dct["spin_mode"])
-        dct["smearing"] = MontyDecoder.process_decoded(dct["smearing"])
-        dct["algorithm"] = MontyDecoder.process_decoded(dct["algorithm"]) if dct["algorithm"] else None
+        dct["spin_mode"] = MontyDecoder().process_decoded(dct["spin_mode"])
+        dct["smearing"] = MontyDecoder().process_decoded(dct["smearing"])
+        dct["algorithm"] = MontyDecoder().process_decoded(dct["algorithm"]) if dct["algorithm"] else None
         return cls(**dct)
 
     def to_abivars(self):
@@ -1001,7 +1001,7 @@ class KSampling(AbivarAble, MSONable):
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
-        dct["kpts"] = MontyDecoder.process_decoded(dct["kpts"])
+        dct["kpts"] = MontyDecoder().process_decoded(dct["kpts"])
         return cls(**dct)
 
 
@@ -1228,10 +1228,10 @@ class PPModel(AbivarAble, MSONable):
             "@class": type(self).__name__,
         }
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dictionary."""
-        return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
+        return cls(mode=dct["mode"], plasmon_freq=dct["plasmon_freq"])
 
 
 class HilbertTransform(AbivarAble):
