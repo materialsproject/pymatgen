@@ -7,6 +7,7 @@ import unittest
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from monty.json import MontyDecoder
@@ -27,9 +28,13 @@ from pymatgen.entries.compatibility import (
     MaterialsProjectCompatibility,
     MITAqueousCompatibility,
     MITCompatibility,
+    needs_u_correction,
 )
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import TEST_FILES_DIR
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import CompositionLike
 
 
 class TestCorrectionSpecificity(unittest.TestCase):
@@ -2034,3 +2039,22 @@ class TestCorrectionErrors2020Compatibility(unittest.TestCase):
         ):
             corrected_entry = self.compat.process_entry(entry)
             assert corrected_entry.correction_uncertainty == approx(expected)
+
+
+@pytest.mark.parametrize(
+    ("comp", "expected"),
+    [
+        ("Fe2O3", {"Fe", "O"}),
+        ("Fe3O4", {"Fe", "O"}),
+        ("FeS", set()),
+        ("FeF3", {"Fe", "F"}),
+        ("LiH", set()),
+        ("H", set()),
+        (Composition("MnO"), {"Mn", "O"}),
+        (Composition("MnO2"), {"Mn", "O"}),
+        (Composition("LiFePO4"), {"Fe", "O"}),
+        (Composition("LiFePS4"), set()),
+    ],
+)
+def test_needs_u_correction(comp: CompositionLike, expected: set[str]):
+    assert needs_u_correction(comp) == expected
