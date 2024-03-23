@@ -1081,8 +1081,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         for el in comp.elements:
             symbol = el.symbol
             # Check for bad U values
-            expected_u = u_settings.get(symbol, 0)
-            actual_u = calc_u.get(symbol, 0)
+            expected_u = float(u_settings.get(symbol, 0))
+            actual_u = float(calc_u.get(symbol, 0))
             if actual_u != expected_u:
                 raise CompatibilityError(f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3}")
             if symbol in u_corrections:
