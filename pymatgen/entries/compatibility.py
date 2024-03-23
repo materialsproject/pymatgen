@@ -19,7 +19,7 @@ from tqdm import tqdm
 from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.core import SETTINGS, Element
+from pymatgen.core import SETTINGS, Composition, Element
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
@@ -34,6 +34,8 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pymatgen.util.typing import CompositionLike
+
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
 __version__ = "1.0"
@@ -43,6 +45,12 @@ __date__ = "April 2020"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
+MP2020_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
+
+assert (  # ping @janosh @rkingsbury on GitHub if this fails
+    MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["O"]
+    == MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["F"]
+), "MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F"
 
 AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 
@@ -891,21 +899,22 @@ class MaterialsProject2020Compatibility(Compatibility):
         if config_file:
             if os.path.isfile(config_file):
                 self.config_file: str | None = config_file
-                c = loadfn(self.config_file)
+                config = loadfn(self.config_file)
             else:
                 raise ValueError(f"Custom MaterialsProject2020Compatibility {config_file=} does not exist.")
         else:
             self.config_file = None
-            c = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
 
-        self.name = c["Name"]
-        self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
-        self.comp_errors = c["Uncertainties"].get("CompositionCorrections", defaultdict(float))
+            config = MP2020_COMPAT_CONFIG
+
+        self.name = config["Name"]
+        self.comp_correction = config["Corrections"].get("CompositionCorrections", defaultdict(float))
+        self.comp_errors = config["Uncertainties"].get("CompositionCorrections", defaultdict(float))
 
         if self.compat_type == "Advanced":
             self.u_settings = MPRelaxSet.CONFIG["INCAR"]["LDAUU"]
-            self.u_corrections = c["Corrections"].get("GGAUMixingCorrections", defaultdict(float))
-            self.u_errors = c["Uncertainties"].get("GGAUMixingCorrections", defaultdict(float))
+            self.u_corrections = config["Corrections"].get("GGAUMixingCorrections", defaultdict(float))
+            self.u_errors = config["Uncertainties"].get("GGAUMixingCorrections", defaultdict(float))
         else:
             self.u_settings = {}
             self.u_corrections = {}
@@ -1075,7 +1084,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             expected_u = u_settings.get(symbol, 0)
             actual_u = calc_u.get(symbol, 0)
             if actual_u != expected_u:
-                raise CompatibilityError(f"Invalid U value of {actual_u:.1f} on {symbol}, expected {expected_u:.1f}")
+                raise CompatibilityError(f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3}")
             if symbol in u_corrections:
                 adjustments.append(
                     CompositionEnergyAdjustment(
@@ -1457,3 +1466,24 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
         return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace, on_error=on_error)
+
+
+def needs_u_correction(comp: CompositionLike) -> set[str]:
+    """Check if a composition is Hubbard U-corrected in the Materials Project 2020
+    GGA/GGA+U mixing scheme.
+
+    Args:
+        comp (CompositionLike): The formula/composition to check.
+
+    Returns:
+        set[str]: The subset of elements whose combination requires a U-correction.
+    """
+    u_corrections = MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]
+    elements = set(map(str, Composition(comp).elements))
+    has_u_anion = set(u_corrections) & elements
+
+    u_corrected_cations = set(u_corrections["O"])
+    has_u_cation = u_corrected_cations & elements
+    if has_u_cation and has_u_anion:
+        return has_u_cation | has_u_anion
+    return set()
