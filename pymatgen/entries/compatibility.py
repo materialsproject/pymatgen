@@ -189,9 +189,9 @@ class GasCorrection(Correction):
         Args:
             config_file: Path to the selected compatibility.yaml config file.
         """
-        c = loadfn(config_file)
-        self.name = c["Name"]
-        self.cpd_energies = c["Advanced"]["CompoundEnergies"]
+        config = loadfn(config_file)
+        self.name = config["Name"]
+        self.cpd_energies = config["Advanced"]["CompoundEnergies"]
 
     def get_correction(self, entry) -> ufloat:
         """
@@ -230,10 +230,10 @@ class AnionCorrection(Correction):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not.
         """
-        c = loadfn(config_file)
-        self.oxide_correction = c["OxideCorrections"]
-        self.sulfide_correction = c.get("SulfideCorrections", defaultdict(float))
-        self.name = c["Name"]
+        config = loadfn(config_file)
+        self.oxide_correction = config["OxideCorrections"]
+        self.sulfide_correction = config.get("SulfideCorrections", defaultdict(float))
+        self.name = config["Name"]
         self.correct_peroxide = correct_peroxide
 
     def get_correction(self, entry) -> ufloat:
@@ -321,14 +321,14 @@ class AqueousCorrection(Correction):
             config_file: Path to the selected compatibility.yaml config file.
             error_file: Path to the selected compatibilityErrors.yaml config file.
         """
-        c = loadfn(config_file)
-        self.cpd_energies = c["AqueousCompoundEnergies"]
+        config = loadfn(config_file)
+        self.cpd_energies = config["AqueousCompoundEnergies"]
         # there will either be a CompositionCorrections OR an OxideCorrections key,
         # but not both, depending on the compatibility scheme we are using.
         # MITCompatibility only uses OxideCorrections, and hence self.comp_correction is none.
-        self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
-        self.oxide_correction = c.get("OxideCorrections", defaultdict(float))
-        self.name = c["Name"]
+        self.comp_correction = config.get("CompositionCorrections", defaultdict(float))
+        self.oxide_correction = config.get("OxideCorrections", defaultdict(float))
+        self.name = config["Name"]
         if error_file:
             e = loadfn(error_file)
             self.cpd_errors = e.get("AqueousCompoundEnergies", defaultdict(float))
@@ -432,22 +432,22 @@ class UCorrection(Correction):
         if compat_type not in ["GGA", "Advanced"]:
             raise CompatibilityError(f"Invalid {compat_type=}")
 
-        c = loadfn(config_file)
+        config = loadfn(config_file)
 
         self.input_set = input_set
         if compat_type == "Advanced":
             self.u_settings = self.input_set.CONFIG["INCAR"]["LDAUU"]
-            self.u_corrections = c["Advanced"]["UCorrections"]
+            self.u_corrections = config["Advanced"]["UCorrections"]
         else:
             self.u_settings = {}
             self.u_corrections = {}
 
-        self.name = c["Name"]
+        self.name = config["Name"]
         self.compat_type = compat_type
 
         if error_file:
-            e = loadfn(error_file)
-            self.u_errors = e["Advanced"]["UCorrections"]
+            err = loadfn(error_file)
+            self.u_errors = err["Advanced"]["UCorrections"]
         else:
             self.u_errors = {}
 
@@ -463,12 +463,12 @@ class UCorrection(Correction):
         comp = entry.composition
 
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
-        most_electroneg = elements[-1].symbol
+        most_electro_neg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
 
-        u_corr = self.u_corrections.get(most_electroneg, {})
-        u_settings = self.u_settings.get(most_electroneg, {})
-        u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
+        u_corr = self.u_corrections.get(most_electro_neg, {})
+        u_settings = self.u_settings.get(most_electro_neg, {})
+        u_errors = self.u_errors.get(most_electro_neg, defaultdict(float))
 
         for el in comp.elements:
             sym = el.symbol

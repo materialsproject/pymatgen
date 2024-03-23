@@ -529,7 +529,7 @@ class Critic2Analysis(MSONable):
         edge_weight = "bond_length"
         edge_weight_units = "Å"
 
-        sg = StructureGraph.with_empty_graph(
+        struct_graph = StructureGraph.with_empty_graph(
             structure,
             name="bonds",
             edge_weight_name=edge_weight,
@@ -597,7 +597,7 @@ class Critic2Analysis(MSONable):
                         "frac_coords": self.nodes[idx]["frac_coords"],
                     }
 
-                    sg.add_edge(
+                    struct_graph.add_edge(
                         struct_from_idx,
                         struct_to_idx,
                         from_jimage=from_lvec,
@@ -606,7 +606,7 @@ class Critic2Analysis(MSONable):
                         edge_properties=edge_properties,
                     )
 
-        return sg
+        return struct_graph
 
     def get_critical_point_for_site(self, n: int):
         """

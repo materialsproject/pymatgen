@@ -142,15 +142,15 @@ class StructureGraph(MSONable):
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
         # tidy up edge attr dicts, reading to/from json duplicates information
-        for _, _, _, dct in self.graph.edges(keys=True, data=True):
+        for _, _, _, data in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):
-                dct.pop(key, None)
+                data.pop(key, None)
             # ensure images are tuples (conversion to lists happens when serializing back
             # from json), it's important images are hashable/immutable
-            if to_img := dct.get("to_jimage"):
-                dct["to_jimage"] = tuple(to_img)
-            if from_img := dct.get("from_jimage"):
-                dct["from_jimage"] = tuple(from_img)
+            if to_img := data.get("to_jimage"):
+                data["to_jimage"] = tuple(to_img)
+            if from_img := data.get("from_jimage"):
+                data["from_jimage"] = tuple(from_img)
 
     @classmethod
     def with_empty_graph(
@@ -213,7 +213,9 @@ class StructureGraph(MSONable):
         Returns:
             sg, a StructureGraph
         """
-        sg = StructureGraph.with_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        struct_graph = StructureGraph.with_empty_graph(
+            structure, name="bonds", edge_weight_name="weight", edge_weight_units=""
+        )
 
         for edge, props in edges.items():
             try:
@@ -232,13 +234,13 @@ class StructureGraph(MSONable):
             else:
                 weight = None
 
-            nodes = sg.graph.nodes
+            nodes = struct_graph.graph.nodes
             if not (from_index in nodes and to_index in nodes):
                 raise ValueError(
                     "Edges cannot be added if nodes are not present in the graph. Please check your indices."
                 )
 
-            sg.add_edge(
+            struct_graph.add_edge(
                 from_index,
                 to_index,
                 from_jimage=from_image,
@@ -247,8 +249,8 @@ class StructureGraph(MSONable):
                 edge_properties=props,
             )
 
-        sg.set_node_attributes()
-        return sg
+        struct_graph.set_node_attributes()
+        return struct_graph
 
     @staticmethod
     def with_local_env_strategy(
@@ -267,7 +269,7 @@ class StructureGraph(MSONable):
         if not strategy.structures_allowed:
             raise ValueError("Chosen strategy is not designed for use with structures! Please choose another strategy.")
 
-        sg = StructureGraph.with_empty_graph(structure, name="bonds")
+        struct_graph = StructureGraph.with_empty_graph(structure, name="bonds")
 
         for idx, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
@@ -275,7 +277,7 @@ class StructureGraph(MSONable):
                 # for any one bond, one from site u to site v
                 # and another form site v to site u: this is
                 # harmless, so warn_duplicates=False
-                sg.add_edge(
+                struct_graph.add_edge(
                     from_index=idx,
                     from_jimage=(0, 0, 0),
                     to_index=neighbor["site_index"],
@@ -285,7 +287,7 @@ class StructureGraph(MSONable):
                     warn_duplicates=False,
                 )
 
-        return sg
+        return struct_graph
 
     @property
     def name(self) -> str:
@@ -1373,9 +1375,9 @@ class StructureGraph(MSONable):
         other_sorted = other.__copy__()
         other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
-        edges = {(u, v, d["to_jimage"]) for u, v, d in self.graph.edges(keys=False, data=True)}
+        edges = {(u, v, data["to_jimage"]) for u, v, data in self.graph.edges(keys=False, data=True)}
 
-        edges_other = {(u, v, d["to_jimage"]) for u, v, d in other_sorted.graph.edges(keys=False, data=True)}
+        edges_other = {(u, v, data["to_jimage"]) for u, v, data in other_sorted.graph.edges(keys=False, data=True)}
 
         return (edges == edges_other) and (self.structure == other_sorted.structure)
 
@@ -1416,21 +1418,20 @@ class StructureGraph(MSONable):
             other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
-            edges: set[tuple] = {(u, v, d["to_jimage"]) for u, v, d in self.graph.edges(keys=False, data=True)}
+            edges: set[tuple] = {(u, v, data["to_jimage"]) for u, v, data in self.graph.edges(keys=False, data=True)}
 
             edges_other: set[tuple] = {
-                (u, v, d["to_jimage"]) for u, v, d in other_sorted.graph.edges(keys=False, data=True)
+                (u, v, data["to_jimage"]) for u, v, data in other_sorted.graph.edges(keys=False, data=True)
             }
 
         else:
             edges = {
-                (str(self.structure[u].specie), str(self.structure[v].specie))
-                for u, v, _d in self.graph.edges(keys=False, data=True)
+                (str(self.structure[u].specie), str(self.structure[v].specie)) for u, v in self.graph.edges(keys=False)
             }
 
             edges_other = {
                 (str(other.structure[u].specie), str(other.structure[v].specie))
-                for u, v, _d in other.graph.edges(keys=False, data=True)
+                for u, v in other.graph.edges(keys=False)
             }
 
         if len(edges) == 0 and len(edges_other) == 0:
@@ -2747,9 +2748,9 @@ class MoleculeGraph(MSONable):
         other_sorted = other.__copy__()
         other_sorted.sort(key=lambda site: mapping[tuple(site.coords)])
 
-        edges = {(u, v) for u, v, d in self.graph.edges(keys=False, data=True)}
+        edges = set(self.graph.edges(keys=False))
 
-        edges_other = {(u, v) for u, v, d in other_sorted.graph.edges(keys=False, data=True)}
+        edges_other = set(other_sorted.graph.edges(keys=False))
 
         return (edges == edges_other) and (self.molecule == other_sorted.molecule)
 
@@ -2809,21 +2810,21 @@ class MoleculeGraph(MSONable):
             other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
 
-            edges = {(u, v, d.get("to_jimage", (0, 0, 0))) for u, v, d in self.graph.edges(keys=False, data=True)}
+            edges = {(u, v, data.get("to_jimage", (0, 0, 0))) for u, v, data in self.graph.edges(keys=False, data=True)}
 
             edges_other = {
-                (u, v, d.get("to_jimage", (0, 0, 0))) for u, v, d in other_sorted.graph.edges(keys=False, data=True)
+                (u, v, data.get("to_jimage", (0, 0, 0)))
+                for u, v, data in other_sorted.graph.edges(keys=False, data=True)
             }
 
         else:
             edges = {
-                (str(self.molecule[u].specie), str(self.molecule[v].specie))
-                for u, v, d in self.graph.edges(keys=False, data=True)
+                (str(self.molecule[u].specie), str(self.molecule[v].specie)) for u, v in self.graph.edges(keys=False)
             }
 
             edges_other = {
                 (str(other.structure[u].specie), str(other.structure[v].specie))
-                for u, v, d in other.graph.edges(keys=False, data=True)
+                for u, v in other.graph.edges(keys=False)
             }
 
         if len(edges) == 0 and len(edges_other) == 0:
