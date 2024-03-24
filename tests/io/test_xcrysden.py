@@ -17,6 +17,21 @@ class TestXSF(PymatgenTest):
         xsf = XSF(structure)
         assert structure, XSF.from_str(xsf.to_str())
 
+    def test_append_vect(self):
+        coords = [[0, 0, 0]]
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
+        structure = Structure(lattice, ["Si"], coords)
+        structure.add_site_property('vect', [[1., 0., 0.]])
+        xsf_str = XSF(structure).to_str().split('\n')[-1].split()
+        assert len(xsf_str) == 7
+        assert xsf_str[-1] == '0.00000000000000'
+        assert xsf_str[-2] == '0.00000000000000'
+        assert xsf_str[-3] == '1.00000000000000'
+
     def test_to_str(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
