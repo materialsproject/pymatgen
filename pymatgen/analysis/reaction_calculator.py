@@ -481,8 +481,7 @@ class ComputedReaction(Reaction):
             energy_ufloat = ufloat(entry.energy, entry.correction_uncertainty)
             calc_energies[comp] = min(calc_energies.get(comp, float("inf")), energy_ufloat / factor)
 
-        # Calculate standard deviation
-        return np.std(calc_energies.values())
+        return self.calculate_energy(calc_energies).std_dev
 
     def as_dict(self) -> dict:
         """
