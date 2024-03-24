@@ -25,6 +25,8 @@ from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
@@ -473,7 +475,7 @@ class ComputedEntry(Entry):
         return True
 
     @classmethod
-    def from_dict(cls, dct: dict) -> ComputedEntry:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
            dct (dict): Dict representation.
@@ -609,7 +611,7 @@ class ComputedStructureEntry(ComputedEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> ComputedStructureEntry:
+    def from_dict(cls, dct) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -942,7 +944,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> GibbsComputedStructureEntry:
+    def from_dict(cls, dct) -> Self:
         """
         Args:
             dct (dict): Dict representation.

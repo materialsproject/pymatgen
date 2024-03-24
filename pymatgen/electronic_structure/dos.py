@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
@@ -355,9 +356,9 @@ class Dos(MSONable):
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, dct) -> Dos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns Dos object from dict representation of Dos."""
-        return Dos(
+        return cls(
             dct["efermi"],
             dct["energies"],
             {Spin(int(k)): v for k, v in dct["densities"].items()},
@@ -568,14 +569,14 @@ class FermiDos(Dos, MSONable):
         return fermi
 
     @classmethod
-    def from_dict(cls, dct) -> FermiDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns Dos object from dict representation of Dos."""
         dos = Dos(
             dct["efermi"],
             dct["energies"],
             {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
-        return FermiDos(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
+        return clas(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of Dos."""
@@ -1248,7 +1249,7 @@ class CompleteDos(Dos):
         )
 
     @classmethod
-    def from_dict(cls, dct) -> CompleteDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns CompleteDos object from dict representation."""
         tdos = Dos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
@@ -1260,7 +1261,7 @@ class CompleteDos(Dos):
                 orb = Orbital[orb_str]
                 orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
-        return CompleteDos(struct, tdos, pdoss)
+        return cls(struct, tdos, pdoss)
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of CompleteDos."""
@@ -1394,7 +1395,7 @@ class LobsterCompleteDos(CompleteDos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}  # type: ignore
 
     @classmethod
-    def from_dict(cls, dct) -> LobsterCompleteDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Hydrate CompleteDos object from dict representation."""
         tdos = Dos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
@@ -1406,7 +1407,7 @@ class LobsterCompleteDos(CompleteDos):
                 orb = orb_str
                 orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
-        return LobsterCompleteDos(struct, tdos, pdoss)
+        return cls(struct, tdos, pdoss)
 
 
 def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:

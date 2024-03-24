@@ -657,7 +657,7 @@ class Tensor(np.ndarray, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Tensor:
+    def from_dict(cls, dct: dict) -> Self:
         """Instantiate Tensors from dicts (using MSONable API).
 
         Returns:
@@ -843,7 +843,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> TensorCollection:
+    def from_dict(cls, dct: dict) -> Self:
         """Creates TensorCollection from dict.
 
         Args:

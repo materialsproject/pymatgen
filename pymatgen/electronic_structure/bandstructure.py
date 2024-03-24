@@ -133,7 +133,7 @@ class Kpoint(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Kpoint:
+    def from_dict(cls, dct: dict) -> Self:
         """Create from dict.
 
         Args:
@@ -643,7 +643,7 @@ class BandStructure:
             return cls.from_old_dict(dct)
 
     @classmethod
-    def from_old_dict(cls, dct):
+    def from_old_dict(cls, dct) -> Self:
         """
         Args:
             dct (dict): A dict with all data for a band structure symmetry line object.
@@ -674,7 +674,7 @@ class BandStructure:
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
-        return BandStructure(
+        return cls(
             dct["kpoints"],
             {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
             Lattice(dct["lattice_rec"]["matrix"]),
@@ -957,7 +957,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 structure = Structure.from_dict(dct["structure"])
                 projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}
 
-            return LobsterBandStructureSymmLine(
+            return cls(
                 dct["kpoints"],
                 {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
                 Lattice(dct["lattice_rec"]["matrix"]),
@@ -973,10 +973,10 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 "format. The old format will be retired in pymatgen "
                 "5.0."
             )
-            return LobsterBandStructureSymmLine.from_old_dict(dct)
+            return cls.from_old_dict(dct)
 
     @classmethod
-    def from_old_dict(cls, dct):
+    def from_old_dict(cls, dct) -> Self:
         """
         Args:
             dct (dict): A dict with all data for a band structure symmetry line
@@ -1001,7 +1001,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
-        return LobsterBandStructureSymmLine(
+        return cls(
             dct["kpoints"],
             {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
             Lattice(dct["lattice_rec"]["matrix"]),

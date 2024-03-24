@@ -12,10 +12,13 @@ import collections
 import numbers
 import re
 from functools import partial
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import scipy.constants as const
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -292,7 +295,7 @@ class FloatWithUnit(float):
     Error = UnitError
 
     @classmethod
-    def from_str(cls, s):
+    def from_str(cls, s: str) -> Self:
         """Parse string to FloatWithUnit.
 
         Example: Memory.from_str("1. Mb")

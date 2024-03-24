@@ -130,9 +130,8 @@ class XcFunc(MSONable):
         raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
 
     @classmethod
-    def from_abinit_ixc(cls, ixc):
+    def from_abinit_ixc(cls, ixc: int) -> Self:
         """Build the object from Abinit ixc (integer)."""
-        ixc = int(ixc)
         if ixc == 0:
             return None
         if ixc > 0:
@@ -150,12 +149,12 @@ class XcFunc(MSONable):
         return cls(x=x, c=c)
 
     @classmethod
-    def from_name(cls, name):
+    def from_name(cls, name: str) -> Self:
         """Build the object from one of the registered names."""
         return cls.from_type_name(None, name)
 
     @classmethod
-    def from_type_name(cls, typ, name):
+    def from_type_name(cls, typ, name: str) -> Self:
         """Build the object from (type, name)."""
         # Try aliases first.
         for k, nt in cls.defined_aliases.items():

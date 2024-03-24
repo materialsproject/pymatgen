@@ -1936,7 +1936,7 @@ class BoltztrapAnalyzer:
         )
 
     @classmethod
-    def from_files(cls, path_dir, dos_spin=1):
+    def from_files(cls, path_dir: str, dos_spin: int = 1) -> Self:
         """Get a BoltztrapAnalyzer object from a set of files.
 
         Args:

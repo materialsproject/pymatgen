@@ -35,6 +35,8 @@ from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.symmetry.groups import CrystalSystem
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
@@ -481,7 +483,7 @@ class Slab(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Slab:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
         """
         Args:
             dct: dict.
