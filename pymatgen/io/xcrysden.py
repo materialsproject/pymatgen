@@ -33,25 +33,24 @@ class XSF:
         Args:
             atom_symbol (bool): Uses atom symbol instead of atomic number. Defaults to True.
         """
-        lines = []
-        app = lines.append
+        lines: list[str] = []
 
-        app("CRYSTAL")
-        app("# Primitive lattice vectors in Angstrom")
-        app("PRIMVEC")
+        lines.append("CRYSTAL")
+        lines.append("# Primitive lattice vectors in Angstrom")
+        lines.append("PRIMVEC")
         cell = self.structure.lattice.matrix
         for i in range(3):
-            app(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}")
+            lines.append(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}")
 
         cart_coords = self.structure.cart_coords
-        app("# Cartesian coordinates in Angstrom.")
-        app("PRIMCOORD")
-        app(f" {len(cart_coords)} 1")
+        lines.append("# Cartesian coordinates in Angstrom.")
+        lines.append("PRIMCOORD")
+        lines.append(f" {len(cart_coords)} 1")
 
         for site, coord in zip(self.structure, cart_coords):
             sp = site.specie.symbol if atom_symbol else f"{site.specie.Z}"
             x, y, z = coord
-            app(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")
+            lines.append(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")
             if "vect" in site.properties:
                 vx, vy, vz = site.properties["vect"]
                 lines[-1] += f" {vx:20.14f} {vy:20.14f} {vz:20.14f}"
@@ -67,26 +66,27 @@ class XSF:
             input_string: String with the structure in XSF format.
                 See http://www.xcrysden.org/doc/XSF.html
             cls_: Structure class to be created. default: pymatgen structure
+
+        Example file:
+            CRYSTAL                                        see (1)
+            these are primitive lattice vectors (in Angstroms)
+            PRIMVEC
+            0.0000000    2.7100000    2.7100000         see (2)
+            2.7100000    0.0000000    2.7100000
+            2.7100000    2.7100000    0.0000000
+
+            these are conventional lattice vectors (in Angstroms)
+            CONVVEC
+            5.4200000    0.0000000    0.0000000         see (3)
+            0.0000000    5.4200000    0.0000000
+            0.0000000    0.0000000    5.4200000
+
+            these are atomic coordinates in a primitive unit cell  (in Angstroms)
+            PRIMCOORD
+            2 1                                            see (4)
+            16      0.0000000     0.0000000     0.0000000  see (5)
+            30      1.3550000    -1.3550000    -1.3550000
         """
-        # CRYSTAL                                        see (1)
-        # these are primitive lattice vectors (in Angstroms)
-        # PRIMVEC
-        #    0.0000000    2.7100000    2.7100000         see (2)
-        #    2.7100000    0.0000000    2.7100000
-        #    2.7100000    2.7100000    0.0000000
-
-        # these are conventional lattice vectors (in Angstroms)
-        # CONVVEC
-        #    5.4200000    0.0000000    0.0000000         see (3)
-        #    0.0000000    5.4200000    0.0000000
-        #    0.0000000    0.0000000    5.4200000
-
-        # these are atomic coordinates in a primitive unit cell  (in Angstroms)
-        # PRIMCOORD
-        # 2 1                                            see (4)
-        # 16      0.0000000     0.0000000     0.0000000  see (5)
-        # 30      1.3550000    -1.3550000    -1.3550000
-
         lattice, coords, species = [], [], []
         lines = input_string.splitlines()
 
