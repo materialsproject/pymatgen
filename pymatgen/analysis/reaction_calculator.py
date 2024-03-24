@@ -186,7 +186,7 @@ class BalancedReaction(MSONable):
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``.
         """
-        return self._str_from_comp(self._coeffs, self._all_comp, reduce=True)[0]
+        return self._str_from_comp(self._coeffs, self._all_comp, reduce=True)
 
     @property
     def normalized_repr(self) -> str:
