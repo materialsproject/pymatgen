@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Ion(Composition, MSONable, Stringify):
@@ -19,7 +23,7 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition, charge=0.0, _properties=None) -> None:
+    def __init__(self, composition: Composition, charge: float=0.0, _properties=None) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
@@ -27,7 +31,7 @@ class Ion(Composition, MSONable, Stringify):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula: str) -> Ion:
+    def from_formula(cls, formula: str) -> Self:
         """Creates Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
@@ -212,7 +216,7 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Ion:
+    def from_dict(cls, dct: dict) -> Self:
         """Generates an ion object from a dict created by as_dict().
 
         Args:
