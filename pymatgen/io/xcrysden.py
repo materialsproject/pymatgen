@@ -47,6 +47,9 @@ class XSF:
             sp = site.specie.symbol if atom_symbol else f"{site.specie.Z}"
             x, y, z = coord
             app(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")
+            if "vect" in site.properties:
+                vx, vy, vz = site.properties["vect"]
+                lines[-1] += f" {vx:20.14f} {vy:20.14f} {vz:20.14f}"
 
         return "\n".join(lines)
 
