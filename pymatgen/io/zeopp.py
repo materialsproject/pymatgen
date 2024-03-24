@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from monty.dev import requires
 from monty.io import zopen
@@ -43,6 +44,11 @@ try:
     zeo_found = True
 except ImportError:
     zeo_found = False
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -91,7 +97,7 @@ class ZeoCssr(Cssr):
         return "\n".join(output)
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a string representation to a ZeoCssr object.
 
@@ -129,7 +135,7 @@ class ZeoCssr(Cssr):
         return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a CSSR file to a ZeoCssr object.
 
@@ -158,7 +164,7 @@ class ZeoVoronoiXYZ(XYZ):
         super().__init__(mol)
 
     @classmethod
-    def from_str(cls, contents):
+    def from_str(cls, contents: str) -> Self:
         """
         Creates Zeo++ Voronoi XYZ object from a string.
         from_string method of XYZ class is being redefined.
@@ -185,7 +191,7 @@ class ZeoVoronoiXYZ(XYZ):
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates XYZ object from a file.
 

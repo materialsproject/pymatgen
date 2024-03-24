@@ -35,6 +35,8 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from typing_extensions import Self
 
 NWCHEM_BASIS_LIBRARY = None
@@ -411,7 +413,7 @@ class NwInput(MSONable):
         Returns:
             NwInput
         """
-        return NwInput(
+        return cls(
             Molecule.from_dict(dct["mol"]),
             tasks=[NwTask.from_dict(dt) for dt in dct["tasks"]],
             directives=[tuple(li) for li in dct["directives"]],
@@ -421,7 +423,7 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_str(cls, string_input):
+    def from_str(cls, string_input: str) -> Self:
         """
         Read an NwInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -505,7 +507,7 @@ class NwInput(MSONable):
             else:
                 directives.append(line.strip().split())
 
-        return NwInput(
+        return cls(
             mol,
             tasks=tasks,
             directives=directives,
@@ -515,7 +517,7 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Read an NwInput from a file. Currently tested to work with
         files generated from this class itself.

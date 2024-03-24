@@ -3624,7 +3624,7 @@ class Locpot(VolumetricData):
         self.name = poscar.comment
 
     @classmethod
-    def from_file(cls, filename, **kwargs):
+    def from_file(cls, filename: str, **kwargs) -> Self:
         """Read a LOCPOT file.
 
         Args:
@@ -5062,7 +5062,7 @@ class Waveder(MSONable):
         Returns:
             Waveder object.
         """
-        with open(filename, "rb") as file:
+        with open(filename, "rb", encoding="utf-8") as file:
 
             def read_data(dtype):
                 """Read records from Fortran binary file and convert to np.array of given dtype."""

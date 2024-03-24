@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
@@ -12,6 +13,11 @@ from monty.json import MSONable
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Christian Vorwerk"
 __copyright__ = "Copyright 2016"
@@ -64,7 +70,7 @@ class ExcitingInput(MSONable):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
     @classmethod
-    def from_str(cls, data):
+    def from_str(cls, data: str) -> Self:
         """Reads the exciting input from a string."""
         root = ET.fromstring(data)
         species_node = root.find("structure").iter("species")
@@ -133,7 +139,7 @@ class ExcitingInput(MSONable):
         return cls(structure_in, title_in, lockxyz)
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Args:
             filename: Filename

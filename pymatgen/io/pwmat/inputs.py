@@ -13,6 +13,8 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.util.typing import PathLike
 
 __author__ = "Hanyu Liu"
@@ -375,7 +377,7 @@ class AtomConfig(MSONable):
         return self.get_str()
 
     @classmethod
-    def from_str(cls, data: str, mag: bool = False) -> AtomConfig:
+    def from_str(cls, data: str, mag: bool = False) -> Self:
         """Reads a atom.config from a string.
 
         Args:
@@ -402,7 +404,7 @@ class AtomConfig(MSONable):
         return cls(structure)
 
     @classmethod
-    def from_file(cls, filename: PathLike, mag: bool = False) -> AtomConfig:
+    def from_file(cls, filename: PathLike, mag: bool = False) -> Self:
         """Returns a AtomConfig from a file
 
         Args:
@@ -416,7 +418,7 @@ class AtomConfig(MSONable):
             return cls.from_str(data=file.read(), mag=mag)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> AtomConfig:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a AtomConfig object from a dictionary.
 
         Args:

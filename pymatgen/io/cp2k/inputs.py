@@ -153,7 +153,7 @@ class Keyword(MSONable):
         )
 
     @classmethod
-    def from_str(cls, s):
+    def from_str(cls, s: str) -> Self:
         """
         Initialize from a string.
 
@@ -713,14 +713,14 @@ class Cp2kInput(Section):
         )
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str | Path) -> Section:
         """Initialize from a file."""
         with zopen(filename, mode="rt") as file:
             txt = preprocessor(file.read(), os.path.dirname(file.name))
             return cls.from_str(txt)
 
     @classmethod
-    def from_str(cls, s: str):
+    def from_str(cls, s: str) -> Self:
         """Initialize from a string."""
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
@@ -729,7 +729,7 @@ class Cp2kInput(Section):
         return cls.from_lines(lines)
 
     @classmethod
-    def from_lines(cls, lines: list | tuple):
+    def from_lines(cls, lines: list | tuple) -> Self:
         """Helper method to read lines of file."""
         cp2k_input = Cp2kInput("CP2K_INPUT", subsections={})
         Cp2kInput._from_lines(cp2k_input, lines)
@@ -1771,7 +1771,7 @@ class BrokenSymmetry(Section):
         )
 
     @classmethod
-    def from_el(cls, el, oxi_state=0, spin=0):
+    def from_el(cls, el: Element, oxi_state: int = 0, spin: int = 0) -> Self:
         """Create section from element, oxidation state, and spin."""
         el = el if isinstance(el, Element) else Element(el)
 
@@ -1996,7 +1996,7 @@ class Kpoints(Section):
         )
 
     @classmethod
-    def from_kpoints(cls, kpoints: VaspKpoints, structure=None):
+    def from_kpoints(cls, kpoints: VaspKpoints, structure=None) -> Self:
         """
         Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs). CP2K
         does not have an automatic gamma-point constructor, so this is generally used
@@ -2130,7 +2130,7 @@ class Band_Structure(Section):
     # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
     # if this changes in the future as other codes are added, then this will need to change
     @staticmethod
-    def from_kpoints(kpoints: VaspKpoints, kpoints_line_density=20):
+    def from_kpoints(kpoints: VaspKpoints, kpoints_line_density: int = 20) -> Band_Structure:
         """
         Initialize band structure section from a line-mode Kpoint object.
 
@@ -2219,7 +2219,7 @@ class BasisInfo(MSONable):
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
-    def from_str(cls, string: str) -> BasisInfo:
+    def from_str(cls, string: str) -> Self:
         """Get summary info from a string."""
         string = string.upper()
         data: dict[str, Any] = {}
@@ -2420,7 +2420,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return out
 
     @classmethod
-    def from_str(cls, string: str) -> GaussianTypeOrbitalBasisSet:
+    def from_str(cls, string: str) -> Self:
         """Read from standard cp2k GTO formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
@@ -2520,7 +2520,7 @@ class PotentialInfo(MSONable):
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """Get a cp2k formatted string representation."""
         string = string.upper()
         data = {}
@@ -2614,7 +2614,7 @@ class GthPotential(AtomicMetadata):
         )
 
     @classmethod
-    def from_section(cls, section: Section) -> GthPotential:
+    def from_section(cls, section: Section) -> Self:
         """Extract GTH-formatted string from a section and convert it to model."""
         sec = copy.deepcopy(section)
         sec.verbosity(verbosity=False)
@@ -2656,7 +2656,7 @@ class GthPotential(AtomicMetadata):
         return out
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """Initialize model from a GTH formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
@@ -2732,16 +2732,16 @@ class DataFile(MSONable):
     objects: Sequence | None = None
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename) -> Self:
         """Load from a file."""
-        with open(filename) as file:
+        with open(filename, encoding="utf-8") as file:
             data = cls.from_str(file.read())
             for obj in data.objects:
                 obj.filename = filename
             return data
 
     @classmethod
-    def from_str(cls):
+    def from_str(cls) -> None:
         """Initialize from a string."""
         raise NotImplementedError
 
@@ -2763,7 +2763,7 @@ class BasisFile(DataFile):
     """Data file for basis sets only."""
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """Initialize from a string representation."""
         basis_sets = [GaussianTypeOrbitalBasisSet.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
@@ -2774,7 +2774,7 @@ class PotentialFile(DataFile):
     """Data file for potentials only."""
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """Initialize from a string representation."""
         basis_sets = [GthPotential.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)

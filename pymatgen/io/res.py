@@ -15,7 +15,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
-import dateutil.parser  # type: ignore[import]
+import dateutil.parser
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -26,6 +26,9 @@ from pymatgen.io.core import ParseError
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import date
+    from pathlib import Path
+
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
 
@@ -237,7 +240,7 @@ class ResParser:
         return self._parse_txt()
 
     @classmethod
-    def _parse_file(cls, filename: str) -> Res:
+    def _parse_file(cls, filename: str | Path) -> Res:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
@@ -333,12 +336,12 @@ class ResProvider(MSONable):
         return {"magmom": spin}
 
     @classmethod
-    def from_str(cls, string: str) -> ResProvider:
+    def from_str(cls, string: str) -> Self:
         """Construct a Provider from a string."""
         return cls(ResParser._parse_str(string))
 
     @classmethod
-    def from_file(cls, filename: str) -> ResProvider:
+    def from_file(cls, filename: str | Path) -> Self:
         """Construct a Provider from a file."""
         return cls(ResParser._parse_file(filename))
 
@@ -402,12 +405,12 @@ class AirssProvider(ResProvider):
         self.parse_rems = parse_rems
 
     @classmethod
-    def from_str(cls, string: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> AirssProvider:
+    def from_str(cls, string: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> Self:
         """Construct a Provider from a string."""
         return cls(ResParser._parse_str(string), parse_rems)
 
     @classmethod
-    def from_file(cls, filename: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> AirssProvider:
+    def from_file(cls, filename: str | Path, parse_rems: Literal["gentle", "strict"] = "gentle") -> Self:
         """Construct a Provider from a file."""
         return cls(ResParser._parse_file(filename), parse_rems)
 

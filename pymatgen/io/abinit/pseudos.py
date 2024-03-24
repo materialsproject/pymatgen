@@ -109,7 +109,7 @@ class Pseudo(MSONable, abc.ABC):
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
     @staticmethod
-    def from_file(filename) -> Pseudo:
+    def from_file(filename: str) -> Pseudo:
         """
         Build an instance of a concrete Pseudo subclass from filename.
         Note: the parser knows the concrete class that should be instantiated

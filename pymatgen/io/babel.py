@@ -334,7 +334,7 @@ class BabelMolAdaptor:
         return cls(next(mols).OBMol)
 
     @staticmethod
-    def from_molecule_graph(mol: MoleculeGraph) -> BabelMolAdaptor:
+    def from_molecule_graph(mol: MoleculeGraph) -> Self:
         """
         Read a molecule from a pymatgen MoleculeGraph object.
 

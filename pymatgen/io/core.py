@@ -39,6 +39,9 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from os import PathLike
 
+    from typing_extensions import Self
+
+
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
 __status__ = "Development"
@@ -75,7 +78,7 @@ class InputFile(MSONable):
 
     @classmethod
     @abc.abstractmethod
-    def from_str(cls, contents: str) -> InputFile:
+    def from_str(cls, contents: str) -> None:
         """
         Create an InputFile object from a string.
 
@@ -87,7 +90,7 @@ class InputFile(MSONable):
         """
 
     @classmethod
-    def from_file(cls, path: str | Path):
+    def from_file(cls, path: str | Path) -> Self:
         """
         Creates an InputFile object from a file.
 
@@ -226,7 +229,7 @@ class InputSet(MSONable, MutableMapping):
                         pass
 
     @classmethod
-    def from_directory(cls, directory: str | Path):
+    def from_directory(cls, directory: str | Path) -> None:
         """
         Construct an InputSet from a directory of one or more files.
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -17,6 +18,9 @@ from pymatgen.core import Element
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.feff import Header, Potential, Tags
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Alan Dozier, Kiran Mathew, Chen Zheng"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -42,7 +46,7 @@ class LDos(MSONable):
         self.charge_transfer = charge_transfer
 
     @classmethod
-    def from_file(cls, feff_inp_file="feff.inp", ldos_file="ldos"):
+    def from_file(cls, feff_inp_file: str = "feff.inp", ldos_file: str = "ldos") -> Self:
         """
         Creates LDos object from raw Feff ldos files by
         by assuming they are numbered consecutively, i.e. ldos01.dat
@@ -287,7 +291,7 @@ class Xmu(MSONable):
         self.data = np.array(data)
 
     @classmethod
-    def from_file(cls, xmu_dat_file="xmu.dat", feff_inp_file="feff.inp"):
+    def from_file(cls, xmu_dat_file: str = "xmu.dat", feff_inp_file: str = "feff.inp") -> Self:
         """
         Get Xmu from file.
 
@@ -412,7 +416,7 @@ class Eels(MSONable):
         return self.data[:, 3]
 
     @classmethod
-    def from_file(cls, eels_dat_file="eels.dat"):
+    def from_file(cls, eels_dat_file: str = "eels.dat") -> Self:
         """
         Parse eels spectrum.
 
@@ -425,7 +429,7 @@ class Eels(MSONable):
         data = np.loadtxt(eels_dat_file)
         return cls(data)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """Returns dict representations of Xmu object."""
         dct = MSONable.as_dict(self)
         dct["data"] = self.data.tolist()

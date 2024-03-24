@@ -60,6 +60,8 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.core.trajectory import Vector3D
 
 MODULE_DIR = Path(__file__).resolve().parent
@@ -1024,7 +1026,7 @@ class DictSet(VaspInputSet):
         return self
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir: str, **kwargs) -> Self:
         """
         Generate a set of VASP input files for static calculations from a
         directory of previous VASP run.
@@ -2076,7 +2078,7 @@ class MVLGWSet(DictSet):
         return updates
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="DIAG", **kwargs):
+    def from_prev_calc(cls, prev_calc_dir: str, mode: str = "DIAG", **kwargs) -> Self:
         """
         Generate a set of VASP input files for GW or BSE calculations from a
         directory of previous Exact Diag VASP run.

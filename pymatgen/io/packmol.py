@@ -88,7 +88,7 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    def from_directory(cls, directory: str | Path):
+    def from_directory(cls, directory: str | Path) -> None:
         """
         Construct an InputSet from a directory of one or more files.
 

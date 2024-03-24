@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pymatgen.core import Element, Structure
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -20,7 +25,7 @@ class XSF:
         """
         self.structure = structure
 
-    def to_str(self, atom_symbol=True):
+    def to_str(self, atom_symbol: bool = True) -> str:
         """
         Returns a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html.
@@ -51,7 +56,7 @@ class XSF:
         return "\n".join(lines)
 
     @classmethod
-    def from_str(cls, input_string, cls_=None):
+    def from_str(cls, input_string: str, cls_=None) -> Self:
         """
         Initialize a `Structure` object from a string with data in XSF format.
 
@@ -102,5 +107,4 @@ class XSF:
         if cls_ is None:
             cls_ = Structure
 
-        s = cls_(lattice, species, coords, coords_are_cartesian=True)
-        return XSF(s)
+        return cls(cls_(lattice, species, coords, coords_are_cartesian=True))

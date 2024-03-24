@@ -28,6 +28,8 @@ from pymatgen.io.template import TemplateInputGen
 if TYPE_CHECKING:
     from os import PathLike
 
+    from typing_extensions import Self
+
     from pymatgen.io.core import InputSet
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
@@ -536,7 +538,7 @@ class LammpsInputFile(InputFile):
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -616,7 +618,7 @@ class LammpsInputFile(InputFile):
         return LIF
 
     @classmethod
-    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
         """
         Creates an InputFile object from a file.
 

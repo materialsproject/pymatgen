@@ -576,7 +576,7 @@ class FermiDos(Dos, MSONable):
             dct["energies"],
             {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
-        return clas(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
+        return cls(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of Dos."""

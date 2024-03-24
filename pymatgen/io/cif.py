@@ -31,6 +31,8 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
@@ -168,7 +170,7 @@ class CifBlock:
         return deq
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads CifBlock from string.
 
@@ -235,7 +237,7 @@ class CifFile:
         return f"{self.comment}\n{out}\n"
 
     @classmethod
-    def from_str(cls, string) -> CifFile:
+    def from_str(cls, string: str) -> Self:
         """Reads CifFile from a string.
 
         Args:
@@ -262,7 +264,7 @@ class CifFile:
         return cls(dct, string)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> CifFile:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads CifFile from a filename.
 
@@ -365,7 +367,7 @@ class CifParser:
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
-    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
+    def from_str(cls, cif_string: str, **kwargs) -> Self:
         """
         Creates a CifParser from a string.
 

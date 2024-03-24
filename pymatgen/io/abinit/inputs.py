@@ -145,7 +145,7 @@ class ShiftMode(Enum):
     OneSymmetric = "O"
 
     @classmethod
-    def from_object(cls, obj):
+    def from_object(cls, obj) -> Self:
         """
         Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
         on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
@@ -1049,7 +1049,7 @@ class BasicMultiDataset:
     Error = BasicAbinitInputError
 
     @classmethod
-    def from_inputs(cls, inputs):
+    def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
         """Build object from a list of BasicAbinitInput objects."""
         for inp in inputs:
             if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):

@@ -25,6 +25,8 @@ from pymatgen.transformations.site_transformations import PartialRemoveSitesTran
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
 
@@ -209,7 +211,7 @@ class SupercellTransformation(AbstractTransformation):
         self.scaling_matrix = scaling_matrix
 
     @classmethod
-    def from_scaling_factors(cls, scale_a=1, scale_b=1, scale_c=1):
+    def from_scaling_factors(cls, scale_a: float = 1, scale_b: float = 1, scale_c: float = 1) -> Self:
         """Convenience method to get a SupercellTransformation from a simple
         series of three numbers for scaling each lattice vector. Equivalent to
         calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],

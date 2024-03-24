@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as cst
@@ -16,6 +17,11 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -275,7 +281,7 @@ class GaussianInput:
         return Molecule(species, coords)
 
     @classmethod
-    def from_str(cls, contents):
+    def from_str(cls, contents: str) -> Self:
         """
         Creates GaussianInput from a string.
 
@@ -350,7 +356,7 @@ class GaussianInput:
         )
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates GaussianInput from a file.
 
@@ -458,7 +464,7 @@ class GaussianInput:
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GaussianInput:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict

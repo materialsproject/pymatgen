@@ -14,6 +14,7 @@ import os
 import sys
 import warnings
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -22,6 +23,9 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -282,7 +286,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         return "\n".join(output)
 
     @classmethod
-    def from_directory(cls, input_dir):
+    def from_directory(cls, input_dir: str) -> Self:
         """
         Read in a set of FEFF input files from a directory, which is
         useful when existing FEFF input needs some adjustment.

@@ -37,6 +37,7 @@ from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from pathlib import Path
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -219,7 +220,7 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @classmethod
-    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
+    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Self:
         """
         Reads a Poscar from a file.
 
@@ -270,7 +271,7 @@ class Poscar(MSONable):
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    def from_str(cls, data, default_names=None, read_velocities=True) -> Poscar:
+    def from_str(cls, data, default_names=None, read_velocities=True) -> Self:
         """
         Reads a Poscar from a string.
 
@@ -607,7 +608,7 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Poscar:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -718,7 +719,7 @@ class Incar(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Incar:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Serialized Incar
@@ -785,7 +786,7 @@ class Incar(dict, MSONable):
             file.write(str(self))
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Incar:
+    def from_file(cls, filename: PathLike) -> Self:
         """Reads an Incar object from a file.
 
         Args:
@@ -798,7 +799,7 @@ class Incar(dict, MSONable):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string: str) -> Incar:
+    def from_str(cls, string: str) -> Self:
         """Reads an Incar object from a string.
 
         Args:
@@ -1006,7 +1007,7 @@ class KpointsSupportedModes(Enum):
         return str(self.name)
 
     @classmethod
-    def from_str(cls, mode: str) -> KpointsSupportedModes:
+    def from_str(cls, mode: str) -> Self:
         """
         Args:
             mode: String
@@ -1358,7 +1359,7 @@ class Kpoints(MSONable):
         return self.as_dict() == other.as_dict()
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a Kpoints object from a KPOINTS file.
 
@@ -1372,7 +1373,7 @@ class Kpoints(MSONable):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a Kpoints object from a KPOINTS string.
 
@@ -1855,7 +1856,7 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
 
     @classmethod
-    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
+    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None) -> Self:
         """Makes a PotcarSingle from a symbol and functional.
 
         Args:
@@ -2655,7 +2656,7 @@ class VaspInput(dict, MSONable):
                     file.write(str(v))
 
     @classmethod
-    def from_directory(cls, input_dir, optional_files=None):
+    def from_directory(cls, input_dir: str, optional_files: dict | None = None) -> Self:
         """
         Read in a set of VASP input from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
