@@ -58,7 +58,7 @@ class HeisenbergMapper:
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
                 being equal.
 
-        Parameters:
+        Attributes:
             strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
             sgraphs (list): StructureGraph objects.
             unique_site_ids (dict): Maps each site to its unique numerical identifier.

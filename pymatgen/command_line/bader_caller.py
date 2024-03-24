@@ -90,7 +90,7 @@ class BaderAnalysis:
             """Utility function to copy a compressed file to a target directory (ScratchDir)
             and decompress it, to avoid modifying files in place.
 
-            Parameters:
+            Args:
                 file (str | Path): The path to the compressed file to be decompressed.
                 target_dir (str, optional): The target directory where the decompressed file will be stored.
                     Defaults to "." (current directory).

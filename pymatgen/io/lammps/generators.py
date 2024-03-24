@@ -42,7 +42,7 @@ class BaseLammpsGenerator(InputGenerator):
     The parameters are then replaced based on the values found
     in the settings dictionary that you provide, e.g., `{"nsteps": 1000}`.
 
-    Parameters:
+    Attributes:
         template: Path (string) to the template file used to create the InputFile for LAMMPS.
         calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
         settings: Dictionary containing the values of the parameters to replace in the template.
