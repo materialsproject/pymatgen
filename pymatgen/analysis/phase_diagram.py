@@ -409,7 +409,7 @@ class PhaseDiagram(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> PhaseDiagram:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): dictionary representation of PhaseDiagram.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -10,6 +11,9 @@ from pymatgen.core import Site, Species
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -100,7 +104,7 @@ class ChemicalShielding(SquareTensor):
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
-    def from_maryland_notation(cls, sigma_iso, omega, kappa):
+    def from_maryland_notation(cls, sigma_iso, omega, kappa) -> Self:
         """
         Initialize from Maryland notation.
 

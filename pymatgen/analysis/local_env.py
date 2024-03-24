@@ -34,6 +34,8 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.composition import SpeciesLike
 
 
@@ -4215,7 +4217,7 @@ class CutOffDictNN(NearNeighbors):
         return True
 
     @classmethod
-    def from_preset(cls, preset) -> CutOffDictNN:
+    def from_preset(cls, preset) -> Self:
         """
         Initialize a CutOffDictNN according to a preset set of cutoffs.
 
