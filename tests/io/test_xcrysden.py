@@ -1,43 +1,42 @@
 from __future__ import annotations
 
+import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
 from pymatgen.util.testing import PymatgenTest
 
 
 class TestXSF(PymatgenTest):
-    def test_xsf(self):
-        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = [
+    def setUp(self):
+        self.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        self.lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        structure = Structure(lattice, ["Si", "Si"], coords)
-        xsf = XSF(structure)
-        assert structure, XSF.from_str(xsf.to_str())
+        self.struct = Structure(self.lattice, ["Si", "Si"], self.coords)
+
+    def test_xsf(self):
+        xsf = XSF(self.struct)
+        assert self.struct, XSF.from_str(xsf.to_str())
+        xsf = XSF(self.struct)
+        assert self.struct, XSF.from_str(xsf.to_str())
 
     def test_append_vect(self):
-        coords = [[0, 0, 0]]
-        lattice = [
-            [3.8401979337, 0.00, 0.00],
-            [1.9200989668, 3.3257101909, 0.00],
-            [0.00, -2.2171384943, 3.1355090603],
-        ]
-        structure = Structure(lattice, ["Si"], coords)
-        structure.add_site_property("vect", [[1.0, 0.0, 0.0]])
-        xsf_str = XSF(structure).to_str().split("\n")[-1].split()
-        assert len(xsf_str) == 7
-        assert xsf_str[-1] == "0.00000000000000"
-        assert xsf_str[-2] == "0.00000000000000"
-        assert xsf_str[-3] == "1.00000000000000"
+        self.struct.add_site_property("vect", np.eye(2, 3))
+        xsf_str = XSF(self.struct).to_str()
+        last_line_split = xsf_str.split("\n")[-1].split()
+        assert len(last_line_split) == 7
+        assert last_line_split[-1] == "0.00000000000000"
+        assert last_line_split[-2] == "1.00000000000000"
+        assert last_line_split[-3] == "0.00000000000000"
 
     def test_to_str(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
-        xsf_str = xsf.to_str()
         assert (
-            xsf_str
+            xsf.to_str()
             == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
@@ -51,9 +50,9 @@ O     0.00000000000000     0.00000000000000     0.00000000000000
 Li     3.01213761017484     2.21364440998406     4.74632330032018
 Li     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
-        xsf_str = xsf.to_str(atom_symbol=False)
+
         assert (
-            xsf_str
+            xsf.to_str(atom_symbol=False)
             == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
