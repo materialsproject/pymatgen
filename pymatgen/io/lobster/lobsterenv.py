@@ -32,6 +32,8 @@ from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "Janine George"
@@ -1267,7 +1269,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         list_neighisite,
         structure: Structure,
         valences=None,
-    ):
+    ) -> Self:
         """
         Will set up a LightStructureEnvironments from Lobster.
 

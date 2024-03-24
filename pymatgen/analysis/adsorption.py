@@ -25,6 +25,7 @@ from pymatgen.util.coord import in_coord_list_pbc
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -88,7 +89,7 @@ class AdsorbateSiteFinder:
         center_slab=True,
         selective_dynamics=False,
         undercoord_threshold=0.09,
-    ):
+    ) -> Self:
         """This method constructs the adsorbate site finder from a bulk
         structure and a miller index, which allows the surface sites to be
         determined from the difference in bulk and slab coordination, as

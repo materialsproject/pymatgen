@@ -322,7 +322,7 @@ class Interface(Structure):
         vacuum_over_film: float = 0,
         interface_properties: dict | None = None,
         center_slab: bool = True,
-    ) -> Interface:
+    ) -> Self:
         """Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
         a- and b-vectors.

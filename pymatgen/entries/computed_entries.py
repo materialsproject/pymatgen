@@ -879,7 +879,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         )
 
     @classmethod
-    def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> list[GibbsComputedStructureEntry]:
+    def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> list[Self]:
         """Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
@@ -913,7 +913,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return gibbs_entries
 
     @classmethod
-    def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> list[GibbsComputedStructureEntry]:
+    def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> list[Self]:
         """Constructor method for initializing GibbsComputedStructureEntry objects from
         T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
         database e.g. The Materials Project.

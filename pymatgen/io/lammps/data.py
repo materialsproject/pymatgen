@@ -745,7 +745,7 @@ class LammpsData(MSONable):
     @classmethod
     def from_ff_and_topologies(
         cls, box: LammpsBox, ff: ForceField, topologies: Sequence[Topology], atom_style: str = "full"
-    ):
+    ) -> Self:
         """
         Constructor building LammpsData from a ForceField object and a
         list of Topology objects. Do not support intermolecular
@@ -820,7 +820,7 @@ class LammpsData(MSONable):
         ff_elements: Sequence[str] | None = None,
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
-    ):
+    ) -> Self:
         """
         Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
@@ -971,7 +971,7 @@ class Topology(MSONable):
         dihedral: bool = True,
         tol: float = 0.1,
         **kwargs,
-    ):
+    ) -> Self:
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -1375,6 +1375,7 @@ class CombinedData(LammpsData):
             for mol in self.mols
         ]
 
+    # TODO(@DanielYang59): should the following two methods be removed?
     @classmethod
     def from_ff_and_topologies(cls) -> None:
         """Unsupported constructor for CombinedData objects."""
@@ -1434,7 +1435,7 @@ class CombinedData(LammpsData):
     @classmethod
     def from_lammpsdata(
         cls, mols: list, names: list, list_of_numbers: list, coordinates: pd.DataFrame, atom_style: str | None = None
-    ) -> CombinedData:
+    ) -> Self:
         """
         Constructor that can infer atom_style.
         The input LammpsData objects are used non-destructively.

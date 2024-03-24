@@ -713,7 +713,7 @@ class Cp2kInput(Section):
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Section:
+    def from_file(cls, filename: str | Path) -> Self:
         """Initialize from a file."""
         with zopen(filename, mode="rt") as file:
             txt = preprocessor(file.read(), os.path.dirname(file.name))

@@ -394,7 +394,7 @@ class QCInput(InputFile):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
+    def from_multi_jobs_file(cls, filename: str) -> list[Self]:
         """
         Create list of QcInput from a file.
 

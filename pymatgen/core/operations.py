@@ -559,7 +559,7 @@ class MagSymmOp(SymmOp):
         translation_vec: ArrayLike = (0, 0, 0),
         time_reversal: int = 1,
         tol: float = 0.1,
-    ) -> MagSymmOp:
+    ) -> Self:
         """Creates a symmetry operation from a rotation matrix, translation
         vector and time reversal operator.
 

@@ -318,7 +318,7 @@ class Lattice(MSONable):
         gamma: float,
         vesta: bool = False,
         pbc: tuple[bool, bool, bool] = (True, True, True),
-    ):
+    ) -> Self:
         """Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
         Args:
@@ -360,7 +360,7 @@ class Lattice(MSONable):
             ]
             vector_c = [0.0, 0.0, float(c)]
 
-        return Lattice([vector_a, vector_b, vector_c], pbc)
+        return cls([vector_a, vector_b, vector_c], pbc)
 
     @classmethod
     def from_dict(cls, dct: dict, fmt: str | None = None, **kwargs) -> Self:

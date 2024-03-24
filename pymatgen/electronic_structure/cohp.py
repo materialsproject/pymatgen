@@ -189,12 +189,12 @@ class Cohp(MSONable):
         return dict_to_return
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Cohp:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
         are_cobis = dct.get("are_cobis", False)
         are_multi_center_cobis = dct.get("are_multi_center_cobis", False)
-        return Cohp(
+        return cls(
             dct["efermi"],
             dct["energies"],
             {Spin(int(key)): np.array(val) for key, val in dct["COHP"].items()},
@@ -647,7 +647,7 @@ class CompleteCohp(Cohp):
 
         are_cobis = dct.get("are_cobis", False)
 
-        return CompleteCohp(
+        return cls(
             structure,
             avg_cohp,
             cohp_dict,
@@ -661,7 +661,7 @@ class CompleteCohp(Cohp):
     @classmethod
     def from_file(
         cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False, are_multi_center_cobis=False
-    ):
+    ) -> Self:
         """
         Creates a CompleteCohp object from an output file of a COHP
         calculation. Valid formats are either LMTO (for the Stuttgart
@@ -846,7 +846,7 @@ class CompleteCohp(Cohp):
             for key, dct in cohp_data.items()
         }
 
-        return CompleteCohp(
+        return cls(
             structure,
             avg_cohp,
             cohp_dict,

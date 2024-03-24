@@ -42,7 +42,7 @@ class InsertionElectrode(AbstractElectrode):
         entries: Iterable[ComputedEntry | ComputedStructureEntry],
         working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
-    ):
+    ) -> Self:
         """Create a new InsertionElectrode.
 
         Args:

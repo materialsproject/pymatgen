@@ -211,7 +211,7 @@ $theory_spec
         Returns:
             NwTask
         """
-        return NwTask(
+        return cls(
             charge=dct["charge"],
             spin_multiplicity=dct["spin_multiplicity"],
             title=dct["title"],
@@ -236,7 +236,7 @@ $theory_spec
         operation="optimize",
         theory_directives=None,
         alternate_directives=None,
-    ):
+    ) -> Self:
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -284,7 +284,7 @@ $theory_spec
         if isinstance(basis_set, str):
             basis_set = dict.fromkeys(elements, basis_set)
 
-        return NwTask(
+        return cls(
             charge,
             spin_multiplicity,
             basis_set,

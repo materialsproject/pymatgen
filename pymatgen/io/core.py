@@ -88,6 +88,7 @@ class InputFile(MSONable):
         Returns:
             InputFile
         """
+        raise NotImplementedError(f"from_str has not been implemented in {cls.__name__}")
 
     @classmethod
     def from_file(cls, path: str | Path) -> Self:
