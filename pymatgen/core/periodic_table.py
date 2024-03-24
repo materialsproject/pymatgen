@@ -20,10 +20,12 @@ from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mas
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.util.typing import SpeciesLike
 
 # Loads element data from json file
-with open(Path(__file__).absolute().parent / "periodic_table.json") as ptable_json:
+with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _pt_data = json.load(ptable_json)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -1038,7 +1040,7 @@ class Species(MSONable, Stringify):
         return None
 
     @classmethod
-    def from_str(cls, species_string: str) -> Species:
+    def from_str(cls, species_string: str) -> Self:
         """Returns a Species from a string representation.
 
         Args:
@@ -1092,6 +1094,7 @@ class Species(MSONable, Stringify):
             if isinstance(abs_charge, float):
                 abs_charge = f"{abs_charge:.2f}"
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
+
         if self._spin is not None:
             spin = self._spin
             output += f",{spin=}"
@@ -1184,16 +1187,20 @@ class Species(MSONable, Stringify):
         """
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):
             raise ValueError("Invalid coordination or spin config")
+
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
+
         n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
+
         if spin_config == "high":
             if n_electrons <= 5:
                 return n_electrons
             return 10 - n_electrons
+
         if spin_config == "low":
             if coordination == "oct":
                 if n_electrons <= 3:
@@ -1203,6 +1210,7 @@ class Species(MSONable, Stringify):
                 if n_electrons <= 8:
                     return n_electrons - 6
                 return 10 - n_electrons
+
             if coordination == "tet":
                 if n_electrons <= 2:
                     return n_electrons
@@ -1211,7 +1219,8 @@ class Species(MSONable, Stringify):
                 if n_electrons <= 7:
                     return n_electrons - 4
                 return 10 - n_electrons
-        raise RuntimeError(f"should not reach here, {spin_config=}, {coordination=}")
+            return None
+        return None
 
     def __deepcopy__(self, memo) -> Species:
         return Species(self.symbol, self.oxi_state, spin=self._spin)
@@ -1227,7 +1236,7 @@ class Species(MSONable, Stringify):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Species:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -1347,7 +1356,7 @@ class DummySpecies(Species):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @classmethod
-    def from_str(cls, species_string: str) -> DummySpecies:
+    def from_str(cls, species_string: str) -> Self:
         """Returns a Dummy from a string representation.
 
         Args:
@@ -1386,7 +1395,7 @@ class DummySpecies(Species):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> DummySpecies:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.

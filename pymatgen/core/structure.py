@@ -105,12 +105,12 @@ class Neighbor(Site):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index)[idx]
 
-    def as_dict(self) -> dict:  # type: ignore
+    def as_dict(self) -> dict:
         """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Neighbor:  # type: ignore
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a Neighbor from a dict.
 
         Args:
@@ -177,12 +177,12 @@ class PeriodicNeighbor(PeriodicSite):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
 
-    def as_dict(self) -> dict:  # type: ignore
+    def as_dict(self) -> dict:  # type: ignore[override]
         """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()
 
     @classmethod
-    def from_dict(cls, dct: dict) -> PeriodicNeighbor:  # type: ignore
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
         """Returns a PeriodicNeighbor from a dict.
 
         Args:
@@ -3657,7 +3657,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """Reads a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,
@@ -4449,7 +4449,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self._calculate(calculator, verbose=verbose)
 
     @classmethod
-    def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
+    def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Self:
         """Method to rapidly construct common prototype structures.
 
         Args:

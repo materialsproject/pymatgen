@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
@@ -422,7 +423,7 @@ class SymmOp(MSONable):
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
     @classmethod
-    def from_xyz_str(cls, xyz_str: str) -> SymmOp:
+    def from_xyz_str(cls, xyz_str: str) -> Self:
         """
         Args:
             xyz_str: string of the form 'x, y, z', '-x, -y, z', '-2y+1/2, 3x+1/2, z-y+1/2', etc.
@@ -451,7 +452,7 @@ class SymmOp(MSONable):
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, dct) -> SymmOp:
+    def from_dict(cls, dct) -> Self:
         """
         Args:
             dct: dict.
@@ -540,7 +541,7 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symmop: SymmOp, time_reversal) -> MagSymmOp:
+    def from_symmop(cls, symmop: SymmOp, time_reversal) -> Self:
         """Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
         Args:
@@ -577,7 +578,7 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @classmethod
-    def from_xyzt_str(cls, xyzt_str: str) -> MagSymmOp:
+    def from_xyzt_str(cls, xyzt_str: str) -> Self:
         """
         Args:
             xyzt_str (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
@@ -611,7 +612,7 @@ class MagSymmOp(SymmOp):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> MagSymmOp:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict.

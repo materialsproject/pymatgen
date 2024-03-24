@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from itertools import chain, combinations, product
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -15,6 +16,9 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Site, Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Interface(Structure):

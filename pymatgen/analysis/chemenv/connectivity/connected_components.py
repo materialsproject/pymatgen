@@ -238,7 +238,10 @@ class ConnectedComponent(MSONable):
                         "__init__",
                         "Trying to add edge with some unexistent node ...",
                     )
-                if links_data is not None:
+                if links_data is None:
+                    edge_data = None
+
+                else:
                     if (env_node1, env_node2, key) in links_data:
                         edge_data = links_data[(env_node1, env_node2, key)]
                     elif (env_node2, env_node1, key) in links_data:
@@ -249,8 +252,7 @@ class ConnectedComponent(MSONable):
                         edge_data = links_data[(env_node2, env_node1)]
                     else:
                         edge_data = None
-                else:
-                    edge_data = None
+
                 if edge_data:
                     self._connected_subgraph.add_edge(env_node1, env_node2, key, **edge_data)
                 else:
