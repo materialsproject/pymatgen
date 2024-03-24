@@ -164,8 +164,6 @@ class Unit(collections.abc.Mapping):
     Only integer powers are supported for units.
     """
 
-    Error = UnitError
-
     def __init__(self, unit_def) -> None:
         """Constructs a unit.
 
@@ -292,8 +290,6 @@ class FloatWithUnit(float):
     32.932522246000005 eV
     """
 
-    Error = UnitError
-
     def __init__(self, val: float, unit: str, unit_type: str | None = None) -> None:
         """Initializes a float with unit.
 
@@ -393,10 +389,9 @@ class FloatWithUnit(float):
     @classmethod
     def from_str(cls, s: str) -> Self:
         """Parse string to FloatWithUnit.
-
-        Example: Memory.from_str("1. Mb")
+        Example: Memory.from_str("1. Mb").
         """
-        # Extract num and unit string
+        # Extract num and unit string.
         s = s.strip()
         for _idx, char in enumerate(s):
             if char.isalpha() or char.isspace():
@@ -405,15 +400,14 @@ class FloatWithUnit(float):
             raise Exception(f"Unit is missing in string {s}")
         num, unit = float(s[:_idx]), s[_idx:]
 
-        # Find unit type
+        # Find unit type (set it to None if it cannot be detected)
         for _unit_type, dct in BASE_UNITS.items():
             if unit in dct:
                 break
+        else:
+            _unit_type = None
 
-        # Set it to None if it cannot be detected
-        unit_type = _unit_type if _unit_type is not None else None
-
-        return cls(num, unit, unit_type=unit_type)
+        return cls(num, unit, unit_type=_unit_type)
 
     def to(self, new_unit):
         """Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
