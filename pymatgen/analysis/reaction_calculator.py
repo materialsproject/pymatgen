@@ -181,7 +181,7 @@ class BalancedReaction(MSONable):
         """Returns coefficient for a particular composition."""
         return self._coeffs[self._all_comp.index(comp)]
 
-    def normalized_repr_and_factor(self) -> str:
+    def normalized_repr_and_factor(self) -> tuple[str, float]:
         """
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``.
@@ -460,7 +460,7 @@ class ComputedReaction(Reaction):
         Returns (float):
             The calculated reaction energy.
         """
-        calc_energies = {}
+        calc_energies: dict[Composition, float] = {}
 
         for entry in self._reactant_entries + self._product_entries:
             comp, factor = entry.composition.get_reduced_composition_and_factor()
@@ -474,14 +474,15 @@ class ComputedReaction(Reaction):
         Calculates the uncertainty in the reaction energy based on the uncertainty in the
         energies of the products and reactants.
         """
-        calc_energies = {}
+        calc_energies: dict[Composition, float] = {}
 
         for entry in self._reactant_entries + self._product_entries:
             comp, factor = entry.composition.get_reduced_composition_and_factor()
             energy_ufloat = ufloat(entry.energy, entry.correction_uncertainty)
             calc_energies[comp] = min(calc_energies.get(comp, float("inf")), energy_ufloat / factor)
 
-        return self.calculate_energy(calc_energies).std_dev
+        # Calculate standard deviation
+        return np.std(calc_energies.values())
 
     def as_dict(self) -> dict:
         """

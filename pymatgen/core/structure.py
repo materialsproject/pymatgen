@@ -3657,7 +3657,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: str | Path) -> Self | None:  # type: ignore[override]
         """Reads a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,

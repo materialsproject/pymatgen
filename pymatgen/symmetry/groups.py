@@ -496,7 +496,7 @@ class SpaceGroup(SymmetryGroup):
         symbol = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
         if not hexagonal and int_number in (146, 148, 155, 160, 161, 166, 167):
             symbol += ":R"
-        return SpaceGroup(symbol)
+        return cls(symbol)
 
     def __repr__(self) -> str:
         symbol = self.symbol

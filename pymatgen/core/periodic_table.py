@@ -236,12 +236,12 @@ class ElementBase(Enum):
                                     unit = "K^-1"
                                 else:
                                     unit = tokens[1]
-                                val = FloatWithUnit(tokens[0], unit)
+                                val = FloatWithUnit(float(tokens[0]), unit)
                             else:
                                 unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
                                 units = Unit(unit)
                                 if set(units).issubset(SUPPORTED_UNIT_NAMES):
-                                    val = FloatWithUnit(tokens[0], unit)
+                                    val = FloatWithUnit(float(tokens[0]), unit)
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
