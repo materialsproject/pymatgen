@@ -33,7 +33,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
+def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: Structure):
     """
     Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.
 

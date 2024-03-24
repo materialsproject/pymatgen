@@ -16,6 +16,8 @@ from pymatgen.core.units import Charge, Time
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from typing_extensions import Self
+
     from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -43,7 +45,7 @@ class ConversionElectrode(AbstractElectrode):
         return Composition(self.initial_comp_formula)
 
     @classmethod
-    def from_composition_and_pd(cls, comp, pd, working_ion_symbol="Li", allow_unstable=False):
+    def from_composition_and_pd(cls, comp, pd, working_ion_symbol="Li", allow_unstable=False) -> Self:
         """Convenience constructor to make a ConversionElectrode from a
         composition and a phase diagram.
 
@@ -96,7 +98,9 @@ class ConversionElectrode(AbstractElectrode):
         )
 
     @classmethod
-    def from_composition_and_entries(cls, comp, entries_in_chemsys, working_ion_symbol="Li", allow_unstable=False):
+    def from_composition_and_entries(
+        cls, comp, entries_in_chemsys, working_ion_symbol="Li", allow_unstable=False
+    ) -> Self:
         """Convenience constructor to make a ConversionElectrode from a
         composition and all entries in a chemical system.
 
@@ -278,7 +282,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     entries_discharge: Iterable[ComputedEntry]
 
     @classmethod
-    def from_steps(cls, step1, step2, normalization_els, framework_formula):
+    def from_steps(cls, step1, step2, normalization_els, framework_formula) -> Self:
         """Creates a ConversionVoltagePair from two steps in the element profile
         from a PD analysis.
 

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
 
@@ -81,7 +82,7 @@ class Deformation(SquareTensor):
         return def_struct
 
     @classmethod
-    def from_index_amount(cls, matrix_pos, amt):
+    def from_index_amount(cls, matrix_pos, amt) -> Self:
         """
         Factory method for constructing a Deformation object
         from a matrix position and amount.
@@ -185,7 +186,7 @@ class Strain(SquareTensor):
         self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
-    def from_deformation(cls, deformation: ArrayLike) -> Strain:
+    def from_deformation(cls, deformation: ArrayLike) -> Self:
         """
         Factory method that returns a Strain object from a deformation
         gradient.
@@ -197,7 +198,7 @@ class Strain(SquareTensor):
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)))
 
     @classmethod
-    def from_index_amount(cls, idx, amount):
+    def from_index_amount(cls, idx: tuple | int, amount: float) -> Self:
         """
         Like Deformation.from_index_amount, except generates
         a strain from the zero 3x3 tensor or Voigt vector with

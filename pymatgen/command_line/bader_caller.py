@@ -34,6 +34,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "shyuepingong"
@@ -441,7 +443,7 @@ class BaderAnalysis:
         return summary
 
     @classmethod
-    def from_path(cls, path: str, suffix: str = "") -> BaderAnalysis:
+    def from_path(cls, path: str, suffix: str = "") -> Self:
         """Convenient constructor that takes in the path name of VASP run
         to perform Bader analysis.
 

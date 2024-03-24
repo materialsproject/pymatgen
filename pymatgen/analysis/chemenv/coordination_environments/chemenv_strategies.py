@@ -479,7 +479,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, dct) -> AbstractChemenvStrategy:
+    def from_dict(cls, dct) -> Self:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
@@ -860,7 +860,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> SimplestChemenvStrategy:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SimplestChemenvStrategy object from a dict representation of the SimplestChemenvStrategy object
         created using the as_dict method.
@@ -1065,7 +1065,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> SimpleAbundanceChemenvStrategy:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
@@ -1240,7 +1240,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         )
 
     @classmethod
-    def from_dict(cls, dct) -> TargetedPenaltiedAbundanceChemenvStrategy:
+    def from_dict(cls, dct) -> Self:
         """
         Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
         TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
@@ -2924,7 +2924,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> WeightedNbSetChemenvStrategy:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the WeightedNbSetChemenvStrategy object from a dict representation of the
         WeightedNbSetChemenvStrategy object created using the as_dict method.
@@ -3101,7 +3101,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> MultiWeightsChemenvStrategy:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the MultiWeightsChemenvStrategy object from a dict representation of the
         MultipleAbundanceChemenvStrategy object created using the as_dict method.

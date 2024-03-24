@@ -282,7 +282,7 @@ class Interface(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Interface:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
         """
         Args:
             dct: dict.

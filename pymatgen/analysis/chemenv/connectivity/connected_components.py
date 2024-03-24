@@ -859,7 +859,7 @@ class ConnectedComponent(MSONable):
         return cls(graph=graph)
 
     @classmethod
-    def from_graph(cls, g):
+    def from_graph(cls, g) -> Self:
         """
         Constructor for the ConnectedComponent object from a graph of the connected component.
 

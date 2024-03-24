@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -92,7 +93,7 @@ class NthOrderElasticTensor(Tensor):
         return e_density
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10) -> Self:
         """
         Takes a list of strains and stresses, and returns a list of coefficients for a
         polynomial fit of the given order.
@@ -459,7 +460,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return sp_dict
 
     @classmethod
-    def from_pseudoinverse(cls, strains, stresses):
+    def from_pseudoinverse(cls, strains, stresses) -> Self:
         """
         Class method to fit an elastic tensor from stress/strain
         data. Method uses Moore-Penrose pseudo-inverse to invert
@@ -483,7 +484,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10):
+    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10) -> Self:
         """
         Constructs the elastic tensor least-squares fit of independent strains
 
@@ -555,7 +556,7 @@ class ElasticTensorExpansion(TensorCollection):
         super().__init__(c_list)
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3) -> Self:
         """
         Generates an elastic tensor expansion via the fitting function
         defined below in diff_fit.
