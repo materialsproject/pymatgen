@@ -72,10 +72,11 @@ class ExcitingInput(MSONable):
     @classmethod
     def from_str(cls, data: str) -> Self:
         """Reads the exciting input from a string."""
-        root = ET.fromstring(data)
+        root: ET.Element = ET.fromstring(data)
         struct = root.find("structure")
         if struct is None:
             raise ValueError("No structure found in input file!")
+
         species_node = struct.iter("species")
         elements = []
         positions = []

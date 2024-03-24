@@ -2523,7 +2523,7 @@ class PotentialInfo(MSONable):
     def from_str(cls, string: str) -> Self:
         """Get a cp2k formatted string representation."""
         string = string.upper()
-        data = {}
+        data: dict[str, Any] = {}
         if "NLCC" in string:
             data["nlcc"] = True
         if "GTH" in string:
@@ -2683,9 +2683,9 @@ class GthPotential(AtomicMetadata):
         )
         nprj = int(lines[3].split()[0]) if len(lines) > 3 else 0
 
-        radii = {}
-        nprj_ppnl = {}
-        hprj_ppnl = {}
+        radii: dict[int, float] = {}
+        nprj_ppnl: dict[int, int] = {}
+        hprj_ppnl: dict[int, dict] = {}
         lines = lines[4:]
         i = 0
         ll = 0
@@ -2696,8 +2696,8 @@ class GthPotential(AtomicMetadata):
             radii[ll] = float(line[0])
             nprj_ppnl[ll] = int(line[1])
             hprj_ppnl[ll] = {x: {} for x in range(nprj_ppnl[ll])}
-            line = list(map(float, line[2:]))
-            hprj_ppnl[ll][0] = {j: float(ln) for j, ln in enumerate(line)}
+            _line = [float(i) for i in line[2:]]
+            hprj_ppnl[ll][0] = {j: float(ln) for j, ln in enumerate(_line)}
 
             L = 1
             i += 1
@@ -2732,8 +2732,9 @@ class DataFile(MSONable):
     objects: Sequence | None = None
 
     @classmethod
-    def from_file(cls, filename) -> Self:
+    def from_file(cls, filename) -> None:
         """Load from a file."""
+        raise NotImplementedError
         with open(filename, encoding="utf-8") as file:
             data = cls.from_str(file.read())
             for obj in data.objects:
@@ -2763,7 +2764,7 @@ class BasisFile(DataFile):
     """Data file for basis sets only."""
 
     @classmethod
-    def from_str(cls, string: str) -> Self:
+    def from_str(cls, string: str) -> Self:  # type: ignore[override]
         """Initialize from a string representation."""
         basis_sets = [GaussianTypeOrbitalBasisSet.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
@@ -2774,7 +2775,7 @@ class PotentialFile(DataFile):
     """Data file for potentials only."""
 
     @classmethod
-    def from_str(cls, string: str) -> Self:
+    def from_str(cls, string: str) -> Self:  # type: ignore[override]
         """Initialize from a string representation."""
         basis_sets = [GthPotential.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
