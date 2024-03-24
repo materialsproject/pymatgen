@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from collections import namedtuple
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Callable
 
 import matplotlib.pyplot as plt
@@ -19,6 +18,7 @@ from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from os import PathLike
     from typing import Any, Literal
 
@@ -619,9 +619,8 @@ class PhononBSPlotter:
 
     def plot_compare(
         self,
-        other_plotter: PhononBSPlotter | Sequence[PhononBSPlotter],
+        other_plotter: dict[str, PhononBSPlotter],
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
-        labels: tuple[str, str] | None = None,
         legend_kwargs: dict | None = None,
         on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
         other_kwargs: dict | None = None,
@@ -633,14 +632,10 @@ class PhononBSPlotter:
         initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter (PhononBSPlotter | Sequence[PhononBSPlotter]): another PhononBSPlotter object or Sequence of
-                PhononBSPPLotters defined along the same symmetry lines
+            other_plotter (dict[str, PhononBSPlotter]): other PhononBSPlotter objects defined along
+                the same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
-            labels (tuple[str, str] | None): labels for the band structures. Defaults to None,
-                which will use the labels of the PhononBSPlotter objects if present.
-                Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
-                on which plot_compare() is called must come first.
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
             on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the band structures
                 are not compatible. Defaults to 'raise'.
@@ -657,17 +652,13 @@ class PhononBSPlotter:
         colors = ("red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
 
         self_data = self.bs_plot_data()
-        if isinstance(other_plotter, PhononBSPlotter):
-            other_plotter = [other_plotter]
-        assert isinstance(other_plotter, Sequence)
-        assert all(isinstance(p, PhononBSPlotter) for p in other_plotter)
 
         line_width = kwargs.setdefault("linewidth", 1)
         ax = self.get_plot(units=units, **kwargs)
 
         colors_other = []
 
-        for idx, plotter in enumerate(other_plotter):
+        for idx, plotter in enumerate(other_plotter.values()):
             other_data = plotter.bs_plot_data()
 
             if len(self_data["distances"]) != len(other_data["distances"]):
@@ -690,14 +681,14 @@ class PhononBSPlotter:
                     ax.plot(xs, ys, **(_kwargs | other_kwargs))
 
         # add legend showing which color corresponds to which band structure
-        other_labels = [plotter._label for plotter in other_plotter]
-        if labels or (self._label and other_labels):
+        if self._label is None:
+            logger.warning("No label set for self. No legend will be shown.")
+        else:
             color_self = ax.lines[0].get_color()
-            label_self = labels[0] if labels else self._label
-            labels_other = labels[1:] if labels else other_labels
-            ax.plot([], [], label=label_self, linewidth=2 * line_width, color=color_self)
+            ax.plot([], [], label=self._label, linewidth=2 * line_width, color=color_self)
             linestyle = other_kwargs.get("linestyle", "-")
-            for color_other, label_other in zip(colors_other, labels_other):
+            other_labels = other_plotter.keys()
+            for color_other, label_other in zip(colors_other, other_labels):
                 ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 

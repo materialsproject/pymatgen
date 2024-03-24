@@ -56,7 +56,7 @@ class TestPhononBSPlotter(unittest.TestCase):
         with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.bs = PhononBandStructureSymmLine.from_dict(dct)
-            self.plotter = PhononBSPlotter(self.bs)
+            self.plotter = PhononBSPlotter(self.bs, label="NaCl")
         with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
@@ -88,14 +88,14 @@ class TestPhononBSPlotter(unittest.TestCase):
 
     def test_plot_compare(self):
         labels = ("NaCl", "NaCl 2")
-        ax = self.plotter.plot_compare(self.plotter, units="mev", labels=labels)
+        ax = self.plotter.plot_compare({labels[1]: self.plotter}, units="mev")
         assert isinstance(ax, axes.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
         assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
         assert ax.get_title() == ""
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
         labels = ("NaCl", "NaCl 2", "NaCl 3")
-        ax = self.plotter.plot_compare([self.plotter, self.plotter], units="mev", labels=labels)
+        ax = self.plotter.plot_compare({labels[1]: self.plotter, labels[2]: self.plotter}, units="mev")
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
         colors = tuple([itm.get_color() for itm in ax.get_legend().get_lines()])
         assert colors == ("blue", "red", "green")
