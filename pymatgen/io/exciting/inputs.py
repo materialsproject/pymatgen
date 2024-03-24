@@ -73,7 +73,10 @@ class ExcitingInput(MSONable):
     def from_str(cls, data: str) -> Self:
         """Reads the exciting input from a string."""
         root = ET.fromstring(data)
-        species_node = root.find("structure").iter("species")
+        struct = root.find("structure")
+        if struct is None:
+            raise ValueError("No structure found in input file!")
+        species_node = struct.iter("species")
         elements = []
         positions = []
         vectors = []
@@ -106,8 +109,8 @@ class ExcitingInput(MSONable):
                 else:
                     lockxyz.append([False, False, False])
         # check the atomic positions type
-        if "cartesian" in root.find("structure").attrib:
-            if root.find("structure").attrib["cartesian"]:
+        if "cartesian" in struct.attrib:
+            if struct.attrib["cartesian"]:
                 cartesian = True
                 for p in positions:
                     for j in range(3):
@@ -116,13 +119,13 @@ class ExcitingInput(MSONable):
         else:
             cartesian = False
         # get the scale attribute
-        scale_in = root.find("structure").find("crystal").get("scale")
+        scale_in = struct.find("crystal").get("scale")
         scale = float(scale_in) * ExcitingInput.bohr2ang if scale_in else ExcitingInput.bohr2ang
         # get the stretch attribute
-        stretch_in = root.find("structure").find("crystal").get("stretch")
+        stretch_in = struct.find("crystal").get("stretch")
         stretch = np.array([float(a) for a in stretch_in]) if stretch_in else np.array([1.0, 1.0, 1.0])
         # get basis vectors and scale them accordingly
-        basisnode = root.find("structure").find("crystal").iter("basevect")
+        basisnode = struct.find("crystal").iter("basevect")
         for vect in basisnode:
             x, y, z = vect.text.split()
             vectors.append(

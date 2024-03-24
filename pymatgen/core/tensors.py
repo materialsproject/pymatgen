@@ -46,14 +46,14 @@ class Tensor(np.ndarray, MSONable):
 
     symbol = "T"
 
-    def __new__(cls, input_array, vscale=None, check_rank=None):
+    def __new__(cls, input_array, vscale=None, check_rank=None) -> Self:
         """Create a Tensor object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
         Args:
             input_array: (array-like with shape 3^N): array-like representing
-                a tensor quantity in standard (i. e. non-voigt) notation
+                a tensor quantity in standard (i. e. non-Voigt) notation
             vscale: (N x M array-like): a matrix corresponding
                 to the coefficients of the Voigt-notation tensor
             check_rank: (int): If not None, checks that input_array's rank == check_rank.
@@ -863,7 +863,7 @@ class SquareTensor(Tensor):
     (stress, strain etc.).
     """
 
-    def __new__(cls, input_array, vscale=None):
+    def __new__(cls, input_array, vscale=None) -> Self:
         """Create a SquareTensor object. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy ndarrays. Error
         is thrown when the class is initialized with non-square matrix.

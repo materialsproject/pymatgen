@@ -62,7 +62,7 @@ class DistanceCutoffFloat(float, StrategyOption):
 
     allowed_values = "Real number between 1 and +infinity"
 
-    def __new__(cls, cutoff):
+    def __new__(cls, cutoff) -> Self:
         """Special float that should be between 1 and infinity.
 
         Args:
@@ -96,7 +96,7 @@ class AngleCutoffFloat(float, StrategyOption):
 
     allowed_values = "Real number between 0 and 1"
 
-    def __new__(cls, cutoff):
+    def __new__(cls, cutoff) -> Self:
         """Special float that should be between 0 and 1.
 
         Args:
@@ -130,7 +130,7 @@ class CSMFloat(float, StrategyOption):
 
     allowed_values = "Real number between 0 and 100"
 
-    def __new__(cls, cutoff):
+    def __new__(cls, cutoff) -> Self:
         """Special float that should be between 0 and 100.
 
         Args:
@@ -166,7 +166,7 @@ class AdditionalConditionInt(int, StrategyOption):
     for integer, description in AdditionalConditions.CONDITION_DESCRIPTION.items():
         allowed_values += f" - {integer} for {description!r}\n"
 
-    def __new__(cls, integer):
+    def __new__(cls, integer) -> Self:
         """Special int representing additional conditions."""
         if str(int(integer)) != str(integer):
             raise ValueError(f"Additional condition {integer} is not an integer")

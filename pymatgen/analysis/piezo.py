@@ -25,7 +25,7 @@ __date__ = "Feb, 2016"
 class PiezoTensor(Tensor):
     """This class describes the 3x6 piezo tensor in Voigt notation."""
 
-    def __new__(cls, input_array: ArrayLike, tol: float = 1e-3):
+    def __new__(cls, input_array: ArrayLike, tol: float = 1e-3) -> Self:
         """
         Create an PiezoTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3, i. e. in true
