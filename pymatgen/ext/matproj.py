@@ -27,8 +27,12 @@ from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from mp_api.client import MPRester as _MPResterNew
+    from typing_extensions import Self
+
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
+    from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +98,7 @@ class _MPResterBasic:
                 "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
             )
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
@@ -372,7 +376,7 @@ class MPRester:
     for which API to use.
     """
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:
         r"""
         Args:
            *args: Pass through to either legacy or new MPRester.

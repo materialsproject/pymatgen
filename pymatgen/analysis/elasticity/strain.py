@@ -39,7 +39,7 @@ class Deformation(SquareTensor):
 
     symbol = "d"
 
-    def __new__(cls, deformation_gradient):
+    def __new__(cls, deformation_gradient) -> Self:
         """
         Create a Deformation object. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy ndarrays.
@@ -159,7 +159,7 @@ class Strain(SquareTensor):
 
     symbol = "e"
 
-    def __new__(cls, strain_matrix):
+    def __new__(cls, strain_matrix) -> Self:
         """
         Create a Strain object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -209,7 +209,7 @@ class Strain(SquareTensor):
             idx (tuple or integer): index to be perturbed, can be Voigt or full-tensor notation
             amount (float): amount to perturb selected index
         """
-        if np.array(idx).ndim == 0:
+        if isinstance(idx, int):
             v = np.zeros(6)
             v[idx] = amount
             return cls.from_voigt(v)

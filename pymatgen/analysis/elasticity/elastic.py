@@ -51,7 +51,7 @@ class NthOrderElasticTensor(Tensor):
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
     symbol = "C"
 
-    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4):
+    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4) -> Self:
         """
         Args:
             input_array ():
@@ -133,7 +133,7 @@ class ElasticTensor(NthOrderElasticTensor):
     in units of eV/A^3.
     """
 
-    def __new__(cls, input_array, tol: float = 1e-4):
+    def __new__(cls, input_array, tol: float = 1e-4) -> Self:
         """
         Create an ElasticTensor object. The constructor throws an error if the shape of
         the input_matrix argument is not 3x3x3x3, i. e. in true tensor notation. Issues a
@@ -523,7 +523,7 @@ class ComplianceTensor(Tensor):
     since the compliance tensor has a unique vscale.
     """
 
-    def __new__(cls, s_array):
+    def __new__(cls, s_array) -> Self:
         """
         Args:
             s_array ():

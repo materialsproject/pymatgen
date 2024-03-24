@@ -318,7 +318,7 @@ class FloatWithUnit(float):
 
         return cls(num, unit, unit_type=unit_type)
 
-    def __new__(cls, val, unit, unit_type=None):
+    def __new__(cls, val, unit, unit_type=None) -> Self:
         """Overrides __new__ since we are subclassing a Python primitive/."""
         new = float.__new__(cls, val)
         new._unit = Unit(unit)
@@ -471,7 +471,7 @@ class ArrayWithUnit(np.ndarray):
 
     Error = UnitError
 
-    def __new__(cls, input_array, unit, unit_type=None):
+    def __new__(cls, input_array, unit, unit_type=None) -> Self:
         """Override __new__."""
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
