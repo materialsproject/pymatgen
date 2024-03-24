@@ -464,8 +464,6 @@ class ArrayWithUnit(np.ndarray):
     array([ 28.21138386,  56.42276772]) eV
     """
 
-    Error = UnitError
-
     def __new__(cls, input_array, unit, unit_type=None) -> Self:
         """Override __new__."""
         # Input array is an already formed ndarray instance
