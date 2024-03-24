@@ -5062,7 +5062,7 @@ class Waveder(MSONable):
         Returns:
             Waveder object.
         """
-        with open(filename, "rb", encoding="utf-8") as file:
+        with open(filename, "rb") as file:
 
             def read_data(dtype):
                 """Read records from Fortran binary file and convert to np.array of given dtype."""
