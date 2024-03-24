@@ -428,7 +428,7 @@ class Lattice(MSONable):
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
-        """Returns (a, b, c, alpha, beta, gamma)."""
+        """Returns 6-tuple of floats (a, b, c, alpha, beta, gamma)."""
         return (*self.lengths, *self.angles)
 
     @property

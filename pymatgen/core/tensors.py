@@ -154,9 +154,9 @@ class Tensor(np.ndarray, MSONable):
         Args:
             n (3x1 array-like): direction to project onto
 
-        Returns (float):
-            scalar value corresponding to the projection of
-            the tensor into the vector
+        Returns:
+            float: scalar value corresponding to the projection of
+                the tensor into the vector
         """
         n = get_uvec(n)
         return self.einsum_sequence([n] * self.rank)
@@ -256,8 +256,8 @@ class Tensor(np.ndarray, MSONable):
                 If decimals is negative, it specifies the number of
                 positions to the left of the decimal point.
 
-        Returns (Tensor):
-            rounded tensor of same type
+        Returns:
+            Tensor: rounded tensor of same type
         """
         return type(self)(np.round(self, decimals=decimals))
 
@@ -639,12 +639,11 @@ class Tensor(np.ndarray, MSONable):
         """Serializes the tensor object.
 
         Args:
-            voigt (bool): flag for whether to store entries in
-                Voigt notation. Defaults to false, as information
-                may be lost in conversion.
+            voigt (bool): flag for whether to store entries in Voigt notation.
+                Defaults to false, as information may be lost in conversion.
 
-        Returns (dict):
-            serialized format tensor object
+        Returns:
+            dict: serialized format tensor object
         """
         input_array = self.voigt if voigt else self
         dct = {

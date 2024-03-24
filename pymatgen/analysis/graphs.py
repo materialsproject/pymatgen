@@ -1158,8 +1158,8 @@ class StructureGraph(MSONable):
         # this could probably be a lot smaller
         tol = 0.05
 
-        for u, v, k, dct in new_g.edges(keys=True, data=True):
-            to_jimage = dct["to_jimage"]  # for node v
+        for u, v, k, data in new_g.edges(keys=True, data=True):
+            to_jimage = data["to_jimage"]  # for node v
 
             # reduce unnecessary checking
             if to_jimage != (0, 0, 0):
@@ -1167,29 +1167,24 @@ class StructureGraph(MSONable):
                 n_u = u % len(self.structure)
                 n_v = v % len(self.structure)
 
-                # get fractional coordinates of where atoms defined
-                # by edge are expected to be, relative to original
-                # lattice (keeping original lattice has
+                # get fractional coordinates of where atoms defined by edge are expected
+                # to be, relative to original lattice (keeping original lattice has
                 # significant benefits)
                 v_image_frac = np.add(self.structure[n_v].frac_coords, to_jimage)
                 u_frac = self.structure[n_u].frac_coords
 
-                # using the position of node u as a reference,
-                # get relative Cartesian coordinates of where
-                # atoms defined by edge are expected to be
+                # using the position of node u as a reference, get relative Cartesian
+                # coordinates of where atoms defined by edge are expected to be
                 v_image_cart = orig_lattice.get_cartesian_coords(v_image_frac)
                 u_cart = orig_lattice.get_cartesian_coords(u_frac)
                 v_rel = np.subtract(v_image_cart, u_cart)
 
-                # now retrieve position of node v in
-                # new supercell, and get asgolute Cartesian
-                # coordinates of where atoms defined by edge
-                # are expected to be
-                v_expec = new_structure[u].coords + v_rel
+                # now retrieve position of node v in new supercell, and get absolute
+                # Cartesian coordinates of where atoms defined by edge are expected to be
+                v_expect = new_structure[u].coords + v_rel
 
-                # now search in new structure for these atoms
-                # query returns (distance, index)
-                v_present = kd_tree.query(v_expec)
+                # now search in new structure for these atoms query returns (distance, index)
+                v_present = kd_tree.query(v_expect)
                 v_present = v_present[1] if v_present[0] <= tol else None
 
                 # check if image sites now present in supercell
@@ -1198,10 +1193,10 @@ class StructureGraph(MSONable):
                 if v_present is not None:
                     new_u = u
                     new_v = v_present
-                    new_d = dct.copy()
+                    new_data = data.copy()
 
                     # node now inside supercell
-                    new_d["to_jimage"] = (0, 0, 0)
+                    new_data["to_jimage"] = (0, 0, 0)
 
                     edges_to_remove.append((u, v, k))
 
@@ -1213,7 +1208,7 @@ class StructureGraph(MSONable):
                             new_u, new_v = new_v, new_u
 
                         edges_inside_supercell.append({new_u, new_v})
-                        edges_to_add.append((new_u, new_v, new_d))
+                        edges_to_add.append((new_u, new_v, new_data))
 
                 else:
                     # want to find new_v such that we have
@@ -1221,7 +1216,7 @@ class StructureGraph(MSONable):
                     # so that nodes on one side of supercell
                     # are connected to nodes on opposite side
 
-                    v_expec_frac = new_structure.lattice.get_fractional_coords(v_expec)
+                    v_expec_frac = new_structure.lattice.get_fractional_coords(v_expect)
 
                     # find new to_jimage
                     # use np.around to fix issues with finite precision leading to incorrect image
@@ -1229,27 +1224,27 @@ class StructureGraph(MSONable):
                     v_expec_image = v_expec_image - v_expec_image % 1
 
                     v_expec_frac = np.subtract(v_expec_frac, v_expec_image)
-                    v_expec = new_structure.lattice.get_cartesian_coords(v_expec_frac)
-                    v_present = kd_tree.query(v_expec)
+                    v_expect = new_structure.lattice.get_cartesian_coords(v_expec_frac)
+                    v_present = kd_tree.query(v_expect)
                     v_present = v_present[1] if v_present[0] <= tol else None
 
                     if v_present is not None:
                         new_u = u
                         new_v = v_present
-                        new_d = dct.copy()
+                        new_data = data.copy()
                         new_to_jimage = tuple(map(int, v_expec_image))
 
                         # normalize direction
                         if new_v < new_u:
                             new_u, new_v = new_v, new_u
-                            new_to_jimage = tuple(np.multiply(-1, dct["to_jimage"]).astype(int))
+                            new_to_jimage = tuple(np.multiply(-1, data["to_jimage"]).astype(int))
 
-                        new_d["to_jimage"] = new_to_jimage
+                        new_data["to_jimage"] = new_to_jimage
 
                         edges_to_remove.append((u, v, k))
 
                         if (new_u, new_v, new_to_jimage) not in new_periodic_images:
-                            edges_to_add.append((new_u, new_v, new_d))
+                            edges_to_add.append((new_u, new_v, new_data))
                             new_periodic_images.append((new_u, new_v, new_to_jimage))
 
         logger.debug(f"Removing {len(edges_to_remove)} edges, adding {len(edges_to_add)} new edges.")
@@ -1257,18 +1252,18 @@ class StructureGraph(MSONable):
         # add/delete marked edges
         for edge in edges_to_remove:
             new_g.remove_edge(*edge)
-        for u, v, dct in edges_to_add:
-            new_g.add_edge(u, v, **dct)
+        for u, v, data in edges_to_add:
+            new_g.add_edge(u, v, **data)
 
         # return new instance of StructureGraph with supercell
-        dct = {
+        data = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": new_structure.as_dict(),
             "graphs": json_graph.adjacency_data(new_g),
         }
 
-        return StructureGraph.from_dict(dct)
+        return StructureGraph.from_dict(data)
 
     def __rmul__(self, other):
         return self.__mul__(other)

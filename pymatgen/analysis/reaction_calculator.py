@@ -457,8 +457,8 @@ class ComputedReaction(Reaction):
     @property
     def calculated_reaction_energy(self) -> float:
         """
-        Returns (float):
-            The calculated reaction energy.
+        Returns:
+            float: The calculated reaction energy.
         """
         calc_energies: dict[Composition, float] = {}
 

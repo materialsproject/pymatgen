@@ -645,9 +645,9 @@ class NearNeighbors:
             structure: Structure object
             n (int): site index.
 
-        Returns (dict[str, float]):
-            A dict of order parameters (values) and the
-            underlying motif type (keys; for example, tetrahedral).
+        Returns:
+            dict[str, float]: A dict of order parameters (values) and the
+                underlying motif type (keys; for example, tetrahedral).
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method

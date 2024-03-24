@@ -245,7 +245,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 number of permutations.
             add_opposite: Whether to add the permutations from the second group before the first group as well.
 
-        Returns
+        Returns:
             list[int]: safe permutations.
         """
         s0 = list(range(len(self.point_groups[0])))

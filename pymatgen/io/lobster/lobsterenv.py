@@ -615,7 +615,7 @@ class LobsterNeighbors(NearNeighbors):
             isites: list of site ids, if isite==None, all isites will be used
             onlycation_isites: will only use cations, if isite==None
 
-        Returns
+        Returns:
             ICOHPNeighborsInfo
         """
         lowerlimit = self.lowerlimit

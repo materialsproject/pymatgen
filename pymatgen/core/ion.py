@@ -124,8 +124,8 @@ class Ion(Composition, MSONable, Stringify):
                 Ions containing metals.
 
         Returns:
-            A pretty normalized formula and a multiplicative factor, i.e.,
-            H4O4 returns ('H2O2', 2.0).
+            tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
+                H4O4 returns ('H2O2', 2.0).
         """
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
