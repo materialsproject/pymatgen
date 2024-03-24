@@ -39,8 +39,6 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from os import PathLike
 
-    from typing_extensions import Self
-
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -91,7 +89,7 @@ class InputFile(MSONable):
         raise NotImplementedError(f"from_str has not been implemented in {cls.__name__}")
 
     @classmethod
-    def from_file(cls, path: str | Path) -> Self:
+    def from_file(cls, path: str | Path) -> None:
         """
         Creates an InputFile object from a file.
 
@@ -103,7 +101,7 @@ class InputFile(MSONable):
         """
         filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, mode="rt") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # from_str not implemented
 
     def __str__(self) -> str:
         return self.get_str()

@@ -294,38 +294,7 @@ class FloatWithUnit(float):
 
     Error = UnitError
 
-    @classmethod
-    def from_str(cls, s: str) -> Self:
-        """Parse string to FloatWithUnit.
-
-        Example: Memory.from_str("1. Mb")
-        """
-        # Extract num and unit string.
-        s = s.strip()
-        for idx, char in enumerate(s):  # noqa: B007
-            if char.isalpha() or char.isspace():
-                break
-        else:
-            raise Exception(f"Unit is missing in string {s}")
-        num, unit = float(s[:idx]), s[idx:]
-
-        # Find unit type (set it to None if it cannot be detected)
-        for unit_type, dct in BASE_UNITS.items():  # noqa: B007
-            if unit in dct:
-                break
-        else:
-            unit_type = None
-
-        return cls(num, unit, unit_type=unit_type)
-
-    def __new__(cls, val, unit, unit_type=None) -> Self:
-        """Overrides __new__ since we are subclassing a Python primitive/."""
-        new = float.__new__(cls, val)
-        new._unit = Unit(unit)
-        new._unit_type = unit_type
-        return new
-
-    def __init__(self, val, unit, unit_type=None) -> None:
+    def __init__(self, val: float, unit: str, unit_type: str | None = None) -> None:
         """Initializes a float with unit.
 
         Args:
@@ -337,6 +306,13 @@ class FloatWithUnit(float):
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
         self._unit = Unit(unit)
         self._unit_type = unit_type
+
+    def __new__(cls, val, unit, unit_type=None) -> Self:
+        """Overrides __new__ since we are subclassing a Python primitive."""
+        new = float.__new__(cls, val)
+        new._unit = Unit(unit)
+        new._unit_type = unit_type
+        return new
 
     def __str__(self) -> str:
         return f"{super().__str__()} {self._unit}"
@@ -405,7 +381,7 @@ class FloatWithUnit(float):
         self._unit = state["_unit"]
 
     @property
-    def unit_type(self) -> str:
+    def unit_type(self) -> str | None:
         """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
@@ -413,6 +389,31 @@ class FloatWithUnit(float):
     def unit(self) -> Unit:
         """The unit, e.g., "eV"."""
         return self._unit
+
+    @classmethod
+    def from_str(cls, s: str) -> Self:
+        """Parse string to FloatWithUnit.
+
+        Example: Memory.from_str("1. Mb")
+        """
+        # Extract num and unit string
+        s = s.strip()
+        for _idx, char in enumerate(s):
+            if char.isalpha() or char.isspace():
+                break
+        else:
+            raise Exception(f"Unit is missing in string {s}")
+        num, unit = float(s[:_idx]), s[_idx:]
+
+        # Find unit type
+        for _unit_type, dct in BASE_UNITS.items():
+            if unit in dct:
+                break
+
+        # Set it to None if it cannot be detected
+        unit_type = _unit_type if _unit_type is not None else None
+
+        return cls(num, unit, unit_type=unit_type)
 
     def to(self, new_unit):
         """Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
@@ -716,8 +717,10 @@ def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[s
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
+
     if isinstance(obj, collections.abc.Mapping):
-        return {k: obj_with_unit(v, unit) for k, v in obj.items()}  # type: ignore
+        return {k: obj_with_unit(v, unit) for k, v in obj.items()}  # type: ignore[misc]
+
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
