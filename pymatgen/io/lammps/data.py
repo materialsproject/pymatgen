@@ -1375,7 +1375,7 @@ class CombinedData(LammpsData):
             for mol in self.mols
         ]
 
-    # TODO(@DanielYang59): should the following two methods be removed?
+    # NOTE (@janosh): The following two methods for override parent class LammpsData
     @classmethod
     def from_ff_and_topologies(cls) -> None:
         """Unsupported constructor for CombinedData objects."""
