@@ -958,6 +958,23 @@ class TestStructure(PymatgenTest):
         assert self.struct[0].species_string == "Si"
         assert self.struct[1].species_string == "F"
 
+    def test_replace(self):
+        assert self.struct.formula == "Si2"
+        struct = self.struct.replace(0, "O")
+        assert struct is self.struct
+        assert struct.formula == "Si1 O1"
+        assert_allclose(struct[0].frac_coords, [0, 0, 0])
+        struct.replace(0, "O", coords=[0.25, 0.25, 0.25])
+        assert struct.formula == "Si1 O1"
+        assert_allclose(struct[0].frac_coords, [0.25, 0.25, 0.25])
+        struct.replace(0, "O", properties={"magmom": 1})
+        assert struct.formula == "Si1 O1"
+        assert struct[0].magmom == 1
+        struct.replace(0, "O", properties={"magmom": 2}, coords=[0.9, 0.9, 0.9])
+        assert struct.formula == "Si1 O1"
+        assert struct[0].magmom == 2
+        assert_allclose(struct[0].frac_coords, [0.9, 0.9, 0.9])
+
     def test_replace_species(self):
         assert self.struct.formula == "Si2"
         struct = self.struct.replace_species({"Si": "Na"})
