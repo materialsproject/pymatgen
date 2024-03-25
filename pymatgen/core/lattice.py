@@ -263,9 +263,9 @@ class Lattice(MSONable):
         """Convenience constructor for a monoclinic lattice.
 
         Args:
-            a (float): *a* lattice parameter of the monoclinc cell.
-            b (float): *b* lattice parameter of the monoclinc cell.
-            c (float): *c* lattice parameter of the monoclinc cell.
+            a (float): *a* lattice parameter of the monoclinic cell.
+            b (float): *b* lattice parameter of the monoclinic cell.
+            c (float): *c* lattice parameter of the monoclinic cell.
             beta (float): *beta* angle between lattice vectors b and c in
                 degrees.
             pbc (tuple): a tuple defining the periodic boundary conditions along the three
