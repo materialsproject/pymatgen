@@ -4,12 +4,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import GenericAlias
 from typing import Any, get_args
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
-from pymatgen.util.typing import CompositionLike, EntryLike, PbcLike, SpeciesLike
+from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, PbcLike, SpeciesLike
 
 __author__ = "Janosh Riebesell"
 __date__ = "2022-10-20"
@@ -60,3 +61,10 @@ def test_composition_like():
 def test_pbc_like():
     assert type(PbcLike) == GenericAlias
     assert get_args(PbcLike) == (bool, bool, bool)
+
+
+def test_pathlike():
+    assert isinstance("path/to/file", PathLike)
+    assert isinstance(Path("path/to/file"), PathLike)
+    assert not isinstance(1, PathLike)
+    assert not isinstance(1.0, PathLike)
