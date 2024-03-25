@@ -66,6 +66,8 @@ class Lattice(MSONable):
         self._diags = None
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
+        if len(pbc) != 3 or {*pbc} - {True, False}:
+            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
         self._pbc = cast(PbcLike, tuple(pbc))
 
     @property
