@@ -9,7 +9,7 @@ import operator
 import warnings
 from fractions import Fraction
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -32,6 +32,8 @@ __copyright__ = "Copyright 2011, The Materials Project"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 
+PbcType = tuple[bool, bool, bool]
+
 
 class Lattice(MSONable):
     """A lattice object. Essentially a matrix with conversion matrices. In
@@ -41,7 +43,7 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
-    def __init__(self, matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)) -> None:
+    def __init__(self, matrix: ArrayLike, pbc: PbcType = (True, True, True)) -> None:
         """Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
         lattice vector.
@@ -66,7 +68,7 @@ class Lattice(MSONable):
         self._diags = None
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
-        self._pbc = tuple(pbc)
+        self._pbc = cast(PbcType, tuple(pbc))
 
     @property
     def lengths(self) -> Vector3D:
@@ -135,9 +137,9 @@ class Lattice(MSONable):
         return self._matrix
 
     @property
-    def pbc(self) -> tuple[bool, bool, bool]:
+    def pbc(self) -> PbcType:
         """Tuple defining the periodicity of the Lattice."""
-        return self._pbc  # type: ignore
+        return self._pbc
 
     @property
     def is_3d_periodic(self) -> bool:
@@ -317,7 +319,7 @@ class Lattice(MSONable):
         beta: float,
         gamma: float,
         vesta: bool = False,
-        pbc: tuple[bool, bool, bool] = (True, True, True),
+        pbc: PbcType = (True, True, True),
     ):
         """Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
@@ -1692,7 +1694,7 @@ def get_points_in_spheres(
     all_coords: np.ndarray,
     center_coords: np.ndarray,
     r: float,
-    pbc: bool | list[bool] | tuple[bool, bool, bool] = True,
+    pbc: bool | list[bool] | PbcType = True,
     numerical_tol: float = 1e-8,
     lattice: Lattice | None = None,
     return_fcoords: bool = False,
