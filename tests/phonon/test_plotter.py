@@ -95,7 +95,7 @@ class TestPhononBSPlotter(unittest.TestCase):
         assert ax.get_title() == ""
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
         ax = self.plotter.plot_compare(self.plotter, units="mev")
-        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == ["NaCl", "other"]
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == ["NaCl", "NaCl"]
         labels = ("NaCl", "NaCl 2", "NaCl 3")
         ax = self.plotter.plot_compare({labels[1]: self.plotter, labels[2]: self.plotter}, units="mev")
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
