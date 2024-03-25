@@ -2132,7 +2132,7 @@ class IStructure(SiteCollection, MSONable):
             )
         return self.copy()
 
-    def copy(self, site_properties=None, sanitize=False, properties=None) -> Structure:
+    def copy(self, site_properties=None, sanitize=False, properties=None) -> Self:
         """Convenience method to get a copy of the structure, with options to add
         site properties.
 
@@ -4148,7 +4148,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Structure:
+    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Self:
         """Apply a strain to the lattice.
 
         Args:
@@ -4161,7 +4161,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 Structure copy. Defaults to True.
 
         Returns:
-            Structure: Structure with strain applied.
+            Structure: self if inplace=True else new structure with strain applied.
         """
         strain_matrix = (1 + np.array(strain)) * np.eye(3)
         new_lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
@@ -4169,7 +4169,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         struct.lattice = new_lattice
         return struct
 
-    def sort(self, key: Callable | None = None, reverse: bool = False) -> Structure:
+    def sort(self, key: Callable | None = None, reverse: bool = False) -> Self:
         """Sort a structure in place. The parameters have the same meaning as in
         list.sort(). By default, sites are sorted by the electronegativity of
         the species. The difference between this method and
@@ -4184,14 +4184,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 as if each comparison were reversed.
 
         Returns:
-            Structure: Sorted structure.
+            Structure: self sorted.
         """
         self._sites.sort(key=key, reverse=reverse)
         return self
 
     def translate_sites(
         self, indices: int | Sequence[int], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True
-    ) -> Structure:
+    ) -> Self:
         """Translate specific sites by some vector, keeping the sites within the
         unit cell. Modifies the structure in place.
 
@@ -4229,7 +4229,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         axis: ArrayLike | None = None,
         anchor: ArrayLike | None = None,
         to_unit_cell: bool = True,
-    ) -> Structure:
+    ) -> Self:
         """Rotate specific sites by some angle around vector at anchor. Modifies
         the structure in place.
 
@@ -4276,7 +4276,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None) -> Structure:
+    def perturb(self, distance: float, min_distance: float | None = None) -> Self:
         """Performs a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
@@ -4306,7 +4306,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Self:
         """Create a supercell.
 
         Args:
@@ -4342,7 +4342,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Structure:
+    def scale_lattice(self, volume: float) -> Self:
         """Performs a scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
@@ -4356,7 +4356,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Structure:
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
         """Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
 
@@ -4400,7 +4400,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites = sites
         return self
 
-    def set_charge(self, new_charge: float = 0.0) -> Structure:
+    def set_charge(self, new_charge: float = 0.0) -> Self:
         """Sets the overall structure charge.
 
         Args:
@@ -4471,7 +4471,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self._calculate(calculator, verbose=verbose)
 
     @classmethod
-    def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
+    def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Self:
         """Method to rapidly construct common prototype structures.
 
         Args:
