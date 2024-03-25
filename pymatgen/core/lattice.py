@@ -18,7 +18,6 @@ from scipy.spatial import Voronoi
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import PbcLike
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import PbcLike
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -68,6 +68,10 @@ class Lattice(MSONable):
         self._lll_inverse = None
         if len(pbc) != 3 or {*pbc} - {True, False}:
             raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
+
+        # don't import module-level, causes circular import with util/typing.py
+        from pymatgen.util.typing import PbcLike
+
         self._pbc = cast(PbcLike, tuple(pbc))
 
     @property

@@ -1,13 +1,15 @@
+"""This module tests types are as expected and can be imported without circular ImportError."""
+
+# mypy: disable-error-code="misc"
+
 from __future__ import annotations
 
-from typing import Any
+from types import GenericAlias
+from typing import Any, get_args
 
-# pymatgen.entries needs to be imported before pymatgen.util.typing
-# to avoid circular import.
+from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
-from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, SpeciesLike
-
-# This module tests types are as expected and can be imported without circular ImportError.
+from pymatgen.util.typing import CompositionLike, EntryLike, PbcLike, SpeciesLike
 
 __author__ = "Janosh Riebesell"
 __date__ = "2022-10-20"
@@ -19,6 +21,9 @@ def _type_str(some_type: Any) -> str:
 
 
 def test_entry_like():
+    # needs to be tested as string to avoid
+    # TypeError: issubclass() arg 2 must be a class, a tuple of classes, or a union
+    # since EntryLike is defined as Union[] of strings to avoid circular imports
     entries = (
         "Entry",
         "ComputedEntry",
@@ -37,15 +42,21 @@ def test_entry_like():
 
 
 def test_species_like():
-    assert _type_str(SpeciesLike) == "Union[str, Element, Species, DummySpecies]"
+    assert isinstance("H", SpeciesLike)
+    assert isinstance(Element("H"), SpeciesLike)
+    assert isinstance(Species("H+"), SpeciesLike)
+    assert isinstance(DummySpecies("X"), SpeciesLike)
 
 
 def test_composition_like():
-    assert (
-        _type_str(CompositionLike)
-        == "Union[str, Element, Species, DummySpecies, dict, pymatgen.core.composition.Composition]"
-    )
+    assert isinstance("H", CompositionLike)
+    assert isinstance(Element("H"), CompositionLike)
+    assert isinstance(Species("H+"), CompositionLike)
+    assert isinstance(Composition("H"), CompositionLike)
+    assert isinstance({"H": 1}, CompositionLike)
+    assert isinstance(DummySpecies("X"), CompositionLike)
 
 
-def test_path_like():
-    assert _type_str(PathLike) == "Union[str, pathlib.Path]"
+def test_pbc_like():
+    assert type(PbcLike) == GenericAlias
+    assert get_args(PbcLike) == (bool, bool, bool)
