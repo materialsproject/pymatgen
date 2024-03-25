@@ -654,7 +654,10 @@ class PhononBSPlotter:
         legend_kwargs.setdefault("fontsize", 20)
         colors = ("red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         if isinstance(other_plotter, PhononBSPlotter):
-            other_plotter = {"other": other_plotter}
+            if other_plotter._label is None:
+                other_plotter = {"other": other_plotter}
+            else:
+                other_plotter = {other_plotter._label: other_plotter}
 
         self_data = self.bs_plot_data()
 
