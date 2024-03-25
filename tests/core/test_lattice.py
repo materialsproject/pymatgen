@@ -105,8 +105,8 @@ class TestLattice(PymatgenTest):
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1, 2, 3)
-        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
-        assert dhkl == cubic_copy.d_hkl(hkl)
+        d_hkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
+        assert d_hkl == cubic_copy.d_hkl(hkl)
 
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
@@ -118,8 +118,8 @@ class TestLattice(PymatgenTest):
         )
 
         # Test the crystallographic version.
-        recip_latt_xtal = self.lattice.reciprocal_lattice_crystallographic
-        assert_allclose(recip_latt.matrix, recip_latt_xtal.matrix * 2 * np.pi, 5)
+        recip_latt_crystallographic = self.lattice.reciprocal_lattice_crystallographic
+        assert_allclose(recip_latt.matrix, recip_latt_crystallographic.matrix * 2 * np.pi, 5)
 
     def test_static_methods(self):
         expected_lengths = [3.840198, 3.84019885, 3.8401976]

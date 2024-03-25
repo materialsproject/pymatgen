@@ -86,13 +86,12 @@ class Lattice(MSONable):
         Returns:
             The angles (alpha, beta, gamma) of the lattice.
         """
-        mat = self._matrix
-        lengths = self.lengths
+        matrix, lengths = self._matrix, self.lengths
         angles = np.zeros(3)
         for dim in range(3):
-            j = (dim + 1) % 3
-            k = (dim + 2) % 3
-            angles[dim] = np.clip(np.dot(mat[j], mat[k]) / (lengths[j] * lengths[k]), -1, 1)
+            jj = (dim + 1) % 3
+            kk = (dim + 2) % 3
+            angles[dim] = np.clip(np.dot(matrix[jj], matrix[kk]) / (lengths[jj] * lengths[kk]), -1, 1)
         angles = np.arccos(angles) * 180.0 / np.pi
         return tuple(angles.tolist())  # type: ignore
 
@@ -209,12 +208,12 @@ class Lattice(MSONable):
         Returns:
             d_hkl (float)
         """
-        gstar = self.reciprocal_lattice_crystallographic.metric_tensor
+        g_star = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)
-        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
+        return 1 / ((np.dot(np.dot(hkl, g_star), hkl.T)) ** (1 / 2))
 
-    @staticmethod
-    def cubic(a: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
+    @classmethod
+    def cubic(cls, a: float, pbc: PbcLike = (True, True, True)) -> Self:
         """Convenience constructor for a cubic lattice.
 
         Args:
@@ -225,10 +224,10 @@ class Lattice(MSONable):
         Returns:
             Cubic lattice of dimensions a x a x a.
         """
-        return Lattice([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]], pbc)
+        return cls([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]], pbc)
 
-    @staticmethod
-    def tetragonal(a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
+    @classmethod
+    def tetragonal(cls, a: float, c: float, pbc: PbcLike = (True, True, True)) -> Self:
         """Convenience constructor for a tetragonal lattice.
 
         Args:
@@ -240,10 +239,10 @@ class Lattice(MSONable):
         Returns:
             Tetragonal lattice of dimensions a x a x c.
         """
-        return Lattice.from_parameters(a, a, c, 90, 90, 90, pbc=pbc)
+        return cls.from_parameters(a, a, c, 90, 90, 90, pbc=pbc)
 
-    @staticmethod
-    def orthorhombic(a: float, b: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
+    @classmethod
+    def orthorhombic(cls, a: float, b: float, c: float, pbc: PbcLike = (True, True, True)) -> Self:
         """Convenience constructor for an orthorhombic lattice.
 
         Args:
@@ -256,12 +255,10 @@ class Lattice(MSONable):
         Returns:
             Orthorhombic lattice of dimensions a x b x c.
         """
-        return Lattice.from_parameters(a, b, c, 90, 90, 90, pbc=pbc)
+        return cls.from_parameters(a, b, c, 90, 90, 90, pbc=pbc)
 
-    @staticmethod
-    def monoclinic(
-        a: float, b: float, c: float, beta: float, pbc: tuple[bool, bool, bool] = (True, True, True)
-    ) -> Lattice:
+    @classmethod
+    def monoclinic(cls, a: float, b: float, c: float, beta: float, pbc: PbcLike = (True, True, True)) -> Self:
         """Convenience constructor for a monoclinic lattice.
 
         Args:
@@ -277,10 +274,10 @@ class Lattice(MSONable):
             Monoclinic lattice of dimensions a x b x c with non right-angle
             beta between lattice vectors a and c.
         """
-        return Lattice.from_parameters(a, b, c, 90, beta, 90, pbc=pbc)
+        return cls.from_parameters(a, b, c, 90, beta, 90, pbc=pbc)
 
-    @staticmethod
-    def hexagonal(a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
+    @classmethod
+    def hexagonal(cls, a: float, c: float, pbc: PbcLike = (True, True, True)) -> Self:
         """Convenience constructor for a hexagonal lattice.
 
         Args:
@@ -292,10 +289,10 @@ class Lattice(MSONable):
         Returns:
             Hexagonal lattice of dimensions a x a x c.
         """
-        return Lattice.from_parameters(a, a, c, 90, 90, 120, pbc=pbc)
+        return cls.from_parameters(a, a, c, 90, 90, 120, pbc=pbc)
 
-    @staticmethod
-    def rhombohedral(a: float, alpha: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
+    @classmethod
+    def rhombohedral(cls, a: float, alpha: float, pbc: PbcLike = (True, True, True)) -> Self:
         """Convenience constructor for a rhombohedral lattice.
 
         Args:
@@ -307,7 +304,7 @@ class Lattice(MSONable):
         Returns:
             Rhombohedral lattice of dimensions a x a x a.
         """
-        return Lattice.from_parameters(a, a, a, alpha, alpha, alpha, pbc=pbc)
+        return cls.from_parameters(a, a, a, alpha, alpha, alpha, pbc=pbc)
 
     @classmethod
     def from_parameters(
@@ -320,7 +317,7 @@ class Lattice(MSONable):
         gamma: float,
         vesta: bool = False,
         pbc: PbcLike = (True, True, True),
-    ):
+    ) -> Self:
         """Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
         Args:
@@ -362,10 +359,10 @@ class Lattice(MSONable):
             ]
             vector_c = [0.0, 0.0, float(c)]
 
-        return Lattice([vector_a, vector_b, vector_c], pbc)
+        return cls([vector_a, vector_b, vector_c], pbc)
 
     @classmethod
-    def from_dict(cls, dct: dict, fmt: str | None = None, **kwargs) -> Self:
+    def from_dict(cls, dct: dict, fmt: str | None = None, **kwargs) -> Self:  # type: ignore[override]
         """Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
 
@@ -439,20 +436,22 @@ class Lattice(MSONable):
         return dict(zip("a b c alpha beta gamma".split(), self.parameters))
 
     @property
-    def reciprocal_lattice(self) -> Lattice:
+    def reciprocal_lattice(self) -> Self:
         """Return the reciprocal lattice. Note that this is the standard
         reciprocal lattice used for solid state physics with a factor of 2 *
         pi. If you are looking for the crystallographic reciprocal lattice,
         use the reciprocal_lattice_crystallographic property.
         The property is lazily generated for efficiency.
         """
-        v = np.linalg.inv(self._matrix).T
-        return Lattice(v * 2 * np.pi)
+        inv_mat = np.linalg.inv(self._matrix).T
+        cls = type(self)
+        return cls(inv_mat * 2 * np.pi)
 
     @property
-    def reciprocal_lattice_crystallographic(self) -> Lattice:
+    def reciprocal_lattice_crystallographic(self) -> Self:
         """Returns the *crystallographic* reciprocal lattice, i.e. no factor of 2 * pi."""
-        return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
+        cls = type(self)
+        return cls(self.reciprocal_lattice.matrix / (2 * np.pi))
 
     @property
     def lll_matrix(self) -> np.ndarray:
@@ -960,17 +959,19 @@ class Lattice(MSONable):
         """
         return next(self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix), None)
 
-    def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
-        """
+    def get_lll_reduced_lattice(self, delta: float = 0.75) -> Self:
+        """Lenstra-Lenstra-Lovasz lattice basis reduction.
+
         Args:
             delta: Delta parameter.
 
         Returns:
-            LLL reduced Lattice.
+            Lattice: LLL reduced
         """
         if delta not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[delta] = self._calculate_lll()
-        return Lattice(self._lll_matrix_mappings[delta][0])
+        cls = type(self)
+        return cls(self._lll_matrix_mappings[delta][0])
 
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
         """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
@@ -1095,14 +1096,14 @@ class Lattice(MSONable):
 
             if B + e < A or (abs(A - B) < e and abs(E) > abs(N) + e):
                 # A1
-                M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
+                M = np.array([[0, -1, 0], [-1, 0, 0], [0, 0, -1]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 # update lattice parameters based on new G (gh-3657)
                 A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
 
             if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
-                M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
+                M = np.array([[-1, 0, 0], [0, 0, -1], [0, -1, 0]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 continue
 
@@ -1136,25 +1137,25 @@ class Lattice(MSONable):
 
             # A5
             if abs(E) > B + e or (abs(E - B) < e and Y - e > 2 * N) or (abs(E + B) < e and -e > Y):
-                M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
+                M = np.array([[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 continue
 
             # A6
             if abs(N) > A + e or (abs(A - N) < e and Y - e > 2 * E) or (abs(A + N) < e and -e > Y):
-                M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
+                M = np.array([[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 continue
 
             # A7
             if abs(Y) > A + e or (abs(A - Y) < e and N - e > 2 * E) or (abs(A + Y) < e and -e > N):
-                M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
+                M = np.array([[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 continue
 
             # A8
             if -e > E + N + Y + A + B or (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
-                M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
+                M = np.array([[1, 0, 1], [0, 1, 1], [0, 0, 1]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 continue
 
@@ -1172,7 +1173,6 @@ class Lattice(MSONable):
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
-
         lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
         mapped = self.find_mapping(lattice, e, skip_rotation_matrix=True)
@@ -1183,7 +1183,7 @@ class Lattice(MSONable):
 
         raise ValueError("can't find niggli")
 
-    def scale(self, new_volume: float) -> Lattice:
+    def scale(self, new_volume: float) -> Self:
         """Return a new Lattice with volume new_volume by performing a
         scaling of the lattice vectors so that length proportions and angles
         are preserved.
@@ -1203,7 +1203,7 @@ class Lattice(MSONable):
 
         new_c = (new_volume / (geo_factor * np.prod(ratios))) ** (1 / 3.0)
 
-        return Lattice(versors * (new_c * ratios), pbc=self.pbc)
+        return type(self)(versors * (new_c * ratios), pbc=self.pbc)
 
     def get_wigner_seitz_cell(self) -> list[list[np.ndarray]]:
         """Returns the Wigner-Seitz cell for the given lattice.
@@ -1804,16 +1804,16 @@ def get_points_in_spheres(
         nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
         nn_images = itertools.chain(*(cube_to_images[k] for k in ks))
         nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))
-        dist = np.linalg.norm(nn_coords - ii[None, :], axis=1)
+        distances = np.linalg.norm(nn_coords - ii[None, :], axis=1)
         nns: list[tuple[np.ndarray, float, int, np.ndarray]] = []
-        for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
+        for coord, index, image, dist in zip(nn_coords, nn_indices, nn_images, distances):
             # filtering out all sites that are beyond the cutoff
             # Here there is no filtering of overlapping sites
-            if d < r + numerical_tol:
+            if dist < r + numerical_tol:
                 if return_fcoords and (lattice is not None):
                     coord = np.round(lattice.get_fractional_coords(coord), 10)
-                nn = (coord, float(d), int(index), image)
-                nns.append(nn)
+                nn = (coord, float(dist), int(index), image)
+                nns.append(nn)  # type: ignore[arg-type]
         neighbors.append(nns)
     return neighbors
 
