@@ -57,7 +57,7 @@ class Lattice(MSONable):
                 E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
             pbc: a tuple defining the periodic boundary conditions along the three
-                axis of the lattice. If None periodic in all directions.
+                axis of the lattice.
         """
         mat = np.array(matrix, dtype=np.float64).reshape((3, 3))
         mat.setflags(write=False)
