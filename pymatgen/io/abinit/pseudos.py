@@ -140,22 +140,21 @@ class Pseudo(MSONable, abc.ABC):
         """String representation."""
 
         lines: list[str] = []
-        app = lines.append
-        app(f"<{type(self).__name__}: {self.basename}>")
-        app("  summary: " + self.summary.strip())
-        app(f"  number of valence electrons: {self.Z_val}")
-        app(f"  maximum angular momentum: {l2str(self.l_max)}")
-        app(f"  angular momentum for local part: {l2str(self.l_local)}")
-        app(f"  XC correlation: {self.xc}")
-        app(f"  supports spin-orbit: {self.supports_soc}")
+        lines.append(f"<{type(self).__name__}: {self.basename}>")
+        lines.append("  summary: " + self.summary.strip())
+        lines.append(f"  number of valence electrons: {self.Z_val}")
+        lines.append(f"  maximum angular momentum: {l2str(self.l_max)}")
+        lines.append(f"  angular momentum for local part: {l2str(self.l_local)}")
+        lines.append(f"  XC correlation: {self.xc}")
+        lines.append(f"  supports spin-orbit: {self.supports_soc}")
 
         if self.isnc:
-            app(f"  radius for non-linear core correction: {self.nlcc_radius}")
+            lines.append(f"  radius for non-linear core correction: {self.nlcc_radius}")
 
         if self.has_hints:
             for accuracy in ("low", "normal", "high"):
                 hint = self.hint_for_accuracy(accuracy=accuracy)
-                app(f"  hint for {accuracy} accuracy: {hint}")
+                lines.append(f"  hint for {accuracy} accuracy: {hint}")
 
         return "\n".join(lines)
 

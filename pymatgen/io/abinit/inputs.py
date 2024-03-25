@@ -842,10 +842,9 @@ class BasicAbinitInput(AbstractInput, MSONable):
             exclude: List of variable names that should be ignored.
         """
         lines = []
-        app = lines.append
 
         if self.comment:
-            app("# " + self.comment.replace("\n", "\n#"))
+            lines.append("# " + self.comment.replace("\n", "\n#"))
 
         post = post if post is not None else ""
         exclude = set(exclude) if exclude is not None else set()
@@ -861,7 +860,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         for name, value in items:
             # Build variable, convert to string and append it
             vname = name + post
-            app(str(InputVariable(vname, value)))
+            lines.append(str(InputVariable(vname, value)))
 
         out = "\n".join(lines)
         if not with_pseudos:
