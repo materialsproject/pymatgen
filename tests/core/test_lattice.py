@@ -24,18 +24,24 @@ class TestLattice(PymatgenTest):
 
         self.cubic_partial_pbc = Lattice.cubic(10.0, pbc=(True, True, False))
 
-        family_names = [
-            "cubic",
-            "tetragonal",
-            "orthorhombic",
-            "monoclinic",
-            "hexagonal",
-            "rhombohedral",
-        ]
-
         self.families = {}
-        for name in family_names:
+        for name in ("cubic", "tetragonal", "orthorhombic", "monoclinic", "hexagonal", "rhombohedral"):
             self.families[name] = getattr(self, name)
+
+    def test_init(self):
+        len_a = 9.026
+        lattice = Lattice.cubic(len_a)
+        assert lattice is not None, "Initialization from new_cubic failed"
+        assert_array_equal(lattice.pbc, (True, True, True))
+        lattice2 = Lattice(np.eye(3) * len_a)
+        for ii in range(3):
+            for jj in range(3):
+                assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
+        assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
+
+        for bad_pbc in [(True, True), (True, True, True, True), (True, True, 2)]:
+            with pytest.raises(ValueError, match="pbc must be a tuple of three True/False values, got"):
+                Lattice(np.eye(3), pbc=bad_pbc)
 
     def test_equal(self):
         assert self.cubic == self.cubic
@@ -56,17 +62,6 @@ class TestLattice(PymatgenTest):
 0.000 0.000 10.000"""
         assert format(self.lattice, ".3f") == lattice_str
         assert format(self.lattice, ".1fp") == "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
-
-    def test_init(self):
-        len_a = 9.026
-        lattice = Lattice.cubic(len_a)
-        assert lattice is not None, "Initialization from new_cubic failed"
-        assert_array_equal(lattice.pbc, (True, True, True))
-        lattice2 = Lattice(np.eye(3) * len_a)
-        for ii in range(3):
-            for jj in range(3):
-                assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
-        assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
     def test_copy(self):
         cubic_copy = self.cubic.copy()
@@ -110,8 +105,8 @@ class TestLattice(PymatgenTest):
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1, 2, 3)
-        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
-        assert dhkl == cubic_copy.d_hkl(hkl)
+        d_hkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
+        assert d_hkl == cubic_copy.d_hkl(hkl)
 
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
@@ -123,8 +118,8 @@ class TestLattice(PymatgenTest):
         )
 
         # Test the crystallographic version.
-        recip_latt_xtal = self.lattice.reciprocal_lattice_crystallographic
-        assert_allclose(recip_latt.matrix, recip_latt_xtal.matrix * 2 * np.pi, 5)
+        recip_latt_crystallographic = self.lattice.reciprocal_lattice_crystallographic
+        assert_allclose(recip_latt.matrix, recip_latt_crystallographic.matrix * 2 * np.pi, 5)
 
     def test_static_methods(self):
         expected_lengths = [3.840198, 3.84019885, 3.8401976]

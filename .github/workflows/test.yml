@@ -109,7 +109,7 @@ jobs:
           uv pip install -e '.[dev,optional]' --system
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
-          uv pip install --upgrade 'ase@git+https://gitlab.com/ase/ase' --system
+          uv pip install --upgrade 'git+https://gitlab.com/ase/ase' --system
 
       - name: pytest split ${{ matrix.split }}
         run: |
