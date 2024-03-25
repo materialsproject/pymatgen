@@ -19,6 +19,7 @@ if TYPE_CHECKING:  # needed to avoid circular imports
 
 
 PathLike = Union[str, Path]
+PbcLike = tuple[bool, bool, bool]
 
 # Things that can be cast to a Species-like object using get_el_sp
 SpeciesLike = Union[str, Element, Species, DummySpecies]

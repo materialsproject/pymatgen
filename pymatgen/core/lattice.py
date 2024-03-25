@@ -18,6 +18,7 @@ from scipy.spatial import Voronoi
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import PbcLike
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -32,8 +33,6 @@ __copyright__ = "Copyright 2011, The Materials Project"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 
-PbcType = tuple[bool, bool, bool]
-
 
 class Lattice(MSONable):
     """A lattice object. Essentially a matrix with conversion matrices. In
@@ -42,8 +41,7 @@ class Lattice(MSONable):
     """
 
     # Properties lazily generated for efficiency.
-
-    def __init__(self, matrix: ArrayLike, pbc: PbcType = (True, True, True)) -> None:
+    def __init__(self, matrix: ArrayLike, pbc: PbcLike = (True, True, True)) -> None:
         """Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
         lattice vector.
@@ -68,7 +66,7 @@ class Lattice(MSONable):
         self._diags = None
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
-        self._pbc = cast(PbcType, tuple(pbc))
+        self._pbc = cast(PbcLike, tuple(pbc))
 
     @property
     def lengths(self) -> Vector3D:
@@ -137,7 +135,7 @@ class Lattice(MSONable):
         return self._matrix
 
     @property
-    def pbc(self) -> PbcType:
+    def pbc(self) -> PbcLike:
         """Tuple defining the periodicity of the Lattice."""
         return self._pbc
 
@@ -319,7 +317,7 @@ class Lattice(MSONable):
         beta: float,
         gamma: float,
         vesta: bool = False,
-        pbc: PbcType = (True, True, True),
+        pbc: PbcLike = (True, True, True),
     ):
         """Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
@@ -1694,7 +1692,7 @@ def get_points_in_spheres(
     all_coords: np.ndarray,
     center_coords: np.ndarray,
     r: float,
-    pbc: bool | list[bool] | PbcType = True,
+    pbc: bool | list[bool] | PbcLike = True,
     numerical_tol: float = 1e-8,
     lattice: Lattice | None = None,
     return_fcoords: bool = False,
