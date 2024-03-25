@@ -622,6 +622,7 @@ class PhononBSPlotter:
         other_plotter: PhononBSPlotter | dict[str, PhononBSPlotter],
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         self_label: str = "self",
+        colors: Sequence[str] | None = None,
         legend_kwargs: dict | None = None,
         on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
         other_kwargs: dict | None = None,
@@ -639,6 +640,7 @@ class PhononBSPlotter:
                 Defaults to 'thz'.
             self_label (str): label for the self band structure. Defaults to to the label passed to PhononBSPlotter.init
                 or, if None, 'self'.
+            colors (list[str]): list of colors for the other band structures. Defaults to None for automatic colors.
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
             on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the band structures
                 are not compatible. Defaults to 'raise'.
@@ -652,17 +654,19 @@ class PhononBSPlotter:
         legend_kwargs = legend_kwargs or {}
         other_kwargs = other_kwargs or {}
         legend_kwargs.setdefault("fontsize", 20)
-        colors = ("red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
+        _colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         if isinstance(other_plotter, PhononBSPlotter):
             if other_plotter._label is None:
                 other_plotter = {"other": other_plotter}
             else:
                 other_plotter = {other_plotter._label: other_plotter}
+        if colors:
+            assert len(colors) == len(other_plotter) + 1, "Wrong number of colors"
 
         self_data = self.bs_plot_data()
 
         line_width = kwargs.setdefault("linewidth", 1)
-        ax = self.get_plot(units=units, **kwargs)
+        ax = self.get_plot(units=units, color=colors[0] if colors else _colors[0], **kwargs)
 
         colors_other = []
 
@@ -676,7 +680,7 @@ class PhononBSPlotter:
                     logger.warning("The two band structures are not compatible.")
                 return None  # ignore/warn
 
-            color = colors[idx % len(colors)]
+            color = colors[idx + 1] if colors else _colors[1 + idx % len(_colors)]
             _kwargs = kwargs.copy()  # Don't set the color in kwargs, or every band will be red
             colors_other.append(
                 _kwargs.setdefault("color", color)
