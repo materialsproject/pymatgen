@@ -125,8 +125,8 @@ class Tensor(np.ndarray, MSONable):
         matrix = SquareTensor(matrix)
         if not matrix.is_rotation(tol):
             raise ValueError("Rotation matrix is not valid.")
-        sop = SymmOp.from_rotation_and_translation(matrix, [0.0, 0.0, 0.0])
-        return self.transform(sop)
+        symm_op = SymmOp.from_rotation_and_translation(matrix, [0.0, 0.0, 0.0])
+        return self.transform(symm_op)
 
     def einsum_sequence(self, other_arrays, einsum_string=None):
         """Calculates the result of an einstein summation expression."""
