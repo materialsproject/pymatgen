@@ -605,8 +605,8 @@ def get_mi_vec(slab):
 def get_rot(slab: Slab) -> SymmOp:
     """Gets the transformation to rotate the z axis into the miller index."""
     new_z = get_mi_vec(slab)
-    a_len = slab.lattice.a
-    new_x = a_len / np.linalg.norm(a_len)
+    a, _b, _c = slab.lattice.matrix
+    new_x = a / np.linalg.norm(a)
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]).reshape(3, 3)
