@@ -2186,7 +2186,7 @@ class TestMolecule(PymatgenTest):
         assert returned is self.mol
         assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
-    def test_replace(self):
+    def test_replace_species(self):
         self.mol[0] = "Ge"
         assert self.mol.formula == "Ge1 H4"
 
