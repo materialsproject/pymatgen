@@ -1028,7 +1028,7 @@
     "tests/core/test_structure.py::TestMolecule::test_relax_ase_mol": 0.00900712498696521,
     "tests/core/test_structure.py::TestMolecule::test_relax_ase_mol_return_traj": 0.006231041974388063,
     "tests/core/test_structure.py::TestMolecule::test_relax_gfnxtb": 0.00013875000877305865,
-    "tests/core/test_structure.py::TestMolecule::test_replace": 0.0018936669803224504,
+    "tests/core/test_structure.py::TestMolecule::test_replace_species": 0.0018936669803224504,
     "tests/core/test_structure.py::TestMolecule::test_rotate_sites": 0.0017342490027658641,
     "tests/core/test_structure.py::TestMolecule::test_substitute": 0.005597625044174492,
     "tests/core/test_structure.py::TestMolecule::test_as_from_dict": 0.0021212499705143273,

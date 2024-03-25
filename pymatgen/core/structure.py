@@ -2132,7 +2132,7 @@ class IStructure(SiteCollection, MSONable):
             )
         return self.copy()
 
-    def copy(self, site_properties=None, sanitize=False, properties=None) -> Structure:
+    def copy(self, site_properties=None, sanitize=False, properties=None) -> Self:
         """Convenience method to get a copy of the structure, with options to add
         site properties.
 
@@ -3930,7 +3930,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         coords_are_cartesian: bool = False,
         properties: dict | None = None,
         label: str | None = None,
-    ) -> None:
+    ) -> Self:
         """Replace a single site. Takes either a species or a dict of species and
         occupations.
 
@@ -3943,6 +3943,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 Defaults to False.
             properties (dict): Properties associated with the site.
             label (str): Label associated with the site.
+
+        Returns:
+            Structure: self with replaced site.
         """
         if coords is None:
             frac_coords = self[idx].frac_coords
@@ -3954,7 +3957,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
         self.sites[idx] = new_site
 
-    def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> None:
+        return self
+
+    def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> Self:
         """Substitute atom at index with a functional group.
 
         Args:
@@ -3975,6 +3980,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             bond_order (int): A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
+
+        Returns:
+            Structure: self with functional group attached.
         """
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
@@ -4000,7 +4008,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if not isinstance(func_group, Molecule):
             # Check to see whether the functional group is in database.
             if func_group not in FunctionalGroups:
-                raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
+                raise ValueError(
+                    f"Can't find functional group {func_group!r} in list. Provide explicit coordinates instead"
+                )
             fgroup = FunctionalGroups[func_group]
         else:
             fgroup = func_group
@@ -4048,11 +4058,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
             s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True, label=site.label)
             self._sites.append(s_new)
 
-    def remove_species(self, species: Sequence[SpeciesLike]) -> None:
+        return self
+
+    def remove_species(self, species: Sequence[SpeciesLike]) -> Self:
         """Remove all occurrences of several species from a structure.
 
         Args:
             species: Sequence of species to remove, e.g., ["Li", "Na"].
+
+        Returns:
+            Structure: self with species removed.
         """
         new_sites = []
         species = [get_el_sp(s) for s in species]
@@ -4071,15 +4086,22 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         self.sites = new_sites
 
-    def remove_sites(self, indices: Sequence[int | None]) -> None:
+        return self
+
+    def remove_sites(self, indices: Sequence[int | None]) -> Self:
         """Delete sites with at indices.
 
         Args:
             indices: Sequence of indices of sites to delete.
+
+        Returns:
+            Structure: self with sites removed.
         """
         self.sites = [site for idx, site in enumerate(self) if idx not in indices]
 
-    def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> Structure:
+        return self
+
+    def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> Self:
         """Apply a symmetry operation to the structure in place and return the modified
         structure. The lattice is operated on by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
@@ -4126,7 +4148,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Structure:
+    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Self:
         """Apply a strain to the lattice.
 
         Args:
@@ -4139,7 +4161,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 Structure copy. Defaults to True.
 
         Returns:
-            Structure: Structure with strain applied.
+            Structure: self if inplace=True else new structure with strain applied.
         """
         strain_matrix = (1 + np.array(strain)) * np.eye(3)
         new_lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
@@ -4147,7 +4169,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         struct.lattice = new_lattice
         return struct
 
-    def sort(self, key: Callable | None = None, reverse: bool = False) -> Structure:
+    def sort(self, key: Callable | None = None, reverse: bool = False) -> Self:
         """Sort a structure in place. The parameters have the same meaning as in
         list.sort(). By default, sites are sorted by the electronegativity of
         the species. The difference between this method and
@@ -4162,14 +4184,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 as if each comparison were reversed.
 
         Returns:
-            Structure: Sorted structure.
+            Structure: self sorted.
         """
         self._sites.sort(key=key, reverse=reverse)
         return self
 
     def translate_sites(
         self, indices: int | Sequence[int], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True
-    ) -> Structure:
+    ) -> Self:
         """Translate specific sites by some vector, keeping the sites within the
         unit cell. Modifies the structure in place.
 
@@ -4207,7 +4229,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         axis: ArrayLike | None = None,
         anchor: ArrayLike | None = None,
         to_unit_cell: bool = True,
-    ) -> Structure:
+    ) -> Self:
         """Rotate specific sites by some angle around vector at anchor. Modifies
         the structure in place.
 
@@ -4254,7 +4276,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None) -> Structure:
+    def perturb(self, distance: float, min_distance: float | None = None) -> Self:
         """Performs a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
@@ -4284,7 +4306,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Self:
         """Create a supercell.
 
         Args:
@@ -4320,7 +4342,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Structure:
+    def scale_lattice(self, volume: float) -> Self:
         """Performs a scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
@@ -4334,7 +4356,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Structure:
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
         """Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
 
@@ -4378,7 +4400,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites = sites
         return self
 
-    def set_charge(self, new_charge: float = 0.0) -> Structure:
+    def set_charge(self, new_charge: float = 0.0) -> Self:
         """Sets the overall structure charge.
 
         Args:
