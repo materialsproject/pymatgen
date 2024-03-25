@@ -619,8 +619,9 @@ class PhononBSPlotter:
 
     def plot_compare(
         self,
-        other_plotter: dict[str, PhononBSPlotter],
+        other_plotter: PhononBSPlotter | dict[str, PhononBSPlotter],
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        self_label: str = "self",
         legend_kwargs: dict | None = None,
         on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
         other_kwargs: dict | None = None,
@@ -632,10 +633,12 @@ class PhononBSPlotter:
         initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter (dict[str, PhononBSPlotter]): other PhononBSPlotter objects defined along
+            other_plotter (PhononBSPlotter | dict[str, PhononBSPlotter]): other PhononBSPlotter object(s) defined along
                 the same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
+            self_label (str): label for the self band structure. Defaults to to the label passed to PhononBSPlotter.init
+                or, if None, 'self'.
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
             on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the band structures
                 are not compatible. Defaults to 'raise'.
@@ -650,6 +653,8 @@ class PhononBSPlotter:
         other_kwargs = other_kwargs or {}
         legend_kwargs.setdefault("fontsize", 20)
         colors = ("red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
+        if isinstance(other_plotter, PhononBSPlotter):
+            other_plotter = {"other": other_plotter}
 
         self_data = self.bs_plot_data()
 
@@ -681,15 +686,11 @@ class PhononBSPlotter:
                     ax.plot(xs, ys, **(_kwargs | other_kwargs))
 
         # add legend showing which color corresponds to which band structure
-        if self._label is None:
-            logger.warning("No label set for self. No legend will be shown.")
-        else:
-            color_self = ax.lines[0].get_color()
-            ax.plot([], [], label=self._label, linewidth=2 * line_width, color=color_self)
-            linestyle = other_kwargs.get("linestyle", "-")
-            other_labels = other_plotter.keys()
-            for color_other, label_other in zip(colors_other, other_labels):
-                ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
+        color_self = ax.lines[0].get_color()
+        ax.plot([], [], label=self._label or self_label, linewidth=2 * line_width, color=color_self)
+        linestyle = other_kwargs.get("linestyle", "-")
+        for color_other, label_other in zip(colors_other, other_plotter):
+            ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 
         return ax
@@ -788,7 +789,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
+        temperatures = np.linspace(tmin, tmax, ntemp)
 
         ylabel = "$C_v$ (J/K/mol)" if self.structure else "$C_v$ (J/K/mol-c)"
 
@@ -808,7 +809,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
+        temperatures = np.linspace(tmin, tmax, ntemp)
 
         ylabel = "$S$ (J/K/mol)" if self.structure else "$S$ (J/K/mol-c)"
 
@@ -828,7 +829,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
+        temperatures = np.linspace(tmin, tmax, ntemp)
 
         ylabel = "$\\Delta E$ (kJ/mol)" if self.structure else "$\\Delta E$ (kJ/mol-c)"
 
@@ -852,7 +853,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
+        temperatures = np.linspace(tmin, tmax, ntemp)
 
         ylabel = "$\\Delta F$ (kJ/mol)" if self.structure else "$\\Delta F$ (kJ/mol-c)"
 
@@ -876,7 +877,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        temperatures = np.linspace(tmin, tmax, ntemp).tolist()
+        temperatures = np.linspace(tmin, tmax, ntemp)
 
         mol = "" if self.structure else "-c"
 
