@@ -268,7 +268,7 @@ class TestCohpcar(PymatgenTest):
                             assert cohp1 == approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
-        orbitals = [(Orbital(i), Orbital(j)) for j in range(4) for i in range(4)]
+        orbitals = [(Orbital(jj), Orbital(ii)) for ii in range(4) for jj in range(4)]
         assert self.cohp_bise.orb_res_cohp is None
         assert self.coop_bise.orb_res_cohp is None
         assert self.cohp_fe.orb_res_cohp is None

@@ -61,8 +61,8 @@ class TestInterface(PymatgenTest):
         assert_allclose(interface.in_plane_offset, [0.2, 0.2])
 
         test_coords = np.array(init_coords)
-        for i in interface.film_indices:
-            test_coords[i] += [0.2, 0.2, 0]
+        for idx in interface.film_indices:
+            test_coords[idx] += [0.2, 0.2, 0]
         assert_allclose(np.mod(test_coords, 1.0), np.mod(interface.frac_coords, 1.0))
 
     def test_vacuum_over_film_setter(self):

@@ -71,8 +71,8 @@ class TestTrajectory(PymatgenTest):
         return species, coords, 0, 1
 
     def test_single_index_slice(self):
-        assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
-        assert all(self.traj_mols[i] == self.molecules[i] for i in range(len(self.molecules)))
+        assert all(self.traj[idx] == self.structures[idx] for idx in range(0, len(self.structures), 19))
+        assert all(self.traj_mols[idx] == self.molecules[idx] for idx in range(len(self.molecules)))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -87,7 +87,7 @@ class TestTrajectory(PymatgenTest):
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
+            assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -421,11 +421,11 @@ class TestTrajectory(PymatgenTest):
         structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
-        for i in range(10):
+        for idx in range(10):
             displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
-            displacements[i + 1, :, :] = displacement
+            displacements[idx + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()

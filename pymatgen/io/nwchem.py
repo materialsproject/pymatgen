@@ -920,15 +920,15 @@ class NwOutput:
             for _freq, mode in normal_frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
-            n = len(hessian)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    hessian[i].append(hessian[j][i])
+            len_hess = len(hessian)
+            for ii in range(len_hess):
+                for jj in range(ii + 1, len_hess):
+                    hessian[ii].append(hessian[jj][ii])
         if projected_hessian:
-            n = len(projected_hessian)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    projected_hessian[i].append(projected_hessian[j][i])
+            len_hess = len(projected_hessian)
+            for ii in range(len_hess):
+                for jj in range(ii + 1, len_hess):
+                    projected_hessian[ii].append(projected_hessian[jj][ii])
 
         data.update(
             {
