@@ -223,7 +223,7 @@ class TestMultiDataset(PymatgenTest):
 
         split = multi.split_datasets()
         assert len(split) == 2
-        assert all(split[i] == multi[i] for i in range(multi.ndtset))
+        assert all(split[idx] == multi[idx] for idx in range(multi.ndtset))
         assert multi.to_str(with_pseudos=False)
 
         tmpdir = tempfile.mkdtemp()

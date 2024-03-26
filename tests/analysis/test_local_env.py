@@ -1003,7 +1003,7 @@ class TestLocalStructOrderParams(PymatgenTest):
             "tet_max",
             "sq_face_cap_trig_pris",
         ]
-        op_params = [None] * range(len(op_types))
+        op_params = [None] * len(op_types)
         op_params[1] = {"TA": 1, "IGW_TA": 1.0 / 0.0667}
         op_params[2] = {"TA": 45.0 / 180, "IGW_TA": 1.0 / 0.0667}
         op_params[33] = {"TA": 0.6081734479693927, "IGW_TA": 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
