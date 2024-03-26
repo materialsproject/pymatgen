@@ -672,7 +672,7 @@ class PhononBSPlotter:
         for idx, plotter in enumerate(other_plotter.values()):
             other_data = plotter.bs_plot_data()
 
-            if len(self_data["distances"]) != len(other_data["distances"]):
+            if np.asarray(self_data["distances"]).shape != np.asarray(other_data["distances"]).shape:
                 if on_incompatible == "raise":
                     raise ValueError("The two band structures are not compatible.")
                 if on_incompatible == "warn":
