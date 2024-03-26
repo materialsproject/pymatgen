@@ -27,15 +27,15 @@ from scipy.spatial.distance import cdist
 
 from pymatgen.core.structure import Molecule
 
-if TYPE_CHECKING:
-    from typing_extensions import Self
-
 try:
     from openbabel import openbabel
 
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     openbabel = None
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 __author__ = "Xiaohui Qu, Adam Fekete"
