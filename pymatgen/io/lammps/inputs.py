@@ -538,7 +538,7 @@ class LammpsInputFile(InputFile):
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -618,7 +618,7 @@ class LammpsInputFile(InputFile):
         return LIF
 
     @classmethod
-    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
         """
         Creates an InputFile object from a file.
 

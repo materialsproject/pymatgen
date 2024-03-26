@@ -1377,12 +1377,12 @@ class CombinedData(LammpsData):
 
     # NOTE (@janosh): The following two methods for override parent class LammpsData
     @classmethod
-    def from_ff_and_topologies(cls) -> None:
+    def from_ff_and_topologies(cls) -> None:  # type: ignore[override]
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
-    def from_structure(cls) -> None:
+    def from_structure(cls) -> None:  # type: ignore[override]
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
