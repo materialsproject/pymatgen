@@ -158,21 +158,21 @@ class PhononDosPlotter:
         n_colors = max(3, len(self._doses))
         n_colors = min(9, n_colors)
 
-        y = None
+        ys = None
         all_densities = []
         all_frequencies = []
-        ax = pretty_plot(8, 12, ax=ax) if invert_axes else pretty_plot(12, 8, ax=ax)
+        ax = pretty_plot(*(8, 12) if invert_axes else (12, 8), ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
             frequencies = dos["frequencies"] * unit.factor
             densities = dos["densities"]
-            if y is None:
-                y = np.zeros(frequencies.shape)
+            if ys is None:
+                ys = np.zeros(frequencies.shape)
             if self.stack:
-                y += densities
-                new_dens = y.copy()
+                ys += densities
+                new_dens = ys.copy()
             else:
                 new_dens = densities
             all_frequencies.append(frequencies)
@@ -187,17 +187,19 @@ class PhononDosPlotter:
             color = self._doses[key].get("color", colors[idx % n_colors])
             linewidth = self._doses[key].get("linewidth", 3)
             kwargs = {
-                k: v for k, v in self._doses[key].items() if k not in ["frequencies", "densities", "color", "linewidth"]
+                key: val
+                for key, val in self._doses[key].items()
+                if key not in ["frequencies", "densities", "color", "linewidth"]
             }
             all_pts.extend(list(zip(frequencies, densities)))
             if invert_axes:
-                x, y = densities, frequencies
+                xs, ys = densities, frequencies
             else:
-                x, y = frequencies, densities
+                xs, ys = frequencies, densities
             if self.stack:
-                ax.fill(x, y, color=color, label=str(key), **kwargs)
+                ax.fill(xs, ys, color=color, label=str(key), **kwargs)
             else:
-                ax.plot(x, y, color=color, label=str(key), linewidth=linewidth, **kwargs)
+                ax.plot(xs, ys, color=color, label=str(key), linewidth=linewidth, **kwargs)
 
         if xlim:
             ax.set_xlim(xlim)
@@ -634,7 +636,7 @@ class PhononBSPlotter:
         initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter (PhononBSPlotter | dict[str, PhononBSPlotter]): other PhononBSPlotter object(s) defined along
+            other_plotter (PhononBSPlotter | dict[str, PhononBSPlotter]): Other PhononBSPlotter object(s) defined along
                 the same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
@@ -656,10 +658,7 @@ class PhononBSPlotter:
         legend_kwargs.setdefault("fontsize", 20)
         _colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         if isinstance(other_plotter, PhononBSPlotter):
-            if other_plotter._label is None:
-                other_plotter = {"other": other_plotter}
-            else:
-                other_plotter = {other_plotter._label: other_plotter}
+            other_plotter = {other_plotter._label or "other": other_plotter}
         if colors:
             assert len(colors) == len(other_plotter) + 1, "Wrong number of colors"
 

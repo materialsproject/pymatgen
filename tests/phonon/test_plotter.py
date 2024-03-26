@@ -3,24 +3,23 @@ from __future__ import annotations
 import json
 import unittest
 
-from matplotlib import axes, rc
+import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 
-from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.phonon.dos import CompletePhononDos
+from pymatgen.phonon import CompletePhononDos, PhononBandStructureSymmLine
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
 from pymatgen.util.testing import TEST_FILES_DIR
 
-rc("text", usetex=False)  # Disabling latex for testing
+plt.rc("text", usetex=False)  # Disabling latex for testing
 
 
 class TestPhononDosPlotter(unittest.TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
-            self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
-            self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
-            self.plotter_no_sigma = PhononDosPlotter(sigma=None, stack=False)
+        self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
+        self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
+        self.plotter_no_sigma = PhononDosPlotter(sigma=None, stack=False)
 
     def test_add_dos_dict(self):
         dct = self.plotter.get_dos_dict()
@@ -32,15 +31,14 @@ class TestPhononDosPlotter(unittest.TestCase):
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         dct = self.plotter.get_dos_dict()
-        for el in ["Na", "Cl"]:
-            assert el in dct
+        assert {*dct} >= {"Na", "Cl"}
 
     def test_plot(self):
         self.plotter.add_dos("Total", self.dos)
         self.plotter.get_plot(units="mev")
         self.plotter_no_stack.add_dos("Total", self.dos)
         ax = self.plotter_no_stack.get_plot(units="mev")
-        assert isinstance(ax, axes.Axes)
+        assert isinstance(ax, plt.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Density\\ of\\ states}$"
         assert ax.get_xlabel() == "$\\mathrm{Frequencies\\ (meV)}$"
         self.plotter_no_sigma.add_dos("Total", self.dos)
@@ -55,12 +53,12 @@ class TestPhononBSPlotter(unittest.TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
-            self.bs = PhononBandStructureSymmLine.from_dict(dct)
-            self.plotter = PhononBSPlotter(self.bs, label="NaCl")
+        self.bs = PhononBandStructureSymmLine.from_dict(dct)
+        self.plotter = PhononBSPlotter(self.bs, label="NaCl")
         with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
-            self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
-            self.plotter_sto = PhononBSPlotter(self.bs_sto)
+        self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
+        self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
     def test_bs_plot_data(self):
         assert len(self.plotter.bs_plot_data()["distances"][0]) == 51, "wrong number of distances in the first branch"
@@ -71,7 +69,7 @@ class TestPhononBSPlotter(unittest.TestCase):
 
     def test_plot(self):
         ax = self.plotter.get_plot(units="mev")
-        assert isinstance(ax, axes.Axes)
+        assert isinstance(ax, plt.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
         assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
 
@@ -89,7 +87,7 @@ class TestPhononBSPlotter(unittest.TestCase):
     def test_plot_compare(self):
         labels = ("NaCl", "NaCl 2")
         ax = self.plotter.plot_compare({labels[1]: self.plotter}, units="mev")
-        assert isinstance(ax, axes.Axes)
+        assert isinstance(ax, plt.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
         assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
         assert ax.get_title() == ""
@@ -107,14 +105,19 @@ class TestThermoPlotter(unittest.TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
-            self.plotter = ThermoPlotter(self.dos, self.dos.structure)
+        self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
     def test_plot_functions(self):
-        self.plotter.plot_cv(5, 100, 5, show=False)
-        self.plotter.plot_entropy(5, 100, 5, show=False)
-        self.plotter.plot_internal_energy(5, 100, 5, show=False)
-        self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
-        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
+        fig = self.plotter.plot_cv(5, 100, 5, show=False)
+        assert isinstance(fig, plt.Figure)
+        fig = self.plotter.plot_entropy(5, 100, 5, show=False)
+        assert isinstance(fig, plt.Figure)
+        fig = self.plotter.plot_internal_energy(5, 100, 5, show=False)
+        assert isinstance(fig, plt.Figure)
+        fig = self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
+        assert isinstance(fig, plt.Figure)
+        fig = self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
+        assert isinstance(fig, plt.Figure)
 
 
 # Gruneisen plotter is already tested in test_gruneisen
