@@ -40,14 +40,15 @@ from pymatgen.transformations.standard_transformations import (
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import Any
-
 try:
     import hiphive
 except ImportError:
     hiphive = None
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Any
+
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
 

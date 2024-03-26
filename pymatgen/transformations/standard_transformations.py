@@ -25,6 +25,8 @@ from pymatgen.transformations.site_transformations import PartialRemoveSitesTran
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
 
