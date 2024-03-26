@@ -534,18 +534,18 @@ class TestMotifIdentification(PymatgenTest):
         )
 
     def test_site_is_of_motif_type(self):
-        for i in range(len(self.diamond)):
-            assert site_is_of_motif_type(self.diamond, i) == "tetrahedral"
-        for i in range(len(self.nacl)):
-            assert site_is_of_motif_type(self.nacl, i) == "octahedral"
-        for i in range(len(self.cscl)):
-            assert site_is_of_motif_type(self.cscl, i) == "bcc"
+        for idx in range(len(self.diamond)):
+            assert site_is_of_motif_type(self.diamond, idx) == "tetrahedral"
+        for idx in range(len(self.nacl)):
+            assert site_is_of_motif_type(self.nacl, idx) == "octahedral"
+        for idx in range(len(self.cscl)):
+            assert site_is_of_motif_type(self.cscl, idx) == "bcc"
         assert site_is_of_motif_type(self.square_pyramid, 0) == "square pyramidal"
-        for i in range(1, len(self.square_pyramid)):
-            assert site_is_of_motif_type(self.square_pyramid, i) == "unrecognized"
+        for idx in range(1, len(self.square_pyramid)):
+            assert site_is_of_motif_type(self.square_pyramid, idx) == "unrecognized"
         assert site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
-        for i in range(1, len(self.trigonal_bipyramid)):
-            assert site_is_of_motif_type(self.trigonal_bipyramid, i) == "unrecognized"
+        for idx in range(1, len(self.trigonal_bipyramid)):
+            assert site_is_of_motif_type(self.trigonal_bipyramid, idx) == "unrecognized"
 
     def test_get_neighbors_of_site_with_index(self):
         assert len(get_neighbors_of_site_with_index(self.diamond, 0)) == 4
@@ -1003,15 +1003,10 @@ class TestLocalStructOrderParams(PymatgenTest):
             "tet_max",
             "sq_face_cap_trig_pris",
         ]
-        op_params = [None for i in range(len(op_types))]
+        op_params = [None] * range(len(op_types))
         op_params[1] = {"TA": 1, "IGW_TA": 1.0 / 0.0667}
         op_params[2] = {"TA": 45.0 / 180, "IGW_TA": 1.0 / 0.0667}
-        op_params[33] = {
-            "TA": 0.6081734479693927,
-            "IGW_TA": 18.33,
-            "fac_AA": 1.5,
-            "exp_cos_AA": 2,
-        }
+        op_params[33] = {"TA": 0.6081734479693927, "IGW_TA": 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
         ops_044 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.44)
         ops_071 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.71)
         ops_087 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.87)

@@ -93,40 +93,37 @@ class TestFloatWithUnit(PymatgenTest):
 
     def test_unitized(self):
         @unitized("eV")
-        def f():
+        def func1():
             return [1, 2, 3]
 
-        assert str(f()[0]) == "1.0 eV"
-        assert isinstance(f(), list)
+        assert str(func1()[0]) == "1.0 eV"
+        assert isinstance(func1(), list)
 
         @unitized("eV")
-        def g():
+        def func2():
             return 2, 3, 4
 
-        assert str(g()[0]) == "2.0 eV"
-        assert isinstance(g(), tuple)
+        assert str(func2()[0]) == "2.0 eV"
+        assert isinstance(func2(), tuple)
 
         @unitized("pm")
-        def h():
-            dct = {}
-            for i in range(3):
-                dct[i] = i * 20
-            return dct
+        def func3():
+            return {idx: idx * 20 for idx in range(3)}
 
-        assert str(h()[1]) == "20.0 pm"
-        assert isinstance(h(), dict)
+        assert str(func3()[1]) == "20.0 pm"
+        assert isinstance(func3(), dict)
 
         @unitized("kg")
-        def i():
+        def func4():
             return FloatWithUnit(5, "g")
 
-        assert i() == FloatWithUnit(0.005, "kg")
+        assert func4() == FloatWithUnit(0.005, "kg")
 
         @unitized("kg")
-        def j():
+        def func5():
             return ArrayWithUnit([5, 10], "g")
 
-        j_out = j()
+        j_out = func5()
         assert j_out.unit == Unit("kg")
         assert j_out[0] == 0.005
         assert j_out[1] == 0.01

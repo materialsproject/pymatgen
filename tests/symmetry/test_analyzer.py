@@ -359,12 +359,12 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_tricky_symmetry")
-        sa = SpacegroupAnalyzer(struct, 0.1)
-        assert sa.get_space_group_symbol() == "I4/mmm"
-        assert sa.get_space_group_number() == 139
-        assert sa.get_point_group_symbol() == "4/mmm"
-        assert sa.get_crystal_system() == "tetragonal"
-        assert sa.get_hall() == "-I 4 2"
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        assert spg_analyzer.get_space_group_symbol() == "I4/mmm"
+        assert spg_analyzer.get_space_group_number() == 139
+        assert spg_analyzer.get_point_group_symbol() == "4/mmm"
+        assert spg_analyzer.get_crystal_system() == "tetragonal"
+        assert spg_analyzer.get_hall() == "-I 4 2"
 
 
 class TestSpacegroup(unittest.TestCase):
@@ -373,12 +373,12 @@ class TestSpacegroup(unittest.TestCase):
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
-        sites1 = [self.structure[i] for i in [0, 1]]
-        sites2 = [self.structure[i] for i in [2, 3]]
+        sites1 = [self.structure[idx] for idx in [0, 1]]
+        sites2 = [self.structure[idx] for idx in [2, 3]]
         assert self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
-        sites1 = [self.structure[i] for i in [0, 1]]
-        sites2 = [self.structure[i] for i in [0, 2]]
+        sites1 = [self.structure[idx] for idx in [0, 1]]
+        sites2 = [self.structure[idx] for idx in [0, 2]]
         assert not self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
 

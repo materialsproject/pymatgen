@@ -184,13 +184,13 @@ class LMTOCtrl:
 
         for cat in ["STRUC", "CLASS", "SITE"]:
             fields = struct_lines[cat].split("=")
-            for f, field in enumerate(fields):
+            for idx, field in enumerate(fields):
                 token = field.split()[-1]
                 if token == "ALAT":
-                    alat = round(float(fields[f + 1].split()[0]), sigfigs)
-                    structure_tokens["ALAT"] = alat
+                    a_lat = round(float(fields[idx + 1].split()[0]), sigfigs)
+                    structure_tokens["ALAT"] = a_lat
                 elif token == "ATOM":
-                    atom = fields[f + 1].split()[0]
+                    atom = fields[idx + 1].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
                             structure_tokens["CLASS"].append(atom)
@@ -200,9 +200,9 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()])
                     except ValueError:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()[:-1]])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()[:-1]])
                     if token == "PLAT":
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
@@ -212,9 +212,9 @@ class LMTOCtrl:
                 else:
                     pass
         try:
-            spcgrp_index = struct_lines["SYMGRP"].index("SPCGRP")
-            spcgrp = struct_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
-            structure_tokens["SPCGRP"] = spcgrp.split("=")[1].split()[0]
+            spc_grp_index = struct_lines["SYMGRP"].index("SPCGRP")
+            spc_grp = struct_lines["SYMGRP"][spc_grp_index : spc_grp_index + 12]
+            structure_tokens["SPCGRP"] = spc_grp.split("=")[1].split()[0]
         except ValueError:
             pass
 
