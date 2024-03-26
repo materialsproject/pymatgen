@@ -11,6 +11,7 @@ from pytest import approx
 
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -245,6 +246,7 @@ class TestElement(PymatgenTest):
         keys = (
             "atomic_mass",
             "atomic_orbitals",
+            "atomic_orbitals_eV",
             "atomic_radius",
             "average_anionic_radius",
             "average_cationic_radius",
@@ -287,21 +289,29 @@ class TestElement(PymatgenTest):
         for idx in range(1, 104):
             el = Element.from_Z(idx)
             for key in keys:
-                k_str = key.capitalize().replace("_", " ")
-                if k_str in el.data and (not str(el.data[k_str]).startswith("no data")):
+                key_str = key.capitalize().replace("_", " ")
+                if key_str in el.data and (not str(el.data[key_str]).startswith("no data")):
                     assert getattr(el, key) is not None
                 elif key == "long_name":
                     assert el.long_name == el.data["Name"]
                 elif key == "iupac_ordering":
                     assert "IUPAC ordering" in el.data
                     assert getattr(el, key) is not None
-            el = Element.from_Z(idx)
+
             if len(el.oxidation_states) > 0:
                 assert max(el.oxidation_states) == el.max_oxidation_state
                 assert min(el.oxidation_states) == el.min_oxidation_state
 
-            if el.symbol not in ["He", "Ne", "Ar"]:
+            if el.symbol not in {"He", "Ne", "Ar"}:
                 assert el.X > 0, f"No electroneg for {el}"
+
+            # check atomic_orbitals_eV is Ha_to_eV * atomic_orbitals
+        for el in Element:
+            if el.atomic_orbitals is None:
+                continue
+            assert el.atomic_orbitals_eV == approx(
+                {orb: energy * Ha_to_eV for orb, energy in el.atomic_orbitals.items()}
+            )
 
         with pytest.raises(ValueError, match="Unexpected atomic number Z=1000"):
             Element.from_Z(1000)
