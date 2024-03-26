@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from itertools import chain, combinations
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING, no_type_check, overload
 
 import numpy as np
 from monty.fractions import gcd_float
@@ -97,6 +97,10 @@ class BalancedReaction(MSONable):
         return self._str_from_comp(self._coeffs, self._all_comp)[0]
 
     __repr__ = __str__
+
+    @overload
+    def calculate_energy(self, energies: dict[Composition, ufloat]) -> ufloat:
+        pass
 
     def calculate_energy(self, energies: dict[Composition, float]) -> float:
         """
