@@ -243,7 +243,7 @@ class SupercellTransformation(AbstractTransformation):
                 number of atoms than the SupercellTransformation with unchanged lattice angles
                 can possibly be found. If such a SupercellTransformation cannot be found easily,
                 the SupercellTransformation with unchanged lattice angles will be returned.
-            max_atoms (int): Maximum number of atoms allowed in the supercell. Defaults to infinity.
+            max_atoms (int): Maximum number of atoms allowed in the supercell. Defaults to -1 for infinity.
 
         Returns:
             SupercellTransformation.
