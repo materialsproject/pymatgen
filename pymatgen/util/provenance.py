@@ -76,8 +76,8 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         """Returns: Dict."""
         return {"name": self.name, "url": self.url, "description": self.description}
 
-    @staticmethod
-    def from_dict(dct: dict[str, str]) -> HistoryNode:
+    @classmethod
+    def from_dict(cls, dct: dict[str, str]) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -85,10 +85,10 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         Returns:
             HistoryNode
         """
-        return HistoryNode(dct["name"], dct["url"], dct["description"])
+        return cls(dct["name"], dct["url"], dct["description"])
 
-    @staticmethod
-    def parse_history_node(h_node):
+    @classmethod
+    def parse_history_node(cls, h_node) -> Self:
         """Parses a History Node object from either a dict or a tuple.
 
         Args:
@@ -99,11 +99,11 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
             History node.
         """
         if isinstance(h_node, dict):
-            return HistoryNode.from_dict(h_node)
+            return cls.from_dict(h_node)
 
         if len(h_node) != 3:
             raise ValueError(f"Invalid History node, should be dict or (name, version, description) tuple: {h_node}")
-        return HistoryNode(h_node[0], h_node[1], h_node[2])
+        return cls(h_node[0], h_node[1], h_node[2])
 
 
 class Author(namedtuple("Author", ["name", "email"])):
@@ -132,8 +132,8 @@ class Author(namedtuple("Author", ["name", "email"])):
         """
         return cls(dct["name"], dct["email"])
 
-    @staticmethod
-    def parse_author(author):
+    @classmethod
+    def parse_author(cls, author) -> Self:
         """Parses an Author object from either a String, dict, or tuple.
 
         Args:
@@ -149,12 +149,12 @@ class Author(namedtuple("Author", ["name", "email"])):
             m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
             if not m or m.start() != 0 or m.end() != len(author):
                 raise ValueError(f"Invalid author format! {author}")
-            return Author(m.groups()[0], m.groups()[1])
+            return cls(m.groups()[0], m.groups()[1])
         if isinstance(author, dict):
-            return Author.from_dict(author)
+            return cls.from_dict(author)
         if len(author) != 2:
             raise ValueError(f"Invalid author, should be String or (name, email) tuple: {author}")
-        return Author(author[0], author[1])
+        return cls(author[0], author[1])
 
 
 class StructureNL:

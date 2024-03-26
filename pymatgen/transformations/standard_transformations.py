@@ -227,10 +227,10 @@ class SupercellTransformation(AbstractTransformation):
         """
         return cls([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
 
-    @staticmethod
+    @classmethod
     def from_boundary_distance(
-        structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False, max_atoms: float = -1
-    ) -> SupercellTransformation:
+        cls, structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False, max_atoms: float = -1
+    ) -> Self:
         """Get a SupercellTransformation according to the desired minimum distance between periodic
         boundaries of the resulting supercell.
 
@@ -243,7 +243,7 @@ class SupercellTransformation(AbstractTransformation):
                 number of atoms than the SupercellTransformation with unchanged lattice angles
                 can possibly be found. If such a SupercellTransformation cannot be found easily,
                 the SupercellTransformation with unchanged lattice angles will be returned.
-            max_atoms (int): Maximum number of atoms allowed in the supercell. Defaults to infinity.
+            max_atoms (int): Maximum number of atoms allowed in the supercell. Defaults to -1 for infinity.
 
         Returns:
             SupercellTransformation.
@@ -264,12 +264,12 @@ class SupercellTransformation(AbstractTransformation):
                 min_boundary_dist / np.array([struct_scaled.lattice.d_hkl(plane) for plane in np.eye(3)])
             )
             if sum(min_expand_scaled != 0) == 0 and len(struct_scaled) <= max_atoms:
-                return SupercellTransformation(scaling_matrix)
+                return cls(scaling_matrix)
 
         scaling_matrix = np.eye(3) + np.diag(min_expand)  # type: ignore[assignment]
         struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
         if len(struct_scaled) <= max_atoms:
-            return SupercellTransformation(scaling_matrix)
+            return cls(scaling_matrix)
 
         msg = f"{max_atoms=} exceeded while trying to solve for supercell. You can try lowering {min_boundary_dist=}"
         if not allow_rotation:

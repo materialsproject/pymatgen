@@ -113,7 +113,7 @@ class Keyword(MSONable):
         if self.name.upper() == other.name.upper():
             v1 = [val.upper() if isinstance(val, str) else val for val in self.values]
             v2 = [val.upper() if isinstance(val, str) else val for val in other.values]  # noqa: PD011
-            if v1 == v2 and self.units == self.units:
+            if v1 == v2 and self.units == other.units:
                 return True
         return False
 
@@ -2129,8 +2129,8 @@ class Band_Structure(Section):
 
     # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
     # if this changes in the future as other codes are added, then this will need to change
-    @staticmethod
-    def from_kpoints(kpoints: VaspKpoints, kpoints_line_density: int = 20) -> Band_Structure:
+    @classmethod
+    def from_kpoints(cls, kpoints: VaspKpoints, kpoints_line_density: int = 20) -> Self:
         """
         Initialize band structure section from a line-mode Kpoint object.
 
@@ -2167,7 +2167,7 @@ class Band_Structure(Section):
             raise ValueError(
                 "Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian)."
             )
-        return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs")
+        return cls(kpoint_sets=kpoint_sets, filename="BAND.bs")
 
 
 @dataclass
