@@ -25,7 +25,7 @@ import subprocess
 import tempfile
 import time
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.dev import requires
@@ -1936,7 +1936,7 @@ class BoltztrapAnalyzer:
         )
 
     @classmethod
-    def from_files(cls, path_dir: str, dos_spin: int = 1) -> Self:
+    def from_files(cls, path_dir: str, dos_spin: Literal[-1, 1] = 1) -> Self:
         """Get a BoltztrapAnalyzer object from a set of files.
 
         Args:

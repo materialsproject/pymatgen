@@ -4894,9 +4894,6 @@ class Eigenval:
                 reported for each individual spin channel. Defaults to False,
                 which computes the eigenvalue band properties independent of
                 the spin orientation. If True, the calculation must be spin-polarized.
-
-        Returns:
-            a pymatgen.io.vasp.outputs.Eigenval object
         """
         self.filename = filename
         self.occu_tol = occu_tol

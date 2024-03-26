@@ -397,7 +397,7 @@ class FloatWithUnit(float):
             if char.isalpha() or char.isspace():
                 break
         else:
-            raise Exception(f"Unit is missing in string {s}")
+            raise ValueError(f"Unit is missing in string {s}")
         num, unit = float(s[:_idx]), s[_idx:]
 
         # Find unit type (set it to None if it cannot be detected)
