@@ -411,8 +411,8 @@ class TestDiffFit(PymatgenTest):
             strain_states.append(tuple(ss))
             vec = np.zeros((4, 6))
             rand_values = np.random.uniform(0.1, 1, 4)
-            for i in strain_ind:
-                vec[:, i] = rand_values
+            for idx in strain_ind:
+                vec[:, idx] = rand_values
             vecs[strain_ind] = vec
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         random.shuffle(all_strains)

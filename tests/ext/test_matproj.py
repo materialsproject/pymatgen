@@ -137,8 +137,8 @@ class TestMPResterOld(PymatgenTest):
             assert isinstance(e, ComputedEntry)
             assert set(e.elements).issubset(elements)
 
-        e1 = {i.entry_id for i in entries}
-        e2 = {i.entry_id for i in entries2}
+        e1 = {ent.entry_id for ent in entries}
+        e2 = {ent.entry_id for ent in entries2}
         assert e1 == e2
 
         stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})

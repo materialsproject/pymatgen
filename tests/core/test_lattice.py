@@ -435,8 +435,8 @@ class TestLattice(PymatgenTest):
 
     def test_get_distance_and_image_strict(self):
         for _ in range(10):
-            lengths = [np.random.randint(1, 100) for i in range(3)]
-            lattice = [np.random.rand(3) * lengths[i] for i in range(3)]
+            lengths = np.random.randint(1, 100, 3)
+            lattice = np.random.rand(3, 3) * lengths
             lattice = Lattice(lattice)
 
             f1 = np.random.rand(3)

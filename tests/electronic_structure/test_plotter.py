@@ -229,18 +229,18 @@ class TestBSDOSPlotter(unittest.TestCase):
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
         dct = band_struct_dict["projections"]["1"]
-        for i in range(len(dct)):
-            for j in range(len(dct[i])):
-                for k in range(len(dct[i][j])):
-                    for m in range(len(dct[i][j][k])):
-                        dct[i][j][k][m] = 0
+        for ii in range(len(dct)):
+            for jj in range(len(dct[ii])):
+                for kk in range(len(dct[ii][jj])):
+                    for ll in range(len(dct[ii][jj][kk])):
+                        dct[ii][jj][kk][ll] = 0
                         # d[i][j][k][m] = np.random.rand()
                     # generate random number for two atoms
                     a = np.random.randint(0, 7)
                     b = np.random.randint(0, 7)
                     # c = np.random.randint(0,7)
-                    dct[i][j][k][a] = np.random.rand()
-                    dct[i][j][k][b] = np.random.rand()
+                    dct[ii][jj][kk][a] = np.random.rand()
+                    dct[ii][jj][kk][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
         ax = plotter.get_plot(band_struct)

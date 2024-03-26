@@ -5,7 +5,6 @@ from __future__ import annotations
 import functools
 import json
 import operator
-import random
 import unittest
 from shutil import which
 
@@ -126,7 +125,7 @@ class TestSupercellTransformation(unittest.TestCase):
         assert struct.formula == "Li16 O16"
 
     def test_from_scaling_factors(self):
-        scale_factors = [random.randint(1, 5) for i in range(3)]
+        scale_factors = np.random.randint(1, 5, 3)
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
         struct = trafo.apply_transformation(self.struct)
         assert len(struct) == 4 * functools.reduce(operator.mul, scale_factors)

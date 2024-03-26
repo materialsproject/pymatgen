@@ -772,8 +772,8 @@ class TestMoleculeGraph(unittest.TestCase):
         diff_spec_mg.add_edge(0, 3)
         diff_spec_mg.add_edge(0, 4)
 
-        for i in range(1, 5):
-            bond = (0, i)
+        for idx in range(1, 5):
+            bond = (0, idx)
 
             split_mgs = diff_spec_mg.split_molecule_subgraphs([bond])
             for split_mg in split_mgs:
