@@ -261,9 +261,9 @@ class ElementBase(Enum):
         Get the LDA energies in eV for neutral atoms, by orbital.
 
         This property contains the same info as `self.atomic_orbitals`,
-        but uses eV for units, per matsci issue
-            https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
-        tldr : self.atomic_orbitals were never converted to eV from Hartree, despite docstr
+        but uses eV for units, per matsci issue https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
+        In short, self.atomic_orbitals was meant to be in eV all along but is now kept
+        as Hartree for backwards compatibility.
         """
         return {orb_idx: energy * Ha_to_eV for orb_idx, energy in self.atomic_orbitals.items()}
 
