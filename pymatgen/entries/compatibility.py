@@ -1468,21 +1468,26 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace, on_error=on_error)
 
 
-def needs_u_correction(comp: CompositionLike) -> set[str]:
+def needs_u_correction(
+    comp: CompositionLike,
+    u_config: dict[str, dict[str, float]] = MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"],
+) -> set[str]:
     """Check if a composition is Hubbard U-corrected in the Materials Project 2020
     GGA/GGA+U mixing scheme.
 
     Args:
         comp (CompositionLike): The formula/composition to check.
+        u_config (dict): The U-correction configuration to use. Default is the
+            Materials Project 2020 configuration.
 
     Returns:
-        set[str]: The subset of elements whose combination requires a U-correction.
+        set[str]: The subset of elements whose combination requires a U-correction. Pass
+            return value to bool(ret_val) if you just want True/False.
     """
-    u_corrections = MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]
     elements = set(map(str, Composition(comp).elements))
-    has_u_anion = set(u_corrections) & elements
+    has_u_anion = set(u_config) & elements
 
-    u_corrected_cations = set(u_corrections["O"])
+    u_corrected_cations = set(u_config["O"])
     has_u_cation = u_corrected_cations & elements
     if has_u_cation and has_u_anion:
         return has_u_cation | has_u_anion
