@@ -19,6 +19,8 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import (
+    MP2020_COMPAT_CONFIG,
+    MP_COMPAT_CONFIG,
     MU_H2O,
     AqueousCorrection,
     Compatibility,
@@ -2042,6 +2044,10 @@ class TestCorrectionErrors2020Compatibility(unittest.TestCase):
 
 
 @pytest.mark.parametrize(
+    "u_config",
+    [MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"], MP_COMPAT_CONFIG["Advanced"]["UCorrections"]],
+)
+@pytest.mark.parametrize(
     ("comp", "expected"),
     [
         ("Fe2O3", {"Fe", "O"}),
@@ -2056,5 +2062,5 @@ class TestCorrectionErrors2020Compatibility(unittest.TestCase):
         (Composition("LiFePS4"), set()),
     ],
 )
-def test_needs_u_correction(comp: CompositionLike, expected: set[str]):
-    assert needs_u_correction(comp) == expected
+def test_needs_u_correction(comp: CompositionLike, expected: set[str], u_config: dict):
+    assert needs_u_correction(comp, u_config=u_config) == expected

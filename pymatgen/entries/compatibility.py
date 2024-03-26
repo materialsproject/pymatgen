@@ -46,6 +46,7 @@ __date__ = "April 2020"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 MP2020_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
+MP_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MPCompatibility.yaml")
 
 assert (  # ping @janosh @rkingsbury on GitHub if this fails
     MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["O"]
@@ -798,13 +799,13 @@ class MaterialsProjectCompatibility(CorrectionsList):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = f"{MODULE_DIR}/MPCompatibility.yaml"
+        file_path = f"{MODULE_DIR}/MPCompatibility.yaml"
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-                GasCorrection(fp),
-                AnionCorrection(fp, correct_peroxide=correct_peroxide),
-                UCorrection(fp, MPRelaxSet, compat_type),
+                GasCorrection(file_path),
+                AnionCorrection(file_path, correct_peroxide=correct_peroxide),
+                UCorrection(file_path, MPRelaxSet, compat_type),
             ]
         )
 
