@@ -15,13 +15,6 @@ from monty.json import MontyDecoder, MSONable, jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
-if TYPE_CHECKING:
-    from typing import Any
-
-    from numpy.typing import ArrayLike
-
-    from pymatgen.core.structure import SiteCollection
-
 try:
     from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
@@ -37,6 +30,13 @@ except ImportError:
         def __init__(self, *args, **kwargs):
             raise no_ase_err
 
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.structure import SiteCollection
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"

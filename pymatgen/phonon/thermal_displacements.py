@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
 __version__ = "0.1"
