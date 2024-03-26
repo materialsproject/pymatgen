@@ -294,8 +294,8 @@ class PoscarTransmuter(StandardTransmuter):
         trafo_struct = TransformedStructure.from_poscar_str(poscar_string, [])
         super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
-    @staticmethod
-    def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, poscar_filenames, transformations=None, extend_collection=False) -> StandardTransmuter:
         """Convenient constructor to generates a POSCAR transmuter from a list of
         POSCAR filenames.
 

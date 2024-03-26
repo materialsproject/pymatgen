@@ -15,15 +15,17 @@ from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
-if TYPE_CHECKING:
-    from os import PathLike
-
-    from numpy.typing import ArrayLike
-
 try:
     import phonopy
 except ImportError:
     phonopy = None
+
+if TYPE_CHECKING:
+    from os import PathLike
+
+    from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
 
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -409,10 +411,13 @@ class ThermalDisplacementMatrices(MSONable):
 
         return np.array(ratios)
 
-    @staticmethod
+    @classmethod
     def from_Ucif(
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike], structure: Structure, temperature: float | None = None
-    ) -> ThermalDisplacementMatrices:
+        cls,
+        thermal_displacement_matrix_cif: ArrayLike[ArrayLike],
+        structure: Structure,
+        temperature: float | None = None,
+    ) -> Self:
         """Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
@@ -445,7 +450,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         # get ThermalDisplacementMatrices Object
 
-        return ThermalDisplacementMatrices(
+        return cls(
             thermal_displacement_matrix_cart=thermal_displacement_matrix_cart,
             thermal_displacement_matrix_cif=thermal_displacement_matrix_cif,
             structure=structure,
