@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
+from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
@@ -74,9 +74,10 @@ class ElementBase(Enum):
             electronic_structure (str): Electronic structure. E.g., The electronic structure for Fe is represented
                 as [Ar].3d6.4s2.
             atomic_orbitals (dict): Atomic Orbitals. Energy of the atomic orbitals as a dict. E.g., The orbitals
-                energies in eV are represented as {'1s': -1.0, '2s': -0.1}. Data is obtained from
+                energies in Hartree are represented as {'1s': -1.0, '2s': -0.1}. Data is obtained from
                 https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations.
                 The LDA values for neutral atoms are used.
+            atomic_orbitals_eV (dict): Atomic Orbitals. Same as `atomic_orbitals` but energies are in eV.
             thermal_conductivity (float): Thermal conductivity.
             boiling_point (float): Boiling point.
             melting_point (float): Melting point.
@@ -253,6 +254,18 @@ class ElementBase(Enum):
                             return float(m[0])
             return val
         raise AttributeError(f"Element has no attribute {item}!")
+
+    @property
+    def atomic_orbitals_eV(self) -> dict[str, float]:
+        """
+        Get the LDA energies in eV for neutral atoms, by orbital.
+
+        This property contains the same info as `self.atomic_orbitals`,
+        but uses eV for units, per matsci issue
+            https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
+        tldr : self.atomic_orbitals were never converted to eV from Hartree, despite docstr
+        """
+        return {orb_idx: energy * Ha_to_eV for orb_idx, energy in self.atomic_orbitals.items()}
 
     @property
     def data(self) -> dict[str, Any]:
