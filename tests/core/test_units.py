@@ -9,17 +9,30 @@ from pymatgen.core.units import (
     Energy,
     EnergyArray,
     FloatWithUnit,
+    Ha_to_eV,
     Length,
     LengthArray,
     Mass,
     Memory,
+    Ry_to_eV,
     Time,
     TimeArray,
     Unit,
     UnitError,
+    amu_to_kg,
+    bohr_to_angstrom,
+    eV_to_Ha,
     unitized,
 )
 from pymatgen.util.testing import PymatgenTest
+
+
+def test_unit_conversions():
+    assert Ha_to_eV == approx(27.211386245988)
+    assert eV_to_Ha == 1 / Ha_to_eV
+    assert Ry_to_eV == approx(Ha_to_eV / 2)
+    assert bohr_to_angstrom == approx(0.529177210903)
+    assert amu_to_kg == approx(1.66053906660e-27)
 
 
 class TestUnit(PymatgenTest):
