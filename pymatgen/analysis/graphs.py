@@ -196,8 +196,8 @@ class StructureGraph(MSONable):
 
         return cls(structure, graph_data=graph_data)
 
-    @staticmethod
-    def with_edges(structure: Structure, edges: dict) -> StructureGraph:
+    @classmethod
+    def with_edges(cls, structure: Structure, edges: dict) -> Self:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -213,9 +213,7 @@ class StructureGraph(MSONable):
         Returns:
             sg, a StructureGraph
         """
-        struct_graph = StructureGraph.with_empty_graph(
-            structure, name="bonds", edge_weight_name="weight", edge_weight_units=""
-        )
+        struct_graph = cls.with_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         for edge, props in edges.items():
             try:
@@ -252,10 +250,10 @@ class StructureGraph(MSONable):
         struct_graph.set_node_attributes()
         return struct_graph
 
-    @staticmethod
+    @classmethod
     def with_local_env_strategy(
-        structure: Structure, strategy: NearNeighbors, weights: bool = False, edge_properties: bool = False
-    ) -> StructureGraph:
+        cls, structure: Structure, strategy: NearNeighbors, weights: bool = False, edge_properties: bool = False
+    ) -> Self:
         """
         Constructor for StructureGraph, using a strategy
         from pymatgen.analysis.local_env.
@@ -269,7 +267,7 @@ class StructureGraph(MSONable):
         if not strategy.structures_allowed:
             raise ValueError("Chosen strategy is not designed for use with structures! Please choose another strategy.")
 
-        struct_graph = StructureGraph.with_empty_graph(structure, name="bonds")
+        struct_graph = cls.with_empty_graph(structure, name="bonds")
 
         for idx, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
@@ -1627,8 +1625,8 @@ class MoleculeGraph(MSONable):
 
         return cls(molecule, graph_data=graph_data)
 
-    @staticmethod
-    def with_edges(molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> MoleculeGraph:
+    @classmethod
+    def with_edges(cls, molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> Self:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -1643,7 +1641,7 @@ class MoleculeGraph(MSONable):
         Returns:
             A MoleculeGraph
         """
-        mg = MoleculeGraph.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        mg = cls.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         for edge, props in edges.items():
             try:
@@ -1671,8 +1669,8 @@ class MoleculeGraph(MSONable):
         mg.set_node_attributes()
         return mg
 
-    @staticmethod
-    def with_local_env_strategy(molecule, strategy) -> MoleculeGraph:
+    @classmethod
+    def with_local_env_strategy(cls, molecule, strategy) -> Self:
         """
         Constructor for MoleculeGraph, using a strategy
         from pymatgen.analysis.local_env.
@@ -1688,7 +1686,7 @@ class MoleculeGraph(MSONable):
             raise ValueError(f"{strategy=} is not designed for use with molecules! Choose another strategy.")
         extend_structure = strategy.extend_structure_molecules
 
-        mg = MoleculeGraph.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        mg = cls.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         # NearNeighbor classes only (generally) work with structures
         # molecules have to be boxed first

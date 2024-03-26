@@ -197,10 +197,10 @@ class Header(MSONable):
             raise ValueError("'struct' argument must be a Structure or Molecule!")
         self.comment = comment or "None given"
 
-    @staticmethod
-    def from_cif_file(cif_file, source="", comment=""):
+    @classmethod
+    def from_cif_file(cls, cif_file: str, source: str = "", comment: str = "") -> Self:
         """
-        Static method to create Header object from cif_file.
+        Create Header object from cif_file.
 
         Args:
             cif_file: cif_file path and name
@@ -213,7 +213,7 @@ class Header(MSONable):
         """
         parser = CifParser(cif_file)
         structure = parser.parse_structures(primitive=True)[0]
-        return Header(structure, source, comment)
+        return cls(structure, source, comment)
 
     @property
     def structure_symmetry(self):

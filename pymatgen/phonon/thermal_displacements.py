@@ -409,10 +409,13 @@ class ThermalDisplacementMatrices(MSONable):
 
         return np.array(ratios)
 
-    @staticmethod
+    @classmethod
     def from_Ucif(
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike], structure: Structure, temperature: float | None = None
-    ) -> ThermalDisplacementMatrices:
+        cls,
+        thermal_displacement_matrix_cif: ArrayLike[ArrayLike],
+        structure: Structure,
+        temperature: float | None = None,
+    ) -> Self:
         """Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
@@ -445,7 +448,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         # get ThermalDisplacementMatrices Object
 
-        return ThermalDisplacementMatrices(
+        return cls(
             thermal_displacement_matrix_cart=thermal_displacement_matrix_cart,
             thermal_displacement_matrix_cif=thermal_displacement_matrix_cif,
             structure=structure,

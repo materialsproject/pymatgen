@@ -54,12 +54,13 @@ class SymmOp(MSONable):
         self.affine_matrix = affine_transformation_matrix
         self.tol = tol
 
-    @staticmethod
+    @classmethod
     def from_rotation_and_translation(
+        cls,
         rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         translation_vec: ArrayLike = (0, 0, 0),
         tol: float = 0.1,
-    ) -> SymmOp:
+    ) -> Self:
         """Creates a symmetry operation from a rotation matrix and a translation
         vector.
 
@@ -80,7 +81,7 @@ class SymmOp(MSONable):
         affine_matrix = np.eye(4)
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec
-        return SymmOp(affine_matrix, tol)
+        return cls(affine_matrix, tol)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymmOp):
