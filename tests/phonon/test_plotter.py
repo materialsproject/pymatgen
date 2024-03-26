@@ -4,6 +4,7 @@ import json
 import unittest
 
 import matplotlib.pyplot as plt
+import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.phonon import CompletePhononDos, PhononBandStructureSymmLine
@@ -47,6 +48,8 @@ class TestPhononDosPlotter(unittest.TestCase):
         ax3 = self.plotter_no_sigma.get_plot(units="mev", invert_axes=True)
         assert ax3.get_ylabel() == "$\\mathrm{Frequencies\\ (meV)}$"
         assert ax3.get_xlabel() == "$\\mathrm{Density\\ of\\ states}$"
+        assert_allclose(ax3.get_xlim(), (min(self.dos.densities), max(self.dos.densities)))
+        assert ax3.get_ylim() == ax.get_xlim()
 
 
 class TestPhononBSPlotter(unittest.TestCase):
@@ -99,6 +102,10 @@ class TestPhononBSPlotter(unittest.TestCase):
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
         colors = tuple([itm.get_color() for itm in ax.get_legend().get_lines()])
         assert colors == ("blue", "red", "green")
+        with pytest.raises(ValueError, match="The two band structures are not compatible."):
+            self.plotter.plot_compare(self.plotter_sto)
+        ax = self.plotter.plot_compare(self.plotter_sto, on_incompatible="ignore")
+        assert ax is None
 
 
 class TestThermoPlotter(unittest.TestCase):
