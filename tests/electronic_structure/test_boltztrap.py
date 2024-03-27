@@ -163,9 +163,9 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
             0.0041923533238348342
         )
 
-        eigs = self.bz.get_zt(output="eigs", doping_levels=False)[700][65]
-        ref_eigs = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
-        assert eigs == approx(ref_eigs, abs=1e-5)
+        eig_vals = self.bz.get_zt(output="eigs", doping_levels=False)[700][65]
+        ref_eig_vals = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
+        assert eig_vals == approx(ref_eig_vals, abs=1e-5)
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]

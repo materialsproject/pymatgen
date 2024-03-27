@@ -67,11 +67,11 @@ class TestFloatWithUnit(PymatgenTest):
         assert a + 1 == 2.1
         assert str(a / d) == "1.1 eV Ha^-1"
 
-        e = Energy(1, "kJ")
-        f = e.to("kCal")
-        assert f == approx(0.2390057361376673)
-        assert str(e + f) == "2.0 kJ"
-        assert str(f + e) == "0.4780114722753346 kCal"
+        e_kj = Energy(1, "kJ")
+        e_kcal = e_kj.to("kCal")
+        assert e_kcal == approx(0.2390057361376673)
+        assert str(e_kj + e_kcal) == "2.0 kJ"
+        assert str(e_kcal + e_kj) == "0.4780114722753346 kCal"
 
     def test_time(self):
         a = Time(20, "h")
@@ -142,9 +142,9 @@ class TestFloatWithUnit(PymatgenTest):
         assert j_out[1] == 0.01
 
     def test_compound_operations(self):
-        g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
-        e = Mass(1, "kg") * g * Length(1, "m")
-        assert str(e) == "10.0 N m"
+        earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
+        e_pot = Mass(1, "kg") * earth_acc * Length(1, "m")
+        assert str(e_pot) == "10.0 N m"
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"
@@ -262,16 +262,16 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             _ = ene_ha + time_s
 
     def test_factors(self):
-        e = EnergyArray([27.21138386, 1], "eV").to("Ha")
-        assert str(e).endswith("Ha")
+        e_arr = EnergyArray([27.21138386, 1], "eV").to("Ha")
+        assert str(e_arr).endswith("Ha")
         len_arr = LengthArray([1.0], "ang").to("bohr")
         assert str(len_arr).endswith(" bohr")
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         assert str(v).endswith(" ang^3")
 
     def test_as_base_units(self):
-        x = ArrayWithUnit([5, 10], "MPa")
-        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
+        pressure_arr = ArrayWithUnit([5, 10], "MPa")
+        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
 
 
 class TestDataPersistence(PymatgenTest):

@@ -740,20 +740,20 @@ loop_
         assert struct[0].species["Al3+"] == approx(0.778)
 
     def test_one_line_symm(self):
-        f = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "Ga4 Pb2 O8"
 
     def test_no_symmops(self):
-        f = f"{TEST_FILES_DIR}/nosymm.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/nosymm.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "H96 C60 O8"
 
     def test_dot_positions(self):
-        f = f"{TEST_FILES_DIR}/ICSD59959.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/ICSD59959.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "K1 Mn1 F3"
 

@@ -747,16 +747,16 @@ LPARD = True
 NBMOD = -3
 PREC = Accurate
 SIGMA = 0.1"""
-        i = Incar.from_str(incar_str)
-        assert isinstance(i["EINT"], list)
-        assert i["EINT"][0] == -0.85
+        incar = Incar.from_str(incar_str)
+        assert isinstance(incar["EINT"], list)
+        assert incar["EINT"][0] == -0.85
 
         incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
         incar_str += "\nALGO = All;"
-        i = Incar.from_str(incar_str)
-        assert i["LHFCALC"]
-        assert i["HFSCREEN"] == 0.2
-        assert i["ALGO"] == "All"
+        incar = Incar.from_str(incar_str)
+        assert incar["LHFCALC"]
+        assert incar["HFSCREEN"] == 0.2
+        assert incar["ALGO"] == "All"
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"

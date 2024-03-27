@@ -108,9 +108,9 @@ class TestIon(unittest.TestCase):
         assert comp.formula == "Li8 Fe6 (aq)"
 
     def test_oxi_state_guesses(self):
-        i = Ion.from_formula("SO4-2")
-        assert i.oxi_state_guesses()[0].get("S") == 6
-        assert i.oxi_state_guesses()[0].get("O") == -2
+        ion = Ion.from_formula("SO4-2")
+        assert ion.oxi_state_guesses()[0].get("S") == 6
+        assert ion.oxi_state_guesses()[0].get("O") == -2
 
     def test_alphabetical_formula(self):
         correct_formulas = [
