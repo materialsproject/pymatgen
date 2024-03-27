@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import copy
 import json
-import unittest
 from collections import defaultdict
+from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
@@ -89,7 +89,7 @@ def test_temp_energy_adjustment():
     assert str(ea_dct) == str(ea2.as_dict())
 
 
-class TestComputedEntry(unittest.TestCase):
+class TestComputedEntry(TestCase):
     def setUp(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
@@ -238,7 +238,7 @@ class TestComputedEntry(unittest.TestCase):
             assert str(entry) == str(copy)
 
 
-class TestComputedStructureEntry(unittest.TestCase):
+class TestComputedStructureEntry(TestCase):
     def setUp(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
@@ -435,7 +435,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert copy3 != copy1
 
 
-class TestGibbsComputedStructureEntry(unittest.TestCase):
+class TestGibbsComputedStructureEntry(TestCase):
     def setUp(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pytest import approx
 
 from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
@@ -11,7 +9,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestEwaldElectrostaticModel(unittest.TestCase):
+class TestEwaldElectrostaticModel:
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -39,7 +37,7 @@ class TestEwaldElectrostaticModel(unittest.TestCase):
         assert isinstance(restored, EwaldElectrostaticModel)
 
 
-class TestSymmetryModel(unittest.TestCase):
+class TestSymmetryModel:
     def test_get_energy(self):
         model = SymmetryModel()
         struct = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
@@ -52,7 +50,7 @@ class TestSymmetryModel(unittest.TestCase):
         assert restored.symprec == approx(0.2)
 
 
-class TestIsingModel(unittest.TestCase):
+class TestIsingModel:
     def test_get_energy(self):
         model = IsingModel(5, 6)
 

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -34,7 +32,7 @@ ORDERED_SYMBOLS = (
 ).split()
 
 
-class TestPointGroup(unittest.TestCase):
+class TestPointGroup:
     def test_order(self):
         orders = {"mmm": 8, "432": 24, "-6m2": 12}
         for key, val in orders.items():
@@ -64,7 +62,7 @@ class TestPointGroup(unittest.TestCase):
         assert not pg_m3m.is_supergroup(pg_6mmm)
 
 
-class TestSpaceGroup(unittest.TestCase):
+class TestSpaceGroup:
     def test_renamed_e_symbols(self):
         assert SpaceGroup.from_int_number(64).symbol == "Cmce"
 

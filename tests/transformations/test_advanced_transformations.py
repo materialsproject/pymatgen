@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import unittest
 from shutil import which
 
 import numpy as np
@@ -71,7 +70,7 @@ mcsqs_cmd = which("mcsqs")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestSuperTransformation(unittest.TestCase):
+class TestSuperTransformation:
     def test_apply_transformation(self):
         trafo = SuperTransformation(
             [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
@@ -118,7 +117,7 @@ class TestSuperTransformation(unittest.TestCase):
         assert len(trafo.apply_transformation(disordered, return_ranked_list=20)) == 2
 
 
-class TestMultipleSubstitutionTransformation(unittest.TestCase):
+class TestMultipleSubstitutionTransformation:
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
@@ -132,7 +131,7 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
         assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
 
-class TestChargeBalanceTransformation(unittest.TestCase):
+class TestChargeBalanceTransformation:
     def test_apply_transformation(self):
         trafo = ChargeBalanceTransformation("Li+")
         coords = [
@@ -158,7 +157,7 @@ class TestChargeBalanceTransformation(unittest.TestCase):
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
-class TestEnumerateStructureTransformation(unittest.TestCase):
+class TestEnumerateStructureTransformation:
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
@@ -251,7 +250,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         assert trans.symm_prec == 0.1
 
 
-class TestSubstitutionPredictorTransformation(unittest.TestCase):
+class TestSubstitutionPredictorTransformation:
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]

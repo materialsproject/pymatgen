@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -78,7 +78,7 @@ class TestTranslateSitesTransformation(PymatgenTest):
         str(t2)
 
 
-class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
+class TestReplaceSiteSpeciesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -110,7 +110,7 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
         assert struct.formula == "Na1 Li3 O4"
 
 
-class TestRemoveSitesTransformation(unittest.TestCase):
+class TestRemoveSitesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -142,7 +142,7 @@ class TestRemoveSitesTransformation(unittest.TestCase):
         assert struct.formula == "Li2 O4"
 
 
-class TestInsertSitesTransformation(unittest.TestCase):
+class TestInsertSitesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -179,7 +179,7 @@ class TestInsertSitesTransformation(unittest.TestCase):
         assert struct.formula == "Li4 Mn1 Fe1 O4"
 
 
-class TestPartialRemoveSitesTransformation(unittest.TestCase):
+class TestPartialRemoveSitesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
