@@ -9,9 +9,9 @@ of numpy's ndarray with similar unit features.
 from __future__ import annotations
 
 import collections
-from numbers import Number
 import re
 from functools import partial
+from numbers import Number
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
