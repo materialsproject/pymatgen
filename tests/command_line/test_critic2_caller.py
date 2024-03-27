@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from shutil import which
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -73,7 +74,7 @@ class TestCritic2Caller:
         assert "ERROR : load int.CHGCAR id chg_int zpsp Mo 6 S 6" in c2c._input_script
 
 
-class TestCritic2Analysis:
+class TestCritic2Analysis(TestCase):
     def setUp(self):
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"
@@ -87,7 +88,7 @@ class TestCritic2Analysis:
         self.c2o = Critic2Analysis(structure, reference_stdout)
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
 
-    def test_properties_to_from_dict(self):
+    def test_to_from_dict(self):
         assert len(self.c2o.critical_points) == 6
         assert len(self.c2o.nodes) == 14
         assert len(self.c2o.edges) == 10
