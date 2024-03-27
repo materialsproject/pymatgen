@@ -644,7 +644,7 @@ class TestIncar(PymatgenTest):
         assert incar == self.incar
 
     def test_get_str(self):
-        s = self.incar.get_str(pretty=True, sort_keys=True)
+        incar_str = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500
@@ -673,7 +673,7 @@ PREC       =  Accurate
 SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
-        assert s == expected
+        assert incar_str == expected
 
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]

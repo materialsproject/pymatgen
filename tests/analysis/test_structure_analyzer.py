@@ -23,17 +23,17 @@ from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 class TestVoronoiAnalyzer(PymatgenTest):
     def setUp(self):
-        self.ss = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
-        self.s = self.ss[1]
+        self.structs = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
+        self.struct = self.structs[1]
         self.va = VoronoiAnalyzer(cutoff=4)
 
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
-        single_structure = self.va.analyze(self.s, n=5)
+        single_structure = self.va.analyze(self.struct, n=5)
         assert single_structure.view() in np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(), "Cannot find the right polyhedron."
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
-        ensemble = self.va.analyze_structures(self.ss, step_freq=2, most_frequent_polyhedra=10)
+        ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
         assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 

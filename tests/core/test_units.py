@@ -144,7 +144,7 @@ class TestFloatWithUnit(PymatgenTest):
     def test_compound_operations(self):
         earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
         e_pot = Mass(1, "kg") * earth_acc * Length(1, "m")
-        assert str(e_pot) == "10.0 N m"
+        assert str(e_pot) == "9.81 N m"
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"

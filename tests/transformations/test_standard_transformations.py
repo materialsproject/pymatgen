@@ -91,8 +91,8 @@ class TestSubstitutionTransformation(unittest.TestCase):
             [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
-        assert s.formula == "Na2 S2"
+        struct_trafo = trafo.apply_transformation(struct)
+        assert struct_trafo.formula == "Na2 S2"
 
     def test_fractional_substitution(self):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": {"S2-": 0.5, "Se2-": 0.5}})
@@ -105,8 +105,8 @@ class TestSubstitutionTransformation(unittest.TestCase):
             [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
-        assert s.formula == "Na2 Se1 S1"
+        struct_trafo = trafo.apply_transformation(struct)
+        assert struct_trafo.formula == "Na2 Se1 S1"
 
 
 class TestSupercellTransformation(unittest.TestCase):
@@ -178,9 +178,9 @@ class TestOxidationStateDecorationTransformation(unittest.TestCase):
             [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li", "Li", "O", "O"], coords)
-        s = trafo.apply_transformation(struct)
-        assert s[0].species_string == "Li+"
-        assert s[2].species_string == "O2-"
+        struct_trafo = trafo.apply_transformation(struct)
+        assert struct_trafo[0].species_string == "Li+"
+        assert struct_trafo[2].species_string == "O2-"
         dct = trafo.as_dict()
         assert isinstance(OxidationStateDecorationTransformation.from_dict(dct), OxidationStateDecorationTransformation)
 
@@ -210,9 +210,9 @@ class TestOxidationStateRemovalTransformation(unittest.TestCase):
             [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
-        assert s[0].species_string == "Li"
-        assert s[2].species_string == "O"
+        struct_trafo = trafo.apply_transformation(struct)
+        assert struct_trafo[0].species_string == "Li"
+        assert struct_trafo[2].species_string == "O"
 
         dct = trafo.as_dict()
         assert isinstance(OxidationStateRemovalTransformation.from_dict(dct), OxidationStateRemovalTransformation)
@@ -475,20 +475,20 @@ class TestDeformStructureTransformation(unittest.TestCase):
 class TestDiscretizeOccupanciesTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         lattice = Lattice.cubic(4)
-        s_orig = Structure(
+        struct_orig = Structure(
             lattice,
             [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
-        s = dot.apply_transformation(s_orig)
-        assert dict(s[0].species) == {Element("Li"): 0.2, Element("Na"): 0.2, Element("K"): 0.6}
+        struct = dot.apply_transformation(struct_orig)
+        assert dict(struct[0].species) == {Element("Li"): 0.2, Element("Na"): 0.2, Element("K"): 0.6}
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
         with pytest.raises(RuntimeError, match="Cannot discretize structure within tolerance!"):
-            dot.apply_transformation(s_orig)
+            dot.apply_transformation(struct_orig)
 
-        s_orig_2 = Structure(
+        struct_orig_2 = Structure(
             lattice,
             [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
@@ -496,8 +496,8 @@ class TestDiscretizeOccupanciesTransformation(unittest.TestCase):
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25, fix_denominator=False)
 
-        s = dot.apply_transformation(s_orig_2)
-        assert dict(s[0].species) == {
+        struct = dot.apply_transformation(struct_orig_2)
+        assert dict(struct[0].species) == {
             Element("Li"): Fraction(1 / 2),
             Element("Na"): Fraction(1 / 4),
             Element("K"): Fraction(1 / 4),
@@ -505,7 +505,7 @@ class TestDiscretizeOccupanciesTransformation(unittest.TestCase):
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05, fix_denominator=True)
         with pytest.raises(RuntimeError, match="Cannot discretize structure within tolerance"):
-            dot.apply_transformation(s_orig_2)
+            dot.apply_transformation(struct_orig_2)
 
 
 class TestChargedCellTransformation(unittest.TestCase):
