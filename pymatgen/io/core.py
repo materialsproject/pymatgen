@@ -39,6 +39,8 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from os import PathLike
 
+    from typing_extensions import Self
+
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -255,11 +257,12 @@ class InputGenerator(MSONable):
     """
 
     @abc.abstractmethod
-    def get_input_set(self) -> InputSet:
+    def get_input_set(self, *args, **kwargs) -> Self:
         """
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
+        raise NotImplementedError(f"get_input_set has not been implemented in {type(self).__name__}")
 
 
 class ParseError(SyntaxError):

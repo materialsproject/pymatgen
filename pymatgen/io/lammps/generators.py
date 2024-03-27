@@ -13,6 +13,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from string import Template
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 
@@ -20,7 +21,9 @@ from pymatgen.core import Structure
 from pymatgen.io.core import InputGenerator
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
-from pymatgen.io.lammps.sets import LammpsInputSet
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -57,15 +60,14 @@ class BaseLammpsGenerator(InputGenerator):
     (https://github.com/Matgenix/atomate2-lammps).
     """
 
+    inputfile: LammpsInputFile | None = field(default=None)
     template: str = field(default_factory=str)
+    data: LammpsData | CombinedData | None = field(default=None)
     settings: dict = field(default_factory=dict)
     calc_type: str = field(default="lammps")
     keep_stages: bool = field(default=True)
 
-    def __post_init__(self):
-        self.settings = self.settings or {}
-
-    def get_input_set(self, structure: Structure | LammpsData | CombinedData | None) -> LammpsInputSet:  # type: ignore
+    def get_input_set(self, structure: Structure | LammpsData | CombinedData | None) -> Self:
         """Generate a LammpsInputSet from the structure/data, tailored to the template file."""
         data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
@@ -79,11 +81,11 @@ class BaseLammpsGenerator(InputGenerator):
         input_file = LammpsInputFile.from_str(input_str, keep_stages=self.keep_stages)
 
         # Get the LammpsInputSet from the InputFile and data
-        return LammpsInputSet(inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template)
+        return type(self)(inputfile=input_file, data=data, calc_type=self.calc_type, template=self.template)
 
 
 class LammpsMinimization(BaseLammpsGenerator):
-    r"""
+    """
     Generator that yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
     adjusting atom coordinates.
     Example usage:
@@ -94,7 +96,7 @@ class LammpsMinimization(BaseLammpsGenerator):
 
     Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
 
-    /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
+    This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
     (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
     For additional flexibility and automation, use the atomate2-lammps implementation
@@ -112,21 +114,21 @@ class LammpsMinimization(BaseLammpsGenerator):
         force_field: str = "Unspecified force field!",
         keep_stages: bool = False,
     ) -> None:
-        r"""
+        """
         Args:
             template: Path (string) to the template file used to create the InputFile for LAMMPS.
-            units: units to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            atom_style: atom_style to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            dimension: dimension to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            boundary: boundary to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            read_data: read_data to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            force_field: force field to be used for the LAMMPS calculation (see official LAMMPS documentation).
-                         Note that you should provide all the required information as a single string.
-                         In case of multiple lines expected in the input file,
-                         separate them with '\n' in force_field.
+            units: units to be used for the LAMMPS calculation (see LAMMPS docs).
+            atom_style: atom_style to be used for the LAMMPS calculation (see LAMMPS docs).
+            dimension: dimension to be used for the LAMMPS calculation (see LAMMPS docs).
+            boundary: boundary to be used for the LAMMPS calculation (see LAMMPS docs).
+            read_data: read_data to be used for the LAMMPS calculation (see LAMMPS docs).
+            force_field: force field to be used for the LAMMPS calculation (see LAMMPS docs).
+                Note that you should provide all the required information as a single string.
+                In case of multiple lines expected in the input file,
+                separate them with '\n' in force_field.
             keep_stages: If True, the string is formatted in a block structure with stage names
-                         and newlines that differentiate commands in the respective stages of the InputFile.
-                         If False, stage names are not printed and all commands appear in a single block.
+                and newlines that differentiate commands in the respective stages of the InputFile.
+                If False, stage names are not printed and all commands appear in a single block.
         """
         if template is None:
             template = f"{template_dir}/minimization.template"
