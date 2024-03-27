@@ -117,7 +117,8 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        lattice = Lattice.from_parameters(*lengths, *angles)
+        lattice = Lattice.from_parameters(*lengths, *angles)  # type: ignore[arg-type]
+
         sp = []
         coords = []
         charge = []

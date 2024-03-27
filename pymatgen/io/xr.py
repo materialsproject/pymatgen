@@ -64,7 +64,7 @@ class Xr:
                 output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
         return "\n".join(output)
 
-    def write_file(self, filename: str | Path) -> Self:
+    def write_file(self, filename: str | Path) -> None:
         """
         Write out an xr file.
 

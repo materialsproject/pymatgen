@@ -265,7 +265,7 @@ class PWInput:
                 return None
             return mode
 
-        sections = {
+        sections: dict[str, dict] = {
             "control": {},
             "system": {},
             "electrons": {},
@@ -277,7 +277,7 @@ class PWInput:
         species = []
         coords = []
         structure = None
-        site_properties = {"pseudo": []}
+        site_properties: dict[str, list] = {"pseudo": []}
         mode = None
         for line in lines:
             mode = input_mode(line)
