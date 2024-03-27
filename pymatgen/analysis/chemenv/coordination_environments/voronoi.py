@@ -47,12 +47,12 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
     """
     voronoi_list: list = []
 
-    for isite, voro in enumerate(bson_nb_voro_list2):
+    for _isite, voro in enumerate(bson_nb_voro_list2):
         if voro is None or voro == "None":
-            voronoi_list[isite] = None
+            voronoi_list.append(None)
             continue
 
-        voronoi_list[isite] = []
+        current_site_voronoi = []
         for psd, dct in voro:
             struct_site = structure[dct["index"]]
             periodic_site = PeriodicSite(
@@ -62,7 +62,10 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
                 properties=struct_site.properties,
             )
             dct["site"] = periodic_site
-            voronoi_list[isite].append(dct)
+            current_site_voronoi.append(dct)
+
+        voronoi_list.append(current_site_voronoi)
+
     return voronoi_list
 
 
