@@ -45,21 +45,26 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
         The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
         allowed in the BSON format).
     """
-    voronoi_list: list[list[dict] | None] = [None] * len(bson_nb_voro_list2)
+    voronoi_list = []
 
-    for idx, voro in enumerate(bson_nb_voro_list2):
-        if voro in (None, "None"):
+    for _isite, voro in enumerate(bson_nb_voro_list2):
+        if voro is None or voro == "None":
             continue
-        voronoi_list[idx] = []
+
+        current_site_voronoi = []
         for psd, dct in voro:
             struct_site = structure[dct["index"]]
-            dct["site"] = PeriodicSite(
+            periodic_site = PeriodicSite(
                 struct_site._species,
                 struct_site.frac_coords + psd[1],
                 struct_site._lattice,
                 properties=struct_site.properties,
             )
-            voronoi_list[idx].append(dct)  # type: ignore[union-attr]
+            dct["site"] = periodic_site
+            current_site_voronoi.append(dct)
+
+        voronoi_list.append(current_site_voronoi)
+
     return voronoi_list
 
 
