@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import pickle
-import unittest
 from copy import deepcopy
 
 import numpy as np
@@ -535,7 +534,7 @@ def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     assert species._oxi_state == expected_oxi_state
 
 
-class TestDummySpecies(unittest.TestCase):
+class TestDummySpecies:
     def test_init(self):
         self.specie1 = DummySpecies("X")
         with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import pytest
@@ -19,7 +18,7 @@ __date__ = "July 2017"
 
 
 @pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
-class TestCritic2Caller(unittest.TestCase):
+class TestCritic2Caller:
     def test_from_path(self):
         # uses CHGCARs
         c2c = Critic2Caller.from_path(f"{TEST_FILES_DIR}/bader")
@@ -74,7 +73,7 @@ class TestCritic2Caller(unittest.TestCase):
         assert "ERROR : load int.CHGCAR id chg_int zpsp Mo 6 S 6" in c2c._input_script
 
 
-class TestCritic2Analysis(unittest.TestCase):
+class TestCritic2Analysis:
     def setUp(self):
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import unittest
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import pytest
@@ -14,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 plt.rc("text", usetex=False)  # Disabling latex for testing
 
 
-class TestPhononDosPlotter(unittest.TestCase):
+class TestPhononDosPlotter(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
@@ -52,7 +52,7 @@ class TestPhononDosPlotter(unittest.TestCase):
         assert ax3.get_ylim() == ax.get_xlim()
 
 
-class TestPhononBSPlotter(unittest.TestCase):
+class TestPhononBSPlotter(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
@@ -108,7 +108,7 @@ class TestPhononBSPlotter(unittest.TestCase):
         assert ax is None
 
 
-class TestThermoPlotter(unittest.TestCase):
+class TestThermoPlotter(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))

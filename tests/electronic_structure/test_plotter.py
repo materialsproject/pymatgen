@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -179,7 +179,7 @@ class TestBSPlotter(PymatgenTest):
         plt.close("all")
 
 
-class TestBSPlotterProjected(unittest.TestCase):
+class TestBSPlotterProjected(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
@@ -208,7 +208,7 @@ class TestBSPlotterProjected(unittest.TestCase):
             self.plotter_PbTe = BSPlotterProjected(self.bs_PbTe)
 
 
-class TestBSDOSPlotter(unittest.TestCase):
+class TestBSDOSPlotter:
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
@@ -247,7 +247,7 @@ class TestBSDOSPlotter(unittest.TestCase):
         assert isinstance(ax, plt.Axes)
 
 
-class TestPlotBZ(unittest.TestCase):
+class TestPlotBZ(TestCase):
     def setUp(self):
         self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
@@ -292,7 +292,7 @@ class TestPlotBZ(unittest.TestCase):
 
 
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
-class TestBoltztrapPlotter(unittest.TestCase):
+class TestBoltztrapPlotter(TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)

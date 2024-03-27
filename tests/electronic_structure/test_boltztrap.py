@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
@@ -27,7 +27,7 @@ x_trans = which("x_trans")
 
 
 @pytest.mark.skipif(not x_trans, reason="No x_trans.")
-class TestBoltztrapAnalyzer(unittest.TestCase):
+class TestBoltztrapAnalyzer(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")

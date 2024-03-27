@@ -5,6 +5,7 @@ import os
 import unittest
 import unittest.mock
 from numbers import Number
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +37,7 @@ from pymatgen.util.testing import PymatgenTest
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestPDEntry(unittest.TestCase):
+class TestPDEntry(TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
@@ -112,7 +113,7 @@ class TestPDEntry(unittest.TestCase):
         assert len(entries) == 490, "Wrong number of entries!"
 
 
-class TestTransformedPDEntry(unittest.TestCase):
+class TestTransformedPDEntry(TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
@@ -639,7 +640,7 @@ class TestPhaseDiagram(PymatgenTest):
                 PhaseDiagram(entries=entries)
 
 
-class TestGrandPotentialPhaseDiagram(unittest.TestCase):
+class TestGrandPotentialPhaseDiagram(TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
@@ -675,7 +676,7 @@ class TestGrandPotentialPhaseDiagram(unittest.TestCase):
         )
 
 
-class TestCompoundPhaseDiagram(unittest.TestCase):
+class TestCompoundPhaseDiagram(TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
@@ -701,7 +702,7 @@ class TestCompoundPhaseDiagram(unittest.TestCase):
         assert str(self.pd) == "Xf-Xg phase diagram\n4 stable phases: \nLiFeO2, Li2O, Li5FeO4, Fe2O3"
 
 
-class TestPatchedPhaseDiagram(unittest.TestCase):
+class TestPatchedPhaseDiagram(TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
@@ -832,7 +833,7 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
         del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
 
 
-class TestReactionDiagram(unittest.TestCase):
+class TestReactionDiagram(TestCase):
     def setUp(self):
         self.entries = list(EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv").entries)
         for e in self.entries:
@@ -872,7 +873,7 @@ class TestReactionDiagram(unittest.TestCase):
         #     assert formula in formed_formula, f"{formed_formula=} not in {expected_formula=}"
 
 
-class TestPDPlotter(unittest.TestCase):
+class TestPDPlotter(TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv"))
 
@@ -951,7 +952,7 @@ class TestPDPlotter(unittest.TestCase):
             mock_show.assert_called_once()
 
 
-class TestUtilityFunction(unittest.TestCase):
+class TestUtilityFunction:
     def test_unique_lines(self):
         testdata = [
             [5, 53, 353],
