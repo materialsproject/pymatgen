@@ -14,16 +14,17 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core.structure import Molecule, Structure
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from typing_extensions import Self
-
 try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
     pybtex = bibtex = None
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from typing_extensions import Self
+
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"

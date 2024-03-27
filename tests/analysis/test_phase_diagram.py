@@ -489,8 +489,8 @@ class TestPhaseDiagram(PymatgenTest):
     def test_1d_pd(self):
         entry = PDEntry("H", 0)
         pd = PhaseDiagram([entry])
-        decomp, e = pd.get_decomp_and_e_above_hull(PDEntry("H", 1))
-        assert e == 1
+        decomp, e_above_hull = pd.get_decomp_and_e_above_hull(PDEntry("H", 1))
+        assert e_above_hull == 1
         assert decomp[entry] == approx(1.0)
 
     def test_get_critical_compositions_fractional(self):

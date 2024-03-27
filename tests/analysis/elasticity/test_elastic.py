@@ -335,11 +335,11 @@ class TestElasticTensorExpansion(PymatgenTest):
         # Ensure zero strain is same as SOEC
         test_zero = self.exp_cu.get_effective_ecs(np.zeros((3, 3)))
         assert_allclose(test_zero, self.exp_cu[0])
-        s = np.zeros((3, 3))
-        s[0, 0] = 0.02
-        test_2percent = self.exp_cu.get_effective_ecs(s)
+        strain = np.zeros((3, 3))
+        strain[0, 0] = 0.02
+        test_2percent = self.exp_cu.get_effective_ecs(strain)
         diff = test_2percent - test_zero
-        assert_allclose(self.exp_cu[1].einsum_sequence([s]), diff)
+        assert_allclose(self.exp_cu[1].einsum_sequence([strain]), diff)
 
     def test_get_strain_from_stress(self):
         strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])

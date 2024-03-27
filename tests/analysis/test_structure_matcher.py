@@ -116,27 +116,27 @@ class TestStructureMatcher(PymatgenTest):
         with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cart_dists(s1, s2, lattice, mask.T, n1)
 
-        d, ft, s = sm._cart_dists(s1, s2, lattice, mask, n1)
-        assert_allclose(d, [0])
-        assert_allclose(ft, [-0.01, -0.02, -0.03])
-        assert_allclose(s, [1])
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s2, lattice, mask, n1)
+        assert_allclose(distances, [0])
+        assert_allclose(trac_trans_vec, [-0.01, -0.02, -0.03])
+        assert_allclose(solution, [1])
 
         # check that masking best value works
-        d, ft, s = sm._cart_dists(s1, s2, lattice, mask2, n1)
-        assert_allclose(d, [0])
-        assert_allclose(ft, [0.02, 0.03, 0.04])
-        assert_allclose(s, [0])
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s2, lattice, mask2, n1)
+        assert_allclose(distances, [0])
+        assert_allclose(trac_trans_vec, [0.02, 0.03, 0.04])
+        assert_allclose(solution, [0])
 
         # check that averaging of translation is done properly
-        d, ft, s = sm._cart_dists(s1, s3, lattice, mask3, n1)
-        assert_allclose(d, [0.08093341] * 2)
-        assert_allclose(ft, [0.01, 0.025, 0.035])
-        assert_allclose(s, [1, 0])
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s3, lattice, mask3, n1)
+        assert_allclose(distances, [0.08093341] * 2)
+        assert_allclose(trac_trans_vec, [0.01, 0.025, 0.035])
+        assert_allclose(solution, [1, 0])
 
         # check distances are large when mask allows no 'real' mapping
-        d, ft, s = sm._cart_dists(s1, s4, lattice, mask4, n1)
-        assert np.min(d) > 1e8
-        assert np.min(ft) > 1e8
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s4, lattice, mask4, n1)
+        assert np.min(distances) > 1e8
+        assert np.min(trac_trans_vec) > 1e8
 
     def test_get_mask(self):
         sm = StructureMatcher(comparator=ElementComparator())

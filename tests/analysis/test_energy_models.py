@@ -26,11 +26,11 @@ class TestEwaldElectrostaticModel(unittest.TestCase):
             coords,
         )
 
-        m = EwaldElectrostaticModel()
+        model = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        assert m.get_energy(struct) == approx(-264.66364858, abs=1e-2)  # Result from GULP
+        assert model.get_energy(struct) == approx(-264.66364858, abs=1e-2)  # Result from GULP
         s2 = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
-        assert m.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
+        assert model.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 
     def test_as_from_dict(self):
         model = EwaldElectrostaticModel()

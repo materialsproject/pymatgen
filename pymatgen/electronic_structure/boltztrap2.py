@@ -55,6 +55,7 @@ try:
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
 
+
 __author__ = "Francesco Ricci"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"

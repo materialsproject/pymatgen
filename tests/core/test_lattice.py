@@ -481,32 +481,32 @@ class TestLattice(PymatgenTest):
 
     def test_get_miller_index_from_sites(self):
         # test on a cubic system
-        m = Lattice.cubic(1)
+        cubic = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])
         s2 = np.array([0.5, 3.0, -1.5])
         s3 = np.array([2.5, 1.5, -4.0])
-        assert m.get_miller_index_from_coords([s1, s2, s3]) == (2, 1, 1)
+        assert cubic.get_miller_index_from_coords([s1, s2, s3]) == (2, 1, 1)
 
         # test on a hexagonal system
-        m = Lattice([[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]])
+        hexagonal = Lattice([[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]])
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])
         s3 = np.array([1.1595, 0.66943764, 0.9065])
-        hkl = m.get_miller_index_from_coords([s1, s2, s3])
+        hkl = hexagonal.get_miller_index_from_coords([s1, s2, s3])
         assert hkl == (2, -1, 0)
 
         # test for previous failing structure
-        m = Lattice([10, 0, 0, 0, 10, 0, 0, 0, 10])
+        cubic_from_flat = Lattice([10, 0, 0, 0, 10, 0, 0, 0, 10])
         sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7]]
 
-        hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
+        hkl = cubic_from_flat.get_miller_index_from_coords(sites, coords_are_cartesian=False)
         assert hkl == (1, 0, 0)
 
         # test for more than 3 sites
         sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7], [0.5, 0.1, 0.2]]
 
-        hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
+        hkl = cubic_from_flat.get_miller_index_from_coords(sites, coords_are_cartesian=False)
         assert hkl == (1, 0, 0)
 
     def test_points_in_spheres(self):
