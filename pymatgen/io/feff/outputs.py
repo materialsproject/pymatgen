@@ -138,8 +138,8 @@ class LDos(MSONable):
         t_dos = [0] * d_length
         for idx in range(n_sites):
             pot_index = pot_dict[structure.species[idx].symbol]
-            for val in forb.values():
-                density = [ldos[pot_index][j][val + 1] for j in range(d_length)]
+            for forb_val in forb.values():
+                density = [ldos[pot_index][j][forb_val + 1] for j in range(d_length)]
                 for j in range(d_length):
                     t_dos[j] = t_dos[j] + density[j]
         _t_dos: dict = {Spin.up: t_dos}
