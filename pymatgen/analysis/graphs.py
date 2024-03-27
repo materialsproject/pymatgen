@@ -1261,7 +1261,7 @@ class StructureGraph(MSONable):
             "graphs": json_graph.adjacency_data(new_g),
         }
 
-        return StructureGraph.from_dict(data)
+        return type(self).from_dict(data)
 
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -1349,7 +1349,7 @@ class StructureGraph(MSONable):
             self.graph.add_edge(u, v, **d)
 
     def __copy__(self):
-        return StructureGraph.from_dict(self.as_dict())
+        return type(self).from_dict(self.as_dict())
 
     def __eq__(self, other: object) -> bool:
         """
@@ -2721,7 +2721,7 @@ class MoleculeGraph(MSONable):
             self.graph.add_edge(u, v, **data)
 
     def __copy__(self):
-        return MoleculeGraph.from_dict(self.as_dict())
+        return type(self).from_dict(self.as_dict())
 
     def __eq__(self, other: object) -> bool:
         """
