@@ -21,6 +21,7 @@ from pymatgen.core import Structure
 from pymatgen.io.core import InputGenerator
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
+from pymatgen.io.lammps.sets import LammpsInputSet
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -81,7 +82,7 @@ class BaseLammpsGenerator(InputGenerator):
         input_file = LammpsInputFile.from_str(input_str, keep_stages=self.keep_stages)
 
         # Get the LammpsInputSet from the InputFile and data
-        return type(self)(inputfile=input_file, data=data, calc_type=self.calc_type, template=self.template)
+        return LammpsInputSet(inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template)
 
 
 class LammpsMinimization(BaseLammpsGenerator):
