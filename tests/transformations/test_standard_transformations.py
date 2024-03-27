@@ -510,42 +510,41 @@ class TestDiscretizeOccupanciesTransformation(unittest.TestCase):
 
 class TestChargedCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
-        lattice = Lattice.cubic(4)
-        s_orig = Structure(
-            lattice,
+        struct_orig = Structure(
+            np.eye(3) * 4,
             [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         cct = ChargedCellTransformation(charge=3)
-        s = cct.apply_transformation(s_orig)
-        assert s.charge == 3
+        struct_trafo = cct.apply_transformation(struct_orig)
+        assert struct_trafo.charge == 3
 
 
 class TestScaleToRelaxedTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         # Test on slab relaxation where volume is fixed
-        f = f"{TEST_FILES_DIR}/surface_tests"
-        Cu_fin = Structure.from_file(f"{f}/Cu_slab_fin.cif")
-        Cu_init = Structure.from_file(f"{f}/Cu_slab_init.cif")
+        surf_dir = f"{TEST_FILES_DIR}/surfaces"
+        Cu_fin = Structure.from_file(f"{surf_dir}/Cu_slab_fin.cif")
+        Cu_init = Structure.from_file(f"{surf_dir}/Cu_slab_init.cif")
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
-        Au_init = Structure.from_file(f"{f}/Au_slab_init.cif")
+        Au_init = Structure.from_file(f"{surf_dir}/Au_slab_init.cif")
         Au_fin = slab_scaling.apply_transformation(Au_init)
         assert Au_fin.volume == approx(Au_init.volume)
 
         # Test on gb relaxation
-        f = f"{TEST_FILES_DIR}/grain_boundary"
-        Be_fin = Structure.from_file(f"{f}/Be_gb_fin.cif")
-        Be_init = Structure.from_file(f"{f}/Be_gb_init.cif")
-        Zn_init = Structure.from_file(f"{f}/Zn_gb_init.cif")
+        gb_dir = f"{TEST_FILES_DIR}/grain_boundary"
+        Be_fin = Structure.from_file(f"{gb_dir}/Be_gb_fin.cif")
+        Be_init = Structure.from_file(f"{gb_dir}/Be_gb_init.cif")
+        Zn_init = Structure.from_file(f"{gb_dir}/Zn_gb_init.cif")
         gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
         Zn_fin = gb_scaling.apply_transformation(Zn_init)
         assert all(site.species_string == "Zn" for site in Zn_fin)
         assert (Be_init.lattice.a < Be_fin.lattice.a) == (Zn_init.lattice.a < Zn_fin.lattice.a)
         assert (Be_init.lattice.b < Be_fin.lattice.b) == (Zn_init.lattice.b < Zn_fin.lattice.b)
         assert (Be_init.lattice.c < Be_fin.lattice.c) == (Zn_init.lattice.c < Zn_fin.lattice.c)
-        Fe_fin = Structure.from_file(f"{f}/Fe_gb_fin.cif")
-        Fe_init = Structure.from_file(f"{f}/Fe_gb_init.cif")
-        Mo_init = Structure.from_file(f"{f}/Mo_gb_init.cif")
+        Fe_fin = Structure.from_file(f"{gb_dir}/Fe_gb_fin.cif")
+        Fe_init = Structure.from_file(f"{gb_dir}/Fe_gb_init.cif")
+        Mo_init = Structure.from_file(f"{gb_dir}/Mo_gb_init.cif")
         gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
         Mo_fin = gb_scaling.apply_transformation(Mo_init)
         assert all(site.species_string == "Mo" for site in Mo_fin)

@@ -18,7 +18,7 @@ __email__ = "rit001@eng.ucsd.edu"
 __date__ = "Aug 24, 2017"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/surface_tests"
+TEST_DIR = f"{TEST_FILES_DIR}/surfaces"
 
 
 class TestSlabEntry(PymatgenTest):
@@ -285,7 +285,7 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
 
 
-class TestWorkfunctionAnalyzer(PymatgenTest):
+class TestWorkFunctionAnalyzer(PymatgenTest):
     def setUp(self):
         self.kwargs = {
             "poscar_filename": f"{TEST_DIR}/CONTCAR.relax1.gz",
