@@ -183,7 +183,8 @@ class AdsorbateSiteFinder:
             # sort surface sites by height
             surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites)]
             surf_sites.reverse()
-            unique_sites, unique_perp_fracs = [], []
+            unique_sites: list = []
+            unique_perp_fracs: list = []
             for site in surf_sites:
                 this_perp = site.coords - np.dot(site.coords, self.mvec)
                 this_perp_frac = slab.lattice.get_fractional_coords(this_perp)

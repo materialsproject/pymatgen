@@ -45,10 +45,13 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
         The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
         allowed in the BSON format).
     """
-    voronoi_list = [None] * len(bson_nb_voro_list2)
+    voronoi_list: list = []
+
     for isite, voro in enumerate(bson_nb_voro_list2):
         if voro is None or voro == "None":
+            voronoi_list[isite] = None
             continue
+
         voronoi_list[isite] = []
         for psd, dct in voro:
             struct_site = structure[dct["index"]]
@@ -957,6 +960,7 @@ class DetailedVoronoiContainer(MSONable):
         voronoi_list2 = from_bson_voronoi_list2(dct["bson_nb_voro_list2"], structure)
         maximum_distance_factor = dct.get("maximum_distance_factor")
         minimum_angle_factor = dct.get("minimum_angle_factor")
+
         return cls(
             structure=structure,
             voronoi_list2=voronoi_list2,

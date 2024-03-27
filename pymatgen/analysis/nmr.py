@@ -40,7 +40,7 @@ class ChemicalShielding(SquareTensor):
     MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
     MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
 
-    def __new__(cls, cs_matrix, vscale=None) -> Self | None:
+    def __new__(cls, cs_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """
         Create a Chemical Shielding tensor.
         Note that the constructor uses __new__
@@ -130,7 +130,7 @@ class ElectricFieldGradient(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    def __new__(cls, efg_matrix, vscale=None) -> Self | None:
+    def __new__(cls, efg_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """
         Create a Chemical Shielding tensor.
         Note that the constructor uses __new__
