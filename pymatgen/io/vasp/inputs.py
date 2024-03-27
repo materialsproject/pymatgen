@@ -1016,7 +1016,7 @@ class KpointsSupportedModes(Enum):
             Kpoints_supported_modes
         """
         initial = mode.lower()[0]
-        for key in KpointsSupportedModes:
+        for key in cls:
             if key.name.lower()[0] == initial:
                 return key
         raise ValueError(f"Invalid Kpoint {mode=}")

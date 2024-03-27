@@ -182,7 +182,7 @@ class CifBlock:
         """
         q = cls._process_string(string)
         header = q.popleft()[0][5:]
-        data = {}
+        data: dict = {}
         loops = []
         while q:
             s = q.popleft()
@@ -592,6 +592,8 @@ class CifParser:
                         # Up to this point, magmoms have been defined relative
                         # to crystal axis. Now convert to Cartesian and into
                         # a Magmom object.
+                        if lattice is None:
+                            raise ValueError("Lattice cannot be None.")
                         magmom = Magmom.from_moment_relative_to_crystal_axes(
                             op.operate_magmom(tmp_magmom), lattice=lattice
                         )

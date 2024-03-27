@@ -102,7 +102,11 @@ class BalancedReaction(MSONable):
     def calculate_energy(self, energies: dict[Composition, ufloat]) -> ufloat:
         pass
 
+    @overload
     def calculate_energy(self, energies: dict[Composition, float]) -> float:
+        pass
+
+    def calculate_energy(self, energies):
         """
         Calculates the energy of the reaction.
 

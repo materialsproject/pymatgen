@@ -243,7 +243,6 @@ class ResParser:
     def _parse_file(cls, filename: str | Path) -> Res:
         """Parses the res file as a file."""
         self = cls()
-        self.filename = filename
         with zopen(filename, mode="r") as file:
             self.source = file.read()
             return self._parse_txt()

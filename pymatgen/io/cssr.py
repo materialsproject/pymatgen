@@ -77,7 +77,7 @@ class Cssr:
         lengths = [float(tok) for tok in tokens]
         tokens = lines[1].split()
         angles = [float(tok) for tok in tokens[0:3]]
-        lattice = Lattice.from_parameters(*lengths, *angles)
+        lattice = Lattice.from_parameters(*lengths, *angles)  # type: ignore[arg-type]
         sp = []
         coords = []
         for line in lines[4:]:

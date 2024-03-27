@@ -401,13 +401,10 @@ class FloatWithUnit(float):
         num, unit = float(s[:_idx]), s[_idx:]
 
         # Find unit type (set it to None if it cannot be detected)
-        for _unit_type, dct in BASE_UNITS.items():
+        for unit_type, dct in BASE_UNITS.items():
             if unit in dct:
-                break
-        else:
-            _unit_type = None
-
-        return cls(num, unit, unit_type=_unit_type)
+                return cls(num, unit, unit_type=unit_type)
+        return cls(num, unit, unit_type=None)
 
     def to(self, new_unit):
         """Conversion to a new_unit. Right now, only supports 1 to 1 mapping of

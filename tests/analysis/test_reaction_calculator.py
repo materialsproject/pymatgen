@@ -372,7 +372,7 @@ class TestComputedReaction(unittest.TestCase):
 
         self.rxn = ComputedReaction(reactants, prods)
 
-    def test_calculated_reaction_energy(self):
+    def test_nd_reaction_energy(self):
         assert self.rxn.calculated_reaction_energy == approx(-5.60748821935)
 
     def test_calculated_reaction_energy_uncertainty(self):

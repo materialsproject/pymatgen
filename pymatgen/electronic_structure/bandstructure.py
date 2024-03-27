@@ -653,7 +653,7 @@ class BandStructure:
         """
         # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
-        projections = {}
+        projections: dict = {}
         structure = None
         if dct.get("projections"):
             structure = Structure.from_dict(dct["structure"])
@@ -987,7 +987,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         """
         # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
-        projections = {}
+        projections: dict = {}
         structure = None
         if "projections" in dct and len(dct["projections"]) != 0:
             structure = Structure.from_dict(dct["structure"])
