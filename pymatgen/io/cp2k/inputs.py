@@ -172,7 +172,7 @@ class Keyword(MSONable):
             description = None
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
-        args = s.split()
+        args: list[Any] = s.split()
         args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))
         args[0] = str(args[0])
         return cls(*args, units=units[0], description=description)
@@ -1807,6 +1807,9 @@ class BrokenSymmetry(Section):
             tmp += tmp2
             unpaired_orbital = esv[0][0], esv[0][1], esv[0][2] + tmp2
             esv.pop(0)
+
+        if unpaired_orbital is None:
+            raise ValueError("unpaired_orbital cannot be None.")
 
         if spin == "low-up":
             spin = unpaired_orbital[2] % 2

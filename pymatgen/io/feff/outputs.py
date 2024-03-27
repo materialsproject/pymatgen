@@ -111,7 +111,7 @@ class LDos(MSONable):
         for idx in range(len(ldos[1])):
             dos_energies.append(ldos[1][idx][0])
 
-        all_pdos = []
+        all_pdos: list[dict] = []
         vorb = {"s": Orbital.s, "p": Orbital.py, "d": Orbital.dxy, "f": Orbital.f0}
         forb = {"s": 0, "p": 1, "d": 2, "f": 3}
 
@@ -138,13 +138,13 @@ class LDos(MSONable):
         t_dos = [0] * d_length
         for idx in range(n_sites):
             pot_index = pot_dict[structure.species[idx].symbol]
-            for v in forb.values():
-                density = [ldos[pot_index][j][v + 1] for j in range(d_length)]
+            for val in forb.values():
+                density = [ldos[pot_index][j][val + 1] for j in range(d_length)]
                 for j in range(d_length):
                     t_dos[j] = t_dos[j] + density[j]
-        t_dos = {Spin.up: t_dos}
+        _t_dos: dict = {Spin.up: t_dos}
 
-        dos = Dos(efermi, dos_energies, t_dos)
+        dos = Dos(efermi, dos_energies, _t_dos)
         complete_dos = CompleteDos(structure, dos, pdoss)
         charge_transfer = LDos.charge_transfer_from_file(feff_inp_file, ldos_file)
         return cls(complete_dos, charge_transfer)

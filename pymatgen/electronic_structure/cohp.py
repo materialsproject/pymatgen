@@ -698,7 +698,7 @@ class CompleteCohp(Cohp):
                 structure_file = "CTRL"
             if filename is None:
                 filename = "COPL"
-            cohp_file = LMTOCopl(filename=filename, to_eV=True)
+            cohp_file: LMTOCopl | Cohpcar = LMTOCopl(filename=filename, to_eV=True)
         elif fmt == "LOBSTER":
             if (
                 (are_coops and are_cobis)
@@ -765,7 +765,7 @@ class CompleteCohp(Cohp):
         if fmt == "LMTO":
             # Calculate the average COHP for the LMTO file to be
             # consistent with LOBSTER output.
-            avg_data = {"COHP": {}, "ICOHP": {}}
+            avg_data: dict[str, dict] = {"COHP": {}, "ICOHP": {}}
             for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])

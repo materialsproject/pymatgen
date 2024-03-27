@@ -309,15 +309,13 @@ class Header(MSONable):
             a = float(basis_vec[0])
             b = float(basis_vec[1])
             c = float(basis_vec[2])
-            lengths = [a, b, c]
             # alpha, beta, gamma
             basis_ang = lines[7].split(":")[-1].split()
             alpha = float(basis_ang[0])
             beta = float(basis_ang[1])
             gamma = float(basis_ang[2])
-            angles = [alpha, beta, gamma]
 
-            lattice = Lattice.from_parameters(*lengths, *angles)
+            lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
             n_atoms = int(lines[8].split(":")[-1].split()[0])
 

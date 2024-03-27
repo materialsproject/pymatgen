@@ -438,7 +438,7 @@ class NwInput(MSONable):
         tasks = []
         charge = spin_multiplicity = title = basis_set = None
         basis_set_option = None
-        theory_directives = {}
+        theory_directives: dict = {}
         geom_options = symmetry_options = memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
