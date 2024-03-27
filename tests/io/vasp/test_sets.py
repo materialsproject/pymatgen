@@ -274,8 +274,8 @@ class TestMITMPRelaxSet(PymatgenTest):
     @skip_if_no_psp_dir
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
-        p = self.set(structure, user_potcar_functional="LDA").potcar
-        assert p.functional == "LDA"
+        potcar = self.set(structure, user_potcar_functional="LDA").potcar
+        assert potcar.functional == "LDA"
 
     @skip_if_no_psp_dir
     def test_nelect(self):
@@ -1078,15 +1078,15 @@ class TestMagmomLdau(PymatgenTest):
         vrun = Vasprun(f"{VASP_OUT_DIR}/vasprun.magmom_ldau.xml.gz")
         structure = vrun.final_structure
         poscar = Poscar(structure)
-        structure_decorated = get_structure_from_prev_run(vrun)
+        struct_magmom_decorated = get_structure_from_prev_run(vrun)
         ldau_ans = {"LDAUU": [5.3, 0.0], "LDAUL": [2, 0], "LDAUJ": [0.0, 0.0]}
         magmom_ans = [5.0, 5.0, 5.0, 5.0, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
         ldau_dict = {}
         for key in ("LDAUU", "LDAUJ", "LDAUL"):
-            if hasattr(structure_decorated[0], key.lower()):
-                m = {site.specie.symbol: getattr(site, key.lower()) for site in structure_decorated}
-                ldau_dict[key] = [m[sym] for sym in poscar.site_symbols]
-        magmom = [site.magmom for site in structure_decorated]
+            if hasattr(struct_magmom_decorated[0], key.lower()):
+                magmoms = {site.specie.symbol: getattr(site, key.lower()) for site in struct_magmom_decorated}
+                ldau_dict[key] = [magmoms[sym] for sym in poscar.site_symbols]
+        magmom = [site.magmom for site in struct_magmom_decorated]
         assert ldau_dict == ldau_ans
         assert magmom == magmom_ans
 

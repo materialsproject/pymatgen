@@ -2250,8 +2250,7 @@ class TestMolecule(PymatgenTest):
         returned = self.mol.substitute(1, sub)
         assert returned is self.mol
         assert self.mol.get_distance(0, 4) == approx(1.54)
-        f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
-        self.mol.substitute(2, f)
+        self.mol.substitute(2, Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]]))
         assert self.mol.get_distance(0, 7) == approx(1.35)
         oh = Molecule(
             ["X", "O", "H"],

@@ -217,10 +217,10 @@ class TestSymmOp(PymatgenTest):
         # update PymatgenTest for unittest2?
         # self.assertWarns(UserWarning, self.op.as_xyz_str)
 
-        o = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
-        assert_allclose(o.translation_vector, [0.5, 0.25, 0.75])
-        o = SymmOp.from_xyz_str("x + 0.5, y + 0.25, z + 0.75")
-        assert_allclose(o.translation_vector, [0.5, 0.25, 0.75])
+        symm_op = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
+        assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
+        symm_op = SymmOp.from_xyz_str("x + 0.5, y + 0.25, z + 0.75")
+        assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
 
 
 class TestMagSymmOp(PymatgenTest):

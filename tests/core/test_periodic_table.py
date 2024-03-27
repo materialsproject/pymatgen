@@ -453,8 +453,8 @@ class TestSpecies(PymatgenTest):
         with pytest.raises(ValueError, match="Invalid coordination or spin config"):
             Species("Fe", 2).get_crystal_field_spin("hex")
 
-        s = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
-        assert s == 2
+        spin = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
+        assert spin == 2
 
     def test_get_nmr_mom(self):
         assert Species("H").get_nmr_quadrupole_moment() == 2.860
@@ -571,21 +571,22 @@ class TestDummySpecies(unittest.TestCase):
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
-        o = pickle.dumps(el1)
-        assert el1 == pickle.loads(o)
+        pickled = pickle.dumps(el1)
+        assert el1 == pickle.loads(pickled)
 
     def test_sort(self):
-        r = sorted([Element.Fe, DummySpecies("X")])
-        assert r == [DummySpecies("X"), Element.Fe]
+        Fe, X = Element.Fe, DummySpecies("X")
+        assert sorted([Fe, X]) == [X, Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
 
         sp = Species("Fe", 2, spin=5)
         with pytest.raises(AttributeError) as exc:
             sp.spin = 6
 
+        # for some reason different message on Windows and Mac. on Linux: 'can't set attribute'
         assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
             exc.value
-        )  # 'can't set attribute' on Linux, for some reason different message on Windows and Mac
+        )
         assert sp.spin == 5
 
 

@@ -28,8 +28,8 @@ class TestEnumlibAdaptor(PymatgenTest):
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 86
-        for s in structures:
-            assert s.composition.get_atomic_fraction(Element("Li")) == approx(0.5 / 6.5)
+        for struct_trafo in structures:
+            assert struct_trafo.composition.get_atomic_fraction(Element("Li")) == approx(0.5 / 6.5)
         adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), 1, 2, refine_structure=True)
         adaptor.run()
         structures = adaptor.structures
@@ -40,8 +40,8 @@ class TestEnumlibAdaptor(PymatgenTest):
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 1
-        for s in structures:
-            assert s.composition.get_atomic_fraction(Element("Li")) == approx(0.25 / 6.25)
+        for struct_trafo in structures:
+            assert struct_trafo.composition.get_atomic_fraction(Element("Li")) == approx(0.25 / 6.25)
 
         # Make sure it works for completely disordered structures.
         struct = Structure(np.eye(3) * 10, [{"Fe": 0.5}], [[0, 0, 0]])
@@ -52,11 +52,11 @@ class TestEnumlibAdaptor(PymatgenTest):
         # Make sure it works properly when symmetry is broken by ordered sites.
         struct = self.get_structure("LiFePO4")
         sub_trans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-        s = sub_trans.apply_transformation(struct)
+        struct_trafo = sub_trans.apply_transformation(struct)
         # REmove some ordered sites to break symmetry.
         remove_trans = RemoveSitesTransformation([4, 7])
-        s = remove_trans.apply_transformation(s)
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        struct_trafo = remove_trans.apply_transformation(struct_trafo)
+        adaptor = EnumlibAdaptor(struct_trafo, 1, 1, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 4

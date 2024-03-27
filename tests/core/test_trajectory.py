@@ -29,7 +29,7 @@ class TestTrajectory(PymatgenTest):
             mol = Molecule(
                 species, coord, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity)
             )
-            self.molecules.append(mol)
+            self.molecules += [mol]
 
         self.traj_mols = Trajectory(
             species=species,
@@ -50,24 +50,20 @@ class TestTrajectory(PymatgenTest):
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
         species = ["Si", "Si"]
-        coords = np.asarray(
-            [
-                [[0, 0, 0], [0.5, 0.5, 0.5]],
-                [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-                [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-            ]
-        )
+        coords = [
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
+            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
+        ]
         return lattice, species, coords
 
     def _get_species_and_coords(self):
         species = ["C", "O"]
-        coords = np.asarray(
-            [
-                [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
-                [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
-                [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
-            ]
-        )
+        coords = [
+            [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
+            [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
+            [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
+        ]
         return species, coords, 0, 1
 
     def test_single_index_slice(self):
