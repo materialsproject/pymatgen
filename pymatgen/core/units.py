@@ -9,7 +9,7 @@ of numpy's ndarray with similar unit features.
 from __future__ import annotations
 
 import collections
-import numbers
+from numbers import Number
 import re
 from functools import partial
 from typing import TYPE_CHECKING, Any
@@ -235,7 +235,7 @@ class Unit(collections.abc.Mapping):
             for dct in DERIVED_UNITS.values():
                 if k in dct:
                     for k2, v2 in dct[k].items():
-                        if isinstance(k2, numbers.Number):
+                        if isinstance(k2, Number):
                             factor *= k2 ** (v2 * v)
                         else:
                             b[k2] += v2 * v
@@ -290,7 +290,7 @@ class FloatWithUnit(float):
     32.932522246000005 eV
     """
 
-    def __init__(self, val: float, unit: str, unit_type: str | None = None) -> None:
+    def __init__(self, val: float | Number, unit: str, unit_type: str | None = None) -> None:
         """Initializes a float with unit.
 
         Args:
@@ -704,7 +704,7 @@ def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[s
     """
     unit_type = _UNAME2UTYPE[unit]
 
-    if isinstance(obj, numbers.Number):
+    if isinstance(obj, Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
 
     if isinstance(obj, collections.abc.Mapping):
