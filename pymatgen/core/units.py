@@ -746,7 +746,7 @@ def unitized(unit):
             if isinstance(val, collections.abc.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
-            elif isinstance(val, numbers.Number):
+            elif isinstance(val, Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
             elif val is None:
                 pass
