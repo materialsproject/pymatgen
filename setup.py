@@ -51,7 +51,7 @@ setup(
         "tblite": ["tblite[ase]>=0.3.0"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        "relaxation": ["matgl", "chgnet"],
+        "relaxation": ["matgl", "chgnet>=0.3.0"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "mypy",
@@ -74,7 +74,7 @@ setup(
             # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
             # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
-            "chgnet",
+            "chgnet>=0.3.0",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
             "h5py>=3.8.0",
@@ -159,6 +159,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Information Analysis",
