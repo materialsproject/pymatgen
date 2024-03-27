@@ -48,7 +48,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
     voronoi_list: list[list[dict] | None] = [None] * len(bson_nb_voro_list2)
 
     for idx, voro in enumerate(bson_nb_voro_list2):
-        if voro in {None, "None"}:
+        if voro in (None, "None"):
             continue
 
         voronoi_list[idx] = []
