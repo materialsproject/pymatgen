@@ -571,8 +571,8 @@ class TestDummySpecies(unittest.TestCase):
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
-        o = pickle.dumps(el1)
-        assert el1 == pickle.loads(o)
+        pickled = pickle.dumps(el1)
+        assert el1 == pickle.loads(pickled)
 
     def test_sort(self):
         r = sorted([Element.Fe, DummySpecies("X")])

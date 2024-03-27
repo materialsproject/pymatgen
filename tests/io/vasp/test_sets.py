@@ -274,8 +274,8 @@ class TestMITMPRelaxSet(PymatgenTest):
     @skip_if_no_psp_dir
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
-        p = self.set(structure, user_potcar_functional="LDA").potcar
-        assert p.functional == "LDA"
+        potcar = self.set(structure, user_potcar_functional="LDA").potcar
+        assert potcar.functional == "LDA"
 
     @skip_if_no_psp_dir
     def test_nelect(self):

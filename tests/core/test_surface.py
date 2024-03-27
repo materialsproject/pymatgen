@@ -430,8 +430,8 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
         # Test orthogonality of some internal variables.
-        a, b, _c = gen.oriented_unit_cell.lattice.matrix
-        assert np.dot(a, gen._normal) == approx(0)
+        a_len, b, _c = gen.oriented_unit_cell.lattice.matrix
+        assert np.dot(a_len, gen._normal) == approx(0)
         assert np.dot(b, gen._normal) == approx(0)
 
         assert len(gen.get_slabs()) == 1
@@ -458,8 +458,8 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         assert len(lco) == 1
-        a, b, _c = gen.oriented_unit_cell.lattice.matrix
-        assert np.dot(a, gen._normal) == approx(0)
+        a_len, b, _c = gen.oriented_unit_cell.lattice.matrix
+        assert np.dot(a_len, gen._normal) == approx(0)
         assert np.dot(b, gen._normal) == approx(0)
 
         scc = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
@@ -473,13 +473,13 @@ class TestSlabGenerator(PymatgenTest):
         # Test whether using units of hkl planes instead of Angstroms for
         # min_slab_size and min_vac_size will give us the same number of atoms
         n_atoms = []
-        for a in [1, 1.4, 2.5, 3.6]:
-            struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"], [[0, 0, 0]])
+        for a_len in [1, 1.4, 2.5, 3.6]:
+            struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(a_len), ["Fe"], [[0, 0, 0]])
             slab_gen = SlabGenerator(struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
             n_atoms.append(len(slab_gen.get_slab()))
-        n = n_atoms[0]
-        for i in n_atoms:
-            assert n == i
+        # Check if the number of atoms in all slabs is the same
+        for n_a in n_atoms:
+            assert n_atoms[0] == n_a
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three

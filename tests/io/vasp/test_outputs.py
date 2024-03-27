@@ -171,12 +171,12 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_energy == approx(-11.18986774)
 
         # VASP 5.4.1
-        o = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest3.xml.gz")
-        assert o.final_energy == approx(-15.89355325)
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest3.xml.gz")
+        assert vasp_run.final_energy == approx(-15.89355325)
 
         # VASP 6.2.1
-        o = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest4.xml.gz")
-        assert o.final_energy == approx(-15.89364691)
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest4.xml.gz")
+        assert vasp_run.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.nonlm.xml.gz"
@@ -1305,28 +1305,28 @@ class TestOutcar(PymatgenTest):
 
     def test_energies(self):
         # VASP 5.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest1.gz")
-        assert o.final_energy == approx(-11.18981538)
-        assert o.final_energy_wo_entrp == approx(-11.13480014)
-        assert o.final_fr_energy == approx(-11.21732300)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest1.gz")
+        assert outcar.final_energy == approx(-11.18981538)
+        assert outcar.final_energy_wo_entrp == approx(-11.13480014)
+        assert outcar.final_fr_energy == approx(-11.21732300)
 
         # VASP 6.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest2.gz")
-        assert o.final_energy == approx(-11.18986774)
-        assert o.final_energy_wo_entrp == approx(-11.13485250)
-        assert o.final_fr_energy == approx(-11.21737536)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest2.gz")
+        assert outcar.final_energy == approx(-11.18986774)
+        assert outcar.final_energy_wo_entrp == approx(-11.13485250)
+        assert outcar.final_fr_energy == approx(-11.21737536)
 
         # VASP 5.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest3.gz")
-        assert o.final_energy == approx(-15.89355325)
-        assert o.final_energy_wo_entrp == approx(-15.83853800)
-        assert o.final_fr_energy == approx(-15.92106087)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest3.gz")
+        assert outcar.final_energy == approx(-15.89355325)
+        assert outcar.final_energy_wo_entrp == approx(-15.83853800)
+        assert outcar.final_fr_energy == approx(-15.92106087)
 
         # VASP 6.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest4.gz")
-        assert o.final_energy == approx(-15.89364691)
-        assert o.final_energy_wo_entrp == approx(-15.83863167)
-        assert o.final_fr_energy == approx(-15.92115453)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest4.gz")
+        assert outcar.final_energy == approx(-15.89364691)
+        assert outcar.final_energy_wo_entrp == approx(-15.83863167)
+        assert outcar.final_fr_energy == approx(-15.92115453)
 
     def test_read_table_pattern(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")

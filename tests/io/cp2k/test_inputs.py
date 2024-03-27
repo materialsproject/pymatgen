@@ -85,15 +85,15 @@ class TestBasisAndPotential(PymatgenTest):
 
     def test_potential_info(self):
         # Ensure potential metadata can be read from string
-        p = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
-        assert p.potential_type == "GTH"
-        assert p.xc == "PBE"
-        assert p.nlcc
+        pot_info = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
+        assert pot_info.potential_type == "GTH"
+        assert pot_info.xc == "PBE"
+        assert pot_info.nlcc
 
         # Ensure one-way softmatching works
         p2 = PotentialInfo.from_str("GTH-q1-NLCC")
-        assert p2.softmatch(p)
-        assert not p.softmatch(p2)
+        assert p2.softmatch(pot_info)
+        assert not pot_info.softmatch(p2)
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly

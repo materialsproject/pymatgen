@@ -1151,11 +1151,11 @@ class TestPotcarSingle(unittest.TestCase):
                 assert psingle.is_valid
 
     # def test_default_functional(self):
-    #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert p.functional_class == "GGA"
+    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
+    #     assert potcar.functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert p.functional_class == "LDA"
+    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
+    #     assert potcar.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
     def test_repr(self):
@@ -1225,8 +1225,8 @@ class TestPotcar(PymatgenTest):
     def test_write(self):
         tmp_file = f"{self.tmp_path}/POTCAR.testing"
         self.potcar.write_file(tmp_file)
-        p = Potcar.from_file(tmp_file)
-        assert p.symbols == self.potcar.symbols
+        potcar = Potcar.from_file(tmp_file)
+        assert potcar.symbols == self.potcar.symbols
 
         with zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref, open(tmp_file, encoding="utf-8") as f_new:
             ref_potcar = f_ref.readlines()
@@ -1246,13 +1246,13 @@ class TestPotcar(PymatgenTest):
         assert self.potcar[0].nelectrons == 14
 
     # def test_default_functional(self):
-    #     p = Potcar(["Fe", "P"])
-    #     assert p[0].functional_class == "GGA"
-    #     assert p[1].functional_class == "GGA"
+    #     potcar = Potcar(["Fe", "P"])
+    #     assert potcar[0].functional_class == "GGA"
+    #     assert potcar[1].functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     p = Potcar(["Fe", "P"])
-    #     assert p[0].functional_class == "LDA"
-    #     assert p[1].functional_class == "LDA"
+    #     potcar = Potcar(["Fe", "P"])
+    #     assert potcar[0].functional_class == "LDA"
+    #     assert potcar[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
