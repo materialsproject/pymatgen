@@ -357,7 +357,7 @@ class VasprunLoader:
     def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
-        return VasprunLoader(vrun_obj)
+        return cls(vrun_obj)
 
     def get_lattvec(self):
         """Lattice vectors."""

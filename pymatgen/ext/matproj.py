@@ -376,8 +376,8 @@ class MPRester:
     for which API to use.
     """
 
-    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:
-        r"""
+    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:  # type: ignore[misc]
+        """
         Args:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
