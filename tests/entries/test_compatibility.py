@@ -3,11 +3,11 @@ from __future__ import annotations
 import copy
 import json
 import os
-import unittest
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
 from typing import TYPE_CHECKING
+from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike
 
 
-class TestCorrectionSpecificity(unittest.TestCase):
+class TestCorrectionSpecificity(TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
     def setUp(self):
@@ -181,7 +181,7 @@ def test_overlapping_adjustments():
     assert len(processed) == 0
 
 
-class TestMaterialsProjectCompatibility(unittest.TestCase):
+class TestMaterialsProjectCompatibility(TestCase):
     def setUp(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
@@ -488,7 +488,7 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
         assert isinstance(temp_compat, MaterialsProjectCompatibility)
 
 
-class TestMaterialsProjectCompatibility2020(unittest.TestCase):
+class TestMaterialsProjectCompatibility2020(TestCase):
     def setUp(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
@@ -1049,7 +1049,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         assert processed_entry.energy == approx(-58.97 + -6.084)
 
 
-class TestMITCompatibility(unittest.TestCase):
+class TestMITCompatibility(TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
@@ -1321,7 +1321,7 @@ class TestMITCompatibility(unittest.TestCase):
         assert isinstance(temp_compat, MITCompatibility)
 
 
-class TestOxideTypeCorrection(unittest.TestCase):
+class TestOxideTypeCorrection(TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
 
@@ -1462,7 +1462,7 @@ class TestOxideTypeCorrection(unittest.TestCase):
         assert li2o_entry_corrected.energy == approx(-3.0 - 0.66975)
 
 
-class TestSulfideTypeCorrection2020(unittest.TestCase):
+class TestSulfideTypeCorrection2020(TestCase):
     def setUp(self):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
@@ -1622,7 +1622,7 @@ class TestSulfideTypeCorrection2020(unittest.TestCase):
         assert struct_corrected.correction == approx(nostruct_corrected.correction)
 
 
-class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
+class TestOxideTypeCorrectionNoPeroxideCorr(TestCase):
     def setUp(self):
         self.compat = MITCompatibility(correct_peroxide=False)
 
@@ -1853,7 +1853,7 @@ class TestMaterialsProjectAqueousCompatibility:
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
-class TestAqueousCorrection(unittest.TestCase):
+class TestAqueousCorrection(TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
         fp = f"{module_dir}/MITCompatibility.yaml"
@@ -1881,7 +1881,7 @@ class TestAqueousCorrection(unittest.TestCase):
         assert entry.energy == approx(-24.344373)
 
 
-class TestMITAqueousCompatibility(unittest.TestCase):
+class TestMITAqueousCompatibility(TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
@@ -1974,7 +1974,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         assert self.compat.process_entry(entry) is None
 
 
-class TestCorrectionErrors2020Compatibility(unittest.TestCase):
+class TestCorrectionErrors2020Compatibility(TestCase):
     def setUp(self):
         self.compat = MaterialsProject2020Compatibility()
 

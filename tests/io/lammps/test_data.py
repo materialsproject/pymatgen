@@ -3,7 +3,7 @@ from __future__ import annotations
 import gzip
 import json
 import random
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pandas as pd
@@ -518,7 +518,7 @@ class TestLammpsData(PymatgenTest):
         assert pd.testing.assert_frame_equal(c2h6.topology[key], target_df) is None, key
 
 
-class TestTopology(unittest.TestCase):
+class TestTopology(TestCase):
     def test_init(self):
         inner_charge = np.random.rand(10) - 0.5
         outer_charge = np.random.rand(10) - 0.5
@@ -750,7 +750,7 @@ class TestForceField(PymatgenTest):
         assert decoded.topo_coeffs == self.ethane.topo_coeffs
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc(TestCase):
     def test_lattice_2_lmpbox(self):
         matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
         init_latt = Lattice(matrix)
@@ -782,7 +782,7 @@ class TestFunc(unittest.TestCase):
         )
 
 
-class TestCombinedData(unittest.TestCase):
+class TestCombinedData(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.ec = LammpsData.from_file(filename=f"{TEST_DIR}/ec.data.gz")

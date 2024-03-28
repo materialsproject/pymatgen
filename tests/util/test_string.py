@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 
@@ -36,7 +34,7 @@ class SupStr(Stringify):
         return "Fe**2+"
 
 
-class TestStringify(unittest.TestCase):
+class TestStringify:
     def test_to_latex_string(self):
         assert SubStr().to_latex_string() == "Fe$_{8}$O$_{12}$"
         assert SupStr().to_latex_string() == "Fe$^{2+}$"
@@ -50,7 +48,7 @@ class TestStringify(unittest.TestCase):
         assert SupStr().to_unicode_string() == "Fe²⁺"
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc:
     def test_latexify(self):
         assert latexify("Li3Fe2(PO4)3") == "Li$_{3}$Fe$_{2}$(PO$_{4}$)$_{3}$"
         assert latexify("Li0.2Na0.8Cl") == "Li$_{0.2}$Na$_{0.8}$Cl"

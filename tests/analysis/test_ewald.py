@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -11,7 +11,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import VASP_IN_DIR
 
 
-class TestEwaldSummation(unittest.TestCase):
+class TestEwaldSummation(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.original_struct = Structure.from_file(filepath)
@@ -80,7 +80,7 @@ class TestEwaldSummation(unittest.TestCase):
         assert ham.as_dict() == EwaldSummation.from_dict(dct).as_dict()
 
 
-class TestEwaldMinimizer(unittest.TestCase):
+class TestEwaldMinimizer(TestCase):
     def test_init(self):
         matrix = np.array(
             [

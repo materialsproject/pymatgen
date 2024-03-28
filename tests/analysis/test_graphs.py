@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import copy
 import os
-import unittest
 from glob import glob
 from shutil import which
+from unittest import TestCase
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -487,7 +487,7 @@ from    to  to_image
         assert list(sg.graph.edges)[-2:] == [(1, 3, 0), (1, 2, 0)]
 
 
-class TestMoleculeGraph(unittest.TestCase):
+class TestMoleculeGraph(TestCase):
     def setUp(self):
         cyclohexene_xyz = f"{TEST_FILES_DIR}/graphs/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)

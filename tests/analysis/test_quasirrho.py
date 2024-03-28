@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 
@@ -10,7 +10,7 @@ from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestQuasiRRHO(unittest.TestCase):
+class TestQuasiRRHO(TestCase):
     """Test class for QuasiRRHO"""
 
     def setUp(self):

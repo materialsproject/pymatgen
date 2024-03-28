@@ -7,7 +7,6 @@ Created on Nov 10, 2012.
 from __future__ import annotations
 
 import random
-import unittest
 
 import pytest
 from numpy.testing import assert_allclose
@@ -796,7 +795,7 @@ class TestComposition(PymatgenTest):
         assert "Deuterium" in [x.long_name for x in composition.elements]
 
 
-class TestChemicalPotential(unittest.TestCase):
+class TestChemicalPotential:
     def test_init(self):
         dct = {"Fe": 1, Element("Fe"): 1}
         with pytest.raises(ValueError, match="Duplicate potential specified"):

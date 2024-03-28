@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -37,7 +37,7 @@ class TestVoronoiAnalyzer(PymatgenTest):
         assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
-class TestRelaxationAnalyzer(unittest.TestCase):
+class TestRelaxationAnalyzer(TestCase):
     def setUp(self):
         s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
         s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
