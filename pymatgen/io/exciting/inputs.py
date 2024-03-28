@@ -83,10 +83,14 @@ class ExcitingInput(MSONable):
         vectors = []
         lockxyz = []
         # get title
-        title_in = str(root.find("title").text)
+        _title = root.find("title")
+        assert _title is not None, "title cannot be None."
+        title_in = str(_title.text)
         # Read elements and coordinates
         for nodes in species_node:
-            symbol = nodes.get("speciesfile").split(".")[0]
+            _speciesfile = nodes.get("speciesfile")
+            assert _speciesfile is not None, "speciesfile cannot be None."
+            symbol = _speciesfile.split(".")[0]
             if len(symbol.split("_")) == 2:
                 symbol = symbol.split("_")[0]
             if Element.is_valid_symbol(symbol):
@@ -95,20 +99,26 @@ class ExcitingInput(MSONable):
             else:
                 raise ValueError("Unknown element!")
             for atom in nodes.iter("atom"):
-                x, y, z = atom.get("coord").split()
-                positions.append([float(x), float(y), float(z)])
-                elements.append(element)
-                # Obtain lockxyz for each atom
-                if atom.get("lockxyz") is not None:
+                if atom is None:
+                    lockxyz.append([False, False, False])
+
+                else:
+                    _coord = atom.get("coord")
+                    assert _coord is not None, "coordinate cannot be None."
+                    x, y, z = _coord.split()
+                    positions.append([float(x), float(y), float(z)])
+                    elements.append(element)
+                    # Obtain lockxyz for each atom
+                    _lockxyz = atom.get("lockxyz")
+                    assert _lockxyz is not None, "lockxyz cannot be None."
                     lxyz = []
-                    for line in atom.get("lockxyz").split():
-                        if line in ("True", "true"):
+                    for line in _lockxyz.split():
+                        if line in {"True", "true"}:
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
                     lockxyz.append(lxyz)
-                else:
-                    lockxyz.append([False, False, False])
+
         # check the atomic positions type
         if "cartesian" in struct.attrib:
             if struct.attrib["cartesian"]:
@@ -116,18 +126,24 @@ class ExcitingInput(MSONable):
                 for p in positions:
                     for j in range(3):
                         p[j] = p[j] * ExcitingInput.bohr2ang
-                print(positions)
         else:
             cartesian = False
+
+        _crystal = struct.find("crystal")
+        assert _crystal is not None, "crystal cannot be None."
+
         # get the scale attribute
-        scale_in = struct.find("crystal").get("scale")
+        scale_in = _crystal.get("scale")
         scale = float(scale_in) * ExcitingInput.bohr2ang if scale_in else ExcitingInput.bohr2ang
+
         # get the stretch attribute
-        stretch_in = struct.find("crystal").get("stretch")
+        stretch_in = _crystal.get("stretch")
         stretch = np.array([float(a) for a in stretch_in]) if stretch_in else np.array([1.0, 1.0, 1.0])
+
         # get basis vectors and scale them accordingly
-        basisnode = struct.find("crystal").iter("basevect")
+        basisnode = _crystal.iter("basevect")
         for vect in basisnode:
+            assert vect.text is not None, "vectors cannot be None."
             x, y, z = vect.text.split()
             vectors.append(
                 [
@@ -343,7 +359,7 @@ class ExcitingInput(MSONable):
         i = "\n" + level * "  "
         if len(elem):
             if not elem.text or not elem.text.strip():
-                elem.text = i + "  "
+                elem.text = f"{i}  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for el in elem:

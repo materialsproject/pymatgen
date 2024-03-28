@@ -1387,10 +1387,9 @@ class Kpoints(MSONable):
             kpts = [int(i) for i in lines[3].split()]
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
-                try:
+                with contextlib.suppress(ValueError):
                     kpts_shift = [float(i) for i in lines[4].split()]
-                except ValueError:
-                    pass
+
             return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
