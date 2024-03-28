@@ -71,7 +71,7 @@ class BalancedReaction(MSONable):
 
         # calculate net reaction coefficients
         self._coeffs: list[float] = []
-        self._els: list[str] = []
+        self._els: list[Element | Species] = []
         self._all_comp: list[Composition] = []
         for key in {*reactants_coeffs, *products_coeffs}:
             coeff = products_coeffs.get(key, 0) - reactants_coeffs.get(key, 0)
@@ -161,9 +161,9 @@ class BalancedReaction(MSONable):
         return sum(self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))) / 2
 
     @property
-    def elements(self) -> list[str]:
+    def elements(self) -> list[Element | Species]:
         """List of elements in the reaction."""
-        return self._els[:]
+        return self._els
 
     @property
     def coeffs(self) -> list[float]:
