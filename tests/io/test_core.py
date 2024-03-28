@@ -27,7 +27,7 @@ class StructInputFile(InputFile):
         return str(cw)
 
     @classmethod
-    def from_str(cls, contents: str) -> Self:
+    def from_str(cls, contents: str) -> Self:  # type: ignore[override]
         struct = Structure.from_str(contents, fmt="cif")
         return cls(structure=struct)
 

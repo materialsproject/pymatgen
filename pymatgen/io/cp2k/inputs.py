@@ -173,7 +173,7 @@ class Keyword(MSONable):
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
         args: list[Any] = s.split()
-        args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))
+        args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))  # type: ignore[call-overload]
         args[0] = str(args[0])
         return cls(*args, units=units[0], description=description)
 
