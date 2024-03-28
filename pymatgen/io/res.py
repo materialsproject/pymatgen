@@ -6,7 +6,6 @@ should get the same Structure or ComputedStructureEntry back. On the other hand,
 from and back to a string/file is not guaranteed to be reversible, i.e. a diff on the output
 would not be empty. The difference should be limited to whitespace, float precision, and the
 REM entries.
-
 """
 
 from __future__ import annotations
@@ -15,7 +14,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
-import dateutil.parser
+from dateutil import parser
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -420,7 +419,7 @@ class AirssProvider(ResProvider):
         if match is None:
             raise ResParseError(f"Could not parse the date from {string=}.")
         date_string = match.group(0)
-        return dateutil.parser.parse(date_string)
+        return parser.parse(date_string)
 
     def _raise_or_none(self, err: ResParseError) -> None:
         if self.parse_rems != "strict":
