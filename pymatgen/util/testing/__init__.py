@@ -10,9 +10,9 @@ from __future__ import annotations
 import json
 import pickle  # use pickle, not cPickle so that we get the traceback in case of errors
 import string
-import unittest
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
+from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder, MSONable
@@ -34,7 +34,7 @@ VASP_OUT_DIR = f"{TEST_FILES_DIR}/vasp/outputs"
 FAKE_POTCAR_DIR = f"{VASP_IN_DIR}/fake_potcars"
 
 
-class PymatgenTest(unittest.TestCase):
+class PymatgenTest(TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     # dict of lazily-loaded test structures (initialized to None)

@@ -10,6 +10,7 @@ import os
 import sys
 import unittest
 from shutil import which
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -34,7 +35,7 @@ gulp_present = False
 
 
 @pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGulpCaller(unittest.TestCase):
+class TestGulpCaller:
     def test_run(self):
         mgo_lattice = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
@@ -97,7 +98,7 @@ class TestGulpCaller(unittest.TestCase):
 
 
 @pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGulpIO(unittest.TestCase):
+class TestGulpIO(TestCase):
     def setUp(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         self.gio = GulpIO()
@@ -259,7 +260,7 @@ class TestGulpIO(unittest.TestCase):
 
 
 @pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGlobalFunctions(unittest.TestCase):
+class TestGlobalFunctions(TestCase):
     def setUp(self):
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
@@ -305,7 +306,7 @@ class TestGlobalFunctions(unittest.TestCase):
 
 
 @pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestBuckinghamPotentialLewis(unittest.TestCase):
+class TestBuckinghamPotentialLewis(TestCase):
     def setUp(self):
         self.bpl = BuckinghamPotential("lewis")
 
@@ -333,7 +334,7 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
 
 
 @pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestBuckinghamPotentialBush(unittest.TestCase):
+class TestBuckinghamPotentialBush(TestCase):
     def setUp(self):
         self.bpb = BuckinghamPotential("bush")
 

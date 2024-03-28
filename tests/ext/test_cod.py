@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import pytest
 import requests
@@ -15,7 +15,7 @@ except requests.exceptions.ConnectionError:
 
 
 @pytest.mark.skipif(website_down, reason="www.crystallography.net is down.")
-class TestCOD(unittest.TestCase):
+class TestCOD(TestCase):
     @pytest.mark.skipif(not which("mysql"), reason="No mysql.")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
@@ -16,7 +16,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 
-class TestCssr(unittest.TestCase):
+class TestCssr(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.cssr = Cssr(Structure.from_file(filepath))

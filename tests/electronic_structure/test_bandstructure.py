@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -23,7 +23,7 @@ from pymatgen.io.vasp import BSVasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
-class TestKpoint(unittest.TestCase):
+class TestKpoint(TestCase):
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")

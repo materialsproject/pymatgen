@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.lammps.data import Topology
@@ -8,7 +8,7 @@ from pymatgen.io.lammps.utils import Polymer
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestPolymer(unittest.TestCase):
+class TestPolymer(TestCase):
     @classmethod
     def setUpClass(cls):
         # head molecule
@@ -80,7 +80,7 @@ class TestPolymer(unittest.TestCase):
         assert topology_linear.topologies["Dihedrals"] != topology_random.topologies["Dihedrals"]
 
 
-class TestPackmolOutput(unittest.TestCase):
+class TestPackmolOutput(TestCase):
     @classmethod
     def setUpClass(cls):
         ethanol_coords = [

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pandas as pd
 
@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/magnetic_orderings"
 
 
-class TestHeisenbergMapper(unittest.TestCase):
+class TestHeisenbergMapper(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.df = pd.read_json(f"{TEST_DIR}/mag_orderings_test_cases.json")
@@ -30,9 +30,6 @@ class TestHeisenbergMapper(unittest.TestCase):
 
             hm = HeisenbergMapper(ordered_structures, energies, cutoff=5.0, tol=0.02)
             cls.hms.append(hm)
-
-    def setUp(self):
-        pass
 
     def test_graphs(self):
         for hm in self.hms:
