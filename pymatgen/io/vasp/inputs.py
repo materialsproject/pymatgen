@@ -1383,7 +1383,7 @@ class Kpoints(MSONable):
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
-        if style in ["g", "m"]:
+        if style in {"g", "m"}:
             kpts = [int(i) for i in lines[3].split()]
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):

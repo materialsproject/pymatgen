@@ -98,22 +98,23 @@ class ExcitingInput(MSONable):
                 element = symbol
             else:
                 raise ValueError("Unknown element!")
-            for atom in nodes.iter("atom"):
-                if atom is None:
-                    lockxyz.append([False, False, False])
 
+            for atom in nodes.iter("atom"):
+                _coord = atom.get("coord")
+                assert _coord is not None, "coordinate cannot be None."
+                x, y, z = _coord.split()
+                positions.append([float(x), float(y), float(z)])
+                elements.append(element)
+                # Obtain lockxyz for each atom
+                if atom.get("lockxyz") is None:
+                    lockxyz.append([False, False, False])
                 else:
-                    _coord = atom.get("coord")
-                    assert _coord is not None, "coordinate cannot be None."
-                    x, y, z = _coord.split()
-                    positions.append([float(x), float(y), float(z)])
-                    elements.append(element)
-                    # Obtain lockxyz for each atom
+                    lxyz = []
+
                     _lockxyz = atom.get("lockxyz")
                     assert _lockxyz is not None, "lockxyz cannot be None."
-                    lxyz = []
                     for line in _lockxyz.split():
-                        if line in {"True", "true"}:
+                        if line in ("True", "true"):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
