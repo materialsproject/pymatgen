@@ -211,11 +211,11 @@ class XcFunc(MSONable):
     def type(self) -> str | None:
         """The type of the functional."""
         if self.xc in self.defined_aliases and self.xc is not None:
-            return self.defined_aliases[self.xc].type
+            return self.defined_aliases[self.xc].type  # type: ignore[index]
 
         xc = self.x, self.c
         if xc in self.defined_aliases:
-            return self.defined_aliases[xc].type
+            return self.defined_aliases[xc].type  # type: ignore[index]
 
         # If self is not in defined_aliases, use LibxcFunc family
         if self.xc is not None:
@@ -232,11 +232,11 @@ class XcFunc(MSONable):
         the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:
-            return self.defined_aliases[self.xc].name
+            return self.defined_aliases[self.xc].name  # type: ignore[index]
 
         xc = (self.x, self.c)
         if xc in self.defined_aliases:
-            return self.defined_aliases[xc].name
+            return self.defined_aliases[xc].name  # type: ignore[index]
 
         if self.xc is not None:
             return self.xc.name
