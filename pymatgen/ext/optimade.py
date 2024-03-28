@@ -9,6 +9,7 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 from tqdm import tqdm
+from typing_extensions import Self
 
 from pymatgen.core import DummySpecies, Structure
 from pymatgen.util.due import Doi, due
@@ -546,7 +547,7 @@ class OptimadeRester:
         self.aliases = {alias: provider.base_url for alias, provider in structure_providers.items()}
 
     # TODO: revisit context manager logic here and in MPRester
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 

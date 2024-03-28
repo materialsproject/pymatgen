@@ -13,6 +13,7 @@ from monty.collections import AttrDict
 from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
+from typing_extensions import Self
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
@@ -93,7 +94,7 @@ class NetcdfReader:
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Activated when used in the with statement."""
         return self
 

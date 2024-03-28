@@ -19,6 +19,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from typing_extensions import Self
 
 __author__ = "Marco Esters"
@@ -139,7 +141,7 @@ class LMTOCtrl:
             file.write(self.get_str(**kwargs))
 
     @classmethod
-    def from_file(cls, filename="CTRL", **kwargs):
+    def from_file(cls, filename: str | Path = "CTRL", **kwargs) -> Self:
         """
         Creates a CTRL file object from an existing file.
 
@@ -151,11 +153,11 @@ class LMTOCtrl:
         """
         with zopen(filename, mode="rt") as file:
             contents = file.read()
-        return LMTOCtrl.from_str(contents, **kwargs)
+        return cls.from_str(contents, **kwargs)
 
     @classmethod
     @no_type_check
-    def from_str(cls, data: str, sigfigs: int = 8) -> LMTOCtrl:
+    def from_str(cls, data: str, sigfigs: int = 8) -> Self:
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres

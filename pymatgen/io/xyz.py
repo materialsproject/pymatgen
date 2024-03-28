@@ -14,6 +14,9 @@ from pymatgen.core.structure import SiteCollection
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 
 class XYZ:
@@ -71,7 +74,7 @@ class XYZ:
         return Molecule(sp, coords)
 
     @classmethod
-    def from_str(cls, contents) -> XYZ:
+    def from_str(cls, contents: str) -> Self:
         """
         Creates XYZ object from a string.
 
@@ -96,7 +99,7 @@ class XYZ:
         return cls(mols)
 
     @classmethod
-    def from_file(cls, filename) -> XYZ:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates XYZ object from a file.
 

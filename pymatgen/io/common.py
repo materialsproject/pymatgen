@@ -6,6 +6,7 @@ import itertools
 import json
 import warnings
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -15,6 +16,11 @@ from scipy.interpolate import RegularGridInterpolator
 from pymatgen.core import Element, Site, Structure
 from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 
 class VolumetricData(MSONable):
@@ -302,7 +308,7 @@ class VolumetricData(MSONable):
             file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
     @classmethod
-    def from_hdf5(cls, filename, **kwargs):
+    def from_hdf5(cls, filename: str, **kwargs) -> Self:
         """
         Reads VolumetricData from HDF5 file.
 
@@ -356,7 +362,7 @@ class VolumetricData(MSONable):
                     file.write("\n")
 
     @classmethod
-    def from_cube(cls, filename):
+    def from_cube(cls, filename: str | Path) -> Self:
         """
         Initialize the cube object and store the data as data.
 

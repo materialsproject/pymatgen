@@ -29,6 +29,7 @@ Todo:
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,6 +43,11 @@ from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 try:
     from BoltzTraP2 import bandlib as BL
@@ -132,7 +138,7 @@ class VasprunBSLoader:
             raise BoltztrapError("nelect must be given.")
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunBSLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
@@ -348,10 +354,10 @@ class VasprunLoader:
                 self.cbm = self.fermi
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
-        return VasprunLoader(vrun_obj)
+        return cls(vrun_obj)
 
     def get_lattvec(self):
         """Lattice vectors."""

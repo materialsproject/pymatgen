@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.structure import SiteCollection
 
@@ -63,12 +64,13 @@ class MSONAtoms(Atoms, MSONable):
             "atoms_info": jsanitize(atoms.info, strict=True),
         }
 
-    def from_dict(dct: dict[str, Any]) -> MSONAtoms:
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        mson_atoms = MSONAtoms(decode(dct["atoms_json"]))
+        mson_atoms = cls(decode(dct["atoms_json"]))
         atoms_info = MontyDecoder().process_decoded(dct["atoms_info"])
         mson_atoms.info = atoms_info
         return mson_atoms

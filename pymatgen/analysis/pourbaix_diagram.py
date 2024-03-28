@@ -130,20 +130,13 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def energy(self):
-        """
-        Returns (float): total energy of the Pourbaix
-            entry (at pH, V = 0 vs. SHE).
-        """
+        """Total energy of the Pourbaix entry (at pH, V = 0 vs. SHE)."""
         # Note: this implicitly depends on formation energies as input
         return self.uncorrected_energy + self.conc_term - (MU_H2O * self.nH2O)
 
     @property
     def energy_per_atom(self):
-        """
-        energy per atom of the Pourbaix entry.
-
-        Returns (float): energy per atom
-        """
+        """Energy per atom of the Pourbaix entry."""
         return self.energy / self.composition.num_atoms
 
     @property

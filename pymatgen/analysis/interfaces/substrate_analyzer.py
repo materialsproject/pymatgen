@@ -11,6 +11,7 @@ from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_mill
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -39,7 +40,7 @@ class SubstrateMatch(ZSLMatch):
         substrate_miller,
         elasticity_tensor=None,
         ground_state_energy=0,
-    ):
+    ) -> Self:
         """Generate a substrate match from a ZSL match plus metadata."""
         # Get the appropriate surface structure
         struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell

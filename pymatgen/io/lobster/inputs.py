@@ -307,7 +307,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin
         """
-        return Lobsterin({k: v for k, v in dct.items() if k not in ["@module", "@class"]})
+        return cls({k: v for k, v in dct.items() if k not in ["@module", "@class"]})
 
     def write_INCAR(
         self,
@@ -566,7 +566,7 @@ class Lobsterin(UserDict, MSONable):
         KpointObject.write_file(filename=KPOINTS_output)
 
     @classmethod
-    def from_file(cls, lobsterin: str):
+    def from_file(cls, lobsterin: str) -> Self:
         """
         Args:
             lobsterin (str): path to lobsterin.

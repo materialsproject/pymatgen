@@ -635,14 +635,12 @@ class ReconstructionGeneratorTests(PymatgenTest):
         assert len(slab) == len(recon_slab) - 2
         assert recon_slab.is_symmetric()
 
-        # If a slab references another slab,
-        # make sure it is properly generated
+        # If a slab references another slab, make sure it is properly generated
         recon = ReconstructionGenerator(self.Ni, 10, 10, "fcc_111_adatom_ft_1x1")
         slab = recon.build_slabs()[0]
         assert slab.is_symmetric
 
-        # Test a reconstruction where it works on a specific
-        # termination (Fd-3m (111))
+        # Test a reconstruction where it works on a specific termination (Fd-3m (111))
         recon = ReconstructionGenerator(self.Si, 10, 10, "diamond_111_1x2")
         slab = recon.get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]

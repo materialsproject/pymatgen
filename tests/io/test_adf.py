@@ -71,15 +71,11 @@ def readfile(file_object):
     """`
     Return the content of the file as a string.
 
-    Parameters
-    ----------
-    file_object : file or str
-        The file to read. This can be either a File object or a file path.
+    Args:
+        file_object (file or str): The file to read. This can be either a File object or a file path.
 
     Returns:
-    -------
-    content : str
-        The content of the file.
+        content (str): The content of the file.
     """
     if hasattr(file_object, "read"):
         return file_object.read()

@@ -10,8 +10,12 @@ from __future__ import annotations
 import json
 import os
 from enum import Enum, unique
+from typing import TYPE_CHECKING
 
 from monty.json import MontyEncoder
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 # The libxc version used to generate this file!
 libxc_version = "3.0.0"
@@ -25,7 +29,7 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), encoding="utf-8") as file:
     _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
 
 
@@ -486,7 +490,7 @@ class LibxcFunc(Enum):
         return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
 
     @classmethod
-    def from_dict(cls, dct: dict) -> LibxcFunc:
+    def from_dict(cls, dct: dict) -> Self:
         """Deserialize from MSONable dict representation."""
         return cls[dct["name"]]
 

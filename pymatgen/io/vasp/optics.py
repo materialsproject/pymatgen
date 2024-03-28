@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -70,7 +71,7 @@ class DielectricFunctionCalculator(MSONable):
     volume: float
 
     @classmethod
-    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder):
+    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder) -> Self:
         """Construct a DielectricFunction from Vasprun, Kpoint, and Waveder objects.
 
         Args:
@@ -94,7 +95,7 @@ class DielectricFunctionCalculator(MSONable):
         if vrun.parameters["ISYM"] != 0:
             raise NotImplementedError("ISYM != 0 is not implemented yet")
 
-        return DielectricFunctionCalculator(
+        return cls(
             cder_real=waveder.cder_real,
             cder_imag=waveder.cder_imag,
             eigs=eigs,
@@ -110,7 +111,7 @@ class DielectricFunctionCalculator(MSONable):
         )
 
     @classmethod
-    def from_directory(cls, directory: Path | str):
+    def from_directory(cls, directory: Path | str) -> Self:
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
 
         def _try_reading(dtypes):

@@ -1252,7 +1252,7 @@ class StructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> StructureEnvironments:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the StructureEnvironments object from a dict representation of the StructureEnvironments created
         using the as_dict method.
@@ -1481,7 +1481,7 @@ class LightStructureEnvironments(MSONable):
         self.valences_origin = valences_origin
 
     @classmethod
-    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None):
+    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None) -> Self:
         """
         Construct a LightStructureEnvironments object from a strategy and a StructureEnvironments object.
 
@@ -1497,10 +1497,10 @@ class LightStructureEnvironments(MSONable):
         """
         structure = structure_environments.structure
         strategy.set_structure_environments(structure_environments=structure_environments)
-        coordination_environments = [None] * len(structure)
-        neighbors_sets = [None] * len(structure)
-        _all_nbs_sites = []
-        all_nbs_sites = []
+        coordination_environments: list = [None] * len(structure)
+        neighbors_sets: list = [None] * len(structure)
+        _all_nbs_sites: list = []
+        all_nbs_sites: list = []
         if valences is None:
             valences = structure_environments.valences
             if valences_origin is None:
@@ -1515,7 +1515,7 @@ class LightStructureEnvironments(MSONable):
             coordination_environments[idx] = []
             neighbors_sets[idx] = []
             site_ces = []
-            site_nbs_sets = []
+            site_nbs_sets: list = []
             for ce_and_neighbors in site_ces_and_nbs_list:
                 _all_nbs_sites_indices = []
                 # Coordination environment
@@ -1561,6 +1561,7 @@ class LightStructureEnvironments(MSONable):
                 site_nbs_sets.append(nb_set)
             coordination_environments[idx] = site_ces
             neighbors_sets[idx] = site_nbs_sets
+
         return cls(
             strategy=strategy,
             coordination_environments=coordination_environments,
@@ -2020,7 +2021,7 @@ class LightStructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> LightStructureEnvironments:
+    def from_dict(cls, dct) -> Self:
         """
         Reconstructs the LightStructureEnvironments object from a dict representation of the
         LightStructureEnvironments created using the as_dict method.
@@ -2339,7 +2340,7 @@ class ChemicalEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> ChemicalEnvironments:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the ChemicalEnvironments object from a dict representation of the ChemicalEnvironments created
         using the as_dict method.

@@ -21,6 +21,8 @@ from pymatgen.util.string import transformation_to_string
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.core.lattice import Lattice
 
 __author__ = "Matthew Horton, Shyue Ping Ong"
@@ -284,7 +286,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         db.close()
 
     @classmethod
-    def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
+    def from_og(cls, label: Sequence[int] | str) -> Self:
         """Initialize from Opechowski and Guccione (OG) label or number.
 
         Args:

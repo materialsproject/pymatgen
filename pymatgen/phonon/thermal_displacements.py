@@ -491,9 +491,7 @@ class ThermalDisplacementMatrices(MSONable):
         return self.structure.copy(site_properties=site_properties)
 
     @classmethod
-    def from_structure_with_site_properties_Ucif(
-        cls, structure: Structure, temperature: float | None = None
-    ) -> ThermalDisplacementMatrices:
+    def from_structure_with_site_properties_Ucif(cls, structure: Structure, temperature: float | None = None) -> Self:
         """Will create this object with the help of a structure with site properties.
 
         Args:

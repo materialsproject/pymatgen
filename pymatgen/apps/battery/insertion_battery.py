@@ -20,6 +20,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from typing_extensions import Self
+
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 
@@ -40,7 +42,7 @@ class InsertionElectrode(AbstractElectrode):
         entries: Iterable[ComputedEntry | ComputedStructureEntry],
         working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
-    ):
+    ) -> Self:
         """Create a new InsertionElectrode.
 
         Args:
@@ -356,7 +358,7 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     @classmethod
-    def from_dict_legacy(cls, dct):
+    def from_dict_legacy(cls, dct) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -387,7 +389,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
     entry_discharge: ComputedEntry
 
     @classmethod
-    def from_entries(cls, entry1, entry2, working_ion_entry):
+    def from_entries(cls, entry1, entry2, working_ion_entry) -> Self:
         """
         Args:
             entry1: Entry corresponding to one of the entries in the voltage step.

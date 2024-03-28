@@ -414,8 +414,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def types_of_magnetic_species(self) -> tuple[Element | Species | DummySpecies, ...]:
-        """Equivalent to Structure.types_of_specie but only returns
-        magnetic species.
+        """Equivalent to Structure.types_of_specie but only returns magnetic species.
 
         Returns:
             tuple: types of Species

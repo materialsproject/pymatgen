@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import os
+from typing import TYPE_CHECKING
 
 import pytest
 from monty.serialization import MontyDecoder
@@ -10,6 +11,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
 from pymatgen.io.core import InputFile, InputSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class StructInputFile(InputFile):
@@ -23,7 +27,7 @@ class StructInputFile(InputFile):
         return str(cw)
 
     @classmethod
-    def from_str(cls, contents: str):
+    def from_str(cls, contents: str) -> Self:  # type: ignore[override]
         struct = Structure.from_str(contents, fmt="cif")
         return cls(structure=struct)
 

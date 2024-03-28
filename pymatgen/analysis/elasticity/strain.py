@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
 
@@ -38,7 +39,7 @@ class Deformation(SquareTensor):
 
     symbol = "d"
 
-    def __new__(cls, deformation_gradient):
+    def __new__(cls, deformation_gradient) -> Self:
         """
         Create a Deformation object. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy ndarrays.
@@ -81,7 +82,7 @@ class Deformation(SquareTensor):
         return def_struct
 
     @classmethod
-    def from_index_amount(cls, matrix_pos, amt):
+    def from_index_amount(cls, matrix_pos, amt) -> Self:
         """
         Factory method for constructing a Deformation object
         from a matrix position and amount.
@@ -158,7 +159,7 @@ class Strain(SquareTensor):
 
     symbol = "e"
 
-    def __new__(cls, strain_matrix):
+    def __new__(cls, strain_matrix) -> Self:
         """
         Create a Strain object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -185,7 +186,7 @@ class Strain(SquareTensor):
         self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
-    def from_deformation(cls, deformation: ArrayLike) -> Strain:
+    def from_deformation(cls, deformation: ArrayLike) -> Self:
         """
         Factory method that returns a Strain object from a deformation
         gradient.
@@ -197,7 +198,7 @@ class Strain(SquareTensor):
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)))
 
     @classmethod
-    def from_index_amount(cls, idx, amount):
+    def from_index_amount(cls, idx: tuple | int, amount: float) -> Self:
         """
         Like Deformation.from_index_amount, except generates
         a strain from the zero 3x3 tensor or Voigt vector with
@@ -208,7 +209,7 @@ class Strain(SquareTensor):
             idx (tuple or integer): index to be perturbed, can be Voigt or full-tensor notation
             amount (float): amount to perturb selected index
         """
-        if np.array(idx).ndim == 0:
+        if isinstance(idx, int):
             v = np.zeros(6)
             v[idx] = amount
             return cls.from_voigt(v)

@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -56,7 +62,7 @@ class Cssr:
             file.write(str(self) + "\n")
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a string representation to a Cssr object.
 
@@ -71,7 +77,7 @@ class Cssr:
         lengths = [float(tok) for tok in tokens]
         tokens = lines[1].split()
         angles = [float(tok) for tok in tokens[0:3]]
-        lattice = Lattice.from_parameters(*lengths, *angles)
+        lattice = Lattice.from_parameters(*lengths, *angles)  # type: ignore[arg-type]
         sp = []
         coords = []
         for line in lines[4:]:
@@ -82,7 +88,7 @@ class Cssr:
         return cls(Structure(lattice, sp, coords))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a CSSR file to a Cssr object.
 

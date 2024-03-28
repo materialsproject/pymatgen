@@ -14,6 +14,7 @@ import os
 import sys
 import warnings
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -22,6 +23,9 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -282,15 +286,15 @@ class FEFFDictSet(AbstractFeffInputSet):
         return "\n".join(output)
 
     @classmethod
-    def from_directory(cls, input_dir):
+    def from_directory(cls, input_dir: str) -> Self:
         """
         Read in a set of FEFF input files from a directory, which is
         useful when existing FEFF input needs some adjustment.
         """
-        sub_d = {}
-        for fname, ftype in [("HEADER", Header), ("PARAMETERS", Tags)]:
-            full_zpath = zpath(os.path.join(input_dir, fname))
-            sub_d[fname.lower()] = ftype.from_file(full_zpath)
+        sub_d: dict = {
+            "header": Header.from_file(zpath(os.path.join(input_dir, "HEADER"))),
+            "parameters": Tags.from_file(zpath(os.path.join(input_dir, "PARAMETERS"))),
+        }
 
         # Generation of FEFFDict set requires absorbing atom, need to search
         # the index of absorption atom in the structure according to the

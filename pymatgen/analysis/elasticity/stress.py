@@ -8,6 +8,7 @@ from __future__ import annotations
 import math
 
 import numpy as np
+from typing_extensions import Self
 
 from pymatgen.core.tensors import SquareTensor
 
@@ -29,7 +30,7 @@ class Stress(SquareTensor):
 
     symbol = "s"
 
-    def __new__(cls, stress_matrix):
+    def __new__(cls, stress_matrix) -> Self:
         """
         Create a Stress object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of

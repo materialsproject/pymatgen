@@ -34,6 +34,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "shyuepingong"
@@ -88,7 +90,7 @@ class BaderAnalysis:
             """Utility function to copy a compressed file to a target directory (ScratchDir)
             and decompress it, to avoid modifying files in place.
 
-            Parameters:
+            Args:
                 file (str | Path): The path to the compressed file to be decompressed.
                 target_dir (str, optional): The target directory where the decompressed file will be stored.
                     Defaults to "." (current directory).
@@ -441,7 +443,7 @@ class BaderAnalysis:
         return summary
 
     @classmethod
-    def from_path(cls, path: str, suffix: str = "") -> BaderAnalysis:
+    def from_path(cls, path: str, suffix: str = "") -> Self:
         """Convenient constructor that takes in the path name of VASP run
         to perform Bader analysis.
 

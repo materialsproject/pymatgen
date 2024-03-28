@@ -50,16 +50,16 @@ def write_libxc_docs_json(xc_funcs, json_path):
     xc_funcs = deepcopy(xc_funcs)
 
     # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
-    for d in xc_funcs.values():
-        d["Family"] = d["Family"].replace("XC_FAMILY_", "", 1)
-        d["Kind"] = d["Kind"].replace("XC_", "", 1)
+    for dct in xc_funcs.values():
+        dct["Family"] = dct["Family"].replace("XC_FAMILY_", "", 1)
+        dct["Kind"] = dct["Kind"].replace("XC_", "", 1)
 
     # Build lightweight version with a subset of keys.
-    for num, d in xc_funcs.items():
-        xc_funcs[num] = {key: d[key] for key in ("Family", "Kind", "References")}
+    for num, dct in xc_funcs.items():
+        xc_funcs[num] = {key: dct[key] for key in ("Family", "Kind", "References")}
         # Descriptions are optional
         for opt in ("Description 1", "Description 2"):
-            desc = d.get(opt)
+            desc = dct.get(opt)
             if desc is not None:
                 xc_funcs[num][opt] = desc
 

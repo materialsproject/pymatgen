@@ -177,7 +177,7 @@ class DftSet(Cp2kInput):
         super().__init__(name="CP2K_INPUT", subsections={})
 
         self.structure = structure
-        self.basis_and_potential = basis_and_potential if basis_and_potential else {}
+        self.basis_and_potential = basis_and_potential or {}
         self.project_name = project_name
         self.charge = int(structure.charge)
         if not multiplicity and isinstance(self.structure, Molecule):
@@ -200,7 +200,7 @@ class DftSet(Cp2kInput):
         self.rel_cutoff = rel_cutoff
         self.ngrids = ngrids
         self.progression_factor = progression_factor
-        self.override_default_params = override_default_params if override_default_params else {}
+        self.override_default_params = override_default_params or {}
         self.wfn_restart_file_name = wfn_restart_file_name
         self.kpoints = kpoints
         self.smearing = smearing
@@ -304,7 +304,7 @@ class DftSet(Cp2kInput):
             MULTIPLICITY=self.multiplicity,
             CHARGE=self.charge,
             uks=self.kwargs.get("spin_polarized", True),
-            basis_set_filenames=self.basis_set_file_names if self.basis_set_file_names else [],
+            basis_set_filenames=self.basis_set_file_names or [],
             potential_filename=self.potential_file_name,
             subsections={"QS": qs, "SCF": scf, "MGRID": mgrid},
             wfn_restart_file_name=wfn_restart_file_name,
@@ -405,7 +405,7 @@ class DftSet(Cp2kInput):
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as file:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el), encoding="utf-8") as file:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(file)
                     if not DATA.get("basis_sets"):
@@ -567,7 +567,7 @@ class DftSet(Cp2kInput):
         Get XC functionals. If simplified names are provided in kwargs, they
         will be expanded into their corresponding X and C names.
         """
-        names = xc_functionals if xc_functionals else SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
+        names = xc_functionals or SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
         if not names:
             raise ValueError(
                 "No XC functional provided. Specify kwarg xc_functional or configure PMG_DEFAULT_FUNCTIONAL "
@@ -836,7 +836,7 @@ class DftSet(Cp2kInput):
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
-            potential_type = potential_type if potential_type else "SHORTRANGE"
+            potential_type = potential_type or "SHORTRANGE"
             xc_functional.insert(
                 Section(
                     "XWPBE",
@@ -877,16 +877,15 @@ class DftSet(Cp2kInput):
                 ip_keywords["T_C_G_DATA"] = Keyword("T_C_G_DATA", "t_c_g.dat")
 
             ip_keywords["POTENTIAL_TYPE"] = Keyword("POTENTIAL_TYPE", potential_type)
+
         elif hybrid_functional == "RSH":
-            """
-            Activates range separated functional using mixing of the truncated
-            coulomb operator and the long range operator using scale_longrange,
-            scale_coulomb, cutoff_radius, and omega.
-            """
+            # Activates range separated functional using mixing of the truncated
+            # coulomb operator and the long range operator using scale_longrange,
+            # scale_coulomb, cutoff_radius, and omega.
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
             xc_functional = Xc_Functional(functionals=[], subsections={"PBE": pbe})
 
-            potential_type = potential_type if potential_type else "MIX_CL_TRUNC"
+            potential_type = potential_type or "MIX_CL_TRUNC"
             hf_fraction = 1
             ip_keywords.update(
                 {

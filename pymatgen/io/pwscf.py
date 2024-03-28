@@ -13,6 +13,8 @@ from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from typing_extensions import Self
 
 
@@ -222,12 +224,12 @@ class PWInput:
             file.write(str(self))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads an PWInput object from a file.
 
         Args:
-            filename (str): Filename for file
+            filename (str | Path): Filename for file
 
         Returns:
             PWInput object
@@ -236,7 +238,7 @@ class PWInput:
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads an PWInput object from a string.
 
@@ -263,7 +265,7 @@ class PWInput:
                 return None
             return mode
 
-        sections = {
+        sections: dict[str, dict] = {
             "control": {},
             "system": {},
             "electrons": {},
@@ -275,7 +277,7 @@ class PWInput:
         species = []
         coords = []
         structure = None
-        site_properties = {"pseudo": []}
+        site_properties: dict[str, list] = {"pseudo": []}
         mode = None
         for line in lines:
             mode = input_mode(line)

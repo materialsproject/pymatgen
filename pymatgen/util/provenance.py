@@ -311,7 +311,7 @@ class StructureNL:
         data=None,
         histories=None,
         created_at=None,
-    ):
+    ) -> list[Self]:
         """A convenience method for getting a list of StructureNL objects by
         specifying structures and metadata separately. Some of the metadata
         is applied to all of the structures for ease of use.
@@ -340,7 +340,7 @@ class StructureNL:
 
         snl_list = []
         for idx, struct in enumerate(structures):
-            snl = StructureNL(
+            snl = cls(
                 struct,
                 authors,
                 projects=projects,

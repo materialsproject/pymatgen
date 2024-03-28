@@ -22,6 +22,7 @@ from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     # don't import at runtime to avoid circular import
     from pymatgen.core.lattice import Lattice
@@ -476,7 +477,7 @@ class SpaceGroup(SymmetryGroup):
         return subgroup.is_subgroup(self)
 
     @classmethod
-    def from_int_number(cls, int_number: int, hexagonal: bool = True) -> SpaceGroup:
+    def from_int_number(cls, int_number: int, hexagonal: bool = True) -> Self:
         """Obtains a SpaceGroup from its international number.
 
         Args:
@@ -495,7 +496,7 @@ class SpaceGroup(SymmetryGroup):
         symbol = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
         if not hexagonal and int_number in (146, 148, 155, 160, 161, 166, 167):
             symbol += ":R"
-        return SpaceGroup(symbol)
+        return cls(symbol)
 
     def __repr__(self) -> str:
         symbol = self.symbol

@@ -127,7 +127,7 @@ class Control(MSONable, dict):
         f90nml,
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
-    def from_file(cls, filepath: str):
+    def from_file(cls, filepath: str) -> Self:
         """
         Read a CONTROL namelist file and output a 'Control' object.
 
@@ -167,7 +167,7 @@ class Control(MSONable, dict):
         f90nml,
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
-    def to_file(self, filename: str = "CONTROL"):
+    def to_file(self, filename: str = "CONTROL") -> None:
         """
         Writes ShengBTE CONTROL file from 'Control' object.
 
@@ -194,11 +194,11 @@ class Control(MSONable, dict):
         flags_nml = f90nml.Namelist({"flags": flags_dict})
         control_str += str(flags_nml) + "\n"
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             file.write(control_str)
 
     @classmethod
-    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs):
+    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:
         """
         Get a ShengBTE control object from a structure.
 
