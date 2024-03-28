@@ -13,7 +13,6 @@ import logging
 import os
 from dataclasses import dataclass, field
 from string import Template
-from typing import TYPE_CHECKING
 
 from monty.io import zopen
 
@@ -22,9 +21,6 @@ from pymatgen.io.core import InputGenerator
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 from pymatgen.io.lammps.sets import LammpsInputSet
-
-if TYPE_CHECKING:
-    from typing_extensions import Self
 
 __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -68,9 +64,9 @@ class BaseLammpsGenerator(InputGenerator):
     calc_type: str = field(default="lammps")
     keep_stages: bool = field(default=True)
 
-    def get_input_set(self, structure: Structure | LammpsData | CombinedData | None) -> Self:
+    def get_input_set(self, structure: Structure | LammpsData | CombinedData) -> LammpsInputSet:
         """Generate a LammpsInputSet from the structure/data, tailored to the template file."""
-        data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
+        data: LammpsData = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
         # Load the template
         with zopen(self.template, mode="r") as file:
