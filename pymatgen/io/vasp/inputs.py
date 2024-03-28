@@ -2674,14 +2674,14 @@ class VaspInput(dict, MSONable):
         ]:
             try:
                 full_zpath = zpath(os.path.join(input_dir, fname))
-                sub_dct[fname.lower()] = ftype.from_file(full_zpath)
+                sub_dct[fname.lower()] = ftype.from_file(full_zpath)  # type: ignore[attr-defined]
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_dct[fname.lower()] = None
 
         sub_dct["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
+                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))  # type: ignore[attr-defined]
         return cls(**sub_dct)
 
     def copy(self, deep: bool = True):
