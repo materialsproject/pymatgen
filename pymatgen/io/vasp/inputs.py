@@ -6,6 +6,7 @@ All major VASP input files.
 from __future__ import annotations
 
 import codecs
+import contextlib
 import hashlib
 import itertools
 import json
@@ -351,11 +352,10 @@ class Poscar(MSONable):
             #   ...
             n_lines_symbols = 1
             for n_lines_symbols in range(1, 11):
-                try:
+                with contextlib.suppress(ValueError):
                     int(lines[5 + n_lines_symbols].split()[0])
                     break
-                except ValueError:
-                    pass
+
             for i_line_symbols in range(6, 5 + n_lines_symbols):
                 symbols.extend(lines[i_line_symbols].split())
             n_atoms = []
@@ -383,13 +383,11 @@ class Poscar(MSONable):
         # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
-            try:
+            with contextlib.suppress(IndexError):
                 atomic_symbols = []
                 for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
-            except IndexError:
-                pass
 
         if not vasp5_symbols:
             ind = 6 if has_selective_dynamics else 3
@@ -870,7 +868,7 @@ class Incar(dict, MSONable):
                 return float(num_str)
             return int(num_str)
 
-        try:
+        with contextlib.suppress(ValueError):
             if key in list_keys:
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
@@ -883,11 +881,10 @@ class Incar(dict, MSONable):
                         output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
-                if m:
+                if m := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
                     return m.group(1).lower() == "t"
 
-                raise ValueError(key + " should be a boolean type!")
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))  # type: ignore
@@ -898,19 +895,12 @@ class Incar(dict, MSONable):
             if key in lower_str_keys:
                 return val.strip().lower()
 
-        except ValueError:
-            pass
-
         # Not in standard keys. We will try a hierarchy of conversions.
-        try:
+        with contextlib.suppress(ValueError):
             return int(val)
-        except ValueError:
-            pass
 
-        try:
+        with contextlib.suppress(ValueError):
             return float(val)
-        except ValueError:
-            pass
 
         if "true" in val.lower():
             return True
@@ -1405,51 +1395,50 @@ class Kpoints(MSONable):
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-            kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
+            _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             kpts_shift = [float(i) for i in lines[6].split()]
-            return Kpoints(
+            return cls(
                 comment=comment,
                 num_kpts=num_kpts,
-                style=style,
-                kpts=kpts,
+                style=_style,
+                kpts=[[float(j) for j in lines[i].split()] for i in range(3, 6)],
                 kpts_shift=kpts_shift,
             )
 
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
-            style = cls.supported_modes.Line_mode
-            kpts = []
+            _style = cls.supported_modes.Line_mode
+            _kpts: list[list[float]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
                 m = patt.match(line)
                 if m:
-                    kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
+                    _kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
-            return Kpoints(
+            return cls(
                 comment=comment,
                 num_kpts=num_kpts,
-                style=style,
-                kpts=kpts,
+                style=_style,
+                kpts=_kpts,
                 coord_type=coord_type,
                 labels=labels,
             )
 
         # Assume explicit KPOINTS if all else fails.
-        style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-        kpts = []
+        _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
+        _kpts = []
         kpts_weights = []
         labels = []
         tet_number = 0
-        tet_weight = 0
+        tet_weight: float = 0
         tet_connections = None
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append([float(j) for j in tokens[0:3]])
+            _kpts.append([float(j) for j in tokens[:3]])
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1471,8 +1460,8 @@ class Kpoints(MSONable):
         return cls(
             comment=comment,
             num_kpts=num_kpts,
-            style=cls.supported_modes[str(style)],
-            kpts=kpts,
+            style=cls.supported_modes[str(_style)],
+            kpts=_kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
             tet_weight=tet_weight,
@@ -1480,7 +1469,7 @@ class Kpoints(MSONable):
             labels=labels,
         )
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Write Kpoints to a file.
 
@@ -1841,7 +1830,7 @@ class PotcarSingle:
             PotcarSingle
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
-        symbol = match.group(0) if match else ""
+        symbol = match[0] if match else ""
 
         try:
             with zopen(filename, mode="rt") as file:
