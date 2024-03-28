@@ -1384,18 +1384,25 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            kpts = [int(i) for i in lines[3].split()]
-            kpts_shift = (0, 0, 0)
+            kpts = tuple(int(i) for i in lines[3].split())
+            assert len(kpts) == 3
+
+            kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 with contextlib.suppress(ValueError):
-                    kpts_shift = [float(i) for i in lines[4].split()]
+                    _kpts_shift = tuple(float(i) for i in lines[4].split())
+                if len(_kpts_shift) == 3:
+                    kpts_shift = _kpts_shift
 
             return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-            kpts_shift = [float(i) for i in lines[6].split()]
+            _kpts_shift = tuple(float(i) for i in lines[6].split())
+            if len(_kpts_shift) == 3:
+                kpts_shift = _kpts_shift
+
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
