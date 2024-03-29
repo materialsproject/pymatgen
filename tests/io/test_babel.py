@@ -53,7 +53,7 @@ class TestBabelMolAdaptor(TestCase):
         assert len(adaptors) == 302
 
     def test_from_molecule_graph(self):
-        graph = MoleculeGraph.with_empty_graph(self.mol)
+        graph = MoleculeGraph.from_empty_graph(self.mol)
         adaptor = BabelMolAdaptor.from_molecule_graph(graph)
         ob_mol = adaptor.openbabel_mol
         assert ob_mol.NumAtoms() == 5

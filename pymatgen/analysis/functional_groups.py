@@ -86,7 +86,7 @@ class FunctionalGroupExtractor:
             raise ValueError("Input to FunctionalGroupExtractor must be str, Molecule, or MoleculeGraph.")
 
         if self.molgraph is None:
-            self.molgraph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
+            self.molgraph = MoleculeGraph.from_local_env_strategy(self.molecule, OpenBabelNN())
 
         # Assign a specie and coordinates to each node in the graph,
         # corresponding to the Site in the Molecule object
