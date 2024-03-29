@@ -1135,7 +1135,9 @@ class IStructure(SiteCollection, MSONable):
         if len(species) != len(coords):
             raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
-        frac_coords = latt.get_fractional_coords(coords) if coords_are_cartesian else np.array(coords, dtype=np.float64)
+        frac_coords = (
+            lattice.get_fractional_coords(coords) if coords_are_cartesian else np.array(coords, dtype=np.float64)
+        )
 
         props = {} if site_properties is None else site_properties
 
@@ -1236,7 +1238,7 @@ class IStructure(SiteCollection, MSONable):
             if len(var) != len(species):
                 raise ValueError(f"Length mismatch: len({name})={len(var)} != {len(species)=}")
 
-        frac_coords = latt.get_fractional_coords(coords) if coords_are_cartesian else coords
+        frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []

@@ -812,6 +812,7 @@ class SlabGenerator:
             initial_structure.add_site_property(
                 "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
             )
+        lattice = initial_structure.lattice
         miller_index = self._reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
         recip_lattice = lattice.reciprocal_lattice_crystallographic
