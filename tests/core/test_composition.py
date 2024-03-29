@@ -678,12 +678,22 @@ class TestComposition(PymatgenTest):
         assert comp1 == comp2
 
     def test_contains_element_type(self):
-        formula = "EuTiO3"
-        cmp = Composition(formula)
-        assert cmp.contains_element_type("lanthanoid")
-        assert not cmp.contains_element_type("noble_gas")
-        assert cmp.contains_element_type("f-block")
-        assert not cmp.contains_element_type("s-block")
+        EuTiO3 = Composition("EuTiO3")
+        assert EuTiO3.contains_element_type("lanthanoid") is True
+        assert EuTiO3.contains_element_type("noble_gas") is False
+        assert EuTiO3.contains_element_type("f-block") is True
+        assert EuTiO3.contains_element_type("s-block") is False
+        assert EuTiO3.contains_element_type("alkali") is False
+        NaCl = Composition("NaCl")
+        assert NaCl.contains_element_type("halogen") is True
+        assert NaCl.contains_element_type("alkali") is True
+        assert NaCl.contains_element_type("s-block") is True
+        assert NaCl.contains_element_type("p-block") is True
+        assert NaCl.contains_element_type("d-block") is False
+        assert NaCl.contains_element_type("f-block") is False
+
+        with pytest.raises(ValueError, match="Invalid category='invalid', pick from"):
+            EuTiO3.contains_element_type("invalid")
 
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
