@@ -542,7 +542,7 @@ class HeisenbergMapper:
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
 
-        igraph = StructureGraph.with_empty_graph(
+        igraph = StructureGraph.from_empty_graph(
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
         )
 

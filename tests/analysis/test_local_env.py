@@ -1391,7 +1391,7 @@ class TestMetalEdgeExtender(PymatgenTest):
         K_sites = [s.coords for s in uncharged_K_cluster]
         K_species = [s.species for s in uncharged_K_cluster]
         charged_K_cluster = Molecule(K_species, K_sites, charge=1)
-        self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
+        self.water_cluster_K = MoleculeGraph.from_empty_graph(charged_K_cluster)
         assert len(self.water_cluster_K.graph.edges) == 0
 
         # Mg + 6 H2O at 1.94 Ang from Mg
@@ -1399,7 +1399,7 @@ class TestMetalEdgeExtender(PymatgenTest):
         Mg_sites = [s.coords for s in uncharged_Mg_cluster]
         Mg_species = [s.species for s in uncharged_Mg_cluster]
         charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
-        self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
+        self.water_cluster_Mg = MoleculeGraph.from_empty_graph(charged_Mg_cluster)
 
     def test_metal_edge_extender(self):
         assert len(self.LiEC_graph.graph.edges) == 11

@@ -53,7 +53,7 @@ class TestStructureGraph(PymatgenTest):
 
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
-        self.square_sg = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
+        self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
@@ -63,7 +63,7 @@ class TestStructureGraph(PymatgenTest):
 
         # body-centered square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.bc_square_sg = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
+        self.bc_square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
@@ -76,7 +76,7 @@ class TestStructureGraph(PymatgenTest):
         # body-centered square lattice for testing
         # directions reversed, should be equivalent to bc_square
         structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.bc_square_sg_r = StructureGraph.with_empty_graph(structure, edge_weight_name="", edge_weight_units="")
+        self.bc_square_sg_r = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
@@ -231,7 +231,7 @@ class TestStructureGraph(PymatgenTest):
         assert edge["weight"] == 0.5
 
     def test_auto_image_detection(self):
-        struct_graph = StructureGraph.with_empty_graph(self.structure)
+        struct_graph = StructureGraph.from_empty_graph(self.structure)
         struct_graph.add_edge(0, 0)
 
         assert len(list(struct_graph.graph.edges(data=True))) == 3
@@ -491,7 +491,7 @@ class TestMoleculeGraph(TestCase):
     def setUp(self):
         cyclohexene_xyz = f"{TEST_FILES_DIR}/graphs/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
-        self.cyclohexene = MoleculeGraph.with_empty_graph(
+        self.cyclohexene = MoleculeGraph.from_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )
         self.cyclohexene.add_edge(0, 1, weight=1.0)
@@ -512,7 +512,7 @@ class TestMoleculeGraph(TestCase):
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
         butadiene = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/butadiene.xyz")
-        self.butadiene = MoleculeGraph.with_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
+        self.butadiene = MoleculeGraph.from_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
         self.butadiene.add_edge(2, 3, weight=2.0)
@@ -524,7 +524,7 @@ class TestMoleculeGraph(TestCase):
         self.butadiene.add_edge(3, 9, weight=1.0)
 
         ethylene = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/ethylene.xyz")
-        self.ethylene = MoleculeGraph.with_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
+        self.ethylene = MoleculeGraph.from_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
         self.ethylene.add_edge(0, 3, weight=1.0)
@@ -632,7 +632,7 @@ class TestMoleculeGraph(TestCase):
     def test_coordination(self):
         molecule = Molecule(["C", "C"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
-        mg = MoleculeGraph.with_empty_graph(molecule)
+        mg = MoleculeGraph.from_empty_graph(molecule)
         assert mg.get_coordination_of_site(0) == 0
 
         assert self.cyclohexene.get_coordination_of_site(0) == 4
@@ -697,7 +697,7 @@ class TestMoleculeGraph(TestCase):
 
         just_he = Molecule(["He"], [[5, 5, 5]])
 
-        dis_mg = MoleculeGraph.with_empty_graph(disconnected)
+        dis_mg = MoleculeGraph.from_empty_graph(disconnected)
         dis_mg.add_edge(0, 1)
         dis_mg.add_edge(0, 2)
         dis_mg.add_edge(0, 3)
@@ -711,7 +711,7 @@ class TestMoleculeGraph(TestCase):
         assert fragments[1].molecule == just_he
         assert index_map == {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
 
-        con_mg = MoleculeGraph.with_empty_graph(no_he)
+        con_mg = MoleculeGraph.from_empty_graph(no_he)
         con_mg.add_edge(0, 1)
         con_mg.add_edge(0, 2)
         con_mg.add_edge(0, 3)
@@ -743,7 +743,7 @@ class TestMoleculeGraph(TestCase):
 
         # Test naive charge redistribution
         hydroxide = Molecule(["O", "H"], [[0, 0, 0], [0.5, 0.5, 0.5]], charge=-1)
-        oh_mg = MoleculeGraph.with_empty_graph(hydroxide)
+        oh_mg = MoleculeGraph.from_empty_graph(hydroxide)
 
         oh_mg.add_edge(0, 1)
 
@@ -766,7 +766,7 @@ class TestMoleculeGraph(TestCase):
             ],
         )
 
-        diff_spec_mg = MoleculeGraph.with_empty_graph(diff_species)
+        diff_spec_mg = MoleculeGraph.from_empty_graph(diff_species)
         diff_spec_mg.add_edge(0, 1)
         diff_spec_mg.add_edge(0, 2)
         diff_spec_mg.add_edge(0, 3)

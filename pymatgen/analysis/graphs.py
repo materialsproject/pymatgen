@@ -116,7 +116,7 @@ class StructureGraph(MSONable):
 
     def __init__(self, structure: Structure, graph_data: dict | None = None) -> None:
         """
-        If constructing this class manually, use the with_empty_graph method or
+        If constructing this class manually, use the from_empty_graph method or
         with_local_env_strategy method (using an algorithm provided by the local_env
         module, such as O'Keeffe).
         This class that contains connection information: relationships between sites
@@ -222,7 +222,7 @@ class StructureGraph(MSONable):
         Returns:
             sg, a StructureGraph
         """
-        struct_graph = cls.with_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        struct_graph = cls.from_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         for edge, props in edges.items():
             try:
@@ -284,7 +284,7 @@ class StructureGraph(MSONable):
         if not strategy.structures_allowed:
             raise ValueError("Chosen strategy is not designed for use with structures! Please choose another strategy.")
 
-        struct_graph = cls.with_empty_graph(structure, name="bonds")
+        struct_graph = cls.from_empty_graph(structure, name="bonds")
 
         for idx, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
@@ -1561,7 +1561,7 @@ class MoleculeGraph(MSONable):
 
     def __init__(self, molecule, graph_data=None):
         """
-        If constructing this class manually, use the `with_empty_graph`
+        If constructing this class manually, use the `from_empty_graph`
         method or `with_local_env_strategy` method (using an algorithm
         provided by the `local_env` module, such as O'Keeffe).
 
@@ -1669,7 +1669,7 @@ class MoleculeGraph(MSONable):
         Returns:
             A MoleculeGraph
         """
-        mg = cls.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        mg = cls.from_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         for edge, props in edges.items():
             try:
@@ -1722,7 +1722,7 @@ class MoleculeGraph(MSONable):
             raise ValueError(f"{strategy=} is not designed for use with molecules! Choose another strategy.")
         extend_structure = strategy.extend_structure_molecules
 
-        mg = cls.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        mg = cls.from_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         # NearNeighbor classes only (generally) work with structures
         # molecules have to be boxed first
