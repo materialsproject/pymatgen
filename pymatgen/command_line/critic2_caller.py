@@ -529,7 +529,7 @@ class Critic2Analysis(MSONable):
         edge_weight = "bond_length"
         edge_weight_units = "Å"
 
-        struct_graph = StructureGraph.with_empty_graph(
+        struct_graph = StructureGraph.from_empty_graph(
             structure,
             name="bonds",
             edge_weight_name=edge_weight,

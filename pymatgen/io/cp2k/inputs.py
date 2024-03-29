@@ -1586,7 +1586,7 @@ class LDOS(Section):
         )
 
 
-class V_Hartree_Cube(Section):
+class VHartreeCube(Section):
     """Controls printing of the hartree potential as a cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
@@ -1606,7 +1606,12 @@ class V_Hartree_Cube(Section):
         )
 
 
-class MO_Cubes(Section):
+@deprecated(VHartreeCube, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+class V_Hartree_Cube(VHartreeCube):
+    pass
+
+
+class MOCubes(Section):
     """Controls printing of the molecular orbital eigenvalues."""
 
     def __init__(
@@ -1645,7 +1650,12 @@ class MO_Cubes(Section):
         )
 
 
-class E_Density_Cube(Section):
+@deprecated(MOCubes, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+class MO_Cubes(MOCubes):
+    pass
+
+
+class EDensityCube(Section):
     """Controls printing of the electron density cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
@@ -1663,6 +1673,11 @@ class E_Density_Cube(Section):
             keywords=keywords,
             **kwargs,
         )
+
+
+@deprecated(EDensityCube, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+class E_Density_Cube(EDensityCube):
+    pass
 
 
 class Smear(Section):
@@ -1831,7 +1846,7 @@ class BrokenSymmetry(Section):
         )
 
 
-class Xc_Functional(Section):
+class XCFunctional(Section):
     """Defines the XC functional(s) to use."""
 
     def __init__(
@@ -1857,6 +1872,11 @@ class Xc_Functional(Section):
             repeats=False,
             **kwargs,
         )
+
+
+@deprecated(XCFunctional, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+class Xc_Functional(XCFunctional):
+    pass
 
 
 class PBE(Section):
@@ -2083,7 +2103,7 @@ class Kpoint_Set(KpointSet):
     pass
 
 
-class Band_Structure(Section):
+class BandStructure(Section):
     """Specifies high symmetry paths for outputting the band structure in CP2K."""
 
     def __init__(
@@ -2160,6 +2180,11 @@ class Band_Structure(Section):
                 "Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian)."
             )
         return cls(kpoint_sets=kpoint_sets, filename="BAND.bs")
+
+
+@deprecated(BandStructure, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+class Band_Structure(BandStructure):
+    pass
 
 
 @dataclass

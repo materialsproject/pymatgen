@@ -29,7 +29,7 @@ class TestFunctionalGroupExtractor(TestCase):
         self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
-        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
+        self.mg = MoleculeGraph.from_local_env_strategy(self.mol, self.strategy)
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def test_init(self):
