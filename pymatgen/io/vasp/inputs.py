@@ -2673,9 +2673,10 @@ class VaspInput(dict, MSONable):
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_dct[fname.lower()] = None
 
-        sub_dct["optional_files"] = {}
-        for fname, cls in (optional_files or {}).items():
-            sub_dct["optional_files"][fname] = cls.from_file(os.path.join(input_dir, fname))  # type: ignore[attr-defined]
+        sub_dct["optional_files"] = {
+            fname: ftype.from_file(os.path.join(input_dir, fname)) for fname, ftype in (optional_files or {}).items()
+        }
+
         return cls(**sub_dct)
 
     def copy(self, deep: bool = True):
