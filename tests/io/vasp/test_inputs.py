@@ -5,8 +5,8 @@ import json
 import os
 import pickle
 import re
-import unittest
 from shutil import copyfile
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -997,7 +997,7 @@ direct
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
-class TestPotcarSingle(unittest.TestCase):
+class TestPotcarSingle(TestCase):
     def setUp(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -30,7 +31,7 @@ __date__ = "Aug 2, 2013"
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present.")
-class TestZeoCssr(unittest.TestCase):
+class TestZeoCssr(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.zeo_cssr = ZeoCssr(Structure.from_file(filepath))
@@ -73,7 +74,7 @@ class TestZeoCssr(unittest.TestCase):
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present.")
-class TestZeoCssrOxi(unittest.TestCase):
+class TestZeoCssrOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         structure = BVAnalyzer().get_oxi_state_decorated_structure(Structure.from_file(filepath))
@@ -117,7 +118,7 @@ class TestZeoCssrOxi(unittest.TestCase):
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present.")
-class TestZeoVoronoiXYZ(unittest.TestCase):
+class TestZeoVoronoiXYZ(TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -148,7 +149,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present.")
-class TestGetVoronoiNodes(unittest.TestCase):
+class TestGetVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
@@ -172,7 +173,7 @@ class TestGetVoronoiNodes(unittest.TestCase):
 
 
 @unittest.skip("file free_sph.cif not present")
-class TestGetFreeSphereParams(unittest.TestCase):
+class TestGetFreeSphereParams(TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/free_sph.cif"
         self.structure = Structure.from_file(filepath)
@@ -187,7 +188,7 @@ class TestGetFreeSphereParams(unittest.TestCase):
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present.")
-class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
+class TestGetHighAccuracyVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
@@ -207,7 +208,7 @@ class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present.")
-class TestGetVoronoiNodesMultiOxi(unittest.TestCase):
+class TestGetVoronoiNodesMultiOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)

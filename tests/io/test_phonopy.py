@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
-import unittest
 from pathlib import Path
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -156,7 +156,7 @@ class TestGetDisplacedStructures(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestPhonopyFromForceConstants(unittest.TestCase):
+class TestPhonopyFromForceConstants(TestCase):
     def setUp(self) -> None:
         test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"
@@ -206,7 +206,7 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         assert bs.bands[2][10] == approx(2.869229797603161)
 
 
-class TestGruneisen(unittest.TestCase):
+class TestGruneisen:
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",

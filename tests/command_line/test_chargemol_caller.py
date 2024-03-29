@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
 from pymatgen.core import Element
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestChargemolAnalysis(unittest.TestCase):
+class TestChargemolAnalysis:
     def test_parse_chargemol(self):
         test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
         ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)

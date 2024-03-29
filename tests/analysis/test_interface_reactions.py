@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -17,7 +17,7 @@ from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestInterfaceReaction(unittest.TestCase):
+class TestInterfaceReaction(TestCase):
     def setUp(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),

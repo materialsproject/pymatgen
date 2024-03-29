@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.eos import EOS
-from pymatgen.analysis.quasiharmonic import QuasiharmonicDebyeApprox
+from pymatgen.analysis.quasiharmonic import QuasiHarmonicDebyeApprox
 from pymatgen.core.structure import Structure
 
 __author__ = "Kiran Mathew"
 
 
-class TestQuasiharmociDebyeApprox(unittest.TestCase):
+class TestQuasiHarmonicDebyeApprox(TestCase):
     def setUp(self):
         struct = Structure.from_dict(
             {
@@ -95,7 +95,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
         ]
         self.eos = "vinet"
         self.T = 300
-        self.qhda = QuasiharmonicDebyeApprox(
+        self.qhda = QuasiHarmonicDebyeApprox(
             self.energies,
             self.volumes,
             struct,
@@ -137,7 +137,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
         assert_allclose(A, 0.494687, atol=1e-3)
 
 
-class TestAnharmonicQuasiharmociDebyeApprox(unittest.TestCase):
+class TestAnharmonicQuasiHarmonicDebyeApprox(TestCase):
     def setUp(self):
         struct = Structure.from_str(
             """FCC Al
@@ -172,7 +172,7 @@ direct
         ]
         self.eos = "vinet"
         self.T = 500
-        self.qhda = QuasiharmonicDebyeApprox(
+        self.qhda = QuasiHarmonicDebyeApprox(
             self.energies,
             self.volumes,
             struct,
