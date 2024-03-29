@@ -10,11 +10,11 @@ REM entries.
 
 from __future__ import annotations
 
+import datetime
 import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
-from dateutil import parser
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -418,8 +418,11 @@ class AirssProvider(ResProvider):
         match = cls._date_fmt.search(string)
         if match is None:
             raise ResParseError(f"Could not parse the date from {string=}.")
-        date_string = match.group(0)
-        return parser.parse(date_string)
+
+        day, month, year, *_ = match.groups()
+        month_num = datetime.datetime.strptime(month, "%b").month
+
+        return datetime.date(int(year), month_num, int(day))
 
     def _raise_or_none(self, err: ResParseError) -> None:
         if self.parse_rems != "strict":
