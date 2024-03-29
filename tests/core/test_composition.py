@@ -673,19 +673,27 @@ class TestComposition(PymatgenTest):
 
     def test_metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
-        formula = "Y3N@C80"
-        sym_dict = {"Y": 3, "N": 1, "C": 80}
-        cmp = Composition(formula)
-        cmp2 = Composition.from_dict(sym_dict)
-        assert cmp == cmp2
+        comp1 = Composition("Y3N@C80")
+        comp2 = Composition({"Y": 3, "N": 1, "C": 80})
+        assert comp1 == comp2
 
     def test_contains_element_type(self):
-        formula = "EuTiO3"
-        cmp = Composition(formula)
-        assert cmp.contains_element_type("lanthanoid")
-        assert not cmp.contains_element_type("noble_gas")
-        assert cmp.contains_element_type("f-block")
-        assert not cmp.contains_element_type("s-block")
+        EuTiO3 = Composition("EuTiO3")
+        assert EuTiO3.contains_element_type("lanthanoid") is True
+        assert EuTiO3.contains_element_type("noble_gas") is False
+        assert EuTiO3.contains_element_type("f-block") is True
+        assert EuTiO3.contains_element_type("s-block") is False
+        assert EuTiO3.contains_element_type("alkali") is False
+        NaCl = Composition("NaCl")
+        assert NaCl.contains_element_type("halogen") is True
+        assert NaCl.contains_element_type("alkali") is True
+        assert NaCl.contains_element_type("s-block") is True
+        assert NaCl.contains_element_type("p-block") is True
+        assert NaCl.contains_element_type("d-block") is False
+        assert NaCl.contains_element_type("f-block") is False
+
+        with pytest.raises(ValueError, match="Invalid category='invalid', pick from"):
+            EuTiO3.contains_element_type("invalid")
 
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
@@ -693,34 +701,34 @@ class TestComposition(PymatgenTest):
 
     def test_is_valid(self):
         formula = "NaCl"
-        cmp = Composition(formula)
-        assert cmp.valid
+        comp = Composition(formula)
+        assert comp.valid
 
         formula = "NaClX"
-        cmp = Composition(formula)
-        assert not cmp.valid
+        comp = Composition(formula)
+        assert not comp.valid
 
         with pytest.raises(ValueError, match="Composition is not valid, contains: Na, Cl, X0+"):
             Composition("NaClX", strict=True)
 
     def test_remove_charges(self):
-        cmp1 = Composition({"Al3+": 2.0, "O2-": 3.0})
+        comp1 = Composition({"Al3+": 2.0, "O2-": 3.0})
 
-        cmp2 = Composition({"Al": 2.0, "O": 3.0})
-        assert str(cmp1) != str(cmp2)
+        comp2 = Composition({"Al": 2.0, "O": 3.0})
+        assert str(comp1) != str(comp2)
 
-        cmp1 = cmp1.remove_charges()
-        assert str(cmp1) == str(cmp2)
+        comp1 = comp1.remove_charges()
+        assert str(comp1) == str(comp2)
 
-        cmp1 = cmp1.remove_charges()
-        assert str(cmp1) == str(cmp2)
+        comp1 = comp1.remove_charges()
+        assert str(comp1) == str(comp2)
 
-        cmp1 = Composition({"Fe3+": 2.0, "Fe2+": 3.0, "O2-": 6.0})
-        cmp2 = Composition({"Fe": 5.0, "O": 6.0})
-        assert str(cmp1) != str(cmp2)
+        comp1 = Composition({"Fe3+": 2.0, "Fe2+": 3.0, "O2-": 6.0})
+        comp2 = Composition({"Fe": 5.0, "O": 6.0})
+        assert str(comp1) != str(comp2)
 
-        cmp1 = cmp1.remove_charges()
-        assert str(cmp1) == str(cmp2)
+        comp1 = comp1.remove_charges()
+        assert str(comp1) == str(comp2)
 
     def test_replace(self):
         Fe2O3 = Composition("Fe2O3")

@@ -1498,3 +1498,26 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         return DummySpecies.from_str(obj)  # type: ignore
     except Exception:
         raise ValueError(f"Can't parse Element or Species from {obj!r}")
+
+
+@unique
+class ElementType(Enum):
+    """Enum for element types."""
+
+    noble_gas = "noble_gas"  # He, Ne, Ar, Kr, Xe, Rn
+    transition_metal = "transition_metal"  # Sc-Zn, Y-Cd, La-Hg, Ac-Cn
+    post_transition_metal = "post_transition_metal"  # Al, Ga, In, Tl, Sn, Pb, Bi, Po
+    rare_earth_metal = "rare_earth_metal"  # Ce-Lu, Th-Lr
+    metal = "metal"
+    metalloid = "metalloid"  # B, Si, Ge, As, Sb, Te, Po
+    alkali = "alkali"  # Li, Na, K, Rb, Cs, Fr
+    alkaline = "alkaline"  # Be, Mg, Ca, Sr, Ba, Ra
+    halogen = "halogen"  # F, Cl, Br, I, At
+    chalcogen = "chalcogen"  # O, S, Se, Te, Po
+    lanthanoid = "lanthanoid"  # La-Lu
+    actinoid = "actinoid"  # Ac-Lr
+    quadrupolar = "quadrupolar"
+    s_block = "s-block"
+    p_block = "p-block"
+    d_block = "d-block"
+    f_block = "f-block"

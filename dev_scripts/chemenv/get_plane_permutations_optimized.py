@@ -279,7 +279,7 @@ if __name__ == "__main__":
                 f"Get the explicit optimized permutations for geometry {cg.name!r} (symbol : "
                 f'{cg_symbol!r}) ? ("y" to confirm, "q" to quit)\n'
             )
-            if test not in ["y", "q"]:
+            if test not in ("y", "q"):
                 print("Wrong key, try again")
                 continue
             if test == "y":
