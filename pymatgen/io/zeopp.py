@@ -117,22 +117,22 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        lattice = Lattice.from_parameters(*lengths, *angles)  # type: ignore[arg-type]
+        lattice = Lattice.from_parameters(*lengths, *angles)
 
         sp = []
         coords = []
         charge = []
         for line in lines[4:]:
-            m = re.match(
+            match = re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 line.strip(),
             )
-            if m:
-                sp.append(m.group(1))
+            if match:
+                sp.append(match.group(1))
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
-                coords.append([float(m.group(i)) for i in [3, 4, 2]])
-                charge.append(m.group(5))
+                coords.append([float(match.group(i)) for i in [3, 4, 2]])
+                charge.append(match.group(5))
         return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
     @classmethod

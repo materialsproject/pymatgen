@@ -319,6 +319,7 @@ class Lattice(MSONable):
         alpha: float,
         beta: float,
         gamma: float,
+        *,  # help mypy separate positional and keyword-only arguments
         vesta: bool = False,
         pbc: PbcLike = (True, True, True),
     ) -> Self:

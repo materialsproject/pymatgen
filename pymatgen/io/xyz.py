@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pandas as pd
 from monty.io import zopen
@@ -37,7 +37,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = [mol] if isinstance(mol, SiteCollection) else mol
+        self._mols = cast(list[SiteCollection], [mol] if isinstance(mol, SiteCollection) else mol)
         self.precision = coord_precision
 
     @property
