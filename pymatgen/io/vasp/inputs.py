@@ -1022,7 +1022,7 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
-        kpts: Sequence[float | Sequence] = ((1, 1, 1),),
+        kpts: Sequence[float | Sequence[float]] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
@@ -1080,7 +1080,7 @@ class Kpoints(MSONable):
         self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
-        self.kpts_shift = kpts_shift
+        self.kpts_shift = tuple(kpts_shift)
         self.labels = labels
         self.tet_number = tet_number
         self.tet_weight = tet_weight

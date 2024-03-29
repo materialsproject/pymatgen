@@ -814,12 +814,12 @@ class TestKpoints:
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read"
-        assert kpoints.kpts_shift == [0.5, 0.5, 0.5], "Wrong kpoint shift read"
+        assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
 
         filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
-        assert kpoints.kpts == [[2, 4, 6]]
+        assert kpoints.kpts == [(2, 4, 6)]
 
         filepath = f"{VASP_IN_DIR}/KPOINTS_band"
         kpoints = Kpoints.from_file(filepath)
