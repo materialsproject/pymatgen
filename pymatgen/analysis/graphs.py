@@ -197,11 +197,11 @@ class StructureGraph(MSONable):
 
         return cls(structure, graph_data=graph_data)
 
+    @classmethod
     @deprecated(
         from_empty_graph,
         "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
     )
-    @classmethod
     def with_empty_graph(cls, *args, **kwargs):
         return cls.from_empty_graph(*args, **kwargs)
 
@@ -259,11 +259,11 @@ class StructureGraph(MSONable):
         struct_graph.set_node_attributes()
         return struct_graph
 
+    @classmethod
     @deprecated(
         from_edges,
         "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
     )
-    @classmethod
     def with_edges(cls, *args, **kwargs):
         return cls.from_edges(*args, **kwargs)
 
@@ -304,11 +304,11 @@ class StructureGraph(MSONable):
 
         return struct_graph
 
+    @classmethod
     @deprecated(
         from_local_env_strategy,
         "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
     )
-    @classmethod
     def with_local_env_strategy(cls, *args, **kwargs):
         return cls.from_local_env_strategy(*args, **kwargs)
 
@@ -1645,11 +1645,11 @@ class MoleculeGraph(MSONable):
 
         return cls(molecule, graph_data=graph_data)
 
+    @classmethod
     @deprecated(
         from_empty_graph,
         "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
     )
-    @classmethod
     def with_empty_graph(cls, *args, **kwargs):
         return cls.from_empty_graph(*args, **kwargs)
 
@@ -1697,11 +1697,11 @@ class MoleculeGraph(MSONable):
         mg.set_node_attributes()
         return mg
 
+    @classmethod
     @deprecated(
         from_edges,
         "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
     )
-    @classmethod
     def with_edges(cls, *args, **kwargs):
         return cls.from_edges(*args, **kwargs)
 

@@ -72,8 +72,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
         assert fragmenter.open_rings
         assert fragmenter.opt_steps == 10000
-        # DEBUG(@DanielYang59): test deprecated decorator
-        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
+        default_mol_graph = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 13
 
