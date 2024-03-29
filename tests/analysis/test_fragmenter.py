@@ -96,7 +96,7 @@ class TestFragmentMolecule(PymatgenTest):
         assert fragmenter.open_rings is False
         assert fragmenter.opt_steps == 0
         edges = {(e[0], e[1]): None for e in self.pc_edges}
-        default_mol_graph = MoleculeGraph.with_edges(self.pc, edges=edges)
+        default_mol_graph = MoleculeGraph.from_edges(self.pc, edges=edges)
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 20
 

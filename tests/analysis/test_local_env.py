@@ -1339,7 +1339,7 @@ class TestMetalEdgeExtender(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
         self.phsh = Molecule.from_file(f"{TEST_DIR}/phsh.xyz")
-        self.phsh_graph = MoleculeGraph.with_edges(
+        self.phsh_graph = MoleculeGraph.from_edges(
             molecule=self.phsh,
             edges={
                 (0, 1): None,
@@ -1369,7 +1369,7 @@ class TestMetalEdgeExtender(PymatgenTest):
                 (21, 24): None,
             },
         )
-        self.LiEC_graph = MoleculeGraph.with_edges(
+        self.LiEC_graph = MoleculeGraph.from_edges(
             molecule=self.LiEC,
             edges={
                 (0, 2): None,

@@ -2181,7 +2181,7 @@ class MoleculeGraph(MSONable):
                     edges[(from_index, to_index)] = edge_props
 
                 unique_mol_graph_list.append(
-                    self.with_edges(
+                    self.from_edges(
                         Molecule(species=species, coords=coords, charge=self.molecule.charge),
                         edges,
                     )

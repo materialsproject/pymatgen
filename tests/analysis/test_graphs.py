@@ -424,7 +424,7 @@ from    to  to_image
 
         structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H"], [[0, 0, 0]])
 
-        struct_graph = StructureGraph.with_edges(structure, edges)
+        struct_graph = StructureGraph.from_edges(structure, edges)
 
         assert struct_graph == self.square_sg
 
@@ -570,7 +570,7 @@ class TestMoleculeGraph(TestCase):
     def test_construction(self):
         pytest.importorskip("openbabel")
         edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}
-        mol_graph = MoleculeGraph.with_edges(self.pc_frag1, edges_frag)
+        mol_graph = MoleculeGraph.from_edges(self.pc_frag1, edges_frag)
         # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_frag1_mg.json")
         ref_mol_graph = loadfn(f"{module_dir}/pc_frag1_mg.json")
         assert mol_graph == ref_mol_graph
@@ -581,7 +581,7 @@ class TestMoleculeGraph(TestCase):
                 assert mol_graph.graph.nodes[node]["coords"][ii] == ref_mol_graph.graph.nodes[node]["coords"][ii]
 
         edges_pc = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_edges}
-        mol_graph = MoleculeGraph.with_edges(self.pc, edges_pc)
+        mol_graph = MoleculeGraph.from_edges(self.pc, edges_pc)
         # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_mg.json")
         ref_mol_graph = loadfn(f"{module_dir}/pc_mg.json")
         assert mol_graph == ref_mol_graph
@@ -591,7 +591,7 @@ class TestMoleculeGraph(TestCase):
             for ii in range(3):
                 assert mol_graph.graph.nodes[node]["coords"][ii] == ref_mol_graph.graph.nodes[node]["coords"][ii]
 
-        mol_graph_edges = MoleculeGraph.with_edges(self.pc, edges=edges_pc)
+        mol_graph_edges = MoleculeGraph.from_edges(self.pc, edges=edges_pc)
         mol_graph_strat = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
 
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
@@ -785,7 +785,7 @@ class TestMoleculeGraph(TestCase):
 
     def test_build_unique_fragments(self):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
-        mol_graph = MoleculeGraph.with_edges(self.pc, edges)
+        mol_graph = MoleculeGraph.from_edges(self.pc, edges)
         unique_fragment_dict = mol_graph.build_unique_fragments()
         unique_fragments = [fragment for key in unique_fragment_dict for fragment in unique_fragment_dict[key]]
         assert len(unique_fragments) == 295
@@ -832,7 +832,7 @@ class TestMoleculeGraph(TestCase):
             (0, 5): {"weight": 1},
         }
 
-        ethylene_graph = MoleculeGraph.with_edges(ethylene, edges)
+        ethylene_graph = MoleculeGraph.from_edges(ethylene, edges)
         # If they are equal, they must also be isomorphic
         assert self.ethylene.isomorphic_to(ethylene_graph)
         assert not self.butadiene.isomorphic_to(self.ethylene)
@@ -840,11 +840,11 @@ class TestMoleculeGraph(TestCase):
         # check fix in https://github.com/materialsproject/pymatgen/pull/3221
         # by comparing graph with equal nodes but different edges
         edges[(1, 4)] = {"weight": 2}
-        assert not self.ethylene.isomorphic_to(MoleculeGraph.with_edges(ethylene, edges))
+        assert not self.ethylene.isomorphic_to(MoleculeGraph.from_edges(ethylene, edges))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
-        mol_graph = MoleculeGraph.with_edges(
+        mol_graph = MoleculeGraph.from_edges(
             molecule,
             {(0, 1): {"weight": 1}, (0, 2): {"weight": 1}, (0, 3): {"weight": 1}},
         )
