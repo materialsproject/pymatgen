@@ -499,7 +499,7 @@ loop_
 
     def test_disordered(self):
         si = Element("Si")
-        n = Element("N")
+        nitrogen = Element("N")
         coords = []
         coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
         lattice = [
@@ -507,7 +507,7 @@ loop_
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
+        struct = Structure(lattice, [si, {si: 0.5, nitrogen: 0.5}], coords)
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
 data_Si1.5N0.5
@@ -554,7 +554,7 @@ loop_
     def test_specie_cif_writer(self):
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)
-        n = DummySpecies("X", -3)
+        dummy_spec = DummySpecies("X", -3)
         coords = []
         coords.extend((np.array([0.5, 0.5, 0.5]), np.array([0.75, 0.5, 0.75]), np.array([0, 0, 0])))
         lattice = [
@@ -562,7 +562,7 @@ loop_
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
+        struct = Structure(lattice, [dummy_spec, {si3: 0.5, dummy_spec: 0.5}, si4], coords)
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
 data_X1.5Si1.5
@@ -740,20 +740,20 @@ loop_
         assert struct[0].species["Al3+"] == approx(0.778)
 
     def test_one_line_symm(self):
-        f = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "Ga4 Pb2 O8"
 
     def test_no_symmops(self):
-        f = f"{TEST_FILES_DIR}/nosymm.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/nosymm.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "H96 C60 O8"
 
     def test_dot_positions(self):
-        f = f"{TEST_FILES_DIR}/ICSD59959.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/ICSD59959.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "K1 Mn1 F3"
 

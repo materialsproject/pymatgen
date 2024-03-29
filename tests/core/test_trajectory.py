@@ -29,7 +29,7 @@ class TestTrajectory(PymatgenTest):
             mol = Molecule(
                 species, coord, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity)
             )
-            self.molecules.append(mol)
+            self.molecules += [mol]
 
         self.traj_mols = Trajectory(
             species=species,
@@ -50,29 +50,25 @@ class TestTrajectory(PymatgenTest):
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
         species = ["Si", "Si"]
-        coords = np.asarray(
-            [
-                [[0, 0, 0], [0.5, 0.5, 0.5]],
-                [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-                [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-            ]
-        )
+        coords = [
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
+            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
+        ]
         return lattice, species, coords
 
     def _get_species_and_coords(self):
         species = ["C", "O"]
-        coords = np.asarray(
-            [
-                [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
-                [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
-                [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
-            ]
-        )
+        coords = [
+            [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
+            [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
+            [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
+        ]
         return species, coords, 0, 1
 
     def test_single_index_slice(self):
-        assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
-        assert all(self.traj_mols[i] == self.molecules[i] for i in range(len(self.molecules)))
+        assert all(self.traj[idx] == self.structures[idx] for idx in range(0, len(self.structures), 19))
+        assert all(self.traj_mols[idx] == self.molecules[idx] for idx in range(len(self.molecules)))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -87,7 +83,7 @@ class TestTrajectory(PymatgenTest):
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
+            assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -421,11 +417,11 @@ class TestTrajectory(PymatgenTest):
         structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
-        for i in range(10):
+        for idx in range(10):
             displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
-            displacements[i + 1, :, :] = displacement
+            displacements[idx + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()

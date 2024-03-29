@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from pymatgen.symmetry.groups import CrystalSystem
 
 logger = logging.getLogger(__name__)
+
 LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
 cite_conventional_cell_algo = due.dcite(

@@ -43,10 +43,9 @@ class TestHeader(unittest.TestCase):
 
     def test_get_str(self):
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
-        h = Header.from_cif_file(cif_file)
-        head = str(h)
+        header = Header.from_cif_file(cif_file)
         assert (
-            head.splitlines()[3].split()[-1] == header_string.splitlines()[3].split()[-1]
+            str(header).splitlines()[3].split()[-1] == header_string.splitlines()[3].split()[-1]
         ), "Failed to generate HEADER from structure"
 
     def test_as_dict_and_from_dict(self):

@@ -109,11 +109,11 @@ class TestEwaldMinimizer(unittest.TestCase):
         """Test that uses an uncharged structure."""
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
-        s = struct.copy()
-        s.add_oxidation_state_by_element({"Li": 1, "Fe": 3, "P": 5, "O": -2})
+        struct = struct.copy()
+        struct.add_oxidation_state_by_element({"Li": 1, "Fe": 3, "P": 5, "O": -2})
 
         # Comparison to LAMMPS result
-        ham = EwaldSummation(s, compute_forces=True)
+        ham = EwaldSummation(struct, compute_forces=True)
         assert approx(ham.total_energy, abs=1e-3) == -1226.3335
         assert approx(ham.get_site_energy(0), abs=1e-3) == -45.8338
         assert approx(ham.get_site_energy(8), abs=1e-3) == -27.2978
