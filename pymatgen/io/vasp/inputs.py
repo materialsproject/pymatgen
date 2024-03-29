@@ -2674,9 +2674,8 @@ class VaspInput(dict, MSONable):
                 sub_dct[fname.lower()] = None
 
         sub_dct["optional_files"] = {}
-        if optional_files is not None:
-            for fname, ftype in optional_files.items():
-                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))  # type: ignore[attr-defined]
+        for fname, cls in (optional_files or {}).items():
+            sub_dct["optional_files"][fname] = cls.from_file(os.path.join(input_dir, fname))  # type: ignore[attr-defined]
         return cls(**sub_dct)
 
     def copy(self, deep: bool = True):
