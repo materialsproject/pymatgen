@@ -226,7 +226,7 @@ class QuasiHarmonicDebyeApprox:
         parameter at 0K (Gruneisen constant).
 
         The anharmonic contribution is toggled by setting the anharmonic_contribution
-        to True or False in the QuasiharmonicDebyeApprox constructor.
+        to True or False in the QuasiHarmonicDebyeApprox constructor.
 
         Args:
             volume (float): in Ang^3
