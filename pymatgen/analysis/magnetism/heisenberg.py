@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 import logging
 from ast import literal_eval
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,9 @@ from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -735,16 +739,15 @@ class HeisenbergScreener:
 
         # Also discard structures with small |magmoms| < 0.1 uB
         # xx - get rid of these or just bury them in the list?
-        # for i, s in enumerate(ordered_structures):
-        #     magmoms = s.site_properties['magmom']
-        #     if i not in remove_list:
-        #         if any(abs(m) < 0.1 for m in magmoms):
-        #             remove_list.append(i)
+        # for idx, struct in enumerate(ordered_structures):
+        #     magmoms = struct.site_properties["magmom"]
+        #     if idx not in remove_list and any(abs(m) < 0.1 for m in magmoms):
+        #         remove_list.append(idx)
 
         # Remove duplicates
         if len(remove_list) > 0:
-            ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
-            energies = [e for i, e in enumerate(energies) if i not in remove_list]
+            ordered_structures = [struct for idx, struct in enumerate(ordered_structures) if idx not in remove_list]
+            energies = [energy for idx, energy in enumerate(energies) if idx not in remove_list]
 
         # Sort by energy if not already sorted
         ordered_structures = [s for _, s in sorted(zip(energies, ordered_structures), reverse=False)]
@@ -881,63 +884,63 @@ class HeisenbergModel(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Create a HeisenbergModel from a dict."""
         # Reconstitute the site ids
         usids = {}
         wids = {}
         nnis = {}
 
-        for k, v in d["nn_interactions"].items():
+        for k, v in dct["nn_interactions"].items():
             nn_dict = {}
             for k1, v1 in v.items():
                 key = literal_eval(k1)
                 nn_dict[key] = v1
             nnis[k] = nn_dict
 
-        for k, v in d["unique_site_ids"].items():
+        for k, v in dct["unique_site_ids"].items():
             key = literal_eval(k)
             if isinstance(key, int):
                 usids[(key,)] = v
             elif isinstance(key, tuple):
                 usids[key] = v
 
-        for k, v in d["wyckoff_ids"].items():
+        for k, v in dct["wyckoff_ids"].items():
             key = literal_eval(k)
             wids[key] = v
 
         # Reconstitute the structure and graph objects
         structures = []
         sgraphs = []
-        for v in d["structures"]:
+        for v in dct["structures"]:
             structures.append(Structure.from_dict(v))
-        for v in d["sgraphs"]:
+        for v in dct["sgraphs"]:
             sgraphs.append(StructureGraph.from_dict(v))
 
         # Interaction graph
-        igraph = StructureGraph.from_dict(d["igraph"])
+        igraph = StructureGraph.from_dict(dct["igraph"])
 
         # Reconstitute the exchange matrix DataFrame
         try:
-            ex_mat = eval(d["ex_mat"])
+            ex_mat = eval(dct["ex_mat"])
             ex_mat = pd.DataFrame.from_dict(ex_mat)
         except SyntaxError:  # if ex_mat is empty
             ex_mat = pd.DataFrame(columns=["E", "E0"])
 
         return HeisenbergModel(
-            formula=d["formula"],
+            formula=dct["formula"],
             structures=structures,
-            energies=d["energies"],
-            cutoff=d["cutoff"],
-            tol=d["tol"],
+            energies=dct["energies"],
+            cutoff=dct["cutoff"],
+            tol=dct["tol"],
             sgraphs=sgraphs,
             unique_site_ids=usids,
             wyckoff_ids=wids,
             nn_interactions=nnis,
-            dists=d["dists"],
+            dists=dct["dists"],
             ex_mat=ex_mat,
-            ex_params=d["ex_params"],
-            javg=d["javg"],
+            ex_params=dct["ex_params"],
+            javg=dct["javg"],
             igraph=igraph,
         )
 

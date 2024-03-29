@@ -18,6 +18,8 @@ from pymatgen.entries.computed_entries import ComputedEntry
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from typing_extensions import Self
+
     from pymatgen.util.typing import CompositionLike
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
@@ -247,16 +249,16 @@ class BalancedReaction(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): from as_dict().
+            dct (dict): from as_dict().
 
         Returns:
             A BalancedReaction object.
         """
-        reactants = {Composition(comp): coeff for comp, coeff in d["reactants"].items()}
-        products = {Composition(comp): coeff for comp, coeff in d["products"].items()}
+        reactants = {Composition(comp): coeff for comp, coeff in dct["reactants"].items()}
+        products = {Composition(comp): coeff for comp, coeff in dct["products"].items()}
         return cls(reactants, products)
 
     @classmethod
@@ -382,7 +384,7 @@ class Reaction(BalancedReaction):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): from as_dict().
@@ -492,15 +494,14 @@ class ComputedReaction(Reaction):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): from as_dict().
+            dct (dict): from as_dict().
 
         Returns:
             A ComputedReaction object.
         """
-        dec = MontyDecoder()
-        reactants = [dec.process_decoded(e) for e in d["reactants"]]
-        products = [dec.process_decoded(e) for e in d["products"]]
+        reactants = [MontyDecoder().process_decoded(e) for e in dct["reactants"]]
+        products = [MontyDecoder().process_decoded(e) for e in dct["products"]]
         return cls(reactants, products)

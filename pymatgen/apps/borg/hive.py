@@ -8,6 +8,7 @@ import logging
 import os
 import warnings
 from glob import glob
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -16,6 +17,9 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +178,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -282,7 +286,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -401,7 +405,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict Representation.

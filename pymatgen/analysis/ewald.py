@@ -448,7 +448,7 @@ class EwaldSummation(MSONable):
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
-            d (dict): Dictionary representation
+            dct (dict): Dictionary representation
             fmt (str, optional): Unused. Defaults to None.
 
         Returns:

@@ -395,7 +395,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
     def from_dict(cls, dct: dict) -> GruneisenPhononBandStructureSymmLine:
         """
         Args:
-            dct: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             GruneisenPhononBandStructureSymmLine

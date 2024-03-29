@@ -276,21 +276,21 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestMagOrderingTransformation(PymatgenTest):
     def setUp(self):
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords)
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords)
 
-        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
-        self.NiO_AFM_111 = Structure(latt, species, coords)
+        self.NiO_AFM_111 = Structure(lattice, species, coords)
         self.NiO_AFM_111.add_spin_by_site([-5, 5, 0, 0])
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_AFM_001 = Structure(latt, species, coords)
+        self.NiO_AFM_001 = Structure(lattice, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
         self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")

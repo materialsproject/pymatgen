@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.dev import requires
@@ -11,6 +11,9 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 try:
     import f90nml
@@ -147,7 +150,7 @@ class Control(MSONable, dict):
         return cls.from_dict(all_dict)
 
     @classmethod
-    def from_dict(cls, control_dict: dict):
+    def from_dict(cls, control_dict: dict) -> Self:
         """
         Write a CONTROL file from a Python dictionary. Description and default
         parameters can be found at

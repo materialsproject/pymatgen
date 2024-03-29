@@ -228,12 +228,12 @@ class RelaxationAnalyzer:
                 reason to duplicate the information or computation.
         """
         data: dict[int, dict[int, float]] = collections.defaultdict(dict)
-        for inds in itertools.combinations(list(range(len(self.initial))), 2):
-            (i, j) = sorted(inds)
-            initial_dist = self.initial[i].distance(self.initial[j])
+        for indices in itertools.combinations(list(range(len(self.initial))), 2):
+            ii, jj = sorted(indices)
+            initial_dist = self.initial[ii].distance(self.initial[jj])
             if initial_dist < max_radius:
-                final_dist = self.final[i].distance(self.final[j])
-                data[i][j] = final_dist / initial_dist - 1
+                final_dist = self.final[ii].distance(self.final[jj])
+                data[ii][jj] = final_dist / initial_dist - 1
         return data
 
 

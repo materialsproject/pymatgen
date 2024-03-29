@@ -657,15 +657,15 @@ class Tensor(np.ndarray, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict) -> Tensor:
+    def from_dict(cls, dct: dict) -> Tensor:
         """Instantiate Tensors from dicts (using MSONable API).
 
         Returns:
             Tensor: hydrated tensor object
         """
-        if d.get("voigt"):
-            return cls.from_voigt(d["input_array"])
-        return cls(d["input_array"])
+        if dct.get("voigt"):
+            return cls.from_voigt(dct["input_array"])
+        return cls(dct["input_array"])
 
 
 class TensorCollection(collections.abc.Sequence, MSONable):

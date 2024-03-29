@@ -499,7 +499,7 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
         assert test_entry == entry
         assert entry.energy == approx(test_entry.energy)
 
-    def test_str(self):
+    def test_repr(self):
         assert str(self.entries_with_temps[300]).startswith(
             "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"
         )

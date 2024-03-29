@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import logging
 import time
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import Voronoi
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     get_lower_and_upper_f,
@@ -938,7 +942,7 @@ class DetailedVoronoiContainer(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the VoronoiContainer object from a dict representation of the VoronoiContainer created using
         the as_dict method.

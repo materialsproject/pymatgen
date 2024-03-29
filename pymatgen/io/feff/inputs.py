@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -22,6 +23,9 @@ from pymatgen.io.core import ParseError
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -193,10 +197,10 @@ class Header(MSONable):
             raise ValueError("'struct' argument must be a Structure or Molecule!")
         self.comment = comment or "None given"
 
-    @staticmethod
-    def from_cif_file(cif_file, source="", comment=""):
+    @classmethod
+    def from_cif_file(cls, cif_file: str, source: str = "", comment: str = "") -> Self:
         """
-        Static method to create Header object from cif_file.
+        Create Header object from cif_file.
 
         Args:
             cif_file: cif_file path and name
@@ -209,7 +213,7 @@ class Header(MSONable):
         """
         parser = CifParser(cif_file)
         structure = parser.parse_structures(primitive=True)[0]
-        return Header(structure, source, comment)
+        return cls(structure, source, comment)
 
     @property
     def structure_symmetry(self):
@@ -562,22 +566,18 @@ class Tags(dict):
         tags_dict["@class"] = type(self).__name__
         return tags_dict
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct) -> Self:
         """
         Creates Tags object from a dictionary.
 
         Args:
-            d: Dict of feff parameters and values.
+            dct (dict): Dict of feff parameters and values.
 
         Returns:
             Tags object
         """
-        i = Tags()
-        for k, v in d.items():
-            if k not in ("@module", "@class"):
-                i[k] = v
-        return i
+        return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """

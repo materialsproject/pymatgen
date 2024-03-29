@@ -45,6 +45,8 @@ from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
 
@@ -111,7 +113,7 @@ class Keyword(MSONable):
         if self.name.upper() == other.name.upper():
             v1 = [val.upper() if isinstance(val, str) else val for val in self.values]
             v2 = [val.upper() if isinstance(val, str) else val for val in other.values]  # noqa: PD011
-            if v1 == v2 and self.units == self.units:
+            if v1 == v2 and self.units == other.units:
                 return True
         return False
 
@@ -139,15 +141,15 @@ class Keyword(MSONable):
         return str(self)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Initialize from dictionary."""
         return Keyword(
-            d["name"],
-            *d["values"],
-            description=d["description"],
-            repeats=d["repeats"],
-            units=d["units"],
-            verbose=d["verbose"],
+            dct["name"],
+            *dct["values"],
+            description=dct["description"],
+            repeats=dct["repeats"],
+            units=dct["units"],
+            verbose=dct["verbose"],
         )
 
     @classmethod
@@ -386,7 +388,7 @@ class Section(MSONable):
             raise TypeError(f"Can only add keywords, not {type(other).__name__}")
         return self + other
 
-    def get(self, dct, default=None):
+    def get(self, d, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
         section or keyword matching d. Will not raise an error if d does not exist.
@@ -395,10 +397,10 @@ class Section(MSONable):
             d: the key to retrieve, if present
             default: what to return if d is not found
         """
-        kw = self.get_keyword(dct)
+        kw = self.get_keyword(d)
         if kw:
             return kw
-        sec = self.get_section(dct)
+        sec = self.get_section(d)
         if sec:
             return sec
         return default
@@ -439,7 +441,7 @@ class Section(MSONable):
         of new Section child-classes.
 
         Args:
-            d (dict): A dictionary containing the update information. Should use nested dictionaries
+            dct (dict): A dictionary containing the update information. Should use nested dictionaries
                 to specify the full path of the update. If a section or keyword does not exist, it
                 will be created, but only with the values that are provided in "d", not using
                 default values from a Section object.
@@ -698,15 +700,15 @@ class Cp2kInput(Section):
         return string
 
     @classmethod
-    def _from_dict(cls, d):
+    def _from_dict(cls, dct):
         """Initialize from a dictionary."""
         return Cp2kInput(
             "CP2K_INPUT",
             subsections=getattr(
-                __import__(d["@module"], globals(), locals(), d["@class"], 0),
-                d["@class"],
+                __import__(dct["@module"], globals(), locals(), dct["@class"], 0),
+                dct["@class"],
             )
-            .from_dict(d)
+            .from_dict(dct)
             .subsections,
         )
 
@@ -2127,8 +2129,8 @@ class Band_Structure(Section):
 
     # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
     # if this changes in the future as other codes are added, then this will need to change
-    @staticmethod
-    def from_kpoints(kpoints: VaspKpoints, kpoints_line_density=20):
+    @classmethod
+    def from_kpoints(cls, kpoints: VaspKpoints, kpoints_line_density: int = 20) -> Self:
         """
         Initialize band structure section from a line-mode Kpoint object.
 
@@ -2165,7 +2167,7 @@ class Band_Structure(Section):
             raise ValueError(
                 "Unsupported k-point style. Must be line-mode or explicit k-points (reciprocal/cartesian)."
             )
-        return Band_Structure(kpoint_sets=kpoint_sets, filename="BAND.bs")
+        return cls(kpoint_sets=kpoint_sets, filename="BAND.bs")
 
 
 @dataclass
@@ -2251,17 +2253,17 @@ class BasisInfo(MSONable):
         data["polarization"] = string.count("P")
         data["diffuse"] = string.count("X")
         string = f"#{string}"
-        for i, s in enumerate(string):
-            if s == "Z":
-                z = int(tmp.get(string[i - 1], string[i - 1]))
+        for idx, char in enumerate(string):
+            if char == "Z":
+                z = int(tmp.get(string[idx - 1], string[idx - 1]))
                 data["core"] = z if bool_core else None
                 data["valence"] = z
-            elif s == "P" and string[i - 1].isnumeric():
-                data["polarization"] = int(string[i - 1])
-            elif s == "X" and string[i - 1].isnumeric():
-                data["diffuse"] = int(string[i - 1])
-            elif s == "Q" and string[i + 1].isnumeric():
-                data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
+            elif char == "P" and string[idx - 1].isnumeric():
+                data["polarization"] = int(string[idx - 1])
+            elif char == "X" and string[idx - 1].isnumeric():
+                data["diffuse"] = int(string[idx - 1])
+            elif char == "Q" and string[idx + 1].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[idx + 1 :] if _.isnumeric()))
 
         if not data["diffuse"]:
             data["diffuse"] = string.count("AUG")
@@ -2526,9 +2528,9 @@ class PotentialInfo(MSONable):
             data["nlcc"] = True
         if "GTH" in string:
             data["potential_type"] = "GTH"
-        for i, s in enumerate(string):
-            if s == "Q" and string[i + 1].isnumeric():
-                data["electrons"] = int("".join(_ for _ in string[i + 1 :] if _.isnumeric()))
+        for idx, char in enumerate(string):
+            if char == "Q" and string[idx + 1].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[idx + 1 :] if _.isnumeric()))
 
         for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
             if x in string:
@@ -2671,8 +2673,8 @@ class GthPotential(AtomicMetadata):
             info.electrons = Element(element).Z
         else:
             potential = "Pseudopotential"
-        nelecs = {i: int(n) for i, n in enumerate(lines[1].split())}
-        info.electrons = sum(nelecs.values())  # override, more reliable than name
+        n_elecs = {idx: int(n_elec) for idx, n_elec in enumerate(lines[1].split())}
+        info.electrons = sum(n_elecs.values())  # override, more reliable than name
         thirdline = lines[2].split()
         r_loc, nexp_ppl, c_exp_ppl = (
             float(thirdline[0]),
@@ -2711,7 +2713,7 @@ class GthPotential(AtomicMetadata):
             name=name,
             alias_names=aliases,
             potential=potential,
-            n_elecs=nelecs,
+            n_elecs=n_elecs,
             r_loc=r_loc,
             nexp_ppl=nexp_ppl,
             c_exp_ppl=c_exp_ppl,

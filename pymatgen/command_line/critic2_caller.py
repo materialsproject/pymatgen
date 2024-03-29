@@ -42,7 +42,7 @@ import logging
 import os
 import subprocess
 import warnings
-from enum import Enum
+from enum import Enum, unique
 from glob import glob
 from shutil import which
 from typing import TYPE_CHECKING
@@ -311,6 +311,7 @@ class Critic2Caller:
         return cls.from_chgcar(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 
 
+@unique
 class CriticalPointType(Enum):
     """Enum type for the different varieties of critical point."""
 
@@ -528,7 +529,7 @@ class Critic2Analysis(MSONable):
         edge_weight = "bond_length"
         edge_weight_units = "Å"
 
-        sg = StructureGraph.with_empty_graph(
+        struct_graph = StructureGraph.with_empty_graph(
             structure,
             name="bonds",
             edge_weight_name=edge_weight,
@@ -596,7 +597,7 @@ class Critic2Analysis(MSONable):
                         "frac_coords": self.nodes[idx]["frac_coords"],
                     }
 
-                    sg.add_edge(
+                    struct_graph.add_edge(
                         struct_from_idx,
                         struct_to_idx,
                         from_jimage=from_lvec,
@@ -605,7 +606,7 @@ class Critic2Analysis(MSONable):
                         edge_properties=edge_properties,
                     )
 
-        return sg
+        return struct_graph
 
     def get_critical_point_for_site(self, n: int):
         """

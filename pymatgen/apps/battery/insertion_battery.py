@@ -8,6 +8,7 @@ import itertools
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from monty.json import MontyDecoder
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
@@ -355,20 +356,17 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     @classmethod
-    def from_dict_legacy(cls, d):
+    def from_dict_legacy(cls, dct):
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             InsertionElectrode
         """
-        from monty.json import MontyDecoder
-
-        dec = MontyDecoder()
         return InsertionElectrode(
-            dec.process_decoded(d["entries"]),
-            dec.process_decoded(d["working_ion_entry"]),
+            MontyDecoder().process_decoded(dct["entries"]),
+            MontyDecoder().process_decoded(dct["working_ion_entry"]),
         )
 
     def as_dict_legacy(self):
@@ -405,7 +403,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         if entry_charge.composition.get_atomic_fraction(working_element) > entry2.composition.get_atomic_fraction(
             working_element
         ):
-            (entry_charge, entry_discharge) = (entry_discharge, entry_charge)
+            entry_charge, entry_discharge = entry_discharge, entry_charge
 
         comp_charge = entry_charge.composition
         comp_discharge = entry_discharge.composition

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from io import StringIO
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ class PDEntry(Entry):
         return return_dict
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): dictionary representation of PDEntry.
@@ -199,17 +200,17 @@ class GrandPotPDEntry(PDEntry):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of GrandPotPDEntry.
+            dct (dict): dictionary representation of GrandPotPDEntry.
 
         Returns:
             GrandPotPDEntry
         """
-        chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
-        entry = MontyDecoder().process_decoded(d["entry"])
-        return cls(entry, chempots, d["name"])
+        chempots = {Element(symbol): u for symbol, u in dct["chempots"].items()}
+        entry = MontyDecoder().process_decoded(dct["entry"])
+        return cls(entry, chempots, dct["name"])
 
 
 class TransformedPDEntry(PDEntry):
@@ -284,17 +285,17 @@ class TransformedPDEntry(PDEntry):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of TransformedPDEntry.
+            dct (dict): dictionary representation of TransformedPDEntry.
 
         Returns:
             TransformedPDEntry
         """
-        sp_mapping = d["sp_mapping"]
-        del d["sp_mapping"]
-        entry = MontyDecoder().process_decoded(d)
+        sp_mapping = dct["sp_mapping"]
+        del dct["sp_mapping"]
+        entry = MontyDecoder().process_decoded(dct)
         return cls(entry, sp_mapping)
 
 
@@ -411,7 +412,7 @@ class PhaseDiagram(MSONable):
     def from_dict(cls, dct: dict[str, Any]) -> PhaseDiagram:
         """
         Args:
-            d (dict): dictionary representation of PhaseDiagram.
+            dct (dict): dictionary representation of PhaseDiagram.
 
         Returns:
             PhaseDiagram
@@ -1453,17 +1454,17 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of GrandPotentialPhaseDiagram.
+            dct (dict): dictionary representation of GrandPotentialPhaseDiagram.
 
         Returns:
             GrandPotentialPhaseDiagram
         """
-        entries = MontyDecoder().process_decoded(d["all_entries"])
-        elements = MontyDecoder().process_decoded(d["elements"])
-        return cls(entries, d["chempots"], elements)
+        entries = MontyDecoder().process_decoded(dct["all_entries"])
+        elements = MontyDecoder().process_decoded(dct["elements"])
+        return cls(entries, dct["chempots"], elements)
 
 
 class CompoundPhaseDiagram(PhaseDiagram):
@@ -1555,18 +1556,17 @@ class CompoundPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of CompoundPhaseDiagram.
+            dct (dict): dictionary representation of CompoundPhaseDiagram.
 
         Returns:
             CompoundPhaseDiagram
         """
-        dec = MontyDecoder()
-        entries = dec.process_decoded(d["original_entries"])
-        terminal_compositions = dec.process_decoded(d["terminal_compositions"])
-        return cls(entries, terminal_compositions, d["normalize_terminal_compositions"])
+        entries = MontyDecoder().process_decoded(dct["original_entries"])
+        terminal_compositions = MontyDecoder().process_decoded(dct["terminal_compositions"])
+        return cls(entries, terminal_compositions, dct["normalize_terminal_compositions"])
 
 
 class PatchedPhaseDiagram(PhaseDiagram):
@@ -1718,10 +1718,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of PatchedPhaseDiagram.
+            dct (dict): dictionary representation of PatchedPhaseDiagram.
 
         Returns:
             PatchedPhaseDiagram
@@ -2420,7 +2420,7 @@ class PDPlotter:
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
             for line in lines:
-                (x, y) = line.coords.transpose()
+                x, y = line.coords.transpose()
                 plt.plot(x, y, "k-")
 
                 for coord in line.coords:

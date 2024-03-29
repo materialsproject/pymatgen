@@ -7,7 +7,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 from __future__ import annotations
 
 import re
-from typing import no_type_check
+from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.io import zopen
@@ -17,6 +17,9 @@ from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import round_to_sigfigs
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -224,7 +227,7 @@ class LMTOCtrl:
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Creates a CTRL file object from a dictionary. The dictionary
         must contain the items "ALAT", PLAT" and "SITE".

@@ -71,7 +71,7 @@ class Cssr:
         lengths = [float(tok) for tok in tokens]
         tokens = lines[1].split()
         angles = [float(tok) for tok in tokens[0:3]]
-        latt = Lattice.from_parameters(*lengths, *angles)
+        lattice = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
         for line in lines[4:]:
@@ -79,7 +79,7 @@ class Cssr:
             if m:
                 sp.append(m.group(1))
                 coords.append([float(m.group(i)) for i in range(2, 5)])
-        return cls(Structure(latt, sp, coords))
+        return cls(Structure(lattice, sp, coords))
 
     @classmethod
     def from_file(cls, filename):

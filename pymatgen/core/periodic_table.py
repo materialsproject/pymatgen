@@ -8,7 +8,7 @@ import json
 import re
 import warnings
 from collections import Counter
-from enum import Enum
+from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Literal
@@ -30,6 +30,7 @@ _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
 @functools.total_ordering
+@unique
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed.
 
@@ -938,11 +939,11 @@ class Species(MSONable, Stringify):
             ValueError: If oxidation state passed both in symbol string and via
                 oxidation_state kwarg.
         """
-        if oxidation_state is not None and isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
+        if oxidation_state is not None and isinstance(symbol, str) and symbol.endswith(("+", "-")):
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
             )
-        if isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
+        if isinstance(symbol, str) and symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
             symbol, oxi = re.match(r"([A-Za-z]+)([0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
             self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
@@ -953,15 +954,15 @@ class Species(MSONable, Stringify):
 
         self._spin = spin
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         """Allows Specie to inherit properties of underlying element."""
         return getattr(self._el, attr)
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict:
         return self.__dict__
 
-    def __setstate__(self, d):
-        self.__dict__.update(d)
+    def __setstate__(self, dct: dict) -> None:
+        self.__dict__.update(dct)
 
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
@@ -1226,15 +1227,15 @@ class Species(MSONable, Stringify):
         }
 
     @classmethod
-    def from_dict(cls, d) -> Species:
+    def from_dict(cls, dct) -> Species:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Species.
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
+        return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
 
 @functools.total_ordering
@@ -1385,15 +1386,15 @@ class DummySpecies(Species):
         }
 
     @classmethod
-    def from_dict(cls, d) -> DummySpecies:
+    def from_dict(cls, dct) -> DummySpecies:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
+        return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
     def __repr__(self) -> str:
         return f"DummySpecies {self}"
@@ -1445,28 +1446,33 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         Species | Element: with a bias for the maximum number of properties
             that can be determined.
     """
+    # if obj is already an Element or Species, return as is
     if isinstance(obj, (Element, Species, DummySpecies)):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
+    # if obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
-        integer = int(flt)
-        integer = integer if integer == flt else None  # type: ignore
-        return Element.from_Z(integer)
-    except (ValueError, TypeError):
+        assert flt == int(flt)
+        return Element.from_Z(int(flt))
+    except (AssertionError, ValueError, TypeError, KeyError):
         pass
 
+    # if obj is a string, attempt to parse it as a Species
     try:
         return Species.from_str(obj)  # type: ignore
-    except (ValueError, KeyError):
+    except (ValueError, TypeError, KeyError):
         pass
+    # if Species parsing failed, try Element
     try:
         return Element(obj)  # type: ignore
-    except (ValueError, KeyError):
+    except (ValueError, TypeError, KeyError):
         pass
+
+    # if Element parsing failed, try DummySpecies
     try:
         return DummySpecies.from_str(obj)  # type: ignore
     except Exception:
-        raise ValueError(f"Can't parse Element or Species from {type(obj).__name__}: {obj}.")
+        raise ValueError(f"Can't parse Element or Species from {obj!r}")
