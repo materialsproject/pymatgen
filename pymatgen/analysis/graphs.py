@@ -117,7 +117,7 @@ class StructureGraph(MSONable):
     def __init__(self, structure: Structure, graph_data: dict | None = None) -> None:
         """
         If constructing this class manually, use the from_empty_graph method or
-        with_local_env_strategy method (using an algorithm provided by the local_env
+        from_local_env_strategy method (using an algorithm provided by the local_env
         module, such as O'Keeffe).
         This class that contains connection information: relationships between sites
         represented by a Graph structure, and an associated structure object.
@@ -1562,7 +1562,7 @@ class MoleculeGraph(MSONable):
     def __init__(self, molecule, graph_data=None):
         """
         If constructing this class manually, use the `from_empty_graph`
-        method or `with_local_env_strategy` method (using an algorithm
+        method or `from_local_env_strategy` method (using an algorithm
         provided by the `local_env` module, such as O'Keeffe).
 
         This class that contains connection information:
@@ -2289,7 +2289,7 @@ class MoleculeGraph(MSONable):
                     )
 
             else:
-                graph = self.with_local_env_strategy(func_grp, strategy(**(strategy_params or {})))
+                graph = self.from_local_env_strategy(func_grp, strategy(**(strategy_params or {})))
 
                 for u, v in list(graph.graph.edges()):
                     edge_props = graph.graph.get_edge_data(u, v)[0]

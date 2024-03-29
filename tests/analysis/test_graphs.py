@@ -106,7 +106,7 @@ class TestStructureGraph(PymatgenTest):
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
         with pytest.raises(ValueError, match="Chosen strategy is not designed for use with structures"):
-            StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
+            StructureGraph.from_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
         assert self.mos2_sg.name == "bonds"
@@ -134,7 +134,7 @@ class TestStructureGraph(PymatgenTest):
         ]
         nacl = Structure(nacl_lattice, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        nacl_graph = StructureGraph.with_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
+        nacl_graph = StructureGraph.from_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
 
         assert len(nacl_graph.get_connected_sites(1)) == 12
         assert len(nacl_graph.graph.get_edge_data(1, 1)) == 6
@@ -206,7 +206,7 @@ class TestStructureGraph(PymatgenTest):
         structure_copy = copy.deepcopy(structure)
         structure_copy_graph = copy.deepcopy(structure)
 
-        struct_graph = StructureGraph.with_local_env_strategy(structure, MinimumDistanceNN())
+        struct_graph = StructureGraph.from_local_env_strategy(structure, MinimumDistanceNN())
         sg_copy = copy.deepcopy(struct_graph)
 
         # Ensure that strings and molecules lead to equivalent substitutions
@@ -225,7 +225,7 @@ class TestStructureGraph(PymatgenTest):
             (0, 3): {"weight": 0.5},
         }
 
-        sg_with_graph = StructureGraph.with_local_env_strategy(structure_copy_graph, MinimumDistanceNN())
+        sg_with_graph = StructureGraph.from_local_env_strategy(structure_copy_graph, MinimumDistanceNN())
         sg_with_graph.substitute_group(1, "methyl", MinimumDistanceNN, graph_dict=graph_dict)
         edge = sg_with_graph.graph.get_edge_data(11, 13)[0]
         assert edge["weight"] == 0.5
@@ -330,12 +330,12 @@ from    to  to_image
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
             assert mos2_sg_mul.get_coordination_of_site(idx) == 6
 
-        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
+        mos2_sg_premul = StructureGraph.from_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
         assert mos2_sg_mul == mos2_sg_premul
 
         # test 3D Structure
 
-        nio_struct_graph = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN())
+        nio_struct_graph = StructureGraph.from_local_env_strategy(self.NiO, MinimumDistanceNN())
         nio_struct_graph = nio_struct_graph * 3
 
         for n in range(len(nio_struct_graph)):
@@ -356,7 +356,7 @@ from    to  to_image
         mos2_sg_2.draw_graph_to_file(f"{self.tmp_path}/MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True)
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure
-        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
+        mos2_sg_premul = StructureGraph.from_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
         mos2_sg_premul.draw_graph_to_file(f"{self.tmp_path}/MoS2_premul.pdf", algo="neato", hide_image_edges=True)
 
         # draw graph for a square lattice
@@ -398,12 +398,12 @@ from    to  to_image
 
     def test_from_local_env_and_equality_and_diff(self):
         min_dist_nn = MinimumDistanceNN()
-        struct_graph = StructureGraph.with_local_env_strategy(self.structure, min_dist_nn)
+        struct_graph = StructureGraph.from_local_env_strategy(self.structure, min_dist_nn)
 
         assert struct_graph.graph.number_of_edges() == 6
 
         nn2 = MinimumOKeeffeNN()
-        sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2)
+        sg2 = StructureGraph.from_local_env_strategy(self.structure, nn2)
 
         assert struct_graph == sg2
         assert struct_graph == self.mos2_sg
@@ -434,7 +434,7 @@ from    to  to_image
         struct = Structure.from_file(structure_file)
 
         min_dist_nn = MinimumDistanceNN()
-        struct_graph = StructureGraph.with_local_env_strategy(struct, min_dist_nn)
+        struct_graph = StructureGraph.from_local_env_strategy(struct, min_dist_nn)
 
         molecules = struct_graph.get_subgraphs_as_molecules()
         assert molecules[0].formula == "H3 C1"
@@ -472,7 +472,7 @@ from    to  to_image
 
         min_dist_nn = MinimumDistanceNN(cutoff=6, get_all_sites=True)
 
-        struct_graph = StructureGraph.with_local_env_strategy(test_structure, min_dist_nn)
+        struct_graph = StructureGraph.from_local_env_strategy(test_structure, min_dist_nn)
 
         assert struct_graph.graph.number_of_edges() == 3
 
@@ -592,7 +592,7 @@ class TestMoleculeGraph(TestCase):
                 assert mol_graph.graph.nodes[node]["coords"][ii] == ref_mol_graph.graph.nodes[node]["coords"][ii]
 
         mol_graph_edges = MoleculeGraph.from_edges(self.pc, edges=edges_pc)
-        mol_graph_strat = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
+        mol_graph_strat = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
 
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
@@ -602,7 +602,7 @@ class TestMoleculeGraph(TestCase):
             ValueError,
             match=f"strategy='{non_mol_strategy}' is not designed for use with molecules! Choose another strategy",
         ):
-            MoleculeGraph.with_local_env_strategy(self.pc, non_mol_strategy)
+            MoleculeGraph.from_local_env_strategy(self.pc, non_mol_strategy)
 
     def test_properties(self):
         assert self.cyclohexene.name == "bonds"

@@ -116,7 +116,7 @@ class HeisenbergMapper:
         strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
-        return [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
+        return [StructureGraph.from_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
 
     @staticmethod
     def _get_unique_sites(structure):

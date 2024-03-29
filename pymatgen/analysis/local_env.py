@@ -625,7 +625,7 @@ class NearNeighbors:
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        struct_graph = StructureGraph.with_local_env_strategy(
+        struct_graph = StructureGraph.from_local_env_strategy(
             structure, self, weights=weights, edge_properties=edge_properties
         )
 
@@ -1524,7 +1524,7 @@ class OpenBabelNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1671,7 +1671,7 @@ class CovalentBondNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
