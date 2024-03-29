@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Callable, cast
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
+from monty.dev import deprecated
 from monty.json import MSONable
 from networkx.drawing.nx_agraph import write_dot
 from networkx.readwrite import json_graph
@@ -153,7 +154,7 @@ class StructureGraph(MSONable):
                 data["from_jimage"] = tuple(from_img)
 
     @classmethod
-    def with_empty_graph(
+    def from_empty_graph(
         cls,
         structure: Structure,
         name: str = "bonds",
@@ -196,8 +197,16 @@ class StructureGraph(MSONable):
 
         return cls(structure, graph_data=graph_data)
 
+    @deprecated(
+        from_empty_graph,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
     @classmethod
-    def with_edges(cls, structure: Structure, edges: dict) -> Self:
+    def with_empty_graph(cls, *args, **kwargs):
+        return cls.from_empty_graph(*args, **kwargs)
+
+    @classmethod
+    def from_edges(cls, structure: Structure, edges: dict) -> Self:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -250,8 +259,16 @@ class StructureGraph(MSONable):
         struct_graph.set_node_attributes()
         return struct_graph
 
+    @deprecated(
+        from_edges,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
     @classmethod
-    def with_local_env_strategy(
+    def with_edges(cls, *args, **kwargs):
+        return cls.from_edges(*args, **kwargs)
+
+    @classmethod
+    def from_local_env_strategy(
         cls, structure: Structure, strategy: NearNeighbors, weights: bool = False, edge_properties: bool = False
     ) -> Self:
         """
@@ -286,6 +303,14 @@ class StructureGraph(MSONable):
                 )
 
         return struct_graph
+
+    @deprecated(
+        from_local_env_strategy,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    @classmethod
+    def with_local_env_strategy(cls, *args, **kwargs):
+        return cls.from_local_env_strategy(*args, **kwargs)
 
     @property
     def name(self) -> str:
@@ -1581,7 +1606,7 @@ class MoleculeGraph(MSONable):
         self.set_node_attributes()
 
     @classmethod
-    def with_empty_graph(cls, molecule, name="bonds", edge_weight_name=None, edge_weight_units=None) -> Self:
+    def from_empty_graph(cls, molecule, name="bonds", edge_weight_name=None, edge_weight_units=None) -> Self:
         """
         Constructor for MoleculeGraph, returns a MoleculeGraph
         object with an empty graph (no edges, only nodes defined
@@ -1620,8 +1645,16 @@ class MoleculeGraph(MSONable):
 
         return cls(molecule, graph_data=graph_data)
 
+    @deprecated(
+        from_empty_graph,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
     @classmethod
-    def with_edges(cls, molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> Self:
+    def with_empty_graph(cls, *args, **kwargs):
+        return cls.from_empty_graph(*args, **kwargs)
+
+    @classmethod
+    def from_edges(cls, molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> Self:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -1664,8 +1697,16 @@ class MoleculeGraph(MSONable):
         mg.set_node_attributes()
         return mg
 
+    @deprecated(
+        from_edges,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
     @classmethod
-    def with_local_env_strategy(cls, molecule, strategy) -> Self:
+    def with_edges(cls, *args, **kwargs):
+        return cls.from_edges(*args, **kwargs)
+
+    @classmethod
+    def from_local_env_strategy(cls, molecule, strategy) -> Self:
         """
         Constructor for MoleculeGraph, using a strategy
         from pymatgen.analysis.local_env.
@@ -1728,6 +1769,14 @@ class MoleculeGraph(MSONable):
 
         mg.set_node_attributes()
         return mg
+
+    @deprecated(
+        from_local_env_strategy,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    @classmethod
+    def with_local_env_strategy(cls, *args, **kwargs):
+        return cls.from_local_env_strategy(*args, **kwargs)
 
     @property
     def name(self):
