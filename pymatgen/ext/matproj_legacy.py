@@ -35,8 +35,11 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
+
 logger = logging.getLogger(__name__)
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
@@ -233,7 +236,7 @@ class _MPResterLegacy:
             except Exception:
                 pass
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 

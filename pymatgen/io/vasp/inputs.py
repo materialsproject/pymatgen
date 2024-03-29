@@ -6,6 +6,7 @@ All major VASP input files.
 from __future__ import annotations
 
 import codecs
+import contextlib
 import hashlib
 import itertools
 import json
@@ -37,6 +38,7 @@ from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from pathlib import Path
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -219,7 +221,7 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @classmethod
-    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
+    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Self:
         """
         Reads a Poscar from a file.
 
@@ -270,7 +272,7 @@ class Poscar(MSONable):
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    def from_str(cls, data, default_names=None, read_velocities=True) -> Poscar:
+    def from_str(cls, data, default_names=None, read_velocities=True) -> Self:
         """
         Reads a Poscar from a string.
 
@@ -350,11 +352,10 @@ class Poscar(MSONable):
             #   ...
             n_lines_symbols = 1
             for n_lines_symbols in range(1, 11):
-                try:
+                with contextlib.suppress(ValueError):
                     int(lines[5 + n_lines_symbols].split()[0])
                     break
-                except ValueError:
-                    pass
+
             for i_line_symbols in range(6, 5 + n_lines_symbols):
                 symbols.extend(lines[i_line_symbols].split())
             n_atoms = []
@@ -382,13 +383,11 @@ class Poscar(MSONable):
         # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
-            try:
+            with contextlib.suppress(IndexError):
                 atomic_symbols = []
                 for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
-            except IndexError:
-                pass
 
         if not vasp5_symbols:
             ind = 6 if has_selective_dynamics else 3
@@ -607,7 +606,7 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Poscar:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -718,7 +717,7 @@ class Incar(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Incar:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Serialized Incar
@@ -785,7 +784,7 @@ class Incar(dict, MSONable):
             file.write(str(self))
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Incar:
+    def from_file(cls, filename: PathLike) -> Self:
         """Reads an Incar object from a file.
 
         Args:
@@ -798,7 +797,7 @@ class Incar(dict, MSONable):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string: str) -> Incar:
+    def from_str(cls, string: str) -> Self:
         """Reads an Incar object from a string.
 
         Args:
@@ -869,7 +868,7 @@ class Incar(dict, MSONable):
                 return float(num_str)
             return int(num_str)
 
-        try:
+        with contextlib.suppress(ValueError):
             if key in list_keys:
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
@@ -882,11 +881,10 @@ class Incar(dict, MSONable):
                         output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
-                if m:
+                if m := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
                     return m.group(1).lower() == "t"
 
-                raise ValueError(key + " should be a boolean type!")
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))  # type: ignore
@@ -897,19 +895,12 @@ class Incar(dict, MSONable):
             if key in lower_str_keys:
                 return val.strip().lower()
 
-        except ValueError:
-            pass
-
         # Not in standard keys. We will try a hierarchy of conversions.
-        try:
+        with contextlib.suppress(ValueError):
             return int(val)
-        except ValueError:
-            pass
 
-        try:
+        with contextlib.suppress(ValueError):
             return float(val)
-        except ValueError:
-            pass
 
         if "true" in val.lower():
             return True
@@ -1006,7 +997,7 @@ class KpointsSupportedModes(Enum):
         return str(self.name)
 
     @classmethod
-    def from_str(cls, mode: str) -> KpointsSupportedModes:
+    def from_str(cls, mode: str) -> Self:
         """
         Args:
             mode: String
@@ -1015,7 +1006,7 @@ class KpointsSupportedModes(Enum):
             Kpoints_supported_modes
         """
         initial = mode.lower()[0]
-        for key in KpointsSupportedModes:
+        for key in cls:
             if key.name.lower()[0] == initial:
                 return key
         raise ValueError(f"Invalid Kpoint {mode=}")
@@ -1031,7 +1022,7 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
-        kpts: Sequence[float | Sequence] = ((1, 1, 1),),
+        kpts: Sequence[float | Sequence[float]] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
@@ -1089,7 +1080,7 @@ class Kpoints(MSONable):
         self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
-        self.kpts_shift = kpts_shift
+        self.kpts_shift = tuple(kpts_shift)
         self.labels = labels
         self.tet_number = tet_number
         self.tet_weight = tet_weight
@@ -1355,7 +1346,7 @@ class Kpoints(MSONable):
         return self.as_dict() == other.as_dict()
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a Kpoints object from a KPOINTS file.
 
@@ -1369,7 +1360,7 @@ class Kpoints(MSONable):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a Kpoints object from a KPOINTS string.
 
@@ -1392,63 +1383,68 @@ class Kpoints(MSONable):
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
-        if style in ["g", "m"]:
-            kpts = [int(i) for i in lines[3].split()]
-            kpts_shift = (0, 0, 0)
+        if style in {"g", "m"}:
+            kpts = tuple(int(i) for i in lines[3].split())
+            assert len(kpts) == 3
+
+            kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
-                try:
-                    kpts_shift = [float(i) for i in lines[4].split()]
-                except ValueError:
-                    pass
+                with contextlib.suppress(ValueError):
+                    _kpts_shift = tuple(float(i) for i in lines[4].split())
+                if len(_kpts_shift) == 3:
+                    kpts_shift = _kpts_shift
+
             return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-            kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
-            kpts_shift = [float(i) for i in lines[6].split()]
-            return Kpoints(
+            _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
+            _kpts_shift = tuple(float(i) for i in lines[6].split())
+            if len(_kpts_shift) == 3:
+                kpts_shift = _kpts_shift
+
+            return cls(
                 comment=comment,
                 num_kpts=num_kpts,
-                style=style,
-                kpts=kpts,
+                style=_style,
+                kpts=[[float(j) for j in lines[i].split()] for i in range(3, 6)],
                 kpts_shift=kpts_shift,
             )
 
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
-            style = cls.supported_modes.Line_mode
-            kpts = []
+            _style = cls.supported_modes.Line_mode
+            _kpts: list[list[float]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
                 m = patt.match(line)
                 if m:
-                    kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
+                    _kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
-            return Kpoints(
+            return cls(
                 comment=comment,
                 num_kpts=num_kpts,
-                style=style,
-                kpts=kpts,
+                style=_style,
+                kpts=_kpts,
                 coord_type=coord_type,
                 labels=labels,
             )
 
         # Assume explicit KPOINTS if all else fails.
-        style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-        kpts = []
+        _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
+        _kpts = []
         kpts_weights = []
         labels = []
         tet_number = 0
-        tet_weight = 0
+        tet_weight: float = 0
         tet_connections = None
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append([float(j) for j in tokens[0:3]])
+            _kpts.append([float(j) for j in tokens[:3]])
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1470,8 +1466,8 @@ class Kpoints(MSONable):
         return cls(
             comment=comment,
             num_kpts=num_kpts,
-            style=cls.supported_modes[str(style)],
-            kpts=kpts,
+            style=cls.supported_modes[str(_style)],
+            kpts=_kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
             tet_weight=tet_weight,
@@ -1479,7 +1475,7 @@ class Kpoints(MSONable):
             labels=labels,
         )
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Write Kpoints to a file.
 
@@ -1840,7 +1836,7 @@ class PotcarSingle:
             PotcarSingle
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
-        symbol = match.group(0) if match else ""
+        symbol = match[0] if match else ""
 
         try:
             with zopen(filename, mode="rt") as file:
@@ -1852,7 +1848,7 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
 
     @classmethod
-    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
+    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None) -> Self:
         """Makes a PotcarSingle from a symbol and functional.
 
         Args:
@@ -2652,7 +2648,7 @@ class VaspInput(dict, MSONable):
                     file.write(str(v))
 
     @classmethod
-    def from_directory(cls, input_dir, optional_files=None):
+    def from_directory(cls, input_dir: str, optional_files: dict | None = None) -> Self:
         """
         Read in a set of VASP input from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
@@ -2673,14 +2669,14 @@ class VaspInput(dict, MSONable):
         ]:
             try:
                 full_zpath = zpath(os.path.join(input_dir, fname))
-                sub_dct[fname.lower()] = ftype.from_file(full_zpath)
+                sub_dct[fname.lower()] = ftype.from_file(full_zpath)  # type: ignore[attr-defined]
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_dct[fname.lower()] = None
 
-        sub_dct["optional_files"] = {}
-        if optional_files is not None:
-            for fname, ftype in optional_files.items():
-                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
+        sub_dct["optional_files"] = {
+            fname: ftype.from_file(os.path.join(input_dir, fname)) for fname, ftype in (optional_files or {}).items()
+        }
+
         return cls(**sub_dct)
 
     def copy(self, deep: bool = True):

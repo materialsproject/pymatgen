@@ -100,10 +100,11 @@ class AflowPrototypeMatcher:
         Args:
             structure: structure to match
 
-        Returns (list): A list of dicts with keys 'snl' for the matched prototype and
-            'tags', a dict of tags ('mineral', 'strukturbericht' and 'aflow') of that
-            prototype. This should be a list containing just a single entry, but it is
-            possible a material can match multiple prototypes.
+        Returns:
+            list | None: A list of dicts with keys 'snl' for the matched prototype and
+                'tags', a dict of tags ('mineral', 'strukturbericht' and 'aflow') of that
+                prototype. This should be a list containing just a single entry, but it is
+                possible a material can match multiple prototypes.
         """
         tags = self._match_single_prototype(structure)
 

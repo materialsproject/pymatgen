@@ -316,7 +316,7 @@ class InterfacialReactivity(MSONable):
 
         return reaction
 
-    def _get_elem_amt_in_rxn(self, rxn: Reaction) -> int:
+    def _get_elem_amt_in_rxn(self, rxn: Reaction) -> float:
         """
         Computes total number of atoms in a reaction formula for elements
         not in external reservoir. This method is used in the calculation

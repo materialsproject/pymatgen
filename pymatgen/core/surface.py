@@ -1131,21 +1131,21 @@ class SlabGenerator:
         matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
         new_slabs = []
-        for g in matcher.group_structures(slabs):
+        for group in matcher.group_structures(slabs):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
-                slabs = self.nonstoichiometric_symmetrized_slab(g[0])
+                slabs = self.nonstoichiometric_symmetrized_slab(group[0])
                 new_slabs.extend(slabs)
             else:
-                new_slabs.append(g[0])
+                new_slabs.append(group[0])
 
         match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
         new_slabs = [g[0] for g in match.group_structures(new_slabs)]
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
-    def repair_broken_bonds(self, slab, bonds):
+    def repair_broken_bonds(self, slab: Slab, bonds):
         """This method will find undercoordinated atoms due to slab
         cleaving specified by the bonds parameter and move them
         to the other surface to make sure the bond is kept intact.

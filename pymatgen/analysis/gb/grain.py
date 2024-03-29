@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import CompositionLike
@@ -282,7 +283,7 @@ class GrainBoundary(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GrainBoundary:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
         """
         Generates a GrainBoundary object from a dictionary created by as_dict().
 

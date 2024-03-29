@@ -74,7 +74,7 @@ class VampireCaller:
                 If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
-        Parameters:
+        Attributes:
             sgraph (StructureGraph): Ground state graph.
             unique_site_ids (dict): Maps each site to its unique identifier
             nn_interactions (dict): {i: j} pairs of NN interactions

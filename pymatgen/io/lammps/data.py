@@ -37,6 +37,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
+    from typing_extensions import Self
+
     from pymatgen.core.sites import Site
     from pymatgen.core.structure import SiteCollection
 
@@ -629,7 +631,7 @@ class LammpsData(MSONable):
         return self.box, ff, topo_list
 
     @classmethod
-    def from_file(cls, filename: str, atom_style: str = "full", sort_id: bool = False) -> LammpsData:
+    def from_file(cls, filename: str, atom_style: str = "full", sort_id: bool = False) -> Self:
         """
         Constructor that parses a file.
 
@@ -743,7 +745,7 @@ class LammpsData(MSONable):
     @classmethod
     def from_ff_and_topologies(
         cls, box: LammpsBox, ff: ForceField, topologies: Sequence[Topology], atom_style: str = "full"
-    ):
+    ) -> Self:
         """
         Constructor building LammpsData from a ForceField object and a
         list of Topology objects. Do not support intermolecular
@@ -818,7 +820,7 @@ class LammpsData(MSONable):
         ff_elements: Sequence[str] | None = None,
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
-    ):
+    ) -> Self:
         """
         Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
@@ -969,7 +971,7 @@ class Topology(MSONable):
         dihedral: bool = True,
         tol: float = 0.1,
         **kwargs,
-    ):
+    ) -> Self:
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -1194,20 +1196,20 @@ class ForceField(MSONable):
             yaml.dump(dct, file)
 
     @classmethod
-    def from_file(cls, filename: str) -> ForceField:
+    def from_file(cls, filename: str) -> Self:
         """
         Constructor that reads in a file in YAML format.
 
         Args:
             filename (str): Filename.
         """
-        with open(filename) as file:
+        with open(filename, encoding="utf-8") as file:
             yaml = YAML()
             d = yaml.load(file)
         return cls.from_dict(d)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> ForceField:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Constructor that reads in a dictionary.
 
@@ -1373,13 +1375,14 @@ class CombinedData(LammpsData):
             for mol in self.mols
         ]
 
+    # NOTE (@janosh): The following two methods for override parent class LammpsData
     @classmethod
-    def from_ff_and_topologies(cls):
+    def from_ff_and_topologies(cls) -> None:  # type: ignore[override]
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
-    def from_structure(cls):
+    def from_structure(cls) -> None:  # type: ignore[override]
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
@@ -1406,7 +1409,7 @@ class CombinedData(LammpsData):
         return df
 
     @classmethod
-    def from_files(cls, coordinate_file: str, list_of_numbers: list, *filenames) -> CombinedData:
+    def from_files(cls, coordinate_file: str, list_of_numbers: list, *filenames) -> Self:
         """
         Constructor that parse a series of data file.
 
@@ -1432,7 +1435,7 @@ class CombinedData(LammpsData):
     @classmethod
     def from_lammpsdata(
         cls, mols: list, names: list, list_of_numbers: list, coordinates: pd.DataFrame, atom_style: str | None = None
-    ) -> CombinedData:
+    ) -> Self:
         """
         Constructor that can infer atom_style.
         The input LammpsData objects are used non-destructively.
