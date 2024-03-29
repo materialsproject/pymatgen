@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Ion(Composition, MSONable, Stringify):
@@ -19,7 +23,7 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition, charge=0.0, _properties=None) -> None:
+    def __init__(self, composition: Composition, charge: float = 0.0) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
@@ -27,14 +31,15 @@ class Ion(Composition, MSONable, Stringify):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula: str) -> Ion:
+    def from_formula(cls, formula: str) -> Self:
         """Creates Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
 
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
-        :param formula:
+        Args:
+            formula (str): The formula to create ion from.
 
         Returns:
             Ion
@@ -119,8 +124,8 @@ class Ion(Composition, MSONable, Stringify):
                 Ions containing metals.
 
         Returns:
-            A pretty normalized formula and a multiplicative factor, i.e.,
-            H4O4 returns ('H2O2', 2.0).
+            tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
+                H4O4 returns ('H2O2', 2.0).
         """
         all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
@@ -137,7 +142,7 @@ class Ion(Composition, MSONable, Stringify):
                 comp = self.composition - nH2O * Composition("H2O")
 
         el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")
@@ -211,7 +216,7 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Ion:
+    def from_dict(cls, dct: dict) -> Self:
         """Generates an ion object from a dict created by as_dict().
 
         Args:

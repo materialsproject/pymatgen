@@ -23,6 +23,8 @@ from pymatgen.core import Composition, Element
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from typing_extensions import Self
+
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
@@ -211,14 +213,16 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def add(self, element):
         """Add an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.add(element)
 
     def discard(self, element):
         """Discard an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.discard(element)
 
@@ -312,7 +316,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 writer.writerow(row)
 
     @classmethod
-    def from_csv(cls, filename: str):
+    def from_csv(cls, filename: str) -> Self:
         """Imports PDEntries from a csv.
 
         Args:

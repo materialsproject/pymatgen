@@ -11,10 +11,14 @@ comparisons without the atom order correspondence prerequisite.
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -263,10 +267,10 @@ class MoleculeStructureComparator(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MoleculeStructureComparator

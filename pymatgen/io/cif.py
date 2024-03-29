@@ -31,6 +31,8 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
@@ -168,18 +170,19 @@ class CifBlock:
         return deq
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads CifBlock from string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifBlock
         """
         q = cls._process_string(string)
         header = q.popleft()[0][5:]
-        data = {}
+        data: dict = {}
         loops = []
         while q:
             s = q.popleft()
@@ -234,10 +237,11 @@ class CifFile:
         return f"{self.comment}\n{out}\n"
 
     @classmethod
-    def from_str(cls, string) -> CifFile:
+    def from_str(cls, string: str) -> Self:
         """Reads CifFile from a string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifFile
@@ -260,11 +264,12 @@ class CifFile:
         return cls(dct, string)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> CifFile:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads CifFile from a filename.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             CifFile
@@ -362,7 +367,7 @@ class CifParser:
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
-    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
+    def from_str(cls, cif_string: str, **kwargs) -> Self:
         """
         Creates a CifParser from a string.
 
@@ -384,16 +389,16 @@ class CifParser:
 
         This function is here so that CifParser can assume its
         input conforms to spec, simplifying its implementation.
-        :param data: CifBlock
+
+        Args:
+            data: CifBlock
 
         Returns:
             data CifBlock
         """
-        """
-        This part of the code deals with handling formats of data as found in
-        CIF files extracted from the Springer Materials/Pauling File
-        databases, and that are different from standard ICSD formats.
-        """
+        # This part of the code deals with handling formats of data as found in
+        # CIF files extracted from the Springer Materials/Pauling File
+        # databases, and that are different from standard ICSD formats.
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
@@ -587,6 +592,8 @@ class CifParser:
                         # Up to this point, magmoms have been defined relative
                         # to crystal axis. Now convert to Cartesian and into
                         # a Magmom object.
+                        if lattice is None:
+                            raise ValueError("Lattice cannot be None.")
                         magmom = Magmom.from_moment_relative_to_crystal_axes(
                             op.operate_magmom(tmp_magmom), lattice=lattice
                         )
@@ -1232,10 +1239,12 @@ class CifParser:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
 
-    def get_bibtex_string(self):
+    def get_bibtex_string(self) -> str:
         """
         Get BibTeX reference from CIF file.
-        :param data:
+
+        args:
+            data:
 
         Returns:
             BibTeX string.

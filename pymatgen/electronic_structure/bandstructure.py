@@ -7,7 +7,7 @@ import itertools
 import math
 import re
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MSONable
@@ -16,6 +16,9 @@ from pymatgen.core import Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import pbc_diff
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Geoffroy Hautier, Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -130,7 +133,7 @@ class Kpoint(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Kpoint:
+    def from_dict(cls, dct: dict) -> Self:
         """Create from dict.
 
         Args:
@@ -592,7 +595,7 @@ class BandStructure:
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Create from dict.
 
         Args:
@@ -640,7 +643,7 @@ class BandStructure:
             return cls.from_old_dict(dct)
 
     @classmethod
-    def from_old_dict(cls, dct):
+    def from_old_dict(cls, dct) -> Self:
         """
         Args:
             dct (dict): A dict with all data for a band structure symmetry line object.
@@ -650,7 +653,7 @@ class BandStructure:
         """
         # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
-        projections = {}
+        projections: dict = {}
         structure = None
         if dct.get("projections"):
             structure = Structure.from_dict(dct["structure"])
@@ -671,7 +674,7 @@ class BandStructure:
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
-        return BandStructure(
+        return cls(
             dct["kpoints"],
             {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
             Lattice(dct["lattice_rec"]["matrix"]),
@@ -934,7 +937,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): A dict with all data for a band structure symmetry line
@@ -954,7 +957,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 structure = Structure.from_dict(dct["structure"])
                 projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}
 
-            return LobsterBandStructureSymmLine(
+            return cls(
                 dct["kpoints"],
                 {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
                 Lattice(dct["lattice_rec"]["matrix"]),
@@ -970,10 +973,10 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 "format. The old format will be retired in pymatgen "
                 "5.0."
             )
-            return LobsterBandStructureSymmLine.from_old_dict(dct)
+            return cls.from_old_dict(dct)
 
     @classmethod
-    def from_old_dict(cls, dct):
+    def from_old_dict(cls, dct) -> Self:
         """
         Args:
             dct (dict): A dict with all data for a band structure symmetry line
@@ -984,7 +987,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         """
         # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
-        projections = {}
+        projections: dict = {}
         structure = None
         if "projections" in dct and len(dct["projections"]) != 0:
             structure = Structure.from_dict(dct["structure"])
@@ -998,7 +1001,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
-        return LobsterBandStructureSymmLine(
+        return cls(
             dct["kpoints"],
             {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
             Lattice(dct["lattice_rec"]["matrix"]),

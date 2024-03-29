@@ -13,6 +13,8 @@ from pymatgen.core import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 
@@ -92,7 +94,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             ]
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
@@ -106,7 +108,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -165,7 +167,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.

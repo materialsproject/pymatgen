@@ -36,13 +36,13 @@ class TestStress(PymatgenTest):
         # von_mises
         assert self.symm_stress.von_mises == approx(11.52253878275)
         # piola_kirchoff 1, 2
-        f = Deformation.from_index_amount((0, 1), 0.03)
+        deform = Deformation.from_index_amount((0, 1), 0.03)
         assert_allclose(
-            self.symm_stress.piola_kirchoff_1(f),
+            self.symm_stress.piola_kirchoff_1(deform),
             [[0.4413, 2.29, 2.42], [2.1358, 5.14, 5.07], [2.2679, 5.07, 5.33]],
         )
         assert_allclose(
-            self.symm_stress.piola_kirchoff_2(f),
+            self.symm_stress.piola_kirchoff_2(deform),
             [[0.377226, 2.1358, 2.2679], [2.1358, 5.14, 5.07], [2.2679, 5.07, 5.33]],
         )
         # voigt

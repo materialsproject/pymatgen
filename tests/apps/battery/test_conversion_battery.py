@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import unittest
+from unittest import TestCase
 
 from monty.json import MontyDecoder
 from pytest import approx
@@ -11,7 +11,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestConversionElectrode(unittest.TestCase):
+class TestConversionElectrode(TestCase):
     def setUp(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
@@ -71,9 +71,9 @@ class TestConversionElectrode(unittest.TestCase):
 
             assert len(c.get_sub_electrodes(adjacent_only=True)) == c.num_steps
             assert len(c.get_sub_electrodes(adjacent_only=False)) == sum(range(1, c.num_steps + 1))
-            p = self.expected_properties[formula]
+            props = self.expected_properties[formula]
 
-            for k, v in p.items():
+            for k, v in props.items():
                 assert getattr(c, f"get_{k}")() == approx(v, abs=1e-2)
 
             assert {*c.get_summary_dict(print_subelectrodes=True)} == {
@@ -107,7 +107,7 @@ class TestConversionElectrode(unittest.TestCase):
             # try to create an electrode from a dict and test methods
             dct = c.as_dict()
             electrode = ConversionElectrode.from_dict(dct)
-            for k, v in p.items():
+            for k, v in props.items():
                 assert getattr(electrode, "get_" + k)() == approx(v, abs=1e-2)
 
     def test_repr(self):
@@ -121,11 +121,11 @@ class TestConversionElectrode(unittest.TestCase):
 
     def test_summary(self):
         key_map = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
-        for f in self.formulas:
-            c = self.conversion_electrodes[f]["CE"]
-            dct = c.get_summary_dict()
-            p = self.expected_properties[f]
-            for k, v in p.items():
+        for formula in self.formulas:
+            conv_elec = self.conversion_electrodes[formula]["CE"]
+            dct = conv_elec.get_summary_dict()
+            props = self.expected_properties[formula]
+            for k, v in props.items():
                 summary_key = key_map.get(k, k)
                 assert dct[summary_key] == approx(v, abs=1e-2)
 
@@ -133,10 +133,10 @@ class TestConversionElectrode(unittest.TestCase):
         # check entries in charged/discharged state
         for formula in self.formulas:
             CE = self.conversion_electrodes[formula]["CE"]
-            for step, vpair in enumerate(CE.voltage_pairs):
+            for step, volt_pair in enumerate(CE.voltage_pairs):
                 # entries_charge/entries_discharge attributes should return entries equal with the expected
                 composite_dict = self.expected_composite[formula]
                 for attr in ["entries_charge", "entries_discharge"]:
                     # composite at each discharge step, of which entry object is simplified to reduced formula
-                    entries_formula_list = [entry.reduced_formula for entry in getattr(vpair, attr)]
+                    entries_formula_list = [entry.reduced_formula for entry in getattr(volt_pair, attr)]
                     assert entries_formula_list == composite_dict[attr][step]

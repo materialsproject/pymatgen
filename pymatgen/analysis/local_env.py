@@ -18,7 +18,7 @@ from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import TYPE_CHECKING, Any, Literal, get_args
 
 import numpy as np
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
@@ -34,6 +34,8 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.composition import SpeciesLike
 
 
@@ -407,7 +409,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): Input structure
-        Return:
+        Returns:
             List of NN site information for each site in the structure. Each
                 entry has the same format as `get_nn_info`
         """
@@ -623,11 +625,13 @@ class NearNeighbors:
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights, edge_properties=edge_properties)
+        struct_graph = StructureGraph.from_local_env_strategy(
+            structure, self, weights=weights, edge_properties=edge_properties
+        )
 
         # sets the attributes
-        sg.set_node_attributes()
-        return sg
+        struct_graph.set_node_attributes()
+        return struct_graph
 
     def get_local_order_parameters(self, structure: Structure, n: int):
         """
@@ -641,9 +645,9 @@ class NearNeighbors:
             structure: Structure object
             n (int): site index.
 
-        Returns (dict[str, float]):
-            A dict of order parameters (values) and the
-            underlying motif type (keys; for example, tetrahedral).
+        Returns:
+            dict[str, float]: A dict of order parameters (values) and the
+                underlying motif type (keys; for example, tetrahedral).
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
@@ -1520,7 +1524,7 @@ class OpenBabelNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1612,8 +1616,9 @@ class CovalentBondNN(NearNeighbors):
         Get all near-neighbor sites and weights (orders) of bonds for a given
         atom.
 
-        :param structure: input Molecule.
-        :param n: index of site for which to determine near neighbors.
+        Args:
+            structure: input Molecule.
+            n: index of site for which to determine near neighbors.
 
         Returns:
             [dict] representing a neighboring site and the type of
@@ -1666,7 +1671,7 @@ class CovalentBondNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -3365,7 +3370,7 @@ class LocalStructOrderParams:
         return ops
 
 
-class BrunnerNN_reciprocal(NearNeighbors):
+class BrunnerNNReciprocal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3410,9 +3415,8 @@ class BrunnerNN_reciprocal(NearNeighbors):
             n (int): index of site for which to determine near-neighbor sites.
 
         Returns:
-            siw (list of tuples (Site, array, float)): tuples, each one
-                of which represents a coordinated site, its image location,
-                and its weight.
+            list[tuples[Site, array, float]]: tuples, each one of which represents a
+                coordinated site, its image location, and its weight.
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
@@ -3423,21 +3427,29 @@ class BrunnerNN_reciprocal(NearNeighbors):
         d_max = ds[ns.index(max(ns))]
         siw = []
         for nn in neighs_dists:
-            s, dist = nn, nn.nn_distance
+            site, dist = nn, nn.nn_distance
             if dist < d_max + self.tol:
                 w = ds[0] / dist
-                siw.append(
+                siw += [
                     {
-                        "site": s,
-                        "image": self._get_image(structure, s),
+                        "site": site,
+                        "image": self._get_image(structure, site),
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": self._get_original_site(structure, site),
                     }
-                )
+                ]
         return siw
 
 
-class BrunnerNN_relative(NearNeighbors):
+@deprecated(
+    BrunnerNNReciprocal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_reciprocal(BrunnerNNReciprocal):
+    pass
+
+
+class BrunnerNNRelative(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3509,7 +3521,15 @@ class BrunnerNN_relative(NearNeighbors):
         return siw
 
 
-class BrunnerNN_real(NearNeighbors):
+@deprecated(
+    BrunnerNNRelative,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_relative(BrunnerNNRelative):
+    pass
+
+
+class BrunnerNNReal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3579,6 +3599,14 @@ class BrunnerNN_real(NearNeighbors):
                     }
                 )
         return siw
+
+
+@deprecated(
+    BrunnerNNReal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_real(BrunnerNNReal):
+    pass
 
 
 class EconNN(NearNeighbors):
@@ -4213,7 +4241,7 @@ class CutOffDictNN(NearNeighbors):
         return True
 
     @classmethod
-    def from_preset(cls, preset) -> CutOffDictNN:
+    def from_preset(cls, preset) -> Self:
         """
         Initialize a CutOffDictNN according to a preset set of cutoffs.
 

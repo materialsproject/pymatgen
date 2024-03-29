@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
@@ -339,7 +340,7 @@ class Dos(MSONable):
         Returns:
             gap in eV
         """
-        (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
+        cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
     def __str__(self) -> str:
@@ -355,12 +356,12 @@ class Dos(MSONable):
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, d) -> Dos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns Dos object from dict representation of Dos."""
-        return Dos(
-            d["efermi"],
-            d["energies"],
-            {Spin(int(k)): v for k, v in d["densities"].items()},
+        return cls(
+            dct["efermi"],
+            dct["energies"],
+            {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
 
     def as_dict(self) -> dict:
@@ -568,14 +569,14 @@ class FermiDos(Dos, MSONable):
         return fermi
 
     @classmethod
-    def from_dict(cls, d) -> FermiDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns Dos object from dict representation of Dos."""
         dos = Dos(
-            d["efermi"],
-            d["energies"],
-            {Spin(int(k)): v for k, v in d["densities"].items()},
+            dct["efermi"],
+            dct["energies"],
+            {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
-        return FermiDos(dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"])
+        return cls(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of Dos."""
@@ -1248,19 +1249,19 @@ class CompleteDos(Dos):
         )
 
     @classmethod
-    def from_dict(cls, d) -> CompleteDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns CompleteDos object from dict representation."""
-        tdos = Dos.from_dict(d)
-        struct = Structure.from_dict(d["structure"])
+        tdos = Dos.from_dict(dct)
+        struct = Structure.from_dict(dct["structure"])
         pdoss = {}
-        for i in range(len(d["pdos"])):
-            at = struct[i]
+        for idx in range(len(dct["pdos"])):
+            at = struct[idx]
             orb_dos = {}
-            for orb_str, odos in d["pdos"][i].items():
+            for orb_str, odos in dct["pdos"][idx].items():
                 orb = Orbital[orb_str]
                 orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
-        return CompleteDos(struct, tdos, pdoss)
+        return cls(struct, tdos, pdoss)
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of CompleteDos."""
@@ -1394,19 +1395,19 @@ class LobsterCompleteDos(CompleteDos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}  # type: ignore
 
     @classmethod
-    def from_dict(cls, d) -> LobsterCompleteDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Hydrate CompleteDos object from dict representation."""
-        tdos = Dos.from_dict(d)
-        struct = Structure.from_dict(d["structure"])
+        tdos = Dos.from_dict(dct)
+        struct = Structure.from_dict(dct["structure"])
         pdoss = {}
-        for i in range(len(d["pdos"])):
+        for i in range(len(dct["pdos"])):
             at = struct[i]
             orb_dos = {}
-            for orb_str, odos in d["pdos"][i].items():
+            for orb_str, odos in dct["pdos"][i].items():
                 orb = orb_str
                 orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
-        return LobsterCompleteDos(struct, tdos, pdoss)
+        return cls(struct, tdos, pdoss)
 
 
 def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen namespace &mdash; pymatgen 2024.1.27 documentation</title>
+  <title>pymatgen namespace &mdash; pymatgen 2024.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -17,7 +17,7 @@
   
         <script src="assets/jquery.js?v=5d32c60e"></script>
         <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="assets/documentation_options.js?v=7a061dfc"></script>
+        <script src="assets/documentation_options.js?v=df55f829"></script>
         <script src="assets/doctools.js?v=888ff710"></script>
         <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
@@ -37,7 +37,7 @@
             
           </a>
               <div class="version">
-                2024.1.27
+                2024.3.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -52,7 +52,7 @@
 <li><a class="reference internal" href="#">pymatgen namespace</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#pymatgen-dao-module">pymatgen.dao module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.dao">pymatgen.dao module</a></li>
 </ul>
 </li>
 </ul>
@@ -3397,6 +3397,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.n_elems"><code class="docutils literal notranslate"><span class="pre">SiteCollection.n_elems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.ntypesp"><code class="docutils literal notranslate"><span class="pre">SiteCollection.ntypesp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.num_sites"><code class="docutils literal notranslate"><span class="pre">SiteCollection.num_sites</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.reduced_formula"><code class="docutils literal notranslate"><span class="pre">SiteCollection.reduced_formula</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.remove_oxidation_states"><code class="docutils literal notranslate"><span class="pre">SiteCollection.remove_oxidation_states()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.remove_site_property"><code class="docutils literal notranslate"><span class="pre">SiteCollection.remove_site_property()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.SiteCollection.remove_spin"><code class="docutils literal notranslate"><span class="pre">SiteCollection.remove_spin()</span></code></a></li>
@@ -4024,8 +4025,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.elements"><code class="docutils literal notranslate"><span class="pre">Entry.elements</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.energy"><code class="docutils literal notranslate"><span class="pre">Entry.energy</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.energy_per_atom"><code class="docutils literal notranslate"><span class="pre">Entry.energy_per_atom</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.formula"><code class="docutils literal notranslate"><span class="pre">Entry.formula</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.is_element"><code class="docutils literal notranslate"><span class="pre">Entry.is_element</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.normalize"><code class="docutils literal notranslate"><span class="pre">Entry.normalize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry.reduced_formula"><code class="docutils literal notranslate"><span class="pre">Entry.reduced_formula</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.entries.html#submodules">Submodules</a></li>
@@ -4499,6 +4502,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.abinit.html#module-pymatgen.io.abinit.netcdf">pymatgen.io.abinit.netcdf module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.html#pymatgen.io.abinit.netcdf.AbinitHeader"><code class="docutils literal notranslate"><span class="pre">AbinitHeader</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.abinit.html#pymatgen.io.abinit.netcdf.AbinitHeader.to_str"><code class="docutils literal notranslate"><span class="pre">AbinitHeader.to_str()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.abinit.html#pymatgen.io.abinit.netcdf.AbinitHeader.to_string"><code class="docutils literal notranslate"><span class="pre">AbinitHeader.to_string()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.html#pymatgen.io.abinit.netcdf.EtsfReader"><code class="docutils literal notranslate"><span class="pre">EtsfReader</span></code></a><ul>
@@ -4686,6 +4690,31 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.aims.html">pymatgen.io.aims package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.aims.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.aims.sets.html">pymatgen.io.aims.sets package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.sets.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.sets.html#module-pymatgen.io.aims.sets.base">pymatgen.io.aims.sets.base module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.base.AimsInputSet"><code class="docutils literal notranslate"><span class="pre">AimsInputSet</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.base.recursive_update"><code class="docutils literal notranslate"><span class="pre">recursive_update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.sets.html#module-pymatgen.io.aims.sets.bs">pymatgen.io.aims.sets.bs module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.bs.BandStructureSetGenerator"><code class="docutils literal notranslate"><span class="pre">BandStructureSetGenerator</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.bs.GWSetGenerator"><code class="docutils literal notranslate"><span class="pre">GWSetGenerator</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.bs.prepare_band_input"><code class="docutils literal notranslate"><span class="pre">prepare_band_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.sets.html#module-pymatgen.io.aims.sets.core">pymatgen.io.aims.sets.core module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.core.RelaxSetGenerator"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.core.SocketIOSetGenerator"><code class="docutils literal notranslate"><span class="pre">SocketIOSetGenerator</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.aims.sets.html#pymatgen.io.aims.sets.core.StaticSetGenerator"><code class="docutils literal notranslate"><span class="pre">StaticSetGenerator</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.aims.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.aims.html#module-pymatgen.io.aims.inputs">pymatgen.io.aims.inputs module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn"><code class="docutils literal notranslate"><span class="pre">AimsControlIn</span></code></a><ul>
@@ -4693,6 +4722,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.as_dict"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.as_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.from_dict"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.from_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.get_aims_control_parameter_str"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.get_aims_control_parameter_str()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.get_content"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.get_content()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.get_species_block"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.get_species_block()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.parameters"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.parameters</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.aims.html#pymatgen.io.aims.inputs.AimsControlIn.write_file"><code class="docutils literal notranslate"><span class="pre">AimsControlIn.write_file()</span></code></a></li>
@@ -5014,7 +5044,7 @@
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.html#pymatgen.io.cp2k.inputs.Kind"><code class="docutils literal notranslate"><span class="pre">Kind</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.html#pymatgen.io.cp2k.inputs.Kpoint_Set"><code class="docutils literal notranslate"><span class="pre">Kpoint_Set</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.html#pymatgen.io.cp2k.inputs.KpointSet"><code class="docutils literal notranslate"><span class="pre">KpointSet</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.html#pymatgen.io.cp2k.inputs.Kpoints"><code class="docutils literal notranslate"><span class="pre">Kpoints</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.cp2k.html#pymatgen.io.cp2k.inputs.Kpoints.from_kpoints"><code class="docutils literal notranslate"><span class="pre">Kpoints.from_kpoints()</span></code></a></li>
 </ul>
@@ -5355,7 +5385,7 @@
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField"><code class="docutils literal notranslate"><span class="pre">ForceField</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField.masses"><code class="docutils literal notranslate"><span class="pre">ForceField.masses</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField.force_field"><code class="docutils literal notranslate"><span class="pre">ForceField.force_field</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField.force_fieldct"><code class="docutils literal notranslate"><span class="pre">ForceField.force_fieldct</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField.maps"><code class="docutils literal notranslate"><span class="pre">ForceField.maps</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField.from_dict"><code class="docutils literal notranslate"><span class="pre">ForceField.from_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#pymatgen.io.lammps.data.ForceField.from_file"><code class="docutils literal notranslate"><span class="pre">ForceField.from_file()</span></code></a></li>
@@ -5527,7 +5557,8 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.lobster.html#module-pymatgen.io.lobster.outputs">pymatgen.io.lobster.outputs module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Bandoverlaps"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps</span></code></a><ul>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Bandoverlaps.maxDeviation"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.maxDeviation</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Bandoverlaps.max_deviation"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.max_deviation</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Bandoverlaps.bandoverlapsdict"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.bandoverlapsdict</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_check_occupied_bands"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.has_good_quality_check_occupied_bands()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Bandoverlaps.has_good_quality_maxDeviation"><code class="docutils literal notranslate"><span class="pre">Bandoverlaps.has_good_quality_maxDeviation()</span></code></a></li>
 </ul>
@@ -5535,9 +5566,11 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge"><code class="docutils literal notranslate"><span class="pre">Charge</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.atomlist"><code class="docutils literal notranslate"><span class="pre">Charge.atomlist</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.types"><code class="docutils literal notranslate"><span class="pre">Charge.types</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.Mulliken"><code class="docutils literal notranslate"><span class="pre">Charge.Mulliken</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.Loewdin"><code class="docutils literal notranslate"><span class="pre">Charge.Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.mulliken"><code class="docutils literal notranslate"><span class="pre">Charge.mulliken</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.loewdin"><code class="docutils literal notranslate"><span class="pre">Charge.loewdin</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.num_atoms"><code class="docutils literal notranslate"><span class="pre">Charge.num_atoms</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.Loewdin"><code class="docutils literal notranslate"><span class="pre">Charge.Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.Mulliken"><code class="docutils literal notranslate"><span class="pre">Charge.Mulliken</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Charge.get_structure_with_charges"><code class="docutils literal notranslate"><span class="pre">Charge.get_structure_with_charges()</span></code></a></li>
 </ul>
 </li>
@@ -5635,13 +5668,16 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Lobsterout.timing"><code class="docutils literal notranslate"><span class="pre">Lobsterout.timing</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Lobsterout.total_spilling"><code class="docutils literal notranslate"><span class="pre">Lobsterout.total_spilling</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Lobsterout.warning_lines"><code class="docutils literal notranslate"><span class="pre">Lobsterout.warning_lines</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Lobsterout.as_dict"><code class="docutils literal notranslate"><span class="pre">Lobsterout.as_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Lobsterout.get_doc"><code class="docutils literal notranslate"><span class="pre">Lobsterout.get_doc()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies</span></code></a><ul>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_Mulliken"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.madelungenergies_Mulliken</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_Loewdin"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.madelungenergies_Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_mulliken"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.madelungenergies_mulliken</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_loewdin"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.madelungenergies_loewdin</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.ewald_splitting"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.ewald_splitting</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_Loewdin"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.madelungenergies_Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.MadelungEnergies.madelungenergies_Mulliken"><code class="docutils literal notranslate"><span class="pre">MadelungEnergies.madelungenergies_Mulliken</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.NciCobiList"><code class="docutils literal notranslate"><span class="pre">NciCobiList</span></code></a><ul>
@@ -5654,12 +5690,16 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.atomlist"><code class="docutils literal notranslate"><span class="pre">SitePotential.atomlist</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.types"><code class="docutils literal notranslate"><span class="pre">SitePotential.types</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.num_atoms"><code class="docutils literal notranslate"><span class="pre">SitePotential.num_atoms</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_Mulliken"><code class="docutils literal notranslate"><span class="pre">SitePotential.sitepotentials_Mulliken</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_Loewdin"><code class="docutils literal notranslate"><span class="pre">SitePotential.sitepotentials_Loewdin</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.madelung_Mulliken"><code class="docutils literal notranslate"><span class="pre">SitePotential.madelung_Mulliken</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.madelung_Loewdin"><code class="docutils literal notranslate"><span class="pre">SitePotential.madelung_Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_mulliken"><code class="docutils literal notranslate"><span class="pre">SitePotential.sitepotentials_mulliken</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_loewdin"><code class="docutils literal notranslate"><span class="pre">SitePotential.sitepotentials_loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.madelungenergies_mulliken"><code class="docutils literal notranslate"><span class="pre">SitePotential.madelungenergies_mulliken</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.madelungenergies_loewdin"><code class="docutils literal notranslate"><span class="pre">SitePotential.madelungenergies_loewdin</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.ewald_splitting"><code class="docutils literal notranslate"><span class="pre">SitePotential.ewald_splitting</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.get_structure_with_site_potentials"><code class="docutils literal notranslate"><span class="pre">SitePotential.get_structure_with_site_potentials()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.madelungenergies_Loewdin"><code class="docutils literal notranslate"><span class="pre">SitePotential.madelungenergies_Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.madelungenergies_Mulliken"><code class="docutils literal notranslate"><span class="pre">SitePotential.madelungenergies_Mulliken</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_Loewdin"><code class="docutils literal notranslate"><span class="pre">SitePotential.sitepotentials_Loewdin</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.SitePotential.sitepotentials_Mulliken"><code class="docutils literal notranslate"><span class="pre">SitePotential.sitepotentials_Mulliken</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html#pymatgen.io.lobster.outputs.Wavefunction"><code class="docutils literal notranslate"><span class="pre">Wavefunction</span></code></a><ul>
@@ -5879,9 +5919,11 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.vasp.html#module-pymatgen.io.vasp.inputs">pymatgen.io.vasp.inputs module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.BadIncarWarning"><code class="docutils literal notranslate"><span class="pre">BadIncarWarning</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.BadPoscarWarning"><code class="docutils literal notranslate"><span class="pre">BadPoscarWarning</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar"><code class="docutils literal notranslate"><span class="pre">Incar</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar.as_dict"><code class="docutils literal notranslate"><span class="pre">Incar.as_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar.check_params"><code class="docutils literal notranslate"><span class="pre">Incar.check_params()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar.copy"><code class="docutils literal notranslate"><span class="pre">Incar.copy()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar.diff"><code class="docutils literal notranslate"><span class="pre">Incar.diff()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar.from_dict"><code class="docutils literal notranslate"><span class="pre">Incar.from_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Incar.from_file"><code class="docutils literal notranslate"><span class="pre">Incar.from_file()</span></code></a></li>
@@ -5899,6 +5941,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.automatic_density_by_vol"><code class="docutils literal notranslate"><span class="pre">Kpoints.automatic_density_by_vol()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.automatic_gamma_density"><code class="docutils literal notranslate"><span class="pre">Kpoints.automatic_gamma_density()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.automatic_linemode"><code class="docutils literal notranslate"><span class="pre">Kpoints.automatic_linemode()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.copy"><code class="docutils literal notranslate"><span class="pre">Kpoints.copy()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.from_dict"><code class="docutils literal notranslate"><span class="pre">Kpoints.from_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.from_file"><code class="docutils literal notranslate"><span class="pre">Kpoints.from_file()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.Kpoints.from_str"><code class="docutils literal notranslate"><span class="pre">Kpoints.from_str()</span></code></a></li>
@@ -5977,6 +6020,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.data"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.data</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.keywords"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.keywords</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.atomic_no"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.atomic_no</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.copy"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.copy()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.electron_configuration"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.electron_configuration</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.element"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.element</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.PotcarSingle.from_file"><code class="docutils literal notranslate"><span class="pre">PotcarSingle.from_file()</span></code></a></li>
@@ -6003,6 +6047,7 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.UnknownPotcarWarning"><code class="docutils literal notranslate"><span class="pre">UnknownPotcarWarning</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.VaspInput"><code class="docutils literal notranslate"><span class="pre">VaspInput</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.VaspInput.as_dict"><code class="docutils literal notranslate"><span class="pre">VaspInput.as_dict()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.VaspInput.copy"><code class="docutils literal notranslate"><span class="pre">VaspInput.copy()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.VaspInput.from_dict"><code class="docutils literal notranslate"><span class="pre">VaspInput.from_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.VaspInput.from_directory"><code class="docutils literal notranslate"><span class="pre">VaspInput.from_directory()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.inputs.VaspInput.run_vasp"><code class="docutils literal notranslate"><span class="pre">VaspInput.run_vasp()</span></code></a></li>
@@ -6077,6 +6122,20 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Elfcar"><code class="docutils literal notranslate"><span class="pre">Elfcar</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Elfcar.from_file"><code class="docutils literal notranslate"><span class="pre">Elfcar.from_file()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Elfcar.get_alpha"><code class="docutils literal notranslate"><span class="pre">Elfcar.get_alpha()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps"><code class="docutils literal notranslate"><span class="pre">KpointOptProps</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.actual_kpoints"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.actual_kpoints</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.actual_kpoints_weights"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.actual_kpoints_weights</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.dos_has_errors"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.dos_has_errors</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.efermi"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.efermi</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.eigenvalues"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.eigenvalues</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.idos"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.idos</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.kpoints"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.kpoints</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.pdos"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.pdos</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.projected_eigenvalues"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.projected_eigenvalues</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.projected_magnetisation"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.projected_magnetisation</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.KpointOptProps.tdos"><code class="docutils literal notranslate"><span class="pre">KpointOptProps.tdos</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Locpot"><code class="docutils literal notranslate"><span class="pre">Locpot</span></code></a><ul>
@@ -6180,6 +6239,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.actual_kpoints_weights"><code class="docutils literal notranslate"><span class="pre">Vasprun.actual_kpoints_weights</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.atomic_symbols"><code class="docutils literal notranslate"><span class="pre">Vasprun.atomic_symbols</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.potcar_symbols"><code class="docutils literal notranslate"><span class="pre">Vasprun.potcar_symbols</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.kpoints_opt_props"><code class="docutils literal notranslate"><span class="pre">Vasprun.kpoints_opt_props</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.as_dict"><code class="docutils literal notranslate"><span class="pre">Vasprun.as_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.calculate_efermi"><code class="docutils literal notranslate"><span class="pre">Vasprun.calculate_efermi()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.outputs.Vasprun.complete_dos"><code class="docutils literal notranslate"><span class="pre">Vasprun.complete_dos</span></code></a></li>
@@ -6549,6 +6609,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.sets.MatPESStaticSet.xc_functional"><code class="docutils literal notranslate"><span class="pre">MatPESStaticSet.xc_functional</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.sets.VaspInputGenerator"><code class="docutils literal notranslate"><span class="pre">VaspInputGenerator</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.sets.VaspInputSet"><code class="docutils literal notranslate"><span class="pre">VaspInputSet</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.sets.VaspInputSet.as_dict"><code class="docutils literal notranslate"><span class="pre">VaspInputSet.as_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.vasp.html#pymatgen.io.vasp.sets.VaspInputSet.get_input_set"><code class="docutils literal notranslate"><span class="pre">VaspInputSet.get_input_set()</span></code></a></li>
@@ -6635,6 +6696,11 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.AseAtomsAdaptor.get_atoms"><code class="docutils literal notranslate"><span class="pre">AseAtomsAdaptor.get_atoms()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.AseAtomsAdaptor.get_molecule"><code class="docutils literal notranslate"><span class="pre">AseAtomsAdaptor.get_molecule()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.AseAtomsAdaptor.get_structure"><code class="docutils literal notranslate"><span class="pre">AseAtomsAdaptor.get_structure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.MSONAtoms"><code class="docutils literal notranslate"><span class="pre">MSONAtoms</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.MSONAtoms.as_dict"><code class="docutils literal notranslate"><span class="pre">MSONAtoms.as_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.MSONAtoms.from_dict"><code class="docutils literal notranslate"><span class="pre">MSONAtoms.from_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -6842,6 +6908,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.title"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.title</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.standard_orientation"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.standard_orientation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.bond_orders"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.bond_orders</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.to_input"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.to_input()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.read_scan"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.read_scan()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.get_scan_plot"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.get_scan_plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.save_scan_plot"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.save_scan_plot()</span></code></a></li>
@@ -6854,10 +6921,22 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id1"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.read_scan()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id2"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.save_scan_plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.save_spectre_plot"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.save_spectre_plot()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.GaussianOutput.to_input"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.to_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id3"><code class="docutils literal notranslate"><span class="pre">GaussianOutput.to_input()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.gaussian.read_route_line"><code class="docutils literal notranslate"><span class="pre">read_route_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.html#module-pymatgen.io.icet">pymatgen.io.icet module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS"><code class="docutils literal notranslate"><span class="pre">IcetSQS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS.enumerate_sqs_structures"><code class="docutils literal notranslate"><span class="pre">IcetSQS.enumerate_sqs_structures()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS.get_icet_sqs_obj"><code class="docutils literal notranslate"><span class="pre">IcetSQS.get_icet_sqs_obj()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS.monte_carlo_sqs_structures"><code class="docutils literal notranslate"><span class="pre">IcetSQS.monte_carlo_sqs_structures()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS.run"><code class="docutils literal notranslate"><span class="pre">IcetSQS.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS.sqs_kwarg_names"><code class="docutils literal notranslate"><span class="pre">IcetSQS.sqs_kwarg_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.icet.IcetSQS.sqs_methods"><code class="docutils literal notranslate"><span class="pre">IcetSQS.sqs_methods</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.html#module-pymatgen.io.jarvis">pymatgen.io.jarvis module</a><ul>
@@ -7100,12 +7179,12 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.wannier90.Unk.is_noncollinear"><code class="docutils literal notranslate"><span class="pre">Unk.is_noncollinear</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.wannier90.Unk.nbnd"><code class="docutils literal notranslate"><span class="pre">Unk.nbnd</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.wannier90.Unk.ng"><code class="docutils literal notranslate"><span class="pre">Unk.ng</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id3"><code class="docutils literal notranslate"><span class="pre">Unk.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id4"><code class="docutils literal notranslate"><span class="pre">Unk.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.wannier90.Unk.from_file"><code class="docutils literal notranslate"><span class="pre">Unk.from_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id4"><code class="docutils literal notranslate"><span class="pre">Unk.ik</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id5"><code class="docutils literal notranslate"><span class="pre">Unk.is_noncollinear</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id6"><code class="docutils literal notranslate"><span class="pre">Unk.nbnd</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id7"><code class="docutils literal notranslate"><span class="pre">Unk.ng</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id5"><code class="docutils literal notranslate"><span class="pre">Unk.ik</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id6"><code class="docutils literal notranslate"><span class="pre">Unk.is_noncollinear</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id7"><code class="docutils literal notranslate"><span class="pre">Unk.nbnd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#id8"><code class="docutils literal notranslate"><span class="pre">Unk.ng</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.wannier90.Unk.write_file"><code class="docutils literal notranslate"><span class="pre">Unk.write_file()</span></code></a></li>
 </ul>
 </li>
@@ -7614,6 +7693,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html#pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many"><code class="docutils literal notranslate"><span class="pre">SuperTransformation.is_one_to_many</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.transformations.html#pymatgen.transformations.advanced_transformations.find_codopant"><code class="docutils literal notranslate"><span class="pre">find_codopant()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.transformations.html#module-pymatgen.transformations.site_transformations">pymatgen.transformations.site_transformations module</a><ul>
@@ -7789,6 +7869,28 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html">pymatgen.util.testing package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest"><code class="docutils literal notranslate"><span class="pre">PymatgenTest</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.TEST_STRUCTURES</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assert_msonable"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_msonable()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assert_str_content_equal"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_str_content_equal()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.get_structure"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.get_structure()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.serialize_with_pickle"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.serialize_with_pickle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.testing.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.testing.html#module-pymatgen.util.testing.aims">pymatgen.util.testing.aims module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.aims.check_band"><code class="docutils literal notranslate"><span class="pre">check_band()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.aims.comp_system"><code class="docutils literal notranslate"><span class="pre">comp_system()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.aims.compare_files"><code class="docutils literal notranslate"><span class="pre">compare_files()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.aims.compare_single_files"><code class="docutils literal notranslate"><span class="pre">compare_single_files()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.coord">pymatgen.util.coord module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.coord.Simplex"><code class="docutils literal notranslate"><span class="pre">Simplex</span></code></a><ul>
@@ -7826,8 +7928,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.due">pymatgen.util.due module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.BibTeX"><code class="docutils literal notranslate"><span class="pre">BibTeX()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.Doi"><code class="docutils literal notranslate"><span class="pre">Doi()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.InactiveDueCreditCollector"><code class="docutils literal notranslate"><span class="pre">InactiveDueCreditCollector</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.InactiveDueCreditCollector.activate"><code class="docutils literal notranslate"><span class="pre">InactiveDueCreditCollector.activate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.InactiveDueCreditCollector.active"><code class="docutils literal notranslate"><span class="pre">InactiveDueCreditCollector.active</span></code></a></li>
@@ -7838,8 +7938,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.InactiveDueCreditCollector.load"><code class="docutils literal notranslate"><span class="pre">InactiveDueCreditCollector.load()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.Text"><code class="docutils literal notranslate"><span class="pre">Text()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.due.Url"><code class="docutils literal notranslate"><span class="pre">Url()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.graph_hashing">pymatgen.util.graph_hashing module</a><ul>
@@ -7857,11 +7955,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.num.round_to_sigfigs"><code class="docutils literal notranslate"><span class="pre">round_to_sigfigs()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.numba">pymatgen.util.numba module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.numba.jit"><code class="docutils literal notranslate"><span class="pre">jit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.numba.njit"><code class="docutils literal notranslate"><span class="pre">njit()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.numba">pymatgen.util.numba module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.plotting">pymatgen.util.plotting module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.plotting.add_fig_kwargs"><code class="docutils literal notranslate"><span class="pre">add_fig_kwargs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.plotting.format_formula"><code class="docutils literal notranslate"><span class="pre">format_formula()</span></code></a></li>
@@ -7921,17 +8015,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.string.unicodeify"><code class="docutils literal notranslate"><span class="pre">unicodeify()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.string.unicodeify_spacegroup"><code class="docutils literal notranslate"><span class="pre">unicodeify_spacegroup()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.string.unicodeify_species"><code class="docutils literal notranslate"><span class="pre">unicodeify_species()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.testing">pymatgen.util.testing module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest"><code class="docutils literal notranslate"><span class="pre">PymatgenTest</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.TEST_STRUCTURES</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.assert_msonable"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_msonable()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.assert_str_content_equal"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_str_content_equal()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.get_structure"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.get_structure()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.serialize_with_pickle"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.serialize_with_pickle()</span></code></a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.typing">pymatgen.util.typing module</a></li>
@@ -8012,8 +8095,9 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="pymatgen-dao-module">
-<h2>pymatgen.dao module<a class="headerlink" href="#pymatgen-dao-module" title="Link to this heading"></a></h2>
+<section id="module-pymatgen.dao">
+<span id="pymatgen-dao-module"></span><h2>pymatgen.dao module<a class="headerlink" href="#module-pymatgen.dao" title="Link to this heading"></a></h2>
+<p>The dao for pymatgen.</p>
 </section>
 </section>
 

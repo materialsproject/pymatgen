@@ -526,10 +526,10 @@ class TestIStructure(PymatgenTest):
         assert len(struct.get_primitive_structure()) == 4
 
     def test_primitive_cell_site_merging(self):
-        latt = Lattice.cubic(10)
+        lattice = Lattice.cubic(10)
         coords = [[0, 0, 0], [0, 0, 0.5], [0, 0, 0.26], [0, 0, 0.74]]
         sp = ["Ag", "Ag", "Be", "Be"]
-        struct = Structure(latt, sp, coords)
+        struct = Structure(lattice, sp, coords)
         dm = struct.get_primitive_structure().distance_matrix
         assert_allclose(dm, [[0, 2.5], [2.5, 0]])
 
@@ -572,7 +572,7 @@ class TestIStructure(PymatgenTest):
             assert prim.distance_matrix[0, 1] == approx(1.0203432356739286)
 
     def test_primitive_structure_volume_check(self):
-        latt = Lattice.tetragonal(10, 30)
+        lattice = Lattice.tetragonal(10, 30)
         coords = [
             [0.5, 0.8, 0],
             [0.5, 0.2, 0],
@@ -581,7 +581,7 @@ class TestIStructure(PymatgenTest):
             [0.5, 0.5, 0.666],
             [0.5, 0.2, 0.666],
         ]
-        struct = IStructure(latt, ["Ag"] * 6, coords)
+        struct = IStructure(lattice, ["Ag"] * 6, coords)
         primitive = struct.get_primitive_structure(tolerance=0.1)
         assert len(primitive) == 6
 
@@ -670,15 +670,14 @@ Direct
 
     # @skipIf(not os.getenv("CI"), reason="Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
-    #
     #     for i in range(100):
     #         alpha, beta = np.random.rand(2) * 90
     #         a, b, c = 3 + np.random.rand(3) * 5
     #         species = ["H"] * 5
     #         frac_coords = np.random.rand(5, 3)
     #         try:
-    #             latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
-    #             struct = Structure.from_spacegroup("P1", latt, species, frac_coords)
+    #             lattice = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+    #             struct = Structure.from_spacegroup("P1", lattice, species, frac_coords)
     #             for nn_new, nn_old in zip(struct.get_all_neighbors(4), struct.get_all_neighbors_old(4)):
     #                 sites1 = [i[0] for i in nn_new]
     #                 sites2 = [i[0] for i in nn_old]
@@ -711,7 +710,7 @@ Direct
     #         },
     #         "sites": [
     #             {
-    #                "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
+    #                 "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
     #                 "abc": [0.0, 0.5, 0.5],
     #                 "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
     #                 "label": "Mn0+,spin=-1",
@@ -959,9 +958,27 @@ class TestStructure(PymatgenTest):
         assert self.struct[0].species_string == "Si"
         assert self.struct[1].species_string == "F"
 
+    def test_replace(self):
+        assert self.struct.formula == "Si2"
+        struct = self.struct.replace(0, "O")
+        assert struct is self.struct
+        assert struct.formula == "Si1 O1"
+        assert_allclose(struct[0].frac_coords, [0, 0, 0])
+        struct.replace(0, "O", coords=[0.25, 0.25, 0.25])
+        assert struct.formula == "Si1 O1"
+        assert_allclose(struct[0].frac_coords, [0.25, 0.25, 0.25])
+        struct.replace(0, "O", properties={"magmom": 1})
+        assert struct.formula == "Si1 O1"
+        assert struct[0].magmom == 1
+        struct.replace(0, "O", properties={"magmom": 2}, coords=[0.9, 0.9, 0.9])
+        assert struct.formula == "Si1 O1"
+        assert struct[0].magmom == 2
+        assert_allclose(struct[0].frac_coords, [0.9, 0.9, 0.9])
+
     def test_replace_species(self):
-        struct = self.struct
-        struct.replace_species({"Si": "Na"})
+        assert self.struct.formula == "Si2"
+        struct = self.struct.replace_species({"Si": "Na"})
+        assert struct is self.struct
         assert struct.formula == "Na2"
 
         # test replacement with a dictionary
@@ -1023,18 +1040,25 @@ class TestStructure(PymatgenTest):
         assert struct.n_elems == 4
 
         struct.replace_species({"Ge": "Si"})
-        struct.substitute(1, "hydroxyl")
+        substituted = struct.substitute(1, "hydroxyl")
+        assert substituted is struct
         assert struct.formula == "Si1 H1 N1 O1"
         assert struct.symbol_set == ("H", "N", "O", "Si")
+        with pytest.raises(
+            ValueError, match="Can't find functional group 'OH' in list. Provide explicit coordinates instead"
+        ):
+            substituted = struct.substitute(2, "OH")
         # Distance between O and H
         assert struct.get_distance(2, 3) == approx(0.96)
         # Distance between Si and H
         assert struct.get_distance(0, 3) == approx(2.09840889)
 
-        struct.remove_species(["H"])
+        h_removed = struct.remove_species(["H"])
+        assert h_removed is struct
         assert struct.formula == "Si1 N1 O1"
 
-        struct.remove_sites([1, 2])
+        sites_removed = struct.remove_sites([1, 2])
+        assert sites_removed is struct
         assert struct.formula == "Si1"
 
     def test_add_remove_site_property(self):
@@ -1137,10 +1161,10 @@ class TestStructure(PymatgenTest):
             assert site.specie in expected
 
     def test_add_remove_spin_states(self):
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        nio = Structure.from_spacegroup(225, latt, species, coords)
+        nio = Structure.from_spacegroup(225, lattice, species, coords)
 
         # should do nothing, but not fail
         nio1 = nio.remove_spin()
@@ -1289,10 +1313,10 @@ class TestStructure(PymatgenTest):
         assert set(struct.labels) == {"Si1", "Si2"}
 
     def test_disordered_supercell_primitive_cell(self):
-        latt = Lattice.cubic(2)
+        lattice = Lattice.cubic(2)
         coords = [[0.5, 0.5, 0.5]]
         sp = [{"Si": 0.54738}]
-        struct = Structure(latt, sp, coords)
+        struct = Structure(lattice, sp, coords)
         # this supercell often breaks things
         struct.make_supercell([[0, -1, 1], [-1, 1, 0], [1, 1, 1]])
         assert len(struct.get_primitive_structure()) == 1
@@ -1452,19 +1476,19 @@ class TestStructure(PymatgenTest):
         assert_allclose(struct[1].frac_coords, [0.5, 0.5, 0.5005])
 
         # Test for TaS2 with spacegroup 166 in 160 setting.
-        latt = Lattice.hexagonal(3.374351, 20.308941)
+        lattice = Lattice.hexagonal(3.374351, 20.308941)
         species = ["Ta", "S", "S"]
         coords = [
             [0, 0, 0.944333],
             [0.333333, 0.666667, 0.353424],
             [0.666667, 0.333333, 0.535243],
         ]
-        tas2 = Structure.from_spacegroup(160, latt, species, coords)
+        tas2 = Structure.from_spacegroup(160, lattice, species, coords)
         assert len(tas2) == 13
         tas2.merge_sites(mode="d")
         assert len(tas2) == 9
 
-        latt = Lattice.hexagonal(3.587776, 19.622793)
+        lattice = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [
             [0.333333, 0.666667, 0.165000],
@@ -1472,13 +1496,13 @@ class TestStructure(PymatgenTest):
             [0.333333, 0.666667, 0.399394],
             [0.666667, 0.333333, 0.597273],
         ]
-        navs2 = Structure.from_spacegroup(160, latt, species, coords)
+        navs2 = Structure.from_spacegroup(160, lattice, species, coords)
         assert len(navs2) == 18
         navs2.merge_sites(mode="d")
         assert len(navs2) == 12
 
         # Test that we can average the site properties that are floats
-        latt = Lattice.hexagonal(3.587776, 19.622793)
+        lattice = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [
             [0.333333, 0.666667, 0.165000],
@@ -1487,7 +1511,7 @@ class TestStructure(PymatgenTest):
             [0.666667, 0.333333, 0.597273],
         ]
         site_props = {"prop1": [3.0, 5.0, 7.0, 11.0]}
-        navs2 = Structure.from_spacegroup(160, latt, species, coords, site_properties=site_props)
+        navs2 = Structure.from_spacegroup(160, lattice, species, coords, site_properties=site_props)
         navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
         navs2.merge_sites(mode="a")
         assert len(navs2) == 12
@@ -1970,7 +1994,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
     def test_get_zmatrix(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords)
-        zmatrix = """C
+        z_matrix = """C
             H 1 B1
             H 1 B2 2 A2
             H 1 B3 2 A3 3 D3
@@ -1986,10 +2010,10 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             A4=109.471213
             D4=119.999966
         """
-        assert self.assert_str_content_equal(mol.get_zmatrix(), zmatrix)
+        assert self.assert_str_content_equal(mol.get_zmatrix(), z_matrix)
 
     def test_break_bond(self):
-        (mol1, mol2) = self.mol.break_bond(0, 1)
+        mol1, mol2 = self.mol.break_bond(0, 1)
         assert mol1.formula == "H3 C1"
         assert mol2.formula == "H1"
 
@@ -2162,7 +2186,7 @@ class TestMolecule(PymatgenTest):
         assert returned is self.mol
         assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
-    def test_replace(self):
+    def test_replace_species(self):
         self.mol[0] = "Ge"
         assert self.mol.formula == "Ge1 H4"
 
@@ -2226,8 +2250,7 @@ class TestMolecule(PymatgenTest):
         returned = self.mol.substitute(1, sub)
         assert returned is self.mol
         assert self.mol.get_distance(0, 4) == approx(1.54)
-        f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
-        self.mol.substitute(2, f)
+        self.mol.substitute(2, Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]]))
         assert self.mol.get_distance(0, 7) == approx(1.35)
         oh = Molecule(
             ["X", "O", "H"],

@@ -17,6 +17,7 @@ import itertools
 import logging
 import math
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -32,6 +33,9 @@ try:
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     openbabel = None
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 __author__ = "Xiaohui Qu, Adam Fekete"
@@ -80,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, abc.ABC):
         """
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -166,17 +170,17 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
 
     def get_molecule_hash(self, mol):
         """Return inchi as molecular hash."""
-        obconv = openbabel.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obconv.WriteString(mol)
+        ob_conv = openbabel.OBConversion()
+        ob_conv.SetOutFormat("inchi")
+        ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = ob_conv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
     def as_dict(self):
         """
         Returns:
-            Jsonable dict.
+            JSON-able dict.
         """
         return {
             "version": __version__,
@@ -185,10 +189,10 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             IsomorphismMolAtomMapper
@@ -220,15 +224,15 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict Representation.
+            dct (dict): Dict Representation.
 
         Returns:
             InchiMolAtomMapper
         """
-        return cls(angle_tolerance=d["angle_tolerance"])
+        return cls(angle_tolerance=dct["angle_tolerance"])
 
     @staticmethod
     def _inchi_labels(mol):
@@ -299,7 +303,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
 
-        Return:
+        Returns:
             The virtual molecule
         """
         vmol = openbabel.OBMol()
@@ -350,7 +354,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             ilabel2: inchi label map of the second molecule
             eq_atoms: equivalent atom labels
 
-        Return:
+        Returns:
             corrected inchi labels of heavy atoms of the second molecule
         """
         n_virtual = vmol1.NumAtoms()
@@ -423,7 +427,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             heavy_indices1: inchi label map of the first molecule
             heavy_indices2: label map of the second molecule
 
-        Return:
+        Returns:
             corrected label map of all atoms of the second molecule
         """
         num_atoms = mol2.NumAtoms()
@@ -707,17 +711,17 @@ class MoleculeMatcher(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MoleculeMatcher
         """
         return cls(
-            tolerance=d["tolerance"],
-            mapper=AbstractMolAtomMapper.from_dict(d["mapper"]),
+            tolerance=dct["tolerance"],
+            mapper=AbstractMolAtomMapper.from_dict(dct["mapper"]),
         )
 
 

@@ -42,7 +42,7 @@ import logging
 import os
 import subprocess
 import warnings
-from enum import Enum
+from enum import Enum, unique
 from glob import glob
 from shutil import which
 from typing import TYPE_CHECKING
@@ -61,6 +61,8 @@ from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 logging.basicConfig(level=logging.INFO)
@@ -84,25 +86,26 @@ class Critic2Caller:
         "Critic2Caller requires the executable critic to be in the path. "
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
-    def __init__(self, input_script):
+    def __init__(self, input_script: str):
         """Run Critic2 on a given input script.
 
-        :param input_script: string defining the critic2 input
+        Args:
+            input_script: string defining the critic2 input
         """
         # store if examining the input script is useful,
         # not otherwise used
         self._input_script = input_script
 
-        with open("input_script.cri", mode="w") as file:
+        with open("input_script.cri", mode="w", encoding="utf-8") as file:
             file.write(input_script)
 
         args = ["critic2", "input_script.cri"]
         with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-            stdout, stderr = rs.communicate()
-        stdout = stdout.decode()
+            _stdout, _stderr = rs.communicate()
+        stdout = _stdout.decode()
 
-        if stderr:
-            stderr = stderr.decode()
+        if _stderr:
+            stderr = _stderr.decode()
             warnings.warn(stderr)
 
         if rs.returncode != 0:
@@ -127,7 +130,7 @@ class Critic2Caller:
         write_cml=False,
         write_json=True,
         zpsp=None,
-    ):
+    ) -> Self:
         """Run Critic2 in automatic mode on a supplied structure, charge
         density (chgcar) and reference charge density (chgcar_ref).
 
@@ -165,20 +168,21 @@ class Critic2Caller:
           sub-dividing the Wigner-Seitz cell and between every atom pair
           closer than 10 Bohr, see critic2 manual for more options
 
-        :param structure: Structure to analyze
-        :param chgcar: Charge density to use for analysis. If None, will
-            use promolecular density. Should be a Chgcar object or path (string).
-        :param chgcar_ref: Reference charge density. If None, will use
-            chgcar as reference. Should be a Chgcar object or path (string).
-        :param user_input_settings (dict): as explained above
-        :param write_cml (bool): Useful for debug, if True will write all
-            critical points to a file 'table.cml' in the working directory
-            useful for visualization
-        :param write_json (bool): Whether to write out critical points
-        and YT json. YT integration will be performed with this setting.
-        :param zpsp (dict): Dict of element/symbol name to number of electrons
-        (ZVAL in VASP pseudopotential), with which to properly augment core regions
-        and calculate charge transfer. Optional.
+        Args:
+            structure: Structure to analyze
+            chgcar: Charge density to use for analysis. If None, will
+                use promolecular density. Should be a Chgcar object or path (string).
+            chgcar_ref: Reference charge density. If None, will use
+                chgcar as reference. Should be a Chgcar object or path (string).
+            user_input_settings (dict): as explained above
+            write_cml (bool): Useful for debug, if True will write all
+                critical points to a file 'table.cml' in the working directory
+                useful for visualization
+            write_json (bool): Whether to write out critical points
+                and YT json. YT integration will be performed with this setting.
+            zpsp (dict): Dict of element/symbol name to number of electrons
+                (ZVAL in VASP pseudopotential), with which to properly augment core regions
+                and calculate charge transfer. Optional.
         """
         settings = {"CPEPS": 0.1, "SEED": ["WS", "PAIR DIST 10"]}
         if user_input_settings:
@@ -219,7 +223,7 @@ class Critic2Caller:
             input_script += ["yt"]
             input_script += ["yt JSON yt.json"]
 
-        input_script = "\n".join(input_script)
+        input_script_str = "\n".join(input_script)
 
         with ScratchDir("."):
             structure.to(filename="POSCAR")
@@ -234,7 +238,7 @@ class Critic2Caller:
             elif chgcar_ref:
                 os.symlink(chgcar_ref, "ref.CHGCAR")
 
-            caller = cls(input_script)
+            caller = cls(input_script_str)
 
             caller.output = Critic2Analysis(
                 structure,
@@ -248,7 +252,7 @@ class Critic2Caller:
             return caller
 
     @classmethod
-    def from_path(cls, path, suffix="", zpsp=None):
+    def from_path(cls, path, suffix="", zpsp=None) -> Self:
         """Convenience method to run critic2 analysis on a folder with typical VASP output files.
 
         This method will:
@@ -262,10 +266,11 @@ class Critic2Caller:
         3. Runs critic2 analysis twice: once for charge, and a second time
         for the charge difference (magnetization density).
 
-        :param path: path to folder to search in
-        :param suffix: specific suffix to look for (e.g. '.relax1' for
-            'CHGCAR.relax1.gz')
-        :param zpsp: manually specify ZPSP if POTCAR not present
+        Args:
+            path: path to folder to search in
+            suffix: specific suffix to look for (e.g. '.relax1' for
+                'CHGCAR.relax1.gz')
+            zpsp: manually specify ZPSP if POTCAR not present
         """
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
@@ -306,6 +311,7 @@ class Critic2Caller:
         return cls.from_chgcar(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 
 
+@unique
 class CriticalPointType(Enum):
     """Enum type for the different varieties of critical point."""
 
@@ -359,15 +365,16 @@ class CriticalPoint(MSONable):
         Note this class is usually associated with a Structure, so
         has information on multiplicity/point group symmetry.
 
-        :param index: index of point
-        :param type: type of point, given as a string
-        :param coords: Cartesian coordinates in Angstroms
-        :param frac_coords: fractional coordinates
-        :param point_group: point group associated with critical point
-        :param multiplicity: number of equivalent critical points
-        :param field: value of field at point (f)
-        :param field_gradient: gradient of field at point (grad f)
-        :param field_hessian: hessian of field at point (del^2 f)
+        Args:
+            index: index of point
+            type: type of point, given as a string
+            coords: Cartesian coordinates in Angstroms
+            frac_coords: fractional coordinates
+            point_group: point group associated with critical point
+            multiplicity: number of equivalent critical points
+            field: value of field at point (f)
+            field_gradient: gradient of field at point (grad f)
+            field_hessian: hessian of field at point (del^2 f)
         """
         self.index = index
         self._type = type
@@ -441,16 +448,15 @@ class Critic2Analysis(MSONable):
         Only one of (stdout, cpreport) required, with cpreport preferred
         since this is a new, native JSON output from critic2.
 
-        :param structure: associated Structure
-        :param stdout: stdout from running critic2 in automatic
-            mode
-        :param stderr: stderr from running critic2 in automatic
-            mode
-        :param cpreport: json output from CPREPORT command
-        :param yt: json output from YT command
-        :param zpsp (dict): Dict of element/symbol name to number of electrons
-        (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
-        Optional.
+        Args:
+            structure: associated Structure
+            stdout: stdout from running critic2 in automatic mode
+            stderr: stderr from running critic2 in automatic mode
+            cpreport: json output from CPREPORT command
+            yt: json output from YT command
+            zpsp (dict): Dict of element/symbol name to number of electrons
+                (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
+                Optional.
 
         Args:
             structure (Structure): Associated Structure.
@@ -523,7 +529,7 @@ class Critic2Analysis(MSONable):
         edge_weight = "bond_length"
         edge_weight_units = "Å"
 
-        sg = StructureGraph.with_empty_graph(
+        struct_graph = StructureGraph.from_empty_graph(
             structure,
             name="bonds",
             edge_weight_name=edge_weight,
@@ -591,7 +597,7 @@ class Critic2Analysis(MSONable):
                         "frac_coords": self.nodes[idx]["frac_coords"],
                     }
 
-                    sg.add_edge(
+                    struct_graph.add_edge(
                         struct_from_idx,
                         struct_to_idx,
                         from_jimage=from_lvec,
@@ -600,7 +606,7 @@ class Critic2Analysis(MSONable):
                         edge_properties=edge_properties,
                     )
 
-        return sg
+        return struct_graph
 
     def get_critical_point_for_site(self, n: int):
         """
@@ -867,10 +873,11 @@ class Critic2Analysis(MSONable):
     def _add_node(self, idx, unique_idx, frac_coords):
         """Add information about a node describing a critical point.
 
-        :param idx: index
-        :param unique_idx: index of unique CriticalPoint,
-            used to look up more information of point (field etc.)
-        :param frac_coord: fractional coordinates of point
+        Args:
+            idx: index
+            unique_idx: index of unique CriticalPoint,
+                used to look up more information of point (field etc.)
+            frac_coords: fractional coordinates of point
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
@@ -887,13 +894,14 @@ class Critic2Analysis(MSONable):
         this as a single edge linking nuclei with the properties
         of the bond critical point stored as an edge attribute.
 
-        :param idx: index of node
-        :param from_idx: from index of node
-        :param from_lvec: vector of lattice image the from node is in
-            as tuple of ints
-        :param to_idx: to index of node
-        :param to_lvec: vector of lattice image the to node is in as
-            tuple of ints
+        Args:
+            idx: index of node
+            from_idx: from index of node
+            from_lvec: vector of lattice image the from node is in
+                as tuple of ints
+            to_idx: to index of node
+            to_lvec: vector of lattice image the to node is in as
+                tuple of ints
         """
         self.edges[idx] = {
             "from_idx": from_idx,

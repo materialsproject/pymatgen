@@ -51,7 +51,7 @@ def get_dimensionality_larsen(bonded_structure):
     due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -85,7 +85,7 @@ def get_structure_components(
     structure type or improper connections due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -287,7 +287,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     sorted_sites = np.array(sites, dtype=object)[indices_ordering]
     sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
     mol = Molecule([s.specie for s in sorted_sites], [s.coords for s in sorted_sites])
-    return MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
+    return MoleculeGraph.from_edges(mol, nx.Graph(sorted_graph).edges())
 
 
 def get_dimensionality_cheon(

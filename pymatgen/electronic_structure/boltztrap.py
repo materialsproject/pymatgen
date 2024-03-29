@@ -9,7 +9,7 @@ http://www.icams.de/content/research/software-development/boltztrap/
 
 You need version 1.2.3 or higher
 
-References are::
+References are:
 
     Madsen, G. K. H., and Singh, D. J. (2006).
     BoltzTraP. A code for calculating band-structure dependent quantities.
@@ -25,7 +25,7 @@ import subprocess
 import tempfile
 import time
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.dev import requires
@@ -45,6 +45,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
@@ -252,7 +253,8 @@ class BoltztrapRunner(MSONable):
     def write_energy(self, output_file) -> None:
         """Writes the energy to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         with open(output_file, mode="w") as file:
             file.write("test\n")
@@ -304,7 +306,8 @@ class BoltztrapRunner(MSONable):
     def write_struct(self, output_file) -> None:
         """Writes the structure to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         if self._symprec is not None:
             sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
@@ -338,7 +341,8 @@ class BoltztrapRunner(MSONable):
     def write_def(self, output_file) -> None:
         """Writes the def to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
@@ -363,10 +367,12 @@ class BoltztrapRunner(MSONable):
                 "'formatted',0\n"
             )
 
-    def write_proj(self, output_file_proj, output_file_def) -> None:
+    def write_proj(self, output_file_proj: str, output_file_def: str) -> None:
         """Writes the projections to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file_proj: output file name
+            output_file_def: output file name
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
@@ -421,7 +427,8 @@ class BoltztrapRunner(MSONable):
     def write_intrans(self, output_file) -> None:
         """Writes the intrans to an output file.
 
-        :param output_file: Filename
+        Args:
+            output_file: Filename
         """
         setgap = 1 if self.scissor > 0.0001 else 0
 
@@ -497,7 +504,8 @@ class BoltztrapRunner(MSONable):
     def write_input(self, output_dir) -> None:
         """Writes the input files.
 
-        :param output_dir: Directory to write the input files.
+        Args:
+            output_dir: Directory to write the input files.
         """
         if self._bs.is_spin_polarized or self.soc:
             self.write_energy(f"{output_dir}/boltztrap.energyso")
@@ -892,6 +900,7 @@ class BoltztrapAnalyzer:
         around the gap (semiconductors) or Fermi level (metals).
         warn_thr is a threshold to get a warning in the accuracy of Boltztap
         interpolated bands.
+
         Return a dictionary with these keys:
         - "N": the index of the band compared; inside each there are:
             - "Corr": correlation coefficient for the 8 compared bands
@@ -1614,7 +1623,9 @@ class BoltztrapAnalyzer:
         return CompleteDos(structure, total_dos=total_dos, pdoss=pdoss)
 
     def get_mu_bounds(self, temp=300):
-        """:param temp: Temperature.
+        """
+        Args:
+            temp: Temperature.
 
         Returns:
             The chemical potential bounds at that temperature.
@@ -1925,7 +1936,7 @@ class BoltztrapAnalyzer:
         )
 
     @classmethod
-    def from_files(cls, path_dir, dos_spin=1):
+    def from_files(cls, path_dir: str, dos_spin: Literal[-1, 1] = 1) -> Self:
         """Get a BoltztrapAnalyzer object from a set of files.
 
         Args:
@@ -1946,7 +1957,7 @@ class BoltztrapAnalyzer:
 
             *cond_and_hall, carrier_conc = cls.parse_cond_and_hall(path_dir, doping_levels)
 
-            return cls(gap, *cond_and_hall, in_trans, dos, partial_dos, carrier_conc, vol, warning)
+            return cls(gap, *cond_and_hall, in_trans, dos, partial_dos, carrier_conc, vol, warning)  # type: ignore[call-arg]
 
         if run_type == "DOS":
             trim = in_trans["dos_type"] == "HISTO"
@@ -1994,9 +2005,11 @@ class BoltztrapAnalyzer:
         }
         return jsanitize(results)
 
-    @staticmethod
-    def from_dict(data):
-        """:param data: Dict representation.
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        """
+        Args:
+            data: Dict representation.
 
         Returns:
             BoltztrapAnalyzer
@@ -2112,7 +2125,7 @@ class BoltztrapAnalyzer:
         vol = data.get("vol")
         warning = data.get("warning")
 
-        return BoltztrapAnalyzer(
+        return cls(
             gap=gap,
             mu_steps=mu_steps,
             cond=cond,
@@ -2134,7 +2147,10 @@ class BoltztrapAnalyzer:
 
 
 def read_cube_file(filename):
-    """:param filename: Cube filename
+    """
+
+    Args:
+        filename: Cube filename.
 
     Returns:
         Energy data.

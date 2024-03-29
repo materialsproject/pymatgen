@@ -25,6 +25,8 @@ from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
@@ -130,10 +132,12 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by.
+
+        Args:
+            factor: factor to divide by.
         """
         self._value /= factor
         self._uncertainty /= factor
@@ -200,10 +204,12 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by.
+
+        Args:
+            factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -259,10 +265,12 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by.
+
+        Args:
+            factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -467,35 +475,36 @@ class ComputedEntry(Entry):
         return True
 
     @classmethod
-    def from_dict(cls, d) -> ComputedEntry:
-        """:param d: Dict representation.
+    def from_dict(cls, dct: dict) -> Self:
+        """
+        Args:
+           dct (dict): Dict representation.
 
         Returns:
             ComputedEntry
         """
-        dec = MontyDecoder()
         # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
-        if d["correction"] != 0 and not d.get("energy_adjustments"):
+        if dct["correction"] != 0 and not dct.get("energy_adjustments"):
             return cls(
-                d["composition"],
-                d["energy"],
-                d["correction"],
-                parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
-                data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-                entry_id=d.get("entry_id"),
+                dct["composition"],
+                dct["energy"],
+                dct["correction"],
+                parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+                data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
+                entry_id=dct.get("entry_id"),
             )
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
         return cls(
-            d["composition"],
-            d["energy"],
+            dct["composition"],
+            dct["energy"],
             correction=0,
-            energy_adjustments=[dec.process_decoded(e) for e in d.get("energy_adjustments", {})],
-            parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
-            data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-            entry_id=d.get("entry_id"),
+            energy_adjustments=[MontyDecoder().process_decoded(e) for e in dct.get("energy_adjustments", {})],
+            parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+            data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
+            entry_id=dct.get("entry_id"),
         )
 
     def as_dict(self) -> dict:
@@ -602,37 +611,38 @@ class ComputedStructureEntry(ComputedEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, d) -> ComputedStructureEntry:
-        """:param d: Dict representation.
+    def from_dict(cls, dct) -> Self:
+        """
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             ComputedStructureEntry
         """
-        dec = MontyDecoder()
         # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
-        if d["correction"] != 0 and not d.get("energy_adjustments"):
-            struct = dec.process_decoded(d["structure"])
+        if dct["correction"] != 0 and not dct.get("energy_adjustments"):
+            struct = MontyDecoder().process_decoded(dct["structure"])
             return cls(
                 struct,
-                d["energy"],
-                correction=d["correction"],
-                parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
-                data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-                entry_id=d.get("entry_id"),
+                dct["energy"],
+                correction=dct["correction"],
+                parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+                data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
+                entry_id=dct.get("entry_id"),
             )
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
         return cls(
-            dec.process_decoded(d["structure"]),
-            d["energy"],
-            composition=d.get("composition"),
+            MontyDecoder().process_decoded(dct["structure"]),
+            dct["energy"],
+            composition=dct.get("composition"),
             correction=0,
-            energy_adjustments=[dec.process_decoded(e) for e in d.get("energy_adjustments", {})],
-            parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
-            data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-            entry_id=d.get("entry_id"),
+            energy_adjustments=[MontyDecoder().process_decoded(e) for e in dct.get("energy_adjustments", {})],
+            parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+            data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
+            entry_id=dct.get("entry_id"),
         )
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
@@ -869,7 +879,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         )
 
     @classmethod
-    def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> list[GibbsComputedStructureEntry]:
+    def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> list[Self]:
         """Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
@@ -903,7 +913,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return gibbs_entries
 
     @classmethod
-    def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> list[GibbsComputedStructureEntry]:
+    def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> list[Self]:
         """Constructor method for initializing GibbsComputedStructureEntry objects from
         T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
         database e.g. The Materials Project.
@@ -915,7 +925,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             gibbs_model (str): Gibbs model to use; currently the only option is "SISSO".
 
         Returns:
-            [GibbsComputedStructureEntry]: list of new entries which replace the orig.
+            list[GibbsComputedStructureEntry]: new entries which replace the orig.
                 entries with inclusion of Gibbs free energy of formation at the
                 specified temperature.
         """
@@ -934,29 +944,30 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, d) -> GibbsComputedStructureEntry:
-        """:param d: Dict representation.
+    def from_dict(cls, dct) -> Self:
+        """
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             GibbsComputedStructureEntry
         """
         dec = MontyDecoder()
         return cls(
-            dec.process_decoded(d["structure"]),
-            d["formation_enthalpy_per_atom"],
-            d["temp"],
-            d["gibbs_model"],
-            composition=d.get("composition"),
-            correction=d["correction"],
-            energy_adjustments=[dec.process_decoded(e) for e in d.get("energy_adjustments", {})],
-            parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
-            data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-            entry_id=d.get("entry_id"),
+            dec.process_decoded(dct["structure"]),
+            dct["formation_enthalpy_per_atom"],
+            dct["temp"],
+            dct["gibbs_model"],
+            composition=dct.get("composition"),
+            correction=dct["correction"],
+            energy_adjustments=[dec.process_decoded(e) for e in dct.get("energy_adjustments", {})],
+            parameters={k: dec.process_decoded(v) for k, v in dct.get("parameters", {}).items()},
+            data={k: dec.process_decoded(v) for k, v in dct.get("data", {}).items()},
+            entry_id=dct.get("entry_id"),
         )
 
     def __repr__(self):
-        output = [
-            f"GibbsComputedStructureEntry {self.entry_id} - {self.formula}",
-            f"Gibbs Free Energy (Formation) = {self.energy:.4f}",
-        ]
-        return "\n".join(output)
+        return (
+            f"GibbsComputedStructureEntry {self.entry_id} - {self.formula}\n"
+            f"Gibbs Free Energy (Formation) = {self.energy:.4f}"
+        )

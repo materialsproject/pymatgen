@@ -1,7 +1,7 @@
 """
 This module defines tools to analyze surface and adsorption related
 quantities as well as related plots. If you use this module, please
-consider citing the following works::
+consider citing the following works:
 
     R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
     S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
@@ -20,7 +20,7 @@ consider citing the following works::
         Computational Materials, 3(1), 14.
         https://doi.org/10.1038/s41524-017-0017-z
 
-Todo:
+TODO:
 - Still assumes individual elements have their own chempots
     in a molecular adsorbate instead of considering a single
     chempot for a single molecular adsorbate. E.g. for an OH
@@ -38,6 +38,7 @@ import copy
 import itertools
 import random
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -53,6 +54,9 @@ from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -172,7 +176,8 @@ class SlabEntry(ComputedStructureEntry):
                 of the element ref_entry that is not in the list will be
                 treated as a variable.
 
-        Returns (Add (Sympy class)): Surface energy
+        Returns:
+            float: The surface energy of the slab.
         """
         # Set up
         ref_entries = ref_entries if ref_entries else []
@@ -272,7 +277,7 @@ class SlabEntry(ComputedStructureEntry):
         return n_surfs
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
@@ -325,7 +330,7 @@ class SlabEntry(ComputedStructureEntry):
     @classmethod
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
-    ):
+    ) -> Self:
         """Returns SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
@@ -512,7 +517,7 @@ class SurfaceEnergyPlotter:
         Returns:
             WulffShape: The WulffShape at u_ref and u_ads.
         """
-        latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
+        lattice = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
         miller_list = list(self.all_slab_entries)
         e_surf_list = []
@@ -529,7 +534,7 @@ class SurfaceEnergyPlotter:
             )[1]
             e_surf_list.append(gamma)
 
-        return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
+        return WulffShape(lattice, miller_list, e_surf_list, symprec=symprec)
 
     def area_frac_vs_chempot_plot(
         self,
@@ -1564,7 +1569,7 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @classmethod
-    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
         """
         Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 

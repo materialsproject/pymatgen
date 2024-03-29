@@ -128,16 +128,16 @@ def parse_radii():
 def update_ionic_radii():
     data = loadfn(ptable_yaml_path)
 
-    for d in data.values():
-        if "Ionic_radii" in d:
-            d["Ionic radii"] = {k: v / 100 for k, v in d["Ionic_radii"].items()}
-            del d["Ionic_radii"]
-        if "Ionic_radii_hs" in d:
-            d["Ionic radii hs"] = {k: v / 100 for k, v in d["Ionic_radii_hs"].items()}
-            del d["Ionic_radii_hs"]
-        if "Ionic_radii_ls" in d:
-            d["Ionic radii ls"] = {k: v / 100 for k, v in d["Ionic_radii_ls"].items()}
-            del d["Ionic_radii_ls"]
+    for dct in data.values():
+        if "Ionic_radii" in dct:
+            dct["Ionic radii"] = {k: v / 100 for k, v in dct["Ionic_radii"].items()}
+            del dct["Ionic_radii"]
+        if "Ionic_radii_hs" in dct:
+            dct["Ionic radii hs"] = {k: v / 100 for k, v in dct["Ionic_radii_hs"].items()}
+            del dct["Ionic_radii_hs"]
+        if "Ionic_radii_ls" in dct:
+            dct["Ionic radii ls"] = {k: v / 100 for k, v in dct["Ionic_radii_ls"].items()}
+            del dct["Ionic_radii_ls"]
     with open("periodic_table2.yaml", mode="w") as file:
         yaml.dump(data, file)
     with open("../pymatgen/core/periodic_table.json", mode="w") as file:
@@ -162,8 +162,7 @@ def parse_shannon_radii():
             radii[el][charge] = {}
         if sheet[f"C{i}"].value:
             cn = sheet[f"C{i}"].value
-            if cn not in radii[el][charge]:
-                radii[el][charge][cn] = {}
+            radii[el][charge].setdefault(cn, {})
 
         spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
 

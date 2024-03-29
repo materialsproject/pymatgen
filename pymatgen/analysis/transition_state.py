@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 from glob import glob
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,6 +21,9 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Structure
 from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class NEBAnalysis(MSONable):
@@ -82,7 +86,7 @@ class NEBAnalysis(MSONable):
             self.spline = CubicSpline(x=self.r, y=relative_energies, bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
-    def from_outcars(cls, outcars, structures, **kwargs):
+    def from_outcars(cls, outcars, structures, **kwargs) -> Self:
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
         the static constructors, e.g., from_dir instead if you
@@ -188,7 +192,7 @@ class NEBAnalysis(MSONable):
         return ax
 
     @classmethod
-    def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs):
+    def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs) -> Self:
         """
         Initializes a NEBAnalysis object from a directory of a NEB run.
         Note that OUTCARs must be present in all image directories. For the
@@ -296,7 +300,9 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
     Note that the barrier labeled in y-axis in the combined plot might be
     different from that in the individual plot due to the reference energy used.
     reverse_plot: reverse the plot or percolation direction.
-    return: a NEBAnalysis object
+
+    Returns:
+        a NEBAnalysis object
     """
     x = StructureMatcher()
     for neb_index, neb in enumerate(neb_analyses):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -26,7 +26,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/cohp/environments"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestLobsterNeighbors(unittest.TestCase):
+class TestLobsterNeighbors(TestCase):
     def setUp(self):
         # test additional conditions first
         # only consider cation anion bonds

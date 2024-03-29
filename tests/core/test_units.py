@@ -9,17 +9,30 @@ from pymatgen.core.units import (
     Energy,
     EnergyArray,
     FloatWithUnit,
+    Ha_to_eV,
     Length,
     LengthArray,
     Mass,
     Memory,
+    Ry_to_eV,
     Time,
     TimeArray,
     Unit,
     UnitError,
+    amu_to_kg,
+    bohr_to_angstrom,
+    eV_to_Ha,
     unitized,
 )
 from pymatgen.util.testing import PymatgenTest
+
+
+def test_unit_conversions():
+    assert Ha_to_eV == approx(27.211386245988)
+    assert eV_to_Ha == 1 / Ha_to_eV
+    assert Ry_to_eV == approx(Ha_to_eV / 2)
+    assert bohr_to_angstrom == approx(0.529177210903)
+    assert amu_to_kg == approx(1.66053906660e-27)
 
 
 class TestUnit(PymatgenTest):
@@ -54,11 +67,11 @@ class TestFloatWithUnit(PymatgenTest):
         assert a + 1 == 2.1
         assert str(a / d) == "1.1 eV Ha^-1"
 
-        e = Energy(1, "kJ")
-        f = e.to("kCal")
-        assert f == approx(0.2390057361376673)
-        assert str(e + f) == "2.0 kJ"
-        assert str(f + e) == "0.4780114722753346 kCal"
+        e_kj = Energy(1, "kJ")
+        e_kcal = e_kj.to("kCal")
+        assert e_kcal == approx(0.2390057361376673)
+        assert str(e_kj + e_kcal) == "2.0 kJ"
+        assert str(e_kcal + e_kj) == "0.4780114722753346 kCal"
 
     def test_time(self):
         a = Time(20, "h")
@@ -93,48 +106,45 @@ class TestFloatWithUnit(PymatgenTest):
 
     def test_unitized(self):
         @unitized("eV")
-        def f():
+        def func1():
             return [1, 2, 3]
 
-        assert str(f()[0]) == "1.0 eV"
-        assert isinstance(f(), list)
+        assert str(func1()[0]) == "1.0 eV"
+        assert isinstance(func1(), list)
 
         @unitized("eV")
-        def g():
+        def func2():
             return 2, 3, 4
 
-        assert str(g()[0]) == "2.0 eV"
-        assert isinstance(g(), tuple)
+        assert str(func2()[0]) == "2.0 eV"
+        assert isinstance(func2(), tuple)
 
         @unitized("pm")
-        def h():
-            dct = {}
-            for i in range(3):
-                dct[i] = i * 20
-            return dct
+        def func3():
+            return {idx: idx * 20 for idx in range(3)}
 
-        assert str(h()[1]) == "20.0 pm"
-        assert isinstance(h(), dict)
+        assert str(func3()[1]) == "20.0 pm"
+        assert isinstance(func3(), dict)
 
         @unitized("kg")
-        def i():
+        def func4():
             return FloatWithUnit(5, "g")
 
-        assert i() == FloatWithUnit(0.005, "kg")
+        assert func4() == FloatWithUnit(0.005, "kg")
 
         @unitized("kg")
-        def j():
+        def func5():
             return ArrayWithUnit([5, 10], "g")
 
-        j_out = j()
+        j_out = func5()
         assert j_out.unit == Unit("kg")
         assert j_out[0] == 0.005
         assert j_out[1] == 0.01
 
     def test_compound_operations(self):
-        g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
-        e = Mass(1, "kg") * g * Length(1, "m")
-        assert str(e) == "10.0 N m"
+        earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
+        e_pot = Mass(1, "kg") * earth_acc * Length(1, "m")
+        assert str(e_pot) == "9.81 N m"
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"
@@ -252,16 +262,16 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             _ = ene_ha + time_s
 
     def test_factors(self):
-        e = EnergyArray([27.21138386, 1], "eV").to("Ha")
-        assert str(e).endswith("Ha")
+        e_arr = EnergyArray([27.21138386, 1], "eV").to("Ha")
+        assert str(e_arr).endswith("Ha")
         len_arr = LengthArray([1.0], "ang").to("bohr")
         assert str(len_arr).endswith(" bohr")
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         assert str(v).endswith(" ang^3")
 
     def test_as_base_units(self):
-        x = ArrayWithUnit([5, 10], "MPa")
-        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
+        pressure_arr = ArrayWithUnit([5, 10], "MPa")
+        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
 
 
 class TestDataPersistence(PymatgenTest):

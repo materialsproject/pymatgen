@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -13,7 +11,7 @@ __date__ = "Mar 18, 2012"
 TEST_DIR = f"{TEST_FILES_DIR}/app_borg"
 
 
-class TestBorgQueen(unittest.TestCase):
+class TestBorgQueen:
     def test_get_data(self):
         """Test get data from vasprun.xml.xe.gz file."""
         drone = VaspToComputedEntryDrone()

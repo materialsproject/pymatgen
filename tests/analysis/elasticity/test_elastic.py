@@ -335,11 +335,11 @@ class TestElasticTensorExpansion(PymatgenTest):
         # Ensure zero strain is same as SOEC
         test_zero = self.exp_cu.get_effective_ecs(np.zeros((3, 3)))
         assert_allclose(test_zero, self.exp_cu[0])
-        s = np.zeros((3, 3))
-        s[0, 0] = 0.02
-        test_2percent = self.exp_cu.get_effective_ecs(s)
+        strain = np.zeros((3, 3))
+        strain[0, 0] = 0.02
+        test_2percent = self.exp_cu.get_effective_ecs(strain)
         diff = test_2percent - test_zero
-        assert_allclose(self.exp_cu[1].einsum_sequence([s]), diff)
+        assert_allclose(self.exp_cu[1].einsum_sequence([strain]), diff)
 
     def test_get_strain_from_stress(self):
         strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])
@@ -411,8 +411,8 @@ class TestDiffFit(PymatgenTest):
             strain_states.append(tuple(ss))
             vec = np.zeros((4, 6))
             rand_values = np.random.uniform(0.1, 1, 4)
-            for i in strain_ind:
-                vec[:, i] = rand_values
+            for idx in strain_ind:
+                vec[:, idx] = rand_values
             vecs[strain_ind] = vec
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         random.shuffle(all_strains)

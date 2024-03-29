@@ -1,14 +1,14 @@
 """
 This is a module for XPS analysis. It is modelled after the Galore package (https://github.com/SMTG-UCL/galore), but
 with some modifications for easier analysis from pymatgen itself. Please cite the following original work if you use
-this::
+this:
 
     Adam J. Jackson, Alex M. Ganose, Anna Regoutz, Russell G. Egdell, David O. Scanlon (2018). Galore: Broadening and
     weighting for simulation of photoelectron spectroscopy. Journal of Open Source Software, 3(26), 773,
     doi: 10.21105/joss.007733
 
 You may wish to look at the optional dependency galore for more functionality such as plotting and other cross-sections.
-Note that the atomic_subshell_photoionization_cross_sections.csv has been reparsed from the original compilation::
+Note that the atomic_subshell_photoionization_cross_sections.csv has been reparsed from the original compilation:
 
     Yeh, J. J.; Lindau, I. Atomic Subshell Photoionization Cross Sections and Asymmetry Parameters: 1 ⩽ Z ⩽ 103.
     Atomic Data and Nuclear Data Tables 1985, 32 (1), 1-155. https://doi.org/10.1016/0092-640X(85)90016-6.
@@ -31,6 +31,8 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.electronic_structure.dos import CompleteDos
 
 
@@ -76,10 +78,12 @@ class XPS(Spectrum):
     YLABEL = "Intensity"
 
     @classmethod
-    def from_dos(cls, dos: CompleteDos):
+    def from_dos(cls, dos: CompleteDos) -> Self:
         """
-        :param dos: CompleteDos object with project element-orbital DOS. Can be obtained from Vasprun.get_complete_dos.
-        :param sigma: Smearing for Gaussian.
+        Args:
+            dos: CompleteDos object with project element-orbital DOS.
+            Can be obtained from Vasprun.get_complete_dos.
+            sigma: Smearing for Gaussian.
 
         Returns:
             XPS

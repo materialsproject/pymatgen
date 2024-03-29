@@ -23,6 +23,8 @@ from pymatgen.util.provenance import StructureNL
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.alchemy.filters import AbstractStructureFilter
 
 
@@ -212,7 +214,7 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
-        with open(f"{output_dir}/transformations.json", mode="w") as file:
+        with open(f"{output_dir}/transformations.json", mode="w", encoding="utf-8") as file:
             json.dump(self.as_dict(), file)
 
     def __str__(self) -> str:
@@ -267,7 +269,7 @@ class TransformedStructure(MSONable):
         transformations: list[AbstractTransformation] | None = None,
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
-    ) -> TransformedStructure:
+    ) -> Self:
         """Generates TransformedStructure from a cif string.
 
         Args:
@@ -311,7 +313,7 @@ class TransformedStructure(MSONable):
         cls,
         poscar_string: str,
         transformations: list[AbstractTransformation] | None = None,
-    ) -> TransformedStructure:
+    ) -> Self:
         """Generates TransformedStructure from a poscar string.
 
         Args:
@@ -339,24 +341,26 @@ class TransformedStructure(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["history"] = jsanitize(self.history)
-        dct["last_modified"] = str(datetime.datetime.utcnow())
+        dct["last_modified"] = str(datetime.datetime.now(datetime.timezone.utc))
         dct["other_parameters"] = jsanitize(self.other_parameters)
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> TransformedStructure:
+    def from_dict(cls, dct: dict) -> Self:
         """Creates a TransformedStructure from a dict."""
         struct = Structure.from_dict(dct)
         return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 
-    def to_snl(self, authors, **kwargs) -> StructureNL:
-        """Generate SNL from TransformedStructure.
+    def to_snl(self, authors: list[str], **kwargs) -> StructureNL:
+        """
+        Generate a StructureNL from TransformedStructure.
 
-        :param authors: List of authors
-        :param **kwargs: All kwargs supported by StructureNL.
+        Args:
+            authors (List[str]): List of authors contributing to the generated StructureNL.
+            **kwargs (Any): All kwargs supported by StructureNL.
 
         Returns:
-            StructureNL
+            StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
             warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
@@ -374,7 +378,7 @@ class TransformedStructure(MSONable):
         return StructureNL(self.final_structure, authors, history=history, **kwargs)
 
     @classmethod
-    def from_snl(cls, snl: StructureNL) -> TransformedStructure:
+    def from_snl(cls, snl: StructureNL) -> Self:
         """Create TransformedStructure from SNL.
 
         Args:

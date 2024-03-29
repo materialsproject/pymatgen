@@ -35,6 +35,8 @@ from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.symmetry.groups import CrystalSystem
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
@@ -481,8 +483,10 @@ class Slab(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Slab:  # type: ignore[override]
-        """:param dct: dict
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+        """
+        Args:
+            dct: dict.
 
         Returns:
             Creates slab from dict.
@@ -586,8 +590,9 @@ class Slab(Structure):
             symmetric properties of a slab when creating adsorbed
             structures or symmetric reconstructions.
 
-        Arg:
+        Args:
             point: Fractional coordinate.
+            cartesian: Where to use Cartesian coordinate.
 
         Returns:
             point: Fractional coordinate. A point equivalent to the
@@ -623,7 +628,7 @@ class Slab(Structure):
             Will add the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
 
-        Arg:
+        Args:
             specie (str): The specie to add
             point (coords): The coordinate of the site in the slab to add.
             coords_are_cartesian (bool): Is the point in Cartesian coordinates
@@ -645,7 +650,7 @@ class Slab(Structure):
             Will remove the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
 
-        Arg:
+        Args:
             indices ([indices]): The indices of the sites
                 in the slab to remove.
         """
@@ -777,11 +782,11 @@ class SlabGenerator:
             initial_structure.add_site_property(
                 "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
             )
-        latt = initial_structure.lattice
+        lattice = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
-        recp = latt.reciprocal_lattice_crystallographic
-        normal = recp.get_cartesian_coords(miller_index)
+        recip_lattice = lattice.reciprocal_lattice_crystallographic
+        normal = recip_lattice.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
 
         slab_scale_factor = []
@@ -795,7 +800,7 @@ class SlabGenerator:
                 slab_scale_factor.append(eye[ii])
             else:
                 # Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, latt.matrix[ii])) / latt.abc[ii]
+                d = abs(np.dot(normal, lattice.matrix[ii])) / lattice.abc[ii]
                 non_orth_ind.append((ii, d))
 
         # We want the vector that has maximum magnitude in the
@@ -824,7 +829,7 @@ class SlabGenerator:
             for uvw in itertools.product(index_range, index_range, index_range):
                 if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
                     continue
-                vec = latt.get_cartesian_coords(uvw)
+                vec = lattice.get_cartesian_coords(uvw)
                 osdm = np.linalg.norm(vec)
                 cosine = abs(np.dot(vec, normal) / osdm)
                 candidates.append((uvw, cosine, osdm))
@@ -875,7 +880,7 @@ class SlabGenerator:
         method. Instead, it is used by other generation algorithms to obtain
         all slabs.
 
-        Arg:
+        Args:
             shift (float): A shift value in Angstrom that determines how much a
                 slab should be shifted.
             tol (float): Tolerance to determine primitive cell.
@@ -1090,28 +1095,28 @@ class SlabGenerator:
         matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
         new_slabs = []
-        for g in matcher.group_structures(slabs):
+        for group in matcher.group_structures(slabs):
             # For each unique termination, symmetrize the
             # surfaces by removing sites from the bottom.
             if symmetrize:
-                slabs = self.nonstoichiometric_symmetrized_slab(g[0])
+                slabs = self.nonstoichiometric_symmetrized_slab(group[0])
                 new_slabs.extend(slabs)
             else:
-                new_slabs.append(g[0])
+                new_slabs.append(group[0])
 
         match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
         new_slabs = [g[0] for g in match.group_structures(new_slabs)]
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
-    def repair_broken_bonds(self, slab, bonds):
+    def repair_broken_bonds(self, slab: Slab, bonds):
         """This method will find undercoordinated atoms due to slab
         cleaving specified by the bonds parameter and move them
         to the other surface to make sure the bond is kept intact.
         In a future release of surface.py, the ghost_sites will be
         used to tell us how the repair bonds should look like.
 
-        Arg:
+        Args:
             slab (structure): A structure object representing a slab.
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
                 specified as a dict of tuples: float of specie1, specie2
@@ -1174,7 +1179,7 @@ class SlabGenerator:
         """This method will Move a set of sites to the
         other side of the slab (opposite surface).
 
-        Arg:
+        Args:
             init_slab (structure): A structure object representing a slab.
             index_of_sites (list of ints): The list of indices representing
                 the sites we want to move to the other side.
@@ -1225,7 +1230,7 @@ class SlabGenerator:
         can destroy the stoichiometry of the slab. For non-elemental
         structures, the chemical potential will be needed to calculate surface energy.
 
-        Arg:
+        Args:
             init_slab (Structure): A single slab structure
 
         Returns:

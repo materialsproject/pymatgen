@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -70,7 +71,7 @@ class DielectricFunctionCalculator(MSONable):
     volume: float
 
     @classmethod
-    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder):
+    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder) -> Self:
         """Construct a DielectricFunction from Vasprun, Kpoint, and Waveder objects.
 
         Args:
@@ -94,7 +95,7 @@ class DielectricFunctionCalculator(MSONable):
         if vrun.parameters["ISYM"] != 0:
             raise NotImplementedError("ISYM != 0 is not implemented yet")
 
-        return DielectricFunctionCalculator(
+        return cls(
             cder_real=waveder.cder_real,
             cder_imag=waveder.cder_imag,
             eigs=eigs,
@@ -110,7 +111,7 @@ class DielectricFunctionCalculator(MSONable):
         )
 
     @classmethod
-    def from_directory(cls, directory: Path | str):
+    def from_directory(cls, directory: Path | str) -> Self:
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
 
         def _try_reading(dtypes):
@@ -306,7 +307,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
         dx: The gridspacing of the output grid.
         ismear: The smearing parameter used by the ``step_func``.
 
-    Return:
+    Returns:
         np.array: Array of size `nx` with delta function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
@@ -330,7 +331,7 @@ def get_step(x0, sigma, nx, dx, ismear):
         dx: The gridspacing of the output grid.
         ismear: The smearing parameter used by the ``step_func``.
 
-    Return:
+    Returns:
         np.array: Array of size `nx` with step function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
@@ -367,7 +368,7 @@ def epsilon_imag(
         jdir: The second direction of the dielectric tensor
         mask: Mask for the bands/kpoint/spin index to include in the calculation
 
-    Return:
+    Returns:
         np.array: Array of size `nedos` with the imaginary part of the dielectric function.
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
@@ -433,7 +434,7 @@ def kramers_kronig(
         deltae: The energy grid spacing
         cshift: The shift of the imaginary part of the dielectric function.
 
-    Return:
+    Returns:
         np.array: Array of size `nedos` with the complex dielectric function.
     """
     egrid = np.linspace(0, deltae * nedos, nedos)

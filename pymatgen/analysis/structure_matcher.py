@@ -17,6 +17,8 @@ from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.util.typing import SpeciesLike
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
@@ -75,9 +77,10 @@ class AbstractComparator(MSONable, abc.ABC):
         """
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            dct (dict): Dict representation
 
         Returns:
             Comparator.
@@ -87,11 +90,11 @@ class AbstractComparator(MSONable, abc.ABC):
                 f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
-                [d["@class"]],
+                [dct["@class"]],
                 0,
             )
-            if hasattr(mod, d["@class"]):
-                trans = getattr(mod, d["@class"])
+            if hasattr(mod, dct["@class"]):
+                trans = getattr(mod, dct["@class"])
                 return trans()
         raise ValueError("Invalid Comparator dict")
 
@@ -267,7 +270,10 @@ class OccupancyComparator(AbstractComparator):
 
     def get_hash(self, composition):
         """
-        :param composition: Composition.
+        Args:
+            composition: Composition.
+
+        TODO: might need a proper hash method
 
         Returns:
             1. Difficult to define sensible hash
@@ -854,24 +860,25 @@ class StructureMatcher(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            dct (dict): Dict representation
 
         Returns:
             StructureMatcher
         """
         return cls(
-            ltol=d["ltol"],
-            stol=d["stol"],
-            angle_tol=d["angle_tol"],
-            primitive_cell=d["primitive_cell"],
-            scale=d["scale"],
-            attempt_supercell=d["attempt_supercell"],
-            allow_subset=d["allow_subset"],
-            comparator=AbstractComparator.from_dict(d["comparator"]),
-            supercell_size=d["supercell_size"],
-            ignored_species=d["ignored_species"],
+            ltol=dct["ltol"],
+            stol=dct["stol"],
+            angle_tol=dct["angle_tol"],
+            primitive_cell=dct["primitive_cell"],
+            scale=dct["scale"],
+            attempt_supercell=dct["attempt_supercell"],
+            allow_subset=dct["allow_subset"],
+            comparator=AbstractComparator.from_dict(dct["comparator"]),
+            supercell_size=dct["supercell_size"],
+            ignored_species=dct["ignored_species"],
         )
 
     def _anonymous_match(

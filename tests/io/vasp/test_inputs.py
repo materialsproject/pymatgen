@@ -5,8 +5,8 @@ import json
 import os
 import pickle
 import re
-import unittest
 from shutil import copyfile
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -212,12 +212,12 @@ cart
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
-        latt = [
+        lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(latt, [si, si], coords)
+        struct = Structure(lattice, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = """Si2
 1.0
@@ -239,12 +239,12 @@ direct
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
-        latt = [
+        lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(latt, [si, si], coords)
+        struct = Structure(lattice, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = """Si2
 1.0
@@ -384,12 +384,12 @@ direct
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
-        latt = [
+        lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(latt, [si, si], coords)
+        struct = Structure(lattice, [si, si], coords)
         poscar = Poscar(struct)
         poscar.set_temperature(900)
 
@@ -644,7 +644,7 @@ class TestIncar(PymatgenTest):
         assert incar == self.incar
 
     def test_get_str(self):
-        s = self.incar.get_str(pretty=True, sort_keys=True)
+        incar_str = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500
@@ -673,7 +673,7 @@ PREC       =  Accurate
 SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
-        assert s == expected
+        assert incar_str == expected
 
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
@@ -747,16 +747,16 @@ LPARD = True
 NBMOD = -3
 PREC = Accurate
 SIGMA = 0.1"""
-        i = Incar.from_str(incar_str)
-        assert isinstance(i["EINT"], list)
-        assert i["EINT"][0] == -0.85
+        incar = Incar.from_str(incar_str)
+        assert isinstance(incar["EINT"], list)
+        assert incar["EINT"][0] == -0.85
 
         incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
         incar_str += "\nALGO = All;"
-        i = Incar.from_str(incar_str)
-        assert i["LHFCALC"]
-        assert i["HFSCREEN"] == 0.2
-        assert i["ALGO"] == "All"
+        incar = Incar.from_str(incar_str)
+        assert incar["LHFCALC"]
+        assert incar["HFSCREEN"] == 0.2
+        assert incar["ALGO"] == "All"
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
@@ -814,12 +814,12 @@ class TestKpoints:
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read"
-        assert kpoints.kpts_shift == [0.5, 0.5, 0.5], "Wrong kpoint shift read"
+        assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
 
         filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
-        assert kpoints.kpts == [[2, 4, 6]]
+        assert kpoints.kpts == [(2, 4, 6)]
 
         filepath = f"{VASP_IN_DIR}/KPOINTS_band"
         kpoints = Kpoints.from_file(filepath)
@@ -997,7 +997,7 @@ direct
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
-class TestPotcarSingle(unittest.TestCase):
+class TestPotcarSingle(TestCase):
     def setUp(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
@@ -1151,11 +1151,11 @@ class TestPotcarSingle(unittest.TestCase):
                 assert psingle.is_valid
 
     # def test_default_functional(self):
-    #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert p.functional_class == "GGA"
+    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
+    #     assert potcar.functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert p.functional_class == "LDA"
+    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
+    #     assert potcar.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
     def test_repr(self):
@@ -1225,8 +1225,8 @@ class TestPotcar(PymatgenTest):
     def test_write(self):
         tmp_file = f"{self.tmp_path}/POTCAR.testing"
         self.potcar.write_file(tmp_file)
-        p = Potcar.from_file(tmp_file)
-        assert p.symbols == self.potcar.symbols
+        potcar = Potcar.from_file(tmp_file)
+        assert potcar.symbols == self.potcar.symbols
 
         with zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref, open(tmp_file, encoding="utf-8") as f_new:
             ref_potcar = f_ref.readlines()
@@ -1246,13 +1246,13 @@ class TestPotcar(PymatgenTest):
         assert self.potcar[0].nelectrons == 14
 
     # def test_default_functional(self):
-    #     p = Potcar(["Fe", "P"])
-    #     assert p[0].functional_class == "GGA"
-    #     assert p[1].functional_class == "GGA"
+    #     potcar = Potcar(["Fe", "P"])
+    #     assert potcar[0].functional_class == "GGA"
+    #     assert potcar[1].functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     p = Potcar(["Fe", "P"])
-    #     assert p[0].functional_class == "LDA"
-    #     assert p[1].functional_class == "LDA"
+    #     potcar = Potcar(["Fe", "P"])
+    #     assert potcar[0].functional_class == "LDA"
+    #     assert potcar[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)

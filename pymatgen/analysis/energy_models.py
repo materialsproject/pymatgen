@@ -15,6 +15,8 @@ from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __version__ = "0.1"
@@ -26,7 +28,8 @@ class EnergyModel(MSONable, abc.ABC):
     @abc.abstractmethod
     def get_energy(self, structure) -> float:
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -34,7 +37,7 @@ class EnergyModel(MSONable, abc.ABC):
         return 0.0
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -73,7 +76,8 @@ class EwaldElectrostaticModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -121,7 +125,8 @@ class SymmetryModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -156,7 +161,8 @@ class IsingModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -188,7 +194,8 @@ class NsitesModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value

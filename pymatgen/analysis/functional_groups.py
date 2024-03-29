@@ -35,11 +35,11 @@ class FunctionalGroupExtractor:
         """
         Instantiation method for FunctionalGroupExtractor.
 
-        :param molecule: Either a filename, a pymatgen.core.structure.Molecule
-            object, or a pymatgen.analysis.graphs.MoleculeGraph object.
-        :param optimize: Default False. If True, then the input molecule will be
-            modified, adding Hydrogens, performing a simple conformer search,
-            etc.
+        Args:
+            molecule: Either a filename, a pymatgen.core.structure.Molecule
+                object, or a pymatgen.analysis.graphs.MoleculeGraph object.
+            optimize: Default False. If True, then the input molecule will be
+                modified, adding Hydrogens, performing a simple conformer search, etc.
         """
         self.molgraph = None
 
@@ -86,7 +86,7 @@ class FunctionalGroupExtractor:
             raise ValueError("Input to FunctionalGroupExtractor must be str, Molecule, or MoleculeGraph.")
 
         if self.molgraph is None:
-            self.molgraph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
+            self.molgraph = MoleculeGraph.from_local_env_strategy(self.molecule, OpenBabelNN())
 
         # Assign a specie and coordinates to each node in the graph,
         # corresponding to the Site in the Molecule object
@@ -99,7 +99,8 @@ class FunctionalGroupExtractor:
         Identify non-H, non-C atoms in the MoleculeGraph, returning a list of
         their node indices.
 
-        :param elements: List of elements to identify (if only certain
+        Args:
+            elements: List of elements to identify (if only certain
             functional groups are of interest).
 
         Returns:
@@ -129,9 +130,10 @@ class FunctionalGroupExtractor:
             nitrogens or sulfurs; these O, N or S atoms must have only single bonds
             - all atoms in oxirane, aziridine and thiirane rings"
 
-        :param elements: List of elements that will qualify a carbon as special
-            (if only certain functional groups are of interest).
-            Default None.
+        Args:
+            elements: List of elements that will qualify a carbon as special
+                (if only certain functional groups are of interest).
+                Default None.
 
         Returns:
             set of ints representing node indices
@@ -196,8 +198,9 @@ class FunctionalGroupExtractor:
         and attempt to connect them, returning a list of disjoint groups of
         special atoms (and their connected hydrogens).
 
-        :param atoms: set of marked "interesting" atoms, presumably identified
-            using other functions in this class.
+        Args:
+            atoms: set of marked "interesting" atoms, presumably identified
+                using other functions in this class.
 
         Returns:
             list of sets of ints, representing groups of connected atoms
@@ -232,9 +235,10 @@ class FunctionalGroupExtractor:
         TODO: Think of other functional groups that are important enough to be
         added (ex: do we need ethyl, butyl, propyl?)
 
-        :param func_groups: List of strs representing the functional groups of
-            interest. Default to None, meaning that all of the functional groups
-            defined in this function will be sought.
+        Args:
+            func_groups: List of strs representing the functional groups of
+                interest. Default to None, meaning that all of the functional groups
+                defined in this function will be sought.
 
         Returns:
             list of sets of ints, representing groups of connected atoms
@@ -293,14 +297,15 @@ class FunctionalGroupExtractor:
         Identify all functional groups (or all within a certain subset) in the
         molecule, combining the methods described above.
 
-        :param elements: List of elements that will qualify a carbon as special
-            (if only certain functional groups are of interest).
-            Default None.
-        :param func_groups: List of strs representing the functional groups of
-            interest. Default to None, meaning that all of the functional groups
-            defined in this function will be sought.
-        :param catch_basic: bool. If True, use get_basic_functional_groups and
-            other methods
+        Args:
+            elements: List of elements that will qualify a carbon as special
+                (if only certain functional groups are of interest).
+                Default None.
+            func_groups: List of strs representing the functional groups of
+                interest. Default to None, meaning that all of the functional groups
+                defined in this function will be sought.
+            catch_basic: bool. If True, use get_basic_functional_groups and
+                other methods
 
         Returns:
             list of sets of ints, representing groups of connected atoms
@@ -318,7 +323,8 @@ class FunctionalGroupExtractor:
         """
         Determine classes of functional groups present in a set.
 
-        :param groups: Set of functional groups.
+        Args:
+            groups: Set of functional groups.
 
         Returns:
             dict containing representations of the groups, the indices of

@@ -29,11 +29,11 @@ def postprocessor(data: str) -> str | float | bool | None:
     """
     data = data.strip().replace(" ", "_")  # remove leading/trailing whitespace, replace spaces with _
 
-    if data.lower() in ("false", "no", "f"):
+    if data.lower() in {"false", "no", "f"}:
         return False
     if data.lower() == "none":
         return None
-    if data.lower() in ("true", "yes", "t"):
+    if data.lower() in {"true", "yes", "t"}:
         return True
     if re.match(r"^-?\d+$", data):
         try:

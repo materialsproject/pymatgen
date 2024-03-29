@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -10,7 +10,7 @@ from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestSet(unittest.TestCase):
+class TestSet(TestCase):
     def setUp(self):
         self.out = Cp2kOutput(f"{TEST_FILES_DIR}/cp2k/cp2k.out", auto_load=True)
 

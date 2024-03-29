@@ -15,6 +15,7 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -28,7 +29,9 @@ __date__ = "Feb 20, 2016"
 def get_lower_and_upper_f(surface_calculation_options):
     """Get the lower and upper functions defining a surface in the distance-angle space of neighbors.
 
-    :param surface_calculation_options: Options for the surface.
+    Args:
+        surface_calculation_options: Options for the surface.
+
     Returns:
         Dictionary containing the "lower" and "upper" functions for the surface.
     """
@@ -388,8 +391,10 @@ def solid_angle(center, coords):
 def vectorsToMatrix(aa, bb):
     """
     Performs the vector multiplication of the elements of two vectors, constructing the 3x3 matrix.
-    :param aa: One vector of size 3
-    :param bb: Another vector of size 3
+
+    Args:
+        aa: One vector of size 3
+        bb: Another vector of size 3
 
     Returns:
         A 3x3 matrix M composed of the products of the elements of aa and bb : M_ij = aa_i * bb_j.
@@ -404,8 +409,9 @@ def vectorsToMatrix(aa, bb):
 def matrixTimesVector(MM, aa):
     """
 
-    :param MM: A matrix of size 3x3
-    :param aa: A vector of size 3
+    Args:
+        MM: A matrix of size 3x3
+        aa: A vector of size 3
 
     Returns:
         A vector of size 3 which is the product of the matrix by the vector
@@ -419,8 +425,10 @@ def matrixTimesVector(MM, aa):
 def rotateCoords(coords, R):
     """
     Rotate the list of points using rotation matrix R
-    :param coords: List of points to be rotated
-    :param R: Rotation matrix
+
+    Args:
+        coords: List of points to be rotated
+        R: Rotation matrix
 
     Returns:
         List of rotated points.
@@ -435,8 +443,10 @@ def rotateCoords(coords, R):
 def rotateCoordsOpt(coords, R):
     """
     Rotate the list of points using rotation matrix R
-    :param coords: List of points to be rotated
-    :param R: Rotation matrix
+
+    Args:
+        coords: List of points to be rotated
+        R: Rotation matrix
 
     Returns:
         List of rotated points.
@@ -448,10 +458,12 @@ def changebasis(uu, vv, nn, pps):
     """
     For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
     expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
-    :param uu: First vector of the basis
-    :param vv: Second vector of the basis
-    :param nn: Third vector of the basis
-    :param pps: List of points in basis (e1, e2, e3)
+
+    Args:
+        uu: First vector of the basis
+        vv: Second vector of the basis
+        nn: Third vector of the basis
+        pps: List of points in basis (e1, e2, e3)
     Returns:
         List of points in basis (uu, vv, nn).
     """
@@ -474,10 +486,13 @@ def collinear(p1, p2, p3=None, tolerance=0.25):
     triangle is less than (tolerance x largest_triangle), then the three points are considered collinear. The
     largest_triangle is defined as the right triangle whose legs are the two smallest distances between the three
      points ie, its area is : 0.5 x (min(|p2-p1|,|p3-p1|,|p3-p2|) x second_min(|p2-p1|,|p3-p1|,|p3-p2|))
-    :param p1: First point
-    :param p2: Second point
-    :param p3: Third point (origin [0.0, 0.0, 0.0 if not given])
-    :param tolerance: Area tolerance for the collinearity test (0.25 gives about 0.125 deviation from the line)
+
+    Args:
+        p1: First point
+        p2: Second point
+        p3: Third point (origin [0.0, 0.0, 0.0 if not given])
+        tolerance: Area tolerance for the collinearity test (0.25 gives about 0.125 deviation from the line)
+
     Returns:
         bool: True if the three points are considered as collinear within the given tolerance.
     """
@@ -494,7 +509,9 @@ def collinear(p1, p2, p3=None, tolerance=0.25):
 def anticlockwise_sort(pps):
     """
     Sort a list of 2D points in anticlockwise order
-    :param pps: List of points to be sorted
+
+    Args:
+        pps: List of points to be sorted
 
     Returns:
         Sorted list of points.
@@ -512,7 +529,9 @@ def anticlockwise_sort(pps):
 def anticlockwise_sort_indices(pps):
     """
     Returns the indices that would sort a list of 2D points in anticlockwise order
-    :param pps: List of points to be sorted
+
+    Args:
+        pps: List of points to be sorted
 
     Returns:
         Indices of the sorted list of points.
@@ -526,7 +545,9 @@ def anticlockwise_sort_indices(pps):
 def sort_separation(separation):
     """Sort a separation.
 
-    :param separation: Initial separation.
+    Args:
+        separation: Initial separation.
+
     Returns:
         Sorted list of separation.
     """
@@ -538,7 +559,8 @@ def sort_separation(separation):
 def sort_separation_tuple(separation):
     """Sort a separation.
 
-    :param separation: Initial separation
+    Args:
+        separation: Initial separation
 
     Returns:
         Sorted tuple of separation
@@ -559,8 +581,10 @@ def sort_separation_tuple(separation):
 def separation_in_list(separation_indices, separation_indices_list):
     """
     Checks if the separation indices of a plane are already in the list
-    :param separation_indices: list of separation indices (three arrays of integers)
-    :param separation_indices_list: list of the list of separation indices to be compared to
+
+    Args:
+        separation_indices: list of separation indices (three arrays of integers)
+        separation_indices_list: list of the list of separation indices to be compared to
 
     Returns:
         bool: True if the separation indices are already in the list.
@@ -575,9 +599,11 @@ def separation_in_list(separation_indices, separation_indices_list):
 def is_anion_cation_bond(valences, ii, jj) -> bool:
     """
     Checks if two given sites are an anion and a cation.
-    :param valences: list of site valences
-    :param ii: index of a site
-    :param jj: index of another site
+
+    Args:
+        valences: list of site valences
+        ii: index of a site
+        jj: index of another site
 
     Returns:
         bool: True if one site is an anion and the other is a cation (based on valences).
@@ -619,7 +645,9 @@ class Plane:
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
         """
         Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
-        :param coefficients: abcd coefficients of the plane.
+
+        Args:
+            coefficients: abcd coefficients of the plane.
         """
         # Initializes the normal vector
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], float)
@@ -652,8 +680,9 @@ class Plane:
     def init_3points(self, non_zeros, zeros):
         """Initialize three random points on this plane.
 
-        :param non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
-        :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
+        Args:
+            non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
+            zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
         """
         if len(non_zeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], float)
@@ -690,8 +719,10 @@ class Plane:
     def is_in_plane(self, pp, dist_tolerance) -> bool:
         """
         Determines if point pp is in the plane within the tolerance dist_tolerance
-        :param pp: point to be tested
-        :param dist_tolerance: tolerance on the distance to the plane within which point pp is considered in the plane
+
+        Args:
+            pp: point to be tested
+            dist_tolerance: tolerance on the distance to the plane within which point pp is considered in the plane
 
         Returns:
             bool: True if pp is in the plane.
@@ -701,7 +732,9 @@ class Plane:
     def is_same_plane_as(self, plane) -> bool:
         """
         Checks whether the plane is identical to another Plane "plane"
-        :param plane: Plane to be compared to
+
+        Args:
+            plane: Plane to be compared to
 
         Returns:
             bool: True if the two facets are identical.
@@ -711,7 +744,9 @@ class Plane:
     def is_in_list(self, plane_list) -> bool:
         """
         Checks whether the plane is identical to one of the Planes in the plane_list list of Planes
-        :param plane_list: List of Planes to be compared to
+
+        Args:
+            plane_list: List of Planes to be compared to
 
         Returns:
             bool: True if the plane is in the list.
@@ -723,9 +758,11 @@ class Plane:
         Returns three lists containing the indices of the points lying on one side of the plane, on the plane
         and on the other side of the plane. The dist_tolerance parameter controls the tolerance to which a point
         is considered to lie on the plane or not (distance to the plane)
-        :param points: list of points
-        :param dist_tolerance: tolerance to which a point is considered to lie on the plane
-            or not (distance to the plane)
+
+        Args:
+            points: list of points
+            dist_tolerance: tolerance to which a point is considered to lie on the plane
+                or not (distance to the plane)
 
         Returns:
             The lists of indices of the points on one side of the plane, on the plane and
@@ -746,7 +783,9 @@ class Plane:
     def distance_to_point(self, point):
         """
         Computes the absolute distance from the plane to the point
-        :param point: Point for which distance is computed
+
+        Args:
+            point: Point for which distance is computed
 
         Returns:
             Distance between the plane and the point.
@@ -757,7 +796,9 @@ class Plane:
         """
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side
-        :param points: Points for which distances are computed
+
+        Args:
+            points: Points for which distances are computed
 
         Returns:
             Distances from the plane to the points (positive values on the side of the normal to the plane,
@@ -770,8 +811,10 @@ class Plane:
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
         to furthest is also computed.
-        :param points: Points for which distances are computed
-        :param sign: Whether to add sign information in the indices sorting the points distances
+
+        Args:
+            points: Points for which distances are computed
+            sign: Whether to add sign information in the indices sorting the points distances
 
         Returns:
             Distances from the plane to the points (positive values on the side of the normal to the plane,
@@ -791,11 +834,13 @@ class Plane:
         to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
         separated by less than delta are grouped together. The delta parameter is either set explicitly or taken as
         a fraction (using the delta_factor parameter) of the maximal point distance.
-        :param points: Points for which distances are computed
-        :param delta: Distance interval for which two points are considered in the same group.
-        :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
+
+        Args:
+            points: Points for which distances are computed
+            delta: Distance interval for which two points are considered in the same group.
+            delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
             point distance.
-        :param sign: Whether to add sign information in the indices sorting the points distances
+            sign: Whether to add sign information in the indices sorting the points distances
 
         Returns:
             Distances from the plane to the points (positive values on the side of the normal to the plane,
@@ -819,7 +864,9 @@ class Plane:
     def projectionpoints(self, pps):
         """
         Projects each points in the point list pps on plane and returns the list of projected points
-        :param pps: List of points to project on plane
+
+        Args:
+            pps: List of points to project on plane
 
         Returns:
             List of projected point on plane.
@@ -845,7 +892,9 @@ class Plane:
         """
         Projects each points in the point list pps on plane and returns the indices that would sort the
         list of projected points in anticlockwise order
-        :param pps: List of points to project on plane
+
+        Args:
+            pps: List of points to project on plane
 
         Returns:
             List of indices that would sort the list of projected points.
@@ -856,7 +905,9 @@ class Plane:
     def project_and_to2dim(self, pps, plane_center):
         """
         Projects the list of points pps to the plane and changes the basis from 3D to the 2D basis of the plane
-        :param pps: List of points to be projected
+
+        Args:
+            pps: List of points to be projected
 
         Returns:
             :raise:
@@ -883,8 +934,9 @@ class Plane:
     def fit_error(self, points, fit="least_square_distance"):
         """Evaluate the error for a list of points with respect to this plane.
 
-        :param points: List of points.
-        :param fit: Type of fit error.
+        Args:
+            points: List of points.
+            fit: Type of fit error.
 
         Returns:
             Error for a list of points with respect to this plane.
@@ -898,7 +950,8 @@ class Plane:
     def fit_least_square_distance_error(self, points):
         """Evaluate the sum of squared distances error for a list of points with respect to this plane.
 
-        :param points: List of points.
+        Args:
+            points: List of points.
 
         Returns:
             Sum of squared distances error for a list of points with respect to this plane.
@@ -908,7 +961,8 @@ class Plane:
     def fit_maximum_distance_error(self, points):
         """Evaluate the max distance error for a list of points with respect to this plane.
 
-        :param points: List of points.
+        Args:
+            points: List of points.
 
         Returns:
             Max distance error for a list of points with respect to this plane.
@@ -969,11 +1023,12 @@ class Plane:
         return self._crosses_origin
 
     @classmethod
-    def from_2points_and_origin(cls, p1, p2):
+    def from_2points_and_origin(cls, p1, p2) -> Self:
         """Initializes plane from two points and the origin.
 
-        :param p1: First point.
-        :param p2: Second point.
+        Args:
+            p1: First point.
+            p2: Second point.
 
         Returns:
             Plane.
@@ -981,12 +1036,13 @@ class Plane:
         return cls.from_3points(p1, p2, np.zeros(3))
 
     @classmethod
-    def from_3points(cls, p1, p2, p3):
+    def from_3points(cls, p1, p2, p3) -> Self:
         """Initializes plane from three points.
 
-        :param p1: First point.
-        :param p2: Second point.
-        :param p3: Third point.
+        Args:
+            p1: First point.
+            p2: Second point.
+            p3: Third point.
 
         Returns:
             Plane.
@@ -1001,13 +1057,14 @@ class Plane:
         return cls(coefficients, p1=p1, p2=p2, p3=p3)
 
     @classmethod
-    def from_npoints(cls, points, best_fit="least_square_distance"):
+    def from_npoints(cls, points, best_fit="least_square_distance") -> Self:
         """Initializes plane from a list of points.
 
         If the number of points is larger than 3, will use a least square fitting or max distance fitting.
 
-        :param points: List of points.
-        :param best_fit: Type of fitting procedure for more than 3 points.
+        Args:
+            points: List of points.
+            best_fit: Type of fitting procedure for more than 3 points.
 
         Returns:
             Plane
@@ -1020,13 +1077,15 @@ class Plane:
             return cls.from_npoints_least_square_distance(points)
         if best_fit == "maximum_distance":
             return cls.from_npoints_maximum_distance(points)
-        return None
+
+        raise ValueError("Cannot initialize Plane.")
 
     @classmethod
-    def from_npoints_least_square_distance(cls, points):
+    def from_npoints_least_square_distance(cls, points) -> Self:
         """Initializes plane from a list of points using a least square fitting procedure.
 
-        :param points: List of points.
+        Args:
+            points: List of points.
 
         Returns:
             Plane.
@@ -1048,14 +1107,15 @@ class Plane:
         return cls(coefficients)
 
     @classmethod
-    def perpendicular_bisector(cls, p1, p2):
+    def perpendicular_bisector(cls, p1, p2) -> Self:
         """Initialize a plane from the perpendicular bisector of two points.
 
         The perpendicular bisector of two points is the plane perpendicular to the vector joining these two points
         and passing through the middle of the segment joining the two points.
 
-        :param p1: First point.
-        :param p2: Second point.
+        Args:
+            p1: First point.
+            p2: Second point.
 
         Returns:
             Plane.
@@ -1066,10 +1126,11 @@ class Plane:
         return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], float))
 
     @classmethod
-    def from_npoints_maximum_distance(cls, points):
+    def from_npoints_maximum_distance(cls, points) -> Self:
         """Initializes plane from a list of points using a max distance fitting procedure.
 
-        :param points: List of points.
+        Args:
+            points: List of points.
 
         Returns:
             Plane.
@@ -1077,8 +1138,8 @@ class Plane:
         convex_hull = ConvexHull(points)
         heights = []
         ipoints_heights = []
-        for isimplex, _simplex in enumerate(convex_hull.simplices):
-            cc = convex_hull.equations[isimplex]
+        for idx, _simplex in enumerate(convex_hull.simplices):
+            cc = convex_hull.equations[idx]
             plane = Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3])
             distances = [plane.distance_to_point(pp) for pp in points]
             ipoint_height = np.argmax(distances)
@@ -1095,13 +1156,14 @@ class Plane:
         return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], float))
 
     @classmethod
-    def from_coefficients(cls, a, b, c, d):
+    def from_coefficients(cls, a, b, c, d) -> Self:
         """Initialize plane from its coefficients.
 
-        :param a: a coefficient of the plane.
-        :param b: b coefficient of the plane.
-        :param c: c coefficient of the plane.
-        :param d: d coefficient of the plane.
+        Args:
+            a: a coefficient of the plane.
+            b: b coefficient of the plane.
+            c: c coefficient of the plane.
+            d: d coefficient of the plane.
 
         Returns:
             Plane.

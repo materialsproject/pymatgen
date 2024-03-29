@@ -52,6 +52,8 @@ class TestAirssProvider:
         date, path = rs_info
         assert path == "/path/to/airss/run"
         assert date.day == 16
+        assert date.month == 7
+        assert date.year == 2021
 
         castep_v = provider.get_castep_version()
         assert castep_v == "19.11"

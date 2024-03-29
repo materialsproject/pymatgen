@@ -74,13 +74,14 @@ class WulffFacet:
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig, miller):
         """
-        :param normal:
-        :param e_surf:
-        :param normal_pt:
-        :param dual_pt:
-        :param index:
-        :param m_ind_orig:
-        :param miller:
+        Args:
+            normal:
+            e_surf:
+            normal_pt:
+            dual_pt:
+            index:
+            m_ind_orig:
+            miller:
         """
         self.normal = normal
         self.e_surf = e_surf
@@ -376,7 +377,7 @@ class WulffShape:
             units_in_JPERM2 (bool): Units of surface energy, defaults to
                 Joules per square meter (True)
 
-        Return:
+        Returns:
             (matplotlib.pyplot)
         """
         from mpl_toolkits.mplot3d import art3d
@@ -496,7 +497,7 @@ class WulffShape:
             units_in_JPERM2 (bool): Units of surface energy, defaults to
                 Joules per square meter (True)
 
-        Return:
+        Returns:
             (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"

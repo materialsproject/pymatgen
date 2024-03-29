@@ -11,9 +11,9 @@ from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
-    BrunnerNN_real,
-    BrunnerNN_reciprocal,
-    BrunnerNN_relative,
+    BrunnerNNReal,
+    BrunnerNNReciprocal,
+    BrunnerNNRelative,
     CovalentBondNN,
     Critic2NN,
     CrystalNN,
@@ -403,60 +403,60 @@ class TestMiniDistNN(PymatgenTest):
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
             assert image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)]
 
-        okeeffe = MinimumOKeeffeNN(tol=0.01)
-        assert okeeffe.get_cn(self.diamond, 0) == 4
-        assert okeeffe.get_cn(self.nacl, 0) == 6
-        assert okeeffe.get_cn(self.cscl, 0) == 8
-        assert okeeffe.get_cn(self.lifepo4, 0) == 2
+        okeeffe_nn = MinimumOKeeffeNN(tol=0.01)
+        assert okeeffe_nn.get_cn(self.diamond, 0) == 4
+        assert okeeffe_nn.get_cn(self.nacl, 0) == 6
+        assert okeeffe_nn.get_cn(self.cscl, 0) == 8
+        assert okeeffe_nn.get_cn(self.lifepo4, 0) == 2
 
-        virenn = MinimumVIRENN(tol=0.01)
-        assert virenn.get_cn(self.diamond, 0) == 4
-        assert virenn.get_cn(self.nacl, 0) == 6
-        assert virenn.get_cn(self.cscl, 0) == 8
-        assert virenn.get_cn(self.lifepo4, 0) == 2
+        min_vire_nn = MinimumVIRENN(tol=0.01)
+        assert min_vire_nn.get_cn(self.diamond, 0) == 4
+        assert min_vire_nn.get_cn(self.nacl, 0) == 6
+        assert min_vire_nn.get_cn(self.cscl, 0) == 8
+        assert min_vire_nn.get_cn(self.lifepo4, 0) == 2
 
-        brunner_recip = BrunnerNN_reciprocal(tol=0.01)
+        brunner_recip = BrunnerNNReciprocal(tol=0.01)
         assert brunner_recip.get_cn(self.diamond, 0) == 4
         assert brunner_recip.get_cn(self.nacl, 0) == 6
         assert brunner_recip.get_cn(self.cscl, 0) == 14
         assert brunner_recip.get_cn(self.lifepo4, 0) == 6
 
-        brunner_rel = BrunnerNN_relative(tol=0.01)
+        brunner_rel = BrunnerNNRelative(tol=0.01)
         assert brunner_rel.get_cn(self.diamond, 0) == 4
         assert brunner_rel.get_cn(self.nacl, 0) == 6
         assert brunner_rel.get_cn(self.cscl, 0) == 14
         assert brunner_rel.get_cn(self.lifepo4, 0) == 6
 
-        brunner_real = BrunnerNN_real(tol=0.01)
+        brunner_real = BrunnerNNReal(tol=0.01)
         assert brunner_real.get_cn(self.diamond, 0) == 4
         assert brunner_real.get_cn(self.nacl, 0) == 6
         assert brunner_real.get_cn(self.cscl, 0) == 14
         assert brunner_real.get_cn(self.lifepo4, 0) == 30
 
-        econn = EconNN()
-        assert econn.get_cn(self.diamond, 0) == 4
-        assert econn.get_cn(self.nacl, 0) == 6
-        assert econn.get_cn(self.cscl, 0) == 14
-        assert econn.get_cn(self.lifepo4, 0) == 6
+        econ_nn = EconNN()
+        assert econ_nn.get_cn(self.diamond, 0) == 4
+        assert econ_nn.get_cn(self.nacl, 0) == 6
+        assert econ_nn.get_cn(self.cscl, 0) == 14
+        assert econ_nn.get_cn(self.lifepo4, 0) == 6
 
-        voroinn = VoronoiNN(tol=0.5)
-        assert voroinn.get_cn(self.diamond, 0) == 4
-        assert voroinn.get_cn(self.nacl, 0) == 6
-        assert voroinn.get_cn(self.cscl, 0) == 8
-        assert voroinn.get_cn(self.lifepo4, 0) == 6
+        voronoi_nn = VoronoiNN(tol=0.5)
+        assert voronoi_nn.get_cn(self.diamond, 0) == 4
+        assert voronoi_nn.get_cn(self.nacl, 0) == 6
+        assert voronoi_nn.get_cn(self.cscl, 0) == 8
+        assert voronoi_nn.get_cn(self.lifepo4, 0) == 6
 
-        crystalnn = CrystalNN()
-        assert crystalnn.get_cn(self.diamond, 0) == 4
-        assert crystalnn.get_cn(self.nacl, 0) == 6
-        assert crystalnn.get_cn(self.cscl, 0) == 8
-        assert crystalnn.get_cn(self.lifepo4, 0) == 6
+        crystal_nn = CrystalNN()
+        assert crystal_nn.get_cn(self.diamond, 0) == 4
+        assert crystal_nn.get_cn(self.nacl, 0) == 6
+        assert crystal_nn.get_cn(self.cscl, 0) == 8
+        assert crystal_nn.get_cn(self.lifepo4, 0) == 6
 
     def test_get_local_order_params(self):
-        nn = MinimumDistanceNN()
-        ops = nn.get_local_order_parameters(self.diamond, 0)
+        min_dist_nn = MinimumDistanceNN()
+        ops = min_dist_nn.get_local_order_parameters(self.diamond, 0)
         assert ops["tetrahedral"] == approx(0.9999934389036574)
 
-        ops = nn.get_local_order_parameters(self.nacl, 0)
+        ops = min_dist_nn.get_local_order_parameters(self.nacl, 0)
         assert ops["octahedral"] == approx(0.9999995266669)
 
 
@@ -534,18 +534,18 @@ class TestMotifIdentification(PymatgenTest):
         )
 
     def test_site_is_of_motif_type(self):
-        for i in range(len(self.diamond)):
-            assert site_is_of_motif_type(self.diamond, i) == "tetrahedral"
-        for i in range(len(self.nacl)):
-            assert site_is_of_motif_type(self.nacl, i) == "octahedral"
-        for i in range(len(self.cscl)):
-            assert site_is_of_motif_type(self.cscl, i) == "bcc"
+        for idx in range(len(self.diamond)):
+            assert site_is_of_motif_type(self.diamond, idx) == "tetrahedral"
+        for idx in range(len(self.nacl)):
+            assert site_is_of_motif_type(self.nacl, idx) == "octahedral"
+        for idx in range(len(self.cscl)):
+            assert site_is_of_motif_type(self.cscl, idx) == "bcc"
         assert site_is_of_motif_type(self.square_pyramid, 0) == "square pyramidal"
-        for i in range(1, len(self.square_pyramid)):
-            assert site_is_of_motif_type(self.square_pyramid, i) == "unrecognized"
+        for idx in range(1, len(self.square_pyramid)):
+            assert site_is_of_motif_type(self.square_pyramid, idx) == "unrecognized"
         assert site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
-        for i in range(1, len(self.trigonal_bipyramid)):
-            assert site_is_of_motif_type(self.trigonal_bipyramid, i) == "unrecognized"
+        for idx in range(1, len(self.trigonal_bipyramid)):
+            assert site_is_of_motif_type(self.trigonal_bipyramid, idx) == "unrecognized"
 
     def test_get_neighbors_of_site_with_index(self):
         assert len(get_neighbors_of_site_with_index(self.diamond, 0)) == 4
@@ -1003,15 +1003,10 @@ class TestLocalStructOrderParams(PymatgenTest):
             "tet_max",
             "sq_face_cap_trig_pris",
         ]
-        op_params = [None for i in range(len(op_types))]
+        op_params = [None] * len(op_types)
         op_params[1] = {"TA": 1, "IGW_TA": 1.0 / 0.0667}
         op_params[2] = {"TA": 45.0 / 180, "IGW_TA": 1.0 / 0.0667}
-        op_params[33] = {
-            "TA": 0.6081734479693927,
-            "IGW_TA": 18.33,
-            "fac_AA": 1.5,
-            "exp_cos_AA": 2,
-        }
+        op_params[33] = {"TA": 0.6081734479693927, "IGW_TA": 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
         ops_044 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.44)
         ops_071 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.71)
         ops_087 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.87)
@@ -1344,7 +1339,7 @@ class TestMetalEdgeExtender(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
         self.phsh = Molecule.from_file(f"{TEST_DIR}/phsh.xyz")
-        self.phsh_graph = MoleculeGraph.with_edges(
+        self.phsh_graph = MoleculeGraph.from_edges(
             molecule=self.phsh,
             edges={
                 (0, 1): None,
@@ -1374,7 +1369,7 @@ class TestMetalEdgeExtender(PymatgenTest):
                 (21, 24): None,
             },
         )
-        self.LiEC_graph = MoleculeGraph.with_edges(
+        self.LiEC_graph = MoleculeGraph.from_edges(
             molecule=self.LiEC,
             edges={
                 (0, 2): None,
@@ -1396,7 +1391,7 @@ class TestMetalEdgeExtender(PymatgenTest):
         K_sites = [s.coords for s in uncharged_K_cluster]
         K_species = [s.species for s in uncharged_K_cluster]
         charged_K_cluster = Molecule(K_species, K_sites, charge=1)
-        self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
+        self.water_cluster_K = MoleculeGraph.from_empty_graph(charged_K_cluster)
         assert len(self.water_cluster_K.graph.edges) == 0
 
         # Mg + 6 H2O at 1.94 Ang from Mg
@@ -1404,7 +1399,7 @@ class TestMetalEdgeExtender(PymatgenTest):
         Mg_sites = [s.coords for s in uncharged_Mg_cluster]
         Mg_species = [s.species for s in uncharged_Mg_cluster]
         charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
-        self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
+        self.water_cluster_Mg = MoleculeGraph.from_empty_graph(charged_Mg_cluster)
 
     def test_metal_edge_extender(self):
         assert len(self.LiEC_graph.graph.edges) == 11

@@ -9,7 +9,7 @@ import warnings
 from collections.abc import Iterator, Sequence
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 from monty.io import zopen
@@ -18,6 +18,10 @@ from monty.json import MSONable
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -306,7 +310,7 @@ class Trajectory(MSONable):
         Args:
             frames: Indices of the trajectory to return.
 
-        Return:
+        Returns:
             Subset of trajectory
         """
         # Convert to position mode if not already
@@ -467,7 +471,7 @@ class Trajectory(MSONable):
         }
 
     @classmethod
-    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Trajectory:
+    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Self:
         """Create trajectory from a list of structures.
 
         Note: Assumes no atoms removed during simulation.
@@ -500,7 +504,7 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Trajectory:
+    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Self:
         """Create trajectory from a list of molecules.
 
         Note: Assumes no atoms removed during simulation.
@@ -526,7 +530,7 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
+    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Self:
         """Create trajectory from XDATCAR, vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:

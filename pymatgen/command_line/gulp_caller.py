@@ -541,7 +541,7 @@ class GulpIO:
             gout (str): GULP output string.
 
         Returns:
-            (Structure) relaxed structure.
+            Structure: relaxed structure.
         """
         # Find the structure lines
         structure_lines = []
@@ -549,6 +549,7 @@ class GulpIO:
         output_lines = gout.split("\n")
         n_lines = len(output_lines)
         idx = 0
+        a = b = c = alpha = beta = gamma = 0.0
         # Compute the input lattice parameters
         while idx < n_lines:
             line = output_lines[idx]
@@ -621,9 +622,13 @@ class GulpIO:
             alpha = float(cell_param_lines[3].split()[1])
             beta = float(cell_param_lines[4].split()[1])
             gamma = float(cell_param_lines[5].split()[1])
-        latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        if not all([a, b, c, alpha, beta, gamma]):
+            raise ValueError(
+                f"Missing lattice parameters in Gulp output: {a=}, {b=}, {c=}, {alpha=}, {beta=}, {gamma=}"
+            )
+        lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
-        return Structure(latt, sp, coords)
+        return Structure(lattice, sp, coords)
 
 
 class GulpCaller:

@@ -7,7 +7,6 @@ Created on Nov 10, 2012.
 from __future__ import annotations
 
 import random
-import unittest
 
 import pytest
 from numpy.testing import assert_allclose
@@ -93,7 +92,7 @@ class TestComposition(PymatgenTest):
 
         # Test float in Composition
         comp = Composition({Element("Fe"): 2})
-        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+        with pytest.raises(TypeError, match="Invalid key=1.5 for Composition"):
             assert 1.5 in comp
 
         # Test DummySpecies in Composition
@@ -132,7 +131,7 @@ class TestComposition(PymatgenTest):
 
         assert Composition({"Fe": 4, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
 
-        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+        with pytest.raises(ValueError, match="Can't parse Element or Species from"):
             Composition({None: 4, "Li": 4, "O": 16, "P": 4})
 
         assert Composition({1: 2, 8: 1}).formula == "H2 O1"
@@ -140,6 +139,11 @@ class TestComposition(PymatgenTest):
 
         comp = Composition({"S": Composition.amount_tolerance / 2})
         assert len(comp.elements) == 0
+
+        # test Composition from int/float raises
+        for val in (1, 2.5):
+            with pytest.raises(TypeError, match=f"{type(val).__name__!r} object is not iterable"):
+                Composition(val)
 
     def test_str_and_repr(self):
         test_cases = [
@@ -212,10 +216,7 @@ class TestComposition(PymatgenTest):
         assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
 
         assert Composition("NaN").reduced_formula == "NaN"
-        with pytest.raises(
-            ValueError,
-            match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?",
-        ):
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?"):
             Composition(float("NaN"))
 
         # test bad formulas raise ValueError
@@ -672,19 +673,27 @@ class TestComposition(PymatgenTest):
 
     def test_metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
-        formula = "Y3N@C80"
-        sym_dict = {"Y": 3, "N": 1, "C": 80}
-        cmp = Composition(formula)
-        cmp2 = Composition.from_dict(sym_dict)
-        assert cmp == cmp2
+        comp1 = Composition("Y3N@C80")
+        comp2 = Composition({"Y": 3, "N": 1, "C": 80})
+        assert comp1 == comp2
 
     def test_contains_element_type(self):
-        formula = "EuTiO3"
-        cmp = Composition(formula)
-        assert cmp.contains_element_type("lanthanoid")
-        assert not cmp.contains_element_type("noble_gas")
-        assert cmp.contains_element_type("f-block")
-        assert not cmp.contains_element_type("s-block")
+        EuTiO3 = Composition("EuTiO3")
+        assert EuTiO3.contains_element_type("lanthanoid") is True
+        assert EuTiO3.contains_element_type("noble_gas") is False
+        assert EuTiO3.contains_element_type("f-block") is True
+        assert EuTiO3.contains_element_type("s-block") is False
+        assert EuTiO3.contains_element_type("alkali") is False
+        NaCl = Composition("NaCl")
+        assert NaCl.contains_element_type("halogen") is True
+        assert NaCl.contains_element_type("alkali") is True
+        assert NaCl.contains_element_type("s-block") is True
+        assert NaCl.contains_element_type("p-block") is True
+        assert NaCl.contains_element_type("d-block") is False
+        assert NaCl.contains_element_type("f-block") is False
+
+        with pytest.raises(ValueError, match="Invalid category='invalid', pick from"):
+            EuTiO3.contains_element_type("invalid")
 
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
@@ -692,34 +701,34 @@ class TestComposition(PymatgenTest):
 
     def test_is_valid(self):
         formula = "NaCl"
-        cmp = Composition(formula)
-        assert cmp.valid
+        comp = Composition(formula)
+        assert comp.valid
 
         formula = "NaClX"
-        cmp = Composition(formula)
-        assert not cmp.valid
+        comp = Composition(formula)
+        assert not comp.valid
 
         with pytest.raises(ValueError, match="Composition is not valid, contains: Na, Cl, X0+"):
             Composition("NaClX", strict=True)
 
     def test_remove_charges(self):
-        cmp1 = Composition({"Al3+": 2.0, "O2-": 3.0})
+        comp1 = Composition({"Al3+": 2.0, "O2-": 3.0})
 
-        cmp2 = Composition({"Al": 2.0, "O": 3.0})
-        assert str(cmp1) != str(cmp2)
+        comp2 = Composition({"Al": 2.0, "O": 3.0})
+        assert str(comp1) != str(comp2)
 
-        cmp1 = cmp1.remove_charges()
-        assert str(cmp1) == str(cmp2)
+        comp1 = comp1.remove_charges()
+        assert str(comp1) == str(comp2)
 
-        cmp1 = cmp1.remove_charges()
-        assert str(cmp1) == str(cmp2)
+        comp1 = comp1.remove_charges()
+        assert str(comp1) == str(comp2)
 
-        cmp1 = Composition({"Fe3+": 2.0, "Fe2+": 3.0, "O2-": 6.0})
-        cmp2 = Composition({"Fe": 5.0, "O": 6.0})
-        assert str(cmp1) != str(cmp2)
+        comp1 = Composition({"Fe3+": 2.0, "Fe2+": 3.0, "O2-": 6.0})
+        comp2 = Composition({"Fe": 5.0, "O": 6.0})
+        assert str(comp1) != str(comp2)
 
-        cmp1 = cmp1.remove_charges()
-        assert str(cmp1) == str(cmp2)
+        comp1 = comp1.remove_charges()
+        assert str(comp1) == str(comp2)
 
     def test_replace(self):
         Fe2O3 = Composition("Fe2O3")
@@ -794,7 +803,7 @@ class TestComposition(PymatgenTest):
         assert "Deuterium" in [x.long_name for x in composition.elements]
 
 
-class TestChemicalPotential(unittest.TestCase):
+class TestChemicalPotential:
     def test_init(self):
         dct = {"Fe": 1, Element("Fe"): 1}
         with pytest.raises(ValueError, match="Duplicate potential specified"):

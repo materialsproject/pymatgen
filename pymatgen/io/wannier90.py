@@ -10,6 +10,8 @@ from scipy.io import FortranEOFError, FortranFile
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
 __author__ = "Mark Turiansky"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
@@ -89,7 +91,7 @@ class Unk:
         self.ng = self.data.shape[-3:]
 
     @classmethod
-    def from_file(cls, filename: str) -> object:
+    def from_file(cls, filename: str) -> Self:
         """
         Reads the UNK data from file.
 

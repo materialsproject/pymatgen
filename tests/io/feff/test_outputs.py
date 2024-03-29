@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from pymatgen.io.feff.outputs import LDos, Xmu
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -8,7 +8,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 FEFF_TEST_DIR = f"{TEST_FILES_DIR}/feff"
 
 
-class TestFeffLdos(unittest.TestCase):
+class TestFeffLdos(TestCase):
     filepath1 = f"{FEFF_TEST_DIR}/feff.inp"
     filepath2 = f"{FEFF_TEST_DIR}/ldos"
     ldos = LDos.from_file(filepath1, filepath2)
@@ -49,7 +49,7 @@ class TestFeffLdos(unittest.TestCase):
         assert charge_trans["1"]["O"]["tot"] == -0.594
 
 
-class TestXmu(unittest.TestCase):
+class TestXmu(TestCase):
     def test_init(self):
         filepath1 = f"{FEFF_TEST_DIR}/xmu.dat"
         filepath2 = f"{FEFF_TEST_DIR}/feff.inp"

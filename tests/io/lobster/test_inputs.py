@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -268,7 +268,7 @@ class TestCohpcar(PymatgenTest):
                             assert cohp1 == approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
-        orbitals = [(Orbital(i), Orbital(j)) for j in range(4) for i in range(4)]
+        orbitals = [(Orbital(jj), Orbital(ii)) for ii in range(4) for jj in range(4)]
         assert self.cohp_bise.orb_res_cohp is None
         assert self.coop_bise.orb_res_cohp is None
         assert self.cohp_fe.orb_res_cohp is None
@@ -369,7 +369,7 @@ class TestCohpcar(PymatgenTest):
         assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
 
 
-class TestIcohplist(unittest.TestCase):
+class TestIcohplist(TestCase):
     def setUp(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_FILES_DIR}/cohp/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
@@ -639,7 +639,7 @@ class TestIcohplist(unittest.TestCase):
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
 
 
-class TestNciCobiList(unittest.TestCase):
+class TestNciCobiList(TestCase):
     def setUp(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
         self.ncicobi_gz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
@@ -677,7 +677,7 @@ class TestNciCobiList(unittest.TestCase):
         )
 
 
-class TestDoscar(unittest.TestCase):
+class TestDoscar(TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
@@ -1556,7 +1556,7 @@ class TestFatband(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class TestLobsterin(unittest.TestCase):
+class TestLobsterin(TestCase):
     def setUp(self):
         self.Lobsterinfromfile = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.1")
         self.Lobsterinfromfile2 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.2")
@@ -2030,7 +2030,7 @@ class TestLobsterin(unittest.TestCase):
         new_lobsterin.to_json()
 
 
-class TestBandoverlaps(unittest.TestCase):
+class TestBandoverlaps(TestCase):
     def setUp(self):
         # test spin-polarized calc and non spinpolarized calc
 
@@ -2189,7 +2189,7 @@ class TestBandoverlaps(unittest.TestCase):
         assert len(bo_dict_new[Spin.down]["matrices"]) == 73
 
 
-class TestGrosspop(unittest.TestCase):
+class TestGrosspop(TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(f"{TEST_FILES_DIR}/cohp/GROSSPOP.lobster")
 

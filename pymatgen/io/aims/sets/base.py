@@ -208,9 +208,8 @@ class AimsInputGenerator(InputGenerator):
         properties: list[str]
             System properties that are being calculated
 
-        Returns
-        -------
-        The input set for the calculation of structure
+        Returns:
+            AimsInputSet: The input set for the calculation of structure
         """
         prev_structure, prev_parameters, _ = self._read_previous(prev_dir)
 
@@ -274,9 +273,8 @@ class AimsInputGenerator(InputGenerator):
         parameters: dict[str, Any]
             The parameters for this calculation
 
-        Returns
-        -------
-        The list of properties to calculate
+        Returns:
+            list[str]: The list of properties to calculate
         """
         if properties is None:
             properties = ["energy", "free_energy"]
@@ -310,9 +308,8 @@ class AimsInputGenerator(InputGenerator):
         prev_parameters: dict[str, Any]
             The previous calculation's calculation parameters
 
-        Returns
-        -------
-        The input object
+        Returns:
+            dict: The input object
         """
         # Get the default configuration
         # FHI-aims recommends using their defaults so bare-bones default parameters
@@ -363,9 +360,8 @@ class AimsInputGenerator(InputGenerator):
         prev_parameters: dict[str, Any]
             Previous calculation parameters.
 
-        Returns
-        -------
-        A dictionary of updates to apply.
+        Returns:
+            dict: A dictionary of updates to apply.
         """
         return prev_parameters
 
@@ -388,9 +384,8 @@ class AimsInputGenerator(InputGenerator):
         even: bool
             Round up to even numbers.
 
-        Returns
-        -------
-        Monkhorst-Pack grid size in all directions
+        Returns:
+            dict: Monkhorst-Pack grid size in all directions
         """
         recipcell = structure.lattice.inv_matrix
         return self.d2k_recipcell(recipcell, structure.lattice.pbc, kptdensity, even)
@@ -405,9 +400,8 @@ class AimsInputGenerator(InputGenerator):
         k_grid: np.ndarray[int]
             k_grid that was used.
 
-        Returns
-        -------
-        Density of kpoints in each direction. result.mean() computes average density
+        Returns:
+            dict: Density of kpoints in each direction. result.mean() computes average density
         """
         recipcell = structure.lattice.inv_matrix
         densities = k_grid / (2 * np.pi * np.sqrt((recipcell**2).sum(axis=1)))
@@ -433,9 +427,8 @@ class AimsInputGenerator(InputGenerator):
         even: bool
             Round up to even numbers.
 
-        Returns
-        -------
-        Monkhorst-Pack grid size in all directions
+        Returns:
+            dict: Monkhorst-Pack grid size in all directions
         """
         if not isinstance(kptdensity, Iterable):
             kptdensity = 3 * [float(kptdensity)]
@@ -458,14 +451,11 @@ def recursive_update(dct: dict, up: dict) -> dict:
 
     Parameters
     ----------
-    dct: Dict
-        Input dictionary to modify
-    up: Dict
-        Dictionary of updates to apply
+    dct (dict): Input dictionary to modify
+    up (dict): updates to apply
 
-    Returns
-    -------
-    The updated dictionary.
+    Returns:
+        dict: The updated dictionary.
 
     Example
     -------

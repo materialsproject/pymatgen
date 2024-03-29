@@ -34,12 +34,13 @@ import os
 import re
 import shutil
 import warnings
+from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, Union, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -58,7 +59,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
 
@@ -1024,7 +1025,7 @@ class DictSet(VaspInputSet):
         return self
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir: str, **kwargs) -> Self:
         """
         Generate a set of VASP input files for static calculations from a
         directory of previous VASP run.
@@ -2076,7 +2077,7 @@ class MVLGWSet(DictSet):
         return updates
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="DIAG", **kwargs):
+    def from_prev_calc(cls, prev_calc_dir: str, mode: str = "DIAG", **kwargs) -> Self:
         """
         Generate a set of VASP input files for GW or BSE calculations from a
         directory of previous Exact Diag VASP run.
@@ -2347,13 +2348,13 @@ class MITNEBSet(DictSet):
         self.kpoints.write_file(str(output_dir / "KPOINTS"))
         self.potcar.write_file(str(output_dir / "POTCAR"))
 
-        for i, p in enumerate(self.poscars):
-            d = output_dir / str(i).zfill(2)
+        for idx, poscar in enumerate(self.poscars):
+            d = output_dir / str(idx).zfill(2)
             if not d.exists():
                 d.mkdir(parents=True)
-            p.write_file(str(d / "POSCAR"))
+            poscar.write_file(str(d / "POSCAR"))
             if write_cif:
-                p.structure.to(filename=str(d / f"{i}.cif"))
+                poscar.structure.to(filename=str(d / f"{idx}.cif"))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(self.structures[0], user_incar_settings=self.user_incar_settings)
 
@@ -3070,9 +3071,7 @@ def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> int:
 
 def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
     """Combine k-points files together."""
-    labels = []
-    kpoints = []
-    weights = []
+    labels, kpoints, weights = [], [], []
 
     for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
@@ -3092,7 +3091,7 @@ def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=kpoints,
+        kpts=cast(Sequence[Sequence[float]], kpoints),
         labels=labels,
         kpts_weights=weights,
     )
