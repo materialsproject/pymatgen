@@ -18,7 +18,7 @@ from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import TYPE_CHECKING, Any, Literal, get_args
 
 import numpy as np
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
@@ -3370,7 +3370,7 @@ class LocalStructOrderParams:
         return ops
 
 
-class BrunnerNN_reciprocal(NearNeighbors):
+class BrunnerNNReciprocal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3441,7 +3441,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         return siw
 
 
-class BrunnerNN_relative(NearNeighbors):
+class BrunnerNNRelative(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3513,7 +3513,7 @@ class BrunnerNN_relative(NearNeighbors):
         return siw
 
 
-class BrunnerNN_real(NearNeighbors):
+class BrunnerNNReal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3583,6 +3583,30 @@ class BrunnerNN_real(NearNeighbors):
                     }
                 )
         return siw
+
+
+@deprecated(
+    BrunnerNNReciprocal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_reciprocal(BrunnerNNReciprocal):
+    pass
+
+
+@deprecated(
+    BrunnerNNRelative,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_relative(BrunnerNNRelative):
+    pass
+
+
+@deprecated(
+    BrunnerNNReal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_real(BrunnerNNReal):
+    pass
 
 
 class EconNN(NearNeighbors):

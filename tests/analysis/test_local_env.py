@@ -11,9 +11,9 @@ from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
-    BrunnerNN_real,
-    BrunnerNN_reciprocal,
-    BrunnerNN_relative,
+    BrunnerNNReal,
+    BrunnerNNReciprocal,
+    BrunnerNNRelative,
     CovalentBondNN,
     Critic2NN,
     CrystalNN,
@@ -415,19 +415,19 @@ class TestMiniDistNN(PymatgenTest):
         assert min_vire_nn.get_cn(self.cscl, 0) == 8
         assert min_vire_nn.get_cn(self.lifepo4, 0) == 2
 
-        brunner_recip = BrunnerNN_reciprocal(tol=0.01)
+        brunner_recip = BrunnerNNReciprocal(tol=0.01)
         assert brunner_recip.get_cn(self.diamond, 0) == 4
         assert brunner_recip.get_cn(self.nacl, 0) == 6
         assert brunner_recip.get_cn(self.cscl, 0) == 14
         assert brunner_recip.get_cn(self.lifepo4, 0) == 6
 
-        brunner_rel = BrunnerNN_relative(tol=0.01)
+        brunner_rel = BrunnerNNRelative(tol=0.01)
         assert brunner_rel.get_cn(self.diamond, 0) == 4
         assert brunner_rel.get_cn(self.nacl, 0) == 6
         assert brunner_rel.get_cn(self.cscl, 0) == 14
         assert brunner_rel.get_cn(self.lifepo4, 0) == 6
 
-        brunner_real = BrunnerNN_real(tol=0.01)
+        brunner_real = BrunnerNNReal(tol=0.01)
         assert brunner_real.get_cn(self.diamond, 0) == 4
         assert brunner_real.get_cn(self.nacl, 0) == 6
         assert brunner_real.get_cn(self.cscl, 0) == 14
