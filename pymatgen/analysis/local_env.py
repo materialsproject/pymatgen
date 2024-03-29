@@ -3441,6 +3441,14 @@ class BrunnerNNReciprocal(NearNeighbors):
         return siw
 
 
+@deprecated(
+    BrunnerNNReciprocal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_reciprocal(BrunnerNNReciprocal):
+    pass
+
+
 class BrunnerNNRelative(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
@@ -3513,6 +3521,14 @@ class BrunnerNNRelative(NearNeighbors):
         return siw
 
 
+@deprecated(
+    BrunnerNNRelative,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_relative(BrunnerNNRelative):
+    pass
+
+
 class BrunnerNNReal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
@@ -3583,22 +3599,6 @@ class BrunnerNNReal(NearNeighbors):
                     }
                 )
         return siw
-
-
-@deprecated(
-    BrunnerNNReciprocal,
-    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
-)
-class BrunnerNN_reciprocal(BrunnerNNReciprocal):
-    pass
-
-
-@deprecated(
-    BrunnerNNRelative,
-    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
-)
-class BrunnerNN_relative(BrunnerNNRelative):
-    pass
 
 
 @deprecated(
