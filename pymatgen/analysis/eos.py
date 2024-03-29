@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -27,7 +27,7 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__file__)
 
 
-class EOSBase(metaclass=ABCMeta):
+class EOSBase(ABC):
     """
     Abstract class that must be subclassed by all equation of state
     implementations.
@@ -54,7 +54,7 @@ class EOSBase(metaclass=ABCMeta):
         Quadratic fit to get an initial guess for the parameters.
 
         Returns:
-            tuple: (e0, b0, b1, v0)
+            tuple: 4 floats for (e0, b0, b1, v0)
         """
         a, b, c = np.polyfit(self.volumes, self.energies, 2)
         self.eos_params = [a, b, c]
@@ -439,12 +439,12 @@ class NumericalEOS(PolynomialEOS):
 
         # list of (energy, volume) tuples
         e_v = list(zip(self.energies, self.volumes))
-        ndata = len(e_v)
+        n_data = len(e_v)
         # minimum number of data points used for fitting
-        ndata_min = max(ndata - 2 * min_ndata_factor, min_poly_order + 1)
+        n_data_min = max(n_data - 2 * min_ndata_factor, min_poly_order + 1)
         rms_min = np.inf
         # number of data points available for fit in each iteration
-        ndata_fit = ndata
+        n_data_fit = n_data
         # store the fit polynomial coefficients and the rms in a dict,
         # where the key=(polynomial order, number of data points used for
         # fitting)
@@ -465,8 +465,8 @@ class NumericalEOS(PolynomialEOS):
         e_v_work = deepcopy(e_v)
 
         # loop over the data points.
-        while (ndata_fit >= ndata_min) and (e_min in e_v_work):
-            max_poly_order = ndata_fit - max_poly_order_factor
+        while (n_data_fit >= n_data_min) and (e_min in e_v_work):
+            max_poly_order = n_data_fit - max_poly_order_factor
             e = [ei[0] for ei in e_v_work]
             v = [ei[1] for ei in e_v_work]
             # loop over polynomial order
@@ -477,20 +477,20 @@ class NumericalEOS(PolynomialEOS):
                 b = np.poly1d(pder)(v_after)
                 if a * b < 0:
                     rms = get_rms(e, np.poly1d(coeffs)(v))
-                    rms_min = min(rms_min, rms * idx / ndata_fit)
-                    all_coeffs[(idx, ndata_fit)] = [coeffs.tolist(), rms]
+                    rms_min = min(rms_min, rms * idx / n_data_fit)
+                    all_coeffs[(idx, n_data_fit)] = [coeffs.tolist(), rms]
                     # store the fit coefficients small to large,
                     # i.e a0, a1, .. an
-                    all_coeffs[(idx, ndata_fit)][0].reverse()
+                    all_coeffs[(idx, n_data_fit)][0].reverse()
             # remove 1 data point from each end.
             e_v_work.pop()
             e_v_work.pop(0)
-            ndata_fit = len(e_v_work)
+            n_data_fit = len(e_v_work)
 
         logger.info(f"total number of polynomials: {len(all_coeffs)}")
 
         norm = 0.0
-        fit_poly_order = ndata
+        fit_poly_order = n_data
         # weight average polynomial coefficients.
         weighted_avg_coeffs = np.zeros((fit_poly_order,))
 
@@ -522,7 +522,7 @@ class EOS:
 
     Fit equation of state for bulk systems.
 
-    The following equations are supported::
+    The following equations are supported:
 
         murnaghan: PRB 28, 5480 (1983)
 
@@ -539,7 +539,7 @@ class EOS:
 
         numerical_eos: 10.1103/PhysRevB.90.174107.
 
-    Usage::
+    Usage:
 
        eos = EOS(eos_name='murnaghan')
        eos_fit = eos.fit(volumes, energies)

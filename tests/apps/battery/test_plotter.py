@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import unittest
+from unittest import TestCase
 
 from monty.json import MontyDecoder
 
@@ -13,7 +13,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestVoltageProfilePlotter(unittest.TestCase):
+class TestVoltageProfilePlotter(TestCase):
     def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 

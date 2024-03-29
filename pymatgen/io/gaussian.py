@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as cst
@@ -16,6 +17,11 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -36,7 +42,7 @@ def read_route_line(route):
     Args:
         route (str) : the route line
 
-    Return:
+    Returns:
         functional (str) : the method (HF, PBE ...)
         basis_set (str) : the basis set
         route (dict) : dictionary of parameters
@@ -55,8 +61,7 @@ def read_route_line(route):
                 route = route.replace(tok, "")
 
         for tok in route.split():
-            if scrf_patt.match(tok):
-                m = scrf_patt.match(tok)
+            if m := scrf_patt.match(tok):
                 route_params[m.group(1)] = m.group(2)
             elif tok.upper() in ["#", "#N", "#P", "#T"]:
                 # does not store # in route to avoid error in input
@@ -158,7 +163,7 @@ class GaussianInput:
         self.link0_parameters = link0_parameters or {}
         self.route_parameters = route_parameters or {}
         self.input_parameters = input_parameters or {}
-        self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#" + dieze_tag
+        self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else f"#{dieze_tag}"
         self.gen_basis = gen_basis
         if gen_basis is not None:
             self.basis_set = "Gen"
@@ -275,7 +280,7 @@ class GaussianInput:
         return Molecule(species, coords)
 
     @classmethod
-    def from_str(cls, contents):
+    def from_str(cls, contents: str) -> Self:
         """
         Creates GaussianInput from a string.
 
@@ -292,6 +297,7 @@ class GaussianInput:
         for line in lines:
             if link0_patt.match(line):
                 m = link0_patt.match(line)
+                assert m is not None
                 link0_dict[m.group(1).strip("=")] = m.group(2)
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
@@ -299,7 +305,7 @@ class GaussianInput:
         route_index = None
         for idx, line in enumerate(lines):
             if route_patt.match(line):
-                route += " " + line
+                route += f" {line}"
                 route_index = idx
             # This condition allows for route cards spanning multiple lines
             elif (line == "" or line.isspace()) and route_index:
@@ -310,10 +316,11 @@ class GaussianInput:
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
+        assert route_index is not None, "route_index cannot be None"
         while lines[route_index + ind].strip():
             title.append(lines[route_index + ind].strip())
             ind += 1
-        title = " ".join(title)
+        title_str = " ".join(title)
         ind += 1
         tokens = re.split(r"[,\s]+", lines[route_index + ind])
         charge = int(float(tokens[0]))
@@ -340,7 +347,7 @@ class GaussianInput:
             mol,
             charge=charge,
             spin_multiplicity=spin_mult,
-            title=title,
+            title=title_str,
             functional=functional,
             basis_set=basis_set,
             route_parameters=route_paras,
@@ -350,7 +357,7 @@ class GaussianInput:
         )
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates GaussianInput from a file.
 
@@ -458,9 +465,10 @@ class GaussianInput:
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GaussianInput:
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param dct: dict
+        Args:
+            dct: dict
 
         Returns:
             GaussianInput
@@ -551,22 +559,18 @@ class GaussianOutput:
             printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
-    .. method:: to_input()
+        to_input()
+            Return a GaussianInput object using the last geometry and the same
+            calculation parameters.
 
-        Return a GaussianInput object using the last geometry and the same
-        calculation parameters.
+        read_scan()
+            Read a potential energy surface from a gaussian scan calculation.
 
-    .. method:: read_scan()
+        get_scan_plot()
+            Get a matplotlib plot of the potential energy surface
 
-        Read a potential energy surface from a gaussian scan calculation.
-
-    .. method:: get_scan_plot()
-
-        Get a matplotlib plot of the potential energy surface
-
-    .. method:: save_scan_plot()
-
-        Save a matplotlib plot of the potential energy surface to a file
+        save_scan_plot()
+            Save a matplotlib plot of the potential energy surface to a file
     """
 
     def __init__(self, filename):
@@ -724,8 +728,7 @@ class GaussianOutput:
                             std_structures.append(Molecule(sp, coords))
 
                     if parse_forces:
-                        m = forces_patt.search(line)
-                        if m:
+                        if m := forces_patt.search(line):
                             forces.extend([float(_v) for _v in m.groups()[2:5]])
                         elif forces_off_patt.search(line):
                             self.cart_forces.append(forces)
@@ -734,8 +737,7 @@ class GaussianOutput:
 
                     # read molecular orbital eigenvalues
                     if read_eigen:
-                        m = orbital_patt.search(line)
-                        if m:
+                        if m := orbital_patt.search(line):
                             eigen_txt.append(line)
                         else:
                             read_eigen = False
@@ -982,12 +984,12 @@ class GaussianOutput:
 
         # store the structures. If symmetry is considered, the standard orientation
         # is used. Else the input orientation is used.
+        self.structures_input_orientation = input_structures
         if standard_orientation:
             self.structures = std_structures
-            self.structures_input_orientation = input_structures
         else:
             self.structures = input_structures
-            self.structures_input_orientation = input_structures
+
         # store optimized structure in input orientation
         self.opt_structures = opt_structures
 
@@ -1203,7 +1205,7 @@ class GaussianOutput:
 
                 if td and re.search(r"^\sExcited State\s*\d", line):
                     val = [float(v) for v in float_patt.findall(line)]
-                    transitions.append(tuple(val[0:3]))
+                    transitions.append(tuple(val[:3]))
                 line = file.readline()
         return transitions
 

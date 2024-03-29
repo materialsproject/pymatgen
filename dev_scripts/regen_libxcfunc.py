@@ -34,39 +34,39 @@ def parse_libxc_docs(path):
         section = []
         for line in file:
             if not line.startswith("-"):
-                section.append(line)
+                section += [line]
             else:
                 num, entry = parse_section(section)
                 assert num not in dct
                 dct[num] = entry
                 section = []
-        assert not section
+        assert section == []
 
     return dct
 
 
-def write_libxc_docs_json(xcfuncs, jpath):
+def write_libxc_docs_json(xc_funcs, json_path):
     """Write json file with libxc metadata to path jpath."""
-    xcfuncs = deepcopy(xcfuncs)
+    xc_funcs = deepcopy(xc_funcs)
 
     # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
-    for d in xcfuncs.values():
-        d["Family"] = d["Family"].replace("XC_FAMILY_", "", 1)
-        d["Kind"] = d["Kind"].replace("XC_", "", 1)
+    for dct in xc_funcs.values():
+        dct["Family"] = dct["Family"].replace("XC_FAMILY_", "", 1)
+        dct["Kind"] = dct["Kind"].replace("XC_", "", 1)
 
     # Build lightweight version with a subset of keys.
-    for num, d in xcfuncs.items():
-        xcfuncs[num] = {key: d[key] for key in ("Family", "Kind", "References")}
+    for num, dct in xc_funcs.items():
+        xc_funcs[num] = {key: dct[key] for key in ("Family", "Kind", "References")}
         # Descriptions are optional
         for opt in ("Description 1", "Description 2"):
-            desc = d.get(opt)
+            desc = dct.get(opt)
             if desc is not None:
-                xcfuncs[num][opt] = desc
+                xc_funcs[num][opt] = desc
 
-    with open(jpath, mode="w") as file:
-        json.dump(xcfuncs, file)
+    with open(json_path, "w") as fh:
+        json.dump(xc_funcs, fh)
 
-    return xcfuncs
+    return xc_funcs
 
 
 def main():
@@ -95,7 +95,7 @@ def main():
     for num, d in xc_funcs.items():
         # Remove XC_ from codename
         codename = d["Codename"][3:]
-        enum_list.append(f"    {codename} = {num}")
+        enum_list += [f"    {codename} = {num}"]
     enum_list = "\n".join(enum_list) + "\n"
 
     # Re-generate enumerations.

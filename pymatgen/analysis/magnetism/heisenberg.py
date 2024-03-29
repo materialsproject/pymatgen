@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 import logging
 from ast import literal_eval
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,9 @@ from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Orde
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 __author__ = "ncfrey"
 __version__ = "0.1"
 __maintainer__ = "Nathan C. Frey"
@@ -30,7 +34,18 @@ __date__ = "June 2019"
 
 
 class HeisenbergMapper:
-    """Class to compute exchange parameters from low energy magnetic orderings."""
+    """Class to compute exchange parameters from low energy magnetic orderings.
+
+    Attributes:
+        strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
+        sgraphs (list): StructureGraph objects.
+        unique_site_ids (dict): Maps each site to its unique numerical identifier.
+        wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
+        nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
+        dists (dict): NN, NNN, and NNNN interaction distances
+        ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
+        ex_params (dict): Exchange parameter values (meV/atom)
+    """
 
     def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
         """
@@ -53,16 +68,6 @@ class HeisenbergMapper:
                 Defaults to 0 (only NN, no NNN, etc.)
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
                 being equal.
-
-        Parameters:
-            strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
-            sgraphs (list): StructureGraph objects.
-            unique_site_ids (dict): Maps each site to its unique numerical identifier.
-            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
-            nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
-            dists (dict): NN, NNN, and NNNN interaction distances
-            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
-            ex_params (dict): Exchange parameter values (meV/atom)
         """
         # Save original copies of inputs
         self.ordered_structures_ = ordered_structures
@@ -250,12 +255,12 @@ class HeisenbergMapper:
                 if c not in columns and c_rev not in columns:
                     columns.append(c)
 
-        num_sgraphs = len(sgraphs)
+        n_sgraphs = len(sgraphs)
 
         # Keep n interactions (not counting 'E') for n+1 structure graphs
-        columns = columns[: num_sgraphs + 1]
+        columns = columns[: n_sgraphs + 1]
 
-        num_nn_j = len(columns) - 1  # ignore total energy
+        n_nn_j = len(columns) - 1  # ignore total energy
         j_columns = [name for name in columns if name not in ["E", "E0"]]
         ex_mat_empty = pd.DataFrame(columns=columns)
         ex_mat = ex_mat_empty.copy()
@@ -270,7 +275,7 @@ class HeisenbergMapper:
             # for n+1 unique graphs to compute n exchange params
             for _graph in sgraphs:
                 sgraph = sgraphs_copy.pop(0)
-                ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)), index=[sgraph_index], columns=columns)
+                ex_row = pd.DataFrame(np.zeros((1, n_nn_j + 1)), index=[sgraph_index], columns=columns)
 
                 for idx, _node in enumerate(sgraph.graph.nodes):
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
@@ -350,7 +355,7 @@ class HeisenbergMapper:
         ex_mat = self.ex_mat
         # Solve the matrix equation for J_ij values
         E = ex_mat[["E"]]
-        j_names = [j for j in ex_mat.columns if j not in ["E"]]
+        j_names = [j for j in ex_mat.columns if j != "E"]
 
         # Only 1 NN interaction
         if len(j_names) < 3:
@@ -492,15 +497,15 @@ class HeisenbergMapper:
         Returns:
             mft_t (float): Critical temperature (K)
         """
-        num_sub_lattices = len(self.unique_site_ids)
+        n_sub_lattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
 
         # Only 1 magnetic sublattice
-        if num_sub_lattices == 1:
+        if n_sub_lattices == 1:
             mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
 
         else:  # multiple magnetic sublattices
-            omega = np.zeros((num_sub_lattices, num_sub_lattices))
+            omega = np.zeros((n_sub_lattices, n_sub_lattices))
             ex_params = self.ex_params
             ex_params = {k: v for (k, v) in ex_params.items() if k != "E0"}  # ignore E0
             for k in ex_params:
@@ -724,27 +729,26 @@ class HeisenbergScreener:
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
         remove_list = []
-        for i, e in enumerate(energies):
+        for idx, energy in enumerate(energies):
             e_tol = 6  # 10^-6 eV/atom tol on energies
-            e = round(e, e_tol)
-            if i not in remove_list:
+            energy = round(energy, e_tol)
+            if idx not in remove_list:
                 for i_check, e_check in enumerate(energies):
                     e_check = round(e_check, e_tol)
-                    if i != i_check and i_check not in remove_list and e == e_check:
+                    if idx != i_check and i_check not in remove_list and energy == e_check:
                         remove_list.append(i_check)
 
         # Also discard structures with small |magmoms| < 0.1 uB
         # xx - get rid of these or just bury them in the list?
-        # for i, s in enumerate(ordered_structures):
-        #     magmoms = s.site_properties['magmom']
-        #     if i not in remove_list:
-        #         if any(abs(m) < 0.1 for m in magmoms):
-        #             remove_list.append(i)
+        # for idx, struct in enumerate(ordered_structures):
+        #     magmoms = struct.site_properties["magmom"]
+        #     if idx not in remove_list and any(abs(m) < 0.1 for m in magmoms):
+        #         remove_list.append(idx)
 
         # Remove duplicates
         if len(remove_list) > 0:
-            ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
-            energies = [e for i, e in enumerate(energies) if i not in remove_list]
+            ordered_structures = [struct for idx, struct in enumerate(ordered_structures) if idx not in remove_list]
+            energies = [energy for idx, energy in enumerate(energies) if idx not in remove_list]
 
         # Sort by energy if not already sorted
         ordered_structures = [s for _, s in sorted(zip(energies, ordered_structures), reverse=False)]
@@ -881,63 +885,63 @@ class HeisenbergModel(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Create a HeisenbergModel from a dict."""
         # Reconstitute the site ids
         usids = {}
         wids = {}
         nnis = {}
 
-        for k, v in d["nn_interactions"].items():
+        for k, v in dct["nn_interactions"].items():
             nn_dict = {}
             for k1, v1 in v.items():
                 key = literal_eval(k1)
                 nn_dict[key] = v1
             nnis[k] = nn_dict
 
-        for k, v in d["unique_site_ids"].items():
+        for k, v in dct["unique_site_ids"].items():
             key = literal_eval(k)
             if isinstance(key, int):
                 usids[(key,)] = v
             elif isinstance(key, tuple):
                 usids[key] = v
 
-        for k, v in d["wyckoff_ids"].items():
+        for k, v in dct["wyckoff_ids"].items():
             key = literal_eval(k)
             wids[key] = v
 
         # Reconstitute the structure and graph objects
         structures = []
         sgraphs = []
-        for v in d["structures"]:
+        for v in dct["structures"]:
             structures.append(Structure.from_dict(v))
-        for v in d["sgraphs"]:
+        for v in dct["sgraphs"]:
             sgraphs.append(StructureGraph.from_dict(v))
 
         # Interaction graph
-        igraph = StructureGraph.from_dict(d["igraph"])
+        igraph = StructureGraph.from_dict(dct["igraph"])
 
         # Reconstitute the exchange matrix DataFrame
         try:
-            ex_mat = eval(d["ex_mat"])
+            ex_mat = eval(dct["ex_mat"])
             ex_mat = pd.DataFrame.from_dict(ex_mat)
         except SyntaxError:  # if ex_mat is empty
             ex_mat = pd.DataFrame(columns=["E", "E0"])
 
         return HeisenbergModel(
-            formula=d["formula"],
+            formula=dct["formula"],
             structures=structures,
-            energies=d["energies"],
-            cutoff=d["cutoff"],
-            tol=d["tol"],
+            energies=dct["energies"],
+            cutoff=dct["cutoff"],
+            tol=dct["tol"],
             sgraphs=sgraphs,
             unique_site_ids=usids,
             wyckoff_ids=wids,
             nn_interactions=nnis,
-            dists=d["dists"],
+            dists=dct["dists"],
             ex_mat=ex_mat,
-            ex_params=d["ex_params"],
-            javg=d["javg"],
+            ex_params=dct["ex_params"],
+            javg=dct["javg"],
             igraph=igraph,
         )
 

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
@@ -54,12 +55,13 @@ class SymmOp(MSONable):
         self.affine_matrix = affine_transformation_matrix
         self.tol = tol
 
-    @staticmethod
+    @classmethod
     def from_rotation_and_translation(
+        cls,
         rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         translation_vec: ArrayLike = (0, 0, 0),
         tol: float = 0.1,
-    ) -> SymmOp:
+    ) -> Self:
         """Creates a symmetry operation from a rotation matrix and a translation
         vector.
 
@@ -80,7 +82,7 @@ class SymmOp(MSONable):
         affine_matrix = np.eye(4)
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec
-        return SymmOp(affine_matrix, tol)
+        return cls(affine_matrix, tol)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymmOp):
@@ -144,7 +146,7 @@ class SymmOp(MSONable):
         """
         dim = tensor.shape
         rank = len(dim)
-        assert all(i == 3 for i in dim)
+        assert all(val == 3 for val in dim)
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
@@ -394,7 +396,7 @@ class SymmOp(MSONable):
             origin (3x1 array): Point left invariant by roto-reflection.
                 Defaults to (0, 0, 0).
 
-        Return:
+        Returns:
             Roto-reflection operation
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
@@ -422,7 +424,7 @@ class SymmOp(MSONable):
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
     @classmethod
-    def from_xyz_str(cls, xyz_str: str) -> SymmOp:
+    def from_xyz_str(cls, xyz_str: str) -> Self:
         """
         Args:
             xyz_str: string of the form 'x, y, z', '-x, -y, z', '-2y+1/2, 3x+1/2, z-y+1/2', etc.
@@ -451,8 +453,10 @@ class SymmOp(MSONable):
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, dct) -> SymmOp:
-        """:param dct: dict
+    def from_dict(cls, dct) -> Self:
+        """
+        Args:
+            dct: dict.
 
         Returns:
             SymmOp from dict representation.
@@ -538,7 +542,7 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symmop: SymmOp, time_reversal) -> MagSymmOp:
+    def from_symmop(cls, symmop: SymmOp, time_reversal) -> Self:
         """Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
         Args:
@@ -575,7 +579,7 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @classmethod
-    def from_xyzt_str(cls, xyzt_str: str) -> MagSymmOp:
+    def from_xyzt_str(cls, xyzt_str: str) -> Self:
         """
         Args:
             xyzt_str (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
@@ -609,8 +613,10 @@ class MagSymmOp(SymmOp):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> MagSymmOp:
-        """:param dct: dict
+    def from_dict(cls, dct: dict) -> Self:
+        """
+        Args:
+            dct: dict.
 
         Returns:
             MagneticSymmOp from dict representation.

@@ -6,38 +6,120 @@ nav_order: 4
 
 # Changelog
 
+## v2024.3.1
+
+## What's Changed
+
+### 🐛 Bug Fixes
+
+* Fix `BSPlotterProjected.get_projected_plots_dots_patom_pmorb` fix set & list intersect by @janosh in https://github.com/materialsproject/pymatgen/pull/3651
+* Remove rounding during FEFF writing by @matthewcarbone in https://github.com/materialsproject/pymatgen/pull/3345
+* Fix `get_niggli_reduced_lattice` if entering A1 case by @packer-jp in https://github.com/materialsproject/pymatgen/pull/3657
+* Remove BadPoscarWarning when POSCAR elements set by POTCAR by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3662
+* Fix RuntimeError triggered in CI of downstream packages by @janosh in https://github.com/materialsproject/pymatgen/pull/3664
+
+### 🛠 Enhancements
+
+* `Kpoint.__eq__` and `PhononBandStructureSymmLine.__eq__` methods + tests by @janosh in https://github.com/materialsproject/pymatgen/pull/3650
+* LOBSTER IO improvements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3649
+
+### 📖 Documentation
+
+* Lobsterout update doc-string to match renamed class variable by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3655
+* Fix installation.md formatting by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3661
+
+### 🧹 House-Keeping
+
+* Use `np.eye(3)` instead of `[[1, 0, 0], [0, 1, 0], [0, 0, 1]]` for identies by @janosh in https://github.com/materialsproject/pymatgen/pull/3659
+
+### 🧪 Tests
+
+* Deprecate `_parse_atomic_densities` in `BaderAnalysis` and fix `Bader` test setup by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3656
+
+### 🏷️ Type Hints
+
+* Improve INCAR tag check by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3621
+
+### 🤷‍♂️ Other Changes
+
+* Avoid `bader_caller` from altering compressed file in place by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3660
+
+## New Contributors
+
+* @matthewcarbone made their first contribution in https://github.com/materialsproject/pymatgen/pull/3345
+* @packer-jp made their first contribution in https://github.com/materialsproject/pymatgen/pull/3657
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.2.23...v2024.3.1
+
+## v2024.2.23
+
+### 🐛 Bug Fixes
+
+* Remove properties from abivars dict as this breaks the interface with… by @gmatteo in https://github.com/materialsproject/pymatgen/pull/3642
+
+### 🛠 Enhancements
+
+* Modified CifParser.check() as one possible solution for issue #3626 by @kaueltzen in https://github.com/materialsproject/pymatgen/pull/3628
+* Add capability for Vasprun to read KPOINTS_OPT data by @bfield1 in https://github.com/materialsproject/pymatgen/pull/3509
+
+### 🧪 Tests
+
+* Compress test vasprun.xml files by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3648
+
+### 🤷‍♂️ Other Changes
+
+* Modify `BadInputSetWarning` logic for relaxations of a likely metal by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3634
+* Fix Lobsterenv Bug by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3637
+* [BugFix] Subclass Construction Locpot<:VolumetricData  by @jmmshn in https://github.com/materialsproject/pymatgen/pull/3639
+* Add interface to icet SQS tools through SQSTransformation by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3593
+* Guard `MSONAtoms` definition behind ASE package availability by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3645
+* Alias `VaspInputSet` to `VaspInputGenerator`  by @janosh in https://github.com/materialsproject/pymatgen/pull/3566
+
+## New Contributors
+
+* @bfield1 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3509
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.2.20...v2024.2.23
+
 ## v2024.2.20
 
 This release addresses an important security issue that might affect some users of pymatgen who are parsing untrusted user input, for example a server using pymatgen to parse a user-uploaded CIF file. More information is available in the associated [CVE](https://github.com/materialsproject/pymatgen/security/advisories/GHSA-vgv8-5cpj-qj2f). Thank you to [William Khem-Marquez (@SteakEnthusiast)](https://github.com/SteakEnthusiast) for the discovery and responsible disclosure of this issue.
 
 ### 🐛 Bug Fixes
+
 * Revert back `TransformedStructure.__getattr__` by @mjwen in https://github.com/materialsproject/pymatgen/pull/3617
 * Fixed Incar object to allow for ML_MODE vasp tag by @davidwaroquiers in https://github.com/materialsproject/pymatgen/pull/3625
 * Add missing `MPSCANRelaxSet.yaml` parameters and alphabetize by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3615
 * Fix `bader_analysis_from_path` using warning as file path and reinstate test by @janosh in https://github.com/materialsproject/pymatgen/pull/3632
 
 ### 🛠 Enhancements
+
 * Breaking: fix SubstrateAnalyzer film + substrate vectors not using original crystal coordinates by @jinlhr542 in https://github.com/materialsproject/pymatgen/pull/3572
 * Handle invalid selective dynamics info in POSCAR by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3539
 * Return `self` from all `SiteCollection/Structure/Molecule` in-place modification methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3623
 * Make the POTCAR setup instructions clearer by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3630
 
 ### 🧹 House-Keeping
+
 * Refactors + types + fix doc string returns to use Google format by @janosh in https://github.com/materialsproject/pymatgen/pull/3620
 
 ### 🚀 Performance
+
 * Speeding up `get_nn_info` in local_env.py by @ftherrien in https://github.com/materialsproject/pymatgen/pull/3635
 
 ### 💥 Breaking Changes
+
 * Lobsterenv improvements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3624
 
 ### 🤷‍♂️ Other Changes
+
 * Fix URL joining in OptimadeRester by @rdamaral in https://github.com/materialsproject/pymatgen/pull/3613
 * Create a `CODEOWNERS` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3616
 * Adds support for an `MSONAtoms` class that's an `MSONable` form of an ASE `Atoms` object by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3619
 * Lobster io improvements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3627
 
 ## New Contributors
+
 * @jinlhr542 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3572
 * @rdamaral made their first contribution in https://github.com/materialsproject/pymatgen/pull/3613
 * @ftherrien made their first contribution in https://github.com/materialsproject/pymatgen/pull/3635

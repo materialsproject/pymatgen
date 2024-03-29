@@ -1,7 +1,7 @@
 """
 This module defines tools to analyze surface and adsorption related
 quantities as well as related plots. If you use this module, please
-consider citing the following works::
+consider citing the following works:
 
     R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
     S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
@@ -20,7 +20,7 @@ consider citing the following works::
         Computational Materials, 3(1), 14.
         https://doi.org/10.1038/s41524-017-0017-z
 
-Todo:
+TODO:
 - Still assumes individual elements have their own chempots
     in a molecular adsorbate instead of considering a single
     chempot for a single molecular adsorbate. E.g. for an OH
@@ -38,6 +38,7 @@ import copy
 import itertools
 import random
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -53,6 +54,9 @@ from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -172,7 +176,8 @@ class SlabEntry(ComputedStructureEntry):
                 of the element ref_entry that is not in the list will be
                 treated as a variable.
 
-        Returns (Add (Sympy class)): Surface energy
+        Returns:
+            float: The surface energy of the slab.
         """
         # Set up
         ref_entries = ref_entries if ref_entries else []
@@ -272,7 +277,7 @@ class SlabEntry(ComputedStructureEntry):
         return n_surfs
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
@@ -293,8 +298,8 @@ class SlabEntry(ComputedStructureEntry):
     @property
     def surface_area(self):
         """Calculates the surface area of the slab."""
-        m = self.structure.lattice.matrix
-        return np.linalg.norm(np.cross(m[0], m[1]))
+        matrix = self.structure.lattice.matrix
+        return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @property
     def cleaned_up_slab(self):
@@ -325,7 +330,7 @@ class SlabEntry(ComputedStructureEntry):
     @classmethod
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
-    ):
+    ) -> Self:
         """Returns SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
@@ -512,7 +517,7 @@ class SurfaceEnergyPlotter:
         Returns:
             WulffShape: The WulffShape at u_ref and u_ads.
         """
-        latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
+        lattice = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
         miller_list = list(self.all_slab_entries)
         e_surf_list = []
@@ -529,7 +534,7 @@ class SurfaceEnergyPlotter:
             )[1]
             e_surf_list.append(gamma)
 
-        return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
+        return WulffShape(lattice, miller_list, e_surf_list, symprec=symprec)
 
     def area_frac_vs_chempot_plot(
         self,
@@ -650,11 +655,11 @@ class SurfaceEnergyPlotter:
         # Now solve the system of linear eqns to find the chempot
         # where the slabs are at equilibrium with each other
 
-        soln = linsolve(all_eqns, all_parameters)
-        if not soln:
+        solution = linsolve(all_eqns, all_parameters)
+        if not solution:
             warnings.warn("No solution")
-            return soln
-        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
+            return solution
+        return {param: next(iter(solution))[idx] for idx, param in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,
@@ -779,7 +784,7 @@ class SurfaceEnergyPlotter:
 
         # sort the chempot ranges for each facet
         for entry, v in stable_urange_dict.items():
-            se_dict[entry] = [se for i, se in sorted(zip(v, se_dict[entry]))]
+            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry]))]
             stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
@@ -803,16 +808,16 @@ class SurfaceEnergyPlotter:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
             random.shuffle(rgb_indices)
-            for i, ind in enumerate(rgb_indices):
-                if i == 2:
+            for idx, ind in enumerate(rgb_indices):
+                if idx == 2:
                     break
                 color[ind] = np.random.uniform(0, 1)
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
-            for i, clean in enumerate(self.all_slab_entries[hkl]):
+            for idx, clean in enumerate(self.all_slab_entries[hkl]):
                 c = copy.copy(color)
-                c[rgb_indices[2]] = clean_list[i]
+                c[rgb_indices[2]] = clean_list[idx]
                 color_dict[clean] = c
 
                 # Now get the adsorbed (transparent) colors
@@ -1360,7 +1365,7 @@ class WorkFunctionAnalyzer:
 
         # properties that can be shifted
         slab = structure.copy()
-        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, self.shift])
+        slab.translate_sites([idx for idx, site in enumerate(slab)], [0, 0, self.shift])
         self.slab = slab
         self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
 
@@ -1371,14 +1376,14 @@ class WorkFunctionAnalyzer:
         # Get the plot points between 0 and c
         # increments of the number of locpot points
         locpot_along_c_mid, locpot_end, locpot_start = [], [], []
-        for i, s in enumerate(self.along_c):
+        for idx, s in enumerate(self.along_c):
             j = s + self.shift
             if j > 1:
-                locpot_start.append(locpot_along_c[i])
+                locpot_start.append(locpot_along_c[idx])
             elif j < 0:
-                locpot_end.append(locpot_along_c[i])
+                locpot_end.append(locpot_along_c[idx])
             else:
-                locpot_along_c_mid.append(locpot_along_c[i])
+                locpot_along_c_mid.append(locpot_along_c[idx])
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
         # identify slab region
@@ -1388,10 +1393,14 @@ class WorkFunctionAnalyzer:
         # a rough appr. of the potential in the interior of the slab
         bulk_p = []
         for r in self.slab_regions:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if r[1] >= self.along_c[i] > r[0]])
+            bulk_p.extend([pot for idx, pot in enumerate(self.locpot_along_c) if r[1] >= self.along_c[idx] > r[0]])
         if len(self.slab_regions) > 1:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[i]])
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[i]])
+            bulk_p.extend(
+                [pot for idx, pot in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[idx]]
+            )
+            bulk_p.extend(
+                [pot for idx, pot in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[idx]]
+            )
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
@@ -1423,24 +1432,24 @@ class WorkFunctionAnalyzer:
 
         # Get the local averaged signal of the locpot along c
         xg, yg = [], []
-        for i, p in enumerate(self.locpot_along_c):
+        for idx, pot in enumerate(self.locpot_along_c):
             # average signal is just the bulk-like potential when in the slab region
             in_slab = False
             for r in self.slab_regions:
-                if r[0] <= self.along_c[i] <= r[1]:
+                if r[0] <= self.along_c[idx] <= r[1]:
                     in_slab = True
             if len(self.slab_regions) > 1:
-                if self.along_c[i] >= self.slab_regions[1][1]:
+                if self.along_c[idx] >= self.slab_regions[1][1]:
                     in_slab = True
-                if self.along_c[i] <= self.slab_regions[0][0]:
+                if self.along_c[idx] <= self.slab_regions[0][0]:
                     in_slab = True
 
-            if in_slab or p < self.ave_bulk_p:
+            if in_slab or pot < self.ave_bulk_p:
                 yg.append(self.ave_bulk_p)
-                xg.append(self.along_c[i])
+                xg.append(self.along_c[idx])
             else:
-                yg.append(p)
-                xg.append(self.along_c[i])
+                yg.append(pot)
+                xg.append(self.along_c[idx])
         xg, yg = zip(*sorted(zip(xg, yg)))
         plt.plot(xg, yg, "r", linewidth=2.5, zorder=-1)
 
@@ -1560,7 +1569,7 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @classmethod
-    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
         """
         Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 

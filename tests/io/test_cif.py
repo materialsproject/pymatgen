@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -11,7 +9,7 @@ from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     import pybtex
@@ -421,7 +419,7 @@ class TestCifIO(PymatgenTest):
             assert parser._parse_symbol(sym) == expected_symbol
 
     def test_cif_writer(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         writer = CifWriter(struct, symprec=0.01)
         answer = """# generated using pymatgen
@@ -466,7 +464,7 @@ loop_
             assert l1.strip() == l2.strip()
 
     def test_symmetrized(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         writer = CifWriter(struct, symprec=0.1)
 
@@ -501,7 +499,7 @@ loop_
 
     def test_disordered(self):
         si = Element("Si")
-        n = Element("N")
+        nitrogen = Element("N")
         coords = []
         coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
         lattice = [
@@ -509,7 +507,7 @@ loop_
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
+        struct = Structure(lattice, [si, {si: 0.5, nitrogen: 0.5}], coords)
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
 data_Si1.5N0.5
@@ -556,7 +554,7 @@ loop_
     def test_specie_cif_writer(self):
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)
-        n = DummySpecies("X", -3)
+        dummy_spec = DummySpecies("X", -3)
         coords = []
         coords.extend((np.array([0.5, 0.5, 0.5]), np.array([0.75, 0.5, 0.75]), np.array([0, 0, 0])))
         lattice = [
@@ -564,7 +562,7 @@ loop_
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
+        struct = Structure(lattice, [dummy_spec, {si3: 0.5, dummy_spec: 0.5}, si4], coords)
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
 data_X1.5Si1.5
@@ -712,7 +710,7 @@ loop_
 """
         parser = CifParser.from_str(cif_structure)
         s_test = parser.parse_structures(primitive=False)[0]
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
 
         sm = StructureMatcher(stol=0.05, ltol=0.01, angle_tol=0.1)
@@ -742,20 +740,20 @@ loop_
         assert struct[0].species["Al3+"] == approx(0.778)
 
     def test_one_line_symm(self):
-        f = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/OneLineSymmP1.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "Ga4 Pb2 O8"
 
     def test_no_symmops(self):
-        f = f"{TEST_FILES_DIR}/nosymm.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/nosymm.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "H96 C60 O8"
 
     def test_dot_positions(self):
-        f = f"{TEST_FILES_DIR}/ICSD59959.cif"
-        parser = CifParser(f)
+        cif_file = f"{TEST_FILES_DIR}/ICSD59959.cif"
+        parser = CifParser(cif_file)
         struct = parser.parse_structures()[0]
         assert struct.formula == "K1 Mn1 F3"
 
@@ -856,7 +854,7 @@ Si1 Si 0 0 0 1 0.0
             assert structs[0].species.as_dict()["Te"] == 1.5
 
     def test_cif_writer_write_file(self):
-        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         out_path = f"{self.tmp_path}/test.cif"
         CifWriter(struct1).write_file(out_path)
         read_structs = CifParser(out_path).parse_structures()
@@ -945,7 +943,7 @@ Si1 Si 0 0 0 1 0.0
     def test_cif_writer_site_properties(self):
         # check CifWriter(write_site_properties=True) adds Structure site properties to
         # CIF with _atom_site_ prefix
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         struct.add_site_property(label := "hello", [1.0] * (len(struct) - 1) + [-1.0])
         out_path = f"{self.tmp_path}/test2.cif"
         CifWriter(struct, write_site_properties=True).write_file(out_path)
@@ -958,11 +956,11 @@ Si1 Si 0 0 0 1 0.0
 
 class TestMagCif(PymatgenTest):
     def setUp(self):
-        self.mcif = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
-        self.mcif_ncl = CifParser(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif")
-        self.mcif_incommensurate = CifParser(f"{TEST_FILES_DIR}/magnetic.incommensurate.example.Cr.mcif")
-        self.mcif_disordered = CifParser(f"{TEST_FILES_DIR}/magnetic.disordered.example.CuMnO2.mcif")
-        self.mcif_ncl2 = CifParser(f"{TEST_FILES_DIR}/Mn3Ge_IR2.mcif")
+        self.mcif = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.example.NiO.mcif")
+        self.mcif_ncl = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif")
+        self.mcif_incommensurate = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.incommensurate.example.Cr.mcif")
+        self.mcif_disordered = CifParser(f"{TEST_FILES_DIR}/mcif/magnetic.disordered.example.CuMnO2.mcif")
+        self.mcif_ncl2 = CifParser(f"{TEST_FILES_DIR}/mcif/Mn3Ge_IR2.mcif")
 
     def test_mcif_detection(self):
         assert self.mcif.feature_flags["magcif"]
@@ -1028,7 +1026,7 @@ Gd1 5.05 5.05 0.0"""
         assert s_ncl.matches(s_ncl_from_msg)
 
     def test_write(self):
-        with open(f"{TEST_FILES_DIR}/GdB4-writer-ref.mcif") as file:
+        with open(f"{TEST_FILES_DIR}/mcif/GdB4-writer-ref.mcif") as file:
             cw_ref_string = file.read()
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
 
@@ -1048,7 +1046,7 @@ Gd1 5.05 5.05 0.0"""
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
-        with open(f"{TEST_FILES_DIR}/GdB4-str-magnitudes-ref.mcif") as file:
+        with open(f"{TEST_FILES_DIR}/mcif/GdB4-str-magnitudes-ref.mcif") as file:
             cw_ref_string_magnitudes = file.read()
 
         assert str(cw).strip() == cw_ref_string_magnitudes.strip()
@@ -1066,13 +1064,13 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
 
         # check oxidation state
-        with open(f"{TEST_FILES_DIR}/CsCl-manual-oxi-ref.mcif") as file:
+        with open(f"{TEST_FILES_DIR}/mcif/CsCl-manual-oxi-ref.mcif") as file:
             cw_manual_oxi_string = file.read()
         s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)
         assert str(cw) == cw_manual_oxi_string
 
-    @unittest.skipIf(pybtex is None, "pybtex not present")
+    @pytest.mark.skipif(pybtex is None, reason="pybtex not present")
     def test_bibtex(self):
         ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",

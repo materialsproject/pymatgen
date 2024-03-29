@@ -90,16 +90,20 @@ class CoherentInterfaceBuilder:
         for match in self.zsl_matches:
             xform = get_2d_transform(film_vectors, match.film_vectors)
             strain, _rot = polar(xform)
-            (
-                assert_allclose(strain, np.round(strain), atol=1e-12),
-                "Film lattice vectors changed during ZSL match, check your ZSL Generator parameters",
+            assert_allclose(
+                strain,
+                np.round(strain),
+                atol=1e-12,
+                err_msg="Film lattice vectors changed during ZSL match, check your ZSL Generator parameters",
             )
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
             strain, _rot = polar(xform)
-            (
-                assert_allclose(strain, strain.astype(int), atol=1e-12),
-                "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters",
+            assert_allclose(
+                strain,
+                strain.astype(int),
+                atol=1e-12,
+                err_msg="Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters",
             )
 
     def _find_terminations(self):
@@ -200,13 +204,17 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             film_sl_slab = film_slab.copy()
             film_sl_slab.make_supercell(super_film_transform)
-            (
-                assert_allclose(film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2], atol=1e-08),
-                "2D transformation affected C-axis for Film transformation",
+            assert_allclose(
+                film_sl_slab.lattice.matrix[2],
+                film_slab.lattice.matrix[2],
+                atol=1e-08,
+                err_msg="2D transformation affected C-axis for Film transformation",
             )
-            (
-                assert_allclose(film_sl_slab.lattice.matrix[:2], match.film_sl_vectors, atol=1e-08),
-                "Transformation didn't make proper supercell for film",
+            assert_allclose(
+                film_sl_slab.lattice.matrix[:2],
+                match.film_sl_vectors,
+                atol=1e-08,
+                err_msg="Transformation didn't make proper supercell for film",
             )
 
             # Build substrate superlattice
@@ -215,13 +223,17 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             sub_sl_slab = sub_slab.copy()
             sub_sl_slab.make_supercell(super_sub_transform)
-            (
-                assert_allclose(sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2], atol=1e-08),
-                "2D transformation affected C-axis for Film transformation",
+            assert_allclose(
+                sub_sl_slab.lattice.matrix[2],
+                sub_slab.lattice.matrix[2],
+                atol=1e-08,
+                err_msg="2D transformation affected C-axis for Film transformation",
             )
-            (
-                assert_allclose(sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors, atol=1e-08),
-                "Transformation didn't make proper supercell for substrate",
+            assert_allclose(
+                sub_sl_slab.lattice.matrix[:2],
+                match.substrate_sl_vectors,
+                atol=1e-08,
+                err_msg="Transformation didn't make proper supercell for substrate",
             )
 
             # Add extra info

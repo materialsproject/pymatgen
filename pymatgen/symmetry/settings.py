@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from fractions import Fraction
+from typing import TYPE_CHECKING
 
 import numpy as np
 from sympy import Matrix
@@ -12,6 +13,9 @@ from sympy.parsing.sympy_parser import parse_expr
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -56,7 +60,7 @@ class JonesFaithfulTransformation:
         self._P, self._p = P, p
 
     @classmethod
-    def from_transformation_str(cls, transformation_string="a,b,c;0,0,0"):
+    def from_transformation_str(cls, transformation_string: str = "a,b,c;0,0,0") -> Self:
         """Construct SpaceGroupTransformation from its transformation string.
 
         Args:
@@ -69,7 +73,7 @@ class JonesFaithfulTransformation:
         return cls(P, p)
 
     @classmethod
-    def from_origin_shift(cls, origin_shift="0,0,0"):
+    def from_origin_shift(cls, origin_shift: str = "0,0,0") -> Self:
         """Construct SpaceGroupTransformation from its origin shift string.
 
         Args:
@@ -104,7 +108,7 @@ class JonesFaithfulTransformation:
 
             # add implicit multiplication symbols
             basis_change = [
-                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.X)
+                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.VERBOSE)
                 for string in basis_change
             ]
 

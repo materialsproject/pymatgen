@@ -51,7 +51,7 @@ def get_dimensionality_larsen(bonded_structure):
     due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -85,7 +85,7 @@ def get_structure_components(
     structure type or improper connections due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -340,7 +340,7 @@ def get_dimensionality_cheon(
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, _clusters1 = find_clusters(structure, connected_list1)
     if larger_cell:
-        structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+        structure.make_supercell(np.eye(3) * 3)
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, _clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
@@ -352,7 +352,7 @@ def get_dimensionality_cheon(
             else:
                 return None
     else:
-        structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
+        structure.make_supercell(np.eye(3) * 2)
         connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max2, min2, _clusters2 = find_clusters(structure, connected_list2)
         if min2 == 1:
@@ -365,7 +365,7 @@ def get_dimensionality_cheon(
                 dim = str(int(dim)) + "D"
             else:
                 structure = copy.copy(structure_save)
-                structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+                structure.make_supercell(np.eye(3) * 3)
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, _clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
@@ -507,18 +507,17 @@ def get_dimensionality_gorai(
     Note that if you pass both, el_radius_updates are ignored.
 
     Args:
-        structure: (Structure) structure to analyze dimensionality for
-        max_hkl: (int) max index of planes to look for layers
-        el_radius_updates: (dict) symbol->float to update atomic radii
-        min_slab_size: (float) internal surface construction parameter
-        min_vacuum_size: (float) internal surface construction parameter
+        structure (Structure): structure to analyze dimensionality for
+        max_hkl (int): max index of planes to look for layers
+        el_radius_updates (dict): symbol->float to update atomic radii
+        min_slab_size (float): internal surface construction parameter
+        min_vacuum_size (float): internal surface construction parameter
         standardize (bool): whether to standardize the structure before
             analysis. Set to False only if you already have the structure in a
             convention where layers / chains will be along low <hkl> indexes.
-        bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
+        bonds (dict[tuple, float]): bonds are specified as a dict of 2-tuples of Species mapped to floats,
+            the max bonding distance. For example, PO4 groups may be
+            defined as {("P", "O"): 3}.
 
     Returns:
         int: the dimensionality of the structure - 1 (molecules/chains),

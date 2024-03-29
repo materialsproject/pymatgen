@@ -7,7 +7,6 @@ Created on Nov 10, 2012.
 from __future__ import annotations
 
 import random
-import unittest
 
 import pytest
 from numpy.testing import assert_allclose
@@ -93,7 +92,7 @@ class TestComposition(PymatgenTest):
 
         # Test float in Composition
         comp = Composition({Element("Fe"): 2})
-        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+        with pytest.raises(TypeError, match="Invalid key=1.5 for Composition"):
             assert 1.5 in comp
 
         # Test DummySpecies in Composition
@@ -132,7 +131,7 @@ class TestComposition(PymatgenTest):
 
         assert Composition({"Fe": 4, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
 
-        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+        with pytest.raises(ValueError, match="Can't parse Element or Species from"):
             Composition({None: 4, "Li": 4, "O": 16, "P": 4})
 
         assert Composition({1: 2, 8: 1}).formula == "H2 O1"
@@ -140,6 +139,11 @@ class TestComposition(PymatgenTest):
 
         comp = Composition({"S": Composition.amount_tolerance / 2})
         assert len(comp.elements) == 0
+
+        # test Composition from int/float raises
+        for val in (1, 2.5):
+            with pytest.raises(TypeError, match=f"{type(val).__name__!r} object is not iterable"):
+                Composition(val)
 
     def test_str_and_repr(self):
         test_cases = [
@@ -212,10 +216,7 @@ class TestComposition(PymatgenTest):
         assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
 
         assert Composition("NaN").reduced_formula == "NaN"
-        with pytest.raises(
-            ValueError,
-            match=r"float\('NaN'\) is not a valid Composition, did you mean str\('NaN'\)\?",
-        ):
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?"):
             Composition(float("NaN"))
 
         # test bad formulas raise ValueError
@@ -454,7 +455,7 @@ class TestComposition(PymatgenTest):
         assert (self.comps[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
 
         with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
-            Composition("O") - Composition("H")
+            _ = Composition("O") - Composition("H")
 
         # check that S is completely removed by subtraction
         c1 = Composition({"S": 1 + Composition.amount_tolerance / 2, "O": 1})
@@ -521,7 +522,7 @@ class TestComposition(PymatgenTest):
             TypeError,
             match="'<' not supported between instances of 'Composition' and 'Element'",
         ):
-            c1 < Fe  # noqa: B015
+            _ = c1 < Fe
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
@@ -794,7 +795,7 @@ class TestComposition(PymatgenTest):
         assert "Deuterium" in [x.long_name for x in composition.elements]
 
 
-class TestChemicalPotential(unittest.TestCase):
+class TestChemicalPotential:
     def test_init(self):
         dct = {"Fe": 1, Element("Fe"): 1}
         with pytest.raises(ValueError, match="Duplicate potential specified"):
@@ -817,7 +818,7 @@ class TestChemicalPotential(unittest.TestCase):
 
         # test multiplication
         with pytest.raises(TypeError, match="unsupported operand type"):
-            pots * pots
+            _ = pots * pots
         assert pots * 2 == pots_x2
         assert 2 * pots == pots_x2
 

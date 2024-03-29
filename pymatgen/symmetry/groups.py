@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 import re
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
@@ -22,6 +22,7 @@ from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     # don't import at runtime to avoid circular import
     from pymatgen.core.lattice import Lattice
@@ -32,7 +33,7 @@ SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
 CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
-class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
+class SymmetryGroup(Sequence, Stringify, ABC):
     """Abstract class representing a symmetry group."""
 
     @property
@@ -53,12 +54,10 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return len(self)
 
     @overload
-    def __getitem__(self, item: int) -> SymmOp:
-        ...
+    def __getitem__(self, item: int) -> SymmOp: ...
 
     @overload
-    def __getitem__(self, item: slice) -> Sequence[SymmOp]:
-        ...
+    def __getitem__(self, item: slice) -> Sequence[SymmOp]: ...
 
     def __getitem__(self, item: int | slice) -> SymmOp | Sequence[SymmOp]:
         return list(self.symmetry_ops)[item]
@@ -478,7 +477,7 @@ class SpaceGroup(SymmetryGroup):
         return subgroup.is_subgroup(self)
 
     @classmethod
-    def from_int_number(cls, int_number: int, hexagonal: bool = True) -> SpaceGroup:
+    def from_int_number(cls, int_number: int, hexagonal: bool = True) -> Self:
         """Obtains a SpaceGroup from its international number.
 
         Args:
@@ -497,7 +496,7 @@ class SpaceGroup(SymmetryGroup):
         symbol = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
         if not hexagonal and int_number in (146, 148, 155, 160, 161, 166, 167):
             symbol += ":R"
-        return SpaceGroup(symbol)
+        return cls(symbol)
 
     def __repr__(self) -> str:
         symbol = self.symbol

@@ -1,4 +1,5 @@
 """AIMS output parser, taken from ASE with modifications."""
+
 from __future__ import annotations
 
 import gzip
@@ -79,9 +80,9 @@ class AimsOutChunk:
         Returns:
             The last time one of the keys appears in self.lines
         """
-        for ll, line in enumerate(self.lines[line_start:][::-1]):
+        for idx, line in enumerate(self.lines[line_start:][::-1]):
             if any(key in line for key in keys):
-                return len(self.lines) - ll - 1
+                return len(self.lines) - idx - 1
 
         return LINE_NOT_FOUND
 
@@ -576,48 +577,36 @@ class AimsOutCalcChunk(AimsOutChunk):
     def species(self) -> list[str]:
         """The list of atomic symbols for all atoms in the structure"""
         if "species" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["species"]
 
     @property
     def coords(self) -> list[Vector3D]:
         """The cartesian coordinates of the atoms"""
         if "coords" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["coords"]
 
     @property
     def velocities(self) -> list[Vector3D]:
         """The velocities of the atoms"""
         if "velocities" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["velocities"]
 
     @property
     def lattice(self) -> Lattice:
         """The Lattice object for the structure"""
         if "lattice" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["lattice"]
 
     @property

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import unittest
-
 import matplotlib.pyplot as plt
+import pytest
 from pytest import approx
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
@@ -39,7 +38,7 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
         assert isinstance(ax, plt.Axes)
 
 
-@unittest.skipIf(TotalDos is None, "Phonopy not present")
+@pytest.mark.skipif(TotalDos is None, reason="Phonopy not present")
 class TestGruneisenParameter(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(

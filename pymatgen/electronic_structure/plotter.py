@@ -796,16 +796,16 @@ class BSPlotter:
         tick_labels = []
         previous_label = bs.kpoints[0].label
         previous_branch = bs.branches[0]["name"]
-        for i, c in enumerate(bs.kpoints):
-            if c.label is not None:
-                tick_distance.append(bs.distance[i])
+        for idx, kpt in enumerate(bs.kpoints):
+            if kpt.label is not None:
+                tick_distance.append(bs.distance[idx])
                 this_branch = None
                 for b in bs.branches:
-                    if b["start_index"] <= i <= b["end_index"]:
+                    if b["start_index"] <= idx <= b["end_index"]:
                         this_branch = b["name"]
                         break
-                if c.label != previous_label and previous_branch != this_branch:
-                    label1 = c.label
+                if kpt.label != previous_label and previous_branch != this_branch:
+                    label1 = kpt.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = f"${label1}$"
                     label0 = previous_label
@@ -814,11 +814,11 @@ class BSPlotter:
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
-                elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append(f"${c.label}$")
+                elif kpt.label.startswith("\\") or kpt.label.find("_") != -1:
+                    tick_labels.append(f"${kpt.label}$")
                 else:
-                    tick_labels.append(c.label)
-                previous_label = c.label
+                    tick_labels.append(kpt.label)
+                previous_label = kpt.label
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}
 
@@ -1214,7 +1214,7 @@ class BSPlotterProjected(BSPlotter):
             "f3": 15,
         }
 
-        num_branches = len(self._bs.branches)
+        n_branches = len(self._bs.branches)
         if selected_branches is not None:
             indices = []
             if not isinstance(selected_branches, list):
@@ -1226,14 +1226,14 @@ class BSPlotterProjected(BSPlotter):
                     raise ValueError(
                         "You do not give a correct type of index of symmetry lines. It should be 'int' type"
                     )
-                if index > num_branches or index < 1:
+                if index > n_branches or index < 1:
                     raise ValueError(
                         f"You give a incorrect index of symmetry lines: {index}. The index should be in range of "
-                        f"[1, {num_branches}]."
+                        f"[1, {n_branches}]."
                     )
                 indices.append(index - 1)
         else:
-            indices = range(num_branches)
+            indices = range(n_branches)
 
         proj = self._bs.projections
         proj_br = []
@@ -1737,7 +1737,7 @@ class BSPlotterProjected(BSPlotter):
                                 )
                             if orb not in all_orbitals:
                                 raise ValueError(f"The invalid name of orbital in 'sum_morbs[{elt}]' is given.")
-                            if orb in individual_orbs and len(set(sum_morbs[elt]) & individual_orbs[orb]) != 0:
+                            if orb in individual_orbs and len(set(sum_morbs[elt]) & set(individual_orbs[orb])) != 0:
                                 raise ValueError(f"The 'sum_morbs[{elt}]' contains orbitals repeated.")
                         nelems = Counter(sum_morbs[elt]).values()
                         if sum(nelems) > len(nelems):
@@ -2076,13 +2076,13 @@ class BSPlotterProjected(BSPlotter):
         distance = []
         label = []
         rm_elems = []
-        for i in range(1, len(ticks["distance"])):
-            if ticks["label"][i] == ticks["label"][i - 1]:
-                rm_elems.append(i)
-        for i in range(len(ticks["distance"])):
-            if i not in rm_elems:
-                distance.append(ticks["distance"][i])
-                label.append(ticks["label"][i])
+        for idx in range(1, len(ticks["distance"])):
+            if ticks["label"][idx] == ticks["label"][idx - 1]:
+                rm_elems.append(idx)
+        for idx in range(len(ticks["distance"])):
+            if idx not in rm_elems:
+                distance.append(ticks["distance"][idx])
+                label.append(ticks["label"][idx])
         l_branches = [distance[i] - distance[i - 1] for i in range(1, len(distance))]
         n_distance = []
         n_label = []
@@ -2104,48 +2104,48 @@ class BSPlotterProjected(BSPlotter):
         f_distance.extend((0.0, n_distance[0]))
         rf_distance.extend((0.0, n_distance[0]))
         length = n_distance[0]
-        for i in range(1, len(n_distance)):
-            if n_label[i][0] == n_label[i - 1][1]:
-                f_distance.extend((length, length + n_distance[i]))
-                f_label.extend((n_label[i][0], n_label[i][1]))
+        for idx in range(1, len(n_distance)):
+            if n_label[idx][0] == n_label[idx - 1][1]:
+                f_distance.extend((length, length + n_distance[idx]))
+                f_label.extend((n_label[idx][0], n_label[idx][1]))
             else:
-                f_distance.append(length + n_distance[i])
-                f_label[-1] = n_label[i - 1][1] + "$\\mid$" + n_label[i][0]
-                f_label.append(n_label[i][1])
-            rf_distance.append(length + n_distance[i])
-            length += n_distance[i]
+                f_distance.append(length + n_distance[idx])
+                f_label[-1] = n_label[idx - 1][1] + "$\\mid$" + n_label[idx][0]
+                f_label.append(n_label[idx][1])
+            rf_distance.append(length + n_distance[idx])
+            length += n_distance[idx]
 
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(f_distance, f_label))
-        for i, t in enumerate(temp_ticks):
-            if i == 0:
-                uniq_d.append(t[0])
-                uniq_l.append(t[1])
-                logger.debug(f"Adding label {t[0]} at {t[1]}")
-            elif t[1] == temp_ticks[i - 1][1]:
-                logger.debug(f"Skipping label {t[1]}")
+        for idx, tick in enumerate(temp_ticks):
+            if idx == 0:
+                uniq_d.append(tick[0])
+                uniq_l.append(tick[1])
+                logger.debug(f"Adding label {tick[0]} at {tick[1]}")
+            elif tick[1] == temp_ticks[idx - 1][1]:
+                logger.debug(f"Skipping label {tick[1]}")
             else:
-                logger.debug(f"Adding label {t[0]} at {t[1]}")
-                uniq_d.append(t[0])
-                uniq_l.append(t[1])
+                logger.debug(f"Adding label {tick[0]} at {tick[1]}")
+                uniq_d.append(tick[0])
+                uniq_l.append(tick[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(f_label)):
-            if f_label[i] is not None:
+        for idx in range(len(f_label)):
+            if f_label[idx] is not None:
                 # don't print the same label twice
-                if i != 0:
-                    if f_label[i] == f_label[i - 1]:
-                        logger.debug(f"already print label... skipping label {f_label[i]}")
+                if idx != 0:
+                    if f_label[idx] == f_label[idx - 1]:
+                        logger.debug(f"already print label... skipping label {f_label[idx]}")
                     else:
-                        logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
-                        ax.axvline(f_distance[i], color="k")
+                        logger.debug(f"Adding a line at {f_distance[idx]} for label {f_label[idx]}")
+                        ax.axvline(f_distance[idx], color="k")
                 else:
-                    logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
-                    ax.axvline(f_distance[i], color="k")
+                    logger.debug(f"Adding a line at {f_distance[idx]} for label {f_label[idx]}")
+                    ax.axvline(f_distance[idx], color="k")
 
         shift = []
         br = -1
@@ -2501,11 +2501,11 @@ class BSDOSPlotter:
         pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
-        nseg = len(k) - 1
-        r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
-        g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
-        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
-        a = np.ones(nseg, float) * alpha
+        n_seg = len(k) - 1
+        r = [0.5 * (red[i] + red[i + 1]) for i in range(n_seg)]
+        g = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
+        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
+        a = np.ones(n_seg, float) * alpha
         lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
@@ -3593,7 +3593,7 @@ class CohpPlotter:
                 energy at the Fermi level. Defaults to True.
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
-            are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
+            are_cobis: Switch to indicate that these are COBIs or multi-center COBIs, not COHPs/COOPs.
                 Defaults to False for COHPs.
         """
         self.zero_at_efermi = zero_at_efermi
@@ -3914,7 +3914,7 @@ def plot_fermi_surface(
                             tube_radius=None,
                             figure=fig,
                         )
-        for label, coords in kpoints_dict.items():
+        for key, coords in kpoints_dict.items():
             label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
             mlab.points3d(
                 *label_coords,
@@ -3924,7 +3924,7 @@ def plot_fermi_surface(
             )
             mlab.text3d(
                 *label_coords,
-                text=label,
+                text=key,
                 scale=labels_scale_factor,
                 color=(0, 0, 0),
                 figure=fig,
@@ -3951,7 +3951,7 @@ def plot_fermi_surface(
                                 figure=fig,
                             )
 
-            for label, coords in kpoints_dict.items():
+            for key, coords in kpoints_dict.items():
                 label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
                 mlab.points3d(
                     *label_coords,
@@ -3961,7 +3961,7 @@ def plot_fermi_surface(
                 )
                 mlab.text3d(
                     *label_coords,
-                    text=label,
+                    text=key,
                     scale=labels_scale_factor,
                     color=(0, 0, 0),
                     figure=fig,

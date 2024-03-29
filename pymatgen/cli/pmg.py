@@ -22,7 +22,8 @@ from pymatgen.io.vasp import Incar, Potcar
 def parse_view(args):
     """Handle view commands.
 
-    :param args: Args from command.
+    Args:
+        args: Args from command.
     """
     from pymatgen.vis.structure_vtk import StructureVis
 
@@ -37,7 +38,8 @@ def parse_view(args):
 def diff_incar(args):
     """Handle diff commands.
 
-    :param args: Args from command.
+    Args:
+        args: Args from command.
     """
     filepath1 = args.incars[0]
     filepath2 = args.incars[1]

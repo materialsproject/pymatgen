@@ -18,7 +18,7 @@ __email__ = "rit001@eng.ucsd.edu"
 __date__ = "Aug 24, 2017"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/surface_tests"
+TEST_DIR = f"{TEST_FILES_DIR}/surfaces"
 
 
 class TestSlabEntry(PymatgenTest):
@@ -113,8 +113,8 @@ class TestSlabEntry(PymatgenTest):
             for hkl in val:
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
-                        s = ads.cleaned_up_slab
-                        assert s.composition.reduced_composition == clean.composition.reduced_composition
+                        slab_clean = ads.cleaned_up_slab
+                        assert slab_clean.composition.reduced_composition == clean.composition.reduced_composition
 
 
 class TestSurfaceEnergyPlotter(PymatgenTest):
@@ -285,7 +285,7 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
 
 
-class TestWorkfunctionAnalyzer(PymatgenTest):
+class TestWorkFunctionAnalyzer(PymatgenTest):
     def setUp(self):
         self.kwargs = {
             "poscar_filename": f"{TEST_DIR}/CONTCAR.relax1.gz",
@@ -320,26 +320,26 @@ class TestNanoscaleStability(PymatgenTest):
     def test_stability_at_r(self):
         # Check that we have a different polymorph that is
         # stable below or above the equilibrium particle size
-        r = self.nanoscale_stability.solve_equilibrium_point(self.La_hcp_analyzer, self.La_fcc_analyzer) * 10
+        radius = self.nanoscale_stability.solve_equilibrium_point(self.La_hcp_analyzer, self.La_fcc_analyzer) * 10
 
         # hcp phase of La particle should be the stable
         # polymorph above the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r + 10, from_sphere_area=True)
+        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, radius + 10, from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r + 10, from_sphere_area=True)
+        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, radius + 10, from_sphere_area=True)
         assert gfcc > ghcp
 
         # fcc phase of La particle should be the stable
         # polymorph below the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r - 10, from_sphere_area=True)
+        ghcp, _rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, radius - 10, from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r - 10, from_sphere_area=True)
+        gfcc, _rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, radius - 10, from_sphere_area=True)
         assert gfcc < ghcp
 
     def test_scaled_wulff(self):
@@ -360,23 +360,23 @@ def get_entry_dict(filename):
     entry_dict = {}
     with open(filename) as file:
         entries = json.loads(file.read())
-    for k in entries:
-        n = k[25:]
+    for entry in entries:
+        sub_str = entry[25:]
         miller_index = []
-        for i, s in enumerate(n):
-            if s == "_":
+        for idx, char in enumerate(sub_str):
+            if char == "_":
                 break
-            if s == "-":
+            if char == "-":
                 continue
-            t = int(s)
-            if n[i - 1] == "-":
+            t = int(char)
+            if sub_str[idx - 1] == "-":
                 t *= -1
             miller_index.append(t)
         hkl = tuple(miller_index)
         if hkl not in entry_dict:
             entry_dict[hkl] = {}
-        entry = ComputedStructureEntry.from_dict(entries[k])
-        entry_dict[hkl][SlabEntry(entry.structure, entry.energy, hkl, label=k)] = []
+        entry = ComputedStructureEntry.from_dict(entries[entry])
+        entry_dict[hkl][SlabEntry(entry.structure, entry.energy, hkl, label=entry)] = []
 
     return entry_dict
 

@@ -51,16 +51,16 @@ class SOCSpillage:
         noso = Wavecar(self.wf_noso)
         so = Wavecar(self.wf_so)
 
-        bcell = np.linalg.inv(noso.a).T
-        tmp = np.linalg.norm(np.dot(np.diff(noso.kpoints, axis=0), bcell), axis=1)
+        b_cell = np.linalg.inv(noso.a).T
+        tmp = np.linalg.norm(np.dot(np.diff(noso.kpoints, axis=0), b_cell), axis=1)
         noso_k = np.concatenate(([0], np.cumsum(tmp)))
         noso_bands = np.array(noso.band_energy)[:, :, :, 0]
         noso_kvecs = np.array(noso.kpoints)
         noso_occs = np.array(noso.band_energy)[:, :, :, 2]
-        noso_nkpts = len(noso_k)
+        n_kpts_noso = len(noso_k)
 
-        bcell = np.linalg.inv(so.a).T
-        tmp = np.linalg.norm(np.dot(np.diff(so.kpoints, axis=0), bcell), axis=1)
+        b_cell = np.linalg.inv(so.a).T
+        tmp = np.linalg.norm(np.dot(np.diff(so.kpoints, axis=0), b_cell), axis=1)
         so_k = np.concatenate(([0], np.cumsum(tmp)))
         so_bands = np.array([np.array(so.band_energy)[:, :, 0]])
         so_kvecs = np.array(so.kpoints)
@@ -68,7 +68,7 @@ class SOCSpillage:
         so_nkpts = len(so_k)
 
         nelec_list = []
-        for nk1 in range(1, noso_nkpts + 1):  # no spin orbit kpoints loop
+        for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
             knoso = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
@@ -126,7 +126,7 @@ class SOCSpillage:
         y = []
 
         nelec_tot = 0.0
-        for nk1 in range(1, noso_nkpts + 1):  # no spin orbit kpoints loop
+        for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
             knoso = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]

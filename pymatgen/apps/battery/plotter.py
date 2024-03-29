@@ -1,6 +1,5 @@
 """This module provides plotting capabilities for battery related applications."""
 
-
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
@@ -99,11 +98,11 @@ class VoltageProfilePlotter:
         working_ion_symbols = set()
         formula = set()
 
-        for label, electrode in self._electrodes.items():
+        for key, electrode in self._electrodes.items():
             x, y = self.get_plot_data(electrode, term_zero=term_zero)
             working_ion_symbols.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
-            ax.plot(x, y, "-", linewidth=2, label=label)
+            ax.plot(x, y, "-", linewidth=2, label=key)
 
         ax.legend()
         ax.set_xlabel(self._choose_best_x_label(formula=formula, work_ion_symbol=working_ion_symbols))
@@ -134,7 +133,7 @@ class VoltageProfilePlotter:
         data = []
         working_ion_symbols = set()
         formula = set()
-        for label, electrode in self._electrodes.items():
+        for key, electrode in self._electrodes.items():
             x, y = self.get_plot_data(electrode, term_zero=term_zero)
             working_ion_symbols.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
@@ -146,7 +145,7 @@ class VoltageProfilePlotter:
                     plot_y.append(None)
                 plot_x.append(x[i])
                 plot_y.append(y[i])
-            data.append(go.Scatter(x=plot_x, y=plot_y, name=label, hovertemplate=hover_temp))
+            data.append(go.Scatter(x=plot_x, y=plot_y, name=key, hovertemplate=hover_temp))
 
         fig = go.Figure(
             data=data,

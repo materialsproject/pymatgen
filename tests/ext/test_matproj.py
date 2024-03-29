@@ -137,8 +137,8 @@ class TestMPResterOld(PymatgenTest):
             assert isinstance(e, ComputedEntry)
             assert set(e.elements).issubset(elements)
 
-        e1 = {i.entry_id for i in entries}
-        e2 = {i.entry_id for i in entries2}
+        e1 = {ent.entry_id for ent in entries}
+        e2 = {ent.entry_id for ent in entries2}
         assert e1 == e2
 
         stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
@@ -299,11 +299,11 @@ class TestMPResterOld(PymatgenTest):
         assert entry.energy == -825.5
 
     # def test_submit_query_delete_snl(self):
-    #     struct = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-    #     d = self.rester.submit_snl(
+    #     struct = Structure(np.eye(3) * 5, ["Fe"], [[0, 0, 0]])
+    #     submission_ids = self.rester.submit_snl(
     #         [struct, struct], remarks=["unittest"], authors="Test User <test@materialsproject.com>"
     #     )
-    #     assert len(d) == 2
+    #     assert len(submission_ids) == 2
     #     data = self.rester.query_snl({"about.remarks": "unittest"})
     #     assert len(data) == 2
     #     snl_ids = [d["_id"] for d in data]
@@ -460,11 +460,11 @@ class TestMPResterOld(PymatgenTest):
         )
         headers = self.rester.session.headers
         assert "user-agent" in headers, "Include user-agent header by default"
-        m = re.match(
+        match = re.match(
             r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
-        assert m is not None, f"Unexpected user-agent value {headers['user-agent']}"
+        assert match is not None, f"Unexpected user-agent value {headers['user-agent']}"
         self.rester = _MPResterLegacy(include_user_agent=False)
         assert "user-agent" not in self.rester.session.headers, "user-agent header unwanted"
 

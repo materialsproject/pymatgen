@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-import unittest
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -16,7 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 pybel = pytest.importorskip("openbabel.pybel")
 
 
-class TestBabelMolAdaptor(unittest.TestCase):
+class TestBabelMolAdaptor(TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -46,7 +46,7 @@ class TestBabelMolAdaptor(unittest.TestCase):
 
     def test_from_file_return_all_molecules(self):
         adaptors = BabelMolAdaptor.from_file(
-            f"{TEST_FILES_DIR}/multiple_frame_xyz.xyz",
+            f"{TEST_FILES_DIR}/xyz/multiple_frame.xyz",
             "xyz",
             return_all_molecules=True,
         )

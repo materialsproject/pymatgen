@@ -1,4 +1,5 @@
 """A representation of FHI-aims output (based on ASE output parser)."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from emmet.core.math import Matrix3D, Vector3D
+    from typing_extensions import Self
 
     from pymatgen.core import Molecule, Structure
 
@@ -60,7 +62,7 @@ class AimsOutput(MSONable):
         return dct
 
     @classmethod
-    def from_outfile(cls, outfile: str | Path) -> AimsOutput:
+    def from_outfile(cls, outfile: str | Path) -> Self:
         """Construct an AimsOutput from an output file.
 
         Args:
@@ -75,7 +77,7 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_str(cls, content: str) -> AimsOutput:
+    def from_str(cls, content: str) -> Self:
         """Construct an AimsOutput from an output file.
 
         Args:
@@ -90,7 +92,7 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsOutput:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Construct an AimsOutput from a dictionary.
 
         Args:

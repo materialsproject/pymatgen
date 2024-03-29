@@ -147,8 +147,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             structure = finder.get_refined_structure()
 
         wavelength = self.wavelength
-        latt = structure.lattice
-        is_hex = latt.is_hexagonal()
+        lattice = structure.lattice
+        is_hex = lattice.is_hexagonal()
 
         # Obtained from Bragg condition. Note that reciprocal lattice
         # vector length is 1 / d_hkl.
@@ -159,7 +159,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         )
 
         # Obtain crystallographic reciprocal lattice points within range
-        recip_latt = latt.reciprocal_lattice_crystallographic
+        recip_latt = lattice.reciprocal_lattice_crystallographic
         recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
@@ -215,7 +215,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
 
                 # Highly vectorized computation of atomic scattering factors.
-                # Equivalent non-vectorized code is::
+                # Equivalent non-vectorized code is:
                 #
                 #   for site in structure:
                 #      el = site.specie

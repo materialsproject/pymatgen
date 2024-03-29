@@ -59,6 +59,8 @@ from pymatgen.io.vasp.outputs import Chgcar
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from pymatgen.core import Structure
+
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -109,21 +111,26 @@ class ChargemolAnalysis:
         self._potcar_path = self._get_filepath(path, "POTCAR")
         self._aeccar0_path = self._get_filepath(path, "AECCAR0")
         self._aeccar2_path = self._get_filepath(path, "AECCAR2")
+
         if run_chargemol and not (
             self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
         ):
             raise FileNotFoundError("CHGCAR, AECCAR0, AECCAR2, and POTCAR are all needed for Chargemol.")
+
         if self._chgcar_path:
-            self.chgcar = Chgcar.from_file(self._chgcar_path)
-            self.structure = self.chgcar.structure
-            self.natoms = self.chgcar.poscar.natoms
+            self.chgcar: Chgcar | None = Chgcar.from_file(self._chgcar_path)
+            self.structure: Structure | None = self.chgcar.structure
+            self.natoms: list[int] | None = self.chgcar.poscar.natoms
+
         else:
             self.chgcar = self.structure = self.natoms = None
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
+
         if self._potcar_path:
             self.potcar = Potcar.from_file(self._potcar_path)
         else:
             warnings.warn("No POTCAR found. Some properties may be unavailable.", UserWarning)
+
         self.aeccar0 = Chgcar.from_file(self._aeccar0_path) if self._aeccar0_path else None
         self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
 
@@ -208,38 +215,38 @@ class ChargemolAnalysis:
         self.dipoles = self._get_dipole_info(charge_path)
 
         bond_order_path = f"{chargemol_output_path}/DDEC6_even_tempered_bond_orders.xyz"
-        if os.path.exists(bond_order_path):
+        if os.path.isfile(bond_order_path):
             self.bond_order_sums = self._get_data_from_xyz(bond_order_path)
             self.bond_order_dict = self._get_bond_order_info(bond_order_path)
         else:
             self.bond_order_sums = self.bond_order_dict = None
 
         spin_moment_path = f"{chargemol_output_path}/DDEC6_even_tempered_atomic_spin_moments.xyz"
-        if os.path.exists(spin_moment_path):
+        if os.path.isfile(spin_moment_path):
             self.ddec_spin_moments = self._get_data_from_xyz(spin_moment_path)
         else:
             self.ddec_spin_moments = None
 
         rsquared_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
-        if os.path.exists(rsquared_path):
+        if os.path.isfile(rsquared_path):
             self.ddec_rsquared_moments = self._get_data_from_xyz(rsquared_path)
         else:
             self.ddec_rsquared_moments = None
 
         rcubed_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
-        if os.path.exists(rcubed_path):
+        if os.path.isfile(rcubed_path):
             self.ddec_rcubed_moments = self._get_data_from_xyz(rcubed_path)
         else:
             self.ddec_rcubed_moments = None
 
         rfourth_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
-        if os.path.exists(rfourth_path):
+        if os.path.isfile(rfourth_path):
             self.ddec_rfourth_moments = self._get_data_from_xyz(rfourth_path)
         else:
             self.ddec_rfourth_moments = None
 
         ddec_analysis_path = f"{chargemol_output_path}/VASP_DDEC_analysis.output"
-        if os.path.exists(ddec_analysis_path):
+        if os.path.isfile(ddec_analysis_path):
             self.cm5_charges = self._get_cm5_data_from_output(ddec_analysis_path)
         else:
             self.cm5_charges = None
@@ -290,8 +297,8 @@ class ChargemolAnalysis:
         elif self.potcar and self.natoms:
             charge = None
             potcar_indices = []
-            for i, v in enumerate(self.natoms):
-                potcar_indices += [i] * v
+            for idx, val in enumerate(self.natoms):
+                potcar_indices += [idx] * val
             nelect = self.potcar[potcar_indices[atom_index]].nelectrons
             charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
         else:
@@ -373,7 +380,7 @@ class ChargemolAnalysis:
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
                 " be specified"
             )
-        if not os.path.exists(atomic_densities_path):
+        if not os.path.isfile(atomic_densities_path):
             raise FileNotFoundError(f"{atomic_densities_path=} does not exist")
 
         # This is to fix a Chargemol filepath nuance
@@ -531,10 +538,10 @@ class ChargemolAnalysis:
             list[float]: site-specific properties
         """
         props = []
-        if os.path.exists(xyz_path):
+        if os.path.isfile(xyz_path):
             with open(xyz_path) as r:
-                for i, line in enumerate(r):
-                    if i <= 1:
+                for idx, line in enumerate(r):
+                    if idx <= 1:
                         continue
                     if line.strip() == "":
                         break
@@ -555,7 +562,7 @@ class ChargemolAnalysis:
             list[float]: CM5 charges
         """
         props = []
-        if os.path.exists(ddec_analysis_path):
+        if os.path.isfile(ddec_analysis_path):
             start = False
             with open(ddec_analysis_path) as r:
                 for line in r:

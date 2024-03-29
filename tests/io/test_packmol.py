@@ -1,4 +1,3 @@
-# ruff: noqa: PT011
 from __future__ import annotations
 
 import os
@@ -12,6 +11,9 @@ from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+# ruff: noqa: PT011
+
 
 TEST_DIR = f"{TEST_FILES_DIR}/packmol"
 
@@ -56,8 +58,8 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert os.path.exists(os.path.join(self.tmp_path, "packmol_out.xyz"))
-        out = Molecule.from_file(os.path.join(self.tmp_path, "packmol_out.xyz"))
+        assert os.path.isfile(f"{self.tmp_path}/packmol_out.xyz")
+        out = Molecule.from_file(f"{self.tmp_path}/packmol_out.xyz")
         assert out.composition.num_atoms == 10 * 3 + 20 * 9
 
     def test_packmol_with_str(self):
@@ -70,8 +72,8 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert os.path.exists(os.path.join(self.tmp_path, "packmol_out.xyz"))
-        out = Molecule.from_file(os.path.join(self.tmp_path, "packmol_out.xyz"))
+        assert os.path.isfile(f"{self.tmp_path}/packmol_out.xyz")
+        out = Molecule.from_file(f"{self.tmp_path}/packmol_out.xyz")
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
 
     def test_packmol_with_path(self):
@@ -86,8 +88,8 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        assert os.path.exists(os.path.join(self.tmp_path, "packmol_out.xyz"))
-        out = Molecule.from_file(os.path.join(self.tmp_path, "packmol_out.xyz"))
+        assert os.path.isfile(f"{self.tmp_path}/packmol_out.xyz")
+        out = Molecule.from_file(f"{self.tmp_path}/packmol_out.xyz")
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
 
     def test_control_params(self):
@@ -104,7 +106,7 @@ class TestPackmolSet(PymatgenTest):
             ],
         )
         input_set.write_input(self.tmp_path)
-        with open(os.path.join(self.tmp_path, "packmol.inp")) as file:
+        with open(f"{self.tmp_path}/packmol.inp") as file:
             input_string = file.read()
             assert "maxit 0" in input_string
             assert "nloop 0" in input_string
@@ -136,7 +138,7 @@ class TestPackmolSet(PymatgenTest):
             box=[0, 0, 0, 2, 2, 2],
         )
         pw.write_input(self.tmp_path)
-        with open(os.path.join(self.tmp_path, "packmol.inp")) as file:
+        with open(f"{self.tmp_path}/packmol.inp") as file:
             input_string = file.read()
             assert "inside box 0 0 0 2 2 2" in input_string
         with pytest.raises(ValueError):
@@ -190,9 +192,9 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        out1 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
+        out1 = Molecule.from_file(f"{self.tmp_path}/output.xyz")
         pw.run(self.tmp_path)
-        out2 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
+        out2 = Molecule.from_file(f"{self.tmp_path}/output.xyz")
         assert mol_matcher.fit(out1, out2)
 
         # randomly generated structures
@@ -204,9 +206,9 @@ class TestPackmolSet(PymatgenTest):
         )
         pw.write_input(self.tmp_path)
         pw.run(self.tmp_path)
-        out1 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
+        out1 = Molecule.from_file(f"{self.tmp_path}/output.xyz")
         pw.run(self.tmp_path)
-        out2 = Molecule.from_file(os.path.join(self.tmp_path, "output.xyz"))
+        out2 = Molecule.from_file(f"{self.tmp_path}/output.xyz")
         assert not mol_matcher.fit(out1, out2)
 
     def test_arbitrary_filenames(self):
@@ -214,7 +216,7 @@ class TestPackmolSet(PymatgenTest):
         Make sure custom input and output filenames work.
         Use a subdirectory with spaces.
         """
-        os.mkdir(os.path.join(self.tmp_path, "subdirectory with spaces"))
+        os.mkdir(f"{self.tmp_path}/subdirectory with spaces")
         pw = PackmolBoxGen(
             inputfile="input.in", outputfile=Path("output.xyz"), stdoutfile=Path("stdout.txt")
         ).get_input_set(
@@ -224,13 +226,13 @@ class TestPackmolSet(PymatgenTest):
             ],
         )
         pw.write_input(
-            os.path.join(self.tmp_path, "subdirectory with spaces"),
+            f"{self.tmp_path}/subdirectory with spaces",
         )
-        assert os.path.exists(os.path.join(self.tmp_path, "subdirectory with spaces", "input.in"))
+        assert os.path.isfile(f"{self.tmp_path}/subdirectory with spaces/input.in")
         pw.run(
-            os.path.join(self.tmp_path, "subdirectory with spaces"),
+            f"{self.tmp_path}/subdirectory with spaces",
         )
-        assert os.path.exists(os.path.join(self.tmp_path, "subdirectory with spaces", "output.xyz"))
-        assert os.path.exists(os.path.join(self.tmp_path, "subdirectory with spaces", "stdout.txt"))
-        out = Molecule.from_file(os.path.join(self.tmp_path, "subdirectory with spaces", "output.xyz"))
+        assert os.path.isfile(f"{self.tmp_path}/subdirectory with spaces/output.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/subdirectory with spaces/stdout.txt")
+        out = Molecule.from_file(f"{self.tmp_path}/subdirectory with spaces/output.xyz")
         assert out.composition.num_atoms == 10 * 3 + 20 * 9

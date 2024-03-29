@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import multiprocessing
-import unittest
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -98,7 +98,7 @@ class TestPourbaixEntry(PymatgenTest):
         assert pb_entry.get_element_fraction("Mn") == approx(0.4)
 
 
-class TestPourbaixDiagram(unittest.TestCase):
+class TestPourbaixDiagram(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.test_data = loadfn(f"{TEST_FILES_DIR}/pourbaix_test_data.json")
@@ -288,7 +288,7 @@ class TestPourbaixDiagram(unittest.TestCase):
         assert len(pd_binary.stable_entries) == len(new_binary.stable_entries)
 
 
-class TestPourbaixPlotter(unittest.TestCase):
+class TestPourbaixPlotter(TestCase):
     def setUp(self):
         self.test_data = loadfn(f"{TEST_FILES_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])

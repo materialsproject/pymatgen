@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import copy
 import os
-import unittest
 from glob import glob
 from shutil import which
+from unittest import TestCase
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -206,17 +206,17 @@ class TestStructureGraph(PymatgenTest):
         structure_copy = copy.deepcopy(structure)
         structure_copy_graph = copy.deepcopy(structure)
 
-        sg = StructureGraph.with_local_env_strategy(structure, MinimumDistanceNN())
-        sg_copy = copy.deepcopy(sg)
+        struct_graph = StructureGraph.with_local_env_strategy(structure, MinimumDistanceNN())
+        sg_copy = copy.deepcopy(struct_graph)
 
         # Ensure that strings and molecules lead to equivalent substitutions
-        sg.substitute_group(1, molecule, MinimumDistanceNN)
+        struct_graph.substitute_group(1, molecule, MinimumDistanceNN)
         sg_copy.substitute_group(1, "methyl", MinimumDistanceNN)
-        assert sg == sg_copy
+        assert struct_graph == sg_copy
 
         # Ensure that the underlying structure has been modified as expected
         structure_copy.substitute(1, "methyl")
-        assert structure_copy == sg.structure
+        assert structure_copy == struct_graph.structure
 
         # Test inclusion of graph dictionary
         graph_dict = {
@@ -231,10 +231,10 @@ class TestStructureGraph(PymatgenTest):
         assert edge["weight"] == 0.5
 
     def test_auto_image_detection(self):
-        sg = StructureGraph.with_empty_graph(self.structure)
-        sg.add_edge(0, 0)
+        struct_graph = StructureGraph.with_empty_graph(self.structure)
+        struct_graph.add_edge(0, 0)
 
-        assert len(list(sg.graph.edges(data=True))) == 3
+        assert len(list(struct_graph.graph.edges(data=True))) == 3
 
     def test_str(self):
         square_sg_str_ref = """Structure Graph
@@ -335,13 +335,15 @@ from    to  to_image
 
         # test 3D Structure
 
-        nio_sg = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN())
-        nio_sg = nio_sg * 3
+        nio_struct_graph = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN())
+        nio_struct_graph = nio_struct_graph * 3
 
-        for n in range(len(nio_sg)):
-            assert nio_sg.get_coordination_of_site(n) == 6
+        for n in range(len(nio_struct_graph)):
+            assert nio_struct_graph.get_coordination_of_site(n) == 6
 
-    @unittest.skipIf(pygraphviz is None or not (which("neato") and which("fdp")), "graphviz executables not present")
+    @pytest.mark.skipif(
+        pygraphviz is None or not (which("neato") and which("fdp")), reason="graphviz executables not present"
+    )
     def test_draw(self):
         # draw MoS2 graph
         self.mos2_sg.draw_graph_to_file(f"{self.tmp_path}/MoS2_single.pdf", image_labels=True, hide_image_edges=False)
@@ -395,19 +397,19 @@ from    to  to_image
         assert dct == d2
 
     def test_from_local_env_and_equality_and_diff(self):
-        nn = MinimumDistanceNN()
-        sg = StructureGraph.with_local_env_strategy(self.structure, nn)
+        min_dist_nn = MinimumDistanceNN()
+        struct_graph = StructureGraph.with_local_env_strategy(self.structure, min_dist_nn)
 
-        assert sg.graph.number_of_edges() == 6
+        assert struct_graph.graph.number_of_edges() == 6
 
         nn2 = MinimumOKeeffeNN()
         sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2)
 
-        assert sg == sg2
-        assert sg == self.mos2_sg
+        assert struct_graph == sg2
+        assert struct_graph == self.mos2_sg
 
         # TODO: find better test case where graphs are different
-        diff = sg.diff(sg2)
+        diff = struct_graph.diff(sg2)
         assert diff["dist"] == 0
 
         assert self.square_sg.get_coordination_of_site(0) == 2
@@ -422,22 +424,19 @@ from    to  to_image
 
         structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H"], [[0, 0, 0]])
 
-        sg = StructureGraph.with_edges(structure, edges)
+        struct_graph = StructureGraph.with_edges(structure, edges)
 
-        assert sg == self.square_sg
+        assert struct_graph == self.square_sg
 
     def test_extract_molecules(self):
-        structure_file = os.path.join(
-            TEST_FILES_DIR,
-            "H6PbCI3N_mp-977013_symmetrized.cif",
-        )
+        structure_file = f"{TEST_FILES_DIR}/H6PbCI3N_mp-977013_symmetrized.cif"
 
         struct = Structure.from_file(structure_file)
 
-        nn = MinimumDistanceNN()
-        sg = StructureGraph.with_local_env_strategy(struct, nn)
+        min_dist_nn = MinimumDistanceNN()
+        struct_graph = StructureGraph.with_local_env_strategy(struct, min_dist_nn)
 
-        molecules = sg.get_subgraphs_as_molecules()
+        molecules = struct_graph.get_subgraphs_as_molecules()
         assert molecules[0].formula == "H3 C1"
         assert len(molecules) == 1
 
@@ -471,11 +470,11 @@ from    to  to_image
             coords=[[0.005572, 0.994428, 0.151095]],
         )
 
-        nn = MinimumDistanceNN(cutoff=6, get_all_sites=True)
+        min_dist_nn = MinimumDistanceNN(cutoff=6, get_all_sites=True)
 
-        sg = StructureGraph.with_local_env_strategy(test_structure, nn)
+        struct_graph = StructureGraph.with_local_env_strategy(test_structure, min_dist_nn)
 
-        assert sg.graph.number_of_edges() == 3
+        assert struct_graph.graph.number_of_edges() == 3
 
     def test_sort(self):
         sg = copy.deepcopy(self.bc_square_sg_r)
@@ -488,7 +487,7 @@ from    to  to_image
         assert list(sg.graph.edges)[-2:] == [(1, 3, 0), (1, 2, 0)]
 
 
-class TestMoleculeGraph(unittest.TestCase):
+class TestMoleculeGraph(TestCase):
     def setUp(self):
         cyclohexene_xyz = f"{TEST_FILES_DIR}/graphs/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
@@ -773,8 +772,8 @@ class TestMoleculeGraph(unittest.TestCase):
         diff_spec_mg.add_edge(0, 3)
         diff_spec_mg.add_edge(0, 4)
 
-        for i in range(1, 5):
-            bond = (0, i)
+        for idx in range(1, 5):
+            bond = (0, idx)
 
             split_mgs = diff_spec_mg.split_molecule_subgraphs([bond])
             for split_mg in split_mgs:

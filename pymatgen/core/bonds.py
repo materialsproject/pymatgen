@@ -117,7 +117,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
             bond length as a default value (bond order = 1).
             If None, a ValueError will be thrown.
 
-    Return:
+    Returns:
         A dict mapping bond order to bond length in angstrom
     """
     if isinstance(sp1, Element):

@@ -32,6 +32,7 @@ from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
+    from typing_extensions import Self
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -129,20 +130,13 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def energy(self):
-        """
-        Returns (float): total energy of the Pourbaix
-            entry (at pH, V = 0 vs. SHE).
-        """
+        """Total energy of the Pourbaix entry (at pH, V = 0 vs. SHE)."""
         # Note: this implicitly depends on formation energies as input
         return self.uncorrected_energy + self.conc_term - (MU_H2O * self.nH2O)
 
     @property
     def energy_per_atom(self):
-        """
-        energy per atom of the Pourbaix entry.
-
-        Returns (float): energy per atom
-        """
+        """Energy per atom of the Pourbaix entry."""
         return self.energy / self.composition.num_atoms
 
     @property
@@ -225,12 +219,14 @@ class PourbaixEntry(MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Invokes a PourbaixEntry from a dictionary."""
-        entry_type = d["entry_type"]
-        entry = IonEntry.from_dict(d["entry"]) if entry_type == "Ion" else MontyDecoder().process_decoded(d["entry"])
-        entry_id = d["entry_id"]
-        concentration = d["concentration"]
+        entry_type = dct["entry_type"]
+        entry = (
+            IonEntry.from_dict(dct["entry"]) if entry_type == "Ion" else MontyDecoder().process_decoded(dct["entry"])
+        )
+        entry_id = dct["entry_id"]
+        concentration = dct["concentration"]
         return cls(entry, entry_id, concentration)
 
     @property
@@ -287,7 +283,7 @@ class MultiEntry(PourbaixEntry):
         # Attributes that are weighted averages of entry attributes
         if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
             # TODO: Composition could be changed for compat with sum
-            start = Composition({}) if attr == "composition" else 0
+            start = Composition() if attr == "composition" else 0
             weighted_values = (getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights))
             return sum(weighted_values, start)
 
@@ -318,7 +314,7 @@ class MultiEntry(PourbaixEntry):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -326,7 +322,7 @@ class MultiEntry(PourbaixEntry):
         Returns:
             MultiEntry
         """
-        entry_list = [PourbaixEntry.from_dict(entry) for entry in dct.get("entry_list")]
+        entry_list = [PourbaixEntry.from_dict(entry) for entry in dct.get("entry_list", ())]
         return cls(entry_list, dct.get("weights"))
 
 
@@ -358,9 +354,9 @@ class IonEntry(PDEntry):
         super().__init__(composition=ion.composition, energy=energy, name=name, attribute=attribute)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns an IonEntry object from a dict."""
-        return cls(Ion.from_dict(d["ion"]), d["energy"], d.get("name"), d.get("attribute"))
+        return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
 
     def as_dict(self):
         """Creates a dict of composition, energy, and ion name."""
@@ -904,16 +900,21 @@ class PourbaixDiagram(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             PourbaixDiagram
         """
-        decoded_entries = MontyDecoder().process_decoded(d["entries"])
-        return cls(decoded_entries, d.get("comp_dict"), d.get("conc_dict"), d.get("filter_solids"))
+        decoded_entries = MontyDecoder().process_decoded(dct["entries"])
+        return cls(
+            decoded_entries,
+            comp_dict=dct.get("comp_dict"),
+            conc_dict=dct.get("conc_dict"),
+            filter_solids=bool(dct.get("filter_solids")),
+        )
 
 
 class PourbaixPlotter:

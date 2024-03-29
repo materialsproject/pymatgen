@@ -912,6 +912,7 @@
   ],
   "are_coops": false,
   "are_cobis": false,
+  "are_multi_center_cobis": false,
   "@module": "pymatgen.electronic_structure.cohp",
   "efermi": 9.75576,
   "COHP": {

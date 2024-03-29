@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import unittest
-
+import numpy as np
 import pytest
 
 from pymatgen.core import Structure
@@ -35,7 +34,7 @@ class SupStr(Stringify):
         return "Fe**2+"
 
 
-class TestStringify(unittest.TestCase):
+class TestStringify:
     def test_to_latex_string(self):
         assert SubStr().to_latex_string() == "Fe$_{8}$O$_{12}$"
         assert SupStr().to_latex_string() == "Fe$^{2+}$"
@@ -49,7 +48,7 @@ class TestStringify(unittest.TestCase):
         assert SupStr().to_unicode_string() == "Fe²⁺"
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc:
     def test_latexify(self):
         assert latexify("Li3Fe2(PO4)3") == "Li$_{3}$Fe$_{2}$(PO$_{4}$)$_{3}$"
         assert latexify("Li0.2Na0.8Cl") == "Li$_{0.2}$Na$_{0.8}$Cl"
@@ -91,32 +90,32 @@ class TestFunc(unittest.TestCase):
         assert charge_string(0) == "(aq)"
 
     def test_transformation_to_str(self):
-        matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        t = [0, 0, 0]
+        matrix = np.eye(3)
+        translation = [0, 0, 0]
         xyz = "x,y,z"
         ms = "mx,my,mz"
         abc = "a,b,c"
-        assert xyz == transformation_to_string(matrix, t)
-        assert ms == transformation_to_string(matrix, t, c="m")
-        assert abc == transformation_to_string(matrix, t, components=("a", "b", "c"))
+        assert xyz == transformation_to_string(matrix, translation)
+        assert ms == transformation_to_string(matrix, translation, c="m")
+        assert abc == transformation_to_string(matrix, translation, components=("a", "b", "c"))
 
         matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-        t = [11, 12, 13]
+        translation = [11, 12, 13]
         xyz = "x+2y+3z+11,4x+5y+6z+12,7x+8y+9z+13"
-        assert xyz == transformation_to_string(matrix, t)
+        assert xyz == transformation_to_string(matrix, translation)
 
         matrix = [
             [-1 / 2, -2 / 3, -3 / 4],
             [-5 / 6, -6 / 7, -7 / 8],
             [-8 / 9, -9 / 10, -10 / 11],
         ]
-        t = [-11 / 12, -12 / 13, -13 / 14]
+        translation = [-11 / 12, -12 / 13, -13 / 14]
         xyz = "-x/2-2y/3-3z/4-11/12,-5x/6-6y/7-7z/8-12/13,-8x/9-9y/10-10z/11-13/14"
-        assert xyz == transformation_to_string(matrix, t)
+        assert xyz == transformation_to_string(matrix, translation)
 
     def test_disordered_formula(self):
         disordered_struct = Structure(
-            [[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+            np.eye(3) * 10,
             [{"Cu": 0.25, "Au": 0.75}],
             [[0, 0, 0]],
         )

@@ -10,8 +10,8 @@ from pymatgen.util.testing import PymatgenTest
 
 class TestSolar(PymatgenTest):
     def test_spillage_from_vasprun(self):
-        wf_noso = os.path.join(os.path.dirname(__file__), "WAVECAR-NonSOC")
-        wf_so = os.path.join(os.path.dirname(__file__), "WAVECAR-SOC")
+        wf_noso = f"{os.path.dirname(__file__)}/WAVECAR-NonSOC"
+        wf_so = f"{os.path.dirname(__file__)}/WAVECAR-SOC"
         # JVASP-1044
         gamma_max = SOCSpillage(wf_noso=wf_noso, wf_so=wf_so).overlap_so_spinpol()
 

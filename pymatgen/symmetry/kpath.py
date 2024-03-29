@@ -36,7 +36,7 @@ __status__ = "Development"
 __date__ = "March 2020"
 
 
-class KPathBase(metaclass=abc.ABCMeta):
+class KPathBase(abc.ABC):
     """This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
     """
@@ -995,9 +995,9 @@ class KPathSeek(KPathBase):
         if sub_class == "oI3":
             return np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
         if sub_class == "oA2":
-            return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
+            return np.diag((-1, 1, -1))
         if sub_class == "oC2":
-            return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
+            return np.diag((-1, 1, -1))
         if sub_class in ["mP1", "mC1", "mC2", "mC3"]:
             return np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
         raise RuntimeError("Sub-classification of crystal not found!")
@@ -1099,7 +1099,7 @@ class KPathLatimerMunro(KPathBase):
         return self._mag_type
 
     def _get_ksymm_kpath(self, has_magmoms, magmom_axis, axis_specified, symprec, angle_tolerance, atol):
-        ID = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        ID = np.eye(3)
         # parity, aka the inversion operation (not calling it
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
         # INV to avoid confusion with np.linalg.inv() function)
@@ -1319,11 +1319,8 @@ class KPathLatimerMunro(KPathBase):
         little_groups_points,
         little_groups_lines,
     ):
-        #
         # This function can be edited to alter high-symmetry criteria for choosing points and lines
-        #
-
-        ID = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        ID = np.eye(3)
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
 
         gamma_ind = len(key_points) - 1
@@ -2191,14 +2188,14 @@ class KPathLatimerMunro(KPathBase):
         pop_orbits = []
         pop_labels = []
         unassigned_orbits = []
-        for i, ind in enumerate(inds):
-            if counts[i] == 1:
+        for idx, ind in enumerate(inds):
+            if counts[idx] == 1:
                 max_cosine_label_inds[ind] = initial_max_cosine_label_inds[ind]
                 pop_orbits.append(ind)
                 pop_labels.append(initial_max_cosine_label_inds[ind])
             else:
                 next_choices = []
-                for grouped_ind in grouped_inds[i]:
+                for grouped_ind in grouped_inds[idx]:
                     j = 1
                     while True:
                         if max_cosine_orbits_copy[grouped_ind][j][0] not in initial_max_cosine_label_inds:
@@ -2206,20 +2203,20 @@ class KPathLatimerMunro(KPathBase):
                             break
                         j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
-                for grouped_ind in grouped_inds[i]:
+                for grouped_ind in grouped_inds[idx]:
                     if grouped_ind != worst_next_choice:
                         unassigned_orbits.append(grouped_ind)
-                max_cosine_label_inds[grouped_inds[i][worst_next_choice]] = initial_max_cosine_label_inds[
-                    grouped_inds[i][worst_next_choice]
+                max_cosine_label_inds[grouped_inds[idx][worst_next_choice]] = initial_max_cosine_label_inds[
+                    grouped_inds[idx][worst_next_choice]
                 ]
-                pop_orbits.append(grouped_inds[i][worst_next_choice])
-                pop_labels.append(initial_max_cosine_label_inds[grouped_inds[i][worst_next_choice]])
+                pop_orbits.append(grouped_inds[idx][worst_next_choice])
+                pop_labels.append(initial_max_cosine_label_inds[grouped_inds[idx][worst_next_choice]])
 
         if len(unassigned_orbits) != 0:
             max_cosine_orbits_copy = self._reduce_cosines_array(max_cosine_orbits_copy, pop_orbits, pop_labels)
             unassigned_orbits_labels = self._get_orbit_labels(max_cosine_orbits_copy, key_points_inds_orbits, atol)
-            for i, unassigned_orbit in enumerate(unassigned_orbits):
-                max_cosine_label_inds[unassigned_orbit] = unassigned_orbits_labels[i]
+            for idx, unassigned_orbit in enumerate(unassigned_orbits):
+                max_cosine_label_inds[unassigned_orbit] = unassigned_orbits_labels[idx]
 
         return max_cosine_label_inds
 
