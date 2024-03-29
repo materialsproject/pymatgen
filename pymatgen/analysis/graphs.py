@@ -1770,11 +1770,11 @@ class MoleculeGraph(MSONable):
         mg.set_node_attributes()
         return mg
 
+    @classmethod
     @deprecated(
         from_local_env_strategy,
         "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
     )
-    @classmethod
     def with_local_env_strategy(cls, *args, **kwargs):
         return cls.from_local_env_strategy(*args, **kwargs)
 
