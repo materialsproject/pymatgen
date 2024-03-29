@@ -83,7 +83,7 @@ class Fragmenter(MSONable):
             self.mol_graph = MoleculeGraph.from_local_env_strategy(molecule, OpenBabelNN())
         else:
             _edges: dict[tuple[int, int], dict | None] = {(edge[0], edge[1]): None for edge in edges}
-            self.mol_graph = MoleculeGraph.with_edges(molecule, _edges)
+            self.mol_graph = MoleculeGraph.from_edges(molecule, _edges)
 
         if ("Li" in molecule.composition or "Mg" in molecule.composition) and use_metal_edge_extender:
             self.mol_graph = metal_edge_extender(self.mol_graph)
