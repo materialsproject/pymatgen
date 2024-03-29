@@ -39,6 +39,7 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from os import PathLike
 
+
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
 __status__ = "Development"
@@ -75,7 +76,7 @@ class InputFile(MSONable):
 
     @classmethod
     @abc.abstractmethod
-    def from_str(cls, contents: str) -> InputFile:
+    def from_str(cls, contents: str) -> None:
         """
         Create an InputFile object from a string.
 
@@ -85,9 +86,10 @@ class InputFile(MSONable):
         Returns:
             InputFile
         """
+        raise NotImplementedError(f"from_str has not been implemented in {cls.__name__}")
 
     @classmethod
-    def from_file(cls, path: str | Path):
+    def from_file(cls, path: str | Path) -> None:
         """
         Creates an InputFile object from a file.
 
@@ -99,7 +101,7 @@ class InputFile(MSONable):
         """
         filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, mode="rt") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # from_str not implemented
 
     def __str__(self) -> str:
         return self.get_str()
@@ -226,7 +228,7 @@ class InputSet(MSONable, MutableMapping):
                         pass
 
     @classmethod
-    def from_directory(cls, directory: str | Path):
+    def from_directory(cls, directory: str | Path) -> None:
         """
         Construct an InputSet from a directory of one or more files.
 
@@ -253,11 +255,12 @@ class InputGenerator(MSONable):
     """
 
     @abc.abstractmethod
-    def get_input_set(self) -> InputSet:
+    def get_input_set(self, *args, **kwargs):
         """
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
+        raise NotImplementedError(f"get_input_set has not been implemented in {type(self).__name__}")
 
 
 class ParseError(SyntaxError):

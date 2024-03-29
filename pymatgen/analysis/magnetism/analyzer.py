@@ -63,8 +63,9 @@ class OverwriteMagmomMode(Enum):
 
     none = "none"
     respect_sign = "respect_sign"
-    respect_zero = "respect_zeros"
+    respect_zeros = "respect_zeros"
     replace_all = "replace_all"
+    replace_all_if_undefined = "replace_all_if_undefined"
     normalize = "normalize"
 
 
@@ -77,7 +78,7 @@ class CollinearMagneticStructureAnalyzer:
     def __init__(
         self,
         structure: Structure,
-        overwrite_magmom_mode: OverwriteMagmomMode | str = "none",
+        overwrite_magmom_mode: str | OverwriteMagmomMode = OverwriteMagmomMode.none,
         round_magmoms: bool = False,
         detect_valences: bool = False,
         make_primitive: bool = True,
@@ -137,6 +138,8 @@ class CollinearMagneticStructureAnalyzer:
                 in Bohr magneton) below which total magnetization is treated as zero
                 when defining magnetic ordering. Defaults to 1e-8.
         """
+        OverwriteMagmomMode(overwrite_magmom_mode)  # raises ValueError on invalid mode
+
         if default_magmoms:
             self.default_magmoms = default_magmoms
         else:
@@ -177,15 +180,13 @@ class CollinearMagneticStructureAnalyzer:
             raise ValueError(
                 "Structure contains magnetic moments on both "
                 "magmom site properties and spin species "
-                "properties. This is ambiguous. Remove one or "
-                "the other."
+                "properties. This is ambiguous. Remove one or the other."
             )
         if has_magmoms:
             if None in structure.site_properties["magmom"]:
                 warnings.warn(
-                    "Be careful with mixing types in your magmom "
-                    "site properties. Any 'None' magmoms have been "
-                    "replaced with zero."
+                    "Be careful with mixing types in your magmom site properties. "
+                    "Any 'None' magmoms have been replaced with zero."
                 )
             magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
@@ -209,8 +210,7 @@ class CollinearMagneticStructureAnalyzer:
                 "give useful results, but use with caution."
             )
 
-        # this is for collinear structures only, make sure magmoms
-        # are all floats
+        # this is for collinear structures only, make sure magmoms are all floats
         magmoms = list(map(float, magmoms))
 
         # set properties that should be done /before/ we process input magmoms
@@ -229,16 +229,6 @@ class CollinearMagneticStructureAnalyzer:
         ]
 
         # overwrite existing magmoms with default_magmoms
-        if overwrite_magmom_mode not in (
-            "none",
-            "respect_sign",
-            "respect_zeros",
-            "replace_all",
-            "replace_all_if_undefined",
-            "normalize",
-        ):
-            raise ValueError("Unsupported mode.")
-
         for idx, site in enumerate(structure):
             if site.species_string in self.default_magmoms:
                 # look for species first, e.g. Fe2+
@@ -252,8 +242,7 @@ class CollinearMagneticStructureAnalyzer:
             # overwrite_magmom_mode = "respect_sign" will change magnitude of
             # existing moments only, and keep zero magmoms as
             # zero: it will keep the magnetic ordering intact
-
-            if overwrite_magmom_mode == "respect_sign":
+            if overwrite_magmom_mode == OverwriteMagmomMode.respect_sign.value:
                 set_net_positive = False
                 if magmoms[idx] > 0:
                     magmoms[idx] = default_magmom
@@ -262,21 +251,18 @@ class CollinearMagneticStructureAnalyzer:
 
             # overwrite_magmom_mode = "respect_zeros" will give a ferromagnetic
             # structure but will keep zero magmoms as zero
-
-            elif overwrite_magmom_mode == "respect_zeros":
+            elif overwrite_magmom_mode == OverwriteMagmomMode.respect_zeros.value:
                 if magmoms[idx] != 0:
                     magmoms[idx] = default_magmom
 
             # overwrite_magmom_mode = "replace_all" will ignore input magmoms
             # and give a ferromagnetic structure with magnetic
             # moments on *all* atoms it thinks could be magnetic
-
-            elif overwrite_magmom_mode == "replace_all":
+            elif overwrite_magmom_mode == OverwriteMagmomMode.replace_all.value:
                 magmoms[idx] = default_magmom
 
             # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
-
-            elif overwrite_magmom_mode == "normalize" and magmoms[idx] != 0:
+            elif overwrite_magmom_mode == OverwriteMagmomMode.normalize.value and magmoms[idx] != 0:
                 magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
@@ -414,8 +400,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def types_of_magnetic_species(self) -> tuple[Element | Species | DummySpecies, ...]:
-        """Equivalent to Structure.types_of_specie but only returns
-        magnetic species.
+        """Equivalent to Structure.types_of_specie but only returns magnetic species.
 
         Returns:
             tuple: types of Species
@@ -552,7 +537,7 @@ class CollinearMagneticStructureAnalyzer:
         Returns:
             bool: True if magnetic orderings match, False otherwise
         """
-        a = CollinearMagneticStructureAnalyzer(
+        cmag_analyzer = CollinearMagneticStructureAnalyzer(
             self.structure, overwrite_magmom_mode="normalize"
         ).get_structure_with_spin()
 
@@ -572,7 +557,7 @@ class CollinearMagneticStructureAnalyzer:
         b_positive = b_positive.get_structure_with_spin()
         analyzer = analyzer.get_structure_with_spin()
 
-        return a.matches(b_positive) or a.matches(analyzer)
+        return cmag_analyzer.matches(b_positive) or cmag_analyzer.matches(analyzer)
 
     def __str__(self):
         """

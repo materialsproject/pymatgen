@@ -102,8 +102,7 @@ class Cp2kOutput:
     @property
     def completed(self):
         """Did the calculation complete."""
-        c = self.data.get("completed", False)
-        if c:
+        if c := self.data.get("completed", False):
             return c[0][0]
         return c
 
@@ -196,18 +195,12 @@ class Cp2kOutput:
         True if the cp2k output was generated for a molecule (i.e.
         no periodicity in the cell).
         """
-        if self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE":
-            return True
-        return False
+        return self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE"
 
     @property
     def is_metal(self) -> bool:
         """Was a band gap found? i.e. is it a metal."""
-        if self.band_gap is None:
-            return True
-        if self.band_gap <= 0:
-            return True
-        return False
+        return True if self.band_gap is None else self.band_gap <= 0
 
     @property
     def is_hubbard(self) -> bool:
@@ -276,7 +269,7 @@ class Cp2kOutput:
         default, so non static calculations have to reference the trajectory file.
         """
         self.parse_initial_structure()
-        trajectory_file = trajectory_file if trajectory_file else self.filenames.get("trajectory")
+        trajectory_file = trajectory_file or self.filenames.get("trajectory")
         if isinstance(trajectory_file, list):
             if len(trajectory_file) == 1:
                 trajectory_file = trajectory_file[0]
@@ -300,8 +293,7 @@ class Cp2kOutput:
             lattices = [latt[2:].reshape(3, 3) for latt in latt_file]
 
         if not trajectory_file:
-            self.structures = []
-            self.structures.append(self.initial_structure)
+            self.structures = [self.initial_structure]
             self.final_structure = self.structures[-1]
         else:
             mols = XYZ.from_file(trajectory_file).all_molecules
@@ -609,8 +601,7 @@ class Cp2kOutput:
 
         # Functional
         if self.input and self.input.check("FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"):
-            xc_funcs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections)
-            if xc_funcs:
+            if xc_funcs := list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections):
                 self.data["dft"]["functional"] = xc_funcs
             else:
                 for v in self.input["force_eval"]["dft"]["xc"].subsections.values():
@@ -1251,10 +1242,7 @@ class Cp2kOutput:
         self.data["pdos"] = jsanitize(pdoss, strict=True)
         self.data["ldos"] = jsanitize(ldoss, strict=True)
 
-        if dos_file:
-            self.data["tdos"] = parse_dos(dos_file)
-        else:
-            self.data["tdos"] = tdos
+        self.data["tdos"] = parse_dos(dos_file) if dos_file else tdos
 
         if self.data.get("tdos"):
             self.band_gap = self.data["tdos"].get_gap()
@@ -1295,7 +1283,7 @@ class Cp2kOutput:
             else:
                 return
 
-        with open(bandstructure_filename) as file:
+        with open(bandstructure_filename, encoding="utf-8") as file:
             lines = file.read().split("\n")
 
         data = np.loadtxt(bandstructure_filename)
@@ -1317,7 +1305,7 @@ class Cp2kOutput:
                 nkpts += int(lines[0].split()[6])
             elif line.split()[1] == "Point":
                 kpts.append(list(map(float, line.split()[-4:-1])))
-            elif line.split()[1] == "Special" in line:
+            elif line.split()[1] == "Special":
                 splt = line.split()
                 label = splt[7]
                 if label.upper() == "GAMMA":

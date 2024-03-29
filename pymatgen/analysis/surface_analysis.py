@@ -176,7 +176,8 @@ class SlabEntry(ComputedStructureEntry):
                 of the element ref_entry that is not in the list will be
                 treated as a variable.
 
-        Returns (Add (Sympy class)): Surface energy
+        Returns:
+            float: The surface energy of the slab.
         """
         # Set up
         ref_entries = ref_entries if ref_entries else []
@@ -329,7 +330,7 @@ class SlabEntry(ComputedStructureEntry):
     @classmethod
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
-    ):
+    ) -> Self:
         """Returns SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
@@ -1568,7 +1569,7 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @classmethod
-    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
         """
         Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 

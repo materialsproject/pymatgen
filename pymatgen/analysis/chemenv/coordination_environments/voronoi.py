@@ -33,7 +33,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
+def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: Structure):
     """
     Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.
 
@@ -45,21 +45,22 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
         The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
         allowed in the BSON format).
     """
-    voronoi_list = [None] * len(bson_nb_voro_list2)
-    for isite, voro in enumerate(bson_nb_voro_list2):
-        if voro is None or voro == "None":
+    voronoi_list: list[list[dict] | None] = [None] * len(bson_nb_voro_list2)
+
+    for idx, voro in enumerate(bson_nb_voro_list2):
+        if voro in (None, "None"):
             continue
-        voronoi_list[isite] = []
+
+        voronoi_list[idx] = []
         for psd, dct in voro:
             struct_site = structure[dct["index"]]
-            periodic_site = PeriodicSite(
+            dct["site"] = PeriodicSite(
                 struct_site._species,
                 struct_site.frac_coords + psd[1],
                 struct_site._lattice,
                 properties=struct_site.properties,
             )
-            dct["site"] = periodic_site
-            voronoi_list[isite].append(dct)
+            voronoi_list[idx].append(dct)  # type: ignore[union-attr]
     return voronoi_list
 
 
@@ -957,6 +958,7 @@ class DetailedVoronoiContainer(MSONable):
         voronoi_list2 = from_bson_voronoi_list2(dct["bson_nb_voro_list2"], structure)
         maximum_distance_factor = dct.get("maximum_distance_factor")
         minimum_angle_factor = dct.get("minimum_angle_factor")
+
         return cls(
             structure=structure,
             voronoi_list2=voronoi_list2,

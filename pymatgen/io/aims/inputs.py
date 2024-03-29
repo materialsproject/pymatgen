@@ -21,6 +21,8 @@ from pymatgen.core import Lattice, Molecule, Structure
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
 __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"
 __email__ = "purcellt@arizona.edu"
@@ -41,7 +43,7 @@ class AimsGeometryIn(MSONable):
     _structure: Structure | Molecule
 
     @classmethod
-    def from_str(cls, contents: str) -> AimsGeometryIn:
+    def from_str(cls, contents: str) -> Self:
         """Create an input from the content of an input file
 
         Args:
@@ -105,7 +107,7 @@ class AimsGeometryIn(MSONable):
         return cls(_content="\n".join(content_lines), _structure=structure)
 
     @classmethod
-    def from_file(cls, filepath: str | Path) -> AimsGeometryIn:
+    def from_file(cls, filepath: str | Path) -> Self:
         """Create an AimsGeometryIn from an input file.
 
         Args:
@@ -123,7 +125,7 @@ class AimsGeometryIn(MSONable):
         return cls.from_str(content)
 
     @classmethod
-    def from_structure(cls, structure: Structure | Molecule) -> AimsGeometryIn:
+    def from_structure(cls, structure: Structure | Molecule) -> Self:
         """Construct an input file from an input structure.
 
         Args:
@@ -190,7 +192,7 @@ class AimsGeometryIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsGeometryIn:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Initialize from dictionary.
 
         Args:
@@ -378,7 +380,7 @@ class AimsCube(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsCube:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Initialize from dictionary.
 
         Args:
@@ -634,7 +636,7 @@ class AimsControlIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsControlIn:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Initialize from dictionary.
 
         Args:

@@ -334,7 +334,8 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
         species more symbols will need to be added
         fmt (str): 'plain', 'HTML' or 'LaTeX'
 
-    Returns (str): a disordered formula string
+    Returns:
+        str: a disordered formula string
     """
     # this is in string utils and not in Composition because we need to have access to
     # site occupancies to calculate this, so have to pass the full structure as an
