@@ -11,12 +11,18 @@ from __future__ import annotations
 
 import re
 from math import fabs
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -58,7 +64,7 @@ class Xr:
                 output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
         return "\n".join(output)
 
-    def write_file(self, filename):
+    def write_file(self, filename: str | Path) -> None:
         """
         Write out an xr file.
 
@@ -69,7 +75,7 @@ class Xr:
             file.write(str(self) + "\n")
 
     @classmethod
-    def from_str(cls, string, use_cores=True, thresh=1.0e-4):
+    def from_str(cls, string: str, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
         """
         Creates an Xr object from a string representation.
 
@@ -136,7 +142,7 @@ class Xr:
         return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
     @classmethod
-    def from_file(cls, filename, use_cores=True, thresh=1.0e-4):
+    def from_file(cls, filename: str | Path, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
         """
         Reads an xr-formatted file to create an Xr object.
 

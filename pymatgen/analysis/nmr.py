@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -10,6 +11,9 @@ from pymatgen.core import Site, Species
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -36,7 +40,7 @@ class ChemicalShielding(SquareTensor):
     MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
     MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
 
-    def __new__(cls, cs_matrix, vscale=None):
+    def __new__(cls, cs_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """
         Create a Chemical Shielding tensor.
         Note that the constructor uses __new__
@@ -100,7 +104,7 @@ class ChemicalShielding(SquareTensor):
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
-    def from_maryland_notation(cls, sigma_iso, omega, kappa):
+    def from_maryland_notation(cls, sigma_iso, omega, kappa) -> Self:
         """
         Initialize from Maryland notation.
 
@@ -126,7 +130,7 @@ class ElectricFieldGradient(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    def __new__(cls, efg_matrix, vscale=None):
+    def __new__(cls, efg_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """
         Create a Chemical Shielding tensor.
         Note that the constructor uses __new__

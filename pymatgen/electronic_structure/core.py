@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core import Lattice
+
 
 @unique
 class Spin(Enum):
@@ -386,7 +388,7 @@ class Magmom(MSONable):
         return num_ncl == 0
 
     @classmethod
-    def from_moment_relative_to_crystal_axes(cls, moment, lattice):
+    def from_moment_relative_to_crystal_axes(cls, moment: list[float], lattice: Lattice) -> Self:
         """Obtaining a Magmom object from a magnetic moment provided
         relative to crystal axes.
 

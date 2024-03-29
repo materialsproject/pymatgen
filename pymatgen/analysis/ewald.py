@@ -6,7 +6,7 @@ import bisect
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 import numpy as np
@@ -16,6 +16,9 @@ from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -444,7 +447,7 @@ class EwaldSummation(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, dct: dict[str, Any], fmt: str | None = None, **kwargs) -> Self:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:

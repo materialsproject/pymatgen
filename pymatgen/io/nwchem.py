@@ -35,6 +35,8 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from typing_extensions import Self
 
 NWCHEM_BASIS_LIBRARY = None
@@ -209,7 +211,7 @@ $theory_spec
         Returns:
             NwTask
         """
-        return NwTask(
+        return cls(
             charge=dct["charge"],
             spin_multiplicity=dct["spin_multiplicity"],
             title=dct["title"],
@@ -234,7 +236,7 @@ $theory_spec
         operation="optimize",
         theory_directives=None,
         alternate_directives=None,
-    ):
+    ) -> Self:
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -282,7 +284,7 @@ $theory_spec
         if isinstance(basis_set, str):
             basis_set = dict.fromkeys(elements, basis_set)
 
-        return NwTask(
+        return cls(
             charge,
             spin_multiplicity,
             basis_set,
@@ -411,7 +413,7 @@ class NwInput(MSONable):
         Returns:
             NwInput
         """
-        return NwInput(
+        return cls(
             Molecule.from_dict(dct["mol"]),
             tasks=[NwTask.from_dict(dt) for dt in dct["tasks"]],
             directives=[tuple(li) for li in dct["directives"]],
@@ -421,7 +423,7 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_str(cls, string_input):
+    def from_str(cls, string_input: str) -> Self:
         """
         Read an NwInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -436,7 +438,7 @@ class NwInput(MSONable):
         tasks = []
         charge = spin_multiplicity = title = basis_set = None
         basis_set_option = None
-        theory_directives = {}
+        theory_directives: dict[str, dict[str, str]] = {}
         geom_options = symmetry_options = memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
@@ -505,7 +507,7 @@ class NwInput(MSONable):
             else:
                 directives.append(line.strip().split())
 
-        return NwInput(
+        return cls(
             mol,
             tasks=tasks,
             directives=directives,
@@ -515,7 +517,7 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Read an NwInput from a file. Currently tested to work with
         files generated from this class itself.

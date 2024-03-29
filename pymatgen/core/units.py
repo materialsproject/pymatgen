@@ -9,13 +9,16 @@ of numpy's ndarray with similar unit features.
 from __future__ import annotations
 
 import collections
-import numbers
 import re
 from functools import partial
-from typing import Any
+from numbers import Number
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import scipy.constants as const
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -161,8 +164,6 @@ class Unit(collections.abc.Mapping):
     Only integer powers are supported for units.
     """
 
-    Error = UnitError
-
     def __init__(self, unit_def) -> None:
         """Constructs a unit.
 
@@ -234,7 +235,7 @@ class Unit(collections.abc.Mapping):
             for dct in DERIVED_UNITS.values():
                 if k in dct:
                     for k2, v2 in dct[k].items():
-                        if isinstance(k2, numbers.Number):
+                        if isinstance(k2, Number):
                             factor *= k2 ** (v2 * v)
                         else:
                             b[k2] += v2 * v
@@ -289,40 +290,7 @@ class FloatWithUnit(float):
     32.932522246000005 eV
     """
 
-    Error = UnitError
-
-    @classmethod
-    def from_str(cls, s):
-        """Parse string to FloatWithUnit.
-
-        Example: Memory.from_str("1. Mb")
-        """
-        # Extract num and unit string.
-        s = s.strip()
-        for idx, char in enumerate(s):  # noqa: B007
-            if char.isalpha() or char.isspace():
-                break
-        else:
-            raise Exception(f"Unit is missing in string {s}")
-        num, unit = float(s[:idx]), s[idx:]
-
-        # Find unit type (set it to None if it cannot be detected)
-        for unit_type, dct in BASE_UNITS.items():  # noqa: B007
-            if unit in dct:
-                break
-        else:
-            unit_type = None
-
-        return cls(num, unit, unit_type=unit_type)
-
-    def __new__(cls, val, unit, unit_type=None):
-        """Overrides __new__ since we are subclassing a Python primitive/."""
-        new = float.__new__(cls, val)
-        new._unit = Unit(unit)
-        new._unit_type = unit_type
-        return new
-
-    def __init__(self, val, unit, unit_type=None) -> None:
+    def __init__(self, val: float | Number, unit: str, unit_type: str | None = None) -> None:
         """Initializes a float with unit.
 
         Args:
@@ -334,6 +302,13 @@ class FloatWithUnit(float):
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
         self._unit = Unit(unit)
         self._unit_type = unit_type
+
+    def __new__(cls, val, unit, unit_type=None) -> Self:
+        """Overrides __new__ since we are subclassing a Python primitive."""
+        new = float.__new__(cls, val)
+        new._unit = Unit(unit)
+        new._unit_type = unit_type
+        return new
 
     def __str__(self) -> str:
         return f"{super().__str__()} {self._unit}"
@@ -402,7 +377,7 @@ class FloatWithUnit(float):
         self._unit = state["_unit"]
 
     @property
-    def unit_type(self) -> str:
+    def unit_type(self) -> str | None:
         """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
@@ -410,6 +385,26 @@ class FloatWithUnit(float):
     def unit(self) -> Unit:
         """The unit, e.g., "eV"."""
         return self._unit
+
+    @classmethod
+    def from_str(cls, s: str) -> Self:
+        """Parse string to FloatWithUnit.
+        Example: Memory.from_str("1. Mb").
+        """
+        # Extract num and unit string.
+        s = s.strip()
+        for _idx, char in enumerate(s):
+            if char.isalpha() or char.isspace():
+                break
+        else:
+            raise ValueError(f"Unit is missing in string {s}")
+        num, unit = float(s[:_idx]), s[_idx:]
+
+        # Find unit type (set it to None if it cannot be detected)
+        for unit_type, dct in BASE_UNITS.items():
+            if unit in dct:
+                return cls(num, unit, unit_type=unit_type)
+        return cls(num, unit, unit_type=None)
 
     def to(self, new_unit):
         """Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
@@ -466,9 +461,7 @@ class ArrayWithUnit(np.ndarray):
     array([ 28.21138386,  56.42276772]) eV
     """
 
-    Error = UnitError
-
-    def __new__(cls, input_array, unit, unit_type=None):
+    def __new__(cls, input_array, unit, unit_type=None) -> Self:
         """Override __new__."""
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
@@ -711,10 +704,12 @@ def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[s
     """
     unit_type = _UNAME2UTYPE[unit]
 
-    if isinstance(obj, numbers.Number):
+    if isinstance(obj, Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
+
     if isinstance(obj, collections.abc.Mapping):
-        return {k: obj_with_unit(v, unit) for k, v in obj.items()}  # type: ignore
+        return {k: obj_with_unit(v, unit) for k, v in obj.items()}  # type: ignore[misc]
+
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
@@ -751,7 +746,7 @@ def unitized(unit):
             if isinstance(val, collections.abc.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
-            elif isinstance(val, numbers.Number):
+            elif isinstance(val, Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
             elif val is None:
                 pass

@@ -16,6 +16,7 @@ from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
@@ -262,7 +263,7 @@ class Site(collections.abc.Hashable, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Site:
+    def from_dict(cls, dct: dict) -> Self:
         """Create Site from dict representation."""
         atoms_n_occu = {}
         for sp_occu in dct["species"]:
@@ -590,7 +591,7 @@ class PeriodicSite(Site, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct, lattice=None) -> PeriodicSite:
+    def from_dict(cls, dct, lattice=None) -> Self:
         """Create PeriodicSite from dict representation.
 
         Args:

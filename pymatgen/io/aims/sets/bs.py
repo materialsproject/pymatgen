@@ -88,9 +88,8 @@ class BandStructureSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         if isinstance(structure, Molecule):
             raise ValueError("BandStructures can not be made for non-periodic systems")
@@ -126,9 +125,8 @@ class GWSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         updates = {"anacon_type": "two-pole"}
         current_output = prev_parameters.get("output", [])
