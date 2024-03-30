@@ -51,7 +51,7 @@ def diff_incar(args):
             return " ".join(f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v))
         return v
 
-    d = incar1.diff(incar2)
+    diff = incar1.diff(incar2)
     output = [
         ["SAME PARAMS", "", ""],
         ["---------------", "", ""],
@@ -59,20 +59,18 @@ def diff_incar(args):
         ["DIFFERENT PARAMS", "", ""],
         ["----------------", "", ""],
     ]
-    output.extend(
-        [(k, format_lists(d["Same"][k]), format_lists(d["Same"][k])) for k in sorted(d["Same"]) if k != "SYSTEM"]
-    )
-    output.extend(
-        [
-            (
-                k,
-                format_lists(d["Different"][k]["INCAR1"]),
-                format_lists(d["Different"][k]["INCAR2"]),
-            )
-            for k in sorted(d["Different"])
-            if k != "SYSTEM"
-        ]
-    )
+    output += [
+        (k, format_lists(diff["Same"][k]), format_lists(diff["Same"][k])) for k in sorted(diff["Same"]) if k != "SYSTEM"
+    ]
+    output += [
+        (
+            k,
+            format_lists(diff["Different"][k]["INCAR1"]),
+            format_lists(diff["Different"][k]["INCAR2"]),
+        )
+        for k in sorted(diff["Different"])
+        if k != "SYSTEM"
+    ]
     print(tabulate(output, headers=["", filepath1, filepath2]))
     return 0
 
