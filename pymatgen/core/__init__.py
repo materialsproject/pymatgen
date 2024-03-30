@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import warnings
 from importlib.metadata import PackageNotFoundError, version
@@ -34,11 +35,9 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
-try:
+
+with contextlib.suppress(PackageNotFoundError):
     __version__ = version("pymatgen")
-except PackageNotFoundError:  # pragma: no cover
-    # package is not installed
-    pass
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")

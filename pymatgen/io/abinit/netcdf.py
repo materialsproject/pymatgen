@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import os.path
 import warnings
@@ -331,12 +332,10 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.
-    try:
+    with contextlib.suppress(ImportError):
         from abipy.core.structure import Structure as AbipyStructure
 
         structure.__class__ = AbipyStructure
-    except ImportError:
-        pass
 
     if close_it:
         ncdata.close()

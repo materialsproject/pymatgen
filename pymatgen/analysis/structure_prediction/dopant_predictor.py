@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import warnings
 
 import numpy as np
@@ -175,7 +176,7 @@ def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
     shannon_radii = []
 
     for s in species_list:
-        try:
+        with contextlib.suppress(KeyError):
             radius = s.get_shannon_radius(cn_roman)
             shannon_radii.append(
                 {
@@ -184,8 +185,6 @@ def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
                     "radii_diff": radius - radius_to_compare,
                 }
             )
-        except KeyError:
-            pass
 
     return shannon_radii
 

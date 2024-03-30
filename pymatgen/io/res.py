@@ -10,6 +10,7 @@ REM entries.
 
 from __future__ import annotations
 
+import contextlib
 import datetime
 import re
 from dataclasses import dataclass
@@ -201,7 +202,7 @@ class ResParser:
 
         txt = self.source
         it = iter(txt.splitlines())
-        try:
+        with contextlib.suppress(StopIteration):
             while True:
                 line = next(it)
                 self.line += 1
@@ -225,8 +226,7 @@ class ResParser:
                     _SFAC = self._parse_sfac(rest, it)
                 else:
                     raise Warning(f"Skipping {line=}, tag {first} not recognized.")
-        except StopIteration:
-            pass
+
         if _CELL is None or _SFAC is None:
             raise ResParseError("Did not encounter CELL or SFAC entry when parsing.")
         return Res(_TITL, _REMS, _CELL, _SFAC)

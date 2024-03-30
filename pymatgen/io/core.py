@@ -26,6 +26,7 @@ If you want to implement a new InputGenerator, please take note of the following
 from __future__ import annotations
 
 import abc
+import contextlib
 import copy
 import os
 from collections.abc import Iterator, MutableMapping
@@ -221,11 +222,9 @@ class InputSet(MSONable, MutableMapping):
             with ZipFile(filename, mode="w") as zip_file:
                 for fname in self.inputs:
                     file_path = path / fname
-                    try:
+                    with contextlib.suppress(FileNotFoundError):
                         zip_file.write(file_path)
                         os.remove(file_path)
-                    except FileNotFoundError:
-                        pass
 
     @classmethod
     def from_directory(cls, directory: str | Path) -> None:

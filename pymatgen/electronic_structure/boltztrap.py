@@ -18,6 +18,7 @@ References are:
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import math
 import os
@@ -1279,7 +1280,7 @@ class BoltztrapAnalyzer:
             for doping in result_doping:
                 for temp in result_doping[doping]:
                     for i in range(len(self.doping[doping])):
-                        try:
+                        with contextlib.suppress(np.linalg.LinAlgError):
                             result_doping[doping][temp].append(
                                 np.linalg.inv(np.array(self._cond_doping[doping][temp][i]))
                                 * self.doping[doping][i]
@@ -1287,16 +1288,13 @@ class BoltztrapAnalyzer:
                                 * constants.e**2
                                 / constants.m_e
                             )
-                        except np.linalg.LinAlgError:
-                            pass
+
         else:
             result = {t: [] for t in self._seebeck}
             for temp in result:
                 for i in range(len(self.mu_steps)):
-                    try:
+                    with contextlib.suppress(np.linalg.LinAlgError):
                         cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
-                    except np.linalg.LinAlgError:
-                        pass
                     result[temp].append(cond_inv * conc[temp][i] * 10**6 * constants.e**2 / constants.m_e)
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)

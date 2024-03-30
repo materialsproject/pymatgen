@@ -8,6 +8,7 @@ XANES and EXAFS input files, are available, for non-spin case at this time.
 
 from __future__ import annotations
 
+import contextlib
 import re
 import warnings
 from typing import TYPE_CHECKING
@@ -867,7 +868,7 @@ class Potential(MSONable):
         ln = -1
 
         for line in pot_data.split("\n"):
-            try:
+            with contextlib.suppress(ValueError, IndexError):
                 if begin == 0 and line.split()[0] == "0":
                     begin += 1
                     ln = 0
@@ -878,8 +879,7 @@ class Potential(MSONable):
                     index = int(line.split()[0])
                     pot_dict[atom] = index
                     pot_dict_reverse[index] = atom
-            except (ValueError, IndexError):
-                pass
+
         return pot_dict, pot_dict_reverse
 
     def __str__(self):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import multiprocessing
 import os
@@ -106,7 +107,7 @@ def get_magnetizations(dir: str, ion_list: list[int]):
     for parent, _subdirs, files in os.walk(dir):
         for f in files:
             if re.match(r"OUTCAR*", f):
-                try:
+                with contextlib.suppress(Exception):
                     row = []
                     fullpath = os.path.join(parent, f)
                     outcar = Outcar(fullpath)
@@ -121,8 +122,6 @@ def get_magnetizations(dir: str, ion_list: list[int]):
                     data.append(row)
                     if len(all_ions) > max_row:
                         max_row = len(all_ions)
-                except Exception:
-                    pass
 
     for d in data:
         if len(d) < max_row + 1:

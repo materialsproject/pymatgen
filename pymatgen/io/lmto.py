@@ -6,6 +6,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import TYPE_CHECKING, no_type_check
 
@@ -213,19 +214,17 @@ class LMTOCtrl:
                         pass
                 else:
                     pass
-        try:
+
+        with contextlib.suppress(ValueError):
             spc_grp_index = struct_lines["SYMGRP"].index("SPCGRP")
             spc_grp = struct_lines["SYMGRP"][spc_grp_index : spc_grp_index + 12]
             structure_tokens["SPCGRP"] = spc_grp.split("=")[1].split()[0]
-        except ValueError:
-            pass
 
         for token in ["HEADER", "VERS"]:
-            try:
+            with contextlib.suppress(ImportError):
                 value = re.split(token + r"\s*", struct_lines[token])[1]
                 structure_tokens[token] = value.strip()
-            except IndexError:
-                pass
+
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod

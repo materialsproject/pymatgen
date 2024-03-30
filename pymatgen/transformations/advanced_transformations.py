@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import math
 import warnings
@@ -954,15 +955,13 @@ def find_codopant(target: Species, oxidation_state: float, allowed_elements: Seq
     candidates: list[tuple[float, Species]] = []
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                sp = Species(sym, oxidation_state)
-                radius = sp.ionic_radius
-                if radius is not None:
-                    candidates.append((radius, sp))
-        except Exception:
-            pass
+        with contextlib.suppress(Exception), warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            sp = Species(sym, oxidation_state)
+            radius = sp.ionic_radius
+            if radius is not None:
+                candidates.append((radius, sp))
+
     return min(candidates, key=lambda tup: abs(tup[0] / ref_radius - 1))[1]
 
 

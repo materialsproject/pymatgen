@@ -1450,7 +1450,7 @@ class Kpoints(MSONable):
                 labels.append(tokens[4])
             else:
                 labels.append(None)
-        try:
+        with contextlib.suppress(IndexError):
             # Deal with tetrahedron method
             if lines[3 + num_kpts].strip().lower()[0] == "t":
                 tokens = lines[4 + num_kpts].split()
@@ -1460,8 +1460,6 @@ class Kpoints(MSONable):
                 for idx in range(5 + num_kpts, 5 + num_kpts + tet_number):
                     tokens = lines[idx].split()
                     tet_connections.append((int(tokens[0]), [int(tokens[j]) for j in range(1, 5)]))
-        except IndexError:
-            pass
 
         return cls(
             comment=comment,

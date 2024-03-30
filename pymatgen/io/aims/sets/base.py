@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import logging
@@ -246,7 +247,7 @@ class AimsInputGenerator(InputGenerator):
             with open(f"{split_prev_dir}/parameters.json") as param_file:
                 prev_parameters = json.load(param_file, cls=MontyDecoder)
 
-            try:
+            with contextlib.suppress(IndexError, AimsParseError):
                 aims_output: Sequence[Structure | Molecule] = read_aims_output(
                     f"{split_prev_dir}/aims.out", index=slice(-1, None)
                 )
@@ -254,8 +255,6 @@ class AimsInputGenerator(InputGenerator):
 
                 prev_results = prev_structure.properties
                 prev_results.update(prev_structure.site_properties)
-            except (IndexError, AimsParseError):
-                pass
 
         return prev_structure, prev_parameters, prev_results
 

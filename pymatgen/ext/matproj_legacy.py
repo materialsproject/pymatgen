@@ -5,6 +5,7 @@ Materials Project data.
 
 from __future__ import annotations
 
+import contextlib
 import itertools
 import json
 import logging
@@ -230,11 +231,8 @@ class _MPResterLegacy:
             # write out new database log if possible
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
-            try:
-                with open(MP_LOG_FILE, mode="w") as file:
-                    yaml.dump(dct, file)
-            except Exception:
-                pass
+            with contextlib.suppress(Exception), open(MP_LOG_FILE, mode="w", encoding="utf-8") as file:
+                yaml.dump(dct, file)
 
     def __enter__(self) -> Self:
         """Support for "with" context."""
