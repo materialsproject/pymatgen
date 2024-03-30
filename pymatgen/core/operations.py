@@ -484,7 +484,7 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
-        if time_reversal not in (-1, 1):
+        if time_reversal in {-1, 1}:
             self.time_reversal = time_reversal
         else:
             raise RuntimeError(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
