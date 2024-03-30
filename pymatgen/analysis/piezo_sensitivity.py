@@ -421,7 +421,6 @@ class ForceConstantMatrix:
             3Nx3N numpy array representing the force constant matrix
         """
         operations = self.FCM_operations
-        D = unsymmetrized_fcm
         for op in operations:
             same = 0
             transpose = 0
@@ -430,24 +429,24 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
+                unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    tempfcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
 
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = unsymmetrized_fcm[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                     ] / len(op[4])
-                D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
+                unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = unsymmetrized_fcm[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                 ].T
                 continue
 
-            temp_tensor = Tensor(D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
+            temp_tensor = Tensor(unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
                 temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
@@ -462,10 +461,10 @@ class ForceConstantMatrix:
             else:
                 temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
-            D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
-            D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
+            unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
+            unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
 
-        return D
+        return unsymmetrized_fcm
 
     def get_stable_FCM(self, fcm, fcmasum=10):
         """

@@ -180,34 +180,34 @@ class CifBlock:
         Returns:
             CifBlock
         """
-        q = cls._process_string(string)
-        header = q.popleft()[0][5:]
+        deq = cls._process_string(string)
+        header = deq.popleft()[0][5:]
         data: dict = {}
         loops = []
-        while q:
-            s = q.popleft()
+        while deq:
+            s = deq.popleft()
             # cif keys aren't in quotes, so show up in s[0]
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
                 try:
-                    data[s[0]] = "".join(q.popleft())
+                    data[s[0]] = "".join(deq.popleft())
                 except IndexError:
                     data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append("".join(q.popleft()))
+                    columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith(("loop_", "_")):
                         break
-                    items.append("".join(q.popleft()))
+                    items.append("".join(deq.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)

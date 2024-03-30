@@ -772,7 +772,7 @@ class LammpsData(MSONable):
         v_collector: list | None = [] if topologies[0].velocities else None
         topo_collector: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
         topo_labels: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
-        for i, topo in enumerate(topologies):
+        for idx, topo in enumerate(topologies):
             if topo.topologies:
                 shift = len(labels)
                 for k, v in topo.topologies.items():
@@ -780,11 +780,10 @@ class LammpsData(MSONable):
                     topo_labels[k].extend([tuple(topo.type_by_sites[j] for j in t) for t in v])
             if isinstance(v_collector, list):
                 v_collector.append(topo.velocities)
-            mol_ids.extend([i + 1] * len(topo.sites))
+            mol_ids.extend([idx + 1] * len(topo.sites))
             labels.extend(topo.type_by_sites)
             coords.append(topo.sites.cart_coords)
-            q = [0.0] * len(topo.sites) if not topo.charges else topo.charges
-            charges.extend(q)
+            charges.extend(topo.charges if topo.charges else [0.0] * len(topo.sites))
 
         atoms = pd.DataFrame(np.concatenate(coords), columns=["x", "y", "z"])
         atoms["molecule-ID"] = mol_ids
