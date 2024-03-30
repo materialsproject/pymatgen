@@ -820,7 +820,7 @@ class CifParser:
                 msg = MagneticSpaceGroup(label, jonas_faithful)
 
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
-                return NotImplementedError("Incomplete specification to implement.")
+                raise NotImplementedError("Incomplete specification to implement.")
             else:
                 msg = MagneticSpaceGroup(label)
 
