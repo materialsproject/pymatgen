@@ -10,7 +10,7 @@ import warnings
 from collections import defaultdict, deque
 from datetime import datetime
 from functools import partial
-from inspect import getfullargspec as getargspec
+from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
@@ -639,7 +639,7 @@ class CifParser:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
                     try:
-                        required_args = getargspec(getattr(Lattice, lattice_type)).args
+                        required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (length for length in length_strings if length in required_args)
                         angles = (a for a in angle_strings if a in required_args)
