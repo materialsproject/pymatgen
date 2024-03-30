@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import contextlib
 import re
 from collections import defaultdict
 from typing import TYPE_CHECKING
@@ -464,7 +463,7 @@ class PWInput:
                 return float(numstr)
             return int(numstr)
 
-        with contextlib.suppress(ValueError):
+        try:
             if key in bool_keys:
                 if val.lower() == ".true.":
                     return True
@@ -478,8 +477,13 @@ class PWInput:
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))
 
-        with contextlib.suppress(ValueError):
+        except ValueError:
+            pass
+
+        try:
             return smart_int_or_float(val.replace("d", "e"))
+        except ValueError:
+            pass
 
         if "true" in val.lower():
             return True

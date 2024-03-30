@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import argparse
-import contextlib
 import itertools
 
 from tabulate import tabulate, tabulate_formats
@@ -431,10 +430,13 @@ def main():
     )
     parser_potcar.set_defaults(func=generate_potcar)
 
-    with contextlib.suppress(ImportError):
+    try:
         import argcomplete
 
         argcomplete.autocomplete(parser)
+    except ImportError:
+        # argcomplete not present.
+        pass
 
     args = parser.parse_args()
 

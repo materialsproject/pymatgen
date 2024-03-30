@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-import contextlib
 import functools
 import json
 import re
@@ -225,7 +224,7 @@ class ElementBase(Enum):
                     no_bracket = re.sub(r"\(.*\)", "", val)
                     tokens = no_bracket.replace("about", "").strip().split(" ", 1)
                     if len(tokens) == 2:
-                        with contextlib.suppress(ValueError):
+                        try:
                             if "10<sup>" in tokens[1]:
                                 base_power = re.findall(r"([+-]?\d+)", tokens[1])
                                 factor = "e" + base_power[1]
@@ -244,7 +243,9 @@ class ElementBase(Enum):
                                 units = Unit(unit)
                                 if set(units).issubset(SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(float(tokens[0]), unit)
-
+                        except ValueError:
+                            # Ignore error. val will just remain a string.
+                            pass
                     if item in ("refractive_index", "melting_point") and isinstance(val, str):
                         # Final attempt to parse a float.
                         m = re.findall(r"[\.\d]+", val)
@@ -1474,18 +1475,23 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         return obj
 
     # if obj is an integer, return the Element with atomic number obj
-    with contextlib.suppress(AssertionError, ValueError, TypeError, KeyError):
+    try:
         flt = float(obj)
         assert flt == int(flt)
         return Element.from_Z(int(flt))
+    except (AssertionError, ValueError, TypeError, KeyError):
+        pass
 
     # if obj is a string, attempt to parse it as a Species
-    with contextlib.suppress(ValueError, TypeError, KeyError):
+    try:
         return Species.from_str(obj)  # type: ignore
-
+    except (ValueError, TypeError, KeyError):
+        pass
     # if Species parsing failed, try Element
-    with contextlib.suppress(ValueError, TypeError, KeyError):
+    try:
         return Element(obj)  # type: ignore
+    except (ValueError, TypeError, KeyError):
+        pass
 
     # if Element parsing failed, try DummySpecies
     try:

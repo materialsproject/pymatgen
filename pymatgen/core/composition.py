@@ -5,7 +5,6 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
-import contextlib
 import os
 import re
 import string
@@ -1030,8 +1029,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if lock_if_strict:
             # the strict composition parsing might throw an error, we can ignore
             # it and just get on with fuzzy matching
-            with contextlib.suppress(ValueError):
-                return [Composition(fuzzy_formula)]
+            try:
+                comp = Composition(fuzzy_formula)
+                return [comp]
+            except ValueError:
+                pass
 
         all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
         # remove duplicates

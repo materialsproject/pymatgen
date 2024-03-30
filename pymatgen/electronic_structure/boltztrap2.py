@@ -28,7 +28,6 @@ Todo:
 
 from __future__ import annotations
 
-import contextlib
 import warnings
 from typing import TYPE_CHECKING
 
@@ -745,7 +744,7 @@ class BztTransportProperties:
             cond_eff_mass = np.zeros((len(self.temp_r), len(self.mu_r), 3, 3))
             for temp in range(len(self.temp_r)):
                 for i in range(len(self.mu_r)):
-                    with contextlib.suppress(np.linalg.LinAlgError):
+                    try:
                         cond_eff_mass[temp, i] = (
                             np.linalg.inv(self.Conductivity_mu[temp, i])
                             * self.Carrier_conc_mu[temp, i]
@@ -753,6 +752,8 @@ class BztTransportProperties:
                             / units.me_SI
                             * 1e6
                         )
+                    except np.linalg.LinAlgError:
+                        pass
 
             self.Effective_mass_mu = cond_eff_mass * CRTA
 
@@ -841,10 +842,12 @@ class BztTransportProperties:
             cond_eff_mass = np.zeros((len(temp_r), len(doping), 3, 3))
             for idx_t in range(len(temp_r)):
                 for idx_d, dop in enumerate(doping):
-                    with contextlib.suppress(np.linalg.LinAlgError):
+                    try:
                         cond_eff_mass[idx_t, idx_d] = (
                             np.linalg.inv(cond[idx_t, idx_d]) * dop * units.qe_SI**2 / units.me_SI * 1e6
                         )
+                    except np.linalg.LinAlgError:
+                        pass
 
             self.Effective_mass_doping[dop_type] = cond_eff_mass
 

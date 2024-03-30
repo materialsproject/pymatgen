@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import bisect
-import contextlib
 from copy import copy, deepcopy
 from datetime import datetime
 from math import log, pi, sqrt
@@ -729,9 +728,10 @@ def compute_average_oxidation_state(site):
     Returns:
         Average oxidation state of site.
     """
-    with contextlib.suppress(AttributeError):
+    try:
         return sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
-
+    except AttributeError:
+        pass
     try:
         return site.charge
     except AttributeError:

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import contextlib
 import datetime
 import itertools
 import logging
@@ -2010,8 +2009,10 @@ class Outcar:
         ]
         self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
         for n, nplwv in enumerate(nplwvs_at_kpoints):
-            with contextlib.suppress(ValueError):
+            try:
                 self.data["nplwvs_at_kpoints"][n] = int(nplwv)
+            except ValueError:
+                pass
 
         # Read the drift:
         self.read_pattern(

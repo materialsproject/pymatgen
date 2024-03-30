@@ -10,7 +10,6 @@ DOI: 10.1002/cplu.202200123.
 
 from __future__ import annotations
 
-import contextlib
 import re
 import sys
 import warnings
@@ -620,11 +619,13 @@ class CompleteCohp(Cohp):
                             axis=0,
                         )
                     }
-                    with contextlib.suppress(KeyError):
+                    try:
                         cohp[Spin.down] = np.sum(
                             np.array([orb_cohp[label][orb]["COHP"][Spin.down] for orb in orb_cohp[label]]),
                             axis=0,
                         )
+                    except KeyError:
+                        pass
 
                 orb_res_icohp = None in [orb_cohp[label][orb]["ICOHP"] for orb in orb_cohp[label]]
                 if (label not in dct["ICOHP"] or dct["ICOHP"][label] is None) and orb_res_icohp:
@@ -634,12 +635,13 @@ class CompleteCohp(Cohp):
                             axis=0,
                         )
                     }
-                    with contextlib.suppress(KeyError):
+                    try:
                         icohp[Spin.down] = np.sum(
                             np.array([orb_cohp[label][orb]["ICOHP"][Spin.down] for orb in orb_cohp[label]]),
                             axis=0,
                         )
-
+                    except KeyError:
+                        pass
         else:
             orb_cohp = {}
 
@@ -790,18 +792,18 @@ class CompleteCohp(Cohp):
                 cohp[Spin.up] = np.array(
                     [np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                 ).mean(axis=0)
-
-                with contextlib.suppress(KeyError):
+                try:
                     cohp[Spin.down] = np.array(
                         [np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                     ).mean(axis=0)
-
+                except KeyError:
+                    pass
                 try:
                     icohp = {}
                     icohp[Spin.up] = np.array(
                         [np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                     ).mean(axis=0)
-                    with contextlib.suppress(KeyError):
+                    try:
                         icohp[Spin.down] = np.array(
                             [
                                 np.array(c["ICOHP"][Spin.down])
@@ -809,6 +811,8 @@ class CompleteCohp(Cohp):
                                 if len(c["sites"]) <= 2
                             ]
                         ).mean(axis=0)
+                    except KeyError:
+                        pass
                 except KeyError:
                     icohp = None
                 avg_cohp = Cohp(

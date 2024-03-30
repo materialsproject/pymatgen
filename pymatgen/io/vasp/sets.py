@@ -29,7 +29,6 @@ The above are recommendations. The following are **UNBREAKABLE** rules:
 from __future__ import annotations
 
 import abc
-import contextlib
 import itertools
 import os
 import re
@@ -201,11 +200,14 @@ class VaspInputSet(InputGenerator, abc.ABC):
             filename = type(self).__name__ + ".zip"
             with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
                 for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
-                    with contextlib.suppress(FileNotFoundError):
+                    try:
                         zip_file.write(os.path.join(output_dir, file), arcname=file)
-
-                    with contextlib.suppress(FileNotFoundError, PermissionError, IsADirectoryError):
+                    except FileNotFoundError:
+                        pass
+                    try:
                         os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
+                        pass
 
     def as_dict(self, verbosity=2):
         """

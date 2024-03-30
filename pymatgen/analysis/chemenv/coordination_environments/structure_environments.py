@@ -8,7 +8,6 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
-import contextlib
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -961,9 +960,10 @@ class StructureEnvironments(MSONable):
         ax.set_xlim(dist_limits)
         ax.set_ylim(ang_limits)
         if strategy is not None:
-            with contextlib.suppress(Exception):
+            try:
                 strategy.add_strategy_visualization_to_subplot(subplot=ax)
-
+            except Exception:
+                pass
         if plot_type["angle_parameter"][0] == "initial_normalized_inverted":
             ax.axes.invert_yaxis()
 
