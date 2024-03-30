@@ -487,7 +487,7 @@ class MagSymmOp(SymmOp):
         if time_reversal in {-1, 1}:
             self.time_reversal = time_reversal
         else:
-            raise RuntimeError(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
+            raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymmOp):

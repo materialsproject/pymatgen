@@ -787,7 +787,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     include_index=True,
                 )
                 if len(neighbors) != 1:
-                    raise RuntimeError(f"This shouldn't happen, found neighbors: {neighbors}")
+                    raise RuntimeError(f"This shouldn't happen, found {neighbors=}")
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
                 new_specie = Species(
