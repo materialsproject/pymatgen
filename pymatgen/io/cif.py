@@ -855,7 +855,7 @@ class CifParser:
     def parse_magmoms(data, lattice=None):
         """Parse atomic magnetic moments from data dictionary."""
         if lattice is None:
-            raise Exception("Magmoms given in terms of crystal axes in magCIF spec.")
+            raise ValueError("Magmoms given in terms of crystal axes in magCIF spec.")
         try:
             magmoms = {
                 data["_atom_site_moment_label"][i]: np.array(

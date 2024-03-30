@@ -975,7 +975,7 @@ class Vasprun(MSONable):
                     eigenvals[Spin.up] = up_eigen
             else:
                 if "" in kpoint_file.labels:
-                    raise Exception(
+                    raise ValueError(
                         "A band structure along symmetry lines "
                         "requires a label for each kpoint. "
                         "Check your KPOINTS file"
@@ -2749,8 +2749,7 @@ class Outcar:
                 self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]
 
         except Exception:
-            self.er_ev_tot = self.er_bp_tot = None
-            raise Exception("IGPAR OUTCAR could not be parsed.")
+            raise RuntimeError("IGPAR OUTCAR could not be parsed.")
 
     def read_internal_strain_tensor(self):
         """
@@ -2779,7 +2778,7 @@ class Outcar:
             elif match.group(1).lower() == "z":
                 index = 2
             else:
-                raise Exception(f"Couldn't parse row index from symbol for internal strain tensor: {match.group(1)}")
+                raise IndexError(f"Couldn't parse row index from symbol for internal strain tensor: {match.group(1)}")
             results.internal_strain_tensor[results.internal_strain_ion][index] = np.array(
                 [float(match.group(i)) for i in range(2, 8)]
             )
@@ -2951,7 +2950,7 @@ class Outcar:
             self.piezo_tensor = self.piezo_tensor.tolist()
 
         except Exception:
-            raise Exception("LEPSILON OUTCAR could not be parsed.")
+            raise RuntimeError("LEPSILON OUTCAR could not be parsed.")
 
     def read_lepsilon_ionic(self):
         """
@@ -3068,7 +3067,7 @@ class Outcar:
             self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
 
         except Exception:
-            raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
+            raise RuntimeError("ionic part of LEPSILON OUTCAR could not be parsed.")
 
     def read_lcalcpol(self):
         """
@@ -3171,7 +3170,7 @@ class Outcar:
 
         except Exception as exc:
             print(exc.args)
-            raise Exception("LCALCPOL OUTCAR could not be parsed.") from exc
+            raise RuntimeError("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self):
         """Create pseudopotential ZVAL dictionary."""
@@ -3202,7 +3201,7 @@ class Outcar:
             del self.atom_symbols
             del self.zvals
         except Exception:
-            raise Exception("ZVAL dict could not be parsed.")
+            raise RuntimeError("ZVAL dict could not be parsed.")
 
     def read_core_state_eigen(self):
         """
@@ -4041,9 +4040,9 @@ class Xdatcar:
         structures = []
         preamble_done = False
         if ionicstep_start < 1:
-            raise Exception("Start ionic step cannot be less than 1")
+            raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_start < 1:
-            raise Exception("End ionic step cannot be less than 1")
+            raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
         with zopen(filename, mode="rt") as file:
@@ -4135,9 +4134,9 @@ class Xdatcar:
         structures = self.structures
         preamble_done = False
         if ionicstep_start < 1:
-            raise Exception("Start ionic step cannot be less than 1")
+            raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_start < 1:
-            raise Exception("End ionic step cannot be less than 1")
+            raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
         with zopen(filename, mode="rt") as file:
@@ -4186,9 +4185,9 @@ class Xdatcar:
             significant_figures (int): Number of significant figures.
         """
         if ionicstep_start < 1:
-            raise Exception("Start ionic step cannot be less than 1")
+            raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_end < 1:
-            raise Exception("End ionic step cannot be less than 1")
+            raise ValueError("End ionic step cannot be less than 1")
         lattice = self.structures[0].lattice
         if np.linalg.det(lattice.matrix) < 0:
             lattice = Lattice(-lattice.matrix)

@@ -1189,7 +1189,7 @@ class AllCoordinationGeometries(dict):
                 return True
             except LookupError:
                 return True
-        raise Exception("Should not be here !")
+        raise RuntimeError("Should not be here !")
 
     def pretty_print(self, type="implemented_geometries", maxcn=8, additional_info=None):
         """
