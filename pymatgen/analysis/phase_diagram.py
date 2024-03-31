@@ -1973,8 +1973,8 @@ class ReactionDiagram:
 
                         for c, entry in zip(coeffs[:-1], face_entries):
                             if c > tol:
-                                r = entry.composition.reduced_composition
-                                products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
+                                redu_comp = entry.composition.reduced_composition
+                                products.append(f"{fmt(c / redu_comp.num_atoms * factor)} {redu_comp.reduced_formula}")
                                 product_entries.append((c, entry))
                                 energy += c * entry.energy_per_atom
 

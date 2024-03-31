@@ -4807,8 +4807,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         for idx in indices:
             site = self[idx]
-            s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
-            new_site = Site(site.species, s, properties=site.properties, label=site.label)
+            coords = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
+            new_site = Site(site.species, coords, properties=site.properties, label=site.label)
             self[idx] = new_site
 
         return self

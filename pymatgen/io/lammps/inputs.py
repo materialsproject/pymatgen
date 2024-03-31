@@ -557,25 +557,25 @@ class LammpsInputFile(InputFile):
         Returns:
             LammpsInputFile
         """
-        LIF = cls()
+        lammps_in_file = cls()
 
         # Strip string from starting and/or ending white spaces
-        s = contents.strip()
+        contents = contents.strip()
 
         # Remove "&" symbols at the end of lines
-        while "&" in s:
+        while "&" in contents:
             sequence = "&"
-            index = s.index("&")
+            index = contents.index("&")
             next_symbol = ""
             idx = 0
             while next_symbol != "\n":
                 sequence += next_symbol
                 idx += 1
-                next_symbol = s[index + idx]
-            s = s.replace(sequence + "\n", "")
+                next_symbol = contents[index + idx]
+            contents = contents.replace(sequence + "\n", "")
 
         # Remove unwanted lines from the string
-        lines = cls._clean_lines(s.splitlines(), ignore_comments=ignore_comments)
+        lines = cls._clean_lines(contents.splitlines(), ignore_comments=ignore_comments)
         # Split the string into blocks based on the empty lines of the input file
         blocks = cls._get_blocks(lines, keep_stages=keep_stages)
 
@@ -586,11 +586,11 @@ class LammpsInputFile(InputFile):
                 if ignore_comments:
                     keep_block = False
                 else:
-                    LIF._add_comment(comment=block[0][1:].strip(), inline=False)
-                    stage_name = f"Comment {LIF.ncomments}"
+                    lammps_in_file._add_comment(comment=block[0][1:].strip(), inline=False)
+                    stage_name = f"Comment {lammps_in_file.ncomments}"
                     if len(block) > 1:
                         for line in block[1:]:
-                            LIF._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
+                            lammps_in_file._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
 
             # Header of a stage
             elif block[0][0] == "#" and keep_block:
@@ -607,15 +607,15 @@ class LammpsInputFile(InputFile):
                     header += line[1:].strip() + " "
 
                 header = header.strip()
-                stage_name = f"Stage {LIF.nstages + 1}" if (ignore_comments or not keep_stages) else header
+                stage_name = f"Stage {lammps_in_file.nstages + 1}" if (ignore_comments or not keep_stages) else header
                 commands = block[n_comm_max:]
-                LIF.add_stage(commands=commands, stage_name=stage_name)
+                lammps_in_file.add_stage(commands=commands, stage_name=stage_name)
 
             # Stage with no header
             else:
-                stage_name = f"Stage {LIF.nstages + 1}"
-                LIF.add_stage(commands=block, stage_name=stage_name)
-        return LIF
+                stage_name = f"Stage {lammps_in_file.nstages + 1}"
+                lammps_in_file.add_stage(commands=block, stage_name=stage_name)
+        return lammps_in_file
 
     @classmethod
     def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]

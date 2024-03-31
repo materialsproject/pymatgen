@@ -125,8 +125,8 @@ def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicS
         Closest site and distance.
     """
     index = struct.index(site)
-    r = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
-    ns = struct.get_sites_in_sphere(coords, r, include_index=True)
+    radius = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
+    ns = struct.get_sites_in_sphere(coords, radius, include_index=True)
     # Get sites with identical index to site
     ns = [n for n in ns if n[2] == index]
     # Sort by distance to coords

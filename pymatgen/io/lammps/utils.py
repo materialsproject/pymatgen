@@ -494,4 +494,4 @@ if __name__ == "__main__":
         auto_box=False,
         output_file="cocktail.xyz",
     )
-    s = pmr.run()
+    mol = pmr.run()
