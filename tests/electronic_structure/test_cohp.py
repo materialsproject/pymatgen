@@ -79,9 +79,9 @@ class TestCohp(TestCase):
         assert str(self.coop).strip().startswith(header)
 
     def test_antibnd_states_below_efermi(self):
-        assert self.cohp.has_antibnd_states_below_efermi(spin=None) == {Spin.up: True, Spin.down: True}
-        assert self.cohp.has_antibnd_states_below_efermi(spin=None, limit=0.5) == {Spin.up: False, Spin.down: False}
-        assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
+        assert self.cohp.has_antiband_states_below_efermi(spin=None) == {Spin.up: True, Spin.down: True}
+        assert self.cohp.has_antiband_states_below_efermi(spin=None, limit=0.5) == {Spin.up: False, Spin.down: False}
+        assert self.cohp.has_antiband_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
 class TestIcohpValue(TestCase):
