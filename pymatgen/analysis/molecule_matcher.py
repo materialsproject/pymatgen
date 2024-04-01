@@ -538,7 +538,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             return None, None  # Topologically different
 
         if iequal_atom1 != iequal_atom2:
-            raise Exception("Design Error! Equivalent atoms are inconsistent")
+            raise RuntimeError("Design Error! Equivalent atoms are inconsistent")
 
         vmol1 = self._virtual_molecule(ob_mol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(ob_mol2, ilabel2, iequal_atom2)

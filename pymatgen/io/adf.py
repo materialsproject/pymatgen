@@ -341,7 +341,7 @@ class AdfKey(MSONable):
         if string.find("subend") != -1:
             raise ValueError("Nested subkeys are not supported!")
 
-        def iterlines(s: str) -> Generator[str, None, None]:
+        def iter_lines(s: str) -> Generator[str, None, None]:
             r"""A generator form of s.split('\n') for reducing memory overhead.
 
             Args:
@@ -360,7 +360,7 @@ class AdfKey(MSONable):
                 prev_nl = next_nl
 
         key = None
-        for line in iterlines(string):
+        for line in iter_lines(string):
             if line == "":
                 continue
             el = line.strip().split()
@@ -376,7 +376,7 @@ class AdfKey(MSONable):
             elif key is not None:
                 key.add_subkey(cls.from_str(line))
 
-        raise Exception("IncompleteKey: 'END' is missing!")
+        raise KeyError("Incomplete key: 'END' is missing!")
 
 
 class AdfTask(MSONable):

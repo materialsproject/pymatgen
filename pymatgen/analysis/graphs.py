@@ -1737,19 +1737,21 @@ class MoleculeGraph(MSONable):
         else:
             structure = None
 
-        for n in range(len(molecule)):
-            neighbors = strategy.get_nn_info(molecule, n) if structure is None else strategy.get_nn_info(structure, n)
+        for idx in range(len(molecule)):
+            neighbors = (
+                strategy.get_nn_info(molecule, idx) if structure is None else strategy.get_nn_info(structure, idx)
+            )
             for neighbor in neighbors:
                 # all bonds in molecules should not cross
                 # (artificial) periodic boundaries
                 if not np.array_equal(neighbor["image"], [0, 0, 0]):
                     continue
 
-                if n > neighbor["site_index"]:
+                if idx > neighbor["site_index"]:
                     from_index = neighbor["site_index"]
-                    to_index = n
+                    to_index = idx
                 else:
-                    from_index = n
+                    from_index = idx
                     to_index = neighbor["site_index"]
 
                 mg.add_edge(

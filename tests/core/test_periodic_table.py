@@ -3,13 +3,14 @@ from __future__ import annotations
 import math
 import pickle
 from copy import deepcopy
+from enum import Enum
 
 import numpy as np
 import pytest
 from pytest import approx
 
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
-from pymatgen.core.periodic_table import ElementBase
+from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.util.testing import PymatgenTest
 
@@ -603,3 +604,9 @@ def test_get_el_sp():
 
     with pytest.raises(ValueError, match="Can't parse Element or Species from None"):
         get_el_sp(None)
+
+
+def test_element_type():
+    assert isinstance(ElementType.actinoid, Enum)
+    assert isinstance(ElementType.metalloid, Enum)
+    assert len(ElementType) == 17

@@ -666,7 +666,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     polygon. Useful for calculating the location of an annotation on a chemical
     potential domain within a 3D chemical potential diagram.
 
-    **NOTE**: vertices must be ordered circumferentially!
+    NOTE vertices must be ordered circumferentially!
 
     Args:
         vertices: array of 2-d coordinates corresponding to a polygon, ordered

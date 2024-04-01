@@ -219,16 +219,16 @@ class ElectricFieldGradient(SquareTensor):
             if len(specie.split("-")) > 1:
                 isotope = str(specie)
                 specie = Species(specie.split("-")[0])
-                Q = specie.get_nmr_quadrupole_moment(isotope)
+                quad_pol_mom = specie.get_nmr_quadrupole_moment(isotope)
             else:
                 specie = Species(specie)
-                Q = specie.get_nmr_quadrupole_moment()
+                quad_pol_mom = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Site):
             specie = specie.specie
-            Q = specie.get_nmr_quadrupole_moment()
+            quad_pol_mom = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Species):
-            Q = specie.get_nmr_quadrupole_moment()
+            quad_pol_mom = specie.get_nmr_quadrupole_moment()
         else:
             raise ValueError("Invalid species provided for quadrupolar coupling constant calculations")
 
-        return (e * Q * Vzz / planks_constant).to("MHz")
+        return (e * quad_pol_mom * Vzz / planks_constant).to("MHz")

@@ -484,9 +484,10 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
-        if time_reversal not in (-1, 1):
-            raise Exception(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
-        self.time_reversal = time_reversal
+        if time_reversal in {-1, 1}:
+            self.time_reversal = time_reversal
+        else:
+            raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymmOp):
@@ -592,7 +593,7 @@ class MagSymmOp(SymmOp):
         try:
             time_reversal = int(xyzt_str.rsplit(",", 1)[1])
         except Exception:
-            raise Exception("Time reversal operator could not be parsed.")
+            raise RuntimeError("Time reversal operator could not be parsed.")
         return cls.from_symmop(symm_op, time_reversal)
 
     def as_xyzt_str(self) -> str:
