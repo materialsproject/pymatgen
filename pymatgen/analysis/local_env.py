@@ -4088,19 +4088,21 @@ class CrystalNN(NearNeighbors):
         Returns:
             float: integral of portion of unit semicircle
         """
-        r = 1
+        radius = 1
 
         x1 = dist_bins[idx]
         x2 = dist_bins[idx + 1]
 
         if dist_bins[idx] == 1:
-            area1 = 0.25 * math.pi * r**2
+            area1 = 0.25 * math.pi * radius**2
         else:
-            area1 = 0.5 * ((x1 * math.sqrt(r**2 - x1**2)) + (r**2 * math.atan(x1 / math.sqrt(r**2 - x1**2))))
+            area1 = 0.5 * (
+                (x1 * math.sqrt(radius**2 - x1**2)) + (radius**2 * math.atan(x1 / math.sqrt(radius**2 - x1**2)))
+            )
 
-        area2 = 0.5 * ((x2 * math.sqrt(r**2 - x2**2)) + (r**2 * math.atan(x2 / math.sqrt(r**2 - x2**2))))
+        area2 = 0.5 * ((x2 * math.sqrt(radius**2 - x2**2)) + (radius**2 * math.atan(x2 / math.sqrt(radius**2 - x2**2))))
 
-        return (area1 - area2) / (0.25 * math.pi * r**2)
+        return (area1 - area2) / (0.25 * math.pi * radius**2)
 
     @staticmethod
     def transform_to_length(nn_data, length):

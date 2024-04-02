@@ -229,7 +229,7 @@ class MultipleSubstitutionTransformation:
                     dummy_sp: self.r_fraction,
                 }
             }
-            trans = SubstitutionTransformation(mapping)  # type: ignore
+            trans = SubstitutionTransformation(mapping)  # type: ignore[arg-type]
             dummy_structure = trans.apply_transformation(structure)
             if self.charge_balance_species is not None:
                 cbt = ChargeBalanceTransformation(self.charge_balance_species)

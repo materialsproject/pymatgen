@@ -3159,9 +3159,9 @@ class Outcar:
             # fix polarization units in new versions of vasp
             regex = r"^.*Ionic dipole moment: .*"
             search = [[regex, None, lambda x, y: x.append(y.group(0))]]
-            r = micro_pyawk(self.filename, search, [])
+            results = micro_pyawk(self.filename, search, [])
 
-            if "|e|" in r[0]:
+            if "|e|" in results[0]:
                 self.p_elec *= -1
                 self.p_ion *= -1
                 if self.spin and not self.noncollinear:
@@ -3555,10 +3555,10 @@ class VolumetricData(BaseVolumetricData):
             Returns:
                 str: String representation of float in Fortran format.
             """
-            s = f"{flt:.10E}"
+            flt_str = f"{flt:.10E}"
             if flt >= 0:
-                return f"0.{s[0]}{s[2:12]}E{int(s[13:]) + 1:+03}"
-            return f"-.{s[1]}{s[3:13]}E{int(s[14:]) + 1:+03}"
+                return f"0.{flt_str[0]}{flt_str[2:12]}E{int(flt_str[13:]) + 1:+03}"
+            return f"-.{flt_str[1]}{flt_str[3:13]}E{int(flt_str[14:]) + 1:+03}"
 
         with zopen(file_name, mode="wt") as file:
             poscar = Poscar(self.structure)
