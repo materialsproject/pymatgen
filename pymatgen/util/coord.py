@@ -374,7 +374,7 @@ class Simplex(MSONable):
     def bary_coords(self, point):
         """
         Args:
-            point (): Point coordinates.
+            point (ArrayLike): Point coordinates.
 
         Returns:
             Barycentric coordinations.
@@ -387,17 +387,17 @@ class Simplex(MSONable):
     def point_from_bary_coords(self, bary_coords: ArrayLike):
         """
         Args:
-            bary_coords (): Barycentric coordinates.
+            bary_coords (ArrayLike): Barycentric coordinates (d+1, d).
 
         Returns:
-            Point coordinates
+            np.array: Point in the simplex.
         """
         try:
             return np.dot(bary_coords, self._aug[:, :-1])
         except AttributeError as exc:
             raise ValueError("Simplex is not full-dimensional") from exc
 
-    def in_simplex(self, point, tolerance=1e-8):
+    def in_simplex(self, point: Sequence[float], tolerance: float = 1e-8) -> bool:
         """Checks if a point is in the simplex using the standard barycentric
         coordinate system algorithm.
 
@@ -409,7 +409,7 @@ class Simplex(MSONable):
         is in the facet.
 
         Args:
-            point ([float]): Point to test
+            point (list[float]): Point to test
             tolerance (float): Tolerance to test if point is in simplex.
         """
         return (self.bary_coords(point) >= -tolerance).all()
