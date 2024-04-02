@@ -29,6 +29,7 @@ Todo:
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,11 +44,17 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
+
 try:
     from BoltzTraP2 import bandlib as BL
     from BoltzTraP2 import fite, sphere, units
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
+
 
 __author__ = "Francesco Ricci"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -131,7 +138,7 @@ class VasprunBSLoader:
             raise BoltztrapError("nelect must be given.")
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunBSLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
@@ -347,10 +354,10 @@ class VasprunLoader:
                 self.cbm = self.fermi
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
-        return VasprunLoader(vrun_obj)
+        return cls(vrun_obj)
 
     def get_lattvec(self):
         """Lattice vectors."""
@@ -849,19 +856,23 @@ class BztTransportProperties:
         self.mu_doping_eV = {k: v / units.eV - self.efermi for k, v in mu_doping.items()}
         self.contain_props_doping = True
 
-    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.0):
     #     """
-    #     Find the mu.
+    #     Find the chemical potential (mu).
 
-    #     :param epsilon:
-    #     :param dos:
-    #     :param N0:
-    #     :param T:
-    #     :param dosweight:
+    #     Args:
+    #         epsilon (np.array): Array of energy values.
+    #         dos (np.array): Array of density of states values.
+    #         N0 (float): Background carrier concentration.
+    #         T (float): Temperature in Kelvin.
+    #         dosweight (float, optional): Weighting factor for the density of states. Default is 2.0.
+
+    #     Returns:
+    #         float: The chemical potential (mu) value.
     #     """
     #     delta = np.empty_like(epsilon)
-    #     for i, e in enumerate(epsilon):
-    #         delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+    #     for idx, eps in enumerate(epsilon):
+    #         delta[idx] = BL.calc_N(epsilon, dos, eps, T, dosweight) + N0
     #     delta = np.abs(delta)
     #     # Find the position optimizing this distance
     #     pos = np.abs(delta).argmin()
@@ -950,8 +961,13 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
-        """:param bzt_transP:
-        :param bzt_interp:
+        """Placeholder.
+
+        TODO: missing docstrings for __init__
+
+        Args:
+            bzt_transP (_type_, optional): _description_. Defaults to None.
+            bzt_interp (_type_, optional): _description_. Defaults to None.
         """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
@@ -1160,10 +1176,11 @@ def merge_up_down_doses(dos_up, dos_dn):
     """Merge the up and down DOSs.
 
     Args:
-    dos_up: Up DOS.
-    dos_dn: Down DOS
-    Return:
-    CompleteDos object
+        dos_up: Up DOS.
+        dos_dn: Down DOS
+
+    Returns:
+        CompleteDos object
     """
     warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
     cdos = Dos(

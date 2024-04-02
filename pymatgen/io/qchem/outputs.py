@@ -2228,9 +2228,9 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
 
     # Can add logic to check the distances in the future if desired
 
-    initial_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[0], OpenBabelNN())
+    initial_mol_graph = MoleculeGraph.from_local_env_strategy(mol_list[0], OpenBabelNN())
     initial_graph = initial_mol_graph.graph
-    last_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[1], OpenBabelNN())
+    last_mol_graph = MoleculeGraph.from_local_env_strategy(mol_list[1], OpenBabelNN())
     last_graph = last_mol_graph.graph
     if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"
@@ -2260,9 +2260,9 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
         RuntimeError
     """
     # Search for the header
-    for i, line in enumerate(lines):
+    for idx, line in enumerate(lines):
         if header in line.strip():
-            return lines[i:]
+            return lines[idx:]
 
     # Search failed
     raise RuntimeError(f"{header=} could not be found in the lines.")

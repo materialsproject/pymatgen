@@ -71,7 +71,7 @@ def run_mcsqs(
         tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-    num_atoms = len(structure)
+    n_atoms = len(structure)
 
     if structure.is_ordered:
         raise ValueError("Pick a disordered structure")
@@ -87,14 +87,14 @@ def run_mcsqs(
     if isinstance(scaling, (int, float)):
         if scaling % 1 != 0:
             raise ValueError(f"{scaling=} should be an integer")
-        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
+        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * n_atoms}"]
 
     else:
         # Set supercell to identity (will make supercell with pymatgen)
         with open("sqscell.out", mode="w") as file:
             file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
         structure = structure * scaling
-        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {num_atoms}"]
+        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {n_atoms}"]
 
     structure.to(filename="rndstr.in")
 
@@ -132,7 +132,7 @@ def run_mcsqs(
             process = Popen(["mcsqs", "-best"])
             process.communicate()
 
-        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+        if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
             return _parse_sqs_path(".")
 
         raise RuntimeError("mcsqs exited before timeout reached")
@@ -144,7 +144,7 @@ def run_mcsqs(
 
         # Find the best sqs structures
         if instances and instances > 1:
-            if not os.path.exists("bestcorr1.out"):
+            if not os.path.isfile("bestcorr1.out"):
                 raise RuntimeError(
                     "mcsqs did not generate output files, "
                     "is search_time sufficient or are number of instances too high?"
@@ -153,7 +153,7 @@ def run_mcsqs(
             process = Popen(["mcsqs", "-best"])
             process.communicate()
 
-        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+        if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
             return _parse_sqs_path(".")
 
         os.chdir(original_directory)

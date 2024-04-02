@@ -37,16 +37,16 @@ class TestCRESTOutput(PymatgenTest):
             if filepath.endswith("xyz") and "_r" in filepath:
                 n_conf = int(filepath.split("_")[0][-1])
                 n_rot = int(filepath.split("_")[1].split(".")[0][-1])
-                mol = Molecule.from_file(os.path.join(EXPECTED_DIR, filepath))
+                mol = Molecule.from_file(f"{EXPECTED_DIR}/{filepath}")
                 expected_sorted_structures[n_conf].insert(n_rot, mol)
 
         crest_out = CRESTOutput(output_filename="crest_out.out", path=TEST_DIR)
         exp_best = Molecule.from_file(f"{EXPECTED_DIR}/expected_crest_best.xyz")
-        for i, c in enumerate(crest_out.sorted_structures_energies):
+        for idx, c in enumerate(crest_out.sorted_structures_energies):
             for j, r in enumerate(c):
                 if openbabel:
-                    assert check_for_structure_changes(r[0], expected_sorted_structures[i][j]) == "no_change"
-                assert float(r[1]) == approx(float(expected_energies[i][j]), abs=1e-4)
+                    assert check_for_structure_changes(r[0], expected_sorted_structures[idx][j]) == "no_change"
+                assert float(r[1]) == approx(float(expected_energies[idx][j]), abs=1e-4)
 
         assert crest_out.properly_terminated
         if openbabel:

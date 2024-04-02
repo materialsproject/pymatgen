@@ -20,6 +20,8 @@ from pymatgen.io.lammps.data import LammpsBox
 if TYPE_CHECKING:
     from typing import Any
 
+    from typing_extensions import Self
+
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __version__ = "1.0"
@@ -47,7 +49,7 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    def from_str(cls, string: str) -> LammpsDump:
+    def from_str(cls, string: str) -> Self:
         """
         Constructor from string parsing.
 
@@ -71,10 +73,10 @@ class LammpsDump(MSONable):
         return cls(time_step, n_atoms, box, data)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> LammpsDump:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             LammpsDump

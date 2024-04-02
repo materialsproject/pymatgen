@@ -42,9 +42,9 @@ def parse_oxi_state():
             else:
                 m3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
                 if m3:
-                    oxi_states.append(int(m3.group(2)))
+                    oxi_states += [int(m3.group(2))]
                     if m3.group(1):
-                        common_oxi.append(int(m3.group(2)))
+                        common_oxi += [int(m3.group(2))]
         if el in data:
             del data[el]["Max oxidation state"]
             del data[el]["Min oxidation state"]
@@ -128,16 +128,16 @@ def parse_radii():
 def update_ionic_radii():
     data = loadfn(ptable_yaml_path)
 
-    for d in data.values():
-        if "Ionic_radii" in d:
-            d["Ionic radii"] = {k: v / 100 for k, v in d["Ionic_radii"].items()}
-            del d["Ionic_radii"]
-        if "Ionic_radii_hs" in d:
-            d["Ionic radii hs"] = {k: v / 100 for k, v in d["Ionic_radii_hs"].items()}
-            del d["Ionic_radii_hs"]
-        if "Ionic_radii_ls" in d:
-            d["Ionic radii ls"] = {k: v / 100 for k, v in d["Ionic_radii_ls"].items()}
-            del d["Ionic_radii_ls"]
+    for dct in data.values():
+        if "Ionic_radii" in dct:
+            dct["Ionic radii"] = {k: v / 100 for k, v in dct["Ionic_radii"].items()}
+            del dct["Ionic_radii"]
+        if "Ionic_radii_hs" in dct:
+            dct["Ionic radii hs"] = {k: v / 100 for k, v in dct["Ionic_radii_hs"].items()}
+            del dct["Ionic_radii_hs"]
+        if "Ionic_radii_ls" in dct:
+            dct["Ionic radii ls"] = {k: v / 100 for k, v in dct["Ionic_radii_ls"].items()}
+            del dct["Ionic_radii_ls"]
     with open("periodic_table2.yaml", mode="w") as file:
         yaml.dump(data, file)
     with open("../pymatgen/core/periodic_table.json", mode="w") as file:
@@ -162,8 +162,7 @@ def parse_shannon_radii():
             radii[el][charge] = {}
         if sheet[f"C{i}"].value:
             cn = sheet[f"C{i}"].value
-            if cn not in radii[el][charge]:
-                radii[el][charge][cn] = {}
+            radii[el][charge].setdefault(cn, {})
 
         spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
 
@@ -243,8 +242,8 @@ def add_electron_affinities():
     for tr in table.find_all("tr"):
         row = []
         for td in tr.find_all("td"):
-            row.append(td.get_text().strip())
-        data.append(row)
+            row += [td.get_text().strip()]
+        data += [row]
     data.pop(0)
 
     ea = {}
@@ -282,7 +281,7 @@ def add_ionization_energies():
             Z = int(row[0])
             val = re.sub(r"\s", "", row[8].strip("()[]"))
             val = None if val == "" else float(val)
-            data[Z].append(val)
+            data[Z] += [val]
     print(data)
     print(data[51])
     assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.

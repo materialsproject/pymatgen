@@ -10,13 +10,14 @@ import warnings
 from collections import defaultdict, deque
 from datetime import datetime
 from functools import partial
-from inspect import getfullargspec as getargspec
+from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.serialization import loadfn
 
@@ -30,15 +31,17 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
-sub_spgrp = partial(re.sub, r"[\s_]", "")
+sub_space_group = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
+space_groups.update({sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 
 class CifBlock:
@@ -167,43 +170,44 @@ class CifBlock:
         return deq
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads CifBlock from string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifBlock
         """
-        q = cls._process_string(string)
-        header = q.popleft()[0][5:]
-        data = {}
+        deq = cls._process_string(string)
+        header = deq.popleft()[0][5:]
+        data: dict = {}
         loops = []
-        while q:
-            s = q.popleft()
+        while deq:
+            s = deq.popleft()
             # cif keys aren't in quotes, so show up in s[0]
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
                 try:
-                    data[s[0]] = "".join(q.popleft())
+                    data[s[0]] = "".join(deq.popleft())
                 except IndexError:
                     data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append("".join(q.popleft()))
+                    columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith(("loop_", "_")):
                         break
-                    items.append("".join(q.popleft()))
+                    items.append("".join(deq.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
@@ -233,10 +237,11 @@ class CifFile:
         return f"{self.comment}\n{out}\n"
 
     @classmethod
-    def from_str(cls, string) -> CifFile:
+    def from_str(cls, string: str) -> Self:
         """Reads CifFile from a string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifFile
@@ -259,11 +264,12 @@ class CifFile:
         return cls(dct, string)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> CifFile:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads CifFile from a filename.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             CifFile
@@ -361,7 +367,7 @@ class CifParser:
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
-    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
+    def from_str(cls, cif_string: str, **kwargs) -> Self:
         """
         Creates a CifParser from a string.
 
@@ -383,16 +389,16 @@ class CifParser:
 
         This function is here so that CifParser can assume its
         input conforms to spec, simplifying its implementation.
-        :param data: CifBlock
+
+        Args:
+            data: CifBlock
 
         Returns:
             data CifBlock
         """
-        """
-        This part of the code deals with handling formats of data as found in
-        CIF files extracted from the Springer Materials/Pauling File
-        databases, and that are different from standard ICSD formats.
-        """
+        # This part of the code deals with handling formats of data as found in
+        # CIF files extracted from the Springer Materials/Pauling File
+        # databases, and that are different from standard ICSD formats.
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
@@ -445,9 +451,9 @@ class CifParser:
                         # Extract element name and its occupancy from the
                         # string, and store it as a
                         # key-value pair in "els_occ".
-                        els_occu[
-                            str(re.findall(r"\D+", symbol_str_lst[elocc_idx].strip())[1]).replace("<sup>", "")
-                        ] = float("0" + re.findall(r"\.?\d+", symbol_str_lst[elocc_idx].strip())[1])
+                        els_occu[str(re.findall(r"\D+", symbol_str_lst[elocc_idx].strip())[1]).replace("<sup>", "")] = (
+                            float("0" + re.findall(r"\.?\d+", symbol_str_lst[elocc_idx].strip())[1])
+                        )
 
                     x = str2float(data["_atom_site_fract_x"][idx])
                     y = str2float(data["_atom_site_fract_y"][idx])
@@ -586,6 +592,8 @@ class CifParser:
                         # Up to this point, magmoms have been defined relative
                         # to crystal axis. Now convert to Cartesian and into
                         # a Magmom object.
+                        if lattice is None:
+                            raise ValueError("Lattice cannot be None.")
                         magmom = Magmom.from_moment_relative_to_crystal_axes(
                             op.operate_magmom(tmp_magmom), lattice=lattice
                         )
@@ -631,7 +639,7 @@ class CifParser:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
                     try:
-                        required_args = getargspec(getattr(Lattice, lattice_type)).args
+                        required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (length for length in length_strings if length in required_args)
                         angles = (a for a in angle_strings if a in required_args)
@@ -711,7 +719,7 @@ class CifParser:
                 msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
                 if sg:
-                    sg = sub_spgrp(sg)
+                    sg = sub_space_group(sg)
                     try:
                         spg = space_groups.get(sg)
                         if spg:
@@ -1091,12 +1099,12 @@ class CifParser:
                 site_properties["magmom"] = all_magmoms
 
             if len(site_properties) == 0:
-                site_properties = None  # type: ignore
+                site_properties = None  # type: ignore[assignment]
 
             if any(all_labels):
                 assert len(all_labels) == len(all_species)
             else:
-                all_labels = None  # type: ignore
+                all_labels = None  # type: ignore[assignment]
 
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
@@ -1136,7 +1144,7 @@ class CifParser:
             return struct
         return None
 
-    @np.deprecate(
+    @deprecated(
         message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
         "The only difference is that primitive defaults to False in the new parse_structures method."
         "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
@@ -1184,8 +1192,12 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if os.getenv("CI") and datetime.now() > datetime(2024, 3, 1):  # March 2024 seems long enough # pragma: no cover
-            raise RuntimeError("remove the change of default primitive=True to False made on 2023-10-24")
+        if (
+            os.getenv("CI")
+            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
+            and datetime.now() > datetime(2024, 10, 1)
+        ):  # pragma: no cover
+            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(
@@ -1227,10 +1239,12 @@ class CifParser:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
 
-    def get_bibtex_string(self):
+    def get_bibtex_string(self) -> str:
         """
         Get BibTeX reference from CIF file.
-        :param data:
+
+        args:
+            data:
 
         Returns:
             BibTeX string.

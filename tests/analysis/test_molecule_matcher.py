@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import os
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -147,8 +146,8 @@ def generate_Si2O_cluster():
     XYZ(mol2).write_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
 
 
-@unittest.skipIf(ob_align_missing, "OBAlign is missing, Skipping")
-class TestMoleculeMatcher(unittest.TestCase):
+@pytest.mark.skipif(ob_align_missing, reason="OBAlign is missing, Skipping")
+class TestMoleculeMatcher:
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())
         self.fit_with_mapper(InchiMolAtomMapper())
@@ -163,7 +162,7 @@ class TestMoleculeMatcher(unittest.TestCase):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{TEST_DIR}/mol_list.txt") as file:
             filename_list = [line.strip() for line in file.readlines()]
-        mol_list = [Molecule.from_file(os.path.join(TEST_DIR, f)) for f in filename_list]
+        mol_list = [Molecule.from_file(f"{TEST_DIR}/{file}") for file in filename_list]
         mol_groups = mol_matcher.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
         with open(f"{TEST_DIR}/grouped_mol_list.txt") as file:
@@ -262,7 +261,7 @@ class TestMoleculeMatcher(unittest.TestCase):
         assert not mol_matcher.fit(mol1, mol2)
 
 
-class TestKabschMatcher(unittest.TestCase):
+class TestKabschMatcher:
     def test_get_rmsd(self):
         mol1 = Molecule.from_file(f"{TEST_DIR}/t3.xyz")
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
@@ -336,7 +335,7 @@ class TestKabschMatcher(unittest.TestCase):
         assert rmsd == approx(0, abs=6)
 
 
-class TestHungarianOrderMatcher(unittest.TestCase):
+class TestHungarianOrderMatcher:
     def test_get_rmsd(self):
         mol1 = Molecule.from_file(f"{TEST_DIR}/t3.xyz")
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
@@ -441,7 +440,7 @@ class TestHungarianOrderMatcher(unittest.TestCase):
         assert rmsd == approx(0, abs=6)
 
 
-class TestGeneticOrderMatcher(unittest.TestCase):
+class TestGeneticOrderMatcher:
     def test_get_rmsd(self):
         mol1 = Molecule.from_file(f"{TEST_DIR}/t3.xyz")
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
@@ -546,7 +545,7 @@ class TestGeneticOrderMatcher(unittest.TestCase):
         assert rmsd == approx(0, abs=6)
 
 
-class TestKabschMatcherSi(unittest.TestCase):
+class TestKabschMatcherSi(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
@@ -582,7 +581,7 @@ class TestKabschMatcherSi(unittest.TestCase):
         assert rmsd == approx(2.7962454578966454, abs=1e-6)
 
 
-class TestBruteForceOrderMatcherSi(unittest.TestCase):
+class TestBruteForceOrderMatcherSi(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
@@ -603,7 +602,7 @@ class TestBruteForceOrderMatcherSi(unittest.TestCase):
             self.mol_matcher.fit(mol2)
 
 
-class TestHungarianOrderMatcherSi(unittest.TestCase):
+class TestHungarianOrderMatcherSi(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
@@ -642,7 +641,7 @@ class TestHungarianOrderMatcherSi(unittest.TestCase):
         assert rmsd == approx(1.0177241485450828, abs=1e-6)
 
 
-class TestGeneticOrderMatcherSi(unittest.TestCase):
+class TestGeneticOrderMatcherSi(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
@@ -679,7 +678,7 @@ class TestGeneticOrderMatcherSi(unittest.TestCase):
         assert res[0][-1] == approx(0.22163169511782, abs=1e-6)
 
 
-class TestKabschMatcherSi2O(unittest.TestCase):
+class TestKabschMatcherSi2O(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
@@ -712,7 +711,7 @@ class TestKabschMatcherSi2O(unittest.TestCase):
             self.mol_matcher.fit(mol2)
 
 
-class TestBruteForceOrderMatcherSi2O(unittest.TestCase):
+class TestBruteForceOrderMatcherSi2O(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
@@ -744,7 +743,7 @@ class TestBruteForceOrderMatcherSi2O(unittest.TestCase):
         assert rmsd == approx(0.23051587697194997, abs=1e-6)
 
 
-class TestHungarianOrderMatcherSi2O(unittest.TestCase):
+class TestHungarianOrderMatcherSi2O(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
@@ -776,7 +775,7 @@ class TestHungarianOrderMatcherSi2O(unittest.TestCase):
         assert rmsd == approx(0.23231038877573124, abs=1e-6)
 
 
-class TestGeneticOrderMatcherSi2O(unittest.TestCase):
+class TestGeneticOrderMatcherSi2O(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")

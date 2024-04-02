@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -17,6 +18,9 @@ from pymatgen.analysis.chemenv.connectivity.environment_nodes import Environment
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
 from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_vectors
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
@@ -234,7 +238,10 @@ class ConnectedComponent(MSONable):
                         "__init__",
                         "Trying to add edge with some unexistent node ...",
                     )
-                if links_data is not None:
+                if links_data is None:
+                    edge_data = None
+
+                else:
                     if (env_node1, env_node2, key) in links_data:
                         edge_data = links_data[(env_node1, env_node2, key)]
                     elif (env_node2, env_node1, key) in links_data:
@@ -245,8 +252,7 @@ class ConnectedComponent(MSONable):
                         edge_data = links_data[(env_node2, env_node1)]
                     else:
                         edge_data = None
-                else:
-                    edge_data = None
+
                 if edge_data:
                     self._connected_subgraph.add_edge(env_node1, env_node2, key, **edge_data)
                 else:
@@ -827,35 +833,35 @@ class ConnectedComponent(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the ConnectedComponent object from a dict representation of the
         ConnectedComponent object created using the as_dict method.
 
         Args:
-            d (dict): dict representation of the ConnectedComponent object
+            dct (dict): dict representation of the ConnectedComponent object
 
         Returns:
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """
         nodes_map = {
-            inode_str: EnvironmentNode.from_dict(nodedict) for inode_str, (nodedict, nodedata) in d["nodes"].items()
+            inode_str: EnvironmentNode.from_dict(nodedict) for inode_str, (nodedict, nodedata) in dct["nodes"].items()
         }
-        nodes_data = {inode_str: nodedata for inode_str, (nodedict, nodedata) in d["nodes"].items()}
-        dod = {}
-        for e1, e1dict in d["graph"].items():
-            dod[e1] = {}
+        nodes_data = {inode_str: nodedata for inode_str, (nodedict, nodedata) in dct["nodes"].items()}
+        nested_dict: dict[str, dict] = {}
+        for e1, e1dict in dct["graph"].items():
+            nested_dict[e1] = {}
             for e2, e2dict in e1dict.items():
-                dod[e1][e2] = {
+                nested_dict[e1][e2] = {
                     cls._edgedictkey_to_edgekey(ied): cls._retuplify_edgedata(edata) for ied, edata in e2dict.items()
                 }
-        graph = nx.from_dict_of_dicts(dod, create_using=nx.MultiGraph, multigraph_input=True)
+        graph = nx.from_dict_of_dicts(nested_dict, create_using=nx.MultiGraph, multigraph_input=True)
         nx.set_node_attributes(graph, nodes_data)
         nx.relabel_nodes(graph, nodes_map, copy=False)
         return cls(graph=graph)
 
     @classmethod
-    def from_graph(cls, g):
+    def from_graph(cls, g) -> Self:
         """
         Constructor for the ConnectedComponent object from a graph of the connected component.
 

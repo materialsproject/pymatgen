@@ -16,9 +16,6 @@ from monty.serialization import loadfn
 from pymatgen.core import PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
 try:
     import vtk
     from vtk import vtkInteractorStyleTrackballCamera as TrackballCamera
@@ -26,6 +23,9 @@ except ImportError:
     # VTK not present. The Camera is to set object to avoid errors in unittest.
     vtk = None
     TrackballCamera = object
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
@@ -601,7 +601,7 @@ class StructureVis:
                 center = np.zeros(3, float)
                 for site in face:
                     center += site
-                center /= np.float_(len(face))
+                center /= np.float64(len(face))
                 for ii, f in enumerate(face):
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()

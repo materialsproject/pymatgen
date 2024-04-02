@@ -40,14 +40,15 @@ from pymatgen.transformations.standard_transformations import (
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Any
-
 try:
     import hiphive
 except ImportError:
     hiphive = None
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Any
+
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
 
@@ -228,7 +229,7 @@ class MultipleSubstitutionTransformation:
                     dummy_sp: self.r_fraction,
                 }
             }
-            trans = SubstitutionTransformation(mapping)  # type: ignore
+            trans = SubstitutionTransformation(mapping)  # type: ignore[arg-type]
             dummy_structure = trans.apply_transformation(structure)
             if self.charge_balance_species is not None:
                 cbt = ChargeBalanceTransformation(self.charge_balance_species)
@@ -338,7 +339,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> Structure | list[dict]:
         """Returns either a single ordered structure or a sequence of all ordered
         structures.
 
@@ -576,14 +579,16 @@ class MagOrderParameterConstraint(MSONable):
         site_constraint_name=None,
         site_constraints=None,
     ):
-        """:param order_parameter (float): any number from 0.0 to 1.0,
-            typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
-        :param species_constraint (list): str or list of strings
-            of Species symbols that the constraint should apply to
-        :param site_constraint_name (str): name of the site property
-            that the constraint should apply to, e.g. "coordination_no"
-        :param site_constraints (list): list of values of the site
-            property that the constraints should apply to
+        """
+        Args:
+            order_parameter (float): any number from 0.0 to 1.0,
+                typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
+            species_constraints (list): str or list of strings
+                of Species symbols that the constraint should apply to
+            site_constraint_name (str): name of the site property
+                that the constraint should apply to, e.g. "coordination_no"
+            site_constraints (list): list of values of the site
+                property that the constraints should apply to.
         """
         # validation
         if site_constraints and site_constraints != [None] and not site_constraint_name:
@@ -630,22 +635,24 @@ class MagOrderingTransformation(AbstractTransformation):
     """
 
     def __init__(self, mag_species_spin, order_parameter=0.5, energy_model=None, **kwargs):
-        """:param mag_species_spin: A mapping of elements/species to their
-            spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
-        :param order_parameter (float or list): if float, a specifies a
-            global order parameter and can take values from 0.0 to 1.0
-            (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
-            list has to be a list of
-            pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint
-            to specify more complicated orderings, see documentation for
-            MagOrderParameterConstraint more details on usage
-        :param energy_model: Energy model to rank the returned structures,
-            see :mod: `pymatgen.analysis.energy_models` for more information (note
-            that this is not necessarily a physical energy). By default, returned
-            structures use SymmetryModel() which ranks structures from most
-            symmetric to least.
-        :param kwargs: Additional kwargs that are passed to
-        EnumerateStructureTransformation such as min_cell_size etc.
+        """
+        Args:
+            mag_species_spin: A mapping of elements/species to their
+                spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
+            order_parameter (float or list): if float, a specifies a
+                global order parameter and can take values from 0.0 to 1.0
+                (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
+                list has to be a list of
+                pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint
+                to specify more complicated orderings, see documentation for
+                MagOrderParameterConstraint more details on usage
+            energy_model: Energy model to rank the returned structures,
+                see :mod: `pymatgen.analysis.energy_models` for more information (note
+                that this is not necessarily a physical energy). By default, returned
+                structures use SymmetryModel() which ranks structures from most
+                symmetric to least.
+            kwargs: Additional kwargs that are passed to
+                EnumerateStructureTransformation such as min_cell_size etc.
         """
         # checking for sensible order_parameter values
         if isinstance(order_parameter, float):
@@ -708,8 +715,10 @@ class MagOrderingTransformation(AbstractTransformation):
 
     @staticmethod
     def _add_dummy_species(structure, order_parameters):
-        """:param structure: ordered Structure
-        :param order_parameters: list of MagOrderParameterConstraints
+        """
+        Args:
+            structure: ordered Structure
+            order_parameters: list of MagOrderParameterConstraints.
 
         Returns:
             A structure decorated with disordered
@@ -763,7 +772,7 @@ class MagOrderingTransformation(AbstractTransformation):
         merged with the original sites. Used after performing enumeration.
         """
         if not structure.is_ordered:
-            raise Exception("Something went wrong with enumeration.")
+            raise RuntimeError("Something went wrong with enumeration.")
 
         sites_to_remove = []
         logger.debug(f"Dummy species structure:\n{structure}")
@@ -778,7 +787,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     include_index=True,
                 )
                 if len(neighbors) != 1:
-                    raise Exception(f"This shouldn't happen, found neighbors: {neighbors}")
+                    raise RuntimeError(f"This shouldn't happen, found {neighbors=}")
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
                 new_specie = Species(
@@ -879,7 +888,7 @@ class MagOrderingTransformation(AbstractTransformation):
             # remove dummy species and replace Spin.up or Spin.down
             # with spin magnitudes given in mag_species_spin arg
             alls = self._remove_dummy_species(alls)
-            alls = self._add_spin_magnitudes(alls)
+            alls = self._add_spin_magnitudes(alls)  # type: ignore[arg-type]
         else:
             for idx in range(len(alls)):
                 alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])
@@ -891,7 +900,7 @@ class MagOrderingTransformation(AbstractTransformation):
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
-            return alls[0]["structure"] if num_to_return else alls
+            return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value]
 
         # remove duplicate structures and group according to energy model
         matcher = StructureMatcher(comparator=SpinComparator())
@@ -926,22 +935,23 @@ class MagOrderingTransformation(AbstractTransformation):
         return True
 
 
-def _find_codopant(target, oxidation_state, allowed_elements=None):
+def find_codopant(target: Species, oxidation_state: float, allowed_elements: Sequence[str] | None = None) -> Species:
     """Finds the element from "allowed elements" that (i) possesses the desired
     "oxidation state" and (ii) is closest in ionic radius to the target specie.
 
     Args:
-        target: (Species) provides target ionic radius.
-        oxidation_state: (float) codopant oxidation state.
-        allowed_elements: ([str]) List of allowed elements. If None,
+        target (Species): provides target ionic radius.
+        oxidation_state (float): co-dopant oxidation state.
+        allowed_elements (list[str]): List of allowed elements. If None,
             all elements are tried.
 
     Returns:
-        (Species) with oxidation_state that has ionic radius closest to
-        target.
+        Species: with oxidation_state that has ionic radius closest to target.
     """
     ref_radius = target.ionic_radius
-    candidates = []
+    if ref_radius is None:
+        raise ValueError(f"Target species {target} has no ionic radius.")
+    candidates: list[tuple[float, Species]] = []
     symbols = allowed_elements or [el.symbol for el in Element]
     for sym in symbols:
         try:
@@ -1010,11 +1020,10 @@ class DopingTransformation(AbstractTransformation):
         Args:
             structure (Structure): Input structure to dope
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures.
-
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
-            [{"structure": Structure, "energy": float}]
+            list[dict] | Structure: each dict has shape {"structure": Structure, "energy": float}.
         """
         comp = structure.composition
         logger.info(f"Composition: {comp}")
@@ -1059,7 +1068,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"{lengths=}")
         logger.info(f"{scaling=}")
 
-        all_structures = []
+        all_structures: list[dict] = []
         trafo = EnumerateStructureTransformation(**self.kwargs)
 
         for sp in compatible_species:
@@ -1069,7 +1078,7 @@ class DopingTransformation(AbstractTransformation):
                 supercell.replace_species({sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}})  # type: ignore
                 logger.info(f"Doping {sp} for {self.dopant} at level {1 / nsp:.3f}")
             elif self.codopant:
-                codopant = _find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore
+                codopant = find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore
                 supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})  # type: ignore
                 logger.info(f"Doping {sp} for {self.dopant} + {codopant} at level {1 / nsp:.3f}")
             elif abs(sp.oxi_state) < abs(ox):  # type: ignore
@@ -1131,10 +1140,9 @@ class DopingTransformation(AbstractTransformation):
                     }
                 )
 
-            ss = trafo.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
-            logger.info(f"{len(ss)} distinct structures")
-            all_structures.extend(ss)
-
+            structs = trafo.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
+            logger.info(f"{len(structs)} distinct structures")
+            all_structures.extend(structs)
         logger.info(f"Total {len(all_structures)} doped structures")
         if return_ranked_list:
             return all_structures[:return_ranked_list]
@@ -1518,8 +1526,8 @@ class CubicSupercellTransformation(AbstractTransformation):
                 please use max_atoms
             angle_tolerance: tolerance to determine the 90 degree angles.
         """
-        self.min_atoms = min_atoms or -np.Inf
-        self.max_atoms = max_atoms or np.Inf
+        self.min_atoms = min_atoms or -np.inf
+        self.max_atoms = max_atoms or np.inf
         self.min_length = min_length
         self.force_diagonal = force_diagonal
         self.force_90_degrees = force_90_degrees

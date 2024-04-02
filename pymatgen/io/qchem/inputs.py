@@ -16,6 +16,8 @@ from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from typing_extensions import Self
+
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
@@ -303,7 +305,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> QCInput:
+    def from_str(cls, string: str) -> Self:  # type: ignore[override]
         """
         Read QcInput from string.
 
@@ -378,7 +380,7 @@ class QCInput(InputFile):
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> QCInput:
+    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
         """
         Create QcInput from file.
 
@@ -392,7 +394,7 @@ class QCInput(InputFile):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
+    def from_multi_jobs_file(cls, filename: str) -> list[Self]:
         """
         Create list of QcInput from a file.
 

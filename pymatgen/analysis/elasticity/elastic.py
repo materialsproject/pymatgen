@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -50,7 +51,7 @@ class NthOrderElasticTensor(Tensor):
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
     symbol = "C"
 
-    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4):
+    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4) -> Self:
         """
         Args:
             input_array ():
@@ -92,7 +93,7 @@ class NthOrderElasticTensor(Tensor):
         return e_density
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10) -> Self:
         """
         Takes a list of strains and stresses, and returns a list of coefficients for a
         polynomial fit of the given order.
@@ -132,7 +133,7 @@ class ElasticTensor(NthOrderElasticTensor):
     in units of eV/A^3.
     """
 
-    def __new__(cls, input_array, tol: float = 1e-4):
+    def __new__(cls, input_array, tol: float = 1e-4) -> Self:
         """
         Create an ElasticTensor object. The constructor throws an error if the shape of
         the input_matrix argument is not 3x3x3x3, i. e. in true tensor notation. Issues a
@@ -459,7 +460,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return sp_dict
 
     @classmethod
-    def from_pseudoinverse(cls, strains, stresses):
+    def from_pseudoinverse(cls, strains, stresses) -> Self:
         """
         Class method to fit an elastic tensor from stress/strain
         data. Method uses Moore-Penrose pseudo-inverse to invert
@@ -483,7 +484,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10):
+    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10) -> Self:
         """
         Constructs the elastic tensor least-squares fit of independent strains
 
@@ -522,7 +523,7 @@ class ComplianceTensor(Tensor):
     since the compliance tensor has a unique vscale.
     """
 
-    def __new__(cls, s_array):
+    def __new__(cls, s_array) -> Self:
         """
         Args:
             s_array ():
@@ -555,7 +556,7 @@ class ElasticTensorExpansion(TensorCollection):
         super().__init__(c_list)
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3) -> Self:
         """
         Generates an elastic tensor expansion via the fitting function
         defined below in diff_fit.
@@ -612,7 +613,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (Structure): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quad (dict): quadrature for integration, should be
+            quadct (dict): quadrature for integration, should be
                 dictionary with "points" and "weights" keys defaults
                 to quadpy.sphere.Lebedev(19) as read from file
         """
@@ -645,7 +646,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (float): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quad (dict): quadrature for integration, should be
+            quadct (dict): quadrature for integration, should be
                 dictionary with "points" and "weights" keys defaults
                 to quadpy.sphere.Lebedev(19) as read from file
         """
@@ -888,17 +889,17 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     # Collect derivative data
     c_list = []
     dei_dsi = np.zeros((order - 1, 6, len(strain_state_dict)))
-    for n, (strain_state, data) in enumerate(strain_state_dict.items()):
+    for idx, (strain_state, data) in enumerate(strain_state_dict.items()):
         hvec = data["strains"][:, strain_state.index(1)]
-        for i in range(1, order):
-            coef = get_diff_coeff(hvec, i)
-            dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
+        for ord in range(1, order):
+            coef = get_diff_coeff(hvec, ord)
+            dei_dsi[ord - 1, :, idx] = np.dot(coef, data["stresses"])
 
     m, _absent = generate_pseudo(list(strain_state_dict), order)
-    for i in range(1, order):
-        cvec, carr = get_symbol_list(i + 1)
-        svec = np.ravel(dei_dsi[i - 1].T)
-        cmap = dict(zip(cvec, np.dot(m[i - 1], svec)))
+    for ord in range(1, order):
+        cvec, carr = get_symbol_list(ord + 1)
+        svec = np.ravel(dei_dsi[ord - 1].T)
+        cmap = dict(zip(cvec, np.dot(m[ord - 1], svec)))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
 
@@ -1002,25 +1003,25 @@ def generate_pseudo(strain_states, order=3):
         absent_syms: symbols of the tensor absent from the PI expression
     """
     symb = sp.Symbol("s")
-    nstates = len(strain_states)
-    ni = np.array(strain_states) * symb
+    n_states = len(strain_states)
+    n_i = np.array(strain_states) * symb
     pseudo_inverses, absent_symbols = [], []
     for degree in range(2, order + 1):
-        cvec, carr = get_symbol_list(degree)
-        sarr = np.zeros((nstates, 6), dtype=object)
-        for n, strain_v in enumerate(ni):
+        c_vec, c_arr = get_symbol_list(degree)
+        s_arr = np.zeros((n_states, 6), dtype=object)
+        for n, strain_v in enumerate(n_i):
             # Get expressions
-            exps = carr.copy()
+            exps = c_arr.copy()
             for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
             exps /= math.factorial(degree - 1)
-            sarr[n] = [sp.diff(exp, symb, degree - 1) for exp in exps]
-        svec = sarr.ravel()
-        present_symbols = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
-        absent_symbols += [set(cvec) - present_symbols]
-        pseudo_mat = np.zeros((6 * nstates, len(cvec)))
-        for n, c in enumerate(cvec):
-            pseudo_mat[:, n] = v_diff(svec, c)
+            s_arr[n] = [sp.diff(exp, symb, degree - 1) for exp in exps]
+        s_vec = s_arr.ravel()
+        present_symbols = set.union(*(exp.atoms(sp.Symbol) for exp in s_vec))
+        absent_symbols += [set(c_vec) - present_symbols]
+        pseudo_mat = np.zeros((6 * n_states, len(c_vec)))
+        for n, c in enumerate(c_vec):
+            pseudo_mat[:, n] = v_diff(s_vec, c)
         pseudo_inverses.append(np.linalg.pinv(pseudo_mat))
     return pseudo_inverses, absent_symbols
 
@@ -1080,7 +1081,7 @@ def get_diff_coeff(hvec, n=1):
         hvec (1D array-like): sampling stencil
         n (int): degree of derivative to find
     """
-    hvec = np.array(hvec, dtype=np.float_)
+    hvec = np.array(hvec, dtype=np.float64)
     acc = len(hvec)
     exp = np.column_stack([np.arange(acc)] * acc)
     a = np.vstack([hvec] * acc) ** exp

@@ -17,7 +17,7 @@ from pymatgen.analysis.structure_matcher import (
 )
 from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 
 class TestStructureMatcher(PymatgenTest):
@@ -27,12 +27,12 @@ class TestStructureMatcher(PymatgenTest):
         self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O"),
+            Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O"),
         ]
 
     def test_ignore_species(self):
         s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        s2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         matcher = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         assert matcher.fit(s1, s2)
         assert matcher.fit_anonymous(s1, s2)
@@ -73,8 +73,8 @@ class TestStructureMatcher(PymatgenTest):
         assert sm._get_supercell_size(s1, s2) == (1, True)
         assert sm._get_supercell_size(s2, s1) == (1, True)
 
-        sm = StructureMatcher(supercell_size="wfieoh")
-        with pytest.raises(ValueError, match="Can't parse Element or Species from str: wfieoh"):
+        sm = StructureMatcher(supercell_size="invalid")
+        with pytest.raises(ValueError, match="Can't parse Element or Species from 'invalid'"):
             sm._get_supercell_size(s1, s2)
 
     def test_cmp_fstruct(self):
@@ -97,7 +97,7 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_cart_dists(self):
         sm = StructureMatcher()
-        latt = Lattice.orthorhombic(1, 2, 3)
+        lattice = Lattice.orthorhombic(1, 2, 3)
 
         s1 = np.array([[0.13, 0.25, 0.37], [0.1, 0.2, 0.3]])
         s2 = np.array([[0.11, 0.22, 0.33]])
@@ -108,49 +108,49 @@ class TestStructureMatcher(PymatgenTest):
         mask3 = np.array([[False, False], [False, False]])
         mask4 = np.array([[False, True], [False, True]])
 
-        n1 = (len(s1) / latt.volume) ** (1 / 3)
-        n2 = (len(s2) / latt.volume) ** (1 / 3)
+        n1 = (len(s1) / lattice.volume) ** (1 / 3)
+        n2 = (len(s2) / lattice.volume) ** (1 / 3)
 
         with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
-            sm._cart_dists(s2, s1, latt, mask.T, n2)
+            sm._cart_dists(s2, s1, lattice, mask.T, n2)
         with pytest.raises(ValueError, match="mask has incorrect shape"):
-            sm._cart_dists(s1, s2, latt, mask.T, n1)
+            sm._cart_dists(s1, s2, lattice, mask.T, n1)
 
-        d, ft, s = sm._cart_dists(s1, s2, latt, mask, n1)
-        assert_allclose(d, [0])
-        assert_allclose(ft, [-0.01, -0.02, -0.03])
-        assert_allclose(s, [1])
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s2, lattice, mask, n1)
+        assert_allclose(distances, [0])
+        assert_allclose(trac_trans_vec, [-0.01, -0.02, -0.03])
+        assert_allclose(solution, [1])
 
         # check that masking best value works
-        d, ft, s = sm._cart_dists(s1, s2, latt, mask2, n1)
-        assert_allclose(d, [0])
-        assert_allclose(ft, [0.02, 0.03, 0.04])
-        assert_allclose(s, [0])
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s2, lattice, mask2, n1)
+        assert_allclose(distances, [0])
+        assert_allclose(trac_trans_vec, [0.02, 0.03, 0.04])
+        assert_allclose(solution, [0])
 
         # check that averaging of translation is done properly
-        d, ft, s = sm._cart_dists(s1, s3, latt, mask3, n1)
-        assert_allclose(d, [0.08093341] * 2)
-        assert_allclose(ft, [0.01, 0.025, 0.035])
-        assert_allclose(s, [1, 0])
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s3, lattice, mask3, n1)
+        assert_allclose(distances, [0.08093341] * 2)
+        assert_allclose(trac_trans_vec, [0.01, 0.025, 0.035])
+        assert_allclose(solution, [1, 0])
 
         # check distances are large when mask allows no 'real' mapping
-        d, ft, s = sm._cart_dists(s1, s4, latt, mask4, n1)
-        assert np.min(d) > 1e8
-        assert np.min(ft) > 1e8
+        distances, trac_trans_vec, solution = sm._cart_dists(s1, s4, lattice, mask4, n1)
+        assert np.min(distances) > 1e8
+        assert np.min(trac_trans_vec) > 1e8
 
     def test_get_mask(self):
         sm = StructureMatcher(comparator=ElementComparator())
-        latt = Lattice.cubic(1)
-        s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu"], [[0] * 3] * 4)
-        s2 = Structure(latt, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
+        lattice = Lattice.cubic(1)
+        s1 = Structure(lattice, ["Mg", "Cu", "Ag", "Cu"], [[0] * 3] * 4)
+        s2 = Structure(lattice, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
 
         result = [
             [True, False, True, False],
             [True, False, True, False],
             [True, True, False, True],
         ]
-        m, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
+        assert np.all(mask == result)
         assert idx == 2
         assert inds == [2]
 
@@ -160,10 +160,10 @@ class TestStructureMatcher(PymatgenTest):
             [1, 1, 0, 0, 1, 1, 0, 0],
             [1, 1, 1, 1, 0, 0, 1, 1],
         ]
-        m, inds, idx = sm._get_mask(s1, s2, 2, s1_supercell=True)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s1, s2, 2, s1_supercell=True)
+        assert np.all(mask == result)
         assert idx == 2
-        assert_allclose(inds, np.array([4]))
+        assert list(inds) == [4]
 
         # test supercell without match
         result = [
@@ -172,10 +172,10 @@ class TestStructureMatcher(PymatgenTest):
             [1, 1, 1, 1, 0, 0],
             [0, 0, 0, 0, 1, 1],
         ]
-        m, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=True)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=True)
+        assert np.all(mask == result)
         assert idx == 0
-        assert_allclose(inds, np.array([]))
+        assert list(inds) == []
 
         # test s2_supercell
         result = [
@@ -188,26 +188,26 @@ class TestStructureMatcher(PymatgenTest):
             [0, 0, 1],
             [0, 0, 1],
         ]
-        m, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=False)
-        assert np.all(m == result)
+        mask, inds, idx = sm._get_mask(s2, s1, 2, s1_supercell=False)
+        assert np.all(mask == result)
         assert idx == 0
-        assert_allclose(inds, np.array([]))
+        assert list(inds) == []
 
         # test for multiple translation indices
-        s1 = Structure(latt, ["Cu", "Ag", "Cu", "Ag", "Ag"], [[0] * 3] * 5)
-        s2 = Structure(latt, ["Ag", "Cu", "Ag"], [[0] * 3] * 3)
+        s1 = Structure(lattice, ["Cu", "Ag", "Cu", "Ag", "Ag"], [[0] * 3] * 5)
+        s2 = Structure(lattice, ["Ag", "Cu", "Ag"], [[0] * 3] * 3)
         result = [[1, 0, 1, 0, 0], [0, 1, 0, 1, 1], [1, 0, 1, 0, 0]]
-        m, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
+        mask, inds, idx = sm._get_mask(s1, s2, 1, s1_supercell=True)
 
-        assert np.all(m == result)
+        assert np.all(mask == result)
         assert idx == 1
-        assert_allclose(inds, [0, 2])
+        assert list(inds) == [0, 2]
 
     def test_get_supercells(self):
         sm = StructureMatcher(comparator=ElementComparator())
-        latt = Lattice.cubic(1)
+        lattice = Lattice.cubic(1)
         l2 = Lattice.cubic(0.5)
-        s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu"], [[0] * 3] * 4)
+        s1 = Structure(lattice, ["Mg", "Cu", "Ag", "Cu"], [[0] * 3] * 4)
         s2 = Structure(l2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
         scs = list(sm._get_supercells(s1, s2, fu=8, s1_supercell=False))
         for x in scs:
@@ -283,8 +283,8 @@ class TestStructureMatcher(PymatgenTest):
         # test symmetric
         sm_coarse = sm = StructureMatcher(comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6)
 
-        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s1.vasp")
-        struct2 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s2.vasp")
+        struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_fit_symm_s1")
+        struct2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_fit_symm_s2")
         assert sm_coarse.fit(struct1, struct2)
         assert sm_coarse.fit(struct2, struct1) is False
         assert sm_coarse.fit(struct1, struct2, symmetric=True) is False
@@ -317,12 +317,12 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_mix(self):
         structures = list(map(self.get_structure, ["Li2O", "Li2O2", "LiFePO4"]))
-        structures += [Structure.from_file(f"{TEST_FILES_DIR}/{fname}") for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]]
+        structures += [Structure.from_file(f"{VASP_IN_DIR}/{fname}") for fname in ["POSCAR_Li2O", "POSCAR_LiFePO4"]]
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for group in groups:
             formula = group[0].reduced_formula
-            assert len(group) == (2 if formula in ["Li2O", "LiFePO4"] else 1)
+            assert len(group) == (2 if formula in {"Li2O", "LiFePO4"} else 1)
 
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""
@@ -393,9 +393,9 @@ class TestStructureMatcher(PymatgenTest):
             scale=True,
             attempt_supercell=False,
         )
-        latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
+        lattice = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
         assert s1_supercell is True
@@ -406,7 +406,7 @@ class TestStructureMatcher(PymatgenTest):
         fc -= np.round(fc)
         assert np.sum(fc) == approx(0.9)
         assert np.sum(fc[:, :2]) == approx(0.1)
-        cart_dist = np.sum(match[1] * (latt.volume / 3) ** (1 / 3))
+        cart_dist = np.sum(match[1] * (lattice.volume / 3) ** (1 / 3))
         assert cart_dist == approx(0.15)
 
     def test_find_match2(self):
@@ -418,9 +418,9 @@ class TestStructureMatcher(PymatgenTest):
             scale=True,
             attempt_supercell=False,
         )
-        latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Si", "Si"], [[0, 0, 0.1], [0, 0, 0.2]])
-        s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [0, 0.1, -0.95]])
+        lattice = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(lattice, ["Si", "Si"], [[0, 0, 0.1], [0, 0, 0.2]])
+        s2 = Structure(lattice, ["Si", "Si"], [[0, 0.1, 0], [0, 0.1, -0.95]])
 
         s1, s2, fu, _s1_supercell = sm._preprocess(s1, s2, niggli=False)
 
@@ -453,10 +453,10 @@ class TestStructureMatcher(PymatgenTest):
             allow_subset=False,
             supercell_size="volume",
         )
-        latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        lattice = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [0, 2, 1, 3, 4, 5]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
@@ -523,8 +523,8 @@ class TestStructureMatcher(PymatgenTest):
             supercell_size="volume",
         )
 
-        latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        lattice = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
 
         l2 = Lattice.orthorhombic(1.01, 2.01, 3.01)
         s2 = Structure(l2, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
@@ -545,28 +545,28 @@ class TestStructureMatcher(PymatgenTest):
             attempt_supercell=False,
             allow_subset=True,
         )
-        latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
-        s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        lattice = Lattice.orthorhombic(1, 2, 3)
+        struct1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        struct1.make_supercell([2, 1, 1])
+        struct2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [2, 0, 1, 3, 5, 4]
-        s1 = Structure.from_sites([s1[i] for i in shuffle])
+        struct1 = Structure.from_sites([struct1[i] for i in shuffle])
         # test the mapping
-        s2.make_supercell([2, 1, 1])
+        struct2.make_supercell([2, 1, 1])
         # equal sizes
-        for i, x in enumerate(sm.get_mapping(s1, s2)):
-            assert s1[x].species == s2[i].species
+        for ii, jj in enumerate(sm.get_mapping(struct1, struct2)):
+            assert struct1[jj].species == struct2[ii].species
 
-        del s1[0]
+        del struct1[0]
         # s1 is subset of s2
-        for i, x in enumerate(sm.get_mapping(s2, s1)):
-            assert s1[i].species == s2[x].species
+        for ii, jj in enumerate(sm.get_mapping(struct2, struct1)):
+            assert struct1[ii].species == struct2[jj].species
         # s2 is smaller than s1
-        del s2[0]
-        del s2[1]
+        del struct2[0]
+        del struct2[1]
         with pytest.raises(ValueError, match="subset is larger than superset"):
-            sm.get_mapping(s2, s1)
+            sm.get_mapping(struct2, struct1)
 
     def test_get_supercell_matrix(self):
         sm = StructureMatcher(
@@ -578,18 +578,18 @@ class TestStructureMatcher(PymatgenTest):
             attempt_supercell=True,
         )
 
-        latt = Lattice.orthorhombic(1, 2, 3)
+        lattice = Lattice.orthorhombic(1, 2, 3)
 
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
+        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-2, 0, 0], [0, 1, 0], [0, 0, 1]]).all()
 
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([[1, -1, 0], [0, 0, -1], [0, 1, 0]])
 
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
+        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-1, -1, 0], [0, 0, -1], [0, 1, 0]]).all()
 
@@ -617,17 +617,17 @@ class TestStructureMatcher(PymatgenTest):
             attempt_supercell=False,
             allow_subset=True,
         )
-        latt = Lattice.orthorhombic(10, 20, 30)
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Ag"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
+        lattice = Lattice.orthorhombic(10, 20, 30)
+        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(lattice, ["Si", "Ag"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
 
         assert len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])) == 1
         assert len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])) == 1
 
         # test with fewer species in s2
-        s1 = Structure(latt, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
+        s1 = Structure(lattice, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(lattice, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
         mindists = np.min(s1.lattice.get_all_distances(s1.frac_coords, result.frac_coords), axis=0)
         assert np.max(mindists) < 1e-6
@@ -637,14 +637,14 @@ class TestStructureMatcher(PymatgenTest):
 
         # test with not enough sites in s1
         # test with fewer species in s2
-        s1 = Structure(latt, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
+        s1 = Structure(lattice, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(lattice, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         assert sm.get_s2_like_s1(s1, s2) is None
 
     def test_out_of_cell_s2_like_s1(self):
-        latt = Lattice.cubic(5)
-        s1 = Structure(latt, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]])
+        lattice = Lattice.cubic(5)
+        s1 = Structure(lattice, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]])
+        s2 = Structure(lattice, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]])
         new_s2 = StructureMatcher(primitive_cell=False).get_s2_like_s1(s1, s2)
         dists = np.sum((s1.cart_coords - new_s2.cart_coords) ** 2, axis=-1) ** 0.5
         assert np.max(dists) < 0.1
@@ -785,11 +785,11 @@ class TestStructureMatcher(PymatgenTest):
         # greater than stol are treated properly
         # stol=0.3 gives exactly an ftol of 0.1 on the c axis
         sm = StructureMatcher(ltol=0.2, stol=0.301, angle_tol=1, primitive_cell=False)
-        latt = Lattice.orthorhombic(1, 2, 12)
+        lattice = Lattice.orthorhombic(1, 2, 12)
 
         sp = ["Si", "Si", "Al"]
-        s1 = Structure(latt, sp, np.diag((0.5, 0, 0.5)))
-        s2 = Structure(latt, sp, np.diag((0.5, 0, 0.6)))
+        s1 = Structure(lattice, sp, np.diag((0.5, 0, 0.5)))
+        s2 = Structure(lattice, sp, np.diag((0.5, 0, 0.6)))
         assert_allclose(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
 
         assert sm.fit(s1, s2) is False

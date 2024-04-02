@@ -35,8 +35,11 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
+
 logger = logging.getLogger(__name__)
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
@@ -233,7 +236,7 @@ class _MPResterLegacy:
             except Exception:
                 pass
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
@@ -450,10 +453,10 @@ class _MPResterLegacy:
         payload = {"structure": json.dumps(struct.as_dict(), cls=MontyEncoder)}
         response = self.session.post(f"{self.preamble}/find_structure", data=payload)
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                return resp["response"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                return response["response"]
+            raise MPRestError(response["error"])
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_entries(
@@ -1100,12 +1103,12 @@ class _MPResterLegacy:
         payload = {"snl": json.dumps(json_data, cls=MontyEncoder)}
         response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp["inserted_ids"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response["inserted_ids"]
+            raise MPRestError(response["error"])
 
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
@@ -1126,12 +1129,12 @@ class _MPResterLegacy:
         response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
 
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response
+            raise MPRestError(response["error"])
 
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
@@ -1154,12 +1157,12 @@ class _MPResterLegacy:
         payload = {"criteria": json.dumps(criteria)}
         response = self.session.post(f"{self.preamble}/snl/query", data=payload)
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp["response"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response["response"]
+            raise MPRestError(response["error"])
 
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
@@ -1252,12 +1255,12 @@ class _MPResterLegacy:
             data=payload,
         )
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp["response"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response["response"]
+            raise MPRestError(response["error"])
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):

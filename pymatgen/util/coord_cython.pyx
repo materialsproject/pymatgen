@@ -21,10 +21,10 @@ from libc.math cimport fabs, round
 from libc.stdlib cimport free, malloc
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
-r = np.arange(-1, 2, dtype=np.float_)
-arange = r[:, None] * np.array([1, 0, 0])[None, :]
-brange = r[:, None] * np.array([0, 1, 0])[None, :]
-crange = r[:, None] * np.array([0, 0, 1])[None, :]
+rng = np.arange(-1, 2, dtype=np.float_)
+arange = rng[:, None] * np.array([1, 0, 0])[None, :]
+brange = rng[:, None] * np.array([0, 1, 0])[None, :]
+crange = rng[:, None] * np.array([0, 0, 1])[None, :]
 images_t = arange[:, None, None] + brange[None, :, None] + \
     crange[None, None, :]
 images = images_t.reshape((27, 3))

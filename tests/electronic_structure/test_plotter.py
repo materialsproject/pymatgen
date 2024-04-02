@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,7 +30,7 @@ from pymatgen.electronic_structure.plotter import (
     plot_ellipsoid,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
@@ -179,7 +179,7 @@ class TestBSPlotter(PymatgenTest):
         plt.close("all")
 
 
-class TestBSPlotterProjected(unittest.TestCase):
+class TestBSPlotterProjected(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
@@ -208,13 +208,13 @@ class TestBSPlotterProjected(unittest.TestCase):
             self.plotter_PbTe = BSPlotterProjected(self.bs_PbTe)
 
 
-class TestBSDOSPlotter(unittest.TestCase):
+class TestBSDOSPlotter:
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml.gz")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz")
         plotter = BSDOSPlotter()
-        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()
@@ -229,27 +229,27 @@ class TestBSDOSPlotter(unittest.TestCase):
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
         dct = band_struct_dict["projections"]["1"]
-        for i in range(len(dct)):
-            for j in range(len(dct[i])):
-                for k in range(len(dct[i][j])):
-                    for m in range(len(dct[i][j][k])):
-                        dct[i][j][k][m] = 0
+        for ii in range(len(dct)):
+            for jj in range(len(dct[ii])):
+                for kk in range(len(dct[ii][jj])):
+                    for ll in range(len(dct[ii][jj][kk])):
+                        dct[ii][jj][kk][ll] = 0
                         # d[i][j][k][m] = np.random.rand()
                     # generate random number for two atoms
                     a = np.random.randint(0, 7)
                     b = np.random.randint(0, 7)
                     # c = np.random.randint(0,7)
-                    dct[i][j][k][a] = np.random.rand()
-                    dct[i][j][k][b] = np.random.rand()
+                    dct[ii][jj][kk][a] = np.random.rand()
+                    dct[ii][jj][kk][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
 
 
-class TestPlotBZ(unittest.TestCase):
+class TestPlotBZ(TestCase):
     def setUp(self):
-        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/Si.cssr").lattice.reciprocal_lattice
+        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],
@@ -291,8 +291,8 @@ class TestPlotBZ(unittest.TestCase):
         )
 
 
-@unittest.skipIf(not which("x_trans"), "No x_trans executable found")
-class TestBoltztrapPlotter(unittest.TestCase):
+@pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
+class TestBoltztrapPlotter(TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)

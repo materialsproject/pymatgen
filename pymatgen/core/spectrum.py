@@ -18,9 +18,12 @@ if TYPE_CHECKING:
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
-    """:param x: x values
-    :param x_0: Center
-    :param sigma: FWHM
+    """
+
+    Args:
+        x: x values
+        x_0: Center
+        sigma: FWHM.
 
     Returns:
         Value of lorentzian at x.

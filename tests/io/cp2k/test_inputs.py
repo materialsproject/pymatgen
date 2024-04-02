@@ -85,15 +85,15 @@ class TestBasisAndPotential(PymatgenTest):
 
     def test_potential_info(self):
         # Ensure potential metadata can be read from string
-        p = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
-        assert p.potential_type == "GTH"
-        assert p.xc == "PBE"
-        assert p.nlcc
+        pot_info = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
+        assert pot_info.potential_type == "GTH"
+        assert pot_info.xc == "PBE"
+        assert pot_info.nlcc
 
         # Ensure one-way softmatching works
         p2 = PotentialInfo.from_str("GTH-q1-NLCC")
-        assert p2.softmatch(p)
-        assert not p.softmatch(p2)
+        assert p2.softmatch(pot_info)
+        assert not pot_info.softmatch(p2)
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly
@@ -149,16 +149,16 @@ class TestInput(PymatgenTest):
         self.ci = Cp2kInput.from_file(f"{TEST_FILES_DIR}/cp2k/cp2k.inp")
 
     def test_basic_sections(self):
-        s = """
+        cp2k_input_str = """
         &GLOBAL
             RUN_TYPE ENERGY
             PROJECT_NAME CP2K ! default name
         &END
         """
-        ci = Cp2kInput.from_str(s)
-        assert ci["GLOBAL"]["RUN_TYPE"] == Keyword("RUN_TYPE", "energy")
-        assert ci["GLOBAL"]["PROJECT_NAME"].description == "default name"
-        self.assert_msonable(ci)
+        cp2k_input = Cp2kInput.from_str(cp2k_input_str)
+        assert cp2k_input["GLOBAL"]["RUN_TYPE"] == Keyword("RUN_TYPE", "energy")
+        assert cp2k_input["GLOBAL"]["PROJECT_NAME"].description == "default name"
+        self.assert_msonable(cp2k_input)
 
     def test_sectionlist(self):
         s1 = Section("TEST")
@@ -236,19 +236,19 @@ class TestInput(PymatgenTest):
         assert self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"] == Keyword("MAX_SCF", 1)
 
     def test_mongo(self):
-        s = """
+        cp2k_input_str = """
         &GLOBAL
             RUN_TYPE ENERGY
             PROJECT_NAME CP2K ! default name
         &END
         """
-        s = Cp2kInput.from_str(s)
-        s.inc({"GLOBAL": {"TEST": 1}})
-        assert s["global"]["test"] == Keyword("TEST", 1)
+        cp2k_input = Cp2kInput.from_str(cp2k_input_str)
+        cp2k_input.inc({"GLOBAL": {"TEST": 1}})
+        assert cp2k_input["global"]["test"] == Keyword("TEST", 1)
 
-        s.unset({"GLOBAL": "RUN_TYPE"})
-        assert "RUN_TYPE" not in s["global"].keywords
+        cp2k_input.unset({"GLOBAL": "RUN_TYPE"})
+        assert "RUN_TYPE" not in cp2k_input["global"].keywords
 
-        s.set({"GLOBAL": {"SUBSEC": {"TEST2": 2}, "SUBSEC2": {"Test2": 1}}})
-        assert s.check("global/SUBSEC")
-        assert s.check("global/subsec2")
+        cp2k_input.set({"GLOBAL": {"SUBSEC": {"TEST2": 2}, "SUBSEC2": {"Test2": 1}}})
+        assert cp2k_input.check("global/SUBSEC")
+        assert cp2k_input.check("global/subsec2")

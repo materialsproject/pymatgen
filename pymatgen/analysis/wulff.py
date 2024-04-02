@@ -74,13 +74,14 @@ class WulffFacet:
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig, miller):
         """
-        :param normal:
-        :param e_surf:
-        :param normal_pt:
-        :param dual_pt:
-        :param index:
-        :param m_ind_orig:
-        :param miller:
+        Args:
+            normal:
+            e_surf:
+            normal_pt:
+            dual_pt:
+            index:
+            m_ind_orig:
+            miller:
         """
         self.normal = normal
         self.e_surf = e_surf
@@ -182,8 +183,8 @@ class WulffShape:
         self.on_wulff, self.color_area = self._get_simpx_plane()
 
         miller_area = []
-        for m, in_mill_fig in enumerate(self.input_miller_fig):
-            miller_area.append(f"{in_mill_fig} : {round(self.color_area[m], 4)}")
+        for miller, in_mill_fig in enumerate(self.input_miller_fig):
+            miller_area.append(f"{in_mill_fig} : {round(self.color_area[miller], 4)}")
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
@@ -324,9 +325,9 @@ class WulffShape:
             if prev is None:
                 line = lines.pop(0)
             else:
-                for i, line in enumerate(lines):
+                for idx, line in enumerate(lines):
                     if prev in line:
-                        line = lines.pop(i)
+                        line = lines.pop(idx)
                         if line[1] == prev:
                             line.reverse()
                         break
@@ -376,7 +377,7 @@ class WulffShape:
             units_in_JPERM2 (bool): Units of surface energy, defaults to
                 Joules per square meter (True)
 
-        Return:
+        Returns:
             (matplotlib.pyplot)
         """
         from mpl_toolkits.mplot3d import art3d
@@ -496,7 +497,7 @@ class WulffShape:
             units_in_JPERM2 (bool): Units of surface energy, defaults to
                 Joules per square meter (True)
 
-        Return:
+        Returns:
             (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"

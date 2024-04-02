@@ -12,6 +12,8 @@ from pymatgen.core.structure import PeriodicSite, Structure
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.symmetry.analyzer import SpacegroupOperations
 
 
@@ -133,7 +135,7 @@ class SymmetrizedStructure(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
         """
         Args:
             dct (dict): Dict representation.

@@ -1,7 +1,7 @@
 """
 This module defines tools to analyze surface and adsorption related
 quantities as well as related plots. If you use this module, please
-consider citing the following works::
+consider citing the following works:
 
     R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
     S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
@@ -20,7 +20,7 @@ consider citing the following works::
         Computational Materials, 3(1), 14.
         https://doi.org/10.1038/s41524-017-0017-z
 
-Todo:
+TODO:
 - Still assumes individual elements have their own chempots
     in a molecular adsorbate instead of considering a single
     chempot for a single molecular adsorbate. E.g. for an OH
@@ -38,6 +38,7 @@ import copy
 import itertools
 import random
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -53,6 +54,9 @@ from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -172,7 +176,8 @@ class SlabEntry(ComputedStructureEntry):
                 of the element ref_entry that is not in the list will be
                 treated as a variable.
 
-        Returns (Add (Sympy class)): Surface energy
+        Returns:
+            float: The surface energy of the slab.
         """
         # Set up
         ref_entries = ref_entries if ref_entries else []
@@ -272,7 +277,7 @@ class SlabEntry(ComputedStructureEntry):
         return n_surfs
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
@@ -325,7 +330,7 @@ class SlabEntry(ComputedStructureEntry):
     @classmethod
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
-    ):
+    ) -> Self:
         """Returns SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
@@ -512,7 +517,7 @@ class SurfaceEnergyPlotter:
         Returns:
             WulffShape: The WulffShape at u_ref and u_ads.
         """
-        latt = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
+        lattice = SpacegroupAnalyzer(self.ucell_entry.structure).get_conventional_standard_structure().lattice
 
         miller_list = list(self.all_slab_entries)
         e_surf_list = []
@@ -529,7 +534,7 @@ class SurfaceEnergyPlotter:
             )[1]
             e_surf_list.append(gamma)
 
-        return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
+        return WulffShape(lattice, miller_list, e_surf_list, symprec=symprec)
 
     def area_frac_vs_chempot_plot(
         self,
@@ -650,11 +655,11 @@ class SurfaceEnergyPlotter:
         # Now solve the system of linear eqns to find the chempot
         # where the slabs are at equilibrium with each other
 
-        soln = linsolve(all_eqns, all_parameters)
-        if not soln:
+        solution = linsolve(all_eqns, all_parameters)
+        if not solution:
             warnings.warn("No solution")
-            return soln
-        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
+            return solution
+        return {param: next(iter(solution))[idx] for idx, param in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,
@@ -779,7 +784,7 @@ class SurfaceEnergyPlotter:
 
         # sort the chempot ranges for each facet
         for entry, v in stable_urange_dict.items():
-            se_dict[entry] = [se for i, se in sorted(zip(v, se_dict[entry]))]
+            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry]))]
             stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
@@ -803,16 +808,16 @@ class SurfaceEnergyPlotter:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
             random.shuffle(rgb_indices)
-            for i, ind in enumerate(rgb_indices):
-                if i == 2:
+            for idx, ind in enumerate(rgb_indices):
+                if idx == 2:
                     break
                 color[ind] = np.random.uniform(0, 1)
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
-            for i, clean in enumerate(self.all_slab_entries[hkl]):
+            for idx, clean in enumerate(self.all_slab_entries[hkl]):
                 c = copy.copy(color)
-                c[rgb_indices[2]] = clean_list[i]
+                c[rgb_indices[2]] = clean_list[idx]
                 color_dict[clean] = c
 
                 # Now get the adsorbed (transparent) colors
@@ -1360,7 +1365,7 @@ class WorkFunctionAnalyzer:
 
         # properties that can be shifted
         slab = structure.copy()
-        slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, self.shift])
+        slab.translate_sites([idx for idx, site in enumerate(slab)], [0, 0, self.shift])
         self.slab = slab
         self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
 
@@ -1371,14 +1376,14 @@ class WorkFunctionAnalyzer:
         # Get the plot points between 0 and c
         # increments of the number of locpot points
         locpot_along_c_mid, locpot_end, locpot_start = [], [], []
-        for i, s in enumerate(self.along_c):
+        for idx, s in enumerate(self.along_c):
             j = s + self.shift
             if j > 1:
-                locpot_start.append(locpot_along_c[i])
+                locpot_start.append(locpot_along_c[idx])
             elif j < 0:
-                locpot_end.append(locpot_along_c[i])
+                locpot_end.append(locpot_along_c[idx])
             else:
-                locpot_along_c_mid.append(locpot_along_c[i])
+                locpot_along_c_mid.append(locpot_along_c[idx])
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
         # identify slab region
@@ -1388,10 +1393,14 @@ class WorkFunctionAnalyzer:
         # a rough appr. of the potential in the interior of the slab
         bulk_p = []
         for r in self.slab_regions:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if r[1] >= self.along_c[i] > r[0]])
+            bulk_p.extend([pot for idx, pot in enumerate(self.locpot_along_c) if r[1] >= self.along_c[idx] > r[0]])
         if len(self.slab_regions) > 1:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[i]])
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[i]])
+            bulk_p.extend(
+                [pot for idx, pot in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[idx]]
+            )
+            bulk_p.extend(
+                [pot for idx, pot in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[idx]]
+            )
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
@@ -1423,24 +1432,24 @@ class WorkFunctionAnalyzer:
 
         # Get the local averaged signal of the locpot along c
         xg, yg = [], []
-        for i, p in enumerate(self.locpot_along_c):
+        for idx, pot in enumerate(self.locpot_along_c):
             # average signal is just the bulk-like potential when in the slab region
             in_slab = False
             for r in self.slab_regions:
-                if r[0] <= self.along_c[i] <= r[1]:
+                if r[0] <= self.along_c[idx] <= r[1]:
                     in_slab = True
             if len(self.slab_regions) > 1:
-                if self.along_c[i] >= self.slab_regions[1][1]:
+                if self.along_c[idx] >= self.slab_regions[1][1]:
                     in_slab = True
-                if self.along_c[i] <= self.slab_regions[0][0]:
+                if self.along_c[idx] <= self.slab_regions[0][0]:
                     in_slab = True
 
-            if in_slab or p < self.ave_bulk_p:
+            if in_slab or pot < self.ave_bulk_p:
                 yg.append(self.ave_bulk_p)
-                xg.append(self.along_c[i])
+                xg.append(self.along_c[idx])
             else:
-                yg.append(p)
-                xg.append(self.along_c[i])
+                yg.append(pot)
+                xg.append(self.along_c[idx])
         xg, yg = zip(*sorted(zip(xg, yg)))
         plt.plot(xg, yg, "r", linewidth=2.5, zorder=-1)
 
@@ -1560,7 +1569,7 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @classmethod
-    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
         """
         Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 
@@ -1646,13 +1655,13 @@ class NanoscaleStability:
         # Now calculate r
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
         delta_E = self.bulk_gform(analyzer1.ucell_entry) - self.bulk_gform(analyzer2.ucell_entry)
-        r = (-3 * delta_gamma) / (delta_E)
+        radius = (-3 * delta_gamma) / (delta_E)
 
-        return r / 10 if units == "nanometers" else r
+        return radius / 10 if units == "nanometers" else radius
 
     def wulff_gform_and_r(
         self,
-        wulffshape,
+        wulff_shape,
         bulk_entry,
         r,
         from_sphere_area=False,
@@ -1665,7 +1674,7 @@ class NanoscaleStability:
         Calculates the formation energy of the particle with arbitrary radius r.
 
         Args:
-            wulffshape (WulffShape): Initial, unscaled WulffShape
+            wulff_shape (WulffShape): Initial unscaled WulffShape
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
             r (float (Ang)): Arbitrary effective radius of the WulffShape
             from_sphere_area (bool): There are two ways to calculate the bulk
@@ -1681,8 +1690,8 @@ class NanoscaleStability:
             particle formation energy (float in keV), effective radius
         """
         # Set up
-        miller_se_dict = wulffshape.miller_energy_dict
-        new_wulff = self.scaled_wulff(wulffshape, r)
+        miller_se_dict = wulff_shape.miller_energy_dict
+        new_wulff = self.scaled_wulff(wulff_shape, r)
         new_wulff_area = new_wulff.miller_area_dict
 
         # calculate surface energy of the particle
@@ -1699,7 +1708,7 @@ class NanoscaleStability:
             # By approximating the particle as a perfect sphere
             w_vol = (4 / 3) * np.pi * r**3
             sphere_sa = 4 * np.pi * r**2
-            tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
+            tot_wulff_se = wulff_shape.weighted_surface_energy * sphere_sa
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
 
@@ -1726,7 +1735,7 @@ class NanoscaleStability:
         """
         return bulk_entry.energy / bulk_entry.structure.volume
 
-    def scaled_wulff(self, wulffshape, r):
+    def scaled_wulff(self, wulff_shape, r):
         """
         Scales the Wulff shape with an effective radius r. Note that the resulting
             Wulff does not necessarily have the same effective radius as the one
@@ -1735,22 +1744,22 @@ class NanoscaleStability:
             multiplied by the given effective radius.
 
         Args:
-            wulffshape (WulffShape): Initial, unscaled WulffShape
+            wulff_shape (WulffShape): Initial, unscaled WulffShape
             r (float): Arbitrary effective radius of the WulffShape
 
         Returns:
             WulffShape (scaled by r)
         """
         # get the scaling ratio for the energies
-        r_ratio = r / wulffshape.effective_radius
-        miller_list = list(wulffshape.miller_energy_dict)
+        r_ratio = r / wulff_shape.effective_radius
+        miller_list = list(wulff_shape.miller_energy_dict)
         # Normalize the magnitude of the facet normal vectors
         # of the Wulff shape by the minimum surface energy.
-        se_list = np.array(list(wulffshape.miller_energy_dict.values()))
+        se_list = np.array(list(wulff_shape.miller_energy_dict.values()))
         # Scale the magnitudes by r_ratio
         scaled_se = se_list * r_ratio
 
-        return WulffShape(wulffshape.lattice, miller_list, scaled_se, symprec=self.symprec)
+        return WulffShape(wulff_shape.lattice, miller_list, scaled_se, symprec=self.symprec)
 
     def plot_one_stability_map(
         self,
@@ -1791,14 +1800,14 @@ class NanoscaleStability:
         """
         plt = plt or pretty_plot(width=8, height=7)
 
-        wulffshape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
+        wulff_shape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
 
         gform_list, r_list = [], []
-        for r in np.linspace(1e-6, max_r, increments):
-            gform, r = self.wulff_gform_and_r(
-                wulffshape,
+        for radius in np.linspace(1e-6, max_r, increments):
+            gform, radius = self.wulff_gform_and_r(
+                wulff_shape,
                 analyzer.ucell_entry,
-                r,
+                radius,
                 from_sphere_area=from_sphere_area,
                 r_units=r_units,
                 e_units=e_units,
@@ -1806,7 +1815,7 @@ class NanoscaleStability:
                 scale_per_atom=scale_per_atom,
             )
             gform_list.append(gform)
-            r_list.append(r)
+            r_list.append(radius)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
         plt.xlabel(rf"Particle radius (${ru}$)")

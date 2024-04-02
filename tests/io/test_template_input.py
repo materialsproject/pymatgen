@@ -16,13 +16,13 @@ class TestTemplateInputGen(PymatgenTest):
             filename="hello_world.in",
         )
         input_set.write_input(self.tmp_path)
-        with open(os.path.join(self.tmp_path, "hello_world.in")) as file:
+        with open(f"{self.tmp_path}/hello_world.in") as file:
             assert "298" in file.read()
 
         with pytest.raises(FileNotFoundError, match="No such file or directory:"):
-            input_set.write_input(os.path.join(self.tmp_path, "temp"), make_dir=False)
+            input_set.write_input(f"{self.tmp_path}/temp", make_dir=False)
 
-        input_set.write_input(os.path.join(self.tmp_path, "temp"), make_dir=True)
+        input_set.write_input(f"{self.tmp_path}/temp", make_dir=True)
 
         input_set = TemplateInputGen().get_input_set(
             template=f"{TEST_FILES_DIR}/template_input_file.txt",
@@ -40,7 +40,7 @@ class TestTemplateInputGen(PymatgenTest):
 
         input_set.write_input(self.tmp_path, overwrite=True)
 
-        with open(os.path.join(self.tmp_path, "hello_world.in")) as file:
+        with open(f"{self.tmp_path}/hello_world.in") as file:
             assert "400" in file.read()
 
         input_set.write_input(self.tmp_path, zip_inputs=True)

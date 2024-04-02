@@ -29,11 +29,11 @@ def postprocessor(data: str) -> str | float | bool | None:
     """
     data = data.strip().replace(" ", "_")  # remove leading/trailing whitespace, replace spaces with _
 
-    if data.lower() in ("false", "no", "f"):
+    if data.lower() in {"false", "no", "f"}:
         return False
     if data.lower() == "none":
         return None
-    if data.lower() in ("true", "yes", "t"):
+    if data.lower() in {"true", "yes", "t"}:
         return True
     if re.match(r"^-?\d+$", data):
         try:
@@ -46,7 +46,7 @@ def postprocessor(data: str) -> str | float | bool | None:
         except ValueError as exc:
             raise ValueError(f"Error parsing {data!r} as float in CP2K file.") from exc
     if re.match(r"\*+", data):
-        return np.NaN
+        return np.nan
     return data
 
 
@@ -158,9 +158,9 @@ def get_unique_site_indices(struct: Structure | Molecule):
     items = [
         (
             site.species_string,
-            *[struct.site_properties[k][i] for k in struct.site_properties if k.lower() in parsable_site_properties],
+            *[struct.site_properties[k][idx] for k in struct.site_properties if k.lower() in parsable_site_properties],
         )
-        for i, site in enumerate(struct)
+        for idx, site in enumerate(struct)
     ]
     unique_itms = list(set(items))
     _sites: dict[tuple, list] = {u: [] for u in unique_itms}

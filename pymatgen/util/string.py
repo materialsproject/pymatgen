@@ -162,26 +162,28 @@ def latexify(formula: str, bold: bool = False):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\\mathbf{\2}}$" if bold else r"\1$_{\2}$", formula)
 
 
-def htmlify(formula):
+def htmlify(formula: str) -> str:
     """Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
     Fe<sub>2</sub>O</sub>3</sub>.
 
     Note that Composition now has a to_html_string() method that may
     be used instead.
 
-    :param formula:
+    Args:
+        formula: The string to format.
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
 
-def unicodeify(formula):
+def unicodeify(formula: str) -> str:
     """Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
 
     Note that Composition now has a to_unicode_string() method that may
     be used instead.
 
-    :param formula:
+    Args:
+        formula: The string to format.
     """
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
@@ -332,7 +334,8 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
         species more symbols will need to be added
         fmt (str): 'plain', 'HTML' or 'LaTeX'
 
-    Returns (str): a disordered formula string
+    Returns:
+        str: a disordered formula string
     """
     # this is in string utils and not in Composition because we need to have access to
     # site occupancies to calculate this, so have to pass the full structure as an

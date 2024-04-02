@@ -43,7 +43,6 @@ of polarization can only be zero or 1/2. We use a nonpolar structure to help
 determine the spontaneous polarization because it serves as a reference point.
 """
 
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -56,6 +55,8 @@ from pymatgen.core.structure import Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
 
@@ -124,8 +125,8 @@ def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicS
         Closest site and distance.
     """
     index = struct.index(site)
-    r = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
-    ns = struct.get_sites_in_sphere(coords, r, include_index=True)
+    radius = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
+    ns = struct.get_sites_in_sphere(coords, radius, include_index=True)
     # Get sites with identical index to site
     ns = [n for n in ns if n[2] == index]
     # Sort by distance to coords
@@ -173,7 +174,7 @@ class Polarization:
         self.structures = structures
 
     @classmethod
-    def from_outcars_and_structures(cls, outcars, structures, calc_ionic_from_zval=False):
+    def from_outcars_and_structures(cls, outcars, structures, calc_ionic_from_zval=False) -> Self:
         """
         Create Polarization object from list of Outcars and Structures in order
         of nonpolar to polar.
@@ -425,7 +426,10 @@ class EnergyTrend:
     """Class for fitting trends to energies."""
 
     def __init__(self, energies):
-        """:param energies: Energies"""
+        """
+        Args:
+            energies: Energies
+        """
         self.energies = energies
 
     def spline(self):

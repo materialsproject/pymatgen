@@ -27,8 +27,12 @@ from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from mp_api.client import MPRester as _MPResterNew
+    from typing_extensions import Self
+
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
+    from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +98,7 @@ class _MPResterBasic:
                 "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
             )
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
@@ -208,9 +212,9 @@ class _MPResterBasic:
         """
         query = f"chemsys={chemsys_formula}" if "-" in chemsys_formula else f"formula={chemsys_formula}"
         prop = "structure" if final else "initial_structure"
-        resp = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
+        response = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
 
-        return [d[prop] for d in resp]
+        return [dct[prop] for dct in response]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
@@ -226,8 +230,8 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "structure"
-        resp = self.request(f"materials/summary/{material_id}/?_fields={prop}")
-        structure = resp[0][prop]
+        response = self.request(f"materials/summary/{material_id}/?_fields={prop}")
+        structure = response[0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
@@ -248,8 +252,8 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "initial_structures"
-        resp = self.request(f"materials/summary/{material_id}/?_fields={prop}")
-        structures = resp[0][prop]
+        response = self.request(f"materials/summary/{material_id}/?_fields={prop}")
+        structures = response[0][prop]
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
@@ -299,9 +303,9 @@ class _MPResterBasic:
             query = f"formula={criteria}"
 
         entries = []
-        r = self.request(f"materials/thermo/?_fields=entries&{query}")
-        for d in r:
-            entries.extend(d["entries"].values())
+        response = self.request(f"materials/thermo/?_fields=entries&{query}")
+        for dct in response:
+            entries.extend(dct["entries"].values())
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -372,8 +376,8 @@ class MPRester:
     for which API to use.
     """
 
-    def __new__(cls, *args, **kwargs):
-        r"""
+    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:  # type: ignore[misc]
+        """
         Args:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.

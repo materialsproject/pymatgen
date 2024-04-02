@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pandas as pd
 from monty.io import zopen
@@ -14,6 +14,9 @@ from pymatgen.core.structure import SiteCollection
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 
 class XYZ:
@@ -34,7 +37,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = [mol] if isinstance(mol, SiteCollection) else mol
+        self._mols = cast(list[SiteCollection], [mol] if isinstance(mol, SiteCollection) else mol)
         self.precision = coord_precision
 
     @property
@@ -71,7 +74,7 @@ class XYZ:
         return Molecule(sp, coords)
 
     @classmethod
-    def from_str(cls, contents) -> XYZ:
+    def from_str(cls, contents: str) -> Self:
         """
         Creates XYZ object from a string.
 
@@ -96,7 +99,7 @@ class XYZ:
         return cls(mols)
 
     @classmethod
-    def from_file(cls, filename) -> XYZ:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates XYZ object from a file.
 

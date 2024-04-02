@@ -10,13 +10,13 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestTrajectory(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/Traj_XDATCAR")
-        self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_XDATCAR")
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_traj")
+        self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures
 
         out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
@@ -29,7 +29,7 @@ class TestTrajectory(PymatgenTest):
             mol = Molecule(
                 species, coord, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity)
             )
-            self.molecules.append(mol)
+            self.molecules += [mol]
 
         self.traj_mols = Trajectory(
             species=species,
@@ -45,34 +45,30 @@ class TestTrajectory(PymatgenTest):
         if traj_1.species != traj_2.species:
             return False
 
-        return all(i == j for i, j in zip(self.traj, traj_2))
+        return all(frame1 == frame2 for frame1, frame2 in zip(self.traj, traj_2))
 
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
         species = ["Si", "Si"]
-        coords = np.asarray(
-            [
-                [[0, 0, 0], [0.5, 0.5, 0.5]],
-                [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
-                [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
-            ]
-        )
+        coords = [
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
+            [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
+        ]
         return lattice, species, coords
 
     def _get_species_and_coords(self):
         species = ["C", "O"]
-        coords = np.asarray(
-            [
-                [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
-                [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
-                [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
-            ]
-        )
+        coords = [
+            [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
+            [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
+            [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
+        ]
         return species, coords, 0, 1
 
     def test_single_index_slice(self):
-        assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
-        assert all(self.traj_mols[i] == self.molecules[i] for i in range(len(self.molecules)))
+        assert all(self.traj[idx] == self.structures[idx] for idx in range(0, len(self.structures), 19))
+        assert all(self.traj_mols[idx] == self.molecules[idx] for idx in range(len(self.molecules)))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -87,7 +83,7 @@ class TestTrajectory(PymatgenTest):
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
+            assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -221,15 +217,15 @@ class TestTrajectory(PymatgenTest):
         traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_1")
+        compatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_1")
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_Full")
+        full_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_full")
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_2")
+        incompatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_2")
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
@@ -285,7 +281,7 @@ class TestTrajectory(PymatgenTest):
 
     def test_extend_site_props(self):
         lattice, species, coords = self._get_lattice_species_and_coords()
-        num_frames = len(coords)
+        n_frames = len(coords)
 
         props_1 = {
             "selective_dynamics": [[False, False, False], [False, False, False]],
@@ -327,25 +323,25 @@ class TestTrajectory(PymatgenTest):
         # const & const (both constant but different site properties)
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_2)
-        expected_site_props = [props_1] * num_frames + [props_2] * num_frames
+        expected_site_props = [props_1] * n_frames + [props_2] * n_frames
         assert traj_combined.site_properties == expected_site_props
 
         # const & changing
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
-        expected_site_props = [props_1] * num_frames + props_3
+        expected_site_props = [props_1] * n_frames + props_3
         assert traj_combined.site_properties == expected_site_props
 
         # const & none
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_4)
-        expected_site_props = [props_1] * num_frames + [None] * num_frames
+        expected_site_props = [props_1] * n_frames + [None] * n_frames
         assert traj_combined.site_properties == expected_site_props
 
         # changing & const
         traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_1)
-        expected_site_props = props_3 + [props_1] * num_frames
+        expected_site_props = props_3 + [props_1] * n_frames
         assert traj_combined.site_properties == expected_site_props
 
         # changing & changing
@@ -357,19 +353,19 @@ class TestTrajectory(PymatgenTest):
         # changing & none
         traj_combined = copy.deepcopy(traj_3)
         traj_combined.extend(traj_4)
-        expected_site_props = props_3 + [None] * num_frames
+        expected_site_props = props_3 + [None] * n_frames
         assert traj_combined.site_properties == expected_site_props
 
         # none & const
         traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_1)
-        expected_site_props = [None] * num_frames + [props_1] * num_frames
+        expected_site_props = [None] * n_frames + [props_1] * n_frames
         assert traj_combined.site_properties == expected_site_props
 
         # none & changing
         traj_combined = copy.deepcopy(traj_4)
         traj_combined.extend(traj_3)
-        expected_site_props = [None] * num_frames + props_3
+        expected_site_props = [None] * n_frames + props_3
         assert traj_combined.site_properties == expected_site_props
 
         # none & none
@@ -418,14 +414,14 @@ class TestTrajectory(PymatgenTest):
         assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
-        structures = [Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")]
+        structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
-        for i in range(10):
+        for idx in range(10):
             displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
-            displacements[i + 1, :, :] = displacement
+            displacements[idx + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()

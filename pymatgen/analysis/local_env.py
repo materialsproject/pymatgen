@@ -18,7 +18,7 @@ from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import TYPE_CHECKING, Any, Literal, get_args
 
 import numpy as np
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
@@ -34,6 +34,8 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.composition import SpeciesLike
 
 
@@ -99,7 +101,7 @@ class ValenceIonicRadiusEvaluator:
         radii = []
         vnn = VoronoiNN()
 
-        def nearest_key(sorted_vals, skey):
+        def nearest_key(sorted_vals: list[int], skey: int) -> int:
             n = bisect_left(sorted_vals, skey)
             if n == len(sorted_vals):
                 return sorted_vals[-1]
@@ -111,7 +113,7 @@ class ValenceIonicRadiusEvaluator:
                 return after
             return before
 
-        for i, site in enumerate(self._structure):
+        for idx, site in enumerate(self._structure):
             if isinstance(site.specie, Element):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
@@ -125,34 +127,34 @@ class ValenceIonicRadiusEvaluator:
 
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(vnn.get_cn(self._structure, i)))
+            coord_no = int(round(vnn.get_cn(self._structure, idx)))
             try:
                 tab_oxi_states = sorted(map(int, _ion_radii[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                new_coord_no = coord_no + 1 if vnn.get_cn(self._structure, i) - coord_no > 0 else coord_no - 1
+                new_coord_no = coord_no + 1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else coord_no - 1
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
                 except Exception:
                     tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)]))
                     new_coord_no = nearest_key(tab_coords, coord_no)
-                    i = 0
+                    idx = 0
                     for val in tab_coords:
                         if val > coord_no:
                             break
-                        i = i + 1
-                    if i == len(tab_coords):
+                        idx = idx + 1
+                    if idx == len(tab_coords):
                         key = str(tab_coords[-1])
                         radius = _ion_radii[el][str(oxi_state)][key]
-                    elif i == 0:
+                    elif idx == 0:
                         key = str(tab_coords[0])
                         radius = _ion_radii[el][str(oxi_state)][key]
                     else:
-                        key = str(tab_coords[i - 1])
+                        key = str(tab_coords[idx - 1])
                         radius1 = _ion_radii[el][str(oxi_state)][key]
-                        key = str(tab_coords[i])
+                        key = str(tab_coords[idx])
                         radius2 = _ion_radii[el][str(oxi_state)][key]
                         radius = (radius1 + radius2) / 2
 
@@ -407,7 +409,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): Input structure
-        Return:
+        Returns:
             List of NN site information for each site in the structure. Each
                 entry has the same format as `get_nn_info`
         """
@@ -490,13 +492,13 @@ class NearNeighbors:
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
-        for i, step in enumerate(possible_steps):
+        for idx, step in enumerate(possible_steps):
             # Update the image information
             # Note: We do not update the site position yet, as making a PeriodicSite
             # for each intermediate step is too costly
             step = dict(step)
             step["image"] = tuple(np.add(step["image"], _cur_image).tolist())
-            possible_steps[i] = step
+            possible_steps[idx] = step
 
         # Get only the non-backtracking steps
         allowed_steps = [x for x in possible_steps if (x["site_index"], x["image"]) not in _previous_steps]
@@ -623,11 +625,13 @@ class NearNeighbors:
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights, edge_properties=edge_properties)
+        struct_graph = StructureGraph.from_local_env_strategy(
+            structure, self, weights=weights, edge_properties=edge_properties
+        )
 
         # sets the attributes
-        sg.set_node_attributes()
-        return sg
+        struct_graph.set_node_attributes()
+        return struct_graph
 
     def get_local_order_parameters(self, structure: Structure, n: int):
         """
@@ -641,9 +645,9 @@ class NearNeighbors:
             structure: Structure object
             n (int): site index.
 
-        Returns (dict[str, float]):
-            A dict of order parameters (values) and the
-            underlying motif type (keys; for example, tetrahedral).
+        Returns:
+            dict[str, float]: A dict of order parameters (values) and the
+                underlying motif type (keys; for example, tetrahedral).
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
@@ -657,12 +661,12 @@ class NearNeighbors:
                 types.append(cn_opt_params[cn][name][0])
                 tmp = cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
                 params.append(tmp)
-            lostops = LocalStructOrderParams(types, parameters=params)
+            lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
             dct = {}
-            for i, lostop in enumerate(lostop_vals):
-                dct[names[i]] = lostop
+            for idx, lsop in enumerate(lostop_vals):
+                dct[names[idx]] = lsop
             return dct
         return None
 
@@ -751,8 +755,6 @@ class VoronoiNN(NearNeighbors):
         targets = structure.elements if self.targets is None else self.targets
         center = structure[n]
 
-        cutoff = self.cutoff
-
         # max cutoff is the longest diagonal of the cell + room for noise
         corners = [[1, 1, 1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]]
         d_corners = [np.linalg.norm(structure.lattice.get_cartesian_coords(c)) for c in corners]
@@ -760,11 +762,11 @@ class VoronoiNN(NearNeighbors):
 
         while True:
             try:
-                neighbors = structure.get_sites_in_sphere(center.coords, cutoff)
-                neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
+                neighbors = structure.get_sites_in_sphere(center.coords, self.cutoff)
+                neighbors = [ngbr[0] for ngbr in sorted(neighbors, key=lambda s: s[1])]
 
                 # Run the Voronoi tessellation
-                qvoronoi_input = [s.coords for s in neighbors]
+                qvoronoi_input = [site.coords for site in neighbors]
 
                 voro = Voronoi(qvoronoi_input)  # can give seg fault if cutoff is too small
 
@@ -773,12 +775,12 @@ class VoronoiNN(NearNeighbors):
                 break
 
             except RuntimeError as exc:
-                if cutoff >= max_cutoff:
+                if self.cutoff >= max_cutoff:
                     if exc.args and "vertex" in exc.args[0]:
                         # pass through the error raised by _extract_cell_info
                         raise exc
                     raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
-                cutoff = min(cutoff * 2, max_cutoff + 0.001)
+                self.cutoff = min(self.cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
     def get_all_voronoi_polyhedra(self, structure: Structure):
@@ -815,7 +817,7 @@ class VoronoiNN(NearNeighbors):
         # are included in the tessellation
 
         sites = [x.to_unit_cell() for x in structure]
-        indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
+        indices = [(idx, 0, 0, 0) for idx in range(len(structure))]
 
         # Get all neighbors within a certain cutoff. Record both the list of these neighbors and the site indices.
         all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True, include_image=True)
@@ -826,7 +828,7 @@ class VoronoiNN(NearNeighbors):
         # Get the non-duplicates (using the site indices for numerical stability)
         indices = np.array(indices, dtype=int)  # type: ignore
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)  # type: ignore[assignment]
-        sites = [sites[i] for i in uniq_inds]
+        sites = [sites[idx] for idx in uniq_inds]
 
         # Sort array such that atoms in the root image are first
         # Exploit the fact that the array is sorted by the unique operation such that
@@ -841,7 +843,8 @@ class VoronoiNN(NearNeighbors):
 
         # Get the information for each neighbor
         return [
-            self._extract_cell_info(i, sites, targets, voro, self.compute_adj_neighbors) for i in root_images.tolist()
+            self._extract_cell_info(idx, sites, targets, voro, self.compute_adj_neighbors)
+            for idx in root_images.tolist()
         ]
 
     def _extract_cell_info(self, site_idx, sites, targets, voro, compute_adj_neighbors=False):
@@ -889,7 +892,7 @@ class VoronoiNN(NearNeighbors):
                     raise RuntimeError("This structure is pathological, infinite vertex in the Voronoi construction")
 
                 # Get the solid angle of the face
-                facets = [all_vertices[i] for i in vind]
+                facets = [all_vertices[idx] for idx in vind]
                 angle = solid_angle(center_coords, facets)
 
                 # Compute the volume of associated with this face
@@ -950,7 +953,7 @@ class VoronoiNN(NearNeighbors):
         # If desired, determine which neighbors are adjacent
         if compute_adj_neighbors:
             # Initialize storage for the adjacent neighbors
-            adj_neighbors = {i: [] for i in result_weighted}
+            adj_neighbors = {idx: [] for idx in result_weighted}
 
             # Find the neighbors that are adjacent by finding those
             #  that contain exactly two vertices
@@ -1209,7 +1212,7 @@ class JmolNN(NearNeighbors):
                 Defaults to 0.56.
             min_bond_distance (float): minimum bond distance for consideration
                 Defaults to 0.4.
-            el_radius_updates: (dict) symbol->float to override default atomic
+            el_radius_updates (dict): symbol->float to override default atomic
                 radii table values.
         """
         self.tol = tol
@@ -1255,8 +1258,8 @@ class JmolNN(NearNeighbors):
         Use Jmol algorithm to determine bond length from atomic parameters
 
         Args:
-            el1_sym: (str) symbol of atom 1
-            el2_sym: (str) symbol of atom 2.
+            el1_sym (str): symbol of atom 1
+            el2_sym (str): symbol of atom 2.
 
         Returns:
             float: max bond length
@@ -1469,9 +1472,9 @@ class OpenBabelNN(NearNeighbors):
 
         # Get only the atom of interest
         site_atom = next(
-            a
-            for i, a in enumerate(openbabel.OBMolAtomDFSIter(ob_mol))
-            if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
+            atom
+            for atom in openbabel.OBMolAtomDFSIter(ob_mol)
+            if [atom.GetX(), atom.GetY(), atom.GetZ()] == list(structure[n].coords)
         )
 
         for neighbor in openbabel.OBAtomAtomIter(site_atom):
@@ -1521,7 +1524,7 @@ class OpenBabelNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1613,8 +1616,9 @@ class CovalentBondNN(NearNeighbors):
         Get all near-neighbor sites and weights (orders) of bonds for a given
         atom.
 
-        :param structure: input Molecule.
-        :param n: index of site for which to determine near neighbors.
+        Args:
+            structure: input Molecule.
+            n: index of site for which to determine near neighbors.
 
         Returns:
             [dict] representing a neighboring site and the type of
@@ -1667,7 +1671,7 @@ class CovalentBondNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1926,22 +1930,22 @@ def solid_angle(center, coords):
         The solid angle.
     """
     # Compute the displacement from the center
-    r = [np.subtract(c, center) for c in coords]
+    disp = [np.subtract(c, center) for c in coords]
 
     # Compute the magnitude of each vector
-    r_norm = [np.linalg.norm(i) for i in r]
+    r_norm = [np.linalg.norm(idx) for idx in disp]
 
     # Compute the solid angle for each tetrahedron that makes up the facet
     #  Following: https://wikipedia.org/wiki/Solid_angle#Tetrahedron
     angle = 0
-    for i in range(1, len(r) - 1):
-        j = i + 1
-        tp = np.abs(np.dot(r[0], np.cross(r[i], r[j])))
+    for ii in range(1, len(disp) - 1):
+        jj = ii + 1
+        tp = np.abs(np.dot(disp[0], np.cross(disp[ii], disp[jj])))
         de = (
-            r_norm[0] * r_norm[i] * r_norm[j]
-            + r_norm[j] * np.dot(r[0], r[i])
-            + r_norm[i] * np.dot(r[0], r[j])
-            + r_norm[0] * np.dot(r[i], r[j])
+            r_norm[0] * r_norm[ii] * r_norm[jj]
+            + r_norm[jj] * np.dot(disp[0], disp[ii])
+            + r_norm[ii] * np.dot(disp[0], disp[jj])
+            + r_norm[0] * np.dot(disp[ii], disp[jj])
         )
         _angle = (0.5 * pi if tp > 0 else -0.5 * pi) if de == 0 else np.arctan(tp / de)
         angle += (_angle if _angle > 0 else _angle + np.pi) * 2
@@ -2031,7 +2035,7 @@ def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, 
             "voronoi" the VoronoiNN class, "min_OKeeffe" the
             MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
         delta (float): tolerance involved in neighbor finding.
-        cutoff (float): (large) radius to find tentative neighbors.
+        cutoff (float): radius to find tentative neighbors.
 
     Returns:
         neighbor sites.
@@ -2068,7 +2072,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
             "voronoi" the VoronoiNN class, "min_OKeeffe" the
             MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
         delta (float): tolerance involved in neighbor finding.
-        cutoff (float): (large) radius to find tentative neighbors.
+        cutoff (float): radius to find tentative neighbors.
         thresh (dict): thresholds for motif criteria (currently, required
             keys and their default values are "qtet": 0.5,
             "qoct": 0.5, "qbcc": 0.5, "q6": 0.4).
@@ -2443,8 +2447,8 @@ class LocalStructOrderParams:
         """
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
-        nnn = len(self._pow_sin_t[1])
-        nnn_range = range(nnn)
+        n_nn = len(self._pow_sin_t[1])
+        n_nn_range = range(n_nn)
 
         sqrt_15_2pi = sqrt(15 / (2 * pi))
         sqrt_5_pi = sqrt(5 / pi)
@@ -2456,39 +2460,39 @@ class LocalStructOrderParams:
 
         # Y_2_-2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
             imag -= pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_2_-1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_2_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_0
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += 0.25 * sqrt_5_pi * (3 * self._pow_cos_t[2][idx] - 1.0)
         acc += real * real
 
         # Y_2_1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_2_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_2_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_2_2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_2_2[idx] * self._cos_n_p[2][idx]
             imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
-        return sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
+        return sqrt(4 * pi * acc / (5 * float(n_nn * n_nn)))
 
     def get_q4(self, thetas=None, phis=None):
         """
@@ -2508,8 +2512,8 @@ class LocalStructOrderParams:
         """
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
-        nnn = len(self._pow_sin_t[1])
-        nnn_range = range(nnn)
+        n_nn = len(self._pow_sin_t[1])
+        n_nn_range = range(n_nn)
 
         i16_3 = 3 / 16.0
         i8_3 = 3 / 8.0
@@ -2534,67 +2538,67 @@ class LocalStructOrderParams:
 
         # Y_4_-4
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
             imag -= pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_4_-3
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_-2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
             imag -= pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_-1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_0
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += i16_3 * sqrt_1_pi * (35 * self._pow_cos_t[4][idx] - 30 * self._pow_cos_t[2][idx] + 3.0)
         acc += real * real
 
         # Y_4_1
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_4_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_4_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_4_2
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_2[idx] * self._cos_n_p[2][idx]
             imag += pre_y_4_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_4_3
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_4_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_4_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_4_4
         real = imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_4_4[idx] * self._cos_n_p[4][idx]
             imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
-        return sqrt(4 * pi * acc / (9 * float(nnn * nnn)))
+        return sqrt(4 * pi * acc / (9 * float(n_nn * n_nn)))
 
     def get_q6(self, thetas=None, phis=None):
         """
@@ -2614,8 +2618,8 @@ class LocalStructOrderParams:
         """
         if thetas is not None and phis is not None:
             self.compute_trigonometric_terms(thetas, phis)
-        nnn = len(self._pow_sin_t[1])
-        nnn_range = range(nnn)
+        n_nn = len(self._pow_sin_t[1])
+        n_nn_range = range(n_nn)
 
         i64 = 1 / 64.0
         i32 = 1 / 32.0
@@ -2657,7 +2661,7 @@ class LocalStructOrderParams:
         # Y_6_-6
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) = cos(-x)
             imag -= pre_y_6_6[idx] * self._sin_n_p[6][idx]  # sin(x) = -sin(-x)
         acc += real * real + imag * imag
@@ -2665,7 +2669,7 @@ class LocalStructOrderParams:
         # Y_6_-5
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_5[idx] * self._cos_n_p[5][idx]
             imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
@@ -2673,7 +2677,7 @@ class LocalStructOrderParams:
         # Y_6_-4
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
             imag -= pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
@@ -2681,7 +2685,7 @@ class LocalStructOrderParams:
         # Y_6_-3
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
@@ -2689,7 +2693,7 @@ class LocalStructOrderParams:
         # Y_6_-2
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
             imag -= pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
@@ -2697,7 +2701,7 @@ class LocalStructOrderParams:
         # Y_6_-1
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
@@ -2705,7 +2709,7 @@ class LocalStructOrderParams:
         # Y_6_0
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += (
                 i32
                 * sqrt_13_pi
@@ -2716,7 +2720,7 @@ class LocalStructOrderParams:
         # Y_6_1
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_6_1[idx] * self._cos_n_p[1][idx]
             imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
@@ -2724,7 +2728,7 @@ class LocalStructOrderParams:
         # Y_6_2
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
             imag += pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
@@ -2732,7 +2736,7 @@ class LocalStructOrderParams:
         # Y_6_3
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_6_3[idx] * self._cos_n_p[3][idx]
             imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
@@ -2740,7 +2744,7 @@ class LocalStructOrderParams:
         # Y_6_4
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
             imag += pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
@@ -2748,7 +2752,7 @@ class LocalStructOrderParams:
         # Y_6_5
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real -= pre_y_6_5[idx] * self._cos_n_p[5][idx]
             imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
@@ -2756,12 +2760,12 @@ class LocalStructOrderParams:
         # Y_6_6
         real = 0.0
         imag = 0.0
-        for idx in nnn_range:
+        for idx in n_nn_range:
             real += pre_y_6_6[idx] * self._cos_n_p[6][idx]
             imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
-        return sqrt(4 * pi * acc / (13 * float(nnn * nnn)))
+        return sqrt(4 * pi * acc / (13 * float(n_nn * n_nn)))
 
     def get_type(self, index):
         """
@@ -2877,7 +2881,7 @@ class LocalStructOrderParams:
             neighsites = vnn.get_nn(structure, n)
         else:
             # Structure.get_sites_in_sphere --> also other periodic images
-            neighsitestmp = [i[0] for i in structure.get_sites_in_sphere(centsite.coords, self._cutoff)]
+            neighsitestmp = [idx[0] for idx in structure.get_sites_in_sphere(centsite.coords, self._cutoff)]
             neighsites = []
             if centsite not in neighsitestmp:
                 raise ValueError("Could not find center site!")
@@ -2887,8 +2891,8 @@ class LocalStructOrderParams:
                 neighsites = list(neighsitestmp)
             else:
                 neighsites[:] = [site for site in neighsitestmp if site.specie.symbol == target_spec]
-        nneigh = len(neighsites)
-        self._last_nneigh = nneigh
+        n_neighbors = len(neighsites)
+        self._last_nneigh = n_neighbors
 
         # Prepare angle calculations, if applicable.
         rij: list[np.ndarray] = []
@@ -2923,15 +2927,15 @@ class LocalStructOrderParams:
         # norms = [[[] for j in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
-        for i, t in enumerate(self._types):
-            if t == "cn":
-                ops[i] = nneigh / self._params[i]["norm"]
-            elif t == "sgl_bd":
+        for idx, typ in enumerate(self._types):
+            if typ == "cn":
+                ops[idx] = n_neighbors / self._params[idx]["norm"]
+            elif typ == "sgl_bd":
                 dist_sorted = sorted(dist)
                 if len(dist_sorted) == 1:
-                    ops[i] = 1
+                    ops[idx] = 1
                 elif len(dist_sorted) > 1:
-                    ops[i] = 1 - dist_sorted[0] / dist_sorted[1]
+                    ops[idx] = 1 - dist_sorted[0] / dist_sorted[1]
 
         # Then, bond orientational OPs based on spherical harmonics
         # according to Steinhardt et al., Phys. Rev. B, 28, 784-805, 1983.
@@ -2961,13 +2965,13 @@ class LocalStructOrderParams:
 
             # Note that None flags that we have too few neighbors
             # for calculating BOOPS.
-            for i, t in enumerate(self._types):
-                if t == "q2":
-                    ops[i] = self.get_q2(thetas, phis) if len(thetas) > 0 else None
-                elif t == "q4":
-                    ops[i] = self.get_q4(thetas, phis) if len(thetas) > 0 else None
-                elif t == "q6":
-                    ops[i] = self.get_q6(thetas, phis) if len(thetas) > 0 else None
+            for idx, typ in enumerate(self._types):
+                if typ == "q2":
+                    ops[idx] = self.get_q2(thetas, phis) if len(thetas) > 0 else None
+                elif typ == "q4":
+                    ops[idx] = self.get_q4(thetas, phis) if len(thetas) > 0 else None
+                elif typ == "q6":
+                    ops[idx] = self.get_q6(thetas, phis) if len(thetas) > 0 else None
 
         # Then, deal with the Peters-style OPs that are tailor-made
         # to recognize common structural motifs
@@ -2975,20 +2979,20 @@ class LocalStructOrderParams:
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak: list[float] = [0 for t in self._types]  # not used by all OPs
-            qsp_theta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
-            norms = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
+            qsp_theta = [[[] for j in range(n_neighbors)] for t in self._types]  # type: ignore
+            norms = [[[] for j in range(n_neighbors)] for t in self._types]  # type: ignore
             ipi = 1 / pi
             piover2 = pi / 2.0
             onethird = 1 / 3
             twothird = 2 / 3.0
-            for j in range(nneigh):  # Neighbor j is put to the North pole.
+            for j in range(n_neighbors):  # Neighbor j is put to the North pole.
                 zaxis = rij_norm[j]
                 kc = 0
-                for k in range(nneigh):  # From neighbor k, we construct
+                for k in range(n_neighbors):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
-                        for i in range(len(self._types)):
-                            qsp_theta[i][j].append(0.0)
-                            norms[i][j].append(0)
+                        for idx in range(len(self._types)):
+                            qsp_theta[idx][j].append(0.0)
+                            norms[idx][j].append(0)
                         tmp = max(-1.0, min(np.inner(zaxis, rij_norm[k]), 1.0))
                         thetak = acos(tmp)
                         xaxis = gramschmidt(rij_norm[k], zaxis)
@@ -3006,33 +3010,33 @@ class LocalStructOrderParams:
 
                         # Contributions of j-i-k angles, where i represents the
                         # central atom and j and k two of the neighbors.
-                        for i, t in enumerate(self._types):
-                            if t in ["bent", "sq_pyr_legacy"]:
-                                tmp = self._params[i]["IGW_TA"] * (thetak * ipi - self._params[i]["TA"])
-                                qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                norms[i][j][kc] += 1
-                            elif t in ["tri_plan", "tri_plan_max", "tet", "tet_max"]:
-                                tmp = self._params[i]["IGW_TA"] * (thetak * ipi - self._params[i]["TA"])
-                                gaussthetak[i] = exp(-0.5 * tmp * tmp)
-                                if t in ["tri_plan_max", "tet_max"]:
-                                    qsp_theta[i][j][kc] += gaussthetak[i]
-                                    norms[i][j][kc] += 1
-                            elif t in ["T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"]:
-                                tmp = self._params[i]["IGW_EP"] * (thetak * ipi - 0.5)
-                                qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                norms[i][j][kc] += 1
-                            elif t in [
+                        for idx, typ in enumerate(self._types):
+                            if typ in ["bent", "sq_pyr_legacy"]:
+                                tmp = self._params[idx]["IGW_TA"] * (thetak * ipi - self._params[idx]["TA"])
+                                qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp)
+                                norms[idx][j][kc] += 1
+                            elif typ in ["tri_plan", "tri_plan_max", "tet", "tet_max"]:
+                                tmp = self._params[idx]["IGW_TA"] * (thetak * ipi - self._params[idx]["TA"])
+                                gaussthetak[idx] = exp(-0.5 * tmp * tmp)
+                                if typ in ["tri_plan_max", "tet_max"]:
+                                    qsp_theta[idx][j][kc] += gaussthetak[idx]
+                                    norms[idx][j][kc] += 1
+                            elif typ in ["T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"]:
+                                tmp = self._params[idx]["IGW_EP"] * (thetak * ipi - 0.5)
+                                qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp)
+                                norms[idx][j][kc] += 1
+                            elif typ in [
                                 "sq_plan",
                                 "oct",
                                 "oct_legacy",
                                 "cuboct",
                                 "cuboct_max",
                             ]:
-                                if thetak >= self._params[i]["min_SPP"]:
-                                    tmp = self._params[i]["IGW_SPP"] * (thetak * ipi - 1.0)
-                                    qsp_theta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
-                                    norms[i][j][kc] += self._params[i]["w_SPP"]
-                            elif t in [
+                                if thetak >= self._params[idx]["min_SPP"]:
+                                    tmp = self._params[idx]["IGW_SPP"] * (thetak * ipi - 1.0)
+                                    qsp_theta[idx][j][kc] += self._params[idx]["w_SPP"] * exp(-0.5 * tmp * tmp)
+                                    norms[idx][j][kc] += self._params[idx]["w_SPP"]
+                            elif typ in [
                                 "see_saw_rect",
                                 "tri_bipyr",
                                 "sq_bipyr",
@@ -3042,33 +3046,33 @@ class LocalStructOrderParams:
                                 "sq_plan_max",
                                 "hex_plan_max",
                             ]:
-                                if thetak < self._params[i]["min_SPP"]:
+                                if thetak < self._params[idx]["min_SPP"]:
                                     tmp = (
-                                        self._params[i]["IGW_EP"] * (thetak * ipi - 0.5)
-                                        if t != "hex_plan_max"
-                                        else self._params[i]["IGW_TA"]
-                                        * (fabs(thetak * ipi - 0.5) - self._params[i]["TA"])
+                                        self._params[idx]["IGW_EP"] * (thetak * ipi - 0.5)
+                                        if typ != "hex_plan_max"
+                                        else self._params[idx]["IGW_TA"]
+                                        * (fabs(thetak * ipi - 0.5) - self._params[idx]["TA"])
                                     )
-                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                    norms[i][j][kc] += 1
-                            elif t in ["pent_plan", "pent_plan_max"]:
-                                tmp = 0.4 if thetak <= self._params[i]["TA"] * pi else 0.8
-                                tmp2 = self._params[i]["IGW_TA"] * (thetak * ipi - tmp)
-                                gaussthetak[i] = exp(-0.5 * tmp2 * tmp2)
-                                if t == "pent_plan_max":
-                                    qsp_theta[i][j][kc] += gaussthetak[i]
-                                    norms[i][j][kc] += 1
-                            elif t == "bcc" and j < k:
-                                if thetak >= self._params[i]["min_SPP"]:
-                                    tmp = self._params[i]["IGW_SPP"] * (thetak * ipi - 1.0)
-                                    qsp_theta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
-                                    norms[i][j][kc] += self._params[i]["w_SPP"]
-                            elif t == "sq_face_cap_trig_pris" and thetak < self._params[i]["TA3"]:
-                                tmp = self._params[i]["IGW_TA1"] * (thetak * ipi - self._params[i]["TA1"])
-                                qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                norms[i][j][kc] += 1
+                                    qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp)
+                                    norms[idx][j][kc] += 1
+                            elif typ in ["pent_plan", "pent_plan_max"]:
+                                tmp = 0.4 if thetak <= self._params[idx]["TA"] * pi else 0.8
+                                tmp2 = self._params[idx]["IGW_TA"] * (thetak * ipi - tmp)
+                                gaussthetak[idx] = exp(-0.5 * tmp2 * tmp2)
+                                if typ == "pent_plan_max":
+                                    qsp_theta[idx][j][kc] += gaussthetak[idx]
+                                    norms[idx][j][kc] += 1
+                            elif typ == "bcc" and j < k:
+                                if thetak >= self._params[idx]["min_SPP"]:
+                                    tmp = self._params[idx]["IGW_SPP"] * (thetak * ipi - 1.0)
+                                    qsp_theta[idx][j][kc] += self._params[idx]["w_SPP"] * exp(-0.5 * tmp * tmp)
+                                    norms[idx][j][kc] += self._params[idx]["w_SPP"]
+                            elif typ == "sq_face_cap_trig_pris" and thetak < self._params[idx]["TA3"]:
+                                tmp = self._params[idx]["IGW_TA1"] * (thetak * ipi - self._params[idx]["TA1"])
+                                qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp)
+                                norms[idx][j][kc] += 1
 
-                        for m in range(nneigh):
+                        for m in range(n_neighbors):
                             if (m != j) and (m != k) and (not flag_xaxis):
                                 tmp = max(-1.0, min(np.inner(zaxis, rij_norm[m]), 1.0))
                                 thetam = acos(tmp)
@@ -3087,7 +3091,7 @@ class LocalStructOrderParams:
                                         )
                                 # South pole contributions of m.
                                 if (
-                                    t
+                                    typ
                                     in [
                                         "tri_bipyr",
                                         "sq_bipyr",
@@ -3098,60 +3102,68 @@ class LocalStructOrderParams:
                                         "hex_plan_max",
                                         "see_saw_rect",
                                     ]
-                                    and thetam >= self._params[i]["min_SPP"]
+                                    and thetam >= self._params[idx]["min_SPP"]
                                 ):
-                                    tmp = self._params[i]["IGW_SPP"] * (thetam * ipi - 1.0)
-                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                    norms[i][j][kc] += 1
+                                    tmp = self._params[idx]["IGW_SPP"] * (thetam * ipi - 1.0)
+                                    qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp)
+                                    norms[idx][j][kc] += 1
 
                                 # Contributions of j-i-m angle and
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
-                                    for i, t in enumerate(self._types):
-                                        if t in [
+                                    for idx, typ in enumerate(self._types):
+                                        if typ in [
                                             "tri_plan",
                                             "tri_plan_max",
                                             "tet",
                                             "tet_max",
                                         ]:
-                                            tmp = self._params[i]["IGW_TA"] * (thetam * ipi - self._params[i]["TA"])
-                                            tmp2 = cos(self._params[i]["fac_AA"] * phi) ** self._params[i]["exp_cos_AA"]
-                                            tmp3 = 1 if t in ["tri_plan_max", "tet_max"] else gaussthetak[i]
-                                            qsp_theta[i][j][kc] += tmp3 * exp(-0.5 * tmp * tmp) * tmp2
-                                            norms[i][j][kc] += 1
-                                        elif t in ["pent_plan", "pent_plan_max"]:
-                                            tmp = 0.4 if thetam <= self._params[i]["TA"] * pi else 0.8
-                                            tmp2 = self._params[i]["IGW_TA"] * (thetam * ipi - tmp)
+                                            tmp = self._params[idx]["IGW_TA"] * (thetam * ipi - self._params[idx]["TA"])
+                                            tmp2 = (
+                                                cos(self._params[idx]["fac_AA"] * phi)
+                                                ** self._params[idx]["exp_cos_AA"]
+                                            )
+                                            tmp3 = 1 if typ in ["tri_plan_max", "tet_max"] else gaussthetak[idx]
+                                            qsp_theta[idx][j][kc] += tmp3 * exp(-0.5 * tmp * tmp) * tmp2
+                                            norms[idx][j][kc] += 1
+                                        elif typ in ["pent_plan", "pent_plan_max"]:
+                                            tmp = 0.4 if thetam <= self._params[idx]["TA"] * pi else 0.8
+                                            tmp2 = self._params[idx]["IGW_TA"] * (thetam * ipi - tmp)
                                             tmp3 = cos(phi)
-                                            tmp4 = 1 if t == "pent_plan_max" else gaussthetak[i]
-                                            qsp_theta[i][j][kc] += tmp4 * exp(-0.5 * tmp2 * tmp2) * tmp3 * tmp3
-                                            norms[i][j][kc] += 1
-                                        elif t in [
+                                            tmp4 = 1 if typ == "pent_plan_max" else gaussthetak[idx]
+                                            qsp_theta[idx][j][kc] += tmp4 * exp(-0.5 * tmp2 * tmp2) * tmp3 * tmp3
+                                            norms[idx][j][kc] += 1
+                                        elif typ in [
                                             "T",
                                             "tri_pyr",
                                             "sq_pyr",
                                             "pent_pyr",
                                             "hex_pyr",
                                         ]:
-                                            tmp = cos(self._params[i]["fac_AA"] * phi) ** self._params[i]["exp_cos_AA"]
-                                            tmp3 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                            qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp3 * tmp3)
-                                            norms[i][j][kc] += 1
-                                        elif t in ["sq_plan", "oct", "oct_legacy"]:
+                                            tmp = (
+                                                cos(self._params[idx]["fac_AA"] * phi)
+                                                ** self._params[idx]["exp_cos_AA"]
+                                            )
+                                            tmp3 = self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                            qsp_theta[idx][j][kc] += tmp * exp(-0.5 * tmp3 * tmp3)
+                                            norms[idx][j][kc] += 1
+                                        elif typ in ["sq_plan", "oct", "oct_legacy"]:
                                             if (
-                                                thetak < self._params[i]["min_SPP"]
-                                                and thetam < self._params[i]["min_SPP"]
+                                                thetak < self._params[idx]["min_SPP"]
+                                                and thetam < self._params[idx]["min_SPP"]
                                             ):
                                                 tmp = (
-                                                    cos(self._params[i]["fac_AA"] * phi)
-                                                    ** self._params[i]["exp_cos_AA"]
+                                                    cos(self._params[idx]["fac_AA"] * phi)
+                                                    ** self._params[idx]["exp_cos_AA"]
                                                 )
-                                                tmp2 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                                if t == "oct_legacy":
-                                                    qsp_theta[i][j][kc] -= tmp * self._params[i][6] * self._params[i][7]
-                                                norms[i][j][kc] += 1
-                                        elif t in [
+                                                tmp2 = self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                qsp_theta[idx][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                if typ == "oct_legacy":
+                                                    qsp_theta[idx][j][kc] -= (
+                                                        tmp * self._params[idx][6] * self._params[idx][7]
+                                                    )
+                                                norms[idx][j][kc] += 1
+                                        elif typ in [
                                             "tri_bipyr",
                                             "sq_bipyr",
                                             "pent_bipyr",
@@ -3161,99 +3173,99 @@ class LocalStructOrderParams:
                                             "hex_plan_max",
                                         ]:
                                             if (
-                                                thetam < self._params[i]["min_SPP"]
-                                                and thetak < self._params[i]["min_SPP"]
+                                                thetam < self._params[idx]["min_SPP"]
+                                                and thetak < self._params[idx]["min_SPP"]
                                             ):
                                                 tmp = (
-                                                    cos(self._params[i]["fac_AA"] * phi)
-                                                    ** self._params[i]["exp_cos_AA"]
+                                                    cos(self._params[idx]["fac_AA"] * phi)
+                                                    ** self._params[idx]["exp_cos_AA"]
                                                 )
                                                 tmp2 = (
-                                                    self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                    if t != "hex_plan_max"
-                                                    else self._params[i]["IGW_TA"]
-                                                    * (fabs(thetam * ipi - 0.5) - self._params[i]["TA"])
+                                                    self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                    if typ != "hex_plan_max"
+                                                    else self._params[idx]["IGW_TA"]
+                                                    * (fabs(thetam * ipi - 0.5) - self._params[idx]["TA"])
                                                 )
-                                                qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                                norms[i][j][kc] += 1
-                                        elif t == "bcc" and j < k:
-                                            if thetak < self._params[i]["min_SPP"]:
+                                                qsp_theta[idx][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[idx][j][kc] += 1
+                                        elif typ == "bcc" and j < k:
+                                            if thetak < self._params[idx]["min_SPP"]:
                                                 fac = 1 if thetak > piover2 else -1
                                                 tmp = (thetam - piover2) / asin(1 / 3)
-                                                qsp_theta[i][j][kc] += (
+                                                qsp_theta[idx][j][kc] += (
                                                     fac * cos(3 * phi) * fac_bcc * tmp * exp(-0.5 * tmp * tmp)
                                                 )
-                                                norms[i][j][kc] += 1
-                                        elif t == "see_saw_rect":
+                                                norms[idx][j][kc] += 1
+                                        elif typ == "see_saw_rect":
                                             if (
-                                                thetam < self._params[i]["min_SPP"]
-                                                and thetak < self._params[i]["min_SPP"]
+                                                thetam < self._params[idx]["min_SPP"]
+                                                and thetak < self._params[idx]["min_SPP"]
                                                 and phi < 0.75 * pi
                                             ):
                                                 tmp = (
-                                                    cos(self._params[i]["fac_AA"] * phi)
-                                                    ** self._params[i]["exp_cos_AA"]
+                                                    cos(self._params[idx]["fac_AA"] * phi)
+                                                    ** self._params[idx]["exp_cos_AA"]
                                                 )
-                                                tmp2 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                                norms[i][j][kc] += 1.0
-                                        elif t in ["cuboct", "cuboct_max"]:
+                                                tmp2 = self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                qsp_theta[idx][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[idx][j][kc] += 1.0
+                                        elif typ in ["cuboct", "cuboct_max"]:
                                             if (
-                                                thetam < self._params[i]["min_SPP"]
-                                                and self._params[i][4] < thetak < self._params[i][2]
+                                                thetam < self._params[idx]["min_SPP"]
+                                                and self._params[idx][4] < thetak < self._params[idx][2]
                                             ):
-                                                if self._params[i][4] < thetam < self._params[i][2]:
+                                                if self._params[idx][4] < thetam < self._params[idx][2]:
                                                     tmp = cos(phi)
-                                                    tmp2 = self._params[i][5] * (thetam * ipi - 0.5)
-                                                    qsp_theta[i][j][kc] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
-                                                    norms[i][j][kc] += 1.0
-                                                elif thetam < self._params[i][4]:
+                                                    tmp2 = self._params[idx][5] * (thetam * ipi - 0.5)
+                                                    qsp_theta[idx][j][kc] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
+                                                    norms[idx][j][kc] += 1.0
+                                                elif thetam < self._params[idx][4]:
                                                     tmp = 0.0556 * (cos(phi - 0.5 * pi) - 0.81649658)
-                                                    tmp2 = self._params[i][6] * (thetam * ipi - onethird)
-                                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp) * exp(
+                                                    tmp2 = self._params[idx][6] * (thetam * ipi - onethird)
+                                                    qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp) * exp(
                                                         -0.5 * tmp2 * tmp2
                                                     )
-                                                    norms[i][j][kc] += 1.0
-                                                elif thetam > self._params[i][2]:
+                                                    norms[idx][j][kc] += 1.0
+                                                elif thetam > self._params[idx][2]:
                                                     tmp = 0.0556 * (cos(phi - 0.5 * pi) - 0.81649658)
-                                                    tmp2 = self._params[i][6] * (thetam * ipi - twothird)
-                                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp) * exp(
+                                                    tmp2 = self._params[idx][6] * (thetam * ipi - twothird)
+                                                    qsp_theta[idx][j][kc] += exp(-0.5 * tmp * tmp) * exp(
                                                         -0.5 * tmp2 * tmp2
                                                     )
-                                                    norms[i][j][kc] += 1.0
+                                                    norms[idx][j][kc] += 1.0
                                         elif (
-                                            t == "sq_face_cap_trig_pris"
+                                            typ == "sq_face_cap_trig_pris"
                                             and not flag_yaxis
-                                            and thetak < self._params[i]["TA3"]
+                                            and thetak < self._params[idx]["TA3"]
                                         ):
-                                            if thetam < self._params[i]["TA3"]:
+                                            if thetam < self._params[idx]["TA3"]:
                                                 tmp = (
-                                                    cos(self._params[i]["fac_AA1"] * phi2)
-                                                    ** self._params[i]["exp_cos_AA1"]
+                                                    cos(self._params[idx]["fac_AA1"] * phi2)
+                                                    ** self._params[idx]["exp_cos_AA1"]
                                                 )
-                                                tmp2 = self._params[i]["IGW_TA1"] * (
-                                                    thetam * ipi - self._params[i]["TA1"]
+                                                tmp2 = self._params[idx]["IGW_TA1"] * (
+                                                    thetam * ipi - self._params[idx]["TA1"]
                                                 )
                                             else:
                                                 tmp = (
                                                     cos(
-                                                        self._params[i]["fac_AA2"]
-                                                        * (phi2 + self._params[i]["shift_AA2"])
+                                                        self._params[idx]["fac_AA2"]
+                                                        * (phi2 + self._params[idx]["shift_AA2"])
                                                     )
-                                                    ** self._params[i]["exp_cos_AA2"]
+                                                    ** self._params[idx]["exp_cos_AA2"]
                                                 )
-                                                tmp2 = self._params[i]["IGW_TA2"] * (
-                                                    thetam * ipi - self._params[i]["TA2"]
+                                                tmp2 = self._params[idx]["IGW_TA2"] * (
+                                                    thetam * ipi - self._params[idx]["TA2"]
                                                 )
 
-                                            qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
-                                            norms[i][j][kc] += 1
+                                            qsp_theta[idx][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                            norms[idx][j][kc] += 1
 
                         kc += 1
 
             # Normalize Peters-style OPs.
-            for i, t in enumerate(self._types):
-                if t in [
+            for idx, typ in enumerate(self._types):
+                if typ in [
                     "tri_plan",
                     "tet",
                     "bent",
@@ -3263,12 +3275,12 @@ class LocalStructOrderParams:
                     "cuboct",
                     "pent_plan",
                 ]:
-                    ops[i] = tmp_norm = 0.0
-                    for j in range(nneigh):
-                        ops[i] += sum(qsp_theta[i][j])
-                        tmp_norm += float(sum(norms[i][j]))
-                    ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore
-                elif t in [
+                    ops[idx] = tmp_norm = 0.0
+                    for j in range(n_neighbors):
+                        ops[idx] += sum(qsp_theta[idx][j])
+                        tmp_norm += float(sum(norms[idx][j]))
+                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore
+                elif typ in [
                     "T",
                     "tri_pyr",
                     "see_saw_rect",
@@ -3288,35 +3300,37 @@ class LocalStructOrderParams:
                     "hex_plan_max",
                     "sq_face_cap_trig_pris",
                 ]:
-                    ops[i] = None  # type: ignore
-                    if nneigh > 1:
-                        for j in range(nneigh):
-                            for k in range(len(qsp_theta[i][j])):
-                                qsp_theta[i][j][k] = (
-                                    qsp_theta[i][j][k] / norms[i][j][k] if norms[i][j][k] > 1.0e-12 else 0.0
+                    ops[idx] = None  # type: ignore[call-overload]
+                    if n_neighbors > 1:
+                        for j in range(n_neighbors):
+                            for k in range(len(qsp_theta[idx][j])):
+                                qsp_theta[idx][j][k] = (
+                                    qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1.0e-12 else 0.0
                                 )
-                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], *qsp_theta[i][j])
-                elif t == "bcc":
-                    ops[i] = 0.0
-                    for j in range(nneigh):
-                        ops[i] += sum(qsp_theta[i][j])
-                    if nneigh > 3:
-                        ops[i] = ops[i] / float(0.5 * float(nneigh * (6 + (nneigh - 2) * (nneigh - 3))))
+                            ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
+                elif typ == "bcc":
+                    ops[idx] = 0.0
+                    for j in range(n_neighbors):
+                        ops[idx] += sum(qsp_theta[idx][j])
+                    if n_neighbors > 3:
+                        ops[idx] = ops[idx] / float(
+                            0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3)))
+                        )
                     else:
-                        ops[i] = None  # type: ignore
-                elif t == "sq_pyr_legacy":
-                    if nneigh > 1:
+                        ops[idx] = None  # type: ignore[call-overload]
+                elif typ == "sq_pyr_legacy":
+                    if n_neighbors > 1:
                         dmean = np.mean(dist)
                         acc = 0.0
                         for d in dist:
-                            tmp = self._params[i][2] * (d - dmean)
+                            tmp = self._params[idx][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
-                        for j in range(nneigh):
-                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], *qsp_theta[i][j])
-                        ops[i] = acc * ops[i] / float(nneigh)
+                        for j in range(n_neighbors):
+                            ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
+                        ops[idx] = acc * ops[idx] / float(n_neighbors)
                         # nneigh * (nneigh - 1))
                     else:
-                        ops[i] = None  # type: ignore
+                        ops[idx] = None  # type: ignore[call-overload]
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
@@ -3332,31 +3346,31 @@ class LocalStructOrderParams:
             neighscent = np.array([0.0, 0.0, 0.0])
             for neigh in neighsites:
                 neighscent = neighscent + neigh.coords
-            if nneigh > 0:
-                neighscent = neighscent / float(nneigh)
+            if n_neighbors > 0:
+                neighscent = neighscent / float(n_neighbors)
             h = np.linalg.norm(neighscent - centvec)
             b = min(distjk_unique) if len(distjk_unique) > 0 else 0
             dhalf = max(distjk_unique) / 2 if len(distjk_unique) > 0 else 0
 
-            for i, t in enumerate(self._types):
-                if t in ("reg_tri", "sq"):
-                    if nneigh < 3:
-                        ops[i] = None  # type: ignore
+            for idx, typ in enumerate(self._types):
+                if typ in ("reg_tri", "sq"):
+                    if n_neighbors < 3:
+                        ops[idx] = None  # type: ignore[call-overload]
                     else:
-                        ops[i] = 1.0
-                        if t == "reg_tri":
+                        ops[idx] = 1.0
+                        if typ == "reg_tri":
                             a = 2 * asin(b / (2 * sqrt(h * h + (b / (2 * cos(3 * pi / 18))) ** 2)))  # type: ignore
                             nmax = 3
-                        elif t == "sq":
+                        elif typ == "sq":
                             a = 2 * asin(b / (2 * sqrt(h * h + dhalf * dhalf)))  # type: ignore
                             nmax = 4
-                        for j in range(min([nneigh, nmax])):
-                            ops[i] = ops[i] * exp(-0.5 * ((aijs[j] - a) * self._params[i][0]) ** 2)
+                        for j in range(min([n_neighbors, nmax])):
+                            ops[idx] = ops[idx] * exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)
 
         return ops
 
 
-class BrunnerNN_reciprocal(NearNeighbors):
+class BrunnerNNReciprocal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3401,34 +3415,41 @@ class BrunnerNN_reciprocal(NearNeighbors):
             n (int): index of site for which to determine near-neighbor sites.
 
         Returns:
-            siw (list of tuples (Site, array, float)): tuples, each one
-                of which represents a coordinated site, its image location,
-                and its weight.
+            list[tuples[Site, array, float]]: tuples, each one of which represents a
+                coordinated site, its image location, and its weight.
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = sorted(i.nn_distance for i in neighs_dists)
+        ds = sorted(idx.nn_distance for idx in neighs_dists)
 
-        ns = [1 / ds[i] - 1 / ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [1 / ds[idx] - 1 / ds[idx + 1] for idx in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
         for nn in neighs_dists:
-            s, dist = nn, nn.nn_distance
+            site, dist = nn, nn.nn_distance
             if dist < d_max + self.tol:
                 w = ds[0] / dist
-                siw.append(
+                siw += [
                     {
-                        "site": s,
-                        "image": self._get_image(structure, s),
+                        "site": site,
+                        "image": self._get_image(structure, site),
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": self._get_original_site(structure, site),
                     }
-                )
+                ]
         return siw
 
 
-class BrunnerNN_relative(NearNeighbors):
+@deprecated(
+    BrunnerNNReciprocal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_reciprocal(BrunnerNNReciprocal):
+    pass
+
+
+class BrunnerNNRelative(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3479,9 +3500,9 @@ class BrunnerNN_relative(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = sorted(i.nn_distance for i in neighs_dists)
+        ds = sorted(idx.nn_distance for idx in neighs_dists)
 
-        ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
+        ns = [ds[idx + 1] / ds[idx] for idx in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3500,7 +3521,15 @@ class BrunnerNN_relative(NearNeighbors):
         return siw
 
 
-class BrunnerNN_real(NearNeighbors):
+@deprecated(
+    BrunnerNNRelative,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_relative(BrunnerNNRelative):
+    pass
+
+
+class BrunnerNNReal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3551,9 +3580,9 @@ class BrunnerNN_real(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = sorted(i.nn_distance for i in neighs_dists)
+        ds = sorted(idx.nn_distance for idx in neighs_dists)
 
-        ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
+        ns = [ds[idx + 1] - ds[idx] for idx in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3570,6 +3599,14 @@ class BrunnerNN_real(NearNeighbors):
                     }
                 )
         return siw
+
+
+@deprecated(
+    BrunnerNNReal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_real(BrunnerNNReal):
+    pass
 
 
 class EconNN(NearNeighbors):
@@ -3780,23 +3817,23 @@ class CrystalNN(NearNeighbors):
         geometric match.
 
         Args:
-            weighted_cn: (bool) if set to True, will return fractional weights
+            weighted_cn (bool): if set to True, will return fractional weights
                 for each potential near neighbor.
-            cation_anion: (bool) if set True, will restrict bonding targets to
+            cation_anion (bool): if set True, will restrict bonding targets to
                 sites with opposite or zero charge. Requires an oxidation states
                 on all sites in the structure.
-            distance_cutoffs: ([float, float]) - if not None, penalizes neighbor
+            distance_cutoffs ([float, float]): - if not None, penalizes neighbor
                 distances greater than sum of covalent radii plus
                 distance_cutoffs[0]. Distances greater than covalent radii sum
                 plus distance_cutoffs[1] are enforced to have zero weight.
-            x_diff_weight: (float) - if multiple types of neighbor elements are
+            x_diff_weight (float): - if multiple types of neighbor elements are
                 possible, this sets preferences for targets with higher
                 electronegativity difference.
-            porous_adjustment: (bool) - if True, readjusts Voronoi weights to
+            porous_adjustment (bool): - if True, readjusts Voronoi weights to
                 better describe layered / porous structures
-            search_cutoff: (float) cutoff in Angstroms for initial neighbor
+            search_cutoff (float): cutoff in Angstroms for initial neighbor
                 search; this will be adjusted if needed internally
-            fingerprint_length: (int) if a fixed_length CN "fingerprint" is
+            fingerprint_length (int): if a fixed_length CN "fingerprint" is
                 desired from get_nn_data(), set this parameter
         """
         self.weighted_cn = weighted_cn
@@ -4051,19 +4088,21 @@ class CrystalNN(NearNeighbors):
         Returns:
             float: integral of portion of unit semicircle
         """
-        r = 1
+        radius = 1
 
         x1 = dist_bins[idx]
         x2 = dist_bins[idx + 1]
 
         if dist_bins[idx] == 1:
-            area1 = 0.25 * math.pi * r**2
+            area1 = 0.25 * math.pi * radius**2
         else:
-            area1 = 0.5 * ((x1 * math.sqrt(r**2 - x1**2)) + (r**2 * math.atan(x1 / math.sqrt(r**2 - x1**2))))
+            area1 = 0.5 * (
+                (x1 * math.sqrt(radius**2 - x1**2)) + (radius**2 * math.atan(x1 / math.sqrt(radius**2 - x1**2)))
+            )
 
-        area2 = 0.5 * ((x2 * math.sqrt(r**2 - x2**2)) + (r**2 * math.atan(x2 / math.sqrt(r**2 - x2**2))))
+        area2 = 0.5 * ((x2 * math.sqrt(radius**2 - x2**2)) + (radius**2 * math.atan(x2 / math.sqrt(radius**2 - x2**2))))
 
-        return (area1 - area2) / (0.25 * math.pi * r**2)
+        return (area1 - area2) / (0.25 * math.pi * radius**2)
 
     @staticmethod
     def transform_to_length(nn_data, length):
@@ -4204,7 +4243,7 @@ class CutOffDictNN(NearNeighbors):
         return True
 
     @classmethod
-    def from_preset(cls, preset) -> CutOffDictNN:
+    def from_preset(cls, preset) -> Self:
         """
         Initialize a CutOffDictNN according to a preset set of cutoffs.
 

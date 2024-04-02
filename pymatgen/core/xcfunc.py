@@ -1,13 +1,17 @@
-"""This module provides."""
+"""This module provides class for XC correlation functional."""
 
 from __future__ import annotations
 
 from collections import namedtuple
+from typing import TYPE_CHECKING
 
 from monty.functools import lazy_property
 from monty.json import MSONable
 
 from pymatgen.core.libxcfunc import LibxcFunc
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -111,13 +115,29 @@ class XcFunc(MSONable):
 
     del xcf
 
+    def __init__(self, xc: LibxcFunc | None = None, x: LibxcFunc | None = None, c: LibxcFunc | None = None) -> None:
+        """
+        Args:
+            xc: LibxcFunc for XC functional.
+            x: LibxcFunc for exchange part. Mutually exclusive with xc.
+            c: LibxcFunc for correlation part. Mutually exclusive with xc.
+        """
+        # Consistency check
+        if xc is None:
+            if x is None or c is None:
+                raise ValueError("x or c must be specified when xc is None")
+        elif x is not None or c is not None:
+            raise ValueError("x and c should be None when xc is specified")
+
+        self.xc, self.x, self.c = xc, x, c
+
     @classmethod
-    def aliases(cls):
+    def aliases(cls) -> list[str]:
         """List of registered names."""
         return [nt.name for nt in cls.defined_aliases.values()]
 
     @classmethod
-    def asxc(cls, obj):
+    def asxc(cls, obj) -> Self:
         """Convert object into Xcfunc."""
         if isinstance(obj, cls):
             return obj
@@ -126,9 +146,8 @@ class XcFunc(MSONable):
         raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
 
     @classmethod
-    def from_abinit_ixc(cls, ixc):
+    def from_abinit_ixc(cls, ixc: int) -> Self | None:
         """Build the object from Abinit ixc (integer)."""
-        ixc = int(ixc)
         if ixc == 0:
             return None
         if ixc > 0:
@@ -146,12 +165,12 @@ class XcFunc(MSONable):
         return cls(x=x, c=c)
 
     @classmethod
-    def from_name(cls, name):
+    def from_name(cls, name: str) -> Self:
         """Build the object from one of the registered names."""
         return cls.from_type_name(None, name)
 
     @classmethod
-    def from_type_name(cls, typ, name):
+    def from_type_name(cls, typ: str | None, name: str) -> Self:
         """Build the object from (type, name)."""
         # Try aliases first.
         for k, nt in cls.defined_aliases.items():
@@ -168,12 +187,11 @@ class XcFunc(MSONable):
         # name="GGA_X_PBE+GGA_C_PBE" or name=""LDA_XC_TETER93"
         if "+" in name:
             x, c = (s.strip() for s in name.split("+"))
-            x, c = LibxcFunc[x], LibxcFunc[c]
-            return cls(x=x, c=c)
-        xc = LibxcFunc[name]
-        return cls(xc=xc)
+            return cls(x=LibxcFunc[x], c=LibxcFunc[c])
 
-    def as_dict(self):
+        return cls(xc=LibxcFunc[name])
+
+    def as_dict(self) -> dict:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
@@ -185,53 +203,48 @@ class XcFunc(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Deserialize from MSONable dict representation."""
         return cls(xc=dct.get("xc"), x=dct.get("x"), c=dct.get("c"))
 
-    def __init__(self, xc=None, x=None, c=None) -> None:
-        """
-        Args:
-            xc: LibxcFunc for XC functional.
-            x: LibxcFunc for exchange part. Mutually exclusive with xc.
-            c: LibxcFunc for correlation part. Mutually exclusive with xc.
-        """
-        # Consistency check
-        if xc is None:
-            if x is None or c is None:
-                raise ValueError("x or c must be specified when xc is None")
-        elif x is not None or c is not None:
-            raise ValueError("x and c should be None when xc is specified")
-
-        self.xc, self.x, self.c = xc, x, c
-
     @lazy_property
-    def type(self):
+    def type(self) -> str | None:
         """The type of the functional."""
-        if self.xc in self.defined_aliases:
-            return self.defined_aliases[self.xc].type
+        if self.xc in self.defined_aliases and self.xc is not None:
+            return self.defined_aliases[self.xc].type  # type: ignore[index]
+
         xc = self.x, self.c
         if xc in self.defined_aliases:
-            return self.defined_aliases[xc].type
+            return self.defined_aliases[xc].type  # type: ignore[index]
 
         # If self is not in defined_aliases, use LibxcFunc family
         if self.xc is not None:
             return self.xc.family
-        return f"{self.x.family}+{self.c.family}"
+
+        if self.x is not None and self.c is not None:
+            return f"{self.x.family}+{self.c.family}"
+
+        return None
 
     @lazy_property
-    def name(self) -> str:
+    def name(self) -> str | None:
         """The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:
-            return self.defined_aliases[self.xc].name
+            return self.defined_aliases[self.xc].name  # type: ignore[index]
+
         xc = (self.x, self.c)
         if xc in self.defined_aliases:
-            return self.defined_aliases[xc].name
+            return self.defined_aliases[xc].name  # type: ignore[index]
+
         if self.xc is not None:
             return self.xc.name
-        return f"{self.x.name}+{self.c.name}"
+
+        if self.x is not None and self.c is not None:
+            return f"{self.x.name}+{self.c.name}"
+
+        return None
 
     def __repr__(self) -> str:
         return str(self.name)

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 from pytest import approx
 
@@ -16,7 +14,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 26, 2012"
 
 
-class TestCovalentBond(unittest.TestCase):
+class TestCovalentBond:
     def test_length(self):
         site1 = Site("C", [0, 0, 0])
         site2 = Site("H", [0, 0.7, 0.6])
@@ -46,7 +44,7 @@ class TestCovalentBond(unittest.TestCase):
         assert CovalentBond(site1, site2) is not None
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc:
     def test_get_bond_length(self):
         assert approx(get_bond_length("C", "C", 1) - 1.54) == 0
         assert approx(get_bond_length("C", "C", 2) - 1.34) == 0

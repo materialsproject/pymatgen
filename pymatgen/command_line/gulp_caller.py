@@ -541,66 +541,67 @@ class GulpIO:
             gout (str): GULP output string.
 
         Returns:
-            (Structure) relaxed structure.
+            Structure: relaxed structure.
         """
         # Find the structure lines
         structure_lines = []
         cell_param_lines = []
         output_lines = gout.split("\n")
-        no_lines = len(output_lines)
-        i = 0
+        n_lines = len(output_lines)
+        idx = 0
+        a = b = c = alpha = beta = gamma = 0.0
         # Compute the input lattice parameters
-        while i < no_lines:
-            line = output_lines[i]
+        while idx < n_lines:
+            line = output_lines[idx]
             if "Full cell parameters" in line:
-                i += 2
-                line = output_lines[i]
+                idx += 2
+                line = output_lines[idx]
                 a = float(line.split()[8])
                 alpha = float(line.split()[11])
-                line = output_lines[i + 1]
+                line = output_lines[idx + 1]
                 b = float(line.split()[8])
                 beta = float(line.split()[11])
-                line = output_lines[i + 2]
+                line = output_lines[idx + 2]
                 c = float(line.split()[8])
                 gamma = float(line.split()[11])
-                i += 3
+                idx += 3
                 break
             if "Cell parameters" in line:
-                i += 2
-                line = output_lines[i]
+                idx += 2
+                line = output_lines[idx]
                 a = float(line.split()[2])
                 alpha = float(line.split()[5])
-                line = output_lines[i + 1]
+                line = output_lines[idx + 1]
                 b = float(line.split()[2])
                 beta = float(line.split()[5])
-                line = output_lines[i + 2]
+                line = output_lines[idx + 2]
                 c = float(line.split()[2])
                 gamma = float(line.split()[5])
-                i += 3
+                idx += 3
                 break
-            i += 1
+            idx += 1
 
-        while i < no_lines:
-            line = output_lines[i]
+        while idx < n_lines:
+            line = output_lines[idx]
             if "Final fractional coordinates of atoms" in line:
                 # read the site coordinates in the following lines
-                i += 6
-                line = output_lines[i]
+                idx += 6
+                line = output_lines[idx]
                 while line[0:2] != "--":
                     structure_lines.append(line)
-                    i += 1
-                    line = output_lines[i]
+                    idx += 1
+                    line = output_lines[idx]
                     # read the cell parameters
-                i += 9
-                line = output_lines[i]
+                idx += 9
+                line = output_lines[idx]
                 if "Final cell parameters" in line:
-                    i += 3
+                    idx += 3
                     for del_i in range(6):
-                        line = output_lines[i + del_i]
+                        line = output_lines[idx + del_i]
                         cell_param_lines.append(line)
 
                 break
-            i += 1
+            idx += 1
 
         # Process the structure lines
         if structure_lines:
@@ -621,9 +622,13 @@ class GulpIO:
             alpha = float(cell_param_lines[3].split()[1])
             beta = float(cell_param_lines[4].split()[1])
             gamma = float(cell_param_lines[5].split()[1])
-        latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        if not all([a, b, c, alpha, beta, gamma]):
+            raise ValueError(
+                f"Missing lattice parameters in Gulp output: {a=}, {b=}, {c=}, {alpha=}, {beta=}, {gamma=}"
+            )
+        lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
-        return Structure(latt, sp, coords)
+        return Structure(lattice, sp, coords)
 
 
 class GulpCaller:

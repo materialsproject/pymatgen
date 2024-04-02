@@ -24,6 +24,7 @@ import os
 import re
 import warnings
 from string import Template
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -32,6 +33,11 @@ from monty.json import MSONable
 from pymatgen.analysis.excitation import ExcitationSpectrum
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 NWCHEM_BASIS_LIBRARY = None
 if os.getenv("NWCHEM_BASIS_LIBRARY"):
@@ -197,24 +203,24 @@ $theory_spec
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             NwTask
         """
-        return NwTask(
-            charge=d["charge"],
-            spin_multiplicity=d["spin_multiplicity"],
-            title=d["title"],
-            theory=d["theory"],
-            operation=d["operation"],
-            basis_set=d["basis_set"],
-            basis_set_option=d["basis_set_option"],
-            theory_directives=d["theory_directives"],
-            alternate_directives=d["alternate_directives"],
+        return cls(
+            charge=dct["charge"],
+            spin_multiplicity=dct["spin_multiplicity"],
+            title=dct["title"],
+            theory=dct["theory"],
+            operation=dct["operation"],
+            basis_set=dct["basis_set"],
+            basis_set_option=dct["basis_set_option"],
+            theory_directives=dct["theory_directives"],
+            alternate_directives=dct["alternate_directives"],
         )
 
     @classmethod
@@ -230,7 +236,7 @@ $theory_spec
         operation="optimize",
         theory_directives=None,
         alternate_directives=None,
-    ):
+    ) -> Self:
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -278,7 +284,7 @@ $theory_spec
         if isinstance(basis_set, str):
             basis_set = dict.fromkeys(elements, basis_set)
 
-        return NwTask(
+        return cls(
             charge,
             spin_multiplicity,
             basis_set,
@@ -399,25 +405,25 @@ class NwInput(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             NwInput
         """
-        return NwInput(
-            Molecule.from_dict(d["mol"]),
-            tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
-            directives=[tuple(li) for li in d["directives"]],
-            geometry_options=d["geometry_options"],
-            symmetry_options=d["symmetry_options"],
-            memory_options=d["memory_options"],
+        return cls(
+            Molecule.from_dict(dct["mol"]),
+            tasks=[NwTask.from_dict(dt) for dt in dct["tasks"]],
+            directives=[tuple(li) for li in dct["directives"]],
+            geometry_options=dct["geometry_options"],
+            symmetry_options=dct["symmetry_options"],
+            memory_options=dct["memory_options"],
         )
 
     @classmethod
-    def from_str(cls, string_input):
+    def from_str(cls, string_input: str) -> Self:
         """
         Read an NwInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -432,7 +438,7 @@ class NwInput(MSONable):
         tasks = []
         charge = spin_multiplicity = title = basis_set = None
         basis_set_option = None
-        theory_directives = {}
+        theory_directives: dict[str, dict[str, str]] = {}
         geom_options = symmetry_options = memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
@@ -501,7 +507,7 @@ class NwInput(MSONable):
             else:
                 directives.append(line.strip().split())
 
-        return NwInput(
+        return cls(
             mol,
             tasks=tasks,
             directives=directives,
@@ -511,7 +517,7 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Read an NwInput from a file. Currently tested to work with
         files generated from this class itself.
@@ -776,8 +782,8 @@ class NwOutput:
                     parse_freq = False
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
-                    num_vibs = len(vibs)
-                    for mode, dis in zip(normal_frequencies[-num_vibs:], vibs):
+                    n_vibs = len(vibs)
+                    for mode, dis in zip(normal_frequencies[-n_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_projected_freq:
@@ -787,8 +793,8 @@ class NwOutput:
                     parse_projected_freq = False
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
-                    num_vibs = len(vibs)
-                    for mode, dis in zip(frequencies[-num_vibs:], vibs):
+                    n_vibs = len(vibs)
+                    for mode, dis in zip(frequencies[-n_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_bset:
@@ -916,15 +922,15 @@ class NwOutput:
             for _freq, mode in normal_frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
-            n = len(hessian)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    hessian[i].append(hessian[j][i])
+            len_hess = len(hessian)
+            for ii in range(len_hess):
+                for jj in range(ii + 1, len_hess):
+                    hessian[ii].append(hessian[jj][ii])
         if projected_hessian:
-            n = len(projected_hessian)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    projected_hessian[i].append(projected_hessian[j][i])
+            len_hess = len(projected_hessian)
+            for ii in range(len_hess):
+                for jj in range(ii + 1, len_hess):
+                    projected_hessian[ii].append(projected_hessian[jj][ii])
 
         data.update(
             {

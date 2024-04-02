@@ -14,10 +14,12 @@ Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import warnings
 from datetime import datetime
 from glob import glob
+from pathlib import Path
 from shutil import which
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
@@ -32,6 +34,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "shyuepingong"
@@ -42,11 +46,8 @@ __status__ = "Beta"
 __date__ = "4/5/13"
 
 
-BADER_EXE = which("bader") or which("bader.exe")
-
-
 class BaderAnalysis:
-    """Performs Bader analysis for Cube files and VASP outputs.
+    """Performs Bader charge analysis for Cube files or VASP outputs.
 
     Attributes:
         data (list[dict]): Atomic data parsed from bader analysis.
@@ -57,11 +58,10 @@ class BaderAnalysis:
         nelectrons (int): Number of electrons of the Bader analysis.
         chgcar (Chgcar): Chgcar object associated with input CHGCAR file.
         atomic_densities (list[dict]): List of charge densities for each
-            atom centered on the atom. Excess 0's are removed from the array
-            to reduce its size. Each dictionary has the keys:
+            atom centered on the atom. Each dictionary has the keys:
             "data", "shift", "dim", where "data" is the charge density array,
             "shift" is the shift used to center the atomic charge density, and
-            "dim" is the dimension of the original charge density map.
+            "dim" is the dimension of the original charge density.
     """
 
     def __init__(
@@ -69,9 +69,9 @@ class BaderAnalysis:
         chgcar_filename: str = "",
         potcar_filename: str = "",
         chgref_filename: str = "",
-        parse_atomic_densities: bool = False,
         cube_filename: str = "",
-        bader_exe_path: str | None = BADER_EXE,
+        bader_path: str | None = None,
+        parse_atomic_densities: bool = False,
     ) -> None:
         """Initializes the Bader caller.
 
@@ -80,43 +80,65 @@ class BaderAnalysis:
             potcar_filename (str): The filename of the POTCAR.
             chgref_filename (str): The filename of the
                 reference charge density.
-            parse_atomic_densities (bool, optional): Enable atomic partition
-                of the charge density. Charge densities are atom centered.
-                Defaults to False.
             cube_filename (str, optional): The filename of the cube file.
-            bader_exe_path (str, optional): The path to the bader executable.
+            bader_path (str, optional): The path to the bader executable.
+            parse_atomic_densities (bool, optional): Enable atomic partition of the
+                charge density. Charge densities are atom centered. Defaults to False.
         """
-        bader_exe = which(bader_exe_path or "")
-        if bader_exe is None:
+
+        def temp_decompress(file: str | Path, target_dir: str = ".") -> str:
+            """Utility function to copy a compressed file to a target directory (ScratchDir)
+            and decompress it, to avoid modifying files in place.
+
+            Args:
+                file (str | Path): The path to the compressed file to be decompressed.
+                target_dir (str, optional): The target directory where the decompressed file will be stored.
+                    Defaults to "." (current directory).
+
+            Returns:
+                str: The path to the decompressed file if successful.
+            """
+            file = Path(file)
+
+            if file.suffix.lower() in {".bz2", ".gz", ".z"}:
+                shutil.copy(file, f"{target_dir}/{file.name}")
+                out_file = decompress_file(f"{target_dir}/{file.name}")
+
+                if file:  # to avoid mypy error
+                    return str(out_file)
+
+                raise FileNotFoundError(f"File {out_file} not found.")
+
+            return str(file)
+
+        # Get and check Bader executable path
+        if bader_path is None:
+            bader_path = which("bader") or which("bader.exe")
+
+        if bader_path is None:
             raise RuntimeError(
-                "BaderAnalysis requires bader or bader.exe to be in the PATH "
-                "the absolute path to the binary to be specified "
-                f"via {bader_exe_path=}. Download the binary at "
-                "https://theory.cm.utexas.edu/henkelman/code/bader."
+                "Requires bader or bader.exe to be in the PATH or the absolute path to "
+                f"the binary to be specified via {bader_path=}.\n"
+                "Download from https://theory.cm.utexas.edu/henkelman/code/bader."
             )
 
+        # Check input cube/CHGCAR files
         if not (cube_filename or chgcar_filename):
-            raise ValueError("You must provide either a cube file or a CHGCAR")
+            raise ValueError("You must provide either a Cube file or a CHGCAR.")
         if cube_filename and chgcar_filename:
-            raise ValueError(
-                f"You cannot parse a cube and a CHGCAR at the same time. \n{cube_filename=}\n{chgcar_filename=}"
-            )
+            raise ValueError("Cannot parse cube and CHGCAR at the same time.")
+
         self.parse_atomic_densities = parse_atomic_densities
 
         with ScratchDir("."):
             if chgcar_filename:
-                self.is_vasp = True
+                filepath = chgcar_fpath = temp_decompress(chgcar_filename)
 
-                # Decompress the file if compressed
-                fpath = chgcar_fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
                 self.chgcar = Chgcar.from_file(chgcar_fpath)
                 self.structure = self.chgcar.structure
 
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename else None
                 self.natoms = self.chgcar.poscar.natoms
-
-                chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
-                self.reference_used = bool(chgref_filename)
 
                 # List of nelects for each atom from potcar
                 potcar_indices = []
@@ -128,25 +150,28 @@ class BaderAnalysis:
                     else []
                 )
 
+            # Parse from Cube file
             else:
-                self.is_vasp = False
-                fpath = cube_fpath = decompress_file(filepath=cube_filename) or cube_filename
+                filepath = cube_fpath = temp_decompress(cube_filename)
+
                 self.cube = VolumetricData.from_cube(cube_fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
-                chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
-                self.reference_used = bool(chgref_filename)
 
-            args = [bader_exe, fpath]
+            # Prepare CHGCAR reference file
+            chgref_fpath = temp_decompress(chgref_filename)
+            self.reference_used = bool(chgref_filename)
 
-            if chgref_fpath:
-                args += ["-ref", chgref_fpath]
+            bader_args = [bader_path, filepath]
+
+            if self.reference_used:
+                bader_args += ["-ref", chgref_fpath]
 
             if parse_atomic_densities:
-                args += ["-p", "all_atom"]
+                bader_args += ["-p", "all_atom"]
 
             with subprocess.Popen(
-                args,
+                bader_args,
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 close_fds=True,
@@ -154,59 +179,79 @@ class BaderAnalysis:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
                     raise RuntimeError(
-                        f"{bader_exe} exit code: {proc.returncode}, "
-                        f"error message: {stderr!s}.\nstdout: {stdout!s}"
-                        "Please check your bader installation."
+                        f"{bader_path} exit code: {proc.returncode}, error: {stderr!s}."
+                        f"\nstdout: {stdout!s}. Please check your bader installation."
                     )
 
+            # Determine Bader version
             try:
                 self.version = float(stdout.split()[5])
             except ValueError:
                 self.version = -1  # Unknown
+
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
-                    UserWarning,
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect."
                 )
 
-            data = []
-            with open("ACF.dat") as file:
-                lines = file.readlines()
-                headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
-                lines.pop(0)
-                lines.pop(0)
-                while True:
-                    line = lines.pop(0).strip()
-                    if line.startswith("-"):
-                        break
-                    vals = map(float, line.split()[1:])
-                    data.append(dict(zip(headers, vals)))
-                for line in lines:
-                    tokens = line.strip().split(":")
-                    if tokens[0] == "VACUUM CHARGE":
-                        self.vacuum_charge = float(tokens[1])
-                    elif tokens[0] == "VACUUM VOLUME":
-                        self.vacuum_volume = float(tokens[1])
-                    elif tokens[0] == "NUMBER OF ELECTRONS":
-                        self.nelectrons = float(tokens[1])
-            self.data = data
+            # Parse ACF.dat file
+            self.data = self._parse_acf()
 
+            # Parse atomic densities
             if self.parse_atomic_densities:
-                self._parse_atomic_densities()
+                self.atomic_densities = self._parse_atomic_densities()
+
+    def _parse_acf(self) -> list[dict]:
+        """Parse Bader output file ACF.dat."""
+        with open("ACF.dat", encoding="us-ascii") as file:
+            lines = file.readlines()
+
+        # Skip header lines
+        headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
+        lines.pop(0)
+        lines.pop(0)
+
+        data = []
+        while True:
+            line = lines.pop(0).strip()
+            if line.startswith("-"):
+                break
+            vals = map(float, line.split()[1:])
+            data.append(dict(zip(headers, vals)))
+
+        for line in lines:
+            tokens = line.strip().split(":")
+            if tokens[0] == "VACUUM CHARGE":
+                self.vacuum_charge = float(tokens[1])
+            elif tokens[0] == "VACUUM VOLUME":
+                self.vacuum_volume = float(tokens[1])
+            elif tokens[0] == "NUMBER OF ELECTRONS":
+                self.nelectrons = float(tokens[1])
+
+        return data
 
     @deprecated(
-        message=(
-            "parse_atomic_densities was deprecated on 2024-02-26 "
-            "and will be removed on 2025-02-26. See https://"
-            "github.com/materialsproject/pymatgen/issues/3652 for details."
-        )
+        message="parse_atomic_densities was deprecated on 2024-02-26 "
+        "and will be removed on 2025-02-26.\nSee https://"
+        "github.com/materialsproject/pymatgen/issues/3652 for details."
     )
-    def _parse_atomic_densities(self):
+    def _parse_atomic_densities(self) -> list[dict]:
+        """Parse atom-centered charge densities with excess zeros removed.
+
+        Each dictionary has the keys:
+            "data", "shift", "dim", where "data" is the charge density array,
+            "shift" is the shift used to center the atomic charge density, and
+            "dim" is the dimension of the original charge density.
+        """
         # Deprecation tracker
-        if datetime(2025, 2, 26) < datetime.now() and "CI" in os.environ:
+        if (
+            datetime(2025, 2, 26) < datetime.now()
+            and os.getenv("CI")
+            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
+        ):
             raise RuntimeError("This method should have been removed, see #3656.")
 
-        def slice_from_center(data, x_width, y_width, z_width):
+        def slice_from_center(data: np.ndarray, x_width: int, y_width: int, z_width: int) -> np.ndarray:
             """Slices a central window from the data array."""
             x, y, z = data.shape
             start_x = x // 2 - (x_width // 2)
@@ -218,7 +263,7 @@ class BaderAnalysis:
                 start_z : start_z + z_width,
             ]
 
-        def find_encompassing_vol(data: np.ndarray):
+        def find_encompassing_vol(data: np.ndarray) -> np.ndarray | None:
             """Find the central encompassing volume which
             holds all the data within a precision.
             """
@@ -256,7 +301,8 @@ class BaderAnalysis:
                 "dim": self.chgcar.dim,
             }
             atomic_densities.append(dct)
-        self.atomic_densities = atomic_densities
+
+        return atomic_densities
 
     def get_charge(self, atom_index: int) -> float:
         """Convenience method to get the charge on a particular atom. This is the "raw"
@@ -397,7 +443,7 @@ class BaderAnalysis:
         return summary
 
     @classmethod
-    def from_path(cls, path: str, suffix: str = "") -> BaderAnalysis:
+    def from_path(cls, path: str, suffix: str = "") -> Self:
         """Convenient constructor that takes in the path name of VASP run
         to perform Bader analysis.
 
@@ -412,7 +458,7 @@ class BaderAnalysis:
         def _get_filepath(filename):
             name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
             paths = glob(f"{path}/{name_pattern}")
-            fpath = ""
+            filepath = ""
             if len(paths) >= 1:
                 # using reverse=True because, if multiple files are present, they likely
                 # have suffixes 'static', 'relax', 'relax2', etc. and this would give
@@ -421,7 +467,7 @@ class BaderAnalysis:
                 paths.sort(reverse=True)
                 if len(paths) > 1:
                     warnings.warn(f"Multiple files detected, using {paths[0]}")
-                fpath = paths[0]
+                filepath = paths[0]
             else:
                 msg = f"Could not find {filename!r}"
                 if filename in ("AECCAR0", "AECCAR2"):
@@ -429,7 +475,7 @@ class BaderAnalysis:
                 elif filename == "POTCAR":
                     msg += ", cannot calculate charge transfer."
                 warnings.warn(msg)
-            return fpath
+            return filepath
 
         chgcar_filename = _get_filepath("CHGCAR")
         if chgcar_filename is None:
@@ -451,7 +497,7 @@ class BaderAnalysis:
         )
 
 
-def bader_analysis_from_path(path, suffix=""):
+def bader_analysis_from_path(path: str, suffix: str = ""):
     """Convenience method to run Bader analysis on a folder containing
     typical VASP output files.
 
@@ -464,8 +510,10 @@ def bader_analysis_from_path(path, suffix=""):
     3. Runs Bader analysis twice: once for charge, and a second time
     for the charge difference (magnetization density).
 
-    :param path: path to folder to search in
-    :param suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+    Args:
+        path: path to folder to search in
+        suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+
     Returns:
         summary dict
     """
@@ -485,7 +533,8 @@ def bader_analysis_from_path(path, suffix=""):
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    chgcar = Chgcar.from_file(chgcar_path)
+    if chgcar_path is not None:
+        chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:
@@ -505,7 +554,12 @@ def bader_analysis_from_path(path, suffix=""):
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)
 
 
-def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None):
+def bader_analysis_from_objects(
+    chgcar: Chgcar,
+    potcar: Potcar | None = None,
+    aeccar0: Chgcar | None = None,
+    aeccar2: Chgcar | None = None,
+):
     """Convenience method to run Bader analysis from a set
     of pymatgen Chgcar and Potcar objects.
 
@@ -516,10 +570,11 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     2. Runs Bader analysis twice: once for charge, and a second time
     for the charge difference (magnetization density).
 
-    :param chgcar: Chgcar object
-    :param potcar: (optional) Potcar object
-    :param aeccar0: (optional) Chgcar object from aeccar0 file
-    :param aeccar2: (optional) Chgcar object from aeccar2 file
+    Args:
+        chgcar: Chgcar object
+        potcar: (optional) Potcar object
+        aeccar0: (optional) Chgcar object from aeccar0 file
+        aeccar2: (optional) Chgcar object from aeccar2 file
 
     Returns:
         summary dict

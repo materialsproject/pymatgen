@@ -11,10 +11,14 @@ comparisons without the atom order correspondence prerequisite.
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -213,12 +217,12 @@ class MoleculeStructureComparator(MSONable):
             List of tuple. Each tuple correspond to a bond represented by the
             id of the two end atoms.
         """
-        num_atoms = len(mol)
+        n_atoms = len(mol)
         # index starting from 0
         if self.ignore_ionic_bond:
-            covalent_atoms = [i for i in range(num_atoms) if mol.species[i].symbol not in self.ionic_element_list]
+            covalent_atoms = [idx for idx in range(n_atoms) if mol.species[idx].symbol not in self.ionic_element_list]
         else:
-            covalent_atoms = list(range(num_atoms))
+            covalent_atoms = list(range(n_atoms))
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
         unavailable_elements = set(mol.composition.as_dict()) - set(self.covalent_radius)
@@ -263,10 +267,10 @@ class MoleculeStructureComparator(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MoleculeStructureComparator

@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import CompositionLike
@@ -2586,8 +2587,10 @@ class Interface(Structure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Interface:  # type: ignore[override]
-        """:param dct: dict
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+        """
+        Args:
+            dct: dict.
 
         Returns:
             Creates slab from dict.
@@ -2620,7 +2623,7 @@ class Interface(Structure):
         vacuum_over_film: float = 0,
         interface_properties: dict | None = None,
         center_slab: bool = True,
-    ) -> Interface:
+    ) -> Self:
         """Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
         a- and b-vectors.
@@ -2737,20 +2740,20 @@ def label_termination(slab: Structure) -> str:
     h = slab.lattice.c
     # Projection of c lattice vector in
     # direction of surface normal.
-    for i, j in combinations(list(range(n)), 2):
-        if i != j:
-            cdist = frac_coords[i][2] - frac_coords[j][2]
+    for ii, jj in combinations(list(range(n)), 2):
+        if ii != jj:
+            cdist = frac_coords[ii][2] - frac_coords[jj][2]
             cdist = abs(cdist - round(cdist)) * h
-            dist_matrix[i, j] = cdist
-            dist_matrix[j, i] = cdist
+            dist_matrix[ii, jj] = cdist
+            dist_matrix[jj, ii] = cdist
 
     condensed_m = squareform(dist_matrix)
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
-    for i, c in enumerate(clusters):
-        clustered_sites[c].append(slab[i])
+    for idx, cluster in enumerate(clusters):
+        clustered_sites[cluster].append(slab[idx])
 
     plane_heights = {
         np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()
@@ -2777,20 +2780,20 @@ def count_layers(struct: Structure, el=None) -> int:
     h = struct.lattice.c
     # Projection of c lattice vector in
     # direction of surface normal.
-    for i, j in combinations(list(range(n)), 2):
-        if i != j:
-            cdist = frac_coords[i][2] - frac_coords[j][2]
+    for ii, jj in combinations(list(range(n)), 2):
+        if ii != jj:
+            cdist = frac_coords[ii][2] - frac_coords[jj][2]
             cdist = abs(cdist - round(cdist)) * h
-            dist_matrix[i, j] = cdist
-            dist_matrix[j, i] = cdist
+            dist_matrix[ii, jj] = cdist
+            dist_matrix[jj, ii] = cdist
 
     condensed_m = squareform(dist_matrix)
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
-    for i, c in enumerate(clusters):
-        clustered_sites[c].append(struct[i])
+    for idx, cluster in enumerate(clusters):
+        clustered_sites[cluster].append(struct[idx])
 
     plane_heights = {
         np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()

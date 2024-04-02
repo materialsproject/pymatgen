@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.prismatic import Prismatic
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestPrismatic(unittest.TestCase):
+class TestPrismatic:
     def test_to_str(self):
         structure = Structure.from_file(f"{TEST_FILES_DIR}/CuCl.cif")
         prismatic = Prismatic(structure)

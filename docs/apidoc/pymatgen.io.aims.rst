@@ -6,6 +6,14 @@ pymatgen.io.aims package
    :undoc-members:
    :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 7
+
+   pymatgen.io.aims.sets
+
 Submodules
 ----------
 

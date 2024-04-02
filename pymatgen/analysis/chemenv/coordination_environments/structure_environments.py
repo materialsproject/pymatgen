@@ -8,6 +8,8 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
@@ -21,6 +23,9 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import Detailed
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -366,7 +371,7 @@ class StructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dct, structure: Structure, detailed_voronoi):
+        def from_dict(cls, dct, structure: Structure, detailed_voronoi) -> Self:
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
@@ -1219,7 +1224,7 @@ class StructureEnvironments(MSONable):
             else None
             for site_nbs_sets in self.neighbors_sets
         ]
-        info_dict = {key: val for key, val in self.info.items() if key not in ["sites_info"]}
+        info_dict = {key: val for key, val in self.info.items() if key != "sites_info"}
         info_dict["sites_info"] = [
             {
                 "nb_sets_info": {
@@ -1247,7 +1252,7 @@ class StructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> StructureEnvironments:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the StructureEnvironments object from a dict representation of the StructureEnvironments created
         using the as_dict method.
@@ -1284,7 +1289,7 @@ class StructureEnvironments(MSONable):
             else None
             for site_nbs_sets_dict in dct["neighbors_sets"]
         ]
-        info = {key: val for key, val in dct["info"].items() if key not in ["sites_info"]}
+        info = {key: val for key, val in dct["info"].items() if key != "sites_info"}
         if "sites_info" in dct["info"]:
             info["sites_info"] = [
                 {
@@ -1419,7 +1424,7 @@ class LightStructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dct, structure: Structure, all_nbs_sites):
+        def from_dict(cls, dct, structure: Structure, all_nbs_sites) -> Self:
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
@@ -1476,7 +1481,7 @@ class LightStructureEnvironments(MSONable):
         self.valences_origin = valences_origin
 
     @classmethod
-    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None):
+    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None) -> Self:
         """
         Construct a LightStructureEnvironments object from a strategy and a StructureEnvironments object.
 
@@ -1492,10 +1497,10 @@ class LightStructureEnvironments(MSONable):
         """
         structure = structure_environments.structure
         strategy.set_structure_environments(structure_environments=structure_environments)
-        coordination_environments = [None] * len(structure)
-        neighbors_sets = [None] * len(structure)
-        _all_nbs_sites = []
-        all_nbs_sites = []
+        coordination_environments: list = [None] * len(structure)
+        neighbors_sets: list = [None] * len(structure)
+        _all_nbs_sites: list = []
+        all_nbs_sites: list = []
         if valences is None:
             valences = structure_environments.valences
             if valences_origin is None:
@@ -1503,14 +1508,14 @@ class LightStructureEnvironments(MSONable):
         elif valences_origin is None:
             valences_origin = "user-specified"
 
-        for isite, site in enumerate(structure):
+        for idx, site in enumerate(structure):
             site_ces_and_nbs_list = strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)
             if site_ces_and_nbs_list is None:
                 continue
-            coordination_environments[isite] = []
-            neighbors_sets[isite] = []
+            coordination_environments[idx] = []
+            neighbors_sets[idx] = []
             site_ces = []
-            site_nbs_sets = []
+            site_nbs_sets: list = []
             for ce_and_neighbors in site_ces_and_nbs_list:
                 _all_nbs_sites_indices = []
                 # Coordination environment
@@ -1530,7 +1535,7 @@ class LightStructureEnvironments(MSONable):
                 for nb_site_and_index in neighbors:
                     nb_site = nb_site_and_index["site"]
                     try:
-                        nb_allnbs_sites_index = all_nbs_sites.index(nb_site)
+                        n_all_nbs_sites_index = all_nbs_sites.index(nb_site)
                     except ValueError:
                         nb_index_unitcell = nb_site_and_index["index"]
                         diff = nb_site.frac_coords - structure[nb_index_unitcell].frac_coords
@@ -1540,22 +1545,23 @@ class LightStructureEnvironments(MSONable):
                                 "Weird, differences between one site in a periodic image cell is not integer ..."
                             )
                         nb_image_cell = np.array(rounddiff, int)
-                        nb_allnbs_sites_index = len(_all_nbs_sites)
+                        n_all_nbs_sites_index = len(_all_nbs_sites)
                         _all_nbs_sites.append(
                             {"site": nb_site, "index": nb_index_unitcell, "image_cell": nb_image_cell}
                         )
                         all_nbs_sites.append(nb_site)
-                    _all_nbs_sites_indices.append(nb_allnbs_sites_index)
+                    _all_nbs_sites_indices.append(n_all_nbs_sites_index)
 
                 nb_set = cls.NeighborsSet(
                     structure=structure,
-                    isite=isite,
+                    isite=idx,
                     all_nbs_sites=_all_nbs_sites,
                     all_nbs_sites_indices=_all_nbs_sites_indices,
                 )
                 site_nbs_sets.append(nb_set)
-            coordination_environments[isite] = site_ces
-            neighbors_sets[isite] = site_nbs_sets
+            coordination_environments[idx] = site_ces
+            neighbors_sets[idx] = site_nbs_sets
+
         return cls(
             strategy=strategy,
             coordination_environments=coordination_environments,
@@ -2015,7 +2021,7 @@ class LightStructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> LightStructureEnvironments:
+    def from_dict(cls, dct) -> Self:
         """
         Reconstructs the LightStructureEnvironments object from a dict representation of the
         LightStructureEnvironments created using the as_dict method.
@@ -2026,11 +2032,10 @@ class LightStructureEnvironments(MSONable):
         Returns:
             LightStructureEnvironments object.
         """
-        dec = MontyDecoder()
-        structure = dec.process_decoded(dct["structure"])
+        structure = MontyDecoder().process_decoded(dct["structure"])
         all_nbs_sites = []
         for nb_site in dct["all_nbs_sites"]:
-            periodic_site = dec.process_decoded(nb_site["site"])
+            periodic_site = MontyDecoder().process_decoded(nb_site["site"])
             site = PeriodicNeighbor(
                 species=periodic_site.species,
                 coords=periodic_site.frac_coords,
@@ -2056,7 +2061,7 @@ class LightStructureEnvironments(MSONable):
             for site_nb_sets in dct["neighbors_sets"]
         ]
         return cls(
-            strategy=dec.process_decoded(dct["strategy"]),
+            strategy=MontyDecoder().process_decoded(dct["strategy"]),
             coordination_environments=dct["coordination_environments"],
             all_nbs_sites=all_nbs_sites,
             neighbors_sets=neighbors_sets,
@@ -2335,7 +2340,7 @@ class ChemicalEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> ChemicalEnvironments:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the ChemicalEnvironments object from a dict representation of the ChemicalEnvironments created
         using the as_dict method.

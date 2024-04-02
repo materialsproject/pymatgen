@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core import Molecule, PeriodicSite, Species, Structure
+from pymatgen.core import Molecule, PeriodicSite, Site, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/molecules"
 
 
 class TestSpacegroupAnalyzer(PymatgenTest):
     def setUp(self):
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure("Li10GeP2S12")
         self.disordered_sg = SpacegroupAnalyzer(self.disordered_structure, 0.001)
@@ -358,27 +358,27 @@ class TestSpacegroupAnalyzer(PymatgenTest):
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.tricky_symmetry")
-        sa = SpacegroupAnalyzer(struct, 0.1)
-        assert sa.get_space_group_symbol() == "I4/mmm"
-        assert sa.get_space_group_number() == 139
-        assert sa.get_point_group_symbol() == "4/mmm"
-        assert sa.get_crystal_system() == "tetragonal"
-        assert sa.get_hall() == "-I 4 2"
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_tricky_symmetry")
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        assert spg_analyzer.get_space_group_symbol() == "I4/mmm"
+        assert spg_analyzer.get_space_group_number() == 139
+        assert spg_analyzer.get_point_group_symbol() == "4/mmm"
+        assert spg_analyzer.get_crystal_system() == "tetragonal"
+        assert spg_analyzer.get_hall() == "-I 4 2"
 
 
-class TestSpacegroup(unittest.TestCase):
+class TestSpacegroup(TestCase):
     def setUp(self):
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
-        sites1 = [self.structure[i] for i in [0, 1]]
-        sites2 = [self.structure[i] for i in [2, 3]]
+        sites1 = [self.structure[idx] for idx in [0, 1]]
+        sites2 = [self.structure[idx] for idx in [2, 3]]
         assert self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
-        sites1 = [self.structure[i] for i in [0, 1]]
-        sites2 = [self.structure[i] for i in [0, 2]]
+        sites1 = [self.structure[idx] for idx in [0, 1]]
+        sites2 = [self.structure[idx] for idx in [0, 2]]
         assert not self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
 
@@ -573,10 +573,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert {2, 3, 4, 5} in eq_sets.values()
 
         coords = sym_mol.cart_coords
-        for i, eq_set in eq_sets.items():
+        for idx, eq_set in eq_sets.items():
             for j in eq_set:
-                _ = np.dot(ops[i][j], coords[i])
-                assert_allclose(np.dot(ops[i][j], coords[i]), coords[j])
+                _ = np.dot(ops[idx][j], coords[idx])
+                assert_allclose(np.dot(ops[idx][j], coords[idx]), coords[j])
 
     def test_symmetrize_molecule2(self):
         np.random.seed(77)
@@ -597,8 +597,8 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == approx(w)
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+                assert weight == approx(expected)
 
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             struct = PymatgenTest.get_structure(name)
@@ -606,10 +606,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == approx(w)
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+                assert weight == approx(expected)
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.gz")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 
@@ -623,11 +623,12 @@ class TestPointGroupAnalyzer(PymatgenTest):
             spga.get_kpoint_weights(kpts)
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc(TestCase):
     def test_cluster_sites(self):
-        o, c = cluster_sites(CH4, 0.1)
-        assert o.specie.symbol == "C"
-        assert len(c) == 1
-        o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
-        assert o is None
-        assert len(c) == 4
+        site, cluster = cluster_sites(CH4, 0.1)
+        assert isinstance(site, Site)
+        assert site.specie.symbol == "C"
+        assert len(cluster) == 1
+        site, cluster = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
+        assert site is None
+        assert len(cluster) == 4

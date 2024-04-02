@@ -6,6 +6,7 @@ All major VASP input files.
 from __future__ import annotations
 
 import codecs
+import contextlib
 import hashlib
 import itertools
 import json
@@ -16,10 +17,10 @@ import re
 import subprocess
 import warnings
 from collections import namedtuple
-from enum import Enum
+from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 import scipy.constants as const
@@ -37,8 +38,10 @@ from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from pathlib import Path
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import PathLike
@@ -218,7 +221,7 @@ class Poscar(MSONable):
         super().__setattr__(name, value)
 
     @classmethod
-    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Poscar:
+    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Self:
         """
         Reads a Poscar from a file.
 
@@ -263,16 +266,13 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                    warnings.warn(
-                        "Cannot determine elements in POSCAR. Falling back to manual assignment.", BadPoscarWarning
-                    )
                 except Exception:
                     names = None
         with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    def from_str(cls, data, default_names=None, read_velocities=True) -> Poscar:
+    def from_str(cls, data, default_names=None, read_velocities=True) -> Self:
         """
         Reads a Poscar from a string.
 
@@ -352,11 +352,10 @@ class Poscar(MSONable):
             #   ...
             n_lines_symbols = 1
             for n_lines_symbols in range(1, 11):
-                try:
+                with contextlib.suppress(ValueError):
                     int(lines[5 + n_lines_symbols].split()[0])
                     break
-                except ValueError:
-                    pass
+
             for i_line_symbols in range(6, 5 + n_lines_symbols):
                 symbols.extend(lines[i_line_symbols].split())
             n_atoms = []
@@ -384,13 +383,11 @@ class Poscar(MSONable):
         # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
-            try:
+            with contextlib.suppress(IndexError):
                 atomic_symbols = []
                 for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
-            except IndexError:
-                pass
 
         if not vasp5_symbols:
             ind = 6 if has_selective_dynamics else 3
@@ -522,13 +519,13 @@ class Poscar(MSONable):
         # This corrects for VASP really annoying bug of crashing on lattices
         # which have triple product < 0. We will just invert the lattice
         # vectors.
-        latt = self.structure.lattice
-        if np.linalg.det(latt.matrix) < 0:
-            latt = Lattice(-latt.matrix)
+        lattice = self.structure.lattice
+        if np.linalg.det(lattice.matrix) < 0:
+            lattice = Lattice(-lattice.matrix)
 
         format_str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines = [self.comment, "1.0"]
-        for vec in latt.matrix:
+        for vec in lattice.matrix:
             lines.append(" ".join(format_str.format(c) for c in vec))
 
         if self.true_names and not vasp4_compatible:
@@ -538,11 +535,11 @@ class Poscar(MSONable):
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
 
-        for i, site in enumerate(self.structure):
+        for idx, site in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join(format_str.format(c) for c in coords)
             if self.selective_dynamics is not None:
-                sd = ["T" if j else "F" for j in self.selective_dynamics[i]]
+                sd = ["T" if j else "F" for j in self.selective_dynamics[idx]]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += f" {site.species_string}"
             lines.append(line)
@@ -609,9 +606,10 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Poscar:
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param dct: Dict representation.
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             Poscar
@@ -719,7 +717,7 @@ class Incar(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Incar:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Serialized Incar
@@ -786,7 +784,7 @@ class Incar(dict, MSONable):
             file.write(str(self))
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Incar:
+    def from_file(cls, filename: PathLike) -> Self:
         """Reads an Incar object from a file.
 
         Args:
@@ -799,7 +797,7 @@ class Incar(dict, MSONable):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string: str) -> Incar:
+    def from_str(cls, string: str) -> Self:
         """Reads an Incar object from a string.
 
         Args:
@@ -870,7 +868,7 @@ class Incar(dict, MSONable):
                 return float(num_str)
             return int(num_str)
 
-        try:
+        with contextlib.suppress(ValueError):
             if key in list_keys:
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
@@ -883,11 +881,10 @@ class Incar(dict, MSONable):
                         output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
-                if m:
+                if m := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
                     return m.group(1).lower() == "t"
 
-                raise ValueError(key + " should be a boolean type!")
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))  # type: ignore
@@ -898,19 +895,12 @@ class Incar(dict, MSONable):
             if key in lower_str_keys:
                 return val.strip().lower()
 
-        except ValueError:
-            pass
-
         # Not in standard keys. We will try a hierarchy of conversions.
-        try:
+        with contextlib.suppress(ValueError):
             return int(val)
-        except ValueError:
-            pass
 
-        try:
+        with contextlib.suppress(ValueError):
             return float(val)
-        except ValueError:
-            pass
 
         if "true" in val.lower():
             return True
@@ -992,6 +982,7 @@ class BadIncarWarning(UserWarning):
     """Warning class for bad INCAR parameters."""
 
 
+@unique
 class KpointsSupportedModes(Enum):
     """Enum type of all supported modes for Kpoint generation."""
 
@@ -1006,15 +997,16 @@ class KpointsSupportedModes(Enum):
         return str(self.name)
 
     @classmethod
-    def from_str(cls, mode: str) -> KpointsSupportedModes:
+    def from_str(cls, mode: str) -> Self:
         """
-        :param s: String
+        Args:
+            mode: String
 
         Returns:
             Kpoints_supported_modes
         """
         initial = mode.lower()[0]
-        for key in KpointsSupportedModes:
+        for key in cls:
             if key.name.lower()[0] == initial:
                 return key
         raise ValueError(f"Invalid Kpoint {mode=}")
@@ -1030,7 +1022,7 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
-        kpts: Sequence[float | Sequence] = ((1, 1, 1),),
+        kpts: Sequence[float | Sequence[float]] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
@@ -1088,7 +1080,7 @@ class Kpoints(MSONable):
         self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
-        self.kpts_shift = kpts_shift
+        self.kpts_shift = tuple(kpts_shift)
         self.labels = labels
         self.tet_number = tet_number
         self.tet_weight = tet_weight
@@ -1102,13 +1094,12 @@ class Kpoints(MSONable):
         return self._style
 
     @style.setter
-    def style(self, style):
+    def style(self, style) -> None:
         """
-        :param style: Style
+        Sets the style for the Kpoints. One of Kpoints_supported_modes enum.
 
-        Returns:
-            Sets the style for the Kpoints. One of Kpoints_supported_modes
-            enum.
+        Args:
+            style: Style
         """
         if isinstance(style, str):
             style = Kpoints.supported_modes.from_str(style)
@@ -1126,10 +1117,10 @@ class Kpoints(MSONable):
 
         self._style = style
 
-    @staticmethod
-    def automatic(subdivisions):
+    @classmethod
+    def automatic(cls, subdivisions) -> Self:
         """
-        Convenient static constructor for a fully automatic Kpoint grid, with
+        Constructor for a fully automatic Kpoint grid, with
         gamma centered Monkhorst-Pack grids and the number of subdivisions
         along each reciprocal lattice vector determined by the scheme in the
         VASP manual.
@@ -1141,15 +1132,12 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints(
-            "Fully automatic kpoint scheme", 0, style=Kpoints.supported_modes.Automatic, kpts=[[subdivisions]]
-        )
+        return cls("Fully automatic kpoint scheme", 0, style=Kpoints.supported_modes.Automatic, kpts=[[subdivisions]])
 
-    @staticmethod
-    def gamma_automatic(kpts: tuple[int, int, int] = (1, 1, 1), shift: Vector3D = (0, 0, 0)):
+    @classmethod
+    def gamma_automatic(cls, kpts: tuple[int, int, int] = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
-        Convenient static constructor for an automatic Gamma centered Kpoint
-        grid.
+        Constructor for an automatic Gamma centered Kpoint grid.
 
         Args:
             kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
@@ -1159,10 +1147,10 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
-    @staticmethod
-    def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)):
+    @classmethod
+    def monkhorst_automatic(cls, kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1175,10 +1163,10 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
-    @staticmethod
-    def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
+    @classmethod
+    def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
@@ -1215,10 +1203,10 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
+        return cls(comment, 0, style, [num_div], (0, 0, 0))
 
-    @staticmethod
-    def automatic_gamma_density(structure: Structure, kppa: float):
+    @classmethod
+    def automatic_gamma_density(cls, structure: Structure, kppa: float) -> Self:
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
@@ -1231,28 +1219,28 @@ class Kpoints(MSONable):
             structure: Input structure
             kppa: Grid density
         """
-        latt = structure.lattice
-        a, b, c = latt.abc
-        ngrid = kppa / len(structure)
+        lattice = structure.lattice
+        a, b, c = lattice.abc
+        n_grid = kppa / len(structure)
 
-        mult = (ngrid * a * b * c) ** (1 / 3)
-        num_div = [int(round(mult / length)) for length in latt.abc]
+        multip = (n_grid * a * b * c) ** (1 / 3)
+        n_div = [int(round(multip / length)) for length in lattice.abc]
 
         # ensure that all num_div[i] > 0
-        num_div = [idx if idx > 0 else 1 for idx in num_div]
+        n_div = [idx if idx > 0 else 1 for idx in n_div]
 
         # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
-        num_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in num_div]
+        n_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in n_div]
 
         style = Kpoints.supported_modes.Gamma
 
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
+        n_kpts = 0
+        return cls(comment, n_kpts, style, [n_div], (0, 0, 0))
 
-    @staticmethod
-    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False) -> Kpoints:
+    @classmethod
+    def automatic_density_by_vol(cls, structure: Structure, kppvol: int, force_gamma: bool = False) -> Self:
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
@@ -1270,12 +1258,12 @@ class Kpoints(MSONable):
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = kppvol * vol * len(structure)
-        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
+        return cls.automatic_density(structure, kppa, force_gamma=force_gamma)
 
-    @staticmethod
+    @classmethod
     def automatic_density_by_lengths(
-        structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
-    ):
+        cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+    ) -> Self:
         """
         Returns an automatic Kpoint object based on a structure and a k-point
         density normalized by lattice constants.
@@ -1309,10 +1297,10 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
+        return cls(comment, 0, style, [num_div], (0, 0, 0))
 
-    @staticmethod
-    def automatic_linemode(divisions, ibz):
+    @classmethod
+    def automatic_linemode(cls, divisions, ibz) -> Self:
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
         gamma centered Monkhorst-Pack grids and the number of subdivisions
@@ -1340,7 +1328,7 @@ class Kpoints(MSONable):
             kpoints.append(ibz.kpath["kpoints"][path[-1]])
             labels.append(path[-1])
 
-        return Kpoints(
+        return cls(
             "Line_mode KPOINTS file",
             style=Kpoints.supported_modes.Line_mode,
             coord_type="Reciprocal",
@@ -1358,7 +1346,7 @@ class Kpoints(MSONable):
         return self.as_dict() == other.as_dict()
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a Kpoints object from a KPOINTS file.
 
@@ -1372,7 +1360,7 @@ class Kpoints(MSONable):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a Kpoints object from a KPOINTS string.
 
@@ -1395,63 +1383,68 @@ class Kpoints(MSONable):
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
-        if style in ["g", "m"]:
-            kpts = [int(i) for i in lines[3].split()]
-            kpts_shift = (0, 0, 0)
+        if style in {"g", "m"}:
+            kpts = tuple(int(i) for i in lines[3].split())
+            assert len(kpts) == 3
+
+            kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
-                try:
-                    kpts_shift = [float(i) for i in lines[4].split()]
-                except ValueError:
-                    pass
+                with contextlib.suppress(ValueError):
+                    _kpts_shift = tuple(float(i) for i in lines[4].split())
+                if len(_kpts_shift) == 3:
+                    kpts_shift = _kpts_shift
+
             return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-            kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
-            kpts_shift = [float(i) for i in lines[6].split()]
-            return Kpoints(
+            _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
+            _kpts_shift = tuple(float(i) for i in lines[6].split())
+            if len(_kpts_shift) == 3:
+                kpts_shift = _kpts_shift
+
+            return cls(
                 comment=comment,
                 num_kpts=num_kpts,
-                style=style,
-                kpts=kpts,
+                style=_style,
+                kpts=[[float(j) for j in lines[i].split()] for i in range(3, 6)],
                 kpts_shift=kpts_shift,
             )
 
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
-            style = cls.supported_modes.Line_mode
-            kpts = []
+            _style = cls.supported_modes.Line_mode
+            _kpts: list[list[float]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
                 m = patt.match(line)
                 if m:
-                    kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
+                    _kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
-            return Kpoints(
+            return cls(
                 comment=comment,
                 num_kpts=num_kpts,
-                style=style,
-                kpts=kpts,
+                style=_style,
+                kpts=_kpts,
                 coord_type=coord_type,
                 labels=labels,
             )
 
         # Assume explicit KPOINTS if all else fails.
-        style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-        kpts = []
+        _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
+        _kpts = []
         kpts_weights = []
         labels = []
         tet_number = 0
-        tet_weight = 0
+        tet_weight: float = 0
         tet_connections = None
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append([float(j) for j in tokens[0:3]])
+            _kpts.append([float(j) for j in tokens[:3]])
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1473,8 +1466,8 @@ class Kpoints(MSONable):
         return cls(
             comment=comment,
             num_kpts=num_kpts,
-            style=cls.supported_modes[str(style)],
-            kpts=kpts,
+            style=cls.supported_modes[str(_style)],
+            kpts=_kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
             tet_weight=tet_weight,
@@ -1482,7 +1475,7 @@ class Kpoints(MSONable):
             labels=labels,
         )
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Write Kpoints to a file.
 
@@ -1521,7 +1514,7 @@ class Kpoints(MSONable):
             lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict."""
         dct = {
             "comment": self.comment,
@@ -1546,30 +1539,31 @@ class Kpoints(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param d: Dict representation.
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             Kpoints
         """
-        comment = d.get("comment", "")
-        generation_style = d.get("generation_style")
-        kpts = d.get("kpoints", [[1, 1, 1]])
-        kpts_shift = d.get("usershift", [0, 0, 0])
-        num_kpts = d.get("nkpoints", 0)
+        comment = dct.get("comment", "")
+        generation_style = cast(KpointsSupportedModes, dct.get("generation_style"))
+        kpts = dct.get("kpoints", [[1, 1, 1]])
+        kpts_shift = dct.get("usershift", [0, 0, 0])
+        num_kpts = dct.get("nkpoints", 0)
         return cls(
             comment=comment,
             kpts=kpts,
             style=generation_style,
             kpts_shift=kpts_shift,
             num_kpts=num_kpts,
-            kpts_weights=d.get("kpts_weights"),
-            coord_type=d.get("coord_type"),
-            labels=d.get("labels"),
-            tet_number=d.get("tet_number", 0),
-            tet_weight=d.get("tet_weight", 0),
-            tet_connections=d.get("tet_connections"),
+            kpts_weights=dct.get("kpts_weights"),
+            coord_type=dct.get("coord_type"),
+            labels=dct.get("labels"),
+            tet_number=dct.get("tet_number", 0),
+            tet_weight=dct.get("tet_weight", 0),
+            tet_connections=dct.get("tet_connections"),
         )
 
 
@@ -1832,16 +1826,17 @@ class PotcarSingle:
         return PotcarSingle(self.data, symbol=self.symbol)
 
     @classmethod
-    def from_file(cls, filename: str) -> PotcarSingle:
+    def from_file(cls, filename: str) -> Self:
         """Reads PotcarSingle from file.
 
-        :param filename: Filename.
+        Args:
+            filename: Filename.
 
         Returns:
             PotcarSingle
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
-        symbol = match.group(0) if match else ""
+        symbol = match[0] if match else ""
 
         try:
             with zopen(filename, mode="rt") as file:
@@ -1853,7 +1848,7 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
 
     @classmethod
-    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None):
+    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None) -> Self:
         """Makes a PotcarSingle from a symbol and functional.
 
         Args:
@@ -2377,10 +2372,11 @@ def _gen_potcar_summary_stats(
     append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
 ):
     """
-    This function solely intended to be used for PMG development to regenerate the
-    potcar-summary-stats.json.bz2 file used to validate POTCARs
+    This function is intended for internal use only. It regenerates the reference data in
+    potcar-summary-stats.json.bz2 used to validate POTCARs by comparing header values and
+    several statistics of copyrighted POTCAR data without having to record the POTCAR data itself.
 
-    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar-summary-stats.json.bz2.
+    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite potcar-summary-stats.json.bz2.
 
     Args:
         append (bool): Change whether data is appended to the existing potcar-summary-stats.json.bz2,
@@ -2407,10 +2403,7 @@ def _gen_potcar_summary_stats(
     for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
 
-        potcar_list = [
-            *glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*"),
-            *glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*"),
-        ]
+        potcar_list = glob(f"{vasp_psp_dir}/{func_dir}/POTCAR*") + glob(f"{vasp_psp_dir}/{func_dir}/*/POTCAR*")
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
             titel_key = psp.TITEL.replace(" ", "")
@@ -2486,21 +2479,23 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             Potcar
         """
-        return Potcar(symbols=d["symbols"], functional=d["functional"])
+        return Potcar(symbols=dct["symbols"], functional=dct["functional"])
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str) -> Self:
         """
         Reads Potcar from file.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             Potcar
@@ -2580,7 +2575,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(
         self,
-        incar: Incar,
+        incar: dict | Incar,
         kpoints: Kpoints | None,
         poscar: Poscar,
         potcar: Potcar | None,
@@ -2619,21 +2614,21 @@ class VaspInput(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param d: Dict representation.
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             VaspInput
         """
-        dec = MontyDecoder()
-        sub_dct = {"optional_files": {}}
+        sub_dct: dict[str, dict] = {"optional_files": {}}
         for key, val in dct.items():
             if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
-                sub_dct[key.lower()] = dec.process_decoded(val)
+                sub_dct[key.lower()] = MontyDecoder().process_decoded(val)
             elif key not in ["@module", "@class"]:
-                sub_dct["optional_files"][key] = dec.process_decoded(val)
-        return cls(**sub_dct)
+                sub_dct["optional_files"][key] = MontyDecoder().process_decoded(val)
+        return cls(**sub_dct)  # type: ignore[arg-type]
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """
@@ -2653,7 +2648,7 @@ class VaspInput(dict, MSONable):
                     file.write(str(v))
 
     @classmethod
-    def from_directory(cls, input_dir, optional_files=None):
+    def from_directory(cls, input_dir: str, optional_files: dict | None = None) -> Self:
         """
         Read in a set of VASP input from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
@@ -2674,14 +2669,14 @@ class VaspInput(dict, MSONable):
         ]:
             try:
                 full_zpath = zpath(os.path.join(input_dir, fname))
-                sub_dct[fname.lower()] = ftype.from_file(full_zpath)
+                sub_dct[fname.lower()] = ftype.from_file(full_zpath)  # type: ignore[attr-defined]
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
                 sub_dct[fname.lower()] = None
 
-        sub_dct["optional_files"] = {}
-        if optional_files is not None:
-            for fname, ftype in optional_files.items():
-                sub_dct["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
+        sub_dct["optional_files"] = {
+            fname: ftype.from_file(os.path.join(input_dir, fname)) for fname, ftype in (optional_files or {}).items()
+        }
+
         return cls(**sub_dct)
 
     def copy(self, deep: bool = True):
@@ -2696,15 +2691,16 @@ class VaspInput(dict, MSONable):
         vasp_cmd: list | None = None,
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
-    ):
+    ) -> None:
         """
         Write input files and run VASP.
 
-        :param run_dir: Where to write input files and do the run.
-        :param vasp_cmd: Args to be supplied to run VASP. Otherwise, the
-            PMG_VASP_EXE in .pmgrc.yaml is used.
-        :param output_file: File to write output.
-        :param err_file: File to write err.
+        Args:
+            run_dir: Where to write input files and do the run.
+            vasp_cmd: Args to be supplied to run VASP. Otherwise, the
+                PMG_VASP_EXE in .pmgrc.yaml is used.
+            output_file: File to write output.
+            err_file: File to write err.
         """
         self.write_input(output_dir=run_dir)
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")  # type: ignore[assignment]
@@ -2714,7 +2710,9 @@ class VaspInput(dict, MSONable):
         if not vasp_cmd:
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
 
-        with cd(run_dir), open(output_file, mode="w", encoding="utf-8") as stdout_file, open(
-            err_file, mode="w", encoding="utf-8", buffering=1
-        ) as stderr_file:
+        with (
+            cd(run_dir),
+            open(output_file, mode="w", encoding="utf-8") as stdout_file,
+            open(err_file, mode="w", encoding="utf-8", buffering=1) as stderr_file,
+        ):
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)

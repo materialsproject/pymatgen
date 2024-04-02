@@ -40,10 +40,11 @@ if TYPE_CHECKING:
     from io import StringIO
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"), encoding="utf-8") as file:
     plotly_layouts = json.load(file)
 
 
@@ -105,7 +106,7 @@ class PDEntry(Entry):
         return return_dict
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): dictionary representation of PDEntry.
@@ -199,17 +200,17 @@ class GrandPotPDEntry(PDEntry):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of GrandPotPDEntry.
+            dct (dict): dictionary representation of GrandPotPDEntry.
 
         Returns:
             GrandPotPDEntry
         """
-        chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
-        entry = MontyDecoder().process_decoded(d["entry"])
-        return cls(entry, chempots, d["name"])
+        chempots = {Element(symbol): u for symbol, u in dct["chempots"].items()}
+        entry = MontyDecoder().process_decoded(dct["entry"])
+        return cls(entry, chempots, dct["name"])
 
 
 class TransformedPDEntry(PDEntry):
@@ -284,17 +285,17 @@ class TransformedPDEntry(PDEntry):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of TransformedPDEntry.
+            dct (dict): dictionary representation of TransformedPDEntry.
 
         Returns:
             TransformedPDEntry
         """
-        sp_mapping = d["sp_mapping"]
-        del d["sp_mapping"]
-        entry = MontyDecoder().process_decoded(d)
+        sp_mapping = dct["sp_mapping"]
+        del dct["sp_mapping"]
+        entry = MontyDecoder().process_decoded(dct)
         return cls(entry, sp_mapping)
 
 
@@ -391,7 +392,7 @@ class PhaseDiagram(MSONable):
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = tuple(computed_data["qhull_entries"])
         self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
-        self._stable_entries = tuple({self.qhull_entries[i] for i in set(itertools.chain(*self.facets))})
+        self._stable_entries = tuple({self.qhull_entries[idx] for idx in set(itertools.chain(*self.facets))})
         self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def as_dict(self):
@@ -408,10 +409,10 @@ class PhaseDiagram(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> PhaseDiagram:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
-            d (dict): dictionary representation of PhaseDiagram.
+            dct (dict): dictionary representation of PhaseDiagram.
 
         Returns:
             PhaseDiagram
@@ -458,7 +459,7 @@ class PhaseDiagram(MSONable):
         # Add the elemental references
         idx.extend([min_entries.index(el) for el in el_refs.values()])
 
-        qhull_entries = [min_entries[i] for i in idx]
+        qhull_entries = [min_entries[idx] for idx in idx]
         qhull_data = data[idx][:, 1:]
 
         # Add an extra point to enforce full dimensionality.
@@ -617,10 +618,10 @@ class PhaseDiagram(MSONable):
         Args:
             comp (Composition): A composition
         """
-        c = self.pd_coords(comp)
-        for f, s in zip(self.facets, self.simplexes):
-            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
-                return f, s
+        coord = self.pd_coords(comp)
+        for facet, simplex in zip(self.facets, self.simplexes):
+            if simplex.in_simplex(coord, PhaseDiagram.numerical_tol / 10):
+                return facet, simplex
 
         raise RuntimeError(f"No facet found for {comp = }")
 
@@ -631,10 +632,12 @@ class PhaseDiagram(MSONable):
         Args:
             comp (Composition): A composition
         """
-        c = self.pd_coords(comp)
+        coords = self.pd_coords(comp)
 
         all_facets = [
-            f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
+            facet
+            for facet, simplex in zip(self.facets, self.simplexes)
+            if simplex.in_simplex(coords, PhaseDiagram.numerical_tol / 10)
         ]
 
         if not all_facets:
@@ -652,8 +655,8 @@ class PhaseDiagram(MSONable):
         Returns:
             {element: chempot} for all elements in the phase diagram.
         """
-        comp_list = [self.qhull_entries[i].composition for i in facet]
-        energy_list = [self.qhull_entries[i].energy_per_atom for i in facet]
+        comp_list = [self.qhull_entries[idx].composition for idx in facet]
+        energy_list = [self.qhull_entries[idx].energy_per_atom for idx in facet]
         atom_frac_mat = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
         chempots = np.linalg.solve(atom_frac_mat, energy_list)
 
@@ -753,7 +756,8 @@ class PhaseDiagram(MSONable):
                 'ignore' just returns (None, None). Defaults to 'raise'.
 
         Raises:
-            ValueError: If no valid decomposition exists in this phase diagram for given entry.
+            ValueError: If on_error is 'raise' and no valid decomposition exists in this
+                phase diagram for given entry.
 
         Returns:
             tuple[decomp, energy_above_hull]: The decomposition is provided
@@ -825,9 +829,9 @@ class PhaseDiagram(MSONable):
             return 0
 
         entries = [e for e in self._get_stable_entries_in_space(frozenset(elem_space)) if e != entry]
-        modpd = PhaseDiagram(entries, elements=elem_space)
+        mod_pd = PhaseDiagram(entries, elements=elem_space)
 
-        return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
+        return mod_pd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_phase_separation_energy(
         self,
@@ -1189,8 +1193,10 @@ class PhaseDiagram(MSONable):
                 data2 = self.facets[combi[1]]
                 common_ent_ind = set(data1).intersection(set(data2))
                 if len(common_ent_ind) == len(elements):
-                    common_entries = [self.qhull_entries[i] for i in common_ent_ind]
-                    data = np.array([[all_chempots[i][j] - el_energies[self.elements[j]] for j in inds] for i in combi])
+                    common_entries = [self.qhull_entries[idx] for idx in common_ent_ind]
+                    data = np.array(
+                        [[all_chempots[ii][jj] - el_energies[self.elements[jj]] for jj in inds] for ii in combi]
+                    )
                     sim = Simplex(data)
                     for entry in common_entries:
                         chempot_ranges[entry].append(sim)
@@ -1222,23 +1228,23 @@ class PhaseDiagram(MSONable):
         mu_ref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
 
-        for e in self.elements:
-            if e not in target_comp.elements:
-                target_comp = target_comp + Composition({e: 0.0})
+        for elem in self.elements:
+            if elem not in target_comp.elements:
+                target_comp = target_comp + Composition({elem: 0.0})
 
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
 
-        for e, chempots in chempot_ranges.items():
-            if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplier = e.composition[dep_elt] / target_comp[dep_elt]
-                ef = e.energy / multiplier
+        for elem, chempots in chempot_ranges.items():
+            if elem.composition.reduced_composition == target_comp.reduced_composition:
+                multiplier = elem.composition[dep_elt] / target_comp[dep_elt]
+                ef = elem.energy / multiplier
                 all_coords = []
-                for s in chempots:
-                    for v in s._coords:
+                for simplex in chempots:
+                    for v in simplex._coords:
                         elements = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i, el in enumerate(elements):
-                            res[el] = v[i] + mu_ref[i]
+                        for idx, el in enumerate(elements):
+                            res[el] = v[idx] + mu_ref[idx]
                         res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
@@ -1301,8 +1307,8 @@ class PhaseDiagram(MSONable):
         elems = [e for e in self.elements if e != open_elt]
         res = {}
 
-        for i, el in enumerate(elems):
-            res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
+        for idx, el in enumerate(elems):
+            res[el] = (min_mus[idx] + muref[idx], max_mus[idx] + muref[idx])
 
         res[open_elt] = (min_open, max_open)
         return res
@@ -1450,17 +1456,17 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of GrandPotentialPhaseDiagram.
+            dct (dict): dictionary representation of GrandPotentialPhaseDiagram.
 
         Returns:
             GrandPotentialPhaseDiagram
         """
-        entries = MontyDecoder().process_decoded(d["all_entries"])
-        elements = MontyDecoder().process_decoded(d["elements"])
-        return cls(entries, d["chempots"], elements)
+        entries = MontyDecoder().process_decoded(dct["all_entries"])
+        elements = MontyDecoder().process_decoded(dct["elements"])
+        return cls(entries, dct["chempots"], elements)
 
 
 class CompoundPhaseDiagram(PhaseDiagram):
@@ -1517,8 +1523,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         # Map terminal compositions to unique dummy species.
         sp_mapping = {}
-        for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+        for idx, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
 
         for entry in entries:
             if getattr(entry, "attribute", None) is None:
@@ -1552,18 +1558,17 @@ class CompoundPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of CompoundPhaseDiagram.
+            dct (dict): dictionary representation of CompoundPhaseDiagram.
 
         Returns:
             CompoundPhaseDiagram
         """
-        dec = MontyDecoder()
-        entries = dec.process_decoded(d["original_entries"])
-        terminal_compositions = dec.process_decoded(d["terminal_compositions"])
-        return cls(entries, terminal_compositions, d["normalize_terminal_compositions"])
+        entries = MontyDecoder().process_decoded(dct["original_entries"])
+        terminal_compositions = MontyDecoder().process_decoded(dct["terminal_compositions"])
+        return cls(entries, terminal_compositions, dct["normalize_terminal_compositions"])
 
 
 class PatchedPhaseDiagram(PhaseDiagram):
@@ -1647,7 +1652,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Add the elemental references
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
-        self.qhull_entries = tuple(min_entries[i] for i in inds)
+        self.qhull_entries = tuple(min_entries[idx] for idx in inds)
         # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
         # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
         self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
@@ -1661,14 +1666,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
             systems = set()
             # NOTE reduce the number of comparisons by only comparing to larger sets
-            for i in range(2, max_size + 1):
-                test = (s for s in spaces if len(s) == i)
-                refer = (s for s in spaces if len(s) > i)
+            for idx in range(2, max_size + 1):
+                test = (s for s in spaces if len(s) == idx)
+                refer = (s for s in spaces if len(s) > idx)
                 systems |= {t for t in test if not any(t.issubset(r) for r in refer)}
 
             spaces = systems
 
-        # TODO comprhys: refactor to have self._compute method to allow serialisation
+        # TODO comprhys: refactor to have self._compute method to allow serialization
         self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
         self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
         self.all_entries = all_entries
@@ -1715,10 +1720,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): dictionary representation of PatchedPhaseDiagram.
+            dct (dict): dictionary representation of PatchedPhaseDiagram.
 
         Returns:
             PatchedPhaseDiagram
@@ -1750,6 +1755,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         Returns:
             PhaseDiagram: phase diagram that the entry is part of
+
+        Raises:
+            ValueError: If no suitable PhaseDiagram is found for the entry.
         """
         entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
 
@@ -1903,8 +1911,8 @@ class ReactionDiagram:
                 number of decimal places in reaction string. Defaults to "%.4f".
         """
         elem_set = set()
-        for ent in [entry1, entry2]:
-            elem_set.update([el.symbol for el in ent.elements])
+        for entry in [entry1, entry2]:
+            elem_set.update([el.symbol for el in entry.elements])
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -1930,15 +1938,15 @@ class ReactionDiagram:
 
         for facet in pd.facets:
             for face in itertools.combinations(facet, len(facet) - 1):
-                face_entries = [pd.qhull_entries[i] for i in face]
+                face_entries = [pd.qhull_entries[idx] for idx in face]
 
                 if any(e.reduced_formula in terminal_formulas for e in face_entries):
                     continue
 
                 try:
                     mat = []
-                    for ent in face_entries:
-                        mat.append([ent.composition.get_atomic_fraction(el) for el in elements])
+                    for entry in face_entries:
+                        mat.append([entry.composition.get_atomic_fraction(el) for el in elements])
                     mat.append(comp_vec2 - comp_vec1)
                     matrix = np.array(mat).T
                     coeffs = np.linalg.solve(matrix, comp_vec2)
@@ -1965,12 +1973,12 @@ class ReactionDiagram:
 
                         energy = -(x * entry1.energy_per_atom + (1 - x) * entry2.energy_per_atom)
 
-                        for c, ent in zip(coeffs[:-1], face_entries):
+                        for c, entry in zip(coeffs[:-1], face_entries):
                             if c > tol:
-                                r = ent.composition.reduced_composition
-                                products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
-                                product_entries.append((c, ent))
-                                energy += c * ent.energy_per_atom
+                                redu_comp = entry.composition.reduced_composition
+                                products.append(f"{fmt(c / redu_comp.num_atoms * factor)} {redu_comp.reduced_formula}")
+                                product_entries.append((c, entry))
+                                energy += c * entry.energy_per_atom
 
                         rxn_str += " + ".join(products)
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
@@ -1993,9 +2001,9 @@ class ReactionDiagram:
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = {}
-        for i, ent in enumerate(rxn_entries):
-            self.labels[str(i + 1)] = ent.attribute
-            ent.name = str(i + 1)
+        for idx, entry in enumerate(rxn_entries):
+            self.labels[str(idx + 1)] = entry.attribute
+            entry.name = str(idx + 1)
         self.all_entries = all_entries
         self.pd = pd
 
@@ -2073,16 +2081,16 @@ def _get_slsqp_decomp(
             is the amount of the fractional composition.
     """
     # Elemental amount present in given entry
-    amts = comp.get_el_amt_dict()
-    chemical_space = tuple(amts)
-    b = np.array([amts[el] for el in chemical_space])
+    amounts = comp.get_el_amt_dict()
+    chemical_space = tuple(amounts)
+    b = np.array([amounts[el] for el in chemical_space])
 
     # Elemental amounts present in competing entries
     A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
-    for j, comp_entry in enumerate(competing_entries):
-        amts = comp_entry.composition.get_el_amt_dict()
-        for i, el in enumerate(chemical_space):
-            A_transpose[i, j] = amts.get(el, 0)
+    for ii, comp_entry in enumerate(competing_entries):
+        amounts = comp_entry.composition.get_el_amt_dict()
+        for jj, el in enumerate(chemical_space):
+            A_transpose[jj, ii] = amounts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
     b = b / np.sum(b)
@@ -2334,18 +2342,18 @@ class PDPlotter:
         num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
         element_energy = evolution[0]["chempot"]
         x1, x2, y1 = None, None, None
-        for i, d in enumerate(evolution):
-            v = -(d["chempot"] - element_energy)
-            if i != 0:
-                ax.plot([x2, x2], [y1, d["evolution"] / num_atoms], "k", linewidth=2.5)
+        for idx, dct in enumerate(evolution):
+            v = -(dct["chempot"] - element_energy)
+            if idx != 0:
+                ax.plot([x2, x2], [y1, dct["evolution"] / num_atoms], "k", linewidth=2.5)
             x1 = v
-            y1 = d["evolution"] / num_atoms
+            y1 = dct["evolution"] / num_atoms
 
-            x2 = -(evolution[i + 1]["chempot"] - element_energy) if i != len(evolution) - 1 else 5.0
-            if show_label_index is not None and i in show_label_index:
+            x2 = -(evolution[idx + 1]["chempot"] - element_energy) if idx != len(evolution) - 1 else 5.0
+            if show_label_index is not None and idx in show_label_index:
                 products = [
                     re.sub(r"(\d+)", r"$_{\1}$", p.reduced_formula)
-                    for p in d["reaction"].products
+                    for p in dct["reaction"].products
                     if p.reduced_formula != element.symbol
                 ]
                 ax.annotate(
@@ -2414,7 +2422,7 @@ class PDPlotter:
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
             for line in lines:
-                (x, y) = line.coords.transpose()
+                x, y = line.coords.transpose()
                 plt.plot(x, y, "k-")
 
                 for coord in line.coords:
@@ -2455,19 +2463,19 @@ class PDPlotter:
             if not (is_x and is_y):
                 if is_x:
                     coords = sorted(coords, key=lambda c: c[1])
-                    for i in [0, -1]:
-                        x = [min(xlim), coords[i][0]]
-                        y = [coords[i][1], coords[i][1]]
+                    for idx in [0, -1]:
+                        x = [min(xlim), coords[idx][0]]
+                        y = [coords[idx][1], coords[idx][1]]
                         plt.plot(x, y, "k")
                         center_x += min(xlim)
-                        center_y += coords[i][1]
+                        center_y += coords[idx][1]
                 elif is_y:
                     coords = sorted(coords, key=lambda c: c[0])
-                    for i in [0, -1]:
-                        x = [coords[i][0], coords[i][0]]
-                        y = [coords[i][1], min(ylim)]
+                    for idx in [0, -1]:
+                        x = [coords[idx][0], coords[idx][0]]
+                        y = [coords[idx][1], min(ylim)]
                         plt.plot(x, y, "k")
-                        center_x += coords[i][0]
+                        center_x += coords[idx][0]
                         center_y += min(ylim)
                 xy = (center_x / (n + 2), center_y / (n + 2))
             else:
@@ -2503,8 +2511,8 @@ class PDPlotter:
 
         ax = self._get_matplotlib_2d_plot()
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
-        for i, e in enumerate(entries):
-            data[i, 2] = self._pd.get_e_above_hull(e)
+        for idx, entry in enumerate(entries):
+            data[idx, 2] = self._pd.get_e_above_hull(entry)
 
         gridsize = 0.005
         xnew = np.arange(0, 1.0, gridsize)
@@ -2512,9 +2520,9 @@ class PDPlotter:
 
         f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
         znew = np.zeros((len(ynew), len(xnew)))
-        for i, xval in enumerate(xnew):
+        for idx, xval in enumerate(xnew):
             for j, yval in enumerate(ynew):
-                znew[j, i] = f(xval, yval)
+                znew[j, idx] = f(xval, yval)
 
         contourf = ax.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
@@ -2570,16 +2578,16 @@ class PDPlotter:
         unstable_entries = {}
         stable = pd.stable_entries
 
-        for i, entry in enumerate(all_entries):
+        for idx, entry in enumerate(all_entries):
             if entry not in stable:
                 if self._dim < 3:
-                    x = [all_data[i][0], all_data[i][0]]
+                    x = [all_data[idx][0], all_data[idx][0]]
                     y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
-                    coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])
+                    coord = triangular_coord([all_data[idx, 0:2], all_data[idx, 0:2]])
                 else:
-                    coord = tet_coord([all_data[i, 0:3], all_data[i, 0:3], all_data[i, 0:3]])
+                    coord = tet_coord([all_data[idx, 0:3], all_data[idx, 0:3], all_data[idx, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
@@ -3750,11 +3758,7 @@ def uniquelines(q):
         setoflines:
             A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
     """
-    setoflines = set()
-    for facets in q:
-        for line in itertools.combinations(facets, 2):
-            setoflines.add(tuple(sorted(line)))
-    return setoflines
+    return {tuple(sorted(line)) for facets in q for line in itertools.combinations(facets, 2)}
 
 
 def triangular_coord(coord):

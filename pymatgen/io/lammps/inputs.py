@@ -28,6 +28,8 @@ from pymatgen.io.template import TemplateInputGen
 if TYPE_CHECKING:
     from os import PathLike
 
+    from typing_extensions import Self
+
     from pymatgen.io.core import InputSet
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
@@ -536,7 +538,7 @@ class LammpsInputFile(InputFile):
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -555,25 +557,25 @@ class LammpsInputFile(InputFile):
         Returns:
             LammpsInputFile
         """
-        LIF = cls()
+        lammps_in_file = cls()
 
         # Strip string from starting and/or ending white spaces
-        s = contents.strip()
+        contents = contents.strip()
 
         # Remove "&" symbols at the end of lines
-        while "&" in s:
+        while "&" in contents:
             sequence = "&"
-            index = s.index("&")
+            index = contents.index("&")
             next_symbol = ""
-            i = 0
+            idx = 0
             while next_symbol != "\n":
                 sequence += next_symbol
-                i += 1
-                next_symbol = s[index + i]
-            s = s.replace(sequence + "\n", "")
+                idx += 1
+                next_symbol = contents[index + idx]
+            contents = contents.replace(sequence + "\n", "")
 
         # Remove unwanted lines from the string
-        lines = cls._clean_lines(s.splitlines(), ignore_comments=ignore_comments)
+        lines = cls._clean_lines(contents.splitlines(), ignore_comments=ignore_comments)
         # Split the string into blocks based on the empty lines of the input file
         blocks = cls._get_blocks(lines, keep_stages=keep_stages)
 
@@ -584,39 +586,39 @@ class LammpsInputFile(InputFile):
                 if ignore_comments:
                     keep_block = False
                 else:
-                    LIF._add_comment(comment=block[0][1:].strip(), inline=False)
-                    stage_name = f"Comment {LIF.ncomments}"
+                    lammps_in_file._add_comment(comment=block[0][1:].strip(), inline=False)
+                    stage_name = f"Comment {lammps_in_file.ncomments}"
                     if len(block) > 1:
                         for line in block[1:]:
-                            LIF._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
+                            lammps_in_file._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
 
             # Header of a stage
             elif block[0][0] == "#" and keep_block:
                 # Find the name of the header.
                 # If the comment is on multiple lines, the header will be the whole text
-                icomm_max = len(block)
-                for i, line in enumerate(block):
-                    if line[0] != "#" and i <= icomm_max:
-                        icomm_max = i
+                n_comm_max = len(block)
+                for idx, line in enumerate(block):
+                    if line[0] != "#" and idx <= n_comm_max:
+                        n_comm_max = idx
 
-                comments = block[:icomm_max]
+                comments = block[:n_comm_max]
                 header = ""
                 for line in comments:
                     header += line[1:].strip() + " "
 
                 header = header.strip()
-                stage_name = f"Stage {LIF.nstages + 1}" if (ignore_comments or not keep_stages) else header
-                commands = block[icomm_max:]
-                LIF.add_stage(commands=commands, stage_name=stage_name)
+                stage_name = f"Stage {lammps_in_file.nstages + 1}" if (ignore_comments or not keep_stages) else header
+                commands = block[n_comm_max:]
+                lammps_in_file.add_stage(commands=commands, stage_name=stage_name)
 
             # Stage with no header
             else:
-                stage_name = f"Stage {LIF.nstages + 1}"
-                LIF.add_stage(commands=block, stage_name=stage_name)
-        return LIF
+                stage_name = f"Stage {lammps_in_file.nstages + 1}"
+                lammps_in_file.add_stage(commands=block, stage_name=stage_name)
+        return lammps_in_file
 
     @classmethod
-    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
         """
         Creates an InputFile object from a file.
 
@@ -1073,7 +1075,7 @@ def write_lammps_inputs(
         data_filename = read_data.group(1).split()[0]
         if isinstance(data, LammpsData):
             data.write_file(os.path.join(output_dir, data_filename), **kwargs)
-        elif isinstance(data, str) and os.path.exists(data):
+        elif isinstance(data, str) and os.path.isfile(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
             warnings.warn(f"No data file supplied. Skip writing {data_filename}.")

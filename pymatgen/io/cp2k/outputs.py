@@ -102,8 +102,7 @@ class Cp2kOutput:
     @property
     def completed(self):
         """Did the calculation complete."""
-        c = self.data.get("completed", False)
-        if c:
+        if c := self.data.get("completed", False):
             return c[0][0]
         return c
 
@@ -196,18 +195,12 @@ class Cp2kOutput:
         True if the cp2k output was generated for a molecule (i.e.
         no periodicity in the cell).
         """
-        if self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE":
-            return True
-        return False
+        return self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE"
 
     @property
     def is_metal(self) -> bool:
         """Was a band gap found? i.e. is it a metal."""
-        if self.band_gap is None:
-            return True
-        if self.band_gap <= 0:
-            return True
-        return False
+        return True if self.band_gap is None else self.band_gap <= 0
 
     @property
     def is_hubbard(self) -> bool:
@@ -276,7 +269,7 @@ class Cp2kOutput:
         default, so non static calculations have to reference the trajectory file.
         """
         self.parse_initial_structure()
-        trajectory_file = trajectory_file if trajectory_file else self.filenames.get("trajectory")
+        trajectory_file = trajectory_file or self.filenames.get("trajectory")
         if isinstance(trajectory_file, list):
             if len(trajectory_file) == 1:
                 trajectory_file = trajectory_file[0]
@@ -300,8 +293,7 @@ class Cp2kOutput:
             lattices = [latt[2:].reshape(3, 3) for latt in latt_file]
 
         if not trajectory_file:
-            self.structures = []
-            self.structures.append(self.initial_structure)
+            self.structures = [self.initial_structure]
             self.final_structure = self.structures[-1]
         else:
             mols = XYZ.from_file(trajectory_file).all_molecules
@@ -412,22 +404,19 @@ class Cp2kOutput:
     def convergence(self):
         """Check whether or not the SCF and geometry optimization cycles converged."""
         # SCF Loops
-        uncoverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
+        unconverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
         scf_converged = re.compile(r"(SCF run converged)|(SCF run NOT converged)")
         self.read_pattern(
             patterns={
-                "uncoverged_inner_loop": uncoverged_inner_loop,
+                "unconverged_inner_loop": unconverged_inner_loop,
                 "scf_converged": scf_converged,
             },
             reverse=True,
             terminate_on_match=False,
             postprocess=bool,
         )
-        for i, x in enumerate(self.data["scf_converged"]):
-            if x[0]:
-                self.data["scf_converged"][i] = True
-            else:
-                self.data["scf_converged"][i] = False
+        for idx, val in enumerate(self.data["scf_converged"]):
+            self.data["scf_converged"][idx] = bool(val[0])
 
         # GEO_OPT
         geo_opt_not_converged = re.compile(r"(MAXIMUM NUMBER OF OPTIMIZATION STEPS REACHED)")
@@ -453,7 +442,7 @@ class Cp2kOutput:
     def parse_energies(self):
         """
         Get the total energy from a CP2K calculation. Presently, the energy reported in the
-        trajectory (pos.xyz) file takes presidence over the energy reported in the main output
+        trajectory (pos.xyz) file takes precedence over the energy reported in the main output
         file. This is because the trajectory file keeps track of energies in between restarts,
         while the main output file may or may not depending on whether a particular machine
         overwrites or appends it.
@@ -581,7 +570,7 @@ class Cp2kOutput:
             return
         input_filename = self.data["input_filename"][0][0]
         for ext in ["", ".gz", ".GZ", ".z", ".Z", ".bz2", ".BZ2"]:
-            if os.path.exists(os.path.join(self.dir, input_filename + ext)):
+            if os.path.isfile(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename + ext))
                 return
         warnings.warn("Original input file not found. Some info may be lost.")
@@ -612,8 +601,7 @@ class Cp2kOutput:
 
         # Functional
         if self.input and self.input.check("FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"):
-            xc_funcs = list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections)
-            if xc_funcs:
+            if xc_funcs := list(self.input["force_eval"]["dft"]["xc"]["xc_functional"].subsections):
                 self.data["dft"]["functional"] = xc_funcs
             else:
                 for v in self.input["force_eval"]["dft"]["xc"].subsections.values():
@@ -1157,14 +1145,14 @@ class Cp2kOutput:
             self.cbm = self.data["cbm"][Spin.up]
             self.efermi = efermi[-1][Spin.up]
 
-        num_occ = len(eigenvalues[-1]["occupied"][Spin.up])
-        num_unocc = len(eigenvalues[-1]["unoccupied"][Spin.up])
+        n_occ = len(eigenvalues[-1]["occupied"][Spin.up])
+        n_unocc = len(eigenvalues[-1]["unoccupied"][Spin.up])
         self.data["tdos"] = Dos(
             efermi=self.vbm + 1e-6,
             energies=list(eigenvalues[-1]["occupied"][Spin.up]) + list(eigenvalues[-1]["unoccupied"][Spin.down]),
             densities={
-                Spin.up: [1 for _ in range(num_occ)] + [0 for _ in range(num_unocc)],
-                Spin.down: [1 for _ in range(num_occ)] + [0 for _ in range(num_unocc)],
+                Spin.up: [1 for _ in range(n_occ)] + [0 for _ in range(n_unocc)],
+                Spin.down: [1 for _ in range(n_occ)] + [0 for _ in range(n_unocc)],
             },
         )
 
@@ -1254,10 +1242,7 @@ class Cp2kOutput:
         self.data["pdos"] = jsanitize(pdoss, strict=True)
         self.data["ldos"] = jsanitize(ldoss, strict=True)
 
-        if dos_file:
-            self.data["tdos"] = parse_dos(dos_file)
-        else:
-            self.data["tdos"] = tdos
+        self.data["tdos"] = parse_dos(dos_file) if dos_file else tdos
 
         if self.data.get("tdos"):
             self.band_gap = self.data["tdos"].get_gap()
@@ -1298,7 +1283,7 @@ class Cp2kOutput:
             else:
                 return
 
-        with open(bandstructure_filename) as file:
+        with open(bandstructure_filename, encoding="utf-8") as file:
             lines = file.read().split("\n")
 
         data = np.loadtxt(bandstructure_filename)
@@ -1320,7 +1305,7 @@ class Cp2kOutput:
                 nkpts += int(lines[0].split()[6])
             elif line.split()[1] == "Point":
                 kpts.append(list(map(float, line.split()[-4:-1])))
-            elif line.split()[1] == "Special" in line:
+            elif line.split()[1] == "Special":
                 splt = line.split()
                 label = splt[7]
                 if label.upper() == "GAMMA":
@@ -1687,11 +1672,11 @@ def parse_dos(dos_file=None):
     data = np.loadtxt(dos_file)
     data[:, 0] *= Ha_to_eV
     energies = data[:, 0]
-    for i, o in enumerate(data[:, 1]):
-        if o == 0:
+    for idx, val in enumerate(data[:, 1]):
+        if val == 0:
             break
-        vbmtop = i
-    efermi = energies[vbmtop] + 1e-6
+        vbm_top = idx
+    efermi = energies[vbm_top] + 1e-6
     densities = {Spin.up: data[:, 1]}
     if data.shape[1] > 3:
         densities[Spin.down] = data[:, 3]
@@ -1730,38 +1715,38 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         header = re.split(r"\s{2,}", lines[1].replace("#", "").strip())[2:]
         dat = np.loadtxt(dos_file)
 
-        def cp2k_to_pmg_labels(x):
-            if x == "p":
+        def cp2k_to_pmg_labels(label: str) -> str:
+            if label == "p":
                 return "px"
-            if x == "d":
+            if label == "d":
                 return "dxy"
-            if x == "f":
+            if label == "f":
                 return "f_3"
-            if x == "d-2":
+            if label == "d-2":
                 return "dxy"
-            if x == "d-1":
+            if label == "d-1":
                 return "dyz"
-            if x == "d0":
+            if label == "d0":
                 return "dz2"
-            if x == "d+1":
+            if label == "d+1":
                 return "dxz"
-            if x == "d+2":
+            if label == "d+2":
                 return "dx2"
-            if x == "f-3":
+            if label == "f-3":
                 return "f_3"
-            if x == "f-2":
+            if label == "f-2":
                 return "f_2"
-            if x == "f-1":
+            if label == "f-1":
                 return "f_1"
-            if x == "f0":
+            if label == "f0":
                 return "f0"
-            if x == "f+1":
+            if label == "f+1":
                 return "f1"
-            if x == "f+2":
+            if label == "f+2":
                 return "f2"
-            if x == "f+3":
+            if label == "f+3":
                 return "f3"
-            return x
+            return label
 
         header = [cp2k_to_pmg_labels(h) for h in header]
 
@@ -1770,15 +1755,15 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         data = np.delete(data, 1, 1)
         data[:, 0] *= Ha_to_eV
         energies = data[:, 0]
-        for i, o in enumerate(occupations):
-            if o == 0:
+        for idx, occu in enumerate(occupations):
+            if occu == 0:
                 break
-            vbmtop = i
+            vbm_top = idx
 
         # set Fermi level to be vbm plus tolerance for
         # PMG compatibility
         # *not* middle of the gap, which pdos might report
-        efermi = energies[vbmtop] + 1e-6
+        efermi = energies[vbm_top] + 1e-6
 
         # for pymatgen's dos class. VASP creates an evenly spaced grid of energy states, which
         # leads to 0 density states in the band gap. CP2K does not do this. PMG's Dos class was
@@ -1786,10 +1771,10 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         # in between VBM and CBM, so here we introduce trivial ones
         energies = np.insert(
             energies,
-            vbmtop + 1,
-            np.linspace(energies[vbmtop] + 1e-6, energies[vbmtop + 1] - 1e-6, 2),
+            vbm_top + 1,
+            np.linspace(energies[vbm_top] + 1e-6, energies[vbm_top + 1] - 1e-6, 2),
         )
-        data = np.insert(data, vbmtop + 1, np.zeros((2, data.shape[1])), axis=0)
+        data = np.insert(data, vbm_top + 1, np.zeros((2, data.shape[1])), axis=0)
 
         pdos = {
             kind: {

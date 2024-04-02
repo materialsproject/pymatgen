@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from pymatgen.symmetry.groups import CrystalSystem
 
 logger = logging.getLogger(__name__)
+
 LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
 cite_conventional_cell_algo = due.dcite(
@@ -258,7 +259,7 @@ class SpacegroupAnalyzer:
         # fractions)
         translations = []
         for t in dct["translations"]:
-            translations.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+            translations.append([float(Fraction(c).limit_denominator(1000)) for c in t])
         translations = np.array(translations)
 
         # fractional translations of 1 are more simply 0
@@ -459,17 +460,17 @@ class SpacegroupAnalyzer:
             if abs(lengths[0] - lengths[2]) < 0.0001:
                 transf = np.eye
             else:
-                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float_) / 3
+                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
         elif "I" in self.get_space_group_symbol():
-            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float_) / 2
+            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float64) / 2
         elif "F" in self.get_space_group_symbol():
-            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float_) / 2
+            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float64) / 2
         elif "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
             if self.get_crystal_system() == "monoclinic":
-                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float_) / 2
+                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float64) / 2
             else:
-                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float_) / 2
+                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float64) / 2
         else:
             transf = np.eye(3)
 
@@ -510,15 +511,15 @@ class SpacegroupAnalyzer:
         )
 
         new_sites = []
-        latt = Lattice(np.dot(transf, conv.lattice.matrix))
-        for s in conv:
+        lattice = Lattice(np.dot(transf, conv.lattice.matrix))
+        for site in conv:
             new_s = PeriodicSite(
-                s.specie,
-                s.coords,
-                latt,
+                site.specie,
+                site.coords,
+                lattice,
                 to_unit_cell=True,
                 coords_are_cartesian=True,
-                properties=s.properties,
+                properties=site.properties,
             )
             if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
@@ -539,14 +540,14 @@ class SpacegroupAnalyzer:
                 ],
             ]
             new_sites = []
-            latt = Lattice(new_matrix)
-            for s in prim:
+            lattice = Lattice(new_matrix)
+            for site in prim:
                 new_s = PeriodicSite(
-                    s.specie,
-                    s.frac_coords,
-                    latt,
+                    site.specie,
+                    site.frac_coords,
+                    lattice,
                     to_unit_cell=True,
-                    properties=s.properties,
+                    properties=site.properties,
                 )
                 if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
@@ -581,11 +582,11 @@ class SpacegroupAnalyzer:
         """
         tol = 1e-5
         struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
-        latt = struct.lattice
+        lattice = struct.lattice
         latt_type = self.get_lattice_type()
-        sorted_lengths = sorted(latt.abc)
+        sorted_lengths = sorted(lattice.abc)
         sorted_dic = sorted(
-            ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in range(3)),
+            ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in range(3)),
             key=lambda k: k["length"],
         )
 
@@ -595,44 +596,44 @@ class SpacegroupAnalyzer:
             transf = np.zeros(shape=(3, 3))
             if self.get_space_group_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
-                a, b = sorted(latt.abc[:2])
+                a, b = sorted(lattice.abc[:2])
                 sorted_dic = sorted(
-                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
-                for i in range(2):
-                    transf[i][sorted_dic[i]["orig_index"]] = 1
-                c = latt.abc[2]
+                for idx in range(2):
+                    transf[idx][sorted_dic[idx]["orig_index"]] = 1
+                c = lattice.abc[2]
             elif self.get_space_group_symbol().startswith(
                 "A"
             ):  # change to C-centering to match Setyawan/Curtarolo convention
                 transf[2] = [1, 0, 0]
-                a, b = sorted(latt.abc[1:])
+                a, b = sorted(lattice.abc[1:])
                 sorted_dic = sorted(
-                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [1, 2]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [1, 2]),
                     key=lambda k: k["length"],
                 )
-                for i in range(2):
-                    transf[i][sorted_dic[i]["orig_index"]] = 1
-                c = latt.abc[0]
+                for idx in range(2):
+                    transf[idx][sorted_dic[idx]["orig_index"]] = 1
+                c = lattice.abc[0]
             else:
-                for i, d in enumerate(sorted_dic):
-                    transf[i][d["orig_index"]] = 1
+                for idx, dct in enumerate(sorted_dic):
+                    transf[idx][dct["orig_index"]] = 1
                 a, b, c = sorted_lengths
-            latt = Lattice.orthorhombic(a, b, c)
+            lattice = Lattice.orthorhombic(a, b, c)
 
         elif latt_type == "tetragonal":
             # find the "a" vectors
             # it is basically the vector repeated two times
             transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
-            for i, d in enumerate(sorted_dic):
-                transf[i][d["orig_index"]] = 1
+            for idx, dct in enumerate(sorted_dic):
+                transf[idx][dct["orig_index"]] = 1
 
             if abs(b - c) < tol < abs(a - c):
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
-            latt = Lattice.tetragonal(a, c)
+            lattice = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
             # for the conventional cell representation,
             # we always show the rhombohedral lattices as hexagonal
@@ -640,7 +641,7 @@ class SpacegroupAnalyzer:
             # check first if we have the refined structure shows a rhombohedral
             # cell
             # if so, make a supercell
-            a, b, c = latt.abc
+            a, b, c = lattice.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
                 a, b, c = sorted(struct.lattice.abc)
@@ -652,7 +653,7 @@ class SpacegroupAnalyzer:
                 [a / 2, a * math.sqrt(3) / 2, 0],
                 [0, 0, c],
             ]
-            latt = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)
             transf = np.eye(3, 3)
 
         elif latt_type == "monoclinic":
@@ -662,15 +663,15 @@ class SpacegroupAnalyzer:
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
-                    ({"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i} for i in [0, 1]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [0, 1]),
                     key=lambda k: k["length"],
                 )
                 a = sorted_dic[0]["length"]
                 b = sorted_dic[1]["length"]
-                c = latt.abc[2]
+                c = lattice.abc[2]
                 new_matrix = None
                 for t in itertools.permutations(list(range(2)), 2):
-                    m = latt.matrix
+                    m = lattice.matrix
                     latt2 = Lattice([m[t[0]], m[t[1]], m[2]])
                     lengths = latt2.lengths
                     angles = latt2.angles
@@ -709,8 +710,8 @@ class SpacegroupAnalyzer:
                     new_matrix = [[a, 0, 0], [0, b, 0], [0, 0, c]]
                     transf = np.zeros(shape=(3, 3))
                     transf[2] = [0, 0, 1]  # see issue #1929
-                    for i, d in enumerate(sorted_dic):
-                        transf[i][d["orig_index"]] = 1
+                    for idx, dct in enumerate(sorted_dic):
+                        transf[idx][dct["orig_index"]] = 1
             # if not C-setting
             else:
                 # try all permutations of the axis
@@ -718,7 +719,7 @@ class SpacegroupAnalyzer:
                 # and b<c
                 new_matrix = None
                 for t in itertools.permutations(list(range(3)), 3):
-                    m = latt.matrix
+                    m = lattice.matrix
                     a, b, c, alpha, beta, gamma = Lattice([m[t[0]], m[t[1]], m[t[2]]]).parameters
                     if alpha > 90 and b < c:
                         a, b, c, alpha, beta, gamma = Lattice([-m[t[0]], -m[t[1]], m[t[2]]]).parameters
@@ -753,8 +754,8 @@ class SpacegroupAnalyzer:
                         [0, 0, sorted_lengths[2]],
                     ]
                     transf = np.zeros(shape=(3, 3))
-                    for i, d in enumerate(sorted_dic):
-                        transf[i][d["orig_index"]] = 1
+                    for idx, dct in enumerate(sorted_dic):
+                        transf[idx][dct["orig_index"]] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.
@@ -769,15 +770,15 @@ class SpacegroupAnalyzer:
                     transf = np.dot(op, transf)
                     new_matrix = np.dot(op, new_matrix)
 
-            latt = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)
 
         elif latt_type == "triclinic":
             # we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
-            latt = struct.lattice
+            lattice = struct.lattice
 
-            a, b, c = latt.lengths
-            alpha, beta, gamma = (math.pi * i / 180 for i in latt.angles)
+            a, b, c = lattice.lengths
+            alpha, beta, gamma = (math.pi * i / 180 for i in lattice.angles)
             new_matrix = None
             test_matrix = [
                 [a, 0, 0],
@@ -854,11 +855,11 @@ class SpacegroupAnalyzer:
                 transf = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
                 new_matrix = test_matrix
 
-            latt = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(
-            latt,
+            lattice,
             struct.species_and_occu,
             new_coords,
             site_properties=struct.site_properties,
@@ -881,8 +882,8 @@ class SpacegroupAnalyzer:
         kpts = np.array(kpoints)
         shift = []
         mesh = []
-        for i in range(3):
-            nonzero = [i for i in kpts[:, i] if abs(i) > 1e-5]
+        for idx in range(3):
+            nonzero = [i for i in kpts[:, idx] if abs(i) > 1e-5]
             if len(nonzero) != len(kpts):
                 # gamma centered
                 if not nonzero:
@@ -902,11 +903,11 @@ class SpacegroupAnalyzer:
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
         mapped = defaultdict(int)
-        for k in kpoints:
-            for i, g in enumerate(grid):
-                if np.allclose(pbc_diff(k, g), (0, 0, 0), atol=atol):
+        for kpt in kpoints:
+            for idx, g in enumerate(grid):
+                if np.allclose(pbc_diff(kpt, g), (0, 0, 0), atol=atol):
                     mapped[tuple(g)] += 1
-                    weights.append(mapping.count(mapping[i]))
+                    weights.append(mapping.count(mapping[idx]))
                     break
         if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
             raise ValueError("Unable to find 1:1 corresponding between input kpoints and irreducible grid!")
@@ -1468,7 +1469,7 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
         tolerance (float): Tolerance for detecting symmetry.
             Gets passed as Argument into
             ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
-        epsilon (float): If the elementwise absolute difference of two
+        epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
 
@@ -1484,6 +1485,7 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
     new = mol
     n = 0
     finished = False
+    eq = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
     while not finished and n <= max_n:
         previous = new
         PA = PointGroupAnalyzer(previous, tolerance=tolerance)
@@ -1512,20 +1514,20 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
     # coordinate.
     dists: list[list[float]] = [[float(np.linalg.norm(site.coords)), 0] for site in mol]
 
-    f = scipy.cluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
+    f_cluster = scipy.cluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
     clustered_dists: dict[str, list[list[float]]] = defaultdict(list)
     for idx in range(len(mol)):
-        clustered_dists[f[idx]].append(dists[idx])
-    avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
+        clustered_dists[f_cluster[idx]].append(dists[idx])
+    avg_dist = {key: np.mean(val) for key, val in clustered_dists.items()}
     clustered_sites = defaultdict(list)
     origin_site = None
     for idx, site in enumerate(mol):
-        if avg_dist[f[idx]] < tol:
+        if avg_dist[f_cluster[idx]] < tol:
             origin_site = idx if give_only_index else site
         elif give_only_index:
-            clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
+            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(idx)
         else:
-            clustered_sites[(avg_dist[f[idx]], site.species)].append(site)
+            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(site)
     return origin_site, clustered_sites
 
 

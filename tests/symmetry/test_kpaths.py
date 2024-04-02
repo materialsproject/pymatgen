@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import random
-import unittest
 
+import pytest
 from monty.serialization import loadfn
 
 from pymatgen.core.lattice import Lattice
@@ -17,7 +17,7 @@ except ImportError:
 
 
 class TestHighSymmKpath(PymatgenTest):
-    @unittest.skipIf(get_path is None, "No seek path present.")
+    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = list(range(3, 16))

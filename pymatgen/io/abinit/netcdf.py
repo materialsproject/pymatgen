@@ -13,6 +13,7 @@ from monty.collections import AttrDict
 from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
+from typing_extensions import Self
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
@@ -93,7 +94,7 @@ class NetcdfReader:
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Activated when used in the with statement."""
         return self
 
@@ -308,7 +309,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
-    natom = len(red_coords)
+    n_atom = len(red_coords)
 
     znucl_type = ncdata.read_value("atomic_numbers")
 
@@ -316,8 +317,8 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
-    species = natom * [None]
-    for atom in range(natom):
+    species = n_atom * [None]
+    for atom in range(n_atom):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 

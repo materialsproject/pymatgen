@@ -47,13 +47,14 @@ class COD:
     def query(self, sql: str) -> str:
         """Perform a query.
 
-        :param sql: SQL string
+        Args:
+            sql: SQL string
 
         Returns:
             Response from SQL query.
         """
-        resp = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
-        return resp.decode("utf-8")
+        response = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
+        return response.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_cod_ids(self, formula):
@@ -89,8 +90,8 @@ class COD:
         Returns:
             A Structure.
         """
-        r = requests.get(f"http://{self.url}/cod/{cod_id}.cif")
-        return Structure.from_str(r.text, fmt="cif", **kwargs)
+        response = requests.get(f"http://{self.url}/cod/{cod_id}.cif")
+        return Structure.from_str(response.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
@@ -111,12 +112,12 @@ class COD:
         for line in text:
             if line.strip():
                 cod_id, sg = line.split("\t")
-                r = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
+                response = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
                 try:
-                    struct = Structure.from_str(r.text, fmt="cif", **kwargs)
+                    struct = Structure.from_str(response.text, fmt="cif", **kwargs)
                     structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
-                    warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{r.text}")
+                    warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{response.text}")
                     raise
 
         return structures
