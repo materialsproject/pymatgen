@@ -352,3 +352,36 @@ class TestChemicalPotentialDiagram(PymatgenTest):
             d = self.cpd_ternary_formal.domains[formula]
             d = d.round(6)  # to get rid of numerical errors from qhull
             assert d == approx(domain, abs=1e-5)
+
+    def test_dim_reduction(self):
+        fig_2d = self.cpd_ternary.get_plot(elements=[Element('Fe'), Element('O')])
+        fig_2d_formal = self.cpd_ternary_formal.get_plot(elements=[Element('Fe'), Element('O')])
+
+        corr_x = [ -6.5961471,  -6.7415938, None,
+                  -10.7396881,  -7.2963901, None,
+                   -7.2963901,  -6.7415938, None,
+                  -11.7396881, -10.7396881, None,
+                   -6.5961471,  -6.5961471, None]
+
+        corr_y = [ -7.1153541,  -6.9699073, None,
+                   -4.2582781,  -6.5538101, None,
+                   -6.5538101,  -6.9699073, None,
+                   -4.2582781,  -4.2582781, None,
+                   -8.1153541,  -7.1153541, None]
+
+        corr_x_formal = [  3.552e-15,  -0.1454467, None,
+                          -4.1435410,  -0.7002430, None,
+                          -0.7002430,  -0.1454467, None,
+                          -5.1435410,  -4.1435410, None
+                           3.552e-15,   3.552e-15, None]
+
+        corr_y_formal = [ -2.8570759,  -2.7116292, None,
+                           0.0000000,  -2.2955320, None,
+                          -2.2955320,  -2.7116292, None,
+                           3.552e-15,   0.0000000, None,
+                          -3.8570759,  -2.8570759, None]
+
+        assert fig_2d.data[0].x == approx(corr_x, abs=1e-5)
+        assert fig_2d.data[0].y == approx(corr_y, abs=1e-5)
+        assert fig_2d_formal.data[0].x == approx(corr_x_formal, abs=1e-5)
+        assert fig_2d_formal.data[0].y == approx(corr_y_formal, abs=1e-5)
