@@ -534,15 +534,15 @@ class Slab(Structure):
                 species = [site.species for site in fixed]
                 frac_coords = [site.frac_coords for site in fixed]
 
-                for s in to_move:
-                    species.append(s.species)
+                for struct_matcher in to_move:
+                    species.append(struct_matcher.species)
                     for group in selection:
-                        if s in group:
-                            frac_coords.append(s.frac_coords)
+                        if struct_matcher in group:
+                            frac_coords.append(struct_matcher.frac_coords)
                             break
                     else:
                         # Move unselected atom to the opposite surface.
-                        frac_coords.append(s.frac_coords + [0, 0, shift])  # noqa: RUF005
+                        frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
                 sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
@@ -560,8 +560,8 @@ class Slab(Structure):
                     reorient_lattice=self.reorient_lattice,
                 )
                 slabs.append(slab)
-        s = StructureMatcher()
-        return [ss[0] for ss in s.group_structures(slabs)]
+        struct_matcher = StructureMatcher()
+        return [ss[0] for ss in struct_matcher.group_structures(slabs)]
 
     def get_sorted_structure(self, key=None, reverse: bool = False) -> Slab:
         """Get a sorted copy of the structure. The parameters have the same
@@ -1605,11 +1605,11 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
         return_hkil (bool): If true, return hkil form of Miller
             index for hexagonal systems, otherwise return hkl
     """
-    r = list(range(-max_index, max_index + 1))
-    r.reverse()
+    rng = list(range(-max_index, max_index + 1))
+    rng.reverse()
 
     # First we get a list of all hkls for conventional (including equivalent)
-    conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any(i != 0 for i in miller)]
+    conv_hkl_list = [miller for miller in itertools.product(rng, rng, rng) if any(i != 0 for i in miller)]
 
     # Sort by the maximum of the absolute values of individual Miller indices so that
     # low-index planes are first. This is important for trigonal systems.
@@ -1949,14 +1949,14 @@ def center_slab(slab: Slab) -> Slab:
     """
     # Get a reasonable r cutoff to sample neighbors
     bdists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
-    r = bdists[0] * 3
+    cutoff_radius = bdists[0] * 3
 
     all_indices = list(range(len(slab)))
 
     # Check if structure is case 2 or 3, shift all the
     # sites up to the other side until it is case 1
     for site in slab:
-        if any(nn[1] > slab.lattice.c for nn in slab.get_neighbors(site, r)):
+        if any(nn[1] > slab.lattice.c for nn in slab.get_neighbors(site, cutoff_radius)):
             shift = 1 - site.frac_coords[2] + 0.05
             slab.translate_sites(all_indices, [0, 0, shift])
 

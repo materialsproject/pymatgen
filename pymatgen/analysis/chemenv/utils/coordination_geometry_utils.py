@@ -342,13 +342,13 @@ def rectangle_surface_intersection(
     xmax = min(x2, bounds_lower[1])
 
     def diff(x):
-        flwx = f_lower(x)
-        fupx = f_upper(x)
-        minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
-        maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
-        zeros = np.zeros_like(fupx)
-        upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
-        lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
+        f_low_x = f_lower(x)
+        f_up_x = f_upper(x)
+        min_up = np.min([f_up_x, y2 * np.ones_like(f_up_x)], axis=0)
+        max_lw = np.max([f_low_x, y1 * np.ones_like(f_low_x)], axis=0)
+        zeros = np.zeros_like(f_up_x)
+        upper = np.where(y2 >= f_low_x, np.where(y1 <= f_up_x, min_up, zeros), zeros)
+        lower = np.where(y1 <= f_up_x, np.where(y2 >= f_low_x, max_lw, zeros), zeros)
         return upper - lower
 
     return quad(diff, xmin, xmax)
@@ -359,16 +359,14 @@ def solid_angle(center, coords):
     Helper method to calculate the solid angle of a set of coords from the center.
 
     Args:
-        center:
-            Center to measure solid angle from.
-        coords:
-            List of coords to determine solid angle.
+        center: Center to measure solid angle from.
+        coords: List of coords to determine solid angle.
 
     Returns:
         The solid angle.
     """
-    o = np.array(center)
-    r = [np.array(c) - o for c in coords]
+    origin = np.array(center)
+    r = [np.array(c) - origin for c in coords]
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))

@@ -1683,10 +1683,10 @@ class KPathLatimerMunro(KPathBase):
         sites = [site for idx, site in enumerate(struct) if idx in nonzero_magmom_inds]
         init_site_coords = [site.frac_coords for site in sites]
         for op in grey_ops:
-            r = op.rotation_matrix
+            rot_mat = op.rotation_matrix
             t = op.translation_vector
-            xformed_magmoms = [self._apply_op_to_magmom(r, magmom) for magmom in init_magmoms]
-            xformed_site_coords = [np.dot(r, site.frac_coords) + t for site in sites]
+            xformed_magmoms = [self._apply_op_to_magmom(rot_mat, magmom) for magmom in init_magmoms]
+            xformed_site_coords = [np.dot(rot_mat, site.frac_coords) + t for site in sites]
             permutation = ["a" for i in range(len(sites))]
             not_found = list(range(len(sites)))
             for i in range(len(sites)):

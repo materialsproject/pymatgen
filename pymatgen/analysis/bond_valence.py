@@ -36,8 +36,7 @@ PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):
-    """
-    Calculates the BV sum of a site.
+    """Calculates the BV sum of a site.
 
     Args:
         site (PeriodicSite): The central site to calculate the bond valence
@@ -63,8 +62,7 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
 
 
 def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
-    """
-    Calculates the BV sum of a site for unordered structures.
+    """Calculates the BV sum of a site for unordered structures.
 
     Args:
         site (PeriodicSite): The central site to calculate the bond valence
@@ -82,7 +80,7 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # site "site" is obtained as :
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
-    bvsum = 0
+    bv_sum = 0
     for specie1, occu1 in site.species.items():
         el1 = Element(specie1.symbol)
         for nn in nn_list:
@@ -95,8 +93,8 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
                     c2 = BV_PARAMS[el2]["c"]
                     R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / (c1 * r1 + c2 * r2)
                     vij = exp((R - nn.nn_distance * scale_factor) / 0.31)
-                    bvsum += occu1 * occu2 * vij * (1 if el1.X < el2.X else -1)
-    return bvsum
+                    bv_sum += occu1 * occu2 * vij * (1 if el1.X < el2.X else -1)
+    return bv_sum
 
 
 class BVAnalyzer:

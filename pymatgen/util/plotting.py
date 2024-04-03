@@ -691,7 +691,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = """\n\n
+    doc_str = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -714,9 +714,9 @@ def add_fig_kwargs(func):
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.
-        wrapper.__doc__ += "\n" + s
+        wrapper.__doc__ += f"\n{doc_str}"
     else:
         # Use s
-        wrapper.__doc__ = s
+        wrapper.__doc__ = doc_str
 
     return wrapper

@@ -618,10 +618,10 @@ class PhaseDiagram(MSONable):
         Args:
             comp (Composition): A composition
         """
-        c = self.pd_coords(comp)
-        for f, s in zip(self.facets, self.simplexes):
-            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
-                return f, s
+        coord = self.pd_coords(comp)
+        for facet, simplex in zip(self.facets, self.simplexes):
+            if simplex.in_simplex(coord, PhaseDiagram.numerical_tol / 10):
+                return facet, simplex
 
         raise RuntimeError(f"No facet found for {comp = }")
 
@@ -632,10 +632,12 @@ class PhaseDiagram(MSONable):
         Args:
             comp (Composition): A composition
         """
-        c = self.pd_coords(comp)
+        coords = self.pd_coords(comp)
 
         all_facets = [
-            f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
+            facet
+            for facet, simplex in zip(self.facets, self.simplexes)
+            if simplex.in_simplex(coords, PhaseDiagram.numerical_tol / 10)
         ]
 
         if not all_facets:
@@ -1973,8 +1975,8 @@ class ReactionDiagram:
 
                         for c, entry in zip(coeffs[:-1], face_entries):
                             if c > tol:
-                                r = entry.composition.reduced_composition
-                                products.append(f"{fmt(c / r.num_atoms * factor)} {r.reduced_formula}")
+                                redu_comp = entry.composition.reduced_composition
+                                products.append(f"{fmt(c / redu_comp.num_atoms * factor)} {redu_comp.reduced_formula}")
                                 product_entries.append((c, entry))
                                 energy += c * entry.energy_per_atom
 
@@ -3756,11 +3758,7 @@ def uniquelines(q):
         setoflines:
             A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
     """
-    setoflines = set()
-    for facets in q:
-        for line in itertools.combinations(facets, 2):
-            setoflines.add(tuple(sorted(line)))
-    return setoflines
+    return {tuple(sorted(line)) for facets in q for line in itertools.combinations(facets, 2)}
 
 
 def triangular_coord(coord):

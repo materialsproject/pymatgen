@@ -672,8 +672,8 @@ def plot_slab(
     alphas = alphas.clip(min=0)
     corner = [0, 0, slab.lattice.get_fractional_coords(coords[-1])[-1]]
     corner = slab.lattice.get_cartesian_coords(corner)[:2]
-    verts = orig_cell[:2, :2]
-    lattice_sum = verts[0] + verts[1]
+    vertices = orig_cell[:2, :2]
+    lattice_sum = vertices[0] + vertices[1]
     # inverse coords, sites, alphas, to show other side of slab
     if inverse:
         alphas = np.array(reversed(alphas))
@@ -681,13 +681,13 @@ def plot_slab(
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
-        r = sites[n].species.elements[0].atomic_radius * scale
-        ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), r, color="w", zorder=2 * n))
+        radius = sites[n].species.elements[0].atomic_radius * scale
+        ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), radius, color="w", zorder=2 * n))
         color = color_dict[sites[n].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
                 coord[:2] - lattice_sum * (repeat // 2),
-                r,
+                radius,
                 facecolor=color,
                 alpha=alphas[n],
                 edgecolor="k",
@@ -708,12 +708,12 @@ def plot_slab(
         ax.plot(*zip(*ads_sites), color="k", marker="x", markersize=10, mew=1, linestyle="", zorder=10000)
     # Draw unit cell
     if draw_unit_cell:
-        verts = np.insert(verts, 1, lattice_sum, axis=0).tolist()
-        verts += [[0.0, 0.0]]
-        verts = [[0.0, 0.0], *verts]
+        vertices = np.insert(vertices, 1, lattice_sum, axis=0).tolist()
+        vertices += [[0.0, 0.0]]
+        vertices = [[0.0, 0.0], *vertices]
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
-        verts = [(np.array(vert) + corner).tolist() for vert in verts]
-        path = Path(verts, codes)
+        vertices = [(np.array(vert) + corner).tolist() for vert in vertices]
+        path = Path(vertices, codes)
         patch = patches.PathPatch(path, facecolor="none", lw=2, alpha=0.5, zorder=2 * n + 2)
         ax.add_patch(patch)
     ax.set_aspect("equal")

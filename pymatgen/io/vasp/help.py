@@ -48,8 +48,8 @@ class VaspDoc:
             Help text.
         """
         tag = tag.upper()
-        r = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False)
-        soup = BeautifulSoup(r.text)
+        response = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False)
+        soup = BeautifulSoup(response.text)
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
             output = main_doc.text
@@ -67,8 +67,8 @@ class VaspDoc:
             "https://www.vasp.at/wiki/index.php/Category:INCAR",
             "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
         ]:
-            r = requests.get(page, verify=False)
-            soup = BeautifulSoup(r.text)
+            response = requests.get(page, verify=False)
+            soup = BeautifulSoup(response.text)
             for div in soup.findAll("div", {"class": "mw-category-group"}):
                 children = div.findChildren("li")
                 for child in children:

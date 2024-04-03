@@ -969,9 +969,10 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            tuple: [min_rms, min_mapping]: min_rms is the minimum rms distance, and min_mapping is the
-                corresponding minimal species mapping that would map
-                struct1 to struct2. (None, None) is returned if the minimax_rms exceeds the threshold.
+            tuple[float, float] | tuple[None, None]: 1st element is min_rms, 2nd is min_mapping.
+                min_rms is the minimum RMS distance, and min_mapping is the corresponding
+                minimal species mapping that would map struct1 to struct2. (None, None) is
+                returned if the minimax_rms exceeds the threshold.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)

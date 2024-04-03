@@ -1268,6 +1268,8 @@ class TestMITNEBSet(PymatgenTest):
         self.vis.write_input(".", write_cif=True, write_endpoint_inputs=True, write_path_cif=True)
         for file in "INCAR KPOINTS POTCAR 00/POSCAR 01/POSCAR 02/POSCAR 03/POSCAR 00/INCAR path.cif".split():
             assert os.path.isfile(file), f"{file=} not written"
+        # check structures match
+        assert len(self.vis.structures[0]) + 3 == len(Structure.from_file("path.cif"))
         assert not os.path.isfile("04/POSCAR")
 
 

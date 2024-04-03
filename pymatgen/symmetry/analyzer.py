@@ -259,7 +259,7 @@ class SpacegroupAnalyzer:
         # fractions)
         translations = []
         for t in dct["translations"]:
-            translations.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+            translations.append([float(Fraction(c).limit_denominator(1000)) for c in t])
         translations = np.array(translations)
 
         # fractional translations of 1 are more simply 0

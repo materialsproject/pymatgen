@@ -1332,14 +1332,13 @@ class Lattice(MSONable):
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
         else:
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
-            lattice_matrix = np.ascontiguousarray(self.matrix, dtype=float)
+            latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
             cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
             pbc = np.ascontiguousarray(self.pbc, dtype=int)
-            r = float(r)
             center_coords = np.ascontiguousarray([center], dtype=float)
 
             _, indices, images, distances = find_points_in_spheres(
-                all_coords=cart_coords, center_coords=center_coords, r=r, pbc=pbc, lattice=lattice_matrix, tol=1e-8
+                all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
             )
             if len(indices) < 1:
                 return [] if zip_results else [()] * 4

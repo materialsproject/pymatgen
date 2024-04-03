@@ -426,10 +426,10 @@ class PhononBSPlotter:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
         if len(colors) == 4:
-            r = (1 - colors[0]) * (1 - colors[3])
-            g = (1 - colors[1]) * (1 - colors[3])
-            b = (1 - colors[2]) * (1 - colors[3])
-            return [r, g, b]
+            red = (1 - colors[0]) * (1 - colors[3])
+            green = (1 - colors[1]) * (1 - colors[3])
+            blue = (1 - colors[2]) * (1 - colors[3])
+            return [red, green, blue]
         raise ValueError(f"Expected 2, 3 or 4 colors, got {len(colors)}")
 
     def get_proj_plot(

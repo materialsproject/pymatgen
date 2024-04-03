@@ -2502,11 +2502,11 @@ class BSDOSPlotter:
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         n_seg = len(k) - 1
-        r = [0.5 * (red[i] + red[i + 1]) for i in range(n_seg)]
-        g = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
-        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
-        a = np.ones(n_seg, float) * alpha
-        lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
+        red = [0.5 * (red[i] + red[i + 1]) for i in range(n_seg)]
+        green = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
+        blue = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
+        alpha = np.ones(n_seg, float) * alpha
+        lc = LineCollection(seg, colors=list(zip(red, green, blue, alpha)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
     @staticmethod
