@@ -20,7 +20,7 @@ import math
 import os
 import warnings
 from functools import reduce
-from math import gcd
+from math import gcd, isclose
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -213,7 +213,9 @@ class Slab(Structure):
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
-        """:param dct: dict
+        """
+        Args:
+            dct: dict.
 
         Returns:
             Creates slab from dict.
@@ -721,22 +723,21 @@ class Slab(Structure):
 
 
 class SlabGenerator:
-    """This class generates different slabs using shift values determined by where
-    a unique termination can be found along with other criteria such as where a
+    """Generate different slabs using shift values determined by where
+    a unique termination can be found, along with other criteria such as where a
     termination doesn't break a polyhedral bond. The shift value then indicates
     where the slab layer will begin and terminate in the slab-vacuum system.
 
     Attributes:
-        oriented_unit_cell (Structure): A unit cell of the parent structure with the miller
-            index of plane parallel to surface.
+        oriented_unit_cell (Structure): An oriented unit cell of the parent structure.
         parent (Structure): Parent structure from which Slab was derived.
-        lll_reduce (bool): Whether or not the slabs will be orthogonalized.
-        center_slab (bool): Whether or not the slabs will be centered between the vacuum layer.
-        slab_scale_factor (float): Final computed scale factor that brings the parent cell to the
-            surface cell.
+        lll_reduce (bool): Whether the slabs will be orthogonalized.
+        center_slab (bool): Whether the slabs will be centered in the slab-vacuum system.
+        slab_scale_factor (float): Computed scale factor that brings
+            the parent cell to the surface cell.
         miller_index (tuple): Miller index of plane parallel to surface.
-        min_slab_size (float): Minimum size in angstroms of layers containing atoms.
-        min_vac_size (float): Minimum size in angstroms of layers containing vacuum.
+        min_slab_size (float): Minimum size of layers containing atoms, in angstroms.
+        min_vac_size (float): Minimum vacuum layer size, in angstroms.
     """
 
     def __init__(
@@ -752,8 +753,8 @@ class SlabGenerator:
         max_normal_search: int | None = None,
         reorient_lattice: bool = True,
     ) -> None:
-        """Calculates the slab scale factor and uses it to generate a unit cell
-        of the initial structure that has been oriented by its miller index.
+        """Calculates the slab scale factor and uses it to generate an
+        oriented unit cell (OUC) of the initial structure.
         Also stores the initial information needed later on to generate a slab.
 
         Args:
@@ -761,77 +762,89 @@ class SlabGenerator:
                 ensure that the miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
-            miller_index ([h, k, l]): Miller index of plane parallel to
-                surface. Note that this is referenced to the input structure. If
-                you need this to be based on the conventional cell,
+            miller_index ([h, k, l]): Miller index of the plane parallel to
+                the surface. Note that this is referenced to the input structure.
+                If you need this to be based on the conventional cell,
                 you should supply the conventional structure.
             min_slab_size (float): In Angstroms or number of hkl planes
             min_vacuum_size (float): In Angstroms or number of hkl planes
             lll_reduce (bool): Whether to perform an LLL reduction on the
-                eventual structure.
+                final structure.
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
             in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
-                in units of hkl planes (True) or Angstrom (False/default).
-                Setting in units of planes is useful for ensuring some slabs
-                have a certain n_layer of atoms. e.g. for Cs (100), a 10 Ang
-                slab will result in a slab with only 2 layer of atoms, whereas
-                Fe (100) will have more layer of atoms. By using units of hkl
-                planes instead, we ensure both slabs
-                have the same number of atoms. The slab thickness will be in
-                min_slab_size/math.ceil(self._proj_height/dhkl)
+                in units of hkl planes or Angstrom (default).
+                Setting in units of planes is useful to ensure some slabs
+                have a certain number of layers. e.g. for Cs(100), 10 Ang
+                will result in a slab with only 2 layers, whereas
+                Fe(100) will have more layers. The slab thickness
+                will be in min_slab_size/math.ceil(self._proj_height/dhkl)
                 multiples of oriented unit cells.
-            primitive (bool): Whether to reduce any generated slabs to a
-                primitive cell (this does **not** mean the slab is generated
-                from a primitive cell, it simply means that after slab
-                generation, we attempt to find shorter lattice vectors,
-                which lead to less surface area and smaller cells).
-            max_normal_search (int): If set to a positive integer, the code will
-                conduct a search for a normal lattice vector that is as
-                perpendicular to the surface as possible by considering
-                multiples linear combinations of lattice vectors up to
-                max_normal_search. This has no bearing on surface energies,
-                but may be useful as a preliminary step to generating slabs
-                for absorption and other sizes. It is typical that this will
-                not be the smallest possible cell for simulation. Normality
-                is not guaranteed, but the oriented cell will have the c
-                vector as normal as possible (within the search range) to the
-                surface. A value of up to the max absolute Miller index is
-                usually sufficient.
-            reorient_lattice (bool): reorients the lattice parameters such that
-                the c direction is the third vector of the lattice matrix
+            primitive (bool): Whether to reduce generated slabs to
+                primitive cell. Note this does NOT generate a slab
+                from a primitive cell, it means that after slab
+                generation, we attempt to reduce the generated slab to
+                primitive cell.
+            max_normal_search (int): If set to a positive integer, the code
+                will search for a normal lattice vector that is as
+                perpendicular to the surface as possible, by considering
+                multiple linear combinations of lattice vectors up to
+                this value. This has no bearing on surface energies,
+                but may be useful as a preliminary step to generate slabs
+                for absorption or other sizes. It may not be the smallest possible
+                cell for simulation. Normality is not guaranteed, but the oriented
+                cell will have the c vector as normal as possible to the surface.
+                The max absolute Miller index is usually sufficient.
+            reorient_lattice (bool): reorient the lattice such that
+                the c direction is parallel to the third lattice vector
         """
-        # Add Wyckoff symbols of the bulk, will help with
-        # identifying types of sites in the slab system
-        if (
-            "bulk_wyckoff" not in initial_structure.site_properties
-            or "bulk_equivalent" not in initial_structure.site_properties
-        ):
-            sg = SpacegroupAnalyzer(initial_structure)
-            initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
-            initial_structure.add_site_property(
-                "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
-            )
+
+        def add_site_types():
+            """Add Wyckoff symbols and equivalent sites to the initial structure."""
+            if (
+                "bulk_wyckoff" not in initial_structure.site_properties
+                or "bulk_equivalent" not in initial_structure.site_properties
+            ):
+                sg = SpacegroupAnalyzer(initial_structure)
+                initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
+                initial_structure.add_site_property(
+                    "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
+                )
+
+        def calculate_surface_normal() -> np.ndarray:
+            """Calculate the unit surface normal vector
+            using the reciprocal lattice vector.
+            """
+            recip_lattice = lattice.reciprocal_lattice_crystallographic
+
+            normal = recip_lattice.get_cartesian_coords(miller_index)
+            normal /= np.linalg.norm(normal)
+            return normal
+
+        # Add Wyckoff symbols and equivalent sites to the initial structure,
+        # to help identify types of sites in the generated slab
+        add_site_types()
+
+        # Calculate the surface normal
         lattice = initial_structure.lattice
         miller_index = self._reduce_vector(miller_index)
-        # Calculate the surface normal using the reciprocal lattice vector.
-        recip_lattice = lattice.reciprocal_lattice_crystallographic
-        normal = recip_lattice.get_cartesian_coords(miller_index)
-        normal /= np.linalg.norm(normal)
+        normal = calculate_surface_normal()
 
+        # Calculate scale factor and non-orthogonal lattice vector indices
         slab_scale_factor = []
         non_orth_ind = []
         eye = np.eye(3, dtype=int)
-        for ii, jj in enumerate(miller_index):
-            if jj == 0:
-                # Lattice vector is perpendicular to surface normal, i.e.,
+        for idx, miller_idx in enumerate(miller_index):
+            if miller_idx == 0:
+                # If lattice vector is perpendicular to surface normal, i.e.,
                 # in plane of surface. We will simply choose this lattice
-                # vector as one of the basis vectors.
-                slab_scale_factor.append(eye[ii])
+                # vector as the basis vector
+                slab_scale_factor.append(eye[idx])
+
             else:
                 # Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, lattice.matrix[ii])) / lattice.abc[ii]
-                non_orth_ind.append((ii, d))
+                d = abs(np.dot(normal, lattice.matrix[idx])) / lattice.abc[idx]
+                non_orth_ind.append((idx, d))
 
         # We want the vector that has maximum magnitude in the
         # direction of the surface normal as the c-direction.
@@ -839,7 +852,7 @@ class SlabGenerator:
         c_index, _dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
-            lcm_miller = lcm(*(miller_index[i] for i, d in non_orth_ind))
+            lcm_miller = lcm(*(miller_index[i] for i, _d in non_orth_ind))
             for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
                 scale_factor = [0, 0, 0]
                 scale_factor[ii] = -int(round(lcm_miller / miller_index[ii]))
@@ -863,8 +876,8 @@ class SlabGenerator:
                 osdm = np.linalg.norm(vec)
                 cosine = abs(np.dot(vec, normal) / osdm)
                 candidates.append((uvw, cosine, osdm))
-                if abs(abs(cosine) - 1) < 1e-8:
-                    # If cosine of 1 is found, no need to search further.
+                # Stop searching if cosine equals 1/-1
+                if isclose(abs(cosine), 1, abs_tol=1e-8):
                     break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
@@ -1066,10 +1079,10 @@ class SlabGenerator:
         return c_ranges
 
     @staticmethod
-    def _reduce_vector(vector: tuple[int]) -> tuple[int]:
+    def _reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
         """Helper method to reduce vectors."""
-        d = abs(reduce(gcd, vector))
-        return tuple(int(i / d) for i in vector)
+        divisor = abs(reduce(gcd, vector))
+        return tuple(int(idx / divisor) for idx in vector)
 
     def get_slabs(
         self,

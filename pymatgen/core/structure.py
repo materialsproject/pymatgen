@@ -4155,7 +4155,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Self:
+    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Structure:
         """Apply a strain to the lattice.
 
         Args:
