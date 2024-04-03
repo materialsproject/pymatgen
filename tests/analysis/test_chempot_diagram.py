@@ -354,8 +354,8 @@ class TestChemicalPotentialDiagram(PymatgenTest):
             assert d == approx(domain, abs=1e-5)
 
     def test_dim_reduction(self):
-        fig_2d = self.cpd_ternary.get_plot(elements=[Element('Fe'), Element('O')])
-        fig_2d_formal = self.cpd_ternary_formal.get_plot(elements=[Element('Fe'), Element('O')])
+        fig_2d = self.cpd_ternary.get_plot(elements=[Element("Fe"), Element("O")])
+        fig_2d_formal = self.cpd_ternary_formal.get_plot(elements=[Element("Fe"), Element("O")])
 
         corr_x = [ -6.5961471,  -6.7415938, None,
                   -10.7396881,  -7.2963901, None,
