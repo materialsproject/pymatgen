@@ -112,6 +112,7 @@ jobs:
           uv pip install --upgrade 'git+https://gitlab.com/ase/ase' --system
 
           uv pip install --upgrade git+https://github.com/openforcefield/openff-toolkit.git --system
+          uv pip install --upgrade git+https://github.com/openforcefield/openff-units --system
 
       - name: pytest split ${{ matrix.split }}
         run: |
