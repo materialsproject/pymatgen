@@ -111,7 +111,7 @@ jobs:
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           uv pip install --upgrade 'git+https://gitlab.com/ase/ase' --system
 
-          uv pip install git+https://github.com/openforcefield/openff-toolkit.git
+          uv pip install --upgrade git+https://github.com/openforcefield/openff-toolkit.git --system
 
       - name: pytest split ${{ matrix.split }}
         run: |
