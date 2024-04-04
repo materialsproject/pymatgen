@@ -15,7 +15,8 @@ from pymatgen.core import Element, Molecule
 
 
 def molgraph_to_openff_mol(molgraph: MoleculeGraph) -> tk.Molecule:
-    """Convert a Pymatgen MoleculeGraph to an OpenFF Molecule.
+    """
+    Convert a Pymatgen MoleculeGraph to an OpenFF Molecule.
 
     Args:
         molgraph (MoleculeGraph): The Pymatgen MoleculeGraph to be converted.
@@ -114,7 +115,8 @@ def molgraph_from_openff_mol(molecule: tk.Molecule):
 
 
 def get_atom_map(inferred_mol: tk.Molecule, openff_mol: tk.Molecule) -> tuple[bool, dict[int, int]]:
-    """Compute an atom mapping between two OpenFF Molecules.
+    """
+    Compute an atom mapping between two OpenFF Molecules.
 
     Attempts to find an isomorphism between the molecules, considering various matching
     criteria such as formal charges, stereochemistry, and bond orders. Returns the atom
@@ -153,7 +155,8 @@ def get_atom_map(inferred_mol: tk.Molecule, openff_mol: tk.Molecule) -> tuple[bo
 def infer_openff_mol(
     mol_geometry: pymatgen.core.Molecule,
 ) -> tk.Molecule:
-    """Infer an OpenFF Molecule from a Pymatgen Molecule.
+    """
+    Infer an OpenFF Molecule from a Pymatgen Molecule.
 
     Constructs a MoleculeGraph from the Pymatgen Molecule using the OpenBabelNN local
     environment strategy and extends metal edges. Converts the resulting MoleculeGraph
@@ -173,7 +176,8 @@ def infer_openff_mol(
 def add_conformer(
     openff_mol: tk.Molecule, geometry: pymatgen.core.Molecule | None
 ) -> tuple[tk.Molecule, dict[int, int]]:
-    """Add conformers to an OpenFF Molecule based on the provided geometry.
+    """
+    Add conformers to an OpenFF Molecule based on the provided geometry.
 
     If a geometry is provided, infers an OpenFF Molecule from it,
     finds an atom mapping between the inferred molecule and the
@@ -214,7 +218,8 @@ def assign_partial_charges(
     charge_method: str,
     partial_charges: None | list[float],
 ) -> tk.Molecule:
-    """Assign partial charges to an OpenFF Molecule.
+    """
+    Assign partial charges to an OpenFF Molecule.
 
     If partial charges are provided, assigns them to the molecule
     based on the atom mapping. If the molecule has only one atom,
@@ -252,7 +257,8 @@ def create_openff_mol(
     partial_charges: list[float] | None = None,
     backup_charge_method: str = "am1bcc",
 ) -> tk.Molecule:
-    """Create an OpenFF Molecule from a SMILES string and optional geometry.
+    """
+    Create an OpenFF Molecule from a SMILES string and optional geometry.
 
     Constructs an OpenFF Molecule from the provided SMILES
     string, adds conformers based on the provided geometry (if
