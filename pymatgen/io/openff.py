@@ -294,7 +294,12 @@ def create_openff_mol(
     # add conformer
     openff_mol, atom_map = add_conformer(openff_mol, geometry)
     # assign partial charges
-    openff_mol = assign_partial_charges(openff_mol, atom_map, backup_charge_method, partial_charges)
+    openff_mol = assign_partial_charges(
+        openff_mol,
+        atom_map,
+        backup_charge_method,
+        partial_charges,
+    )
     openff_mol.partial_charges *= charge_scaling
 
     return openff_mol
