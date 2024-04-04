@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
@@ -20,7 +22,23 @@ from pymatgen.io.openff import (
 )
 
 
-def test_molgraph_from_atom_bonds():
+@pytest.fixture()
+def mol_files():
+    geo_dir = Path(__file__).absolute().parent.parent / "files/classical_md_mols"
+    return {
+        "CCO_xyz": str(geo_dir / "CCO.xyz"),
+        "CCO_charges": str(geo_dir / "CCO.npy"),
+        "FEC_r_xyz": str(geo_dir / "FEC-r.xyz"),
+        "FEC_s_xyz": str(geo_dir / "FEC-s.xyz"),
+        "FEC_charges": str(geo_dir / "FEC.npy"),
+        "PF6_xyz": str(geo_dir / "PF6.xyz"),
+        "PF6_charges": str(geo_dir / "PF6.npy"),
+        "Li_charges": str(geo_dir / "Li.npy"),
+        "Li_xyz": str(geo_dir / "Li.xyz"),
+    }
+
+
+def test_molgraph_from_atom_bonds(mol_files):
     pf6_openff = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")
 
     pf6_graph = molgraph_from_openff_mol(pf6_openff)
@@ -36,19 +54,21 @@ def test_molgraph_from_atom_bonds():
 
 
 def test_molgraph_from_openff_mol_cco():
-    cco__str = """
-    9
+    atom_coords = np.array(
+        [
+            [1.000000, 1.000000, 0.000000],
+            [-0.515000, 1.000000, 0.000000],
+            [-0.999000, 1.000000, 1.335000],
+            [1.390000, 1.001000, -1.022000],
+            [1.386000, 0.119000, 0.523000],
+            [1.385000, 1.880000, 0.526000],
+            [-0.907000, 0.118000, -0.516000],
+            [-0.897000, 1.894000, -0.501000],
+            [-0.661000, 0.198000, 1.768000],
+        ]
+    )
 
-    C      1.000000    1.000000    0.000000
-    C     -0.515000    1.000000    0.000000
-    O     -0.999000    1.000000    1.335000
-    H      1.390000    1.001000   -1.022000
-    H      1.386000    0.119000    0.523000
-    H      1.385000    1.880000    0.526000
-    H     -0.907000    0.118000   -0.516000
-    H     -0.897000    1.894000   -0.501000
-    H     -0.661000    0.198000    1.768000
-    """
+    atoms = ["C", "C", "O", "H", "H", "H", "H", "H", "H"]
 
     cco_openff = tk.Molecule.from_smiles("CCO")
     cco_openff.assign_partial_charges("mmff94")
@@ -59,7 +79,7 @@ def test_molgraph_from_openff_mol_cco():
     assert cco_molgraph_1.molecule.charge == 0
     assert len(cco_molgraph_1.graph.edges) == 8
 
-    cco_pmg = Molecule.from_str(cco__str)
+    cco_pmg = Molecule(atoms, atom_coords)
     cco_molgraph_2 = MoleculeGraph.with_local_env_strategy(cco_pmg, OpenBabelNN())
 
     em = iso.categorical_edge_match("weight", 1)
