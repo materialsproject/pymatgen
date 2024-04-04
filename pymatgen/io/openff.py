@@ -5,13 +5,20 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import openff.toolkit as tk
-from openff.units import Quantity, unit
 
 import pymatgen
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
 from pymatgen.core import Element, Molecule
+
+try:
+    import openff.toolkit as tk
+    from openff.units import Quantity, unit
+except ImportError:
+    raise ImportError(
+        "To use the pymatgen.io.openff module install openff-toolkit and openff-units"
+        "with `conda install -c conda-forge openff-toolkit openff-units`."
+    )
 
 
 def molgraph_to_openff_mol(molgraph: MoleculeGraph) -> tk.Molecule:
