@@ -106,7 +106,7 @@ class LammpsInputFile(InputFile):
                 n_comments += 1
             else:
                 # Else, inline comment each count as one
-                n_comments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
+                n_comments += sum(1 for cmd, _args in stage["commands"] if cmd.strip().startswith("#"))
 
         return n_comments
 
@@ -333,7 +333,7 @@ class LammpsInputFile(InputFile):
         Args:
             stage_names (list): list of strings giving the names of the stages to be merged.
         """
-        if not all(stage in self.stages_names for stage in stage_names):
+        if any(stage not in self.stages_names for stage in stage_names):
             raise ValueError("At least one of the stages to be merged is not in the LammpsInputFile.")
 
         indices_stages_to_merge = [self.stages_names.index(stage) for stage in stage_names]
@@ -602,9 +602,7 @@ class LammpsInputFile(InputFile):
                         n_comm_max = idx
 
                 comments = block[:n_comm_max]
-                header = ""
-                for line in comments:
-                    header += line[1:].strip() + " "
+                header = "".join(f"{line[1:].strip()} " for line in comments)
 
                 header = header.strip()
                 stage_name = f"Stage {lammps_in_file.nstages + 1}" if (ignore_comments or not keep_stages) else header
@@ -758,7 +756,7 @@ class LammpsInputFile(InputFile):
                 self.stages.append({"stage_name": stage_name, "commands": [("#", comment)]})
 
         # Inline comment
-        elif inline and stage_name:
+        elif stage_name:
             command = "#"
             if index_comment:
                 if "Comment" in comment and comment.strip()[9] == ":":
@@ -923,7 +921,7 @@ class LammpsRun(MSONable):
                 placeholders.
         """
         template_path = os.path.join(template_dir, "md.template")
-        with open(template_path) as file:
+        with open(template_path, encoding="utf-8") as file:
             script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
         settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
@@ -1070,9 +1068,9 @@ def write_lammps_inputs(
         os.makedirs(output_dir, exist_ok=True)
     with open(os.path.join(output_dir, script_filename), mode="w") as file:
         file.write(input_script)
-    read_data = re.search(r"read_data\s+(.*)\n", input_script)
-    if read_data:
-        data_filename = read_data.group(1).split()[0]
+
+    if read_data := re.search(r"read_data\s+(.*)\n", input_script):
+        data_filename = read_data[1].split()[0]
         if isinstance(data, LammpsData):
             data.write_file(os.path.join(output_dir, data_filename), **kwargs)
         elif isinstance(data, str) and os.path.isfile(data):
