@@ -799,6 +799,11 @@ class SlabGenerator:
                 the c direction is parallel to the third lattice vector
         """
 
+        def reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
+            """Helper function to reduce vectors."""
+            divisor = abs(reduce(gcd, vector))
+            return tuple(int(idx / divisor) for idx in vector)
+
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
             if (
@@ -886,7 +891,7 @@ class SlabGenerator:
 
             # Make sure the slab_scale_factor is reduced to avoid
             # unnecessarily large slabs
-            reduced_scale_factor = [self._reduce_vector(v) for v in slab_scale_factor]
+            reduced_scale_factor = [reduce_vector(v) for v in slab_scale_factor]
             return np.array(reduced_scale_factor)
 
         # Add Wyckoff symbols and equivalent sites to the initial structure,
@@ -895,7 +900,7 @@ class SlabGenerator:
 
         # Calculate the surface normal
         lattice = initial_structure.lattice
-        miller_index = self._reduce_vector(miller_index)
+        miller_index = reduce_vector(miller_index)
         normal = calculate_surface_normal()
 
         # Calculate scale factor
@@ -1036,12 +1041,6 @@ class SlabGenerator:
             site_properties=slab.site_properties,
             energy=energy,
         )
-
-    @staticmethod
-    def _reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
-        """Helper method to reduce vectors."""
-        divisor = abs(reduce(gcd, vector))
-        return tuple(int(idx / divisor) for idx in vector)
 
     def get_slabs(
         self,
