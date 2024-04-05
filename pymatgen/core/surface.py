@@ -244,7 +244,7 @@ class Slab(Structure):
         dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
         dct["miller_index"] = self.miller_index
         dct["shift"] = self.shift
-        dct["scale_factor"] = self.scale_factor
+        dct["scale_factor"] = self.scale_factor.tolist()  # np.ndarray is not JSON serializable
         dct["reconstruction"] = self.reconstruction
         dct["energy"] = self.energy
         return dct
