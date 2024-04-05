@@ -981,29 +981,35 @@ class SlabGenerator:
         slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
         # (Optionally) Post-process the Slab
-        # Orthogonalize the structure
+        # Orthogonalize the structure (through LLL lattice basis reduction)
         if self.lll_reduce:
+            # Sanitize Slab (LLL reduction + site sorting + map frac_coords)
             lll_slab = slab.copy(sanitize=True)
-            mapping = lll_slab.lattice.find_mapping(slab.lattice)
-            assert mapping is not None, "LLL reduction has failed"  # mypy type narrowing
-            scale_factor = np.dot(mapping[2], scale_factor)
             slab = lll_slab
+
+            # Apply reduction on the scaling factor
+            mapping = lll_slab.lattice.find_mapping(slab.lattice)
+            if mapping is None:
+                raise RuntimeError("LLL reduction has failed")
+            scale_factor = np.dot(mapping[2], scale_factor)
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            avg_c = np.average([c[2] for c in slab.frac_coords])
-            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - avg_c])
+            c_center = np.average([coord[2] for coord in slab.frac_coords])
+            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - c_center])
 
+        # Reduce to primitive cell
         if self.primitive:
-            prim = slab.get_primitive_structure(tolerance=tol)
-            if energy is not None:
-                energy = prim.volume / slab.volume * energy
-            slab = prim
+            prim_slab = slab.get_primitive_structure(tolerance=tol)
+            slab = prim_slab
 
-        # Reorient the lattice to get the correct reduced cell
+            if energy is not None:
+                energy *= prim_slab.volume / slab.volume
+
+        # Reorient the lattice to get the correctly reduced cell
         ouc = self.oriented_unit_cell.copy()
         if self.primitive:
-            # find a reduced ouc
+            # Find a reduced OUC
             slab_l = slab.lattice
             ouc = ouc.get_primitive_structure(
                 constrain_latt={
@@ -1014,8 +1020,9 @@ class SlabGenerator:
                     "gamma": slab_l.gamma,
                 }
             )
-            # Check this is the correct oriented unit cell
-            ouc = self.oriented_unit_cell if slab_l.a != ouc.lattice.a or slab_l.b != ouc.lattice.b else ouc
+
+            # Ensure lattice a and b are consistent between the OUC and the Slab
+            ouc = ouc if (slab_l.a == ouc.lattice.a and slab_l.b == ouc.lattice.b) else self.oriented_unit_cell
 
         return Slab(
             slab.lattice,
@@ -1025,9 +1032,9 @@ class SlabGenerator:
             ouc,
             shift,
             scale_factor,
-            energy=energy,
-            site_properties=slab.site_properties,
             reorient_lattice=self.reorient_lattice,
+            site_properties=slab.site_properties,
+            energy=energy,
         )
 
     @staticmethod
