@@ -823,7 +823,7 @@ class SlabGenerator:
 
         def calculate_scaling_factor() -> np.ndarray:
             """Calculate scaling factor.
-            # TODO (@DanielYang59): revise docstring to add more details
+            # TODO (@DanielYang59): revise docstring to add more details.
             """
             slab_scale_factor = []
             non_orth_ind = []
@@ -923,7 +923,7 @@ class SlabGenerator:
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift: float=0, tol: float = 0.1, energy: float | None=None) -> Slab:
+    def get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
         """This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
         method. Instead, it is used by other generation algorithms to obtain
