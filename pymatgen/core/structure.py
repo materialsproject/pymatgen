@@ -4312,7 +4312,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Self:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
         """Create a supercell.
 
         Args:
@@ -4338,8 +4338,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: self if in_place is True else self.copy() after making supercell
         """
         # TODO (janosh) maybe default in_place to False after a depreciation period
-        struct = self if in_place else self.copy()
-        supercell = struct * scaling_matrix
+        struct: Structure = self if in_place else self.copy()
+        supercell: Structure = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
                 site.to_unit_cell(in_place=True)

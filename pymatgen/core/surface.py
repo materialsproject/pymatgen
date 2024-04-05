@@ -74,7 +74,7 @@ class Slab(Structure):
         lattice: Lattice | np.ndarray,
         species: Sequence[Any],
         coords: np.ndarray,
-        miller_index: tuple[int],
+        miller_index: tuple[int, int, int],
         oriented_unit_cell: Structure,
         shift: float,
         scale_factor: np.ndarray,
@@ -102,7 +102,7 @@ class Slab(Structure):
                     e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
-                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    [{"Fe": 0.5, "Mn": 0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of each species.
             miller_index (tuple[h, k, l]): Miller index of plane parallel to
@@ -1044,13 +1044,13 @@ class SlabGenerator:
 
     def get_slabs(
         self,
-        bonds=None,
-        ftol=0.1,
-        tol=0.1,
-        max_broken_bonds=0,
-        symmetrize=False,
-        repair=False,
-    ):
+        bonds: dict[tuple[Species, Species], float] | None = None,
+        ftol: float = 0.1,
+        tol: float = 0.1,
+        max_broken_bonds: int = 0,
+        symmetrize: bool = False,
+        repair: bool = False,
+    ) -> list[Slab]:
         """This method returns a list of slabs that are generated using the list of
         shift values from the calculate_possible_shifts method. Before the
         shifts are used to create the slabs however, if the user decides to take
@@ -1083,7 +1083,7 @@ class SlabGenerator:
                 Slabs are sorted by the # of bonds broken.
         """
 
-        def calculate_possible_shifts(tol: float = 0.1):
+        def calculate_possible_shifts(tol: float = 0.1) -> list[float]:
             frac_coords = self.oriented_unit_cell.frac_coords
             n = len(frac_coords)
 
@@ -1131,7 +1131,7 @@ class SlabGenerator:
                 shifts.append(shift - math.floor(shift))
             return sorted(shifts)
 
-        def get_c_ranges(bonds):
+        def get_c_ranges(bonds: dict[tuple[Species, Species], float]) -> list:
             c_ranges = []
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
             for (sp1, sp2), bond_dist in bonds.items():
@@ -1186,7 +1186,7 @@ class SlabGenerator:
 
         return sorted(new_slabs, key=lambda s: s.energy)
 
-    def repair_broken_bonds(self, slab: Slab, bonds):
+    def repair_broken_bonds(self, slab: Slab, bonds: dict[tuple[Species, Species], float]) -> Slab:
         """This method will find undercoordinated atoms due to slab
         cleaving specified by the bonds parameter and move them
         to the other surface to make sure the bond is kept intact.
@@ -1252,17 +1252,17 @@ class SlabGenerator:
 
         return slab
 
-    def move_to_other_side(self, init_slab, index_of_sites):
+    def move_to_other_side(self, init_slab: Slab, index_of_sites: list[int]) -> Slab:
         """This method will Move a set of sites to the
         other side of the slab (opposite surface).
 
         Args:
-            init_slab (structure): A structure object representing a slab.
+            init_slab (Slab): A structure object representing a slab.
             index_of_sites (list of ints): The list of indices representing
                 the sites we want to move to the other side.
 
         Returns:
-            (Slab) A Slab object with a particular shifted oriented unit cell.
+            Slab: A Slab object with a particular shifted oriented unit cell.
         """
         slab = init_slab.copy()
 
@@ -1298,9 +1298,9 @@ class SlabGenerator:
             energy=init_slab.energy,
         )
 
-    def nonstoichiometric_symmetrized_slab(self, init_slab):
-        """This method checks whether or not the two surfaces of the slab are
-        equivalent. If the point group of the slab has an inversion symmetry (
+    def nonstoichiometric_symmetrized_slab(self, init_slab: Slab) -> list[Slab]:
+        """Check whether the two surfaces of the slab are equivalent.
+        If the point group of the slab has an inversion symmetry (
         ie. belong to one of the Laue groups), then it is assumed that the
         surfaces should be equivalent. Otherwise, sites at the bottom of the
         slab will be removed until the slab is symmetric. Note the removal of sites
@@ -1308,10 +1308,10 @@ class SlabGenerator:
         structures, the chemical potential will be needed to calculate surface energy.
 
         Args:
-            init_slab (Structure): A single slab structure
+            init_slab (Slab): A single slab structure
 
         Returns:
-            Slab (structure): A symmetrized Slab object.
+            Slab: A symmetrized Slab object.
         """
         if init_slab.is_symmetric():
             return [init_slab]
