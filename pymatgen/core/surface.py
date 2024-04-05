@@ -923,7 +923,7 @@ class SlabGenerator:
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def _get_slab(self, shift: float=0, tol: float = 0.1, energy: float | None=None) -> Slab:
+    def _get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
         """Generate a slab based on a given shift value along the lattice c direction.
         This method is intended for other generation algorithms to obtain all slabs.
 
