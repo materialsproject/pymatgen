@@ -328,9 +328,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         for site in self:
             prop_keys.update(site.properties)
 
-        return {
-            key: [site.properties.get(key) for site in self] for key in prop_keys
-            }
+        return {key: [site.properties.get(key) for site in self] for key in prop_keys}
 
     @property
     def labels(self) -> list[str]:
