@@ -917,7 +917,7 @@ class SlabGenerator:
         self.min_slab_size = min_slab_size
         self.in_unit_planes = in_unit_planes
         self.primitive = primitive
-        # self._normal = normal  # TODO (@DanielYang59): not used
+        self._normal = normal  # TODO (@DanielYang59): used only in unit test
         self.reorient_lattice = reorient_lattice
 
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
@@ -925,7 +925,6 @@ class SlabGenerator:
 
     def get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
         """Generate a slab based on a given shift value along the lattice c direction.
-        This method is intended for other generation algorithms to obtain all slabs.
 
         Args:
             shift (float): The shift value along the lattice c direction in Angstrom.
@@ -935,35 +934,46 @@ class SlabGenerator:
         Returns:
             Slab: from a shifted oriented unit cell.
         """
-        h = self._proj_height
-        p = round(h / self.parent.lattice.d_hkl(self.miller_index), 8)
+        scale_factor = self.slab_scale_factor
+
+        # Calculate total number of layers
+        height = self._proj_height
+        height_per_layer = round(height / self.parent.lattice.d_hkl(self.miller_index), 8)
+
         if self.in_unit_planes:
-            n_layers_slab = int(math.ceil(self.min_slab_size / p))
-            n_layers_vac = int(math.ceil(self.min_vac_size / p))
+            n_layers_slab = math.ceil(self.min_slab_size / height_per_layer)
+            n_layers_vac = math.ceil(self.min_vac_size / height_per_layer)
         else:
-            n_layers_slab = int(math.ceil(self.min_slab_size / h))
-            n_layers_vac = int(math.ceil(self.min_vac_size / h))
+            n_layers_slab = math.ceil(self.min_slab_size / height)
+            n_layers_vac = math.ceil(self.min_vac_size / height)
+
         n_layers = n_layers_slab + n_layers_vac
 
+        # Prepare for Slab generation
+        a, b, c = self.oriented_unit_cell.lattice.matrix
+        new_lattice = [a, b, n_layers * c]
+
         species = self.oriented_unit_cell.species_and_occu
-        props = self.oriented_unit_cell.site_properties
-        props = {k: v * n_layers_slab for k, v in props.items()}  # type: ignore[operator, misc]
+
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)
-        a, b, c = self.oriented_unit_cell.lattice.matrix
-        new_lattice = [a, b, n_layers * c]
         frac_coords[:, 2] = frac_coords[:, 2] / n_layers
+
         all_coords = []
         for idx in range(n_layers_slab):
             f_coords = frac_coords.copy()
             f_coords[:, 2] += idx / n_layers
             all_coords.extend(f_coords)
 
+        props = self.oriented_unit_cell.site_properties
+        props = {k: v * n_layers_slab for k, v in props.items()}  # type: ignore[operator, misc]
+
+        # Generate Slab
         slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
-        scale_factor = self.slab_scale_factor
-        # Whether or not to orthogonalize the structure
+        # (Optionally) Post-process the Slab
+        # Orthogonalize the structure
         if self.lll_reduce:
             lll_slab = slab.copy(sanitize=True)
             mapping = lll_slab.lattice.find_mapping(slab.lattice)
@@ -971,7 +981,7 @@ class SlabGenerator:
             scale_factor = np.dot(mapping[2], scale_factor)
             slab = lll_slab
 
-        # Whether or not to center the slab layer around the vacuum
+        # Center the slab layer around the vacuum
         if self.center_slab:
             avg_c = np.average([c[2] for c in slab.frac_coords])
             slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - avg_c])
