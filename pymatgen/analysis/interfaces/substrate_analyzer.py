@@ -43,7 +43,7 @@ class SubstrateMatch(ZSLMatch):
     ) -> Self:
         """Generate a substrate match from a ZSL match plus metadata."""
         # Get the appropriate surface structure
-        struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
+        struct = SlabGenerator(film, film_miller, 20, 15, primitive=False)._get_slab().oriented_unit_cell
 
         dfm = Deformation(match.match_transformation)
 
@@ -128,13 +128,13 @@ class SubstrateAnalyzer(ZSLGenerator):
         vector_sets = []
 
         for f_miller in film_millers:
-            film_slab = SlabGenerator(film, f_miller, 20, 15, primitive=False).get_slab()
+            film_slab = SlabGenerator(film, f_miller, 20, 15, primitive=False)._get_slab()
             film_vectors = reduce_vectors(
                 film_slab.oriented_unit_cell.lattice.matrix[0], film_slab.oriented_unit_cell.lattice.matrix[1]
             )
 
             for s_miller in substrate_millers:
-                substrate_slab = SlabGenerator(substrate, s_miller, 20, 15, primitive=False).get_slab()
+                substrate_slab = SlabGenerator(substrate, s_miller, 20, 15, primitive=False)._get_slab()
                 substrate_vectors = reduce_vectors(
                     substrate_slab.oriented_unit_cell.lattice.matrix[0],
                     substrate_slab.oriented_unit_cell.lattice.matrix[1],

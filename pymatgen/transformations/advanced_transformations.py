@@ -1229,7 +1229,7 @@ class SlabTransformation(AbstractTransformation):
             self.primitive,
             self.max_normal_search,
         )
-        return sg.get_slab(self.shift, self.tol)
+        return sg._get_slab(self.shift, self.tol)
 
     @property
     def inverse(self):

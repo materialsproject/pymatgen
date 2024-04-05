@@ -923,20 +923,17 @@ class SlabGenerator:
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift: float=0, tol: float = 0.1, energy: float | None=None) -> Slab:
-        """This method takes in shift value for the c lattice direction and
-        generates a slab based on the given shift. You should rarely use this
-        method. Instead, it is used by other generation algorithms to obtain
-        all slabs.
+    def _get_slab(self, shift: float=0, tol: float = 0.1, energy: float | None=None) -> Slab:
+        """Generate a slab based on a given shift value along the lattice c direction.
+        This method is intended for other generation algorithms to obtain all slabs.
 
         Args:
-            shift (float): A shift value in Angstrom that determines how much a
-                slab should be shifted.
+            shift (float): The shift value along the lattice c direction in Angstrom.
             tol (float): Tolerance to determine primitive cell.
-            energy (float): An energy to assign to the slab.
+            energy (float): The energy to assign to the slab.
 
         Returns:
-            Slab: with a particular shifted oriented unit cell.
+            Slab: from a shifted oriented unit cell.
         """
         h = self._proj_height
         p = round(h / self.parent.lattice.d_hkl(self.miller_index), 8)
@@ -1138,7 +1135,7 @@ class SlabGenerator:
             for r in c_ranges:
                 if r[0] <= shift <= r[1]:
                     bonds_broken += 1
-            slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
+            slab = self._get_slab(shift, tol=tol, energy=bonds_broken)
             if bonds_broken <= max_broken_bonds:
                 slabs.append(slab)
             elif repair:
