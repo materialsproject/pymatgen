@@ -1383,9 +1383,9 @@ class Vasprun(MSONable):
         lattice = _parse_vasp_array(elem.find("crystal").find("varray"))
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
-        sdyn = elem.find("varray/[@name='selective']")
-        if sdyn:
-            struct.add_site_property("selective_dynamics", _parse_vasp_array(sdyn))
+        selective_dyn = elem.find("varray/[@name='selective']")
+        if selective_dyn:
+            struct.add_site_property("selective_dynamics", _parse_vasp_array(selective_dyn))
         return struct
 
     @staticmethod

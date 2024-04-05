@@ -276,7 +276,7 @@ class ElasticTensor(NthOrderElasticTensor):
         n_sites = len(structure)
         n_atoms = structure.composition.num_atoms
         site_density = 1e30 * n_sites / structure.volume
-        tot_mass = sum(e.atomic_mass for e in structure.species)
+        tot_mass = sum(spec.atomic_mass for spec in structure.species)
         avg_mass = 1.6605e-27 * tot_mass / n_atoms
         return (
             0.38483
@@ -330,7 +330,7 @@ class ElasticTensor(NthOrderElasticTensor):
             float: Clarke's thermal conductivity (in SI units)
         """
         n_sites = len(structure)
-        tot_mass = sum(e.atomic_mass for e in structure.species)
+        tot_mass = sum(spec.atomic_mass for spec in structure.species)
         n_atoms = structure.composition.num_atoms
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / n_atoms

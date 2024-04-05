@@ -1344,8 +1344,8 @@ class Fatband:
                 p_eigenvals[Spin.up] = [
                     [
                         {
-                            str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
-                            for e in atom_names
+                            str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                            for elem in atom_names
                         }
                         for _ in range(self.number_kpts)
                     ]
@@ -1356,8 +1356,8 @@ class Fatband:
                     p_eigenvals[Spin.down] = [
                         [
                             {
-                                str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
-                                for e in atom_names
+                                str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                                for elem in atom_names
                             }
                             for _ in range(self.number_kpts)
                         ]
