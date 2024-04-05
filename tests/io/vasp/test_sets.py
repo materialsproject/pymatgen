@@ -1337,7 +1337,7 @@ class TestMVLSlabSet(PymatgenTest):
         self.set = MVLSlabSet
         struct = self.get_structure("Li2O")
         gen = SlabGenerator(struct, (1, 0, 0), 10, 10)
-        self.slab = gen._get_slab()
+        self.slab = gen.get_slab()
         self.bulk = self.slab.oriented_unit_cell
 
         vis_bulk = self.set(self.bulk, bulk=True)

@@ -31,7 +31,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 class TestSlab(PymatgenTest):
     def setUp(self):
         zno1 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/ZnO-wz.cif", primitive=False)
-        zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False)._get_slab()
+        zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False).get_slab()
 
         Ti = Structure(
             Lattice.hexagonal(4.6, 2.82),
@@ -82,7 +82,7 @@ class TestSlab(PymatgenTest):
         # works even with Cartesian coordinates.
         zno_not_or = SlabGenerator(
             self.zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False, reorient_lattice=False
-        )._get_slab()
+        ).get_slab()
         zno_slab_cart = Slab(
             zno_not_or.lattice,
             zno_not_or.species,
@@ -140,7 +140,7 @@ class TestSlab(PymatgenTest):
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
         slab = SlabGenerator(
             cscl, [1, 0, 0], 5, 5, reorient_lattice=False, lll_reduce=False, center_slab=False
-        )._get_slab()
+        ).get_slab()
         assert_allclose(slab.dipole, [-4.209, 0, 0])
         assert slab.is_polar()
 
@@ -363,15 +363,15 @@ class TestSlabGenerator(PymatgenTest):
     def test_get_slab(self):
         struct = self.get_structure("LiFePO4")
         gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
-        struct = gen._get_slab(0.25)
+        struct = gen.get_slab(0.25)
         assert struct.lattice.abc[2] == approx(20.820740000000001)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, max_normal_search=1)
-        slab = gen._get_slab()
+        slab = gen.get_slab()
         assert len(slab) == 6
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False, max_normal_search=1)
-        slab_non_prim = gen._get_slab()
+        slab_non_prim = gen.get_slab()
         assert len(slab_non_prim) == len(slab) * 4
 
         # Some randomized testing of cell vectors
@@ -407,7 +407,7 @@ class TestSlabGenerator(PymatgenTest):
         for miller in [(1, 0, 0), (1, 1, 0), (1, 1, 1), (2, 1, 1)]:
             gen = SlabGenerator(fcc, miller, 10, 10)
             gen_normal = SlabGenerator(fcc, miller, 10, 10, max_normal_search=max(miller))
-            slab = gen_normal._get_slab()
+            slab = gen_normal.get_slab()
             assert slab.lattice.alpha == 90
             assert slab.lattice.beta == 90
             assert len(gen_normal.oriented_unit_cell) >= len(gen.oriented_unit_cell)
@@ -476,7 +476,7 @@ class TestSlabGenerator(PymatgenTest):
         for a_len in [1, 1.4, 2.5, 3.6]:
             struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(a_len), ["Fe"], [[0, 0, 0]])
             slab_gen = SlabGenerator(struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
-            n_atoms.append(len(slab_gen._get_slab()))
+            n_atoms.append(len(slab_gen.get_slab()))
         # Check if the number of atoms in all slabs is the same
         for n_a in n_atoms:
             assert n_atoms[0] == n_a
@@ -562,7 +562,7 @@ class TestSlabGenerator(PymatgenTest):
         # Tests to see if sites are added to opposite side
         struct = self.get_structure("LiFePO4")
         slab_gen = SlabGenerator(struct, (0, 0, 1), 10, 10, center_slab=True)
-        slab = slab_gen._get_slab()
+        slab = slab_gen.get_slab()
         surface_sites = slab.get_surface_sites()
 
         # check if top sites are moved to the bottom

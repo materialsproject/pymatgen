@@ -406,8 +406,8 @@ class TestInterface(PymatgenTest):
         si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
         sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
 
-        si_slab = SlabGenerator(si_conventional, (1, 1, 1), 5, 10, reorient_lattice=True)._get_slab()
-        sio2_slab = SlabGenerator(sio2_conventional, (1, 0, 0), 5, 10, reorient_lattice=True)._get_slab()
+        si_slab = SlabGenerator(si_conventional, (1, 1, 1), 5, 10, reorient_lattice=True).get_slab()
+        sio2_slab = SlabGenerator(sio2_conventional, (1, 0, 0), 5, 10, reorient_lattice=True).get_slab()
 
         interface = Interface.from_slabs(film_slab=si_slab, substrate_slab=sio2_slab)
         assert isinstance(interface, Interface)
