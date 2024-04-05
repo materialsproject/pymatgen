@@ -823,7 +823,7 @@ class SlabGenerator:
 
         def calculate_scaling_factor() -> np.ndarray:
             """Calculate scaling factor.
-            # TODO (@DanielYang59): revise docstring to add more details
+            # TODO (@DanielYang59): revise docstring to add more details.
             """
             slab_scale_factor = []
             non_orth_ind = []
