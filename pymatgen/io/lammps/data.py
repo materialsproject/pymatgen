@@ -1455,11 +1455,13 @@ class CombinedData(LammpsData):
         """
         styles = [mol.atom_style for mol in mols]
 
-        assert len(set(styles)) == 1, "Data have different atom_style."
+        if len(set(styles)) != 1:
+            raise ValueError("Data have different atom_style.")
         style_return = styles.pop()
 
-        if atom_style:
-            assert atom_style == style_return, "Data have different atom_style as specified."
+        if atom_style and atom_style != style_return:
+            raise ValueError("Data have different atom_style as specified.")
+
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
