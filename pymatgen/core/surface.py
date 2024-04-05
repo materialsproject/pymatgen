@@ -231,7 +231,7 @@ class Slab(Structure):
             miller_index=dct["miller_index"],
             oriented_unit_cell=Structure.from_dict(dct["oriented_unit_cell"]),
             shift=dct["shift"],
-            scale_factor=dct["scale_factor"],
+            scale_factor=np.array(dct["scale_factor"]),
             site_properties=struct.site_properties,
             energy=dct["energy"],
         )
