@@ -733,7 +733,7 @@ class SlabGenerator:
         parent (Structure): Parent structure from which Slab was derived.
         lll_reduce (bool): Whether the slabs will be orthogonalized.
         center_slab (bool): Whether the slabs will be centered in the slab-vacuum system.
-        slab_scale_factor (float): Computed scale factor that brings
+        slab_scale_factor (float): Scale factor that brings
             the parent cell to the surface cell.
         miller_index (tuple): Miller index of plane parallel to surface.
         min_slab_size (float): Minimum size of layers containing atoms, in angstroms.
@@ -742,7 +742,7 @@ class SlabGenerator:
 
     def __init__(
         self,
-        initial_structure,
+        initial_structure: Structure,
         miller_index: tuple[int, int, int],
         min_slab_size: float,
         min_vacuum_size: float,
@@ -799,7 +799,7 @@ class SlabGenerator:
                 the c direction is parallel to the third lattice vector
         """
 
-        def add_site_types():
+        def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
             if (
                 "bulk_wyckoff" not in initial_structure.site_properties
@@ -821,6 +821,74 @@ class SlabGenerator:
             normal /= np.linalg.norm(normal)
             return normal
 
+        def calculate_scaling_factor() -> np.ndarray:
+            """Calculate scaling factor.
+            # TODO (@DanielYang59): revise docstring to add more details
+            """
+            slab_scale_factor = []
+            non_orth_ind = []
+            eye = np.eye(3, dtype=int)
+            for idx, miller_idx in enumerate(miller_index):
+                if miller_idx == 0:
+                    # If lattice vector is perpendicular to surface normal, i.e.,
+                    # in plane of surface. We will simply choose this lattice
+                    # vector as the basis vector
+                    slab_scale_factor.append(eye[idx])
+
+                else:
+                    # Calculate projection of lattice vector onto surface normal.
+                    d = abs(np.dot(normal, lattice.matrix[idx])) / lattice.abc[idx]
+                    non_orth_ind.append((idx, d))
+
+            # We want the vector that has maximum magnitude in the
+            # direction of the surface normal as the c-direction.
+            # Results in a more "orthogonal" unit cell.
+            c_index, _dist = max(non_orth_ind, key=lambda t: t[1])
+
+            if len(non_orth_ind) > 1:
+                lcm_miller = lcm(*(miller_index[i] for i, _d in non_orth_ind))
+                for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
+                    scale_factor = [0, 0, 0]
+                    scale_factor[ii] = -int(round(lcm_miller / miller_index[ii]))
+                    scale_factor[jj] = int(round(lcm_miller / miller_index[jj]))
+                    slab_scale_factor.append(scale_factor)
+                    if len(slab_scale_factor) == 2:
+                        break
+
+            if max_normal_search is None:
+                slab_scale_factor.append(eye[c_index])
+            else:
+                index_range = sorted(
+                    range(-max_normal_search, max_normal_search + 1),
+                    key=lambda x: -abs(x),
+                )
+                candidates = []
+                for uvw in itertools.product(index_range, index_range, index_range):
+                    if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
+                        continue
+                    vec = lattice.get_cartesian_coords(uvw)
+                    osdm = np.linalg.norm(vec)
+                    cosine = abs(np.dot(vec, normal) / osdm)
+                    candidates.append((uvw, cosine, osdm))
+                    # Stop searching if cosine equals 1/-1
+                    if isclose(abs(cosine), 1, abs_tol=1e-8):
+                        break
+                # We want the indices with the maximum absolute cosine,
+                # but smallest possible length.
+                uvw, cosine, osdm = max(candidates, key=lambda x: (x[1], -x[2]))
+                slab_scale_factor.append(uvw)
+
+            slab_scale_factor = np.array(slab_scale_factor)
+
+            # Let's make sure we have a left-handed crystallographic system
+            if np.linalg.det(slab_scale_factor) < 0:
+                slab_scale_factor *= -1
+
+            # Make sure the slab_scale_factor is reduced to avoid
+            # unnecessarily large slabs
+            reduced_scale_factor = [self._reduce_vector(v) for v in slab_scale_factor]
+            return np.array(reduced_scale_factor)
+
         # Add Wyckoff symbols and equivalent sites to the initial structure,
         # to help identify types of sites in the generated slab
         add_site_types()
@@ -830,78 +898,15 @@ class SlabGenerator:
         miller_index = self._reduce_vector(miller_index)
         normal = calculate_surface_normal()
 
-        # Calculate scale factor and non-orthogonal lattice vector indices
-        slab_scale_factor = []
-        non_orth_ind = []
-        eye = np.eye(3, dtype=int)
-        for idx, miller_idx in enumerate(miller_index):
-            if miller_idx == 0:
-                # If lattice vector is perpendicular to surface normal, i.e.,
-                # in plane of surface. We will simply choose this lattice
-                # vector as the basis vector
-                slab_scale_factor.append(eye[idx])
-
-            else:
-                # Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, lattice.matrix[idx])) / lattice.abc[idx]
-                non_orth_ind.append((idx, d))
-
-        # We want the vector that has maximum magnitude in the
-        # direction of the surface normal as the c-direction.
-        # Results in a more "orthogonal" unit cell.
-        c_index, _dist = max(non_orth_ind, key=lambda t: t[1])
-
-        if len(non_orth_ind) > 1:
-            lcm_miller = lcm(*(miller_index[i] for i, _d in non_orth_ind))
-            for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
-                scale_factor = [0, 0, 0]
-                scale_factor[ii] = -int(round(lcm_miller / miller_index[ii]))
-                scale_factor[jj] = int(round(lcm_miller / miller_index[jj]))
-                slab_scale_factor.append(scale_factor)
-                if len(slab_scale_factor) == 2:
-                    break
-
-        if max_normal_search is None:
-            slab_scale_factor.append(eye[c_index])
-        else:
-            index_range = sorted(
-                range(-max_normal_search, max_normal_search + 1),
-                key=lambda x: -abs(x),
-            )
-            candidates = []
-            for uvw in itertools.product(index_range, index_range, index_range):
-                if (not any(uvw)) or abs(np.linalg.det([*slab_scale_factor, uvw])) < 1e-8:
-                    continue
-                vec = lattice.get_cartesian_coords(uvw)
-                osdm = np.linalg.norm(vec)
-                cosine = abs(np.dot(vec, normal) / osdm)
-                candidates.append((uvw, cosine, osdm))
-                # Stop searching if cosine equals 1/-1
-                if isclose(abs(cosine), 1, abs_tol=1e-8):
-                    break
-            # We want the indices with the maximum absolute cosine,
-            # but smallest possible length.
-            uvw, cosine, osdm = max(candidates, key=lambda x: (x[1], -x[2]))
-            slab_scale_factor.append(uvw)
-
-        slab_scale_factor = np.array(slab_scale_factor)
-
-        # Let's make sure we have a left-handed crystallographic system
-        if np.linalg.det(slab_scale_factor) < 0:
-            slab_scale_factor *= -1
-
-        # Make sure the slab_scale_factor is reduced to avoid
-        # unnecessarily large slabs
-
-        reduced_scale_factor = [self._reduce_vector(v) for v in slab_scale_factor]
-        slab_scale_factor = np.array(reduced_scale_factor)
+        # Calculate scale factor
+        slab_scale_factor = calculate_scaling_factor()
 
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
 
-        # When getting the OUC, lets return the most reduced
-        # structure as possible to reduce calculations
+        # Calculate the most reduced structure as OUC to minimize calculations
         self.oriented_unit_cell = Structure.from_sites(single, to_unit_cell=True)
+
         self.max_normal_search = max_normal_search
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
@@ -912,12 +917,13 @@ class SlabGenerator:
         self.min_slab_size = min_slab_size
         self.in_unit_planes = in_unit_planes
         self.primitive = primitive
-        self._normal = normal
-        _a, _b, c = self.oriented_unit_cell.lattice.matrix
-        self._proj_height = abs(np.dot(normal, c))
+        # self._normal = normal  # TODO (@DanielYang59): not used
         self.reorient_lattice = reorient_lattice
 
-    def get_slab(self, shift=0, tol: float = 0.1, energy=None):
+        _a, _b, c = self.oriented_unit_cell.lattice.matrix
+        self._proj_height = abs(np.dot(normal, c))
+
+    def get_slab(self, shift: float=0, tol: float = 0.1, energy: float | None=None) -> Slab:
         """This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
         method. Instead, it is used by other generation algorithms to obtain
