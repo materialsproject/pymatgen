@@ -925,6 +925,8 @@ class SlabGenerator:
 
     def get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
         """Generate a slab based on a given shift value along the lattice c direction.
+        You should rarely use this method directly, which is intended for other generation
+        methods instead.
 
         Args:
             shift (float): The shift value along the lattice c direction in Angstrom.
@@ -949,25 +951,31 @@ class SlabGenerator:
 
         n_layers = n_layers_slab + n_layers_vac
 
-        # Prepare for Slab generation
+        # Prepare for Slab generation: lattice, species, coords and site_properties
         a, b, c = self.oriented_unit_cell.lattice.matrix
         new_lattice = [a, b, n_layers * c]
 
         species = self.oriented_unit_cell.species_and_occu
 
+        # Shift all atoms
+        # DEBUG(@DanielYang59): shift value in Angstrom inconsistent with frac_coordis
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
-        frac_coords -= np.floor(frac_coords)
+        frac_coords -= np.floor(frac_coords)  # wrap frac_coords to the [0, 1) range
+
+        # Scale down z-coordinate by the number of layers
         frac_coords[:, 2] = frac_coords[:, 2] / n_layers
 
+        # Duplicate atom layers by stacking along the z-axis
         all_coords = []
         for idx in range(n_layers_slab):
-            f_coords = frac_coords.copy()
-            f_coords[:, 2] += idx / n_layers
-            all_coords.extend(f_coords)
+            _frac_coords = frac_coords.copy()
+            _frac_coords[:, 2] += idx / n_layers
+            all_coords.extend(_frac_coords)
 
+        # Scale properties by number of atom layers (excluding vacuum)
         props = self.oriented_unit_cell.site_properties
-        props = {k: v * n_layers_slab for k, v in props.items()}  # type: ignore[operator, misc]
+        props = {k: v * n_layers_slab for k, v in props.items()}
 
         # Generate Slab
         slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
@@ -1022,75 +1030,6 @@ class SlabGenerator:
             reorient_lattice=self.reorient_lattice,
         )
 
-    def _calculate_possible_shifts(self, tol: float = 0.1):
-        frac_coords = self.oriented_unit_cell.frac_coords
-        n = len(frac_coords)
-
-        if n == 1:
-            # Clustering does not work when there is only one data point.
-            shift = frac_coords[0][2] + 0.5
-            return [shift - math.floor(shift)]
-
-        # We cluster the sites according to the c coordinates. But we need to
-        # take into account PBC. Let's compute a fractional c-coordinate
-        # distance matrix that accounts for PBC.
-        dist_matrix = np.zeros((n, n))
-        h = self._proj_height
-        # Projection of c lattice vector in
-        # direction of surface normal.
-        for i, j in itertools.combinations(list(range(n)), 2):
-            if i != j:
-                cdist = frac_coords[i][2] - frac_coords[j][2]
-                cdist = abs(cdist - round(cdist)) * h
-                dist_matrix[i, j] = cdist
-                dist_matrix[j, i] = cdist
-
-        condensed_m = squareform(dist_matrix)
-        z = linkage(condensed_m)
-        clusters = fcluster(z, tol, criterion="distance")
-
-        # Generate dict of cluster# to c val - doesn't matter what the c is.
-        c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
-
-        # Put all c into the unit cell.
-        possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
-
-        # Calculate the shifts
-        n_shifts = len(possible_c)
-        shifts = []
-        for i in range(n_shifts):
-            if i == n_shifts - 1:
-                # There is an additional shift between the first and last c
-                # coordinate. But this needs special handling because of PBC.
-                shift = (possible_c[0] + 1 + possible_c[i]) * 0.5
-                if shift > 1:
-                    shift -= 1
-            else:
-                shift = (possible_c[i] + possible_c[i + 1]) * 0.5
-            shifts.append(shift - math.floor(shift))
-        return sorted(shifts)
-
-    def _get_c_ranges(self, bonds):
-        c_ranges = []
-        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
-        for (sp1, sp2), bond_dist in bonds.items():
-            for site in self.oriented_unit_cell:
-                if sp1 in site.species:
-                    for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
-                        if sp2 in nn.species:
-                            c_range = tuple(sorted([site.frac_coords[2], nn.frac_coords[2]]))
-                            if c_range[1] > 1:
-                                # Takes care of PBC when c coordinate of site
-                                # goes beyond the upper boundary of the cell
-                                c_ranges.extend(((c_range[0], 1), (0, c_range[1] - 1)))
-                            elif c_range[0] < 0:
-                                # Takes care of PBC when c coordinate of site
-                                # is below the lower boundary of the unit cell
-                                c_ranges.extend(((0, c_range[1]), (c_range[0] + 1, 1)))
-                            elif c_range[0] != c_range[1]:
-                                c_ranges.append((c_range[0], c_range[1]))
-        return c_ranges
-
     @staticmethod
     def _reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
         """Helper method to reduce vectors."""
@@ -1107,7 +1046,7 @@ class SlabGenerator:
         repair=False,
     ):
         """This method returns a list of slabs that are generated using the list of
-        shift values from the method, _calculate_possible_shifts(). Before the
+        shift values from the calculate_possible_shifts method. Before the
         shifts are used to create the slabs however, if the user decides to take
         into account whether or not a termination will break any polyhedral
         structure (bonds is not None), this method will filter out any shift
@@ -1137,10 +1076,80 @@ class SlabGenerator:
             list[Slab]: all possible terminations of a particular surface.
                 Slabs are sorted by the # of bonds broken.
         """
-        c_ranges = [] if bonds is None else self._get_c_ranges(bonds)
+
+        def calculate_possible_shifts(tol: float = 0.1):
+            frac_coords = self.oriented_unit_cell.frac_coords
+            n = len(frac_coords)
+
+            if n == 1:
+                # Clustering does not work when there is only one data point.
+                shift = frac_coords[0][2] + 0.5
+                return [shift - math.floor(shift)]
+
+            # We cluster the sites according to the c coordinates. But we need to
+            # take into account PBC. Let's compute a fractional c-coordinate
+            # distance matrix that accounts for PBC.
+            dist_matrix = np.zeros((n, n))
+            h = self._proj_height
+            # Projection of c lattice vector in
+            # direction of surface normal.
+            for i, j in itertools.combinations(list(range(n)), 2):
+                if i != j:
+                    cdist = frac_coords[i][2] - frac_coords[j][2]
+                    cdist = abs(cdist - round(cdist)) * h
+                    dist_matrix[i, j] = cdist
+                    dist_matrix[j, i] = cdist
+
+            condensed_m = squareform(dist_matrix)
+            z = linkage(condensed_m)
+            clusters = fcluster(z, tol, criterion="distance")
+
+            # Generate dict of cluster# to c val - doesn't matter what the c is.
+            c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
+
+            # Put all c into the unit cell.
+            possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
+
+            # Calculate the shifts
+            n_shifts = len(possible_c)
+            shifts = []
+            for i in range(n_shifts):
+                if i == n_shifts - 1:
+                    # There is an additional shift between the first and last c
+                    # coordinate. But this needs special handling because of PBC.
+                    shift = (possible_c[0] + 1 + possible_c[i]) * 0.5
+                    if shift > 1:
+                        shift -= 1
+                else:
+                    shift = (possible_c[i] + possible_c[i + 1]) * 0.5
+                shifts.append(shift - math.floor(shift))
+            return sorted(shifts)
+
+        def get_c_ranges(bonds):
+            c_ranges = []
+            bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
+            for (sp1, sp2), bond_dist in bonds.items():
+                for site in self.oriented_unit_cell:
+                    if sp1 in site.species:
+                        for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
+                            if sp2 in nn.species:
+                                c_range = tuple(sorted([site.frac_coords[2], nn.frac_coords[2]]))
+                                if c_range[1] > 1:
+                                    # Takes care of PBC when c coordinate of site
+                                    # goes beyond the upper boundary of the cell
+                                    c_ranges.extend(((c_range[0], 1), (0, c_range[1] - 1)))
+                                elif c_range[0] < 0:
+                                    # Takes care of PBC when c coordinate of site
+                                    # is below the lower boundary of the unit cell
+                                    c_ranges.extend(((0, c_range[1]), (c_range[0] + 1, 1)))
+                                elif c_range[0] != c_range[1]:
+                                    c_ranges.append((c_range[0], c_range[1]))
+            return c_ranges
+
+        c_ranges = [] if bonds is None else get_c_ranges(bonds)
 
         slabs = []
-        for shift in self._calculate_possible_shifts(tol=ftol):
+        for shift in calculate_possible_shifts(tol=ftol):
             bonds_broken = 0
             for r in c_ranges:
                 if r[0] <= shift <= r[1]:
