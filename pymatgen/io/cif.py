@@ -8,7 +8,6 @@ import re
 import textwrap
 import warnings
 from collections import defaultdict, deque
-from datetime import datetime
 from functools import partial
 from inspect import getfullargspec
 from io import StringIO
@@ -1192,12 +1191,6 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if (
-            os.getenv("CI")
-            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
-            and datetime.now() > datetime(2024, 10, 1)
-        ):  # pragma: no cover
-            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(
