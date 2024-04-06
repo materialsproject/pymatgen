@@ -1076,7 +1076,7 @@ class SlabGenerator:
                 sorted by the number of bonds broken.
         """
 
-        def calculate_possible_shifts(ftol: float) -> list[float]:
+        def gen_possible_shifts(ftol: float) -> list[float]:
             """Generate possible shifts by clustering z coordinates.
 
             Args:
@@ -1130,33 +1130,47 @@ class SlabGenerator:
 
             return sorted(shifts)
 
-        def get_c_ranges(bonds: dict[tuple[Species, Species], float]) -> list:
-            c_ranges = []
+        def get_z_ranges(bonds: dict[tuple[Species, Species], float], tol: float) -> list[tuple[float, float]]:
+            """Calculate list of z ranges where each z_range is a (lower_z, upper_z) tuple.
+
+            Args:
+                bonds (dict): specified as a (specie1, specie2): max_bond_dist dict.
+                tol (float): Tolerance for determine overlapping positions.
+            """
+            # Sanitize species in dict keys
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
+
+            z_ranges = []
             for (sp1, sp2), bond_dist in bonds.items():
                 for site in self.oriented_unit_cell:
                     if sp1 in site.species:
                         for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
                             if sp2 in nn.species:
-                                c_range = tuple(sorted([site.frac_coords[2], nn.frac_coords[2]]))
-                                if c_range[1] > 1:
-                                    # Takes care of PBC when c coordinate of site
-                                    # goes beyond the upper boundary of the cell
-                                    c_ranges.extend(((c_range[0], 1), (0, c_range[1] - 1)))
-                                elif c_range[0] < 0:
-                                    # Takes care of PBC when c coordinate of site
-                                    # is below the lower boundary of the unit cell
-                                    c_ranges.extend(((0, c_range[1]), (c_range[0] + 1, 1)))
-                                elif c_range[0] != c_range[1]:
-                                    c_ranges.append((c_range[0], c_range[1]))
-            return c_ranges
+                                z_range = tuple(sorted([site.frac_coords[2], nn.frac_coords[2]]))
 
-        c_ranges = [] if bonds is None else get_c_ranges(bonds)
+                                # Handle cases when z coordinate of site goes
+                                # beyond the upper boundary
+                                if z_range[1] > 1:
+                                    z_ranges.extend([(z_range[0], 1), (0, z_range[1] - 1)])
+
+                                # When z coordinate is below the lower boundary
+                                elif z_range[0] < 0:
+                                    z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
+
+                                # Neglect overlapping positions
+                                elif z_range[0] != z_range[1]:
+                                    # TODO (@DanielYang59): use the following for equality check
+                                    # elif not isclose(z_range[0], z_range[1], abs_tol=tol):
+                                    z_ranges.append(z_range)
+
+            return z_ranges
+
+        z_ranges = [] if bonds is None else get_z_ranges(bonds, tol)
 
         slabs = []
-        for shift in calculate_possible_shifts(ftol=ftol):
+        for shift in gen_possible_shifts(ftol=ftol):
             bonds_broken = 0
-            for r in c_ranges:
+            for r in z_ranges:
                 if r[0] <= shift <= r[1]:
                     bonds_broken += 1
             slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
