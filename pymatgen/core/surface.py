@@ -1077,7 +1077,7 @@ class SlabGenerator:
         """
 
         def calculate_possible_shifts(ftol: float) -> list[float]:
-            """Generate possible shifts by clustering z coordinate.
+            """Generate possible shifts by clustering z coordinates.
 
             Args:
                 ftol (float): Threshold for fcluster to check if
@@ -1093,6 +1093,7 @@ class SlabGenerator:
                 return [shift - math.floor(shift)]
 
             # Compute a Cartesian z-coordinate distance matrix
+            # TODO (@DanielYang59): account for periodic boundary condition
             dist_matrix = np.zeros((n_atoms, n_atoms))
             for i, j in itertools.combinations(list(range(n_atoms)), 2):
                 if i != j:
@@ -1102,6 +1103,9 @@ class SlabGenerator:
                     dist_matrix[j, i] = z_dist
 
             # Cluster the sites by z coordinates
+            # DEBUG(@DanielYang59): the z_matrix is actually in Cartesian,
+            # so the default ftol of 0.1 might be too large, and the
+            # corresponding two docstring need to be rectified
             z_matrix = linkage(squareform(dist_matrix))
             clusters = fcluster(z_matrix, ftol, criterion="distance")
 
