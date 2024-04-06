@@ -1076,52 +1076,57 @@ class SlabGenerator:
                 sorted by the number of bonds broken.
         """
 
-        def calculate_possible_shifts(tol: float = 0.1) -> list[float]:
+        def calculate_possible_shifts(ftol: float) -> list[float]:
+            """Generate possible shifts by clustering z coordinate.
+
+            Args:
+                ftol (float): Threshold for fcluster to check if
+                    two atoms are on the same plane.
+            """
             frac_coords = self.oriented_unit_cell.frac_coords
             n_atoms = len(frac_coords)
 
             # Clustering does not work when there is only one atom
             if n_atoms == 1:
-                # TODO (@DanielYang59): why this magic number?
+                # TODO (@DanielYang59): why this magic number 0.5?
                 shift = frac_coords[0][2] + 0.5
                 return [shift - math.floor(shift)]
 
-            # We cluster the sites according to the c coordinates. But we need to
-            # take into account PBC. Let's compute a fractional c-coordinate
-            # distance matrix that accounts for PBC.
+            # Compute a Cartesian z-coordinate distance matrix
             dist_matrix = np.zeros((n_atoms, n_atoms))
-            # Projection of c lattice vector in
-            # direction of surface normal.
             for i, j in itertools.combinations(list(range(n_atoms)), 2):
                 if i != j:
-                    cdist = frac_coords[i][2] - frac_coords[j][2]
-                    cdist = abs(cdist - round(cdist)) * self._proj_height
-                    dist_matrix[i, j] = cdist
-                    dist_matrix[j, i] = cdist
+                    z_dist = frac_coords[i][2] - frac_coords[j][2]
+                    z_dist = abs(z_dist - round(z_dist)) * self._proj_height
+                    dist_matrix[i, j] = z_dist
+                    dist_matrix[j, i] = z_dist
 
-            condensed_m = squareform(dist_matrix)
-            z = linkage(condensed_m)
-            clusters = fcluster(z, tol, criterion="distance")
+            # Cluster the sites by z coordinates
+            z_matrix = linkage(squareform(dist_matrix))
+            clusters = fcluster(z_matrix, ftol, criterion="distance")
 
-            # Generate dict of cluster# to c val - doesn't matter what the c is.
-            c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
+            # Generate a cluster to z coordinate mapping
+            clst_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
 
-            # Put all c into the unit cell.
-            possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
+            # Wrap all clusters into the unit cell ([0, 1) range)
+            possible_clst = [coord - math.floor(coord) for coord in sorted(clst_loc.values())]
 
-            # Calculate the shifts
-            n_shifts = len(possible_c)
+            # Calculate shifts
+            n_shifts = len(possible_clst)
             shifts = []
             for i in range(n_shifts):
+                # Handle the special case for the first-last
+                # z coordinate (because of periodic boundary condition)
                 if i == n_shifts - 1:
-                    # There is an additional shift between the first and last c
-                    # coordinate. But this needs special handling because of PBC.
-                    shift = (possible_c[0] + 1 + possible_c[i]) * 0.5
-                    if shift > 1:
-                        shift -= 1
+                    # TODO (@DanielYang59): Why calculate the "center" of the
+                    # two clusters, which is not actually the shift?
+                    shift = (possible_clst[0] + 1 + possible_clst[i]) * 0.5
+
                 else:
-                    shift = (possible_c[i] + possible_c[i + 1]) * 0.5
+                    shift = (possible_clst[i] + possible_clst[i + 1]) * 0.5
+
                 shifts.append(shift - math.floor(shift))
+
             return sorted(shifts)
 
         def get_c_ranges(bonds: dict[tuple[Species, Species], float]) -> list:
@@ -1148,7 +1153,7 @@ class SlabGenerator:
         c_ranges = [] if bonds is None else get_c_ranges(bonds)
 
         slabs = []
-        for shift in calculate_possible_shifts(tol=ftol):
+        for shift in calculate_possible_shifts(ftol=ftol):
             bonds_broken = 0
             for r in c_ranges:
                 if r[0] <= shift <= r[1]:
