@@ -1103,9 +1103,6 @@ class SlabGenerator:
                     dist_matrix[j, i] = z_dist
 
             # Cluster the sites by z coordinates
-            # DEBUG(@DanielYang59): the z_matrix is actually in Cartesian,
-            # so the default ftol of 0.1 might be too large, and the
-            # corresponding two docstring need to be rectified
             z_matrix = linkage(squareform(dist_matrix))
             clusters = fcluster(z_matrix, ftol, criterion="distance")
 
