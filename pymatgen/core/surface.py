@@ -1,4 +1,4 @@
-"""This module implements representations of Slabs, and algorithms for generating them.
+"""This module implements representations of Slabs, and methods for generating them.
 
 If you use this module, please consider citing the following work:
 
@@ -1051,58 +1051,51 @@ class SlabGenerator:
         symmetrize: bool = False,
         repair: bool = False,
     ) -> list[Slab]:
-        """This method returns a list of slabs that are generated using the list of
-        shift values from the calculate_possible_shifts method. Before the
-        shifts are used to create the slabs however, if the user decides to take
-        into account whether or not a termination will break any polyhedral
-        structure (bonds is not None), this method will filter out any shift
-        values that do so.
+        """Generate slabs with shift values calculated from the internal
+        calculate_possible_shifts method. If the user decide to avoid breaking
+        any polyhedral bond (by setting `bonds`), any shift value that do so
+        would be filtered out.
 
         Args:
-            bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
-            tol (float): General tolerance parameter for getting primitive
-                cells and matching structures
-            ftol (float): Threshold parameter in fcluster in order to check
-                if two atoms are lying on the same plane. Default thresh set
-                to 0.1 Angstrom in the direction of the surface normal.
+            bonds (dict): specified as a (specie1, specie2): max_bond_dist dict.
+                For example, PO4 groups may be defined as {("P", "O"): 3}.
+            tol (float): Tolerance for getting primitive cells and matching structures
+            ftol (float): Threshold for fcluster to check if two atoms are
+                on the same plane. Default to 0.1 Angstrom in the direction of
+                the surface normal.
             max_broken_bonds (int): Maximum number of allowable broken bonds
-                for the slab. Use this to limit # of slabs (some structures
-                may have a lot of slabs). Defaults to zero, which means no
-                defined bonds must be broken.
-            symmetrize (bool): Whether or not to ensure the surfaces of the
-                slabs are equivalent.
-            repair (bool): Whether to repair terminations with broken bonds
-                or just omit them. Set to False as repairing terminations can
-                lead to many possible slabs as oppose to just omitting them.
+                for the slab. Use this to limit number of slabs. Defaults to 0,
+                which means no bonds could be broken.
+            symmetrize (bool): Whether to enforce the equivalency of slab surfaces.
+            repair (bool): Whether to repair terminations with broken bonds (True)
+                or just omit them (False). Default to False as repairing terminations
+                can lead to many more possible slabs.
 
         Returns:
-            list[Slab]: all possible terminations of a particular surface.
-                Slabs are sorted by the # of bonds broken.
+            list[Slab]: All possible Slabs of a particular surface,
+                sorted by the number of bonds broken.
         """
 
         def calculate_possible_shifts(tol: float = 0.1) -> list[float]:
             frac_coords = self.oriented_unit_cell.frac_coords
-            n = len(frac_coords)
+            n_atoms = len(frac_coords)
 
-            if n == 1:
-                # Clustering does not work when there is only one data point.
+            # Clustering does not work when there is only one atom
+            if n_atoms == 1:
+                # TODO (@DanielYang59): why this magic number?
                 shift = frac_coords[0][2] + 0.5
                 return [shift - math.floor(shift)]
 
             # We cluster the sites according to the c coordinates. But we need to
             # take into account PBC. Let's compute a fractional c-coordinate
             # distance matrix that accounts for PBC.
-            dist_matrix = np.zeros((n, n))
-            h = self._proj_height
+            dist_matrix = np.zeros((n_atoms, n_atoms))
             # Projection of c lattice vector in
             # direction of surface normal.
-            for i, j in itertools.combinations(list(range(n)), 2):
+            for i, j in itertools.combinations(list(range(n_atoms)), 2):
                 if i != j:
                     cdist = frac_coords[i][2] - frac_coords[j][2]
-                    cdist = abs(cdist - round(cdist)) * h
+                    cdist = abs(cdist - round(cdist)) * self._proj_height
                     dist_matrix[i, j] = cdist
                     dist_matrix[j, i] = cdist
 
