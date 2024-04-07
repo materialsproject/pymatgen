@@ -1059,7 +1059,8 @@ class SlabGenerator:
         Args:
             bonds (dict): specified as a (specie1, specie2): max_bond_dist dict.
                 For example, PO4 groups may be defined as {("P", "O"): 3}.
-            tol (float): Tolerance for getting primitive cells and matching structures
+            tol (float): Fractional tolerance for getting primitive cells
+                and matching structures.
             ftol (float): Threshold for fcluster to check if two atoms are
                 on the same plane. Default to 0.1 Angstrom in the direction of
                 the surface normal.
@@ -1130,12 +1131,20 @@ class SlabGenerator:
 
             return sorted(shifts)
 
-        def get_z_ranges(bonds: dict[tuple[Species, Species], float], tol: float) -> list[tuple[float, float]]:
-            """Calculate list of z ranges where each z_range is a (lower_z, upper_z) tuple.
+        def get_z_ranges(
+            bonds: dict[tuple[Species, Species], float],
+            tol: float,
+        ) -> list[tuple[float, float]]:
+            """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
+
+            This method examines all sites in the oriented unit cell (OUC) and considers all
+            neighboring sites within the specified bond distance for each site. If a site
+            and its neighbor meet bonding and species requirements, their respective z-ranges
+            will be collected.
 
             Args:
                 bonds (dict): specified as a (specie1, specie2): max_bond_dist dict.
-                tol (float): Tolerance for determine overlapping positions.
+                tol (float): Fractional tolerance for determine overlapping positions.
             """
             # Sanitize species in dict keys
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
@@ -1165,41 +1174,55 @@ class SlabGenerator:
 
             return z_ranges
 
+        # Get occupied z_ranges
         z_ranges = [] if bonds is None else get_z_ranges(bonds, tol)
 
         slabs = []
         for shift in gen_possible_shifts(ftol=ftol):
+            # Calculate total number of bonds broken (how often the shift
+            # position fall within the z_range occupied by a bond)
             bonds_broken = 0
-            for r in z_ranges:
-                if r[0] <= shift <= r[1]:
+            for z_range in z_ranges:
+                if z_range[0] <= shift <= z_range[1]:
                     bonds_broken += 1
-            slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
+
+            # DEBUG(@DanielYang59): number of bonds broken passed to energy
+            # As per the docstring this is to sort final Slabs by number
+            # of bonds broken, but this may very likely lead to errors
+            # if the "energy" is used literally (Maybe reset energy to None?)
+            slab = self.get_slab(shift=shift, tol=tol, energy=bonds_broken)
+
             if bonds_broken <= max_broken_bonds:
                 slabs.append(slab)
-            elif repair:
-                # If the number of broken bonds is exceeded,
-                # we repair the broken bonds on the slab
-                slabs.append(self.repair_broken_bonds(slab, bonds))
 
-        # Further filters out any surfaces made that might be the same
+            # If the number of broken bonds is exceeded, repair the broken bonds
+            elif repair:
+                slabs.append(self.repair_broken_bonds(slab=slab, bonds=bonds))
+
+        # Filter out surfaces that might be the same
         matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
-        new_slabs = []
+        final_slabs = []
         for group in matcher.group_structures(slabs):
-            # For each unique termination, symmetrize the
-            # surfaces by removing sites from the bottom.
+            # For each unique slab, symmetrize the
+            # surfaces by removing sites from the bottom
             if symmetrize:
-                slabs = self.nonstoichiometric_symmetrized_slab(group[0])
-                new_slabs.extend(slabs)
+                sym_slabs = self.nonstoichiometric_symmetrized_slab(group[0])
+                final_slabs.extend(sym_slabs)
             else:
-                new_slabs.append(group[0])
+                final_slabs.append(group[0])
 
-        match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
-        new_slabs = [g[0] for g in match.group_structures(new_slabs)]
+        # # TODO (@DanielYang59): Why matching is performed again with the same settings?
+        # matcher_1 = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
+        # final_slabs = [g[0] for g in matcher_1.group_structures(final_slabs)]
 
-        return sorted(new_slabs, key=lambda s: s.energy)
+        return sorted(final_slabs, key=lambda slab: slab.energy)
 
-    def repair_broken_bonds(self, slab: Slab, bonds: dict[tuple[Species, Species], float]) -> Slab:
+    def repair_broken_bonds(
+        self,
+        slab: Slab,
+        bonds: dict[tuple[Species, Species], float],
+    ) -> Slab:
         """This method will find undercoordinated atoms due to slab
         cleaving specified by the bonds parameter and move them
         to the other surface to make sure the bond is kept intact.
