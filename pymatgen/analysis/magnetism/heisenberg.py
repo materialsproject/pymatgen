@@ -187,9 +187,9 @@ class HeisenbergMapper:
         # Keep only up to NNNN and call dists equal if they are within tol
         all_dists = sorted(set(all_dists))
         rm_list = []
-        for idx, d in enumerate(all_dists[:-1]):
-            if abs(d - all_dists[idx + 1]) < tol:
-                rm_list.append(idx + 1)
+        for idx, d in enumerate(all_dists[:-1], start=1):
+            if abs(d - all_dists[idx]) < tol:
+                rm_list.append(idx)
 
         all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
 
@@ -567,11 +567,10 @@ class HeisenbergMapper:
 
         # Save to a json file if desired
         if filename:
-            if filename.endswith(".json"):
-                dumpfn(igraph, filename)
-            else:
+            if not filename.endswith(".json"):
                 filename += ".json"
-                dumpfn(igraph, filename)
+
+            dumpfn(igraph, filename)
 
         return igraph
 
@@ -729,8 +728,9 @@ class HeisenbergScreener:
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
         remove_list = []
+        e_tol = 6  # 10^-6 eV/atom tol on energies
+
         for idx, energy in enumerate(energies):
-            e_tol = 6  # 10^-6 eV/atom tol on energies
             energy = round(energy, e_tol)
             if idx not in remove_list:
                 for i_check, e_check in enumerate(energies):
@@ -746,7 +746,7 @@ class HeisenbergScreener:
         #         remove_list.append(idx)
 
         # Remove duplicates
-        if len(remove_list) > 0:
+        if remove_list:
             ordered_structures = [struct for idx, struct in enumerate(ordered_structures) if idx not in remove_list]
             energies = [energy for idx, energy in enumerate(energies) if idx not in remove_list]
 

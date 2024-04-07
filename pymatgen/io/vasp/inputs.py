@@ -1420,8 +1420,7 @@ class Kpoints(MSONable):
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
-                m = patt.match(line)
-                if m:
+                if m := patt.match(line):
                     _kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
             return cls(
@@ -2167,12 +2166,10 @@ class PotcarSingle:
             if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
                 continue
             hash_str += f"{k}"
-            if isinstance(v, bool):
+            if isinstance(v, (bool, int)):
                 hash_str += f"{v}"
             elif isinstance(v, float):
                 hash_str += f"{v:.3f}"
-            elif isinstance(v, int):
-                hash_str += f"{v}"
             elif isinstance(v, (tuple, list)):
                 for item in v:
                     if isinstance(item, float):
@@ -2465,8 +2462,10 @@ class Potcar(list, MSONable):
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
 
-    def __iter__(self) -> Iterator[PotcarSingle]:  # boilerplate code. only here to supply
-        # type hint so `for psingle in Potcar()` is correctly inferred as PotcarSingle
+    def __iter__(self) -> Iterator[PotcarSingle]:
+        """Boilerplate code. Only here to supply type hint so
+        `for psingle in Potcar()` is correctly inferred as PotcarSingle
+        """
         return super().__iter__()
 
     def as_dict(self):
