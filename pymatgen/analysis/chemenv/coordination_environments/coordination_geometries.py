@@ -854,11 +854,11 @@ class CoordinationGeometry:
             elif len(face) == 4:
                 out += "5\n"
             else:
-                for ii, f in enumerate(face):
+                for ii, f in enumerate(face, start=1):
                     out += "4\n"
                     out += f"{len(_vertices) + iface}\n"
                     out += f"{f}\n"
-                    out += f"{face[np.mod(ii + 1, len(face))]}\n"
+                    out += f"{face[np.mod(ii, len(face))]}\n"
                     out += f"{len(_vertices) + iface}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:

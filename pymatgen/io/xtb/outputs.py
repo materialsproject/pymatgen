@@ -72,12 +72,12 @@ class CRESTOutput(MSONable):
             print(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
-        for i, entry in enumerate(split_cmd):
+        for i, entry in enumerate(split_cmd, start=1):
             value = None
             if entry and "-" in entry:
                 option = entry[1:]
-                if i + 1 < len(split_cmd) and "-" not in split_cmd[i + 1]:
-                    value = split_cmd[i + 1]
+                if i < len(split_cmd) and "-" not in split_cmd[i]:
+                    value = split_cmd[i]
                 self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0

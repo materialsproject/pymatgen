@@ -829,7 +829,7 @@ class AdfOutput:
                         v = list(chunks(map(float, m.group(3).split()), 3))
                         if len(v) != n_next:
                             raise AdfOutputError("Odd Error!")
-                        for i, k in enumerate(range(-n_next, 0, 1)):
+                        for i, k in enumerate(range(-n_next, 0)):
                             self.normal_modes[k].extend(v[i])
                         if int(m.group(1)) == n_atoms:
                             parse_freq = True

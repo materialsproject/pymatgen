@@ -2001,9 +2001,9 @@ class ReactionDiagram:
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = {}
-        for idx, entry in enumerate(rxn_entries):
-            self.labels[str(idx + 1)] = entry.attribute
-            entry.name = str(idx + 1)
+        for idx, entry in enumerate(rxn_entries, start=1):
+            self.labels[str(idx)] = entry.attribute
+            entry.name = str(idx)
         self.all_entries = all_entries
         self.pd = pd
 

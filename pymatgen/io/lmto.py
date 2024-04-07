@@ -186,13 +186,13 @@ class LMTOCtrl:
 
         for cat in ["STRUC", "CLASS", "SITE"]:
             fields = struct_lines[cat].split("=")
-            for idx, field in enumerate(fields):
+            for idx, field in enumerate(fields, start=1):
                 token = field.split()[-1]
                 if token == "ALAT":
-                    a_lat = round(float(fields[idx + 1].split()[0]), sigfigs)
+                    a_lat = round(float(fields[idx].split()[0]), sigfigs)
                     structure_tokens["ALAT"] = a_lat
                 elif token == "ATOM":
-                    atom = fields[idx + 1].split()[0]
+                    atom = fields[idx].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
                             structure_tokens["CLASS"].append(atom)
@@ -202,9 +202,9 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()])
                     except ValueError:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()[:-1]])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()[:-1]])
                     if token == "PLAT":
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):

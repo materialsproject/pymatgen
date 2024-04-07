@@ -401,8 +401,8 @@ class Poscar(MSONable):
             except (ValueError, IndexError):
                 # Defaulting to false names.
                 atomic_symbols = []
-                for i, nat in enumerate(n_atoms):
-                    sym = Element.from_Z(i + 1).symbol
+                for i, nat in enumerate(n_atoms, start=1):
+                    sym = Element.from_Z(i).symbol
                     atomic_symbols.extend([sym] * nat)
                 warnings.warn(
                     f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",

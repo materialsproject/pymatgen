@@ -265,8 +265,8 @@ class GrainBoundary(Structure):
             f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
             f"Sites ({len(self)})",
         )
-        for idx, site in enumerate(self):
-            outs.append(f"{idx + 1} {site.species_string} {' '.join(to_str(coord, 12) for coord in site.frac_coords)}")
+        for idx, site in enumerate(self, start=1):
+            outs.append(f"{idx} {site.species_string} {' '.join(to_str(coord, 12) for coord in site.frac_coords)}")
         return "\n".join(outs)
 
     def as_dict(self):

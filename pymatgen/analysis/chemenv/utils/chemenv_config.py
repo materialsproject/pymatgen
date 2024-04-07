@@ -97,7 +97,7 @@ class ChemEnvConfig:
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup)
-        for idx, strategy in enumerate(strategies, 1):
+        for idx, strategy in enumerate(strategies, start=1):
             print(f" <{idx}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {

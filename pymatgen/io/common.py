@@ -356,9 +356,9 @@ class VolumetricData(MSONable):
                     f"{ang_to_bohr * site.coords[2]} \n"
                 )
 
-            for idx, dat in enumerate(self.data["total"].flatten()):
+            for idx, dat in enumerate(self.data["total"].flatten(), start=1):
                 file.write(f"{' ' if dat > 0 else ''}{dat:.6e} ")
-                if (idx + 1) % 6 == 0:
+                if idx % 6 == 0:
                     file.write("\n")
 
     @classmethod

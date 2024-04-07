@@ -761,8 +761,8 @@ class ElasticTensorExpansion(TensorCollection):
         """
         compl_exp = self.get_compliance_expansion()
         strain = 0
-        for n, compl in enumerate(compl_exp):
-            strain += compl.einsum_sequence([stress] * (n + 1)) / factorial(n + 1)
+        for n, compl in enumerate(compl_exp, start=1):
+            strain += compl.einsum_sequence([stress] * (n)) / factorial(n)
         return strain
 
     def get_effective_ecs(self, strain, order=2):

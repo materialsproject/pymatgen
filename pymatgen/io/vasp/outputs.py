@@ -4196,8 +4196,8 @@ class Xdatcar:
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
-        for cnt, structure in enumerate(self.structures):
-            ionicstep_cnt = cnt + 1
+        for cnt, structure in enumerate(self.structures, start=1):
+            ionicstep_cnt = cnt
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")
