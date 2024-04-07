@@ -244,7 +244,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
                 structure matcher is used. A recommended value is 1e-5.
         """
         self.symprec = symprec
-        self.structure_list = []
+        self.structure_list: list = []
         self.existing_structures = existing_structures
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)

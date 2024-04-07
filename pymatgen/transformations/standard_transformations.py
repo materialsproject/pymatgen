@@ -509,7 +509,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 ordering.
         """
         self.algo = algo
-        self._all_structures = []
+        self._all_structures: list = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 

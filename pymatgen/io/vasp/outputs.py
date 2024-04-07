@@ -1982,7 +1982,7 @@ class Outcar:
         self.final_energy = e0
         self.final_energy_wo_entrp = e_wo_entrp
         self.final_fr_energy = e_fr_energy
-        self.data = {}
+        self.data: dict = {}
 
         # Read "total number of plane waves", NPLWV:
         self.read_pattern(
@@ -3788,9 +3788,9 @@ class Procar:
                     headers.pop(0)
                     headers.pop(-1)
 
-                    data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
+                    data: defaultdict = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
-                    phase_factors = defaultdict(
+                    phase_factors: defaultdict = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
                 elif expr.match(line):
@@ -3912,7 +3912,7 @@ class Oszicar:
             except ValueError:
                 return "--"
 
-        header = []
+        header: list = []
         with zopen(filename, mode="rt") as fid:
             for line in fid:
                 m = electronic_pattern.match(line.strip())
@@ -4036,9 +4036,9 @@ class Xdatcar:
             comment (str): Optional comment attached to this set of structures.
         """
         preamble = None
-        coords_str = []
-        structures = []
-        preamble_done = False
+        coords_str: list = []
+        structures: list = []
+        preamble_done: bool = False
         if ionicstep_start < 1:
             raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_start < 1:
@@ -4254,7 +4254,7 @@ class Dynmat:
             lines = list(clean_lines(file.readlines()))
             self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
             self._masses = map(float, lines[1].split())
-            self.data = defaultdict(dict)
+            self.data: defaultdict = defaultdict(dict)
             atom, disp = None, None
             for idx, line in enumerate(lines[2:]):
                 v = list(map(float, line.split()))
@@ -4487,7 +4487,7 @@ class Wavecar:
             self.kpoints = []
             if spin == 2:
                 self.coeffs = [[[None for i in range(self.nb)] for j in range(self.nk)] for _ in range(spin)]
-                self.band_energy = [[] for _ in range(spin)]
+                self.band_energy: list = [[] for _ in range(spin)]
             else:
                 self.coeffs = [[None for i in range(self.nb)] for j in range(self.nk)]
                 self.band_energy = []

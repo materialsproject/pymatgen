@@ -28,7 +28,7 @@ class VoltageProfilePlotter:
             - frac_x: the atomic fraction of the working ion
             hide_negative: If True only plot the voltage steps above zero.
         """
-        self._electrodes = {}
+        self._electrodes: dict = {}
         self.xaxis = xaxis
         self.hide_negative = hide_negative
 

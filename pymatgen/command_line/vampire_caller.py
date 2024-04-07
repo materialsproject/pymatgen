@@ -131,8 +131,8 @@ class VampireCaller:
 
         # Call Vampire
         with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-            stdout, stderr = process.communicate()
-            stdout = stdout.decode()
+            _stdout, stderr = process.communicate()
+            stdout: str = _stdout.decode()
 
         if stderr:
             vanhelsing = stderr.decode()

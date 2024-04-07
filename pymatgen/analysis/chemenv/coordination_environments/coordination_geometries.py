@@ -908,7 +908,7 @@ class AllCoordinationGeometries(dict):
 
         self.minpoints = {}
         self.maxpoints = {}
-        self.separations_cg = {}
+        self.separations_cg: dict = {}
         for cn in range(6, 21):
             for cg in self.get_implemented_geometries(coordination=cn):
                 if only_symbols is not None and cg.ce_symbol not in only_symbols:

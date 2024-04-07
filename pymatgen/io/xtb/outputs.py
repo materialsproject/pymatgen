@@ -36,8 +36,8 @@ class CRESTOutput(MSONable):
         self.path = path
         self.filename = output_filename
 
-        self.cmd_options = {}
-        self.sorted_structures_energies = []
+        self.cmd_options: dict = {}
+        self.sorted_structures_energies: list = []
         self.properly_terminated = False
         self._parse_crest_output()
 

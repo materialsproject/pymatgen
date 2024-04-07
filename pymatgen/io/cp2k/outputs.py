@@ -57,15 +57,15 @@ class Cp2kOutput:
         # IO Info
         self.filename = filename
         self.dir = os.path.dirname(filename)
-        self.filenames = {}
+        self.filenames: dict = {}
         self.parse_files()
-        self.data = {}
+        self.data: dict = {}
 
         # Material properties/results
         self.input = self.initial_structure = self.lattice = self.final_structure = self.composition = None
         self.efermi = self.vbm = self.cbm = self.band_gap = None
-        self.structures = []
-        self.ionic_steps = []
+        self.structures: list = []
+        self.ionic_steps: list = []
 
         # parse the basic run parameters always
         self.parse_cp2k_params()

@@ -2599,8 +2599,8 @@ class VaspInput(dict, MSONable):
         if optional_files is not None:
             self.update(optional_files)
 
-    def __str__(self):
-        output = []
+    def __str__(self) -> str:
+        output: list = []
         for key, val in self.items():
             output.extend((key, str(val), ""))
         return "\n".join(output)
