@@ -923,7 +923,7 @@ class HeisenbergModel(MSONable):
 
         # Reconstitute the exchange matrix DataFrame
         try:
-            ex_mat = eval(dct["ex_mat"])
+            ex_mat = literal_eval(dct["ex_mat"])
             ex_mat = pd.DataFrame.from_dict(ex_mat)
         except SyntaxError:  # if ex_mat is empty
             ex_mat = pd.DataFrame(columns=["E", "E0"])
