@@ -62,7 +62,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5.0) -> None:
+    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5) -> None:
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -73,7 +73,7 @@ class SpacegroupAnalyzer:
                 positions (e.g., structures relaxed with electronic structure
                 codes), a looser tolerance of 0.1 (the value used in Materials
                 Project) is often needed.
-            angle_tolerance (float): Angle tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding. Defaults to 5 degrees.
         """
         self._symprec = symprec
         self._angle_tol = angle_tolerance
