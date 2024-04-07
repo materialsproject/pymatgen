@@ -99,7 +99,7 @@ class QuasiHarmonicDebyeApprox:
                 "The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and "
                 "cannot be used together."
             )
-        self.mass = sum(e.atomic_mass for e in self.structure.species)
+        self.mass = sum(spec.atomic_mass for spec in self.structure.species)
         self.natoms = self.structure.composition.num_atoms
         self.avg_mass = physical_constants["atomic mass constant"][0] * self.mass / self.natoms  # kg
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]

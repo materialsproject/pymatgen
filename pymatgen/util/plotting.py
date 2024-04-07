@@ -396,12 +396,12 @@ def format_formula(formula: str) -> str:
     """
     formatted_formula = ""
     number_format = ""
-    for idx, char in enumerate(formula):
+    for idx, char in enumerate(formula, start=1):
         if char.isdigit():
             if not number_format:
                 number_format = "_{"
             number_format += char
-            if idx == len(formula) - 1:
+            if idx == len(formula):
                 number_format += "}"
                 formatted_formula += number_format
         else:

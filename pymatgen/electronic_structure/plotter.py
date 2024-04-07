@@ -1048,7 +1048,7 @@ class BSPlotterProjected(BSPlotter):
         e_min, e_max = -4, 4
         if self._bs.is_metal():
             e_min, e_max = -10, 10
-        for idx, el in enumerate(self._bs.structure.elements, 1):
+        for idx, el in enumerate(self._bs.structure.elements, start=1):
             ax = plt.subplot(220 + idx)
             self._make_ticks(ax)
             for b in range(len(data["distances"])):

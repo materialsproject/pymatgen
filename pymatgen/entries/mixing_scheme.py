@@ -728,10 +728,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             f"{'entry_id':<12}{'formula':<12}{'spacegroup':<12}{'run_type':<10}{'eV/atom':<8}"
             f"{'corr/atom':<9} {'e_above_hull':<9}"
         )
-        for e in entries:
+        for entry in entries:
             print(
-                f"{e.entry_id:<12}{e.reduced_formula:<12}{e.structure.get_space_group_info()[0]:<12}"
-                f"{e.parameters['run_type']:<10}{e.energy_per_atom:<8.3f}"
-                f"{e.correction / e.composition.num_atoms:<9.3f} {pd.get_e_above_hull(e):<9.3f}"
+                f"{entry.entry_id:<12}{entry.reduced_formula:<12}{entry.structure.get_space_group_info()[0]:<12}"
+                f"{entry.parameters['run_type']:<10}{entry.energy_per_atom:<8.3f}"
+                f"{entry.correction / entry.composition.num_atoms:<9.3f} {pd.get_e_above_hull(entry):<9.3f}"
             )
         return

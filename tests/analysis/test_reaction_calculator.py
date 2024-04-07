@@ -432,7 +432,7 @@ class TestComputedReaction(TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = [ComputedEntry.from_dict(e) for e in d]
+        entries = [ComputedEntry.from_dict(entry) for entry in d]
         reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
@@ -447,7 +447,7 @@ class TestComputedReaction(TestCase):
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty
         # for any product/reactant is nan
-        d = [
+        dicts = [
             {
                 "correction": 0,
                 "data": {},
@@ -503,7 +503,7 @@ class TestComputedReaction(TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = [ComputedEntry.from_dict(e) for e in d]
+        entries = [ComputedEntry.from_dict(entry) for entry in dicts]
         reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 

@@ -1138,8 +1138,8 @@ class GaussianOutput:
                     while not re.search(r"^\s-+", line):
                         values = list(map(float, line.split()))
                         data["energies"].append(values[-1])
-                        for i, icname in enumerate(data["coords"]):
-                            data["coords"][icname].append(values[i + 1])
+                        for i, icname in enumerate(data["coords"], start=1):
+                            data["coords"][icname].append(values[i])
                         line = file.readline()
                 else:
                     line = file.readline()

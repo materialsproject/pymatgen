@@ -106,8 +106,8 @@ class TestStructureConversion(PymatgenTest):
         assert struct_pmg_round_trip.matches(struct_pmg)
 
         coords_ph = struct_ph.get_scaled_positions()
-        symbols_pmg = {e.symbol for e in struct_pmg.composition}
-        symbols_pmg2 = {e.symbol for e in struct_pmg_round_trip.composition}
+        symbols_pmg = {*map(str, struct_pmg.composition)}
+        symbols_pmg2 = {*map(str, struct_pmg_round_trip.composition)}
 
         assert struct_ph.get_cell()[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
         assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)

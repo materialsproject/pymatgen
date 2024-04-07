@@ -1507,18 +1507,18 @@ class KPathLatimerMunro(KPathBase):
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
             face_center_ind = facet_as_key_point_inds[-1]
-            for j, ind in enumerate(facet_as_key_point_inds_bndy):
+            for j, ind in enumerate(facet_as_key_point_inds_bndy, start=-1):
                 if (
-                    min(ind, facet_as_key_point_inds_bndy[j - 1]),
-                    max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                    min(ind, facet_as_key_point_inds_bndy[j]),
+                    max(ind, facet_as_key_point_inds_bndy[j]),
                 ) not in key_lines:
                     key_lines.append(
                         (
-                            min(ind, facet_as_key_point_inds_bndy[j - 1]),
-                            max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                            min(ind, facet_as_key_point_inds_bndy[j]),
+                            max(ind, facet_as_key_point_inds_bndy[j]),
                         )
                     )
-                k = j + 1 if j != len(facet_as_key_point_inds_bndy) - 1 else 0
+                k = j + 2 if j != len(facet_as_key_point_inds_bndy) - 2 else 0
                 if (
                     min(ind, facet_as_key_point_inds_bndy[k]),
                     max(ind, facet_as_key_point_inds_bndy[k]),
@@ -2212,7 +2212,7 @@ class KPathLatimerMunro(KPathBase):
                 pop_orbits.append(grouped_inds[idx][worst_next_choice])
                 pop_labels.append(initial_max_cosine_label_inds[grouped_inds[idx][worst_next_choice]])
 
-        if len(unassigned_orbits) != 0:
+        if unassigned_orbits:
             max_cosine_orbits_copy = self._reduce_cosines_array(max_cosine_orbits_copy, pop_orbits, pop_labels)
             unassigned_orbits_labels = self._get_orbit_labels(max_cosine_orbits_copy, key_points_inds_orbits, atol)
             for idx, unassigned_orbit in enumerate(unassigned_orbits):

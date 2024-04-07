@@ -442,9 +442,9 @@ class ComputedReaction(Reaction):
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
         self._all_entries = reactant_entries + product_entries
-        reactant_comp = [e.composition.reduced_composition for e in reactant_entries]
+        reactant_comp = [entry.composition.reduced_composition for entry in reactant_entries]
 
-        product_comp = [e.composition.reduced_composition for e in product_entries]
+        product_comp = [entry.composition.reduced_composition for entry in product_entries]
 
         super().__init__(list(reactant_comp), list(product_comp))
 
@@ -455,10 +455,10 @@ class ComputedReaction(Reaction):
         coefficients.
         """
         entries = []
-        for c in self._all_comp:
-            for e in self._all_entries:
-                if e.reduced_formula == c.reduced_formula:
-                    entries.append(e)
+        for comp in self._all_comp:
+            for entry in self._all_entries:
+                if entry.reduced_formula == comp.reduced_formula:
+                    entries.append(entry)
                     break
         return entries
 
@@ -499,8 +499,8 @@ class ComputedReaction(Reaction):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "reactants": [e.as_dict() for e in self._reactant_entries],
-            "products": [e.as_dict() for e in self._product_entries],
+            "reactants": [entry.as_dict() for entry in self._reactant_entries],
+            "products": [entry.as_dict() for entry in self._product_entries],
         }
 
     @classmethod
@@ -512,6 +512,6 @@ class ComputedReaction(Reaction):
         Returns:
             A ComputedReaction object.
         """
-        reactants = [MontyDecoder().process_decoded(e) for e in dct["reactants"]]
-        products = [MontyDecoder().process_decoded(e) for e in dct["products"]]
+        reactants = [MontyDecoder().process_decoded(entry) for entry in dct["reactants"]]
+        products = [MontyDecoder().process_decoded(entry) for entry in dct["products"]]
         return cls(reactants, products)

@@ -1091,12 +1091,12 @@ class ForceField(MSONable):
             )
 
         index, masses, self.mass_info, atoms_map = [], [], [], {}
-        for idx, m in enumerate(mass_info):
-            index.append(idx + 1)
+        for idx, m in enumerate(mass_info, start=1):
+            index.append(idx)
             mass = map_mass(m[1])
             masses.append(mass)
             self.mass_info.append((m[0], mass))
-            atoms_map[m[0]] = idx + 1
+            atoms_map[m[0]] = idx
         self.masses = pd.DataFrame({"mass": masses}, index=index)
         self.maps = {"Atoms": atoms_map}
 
@@ -1161,9 +1161,9 @@ class ForceField(MSONable):
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
         assert atoms.issubset(self.maps["Atoms"]), f"Undefined atom type found in {kw}"
         mapper = {}
-        for i, dt in enumerate(distinct_types):
+        for i, dt in enumerate(distinct_types, start=1):
             for t in dt:
-                mapper[t] = i + 1
+                mapper[t] = i
 
         def process_data(data) -> pd.DataFrame:
             df = pd.DataFrame(data)

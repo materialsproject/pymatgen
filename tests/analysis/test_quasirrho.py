@@ -50,7 +50,7 @@ class TestQuasiRRHO(TestCase):
         """
         e_final = self.gout.final_energy
         mol = self.gout.final_structure
-        vib_freqs = [f["frequency"] for f in self.gout.frequencies[-1]]
+        vib_freqs = [freq["frequency"] for freq in self.gout.frequencies[-1]]
 
         correct_g = -884.776886
         correct_stot = 141.584080

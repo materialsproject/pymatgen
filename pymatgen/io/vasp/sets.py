@@ -1014,10 +1014,10 @@ class DictSet(VaspInputSet):
                 wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if wavecar_files:
                     if fname == "WFULL":
-                        for f in wavecar_files:
-                            fname = Path(f).name
+                        for wavecar_file in wavecar_files:
+                            fname = Path(wavecar_file).name
                             fname = fname.split(".")[0]
-                            files_to_transfer[fname] = f
+                            files_to_transfer[fname] = wavecar_file
                     else:
                         files_to_transfer[fname] = str(wavecar_files[-1])
 

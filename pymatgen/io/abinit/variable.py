@@ -193,9 +193,9 @@ class InputVariable:
         line = ""
 
         # Format the line declaring the value
-        for i, val in enumerate(values):
-            line += " " + self.format_scalar(val, float_decimal)
-            if self.valperline is not None and (i + 1) % self.valperline == 0:
+        for i, val in enumerate(values, start=1):
+            line += f" {self.format_scalar(val, float_decimal)}"
+            if self.valperline is not None and i % self.valperline == 0:
                 line += "\n"
 
         # Add a carriage return in case of several lines

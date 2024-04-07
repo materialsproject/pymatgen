@@ -183,7 +183,7 @@ class TestTrajectory(PymatgenTest):
     def test_frame_properties(self):
         lattice, species, coords = self._get_lattice_species_and_coords()
 
-        props = [{"energy_per_atom": e} for e in [-3.0001, -3.0971, -3.0465]]
+        props = [{"energy_per_atom": ene} for ene in [-3.0001, -3.0971, -3.0465]]
 
         traj = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props)
 
@@ -196,7 +196,9 @@ class TestTrajectory(PymatgenTest):
 
         species, coords, charge, spin = self._get_species_and_coords()
 
-        props = [{"SCF_energy_in_the_final_basis_set": e} for e in [-113.3256885788, -113.3260019471, -113.326006415]]
+        props = [
+            {"SCF_energy_in_the_final_basis_set": ene} for ene in [-113.3256885788, -113.3260019471, -113.326006415]
+        ]
 
         traj = Trajectory(
             species=species,
@@ -382,7 +384,7 @@ class TestTrajectory(PymatgenTest):
         pressure_2 = [2, 2.5, 2.5]
 
         # energy only properties
-        props_1 = [{"energy": e} for e in energy_1]
+        props_1 = [{"energy": ene} for ene in energy_1]
         traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_1)
 
         # energy and pressure properties

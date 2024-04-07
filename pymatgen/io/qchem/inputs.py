@@ -297,8 +297,8 @@ class QCInput(InputFile):
             (str) String representation of multi job input file.
         """
         multi_job_string = ""
-        for i, job_i in enumerate(job_list):
-            if i < len(job_list) - 1:
+        for i, job_i in enumerate(job_list, start=1):
+            if i < len(job_list):
                 multi_job_string += str(job_i) + "\n@@@\n\n"
             else:
                 multi_job_string += str(job_i)
@@ -682,7 +682,7 @@ class QCInput(InputFile):
         """
         cdft_list = []
         cdft_list.append("$cdft")
-        for ii, state in enumerate(cdft):
+        for ii, state in enumerate(cdft, start=1):
             for constraint in state:
                 types = constraint["types"]
                 cdft_list.append(f"   {constraint['value']}")
@@ -703,7 +703,7 @@ class QCInput(InputFile):
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
                     else:
                         cdft_list.append(f"   {coef} {first} {last}")
-            if len(cdft) != 1 and ii + 1 < len(state):
+            if len(cdft) != 1 and ii < len(state):
                 cdft_list.append("--------------")
 
         # Ensure that you don't have a line indicating a state that doesn't exist

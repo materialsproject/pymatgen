@@ -2404,7 +2404,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
     @property
     def nexp(self):
         """Number of exponents."""
-        return [len(e) for e in self.exponents]
+        return [len(exp) for exp in self.exponents]
 
     @typing.no_type_check
     def get_str(self) -> str:
@@ -2545,9 +2545,9 @@ class PotentialInfo(MSONable):
             data["nlcc"] = True
         if "GTH" in string:
             data["potential_type"] = "GTH"
-        for idx, char in enumerate(string):
-            if char == "Q" and string[idx + 1].isnumeric():
-                data["electrons"] = int("".join(_ for _ in string[idx + 1 :] if _.isnumeric()))
+        for idx, char in enumerate(string, start=1):
+            if char == "Q" and string[idx].isnumeric():
+                data["electrons"] = int("".join(_ for _ in string[idx:] if _.isnumeric()))
 
         for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
             if x in string:
