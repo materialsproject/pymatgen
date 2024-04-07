@@ -969,7 +969,7 @@ class Incar(dict, MSONable):
             param_type = incar_params[tag].get("type")
             allowed_values = incar_params[tag].get("values")
 
-            if param_type is not None and not isinstance(val, eval(param_type)):
+            if param_type is not None and type(val).__name__ != param_type:
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
 
             # Only check value when it's not None,
