@@ -66,7 +66,7 @@ class TestPhononBSPlotter(TestCase):
     def test_bs_plot_data(self):
         assert len(self.plotter.bs_plot_data()["distances"][0]) == 51, "wrong number of distances in the first branch"
         assert len(self.plotter.bs_plot_data()["distances"]) == 4, "wrong number of branches"
-        assert sum(len(e) for e in self.plotter.bs_plot_data()["distances"]) == 204, "wrong number of distances"
+        assert sum(len(dist) for dist in self.plotter.bs_plot_data()["distances"]) == 204, "wrong number of distances"
         assert self.plotter.bs_plot_data()["ticks"]["label"][4] == "Y", "wrong tick label"
         assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 8, "wrong number of tick labels"
 

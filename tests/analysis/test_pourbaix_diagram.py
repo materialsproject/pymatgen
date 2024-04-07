@@ -106,7 +106,7 @@ class TestPourbaixDiagram(TestCase):
         cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
 
     def test_pourbaix_diagram(self):
-        assert {e.name for e in self.pbx.stable_entries} == {
+        assert {entry.name for entry in self.pbx.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -114,7 +114,7 @@ class TestPourbaixDiagram(TestCase):
             "Zn(s)",
         }, "List of stable entries does not match"
 
-        assert {e.name for e in self.pbx_no_filter.stable_entries} == {
+        assert {entry.name for entry in self.pbx_no_filter.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -124,8 +124,8 @@ class TestPourbaixDiagram(TestCase):
             "ZnH(s)",
         }, "List of stable entries for unfiltered pbx does not match"
 
-        pbx_lowconc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
-        assert {e.name for e in pbx_lowconc.stable_entries} == {
+        pbx_low_conc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
+        assert {entry.name for entry in pbx_low_conc.stable_entries} == {
             "Zn(HO)2(aq)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -138,9 +138,9 @@ class TestPourbaixDiagram(TestCase):
 
     def test_multicomponent(self):
         # Assure no ions get filtered at high concentration
-        ag_n = [e for e in self.test_data["Ag-Te-N"] if "Te" not in e.composition]
+        ag_n = [entry for entry in self.test_data["Ag-Te-N"] if "Te" not in entry.composition]
         highconc = PourbaixDiagram(ag_n, filter_solids=True, conc_dict={"Ag": 1e-5, "N": 1})
-        entry_sets = [set(e.entry_id) for e in highconc.stable_entries]
+        entry_sets = [set(entry.entry_id) for entry in highconc.stable_entries]
         assert {"mp-124", "ion-17"} in entry_sets
 
         # Binary system
@@ -256,7 +256,7 @@ class TestPourbaixDiagram(TestCase):
     def test_serialization(self):
         dct = self.pbx.as_dict()
         new = PourbaixDiagram.from_dict(dct)
-        assert {e.name for e in new.stable_entries} == {
+        assert {entry.name for entry in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -268,7 +268,7 @@ class TestPourbaixDiagram(TestCase):
         # previously filtered entries being included
         dct = self.pbx_no_filter.as_dict()
         new = PourbaixDiagram.from_dict(dct)
-        assert {e.name for e in new.stable_entries} == {
+        assert {entry.name for entry in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",

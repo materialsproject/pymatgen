@@ -569,7 +569,7 @@ class TestMoleculeGraph(TestCase):
 
     def test_construction(self):
         pytest.importorskip("openbabel")
-        edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}
+        edges_frag = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc_frag1, edges_frag)
         # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_frag1_mg.json")
         ref_mol_graph = loadfn(f"{module_dir}/pc_frag1_mg.json")
@@ -580,7 +580,7 @@ class TestMoleculeGraph(TestCase):
             for ii in range(3):
                 assert mol_graph.graph.nodes[node]["coords"][ii] == ref_mol_graph.graph.nodes[node]["coords"][ii]
 
-        edges_pc = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_edges}
+        edges_pc = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc, edges_pc)
         # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_mg.json")
         ref_mol_graph = loadfn(f"{module_dir}/pc_mg.json")
@@ -784,7 +784,7 @@ class TestMoleculeGraph(TestCase):
                     assert species[j] == str(atom.specie)
 
     def test_build_unique_fragments(self):
-        edges = {(e[0], e[1]): None for e in self.pc_edges}
+        edges = {(edge[0], edge[1]): None for edge in self.pc_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc, edges)
         unique_fragment_dict = mol_graph.build_unique_fragments()
         unique_fragments = [fragment for key in unique_fragment_dict for fragment in unique_fragment_dict[key]]

@@ -64,11 +64,11 @@ class ConversionElectrode(AbstractElectrode):
         """
         working_ion = Element(working_ion_symbol)
         entry = working_ion_entry = None
-        for e in pd.stable_entries:
-            if e.reduced_formula == comp.reduced_formula:
-                entry = e
-            elif e.is_element and e.reduced_formula == working_ion_symbol:
-                working_ion_entry = e
+        for ent in pd.stable_entries:
+            if ent.reduced_formula == comp.reduced_formula:
+                entry = ent
+            elif ent.is_element and ent.reduced_formula == working_ion_symbol:
+                working_ion_entry = ent
 
         if not allow_unstable and not entry:
             raise ValueError(f"Not stable compound found at composition {comp}.")

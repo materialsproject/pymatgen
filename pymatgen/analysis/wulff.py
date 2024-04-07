@@ -450,7 +450,7 @@ class WulffShape:
             cmap = plt.get_cmap(color_set)
             cmap.set_over("0.25")
             cmap.set_under("0.75")
-            bounds = [round(e, 2) for e in e_surf_on_wulff]
+            bounds = [round(ene, 2) for ene in e_surf_on_wulff]
             bounds.append(1.2 * bounds[-1])
             norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
             # display surface energies

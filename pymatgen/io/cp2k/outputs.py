@@ -255,9 +255,9 @@ class Cp2kOutput:
                 self.filenames["wfn.bak"].append(w)
             else:
                 self.filenames["wfn"] = w
-        for f in self.filenames.values():
-            if hasattr(f, "sort"):
-                f.sort(key=natural_keys)
+        for filename in self.filenames.values():
+            if hasattr(filename, "sort"):
+                filename.sort(key=natural_keys)
 
     def parse_structures(self, trajectory_file=None, lattice_file=None):
         """

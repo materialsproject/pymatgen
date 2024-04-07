@@ -1220,7 +1220,7 @@ class _MPResterLegacy:
         histories = []
         for e in queen.get_data():
             structures.append(e.structure)
-            m = {
+            meta_dict = {
                 "_vasp": {
                     "parameters": e.parameters,
                     "final_energy": e.energy,
@@ -1231,8 +1231,8 @@ class _MPResterLegacy:
             if "history" in e.parameters:
                 histories.append(e.parameters["history"])
             if master_data is not None:
-                m.update(master_data)
-            metadata.append(m)
+                meta_dict.update(master_data)
+            metadata.append(meta_dict)
         if master_history is not None:
             histories = master_history * len(structures)
 
@@ -1633,8 +1633,8 @@ class _MPResterLegacy:
             n_elements = len(wild_card_els) + len(set(explicit_els))
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
-            for f in itertools.product(*parts):
-                comp = Composition("".join(f))
+            for formula in itertools.product(*parts):
+                comp = Composition("".join(formula))
                 if len(comp) == n_elements:
                     # Check for valid Elements in keys.
                     for elem in comp:

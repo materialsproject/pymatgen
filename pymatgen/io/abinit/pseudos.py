@@ -1560,16 +1560,16 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         pseudos = []
 
         if exts == "all_files":
-            for f in [os.path.join(top, fn) for fn in os.listdir(top)]:
-                if os.path.isfile(f):
+            for filepath in [os.path.join(top, fn) for fn in os.listdir(top)]:
+                if os.path.isfile(filepath):
                     try:
-                        p = Pseudo.from_file(f)
-                        if p:
-                            pseudos.append(p)
+                        pseudo = Pseudo.from_file(filepath)
+                        if pseudo:
+                            pseudos.append(pseudo)
                         else:
-                            logger.info(f"Skipping file {f}")
+                            logger.info(f"Skipping file {filepath}")
                     except Exception:
-                        logger.info(f"Skipping file {f}")
+                        logger.info(f"Skipping file {filepath}")
             if not pseudos:
                 logger.warning(f"No pseudopotentials parsed from folder {top}")
                 return None
@@ -1579,11 +1579,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exts is None:
                 exts = ("psp8",)
 
-            for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
+            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):
                 try:
-                    pseudos.append(Pseudo.from_file(p))
+                    pseudos.append(Pseudo.from_file(pseudo))
                 except Exception as exc:
-                    logger.critical(f"Error in {p}:\n{exc}")
+                    logger.critical(f"Error in {pseudo}:\n{exc}")
 
         return cls(pseudos).sort_by_z()
 

@@ -67,16 +67,18 @@ class TestConversionElectrode(TestCase):
     def test_init(self):
         # both 'LiCoO2' and "FeF3" are using Li+ as working ion; MnO2 is for the multivalent Mg2+ ion
         for formula in self.formulas:
-            c = self.conversion_electrodes[formula]["CE"]
+            conv_electrode = self.conversion_electrodes[formula]["CE"]
 
-            assert len(c.get_sub_electrodes(adjacent_only=True)) == c.num_steps
-            assert len(c.get_sub_electrodes(adjacent_only=False)) == sum(range(1, c.num_steps + 1))
+            assert len(conv_electrode.get_sub_electrodes(adjacent_only=True)) == conv_electrode.num_steps
+            assert len(conv_electrode.get_sub_electrodes(adjacent_only=False)) == sum(
+                range(1, conv_electrode.num_steps + 1)
+            )
             props = self.expected_properties[formula]
 
-            for k, v in props.items():
-                assert getattr(c, f"get_{k}")() == approx(v, abs=1e-2)
+            for key, val in props.items():
+                assert getattr(conv_electrode, f"get_{key}")() == approx(val, abs=1e-2)
 
-            assert {*c.get_summary_dict(print_subelectrodes=True)} == {
+            assert {*conv_electrode.get_summary_dict(print_subelectrodes=True)} == {
                 "adj_pairs",
                 "reactions",
                 "energy_vol",
@@ -98,17 +100,17 @@ class TestConversionElectrode(TestCase):
             }
 
             # try to export/import a voltage pair via a dict
-            pair = c.voltage_pairs[0]
+            pair = conv_electrode.voltage_pairs[0]
             dct = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(dct)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
                 assert getattr(pair, prop) == getattr(pair2, prop), 2
 
             # try to create an electrode from a dict and test methods
-            dct = c.as_dict()
+            dct = conv_electrode.as_dict()
             electrode = ConversionElectrode.from_dict(dct)
-            for k, v in props.items():
-                assert getattr(electrode, "get_" + k)() == approx(v, abs=1e-2)
+            for key, val in props.items():
+                assert getattr(electrode, f"get_{key}")() == approx(val, abs=1e-2)
 
     def test_repr(self):
         conv_electrode = self.conversion_electrodes[self.formulas[0]]["CE"]

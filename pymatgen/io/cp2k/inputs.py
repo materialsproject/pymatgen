@@ -2404,7 +2404,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
     @property
     def nexp(self):
         """Number of exponents."""
-        return [len(e) for e in self.exponents]
+        return [len(exp) for exp in self.exponents]
 
     @typing.no_type_check
     def get_str(self) -> str:

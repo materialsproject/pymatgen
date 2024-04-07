@@ -127,9 +127,9 @@ class CRESTOutput(MSONable):
                 final_rotamer_filename = "crest_rotamers.xyz"
             else:
                 n_rot_files = []
-                for f in os.listdir(self.path):
-                    if "crest_rotamers" in f:
-                        n_rot_file = int(os.path.splitext(f)[0].split("_")[2])
+                for filename in os.listdir(self.path):
+                    if "crest_rotamers" in filename:
+                        n_rot_file = int(os.path.splitext(filename)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
                 if len(n_rot_files) > 0:
                     final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz"

@@ -118,10 +118,10 @@ def _parse_vasp_array(elem) -> list[list[float]]:
 def _parse_from_incar(filename: str, key: str) -> str | None:
     """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
-    for f in os.listdir(dirname):
-        if re.search(r"INCAR", f):
+    for filename in os.listdir(dirname):
+        if re.search(r"INCAR", filename):
             warnings.warn("INCAR found. Using " + key + " from INCAR.")
-            incar = Incar.from_file(os.path.join(dirname, f))
+            incar = Incar.from_file(os.path.join(dirname, filename))
             if key in incar:
                 return incar[key]
             return None
@@ -1383,9 +1383,9 @@ class Vasprun(MSONable):
         lattice = _parse_vasp_array(elem.find("crystal").find("varray"))
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
-        sdyn = elem.find("varray/[@name='selective']")
-        if sdyn:
-            struct.add_site_property("selective_dynamics", _parse_vasp_array(sdyn))
+        selective_dyn = elem.find("varray/[@name='selective']")
+        if selective_dyn:
+            struct.add_site_property("selective_dynamics", _parse_vasp_array(selective_dyn))
         return struct
 
     @staticmethod
