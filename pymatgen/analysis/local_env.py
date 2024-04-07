@@ -3337,8 +3337,8 @@ class LocalStructOrderParams:
         if self._geomops2:
             # Compute all (unique) angles and sort the resulting list.
             aij = []
-            for ir, r in enumerate(rij_norm):
-                for j in range(ir + 1, len(rij_norm)):
+            for ir, r in enumerate(rij_norm, start=1):
+                for j in range(ir, len(rij_norm)):
                     aij.append(acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0))))
             aijs = sorted(aij)
 

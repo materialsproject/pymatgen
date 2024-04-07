@@ -268,7 +268,7 @@ class SimpleGraphCycle(MSONable):
         order in the list.
         """
         if edges_are_ordered:
-            nodes = [e[0] for e in edges]
+            nodes = [edge[0] for edge in edges]
             if not all(e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])) or edges[-1][1] != edges[0][0]:
                 raise ValueError("Could not construct a cycle from edges.")
         else:
@@ -490,8 +490,8 @@ def get_all_elementary_cycles(graph):
         edge_idx += 1
     cycles_matrix = np.zeros(shape=(len(cycle_basis), edge_idx), dtype=bool)
     for icycle, cycle in enumerate(cycle_basis):
-        for in1, n1 in enumerate(cycle):
-            n2 = cycle[(in1 + 1) % len(cycle)]
+        for in1, n1 in enumerate(cycle, start=1):
+            n2 = cycle[(in1) % len(cycle)]
             iedge = all_edges_dict[(n1, n2)]
             cycles_matrix[icycle, iedge] = True
 

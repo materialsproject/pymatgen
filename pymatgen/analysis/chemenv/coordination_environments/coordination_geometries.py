@@ -797,7 +797,7 @@ class CoordinationGeometry:
         list of its vertices coordinates.
         """
         coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
-        return [[coords[ii] for ii in f] for f in self._faces]
+        return [[coords[ii] for ii in face] for face in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
         """
@@ -814,7 +814,7 @@ class CoordinationGeometry:
         #     coords = [sites[ii].coords for ii in permutation]
         if permutation is not None:
             coords = [coords[ii] for ii in permutation]
-        return [[coords[ii] for ii in e] for e in self._edges]
+        return [[coords[ii] for ii in edge] for edge in self._edges]
 
     def solid_angles(self, permutation=None):
         """
@@ -854,11 +854,11 @@ class CoordinationGeometry:
             elif len(face) == 4:
                 out += "5\n"
             else:
-                for ii, f in enumerate(face):
+                for ii, f in enumerate(face, start=1):
                     out += "4\n"
                     out += f"{len(_vertices) + iface}\n"
                     out += f"{f}\n"
-                    out += f"{face[np.mod(ii + 1, len(face))]}\n"
+                    out += f"{face[np.mod(ii, len(face))]}\n"
                     out += f"{len(_vertices) + iface}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:

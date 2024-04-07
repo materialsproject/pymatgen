@@ -588,7 +588,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             ),
         ]
         layout = dict(
-            title="2D Diffraction Pattern<br>Beam Direction: " + "".join(str(e) for e in self.beam_direction),
+            title="2D Diffraction Pattern<br>Beam Direction: " + "".join(map(str, self.beam_direction)),
             font={"size": 14, "color": "#7f7f7f"},
             hovermode="closest",
             xaxis={

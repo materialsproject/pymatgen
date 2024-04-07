@@ -138,7 +138,7 @@ class TestBSPlotter(PymatgenTest):
         assert (
             len(self.plotter.bs_plot_data()["distances"][0]) == 16
         ), "wrong number of distances in the first sequence of branches"
-        assert sum(len(e) for e in self.plotter.bs_plot_data()["distances"]) == 160, "wrong number of distances"
+        assert sum(len(dist) for dist in self.plotter.bs_plot_data()["distances"]) == 160, "wrong number of distances"
 
         length = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
         assert length == 144, "wrong number of distances in the first sequence of branches"

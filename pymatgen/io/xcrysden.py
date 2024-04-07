@@ -90,15 +90,15 @@ class XSF:
         lattice, coords, species = [], [], []
         lines = input_string.splitlines()
 
-        for idx, line in enumerate(lines):
+        for idx, line in enumerate(lines, start=1):
             if "PRIMVEC" in line:
-                for j in range(idx + 1, idx + 4):
+                for j in range(idx, idx + 3):
                     lattice.append([float(c) for c in lines[j].split()])
 
             if "PRIMCOORD" in line:
-                num_sites = int(lines[idx + 1].split()[0])
+                num_sites = int(lines[idx].split()[0])
 
-                for j in range(idx + 2, idx + 2 + num_sites):
+                for j in range(idx + 1, idx + 1 + num_sites):
                     tokens = lines[j].split()
                     Z = Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0])
                     species.append(Z)

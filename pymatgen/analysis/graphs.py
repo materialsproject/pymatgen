@@ -2156,8 +2156,8 @@ class MoleculeGraph(MSONable):
             unique_frags = []
             for frag in fragments:
                 found = False
-                for f in unique_frags:
-                    if _isomorphic(frag, f):
+                for fragment in unique_frags:
+                    if _isomorphic(frag, fragment):
                         found = True
                         break
                 if not found:
@@ -2438,8 +2438,8 @@ class MoleculeGraph(MSONable):
 
         for cycle in cycles_nodes:
             edges = []
-            for idx, itm in enumerate(cycle):
-                edges.append((cycle[idx - 1], itm))
+            for idx, itm in enumerate(cycle, start=-1):
+                edges.append((cycle[idx], itm))
             cycles_edges.append(edges)
 
         return cycles_edges

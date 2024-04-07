@@ -618,10 +618,10 @@ class ElementBase(Enum):
             return 6
         if 89 <= z <= 103:
             return 7
-        for i, size in enumerate(_pt_row_sizes):
+        for i, size in enumerate(_pt_row_sizes, start=1):
             total += size
             if total >= z:
-                return i + 1
+                return i
         return 8
 
     @property

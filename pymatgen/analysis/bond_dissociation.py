@@ -104,8 +104,8 @@ class BondDissociationEnergies(MSONable):
                 " are less reliable! This is a bad idea!"
             )
             self.bond_pairs = []
-            for ii, bond in enumerate(self.ring_bonds):
-                for jj in range(ii + 1, len(self.ring_bonds)):
+            for ii, bond in enumerate(self.ring_bonds, start=1):
+                for jj in range(ii, len(self.ring_bonds)):
                     bond_pair = [bond, self.ring_bonds[jj]]
                     self.bond_pairs += [bond_pair]
             for bond_pair in self.bond_pairs:

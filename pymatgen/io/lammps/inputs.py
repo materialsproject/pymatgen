@@ -478,9 +478,9 @@ class LammpsInputFile(InputFile):
 
         # Making sure no stage_name of lmp_input_file clash with those from self.
         # If it is the case, we rename them.
-        for i_stage, stage in enumerate(lmp_input_file.stages):
+        for i_stage, stage in enumerate(lmp_input_file.stages, start=1):
             if stage["stage_name"] in self.stages_names:
-                stage["stage_name"] = f"Stage {self.nstages + i_stage + 1} (previously {stage['stage_name']})"
+                stage["stage_name"] = f"Stage {self.nstages + i_stage} (previously {stage['stage_name']})"
 
         # Append the two list of stages
         self.stages += new_list_to_add

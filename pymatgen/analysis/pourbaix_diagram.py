@@ -289,7 +289,7 @@ class MultiEntry(PourbaixEntry):
 
         # Attributes that are just lists of entry attributes
         if attr in ["entry_id", "phase_type"]:
-            return [getattr(e, attr) for e in self.entry_list]
+            return [getattr(entry, attr) for entry in self.entry_list]
 
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(attr)
@@ -297,7 +297,7 @@ class MultiEntry(PourbaixEntry):
     @property
     def name(self):
         """MultiEntry name, i. e. the name of each entry joined by ' + '."""
-        return " + ".join(e.name for e in self.entry_list)
+        return " + ".join(entry.name for entry in self.entry_list)
 
     def __repr__(self):
         energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
@@ -309,7 +309,7 @@ class MultiEntry(PourbaixEntry):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "entry_list": [e.as_dict() for e in self.entry_list],
+            "entry_list": [entry.as_dict() for entry in self.entry_list],
             "weights": self.weights,
         }
 
@@ -443,7 +443,7 @@ class PourbaixDiagram(MSONable):
         if isinstance(entries[0], MultiEntry):
             self._processed_entries = entries
             # Extract individual entries
-            single_entries = list(set(itertools.chain.from_iterable([e.entry_list for e in entries])))
+            single_entries = list(set(itertools.chain.from_iterable([entry.entry_list for entry in entries])))
             self._unprocessed_entries = single_entries
             self._filtered_entries = single_entries
             self._conc_dict = None
@@ -693,7 +693,7 @@ class PourbaixDiagram(MSONable):
             # Note that we get reduced compositions for solids and non-reduced
             # compositions for ions because ions aren't normalized due to
             # their charge state.
-            entry_comps = [e.composition for e in entry_list]
+            entry_comps = [entry.composition for entry in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             react_coeffs = [-coeff for coeff in rxn.coeffs[: len(entry_list)]]
             all_coeffs = [*react_coeffs, rxn.get_coeff(prod_comp)]
@@ -801,7 +801,7 @@ class PourbaixDiagram(MSONable):
         Returns:
             PourbaixEntry: stable entry at pH, V
         """
-        energies_at_conditions = [e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries]
+        energies_at_conditions = [entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries]
         return self.stable_entries[np.argmin(energies_at_conditions)]
 
     def get_decomposition_energy(self, entry, pH, V):
@@ -847,7 +847,7 @@ class PourbaixDiagram(MSONable):
         Returns:
             np.array: minimum Pourbaix energy at conditions
         """
-        all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
+        all_gs = np.array([entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries])
         return np.min(all_gs, axis=0)
 
     def get_stable_entry(self, pH, V):
@@ -862,7 +862,7 @@ class PourbaixDiagram(MSONable):
             PourbaixEntry | MultiEntry: Pourbaix or multi-entry
                 corresponding to the minimum energy entry at a given pH, V condition
         """
-        all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
+        all_gs = np.array([entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries])
         return self.stable_entries[np.argmin(all_gs)]
 
     @property
@@ -873,7 +873,7 @@ class PourbaixDiagram(MSONable):
     @property
     def unstable_entries(self):
         """Returns all unstable entries in the Pourbaix diagram."""
-        return [e for e in self.all_entries if e not in self.stable_entries]
+        return [entry for entry in self.all_entries if entry not in self.stable_entries]
 
     @property
     def all_entries(self):
@@ -893,7 +893,7 @@ class PourbaixDiagram(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "entries": [e.as_dict() for e in self._unprocessed_entries],
+            "entries": [entry.as_dict() for entry in self._unprocessed_entries],
             "comp_dict": self._elt_comp,
             "conc_dict": self._conc_dict,
             "filter_solids": self.filter_solids,
@@ -1078,7 +1078,7 @@ def generate_entry_label(entry):
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
     if isinstance(entry, MultiEntry):
-        return " + ".join(e.name for e in entry.entry_list)
+        return " + ".join(entry.name for entry in entry.entry_list)
 
     # TODO - a more elegant solution could be added later to Stringify
     # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )

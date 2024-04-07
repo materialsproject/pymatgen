@@ -465,8 +465,8 @@ class Slab(Structure):
             f"Sites ({len(self)})",
         ]
 
-        for idx, site in enumerate(self):
-            outs.append(f"{idx + 1} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
+        for idx, site in enumerate(self, start=1):
+            outs.append(f"{idx} {site.species_string} {' '.join(f'{j:0.6f}'.rjust(12) for j in site.frac_coords)}")
         return "\n".join(outs)
 
     def as_dict(self):

@@ -69,18 +69,18 @@ class AbinitTimerParser(collections.abc.Iterable):
         Returns:
             parser: the new object
             paths: the list of files found
-            okfiles: list of files that have been parsed successfully.
-                (okfiles == paths) if all files have been parsed.
+            ok_files: list of files that have been parsed successfully.
+                (ok_files == paths) if all files have been parsed.
         """
         paths = []
         for root, _dirs, files in os.walk(top):
-            for f in files:
-                if f.endswith(ext):
-                    paths.append(os.path.join(root, f))
+            for file in files:
+                if file.endswith(ext):
+                    paths.append(os.path.join(root, file))
 
         parser = cls()
-        okfiles = parser.parse(paths)
-        return parser, paths, okfiles
+        ok_files = parser.parse(paths)
+        return parser, paths, ok_files
 
     def __init__(self):
         """Initialize object."""

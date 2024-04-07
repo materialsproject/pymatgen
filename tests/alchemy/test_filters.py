@@ -74,7 +74,7 @@ class TestRemoveDuplicatesFilter(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
-        self._struct_list = [e.structure for e in entries]
+        self._struct_list = [entry.structure for entry in entries]
         self._sm = StructureMatcher()
 
     def test_filter(self):
@@ -93,7 +93,7 @@ class TestRemoveExistingFilter(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
-        self._struct_list = [e.structure for e in entries]
+        self._struct_list = [entry.structure for entry in entries]
         self._sm = StructureMatcher()
         self._existing_structures = self._struct_list[:-1]
 
