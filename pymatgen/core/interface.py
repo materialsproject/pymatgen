@@ -563,7 +563,7 @@ class GrainBoundaryGenerator:
 
                 plane = np.matmul(rotation_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in plane]
-                least_mul = reduce(lcm, [f.denominator for f in fractions])
+                least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 plane = [int(round(x * least_mul)) for x in plane]
 
         if reduce(gcd, plane) != 1:
@@ -970,7 +970,7 @@ class GrainBoundaryGenerator:
 
                 surface = np.matmul(r_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in surface]
-                least_mul = reduce(lcm, [f.denominator for f in fractions])
+                least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 surface = [int(round(x * least_mul)) for x in surface]
 
         if reduce(gcd, surface) != 1:
@@ -1204,7 +1204,7 @@ class GrainBoundaryGenerator:
         # transform surface, r_axis, r_matrix in terms of primitive lattice
         surface = np.matmul(surface, np.transpose(trans_cry))
         fractions = [Fraction(x).limit_denominator() for x in surface]
-        least_mul = reduce(lcm, [f.denominator for f in fractions])
+        least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
         surface = [int(round(x * least_mul)) for x in surface]
         if reduce(gcd, surface) != 1:
             index = reduce(gcd, surface)
@@ -1227,7 +1227,7 @@ class GrainBoundaryGenerator:
 
         # with the rotation matrix to construct the CSL lattice, check reference for details
         fractions = [Fraction(x).limit_denominator() for x in new_rot[:, kk]]
-        least_mul = reduce(lcm, [f.denominator for f in fractions])
+        least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
         scale = np.zeros((3, 3))
         scale[hh, hh] = 1
         scale[kk, kk] = least_mul

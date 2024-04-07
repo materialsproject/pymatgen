@@ -797,7 +797,7 @@ class CoordinationGeometry:
         list of its vertices coordinates.
         """
         coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
-        return [[coords[ii] for ii in f] for f in self._faces]
+        return [[coords[ii] for ii in face] for face in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
         """

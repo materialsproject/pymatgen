@@ -358,8 +358,8 @@ class TestInterface(PymatgenTest):
 
         assert_allclose(interface.gap, 2.0)
 
-        max_sub_c = np.max(np.array([s.frac_coords for s in interface.substrate])[:, 2])
-        min_film_c = np.min(np.array([f.frac_coords for f in interface.film])[:, 2])
+        max_sub_c = np.max(np.array([site.frac_coords for site in interface.substrate])[:, 2])
+        min_film_c = np.min(np.array([site.frac_coords for site in interface.film])[:, 2])
         gap = (min_film_c - max_sub_c) * interface.lattice.c
         assert_allclose(interface.gap, gap)
 
@@ -367,8 +367,8 @@ class TestInterface(PymatgenTest):
 
         assert_allclose(interface.gap, 3.0)
 
-        max_sub_c = np.max(np.array([s.frac_coords for s in interface.substrate])[:, 2])
-        min_film_c = np.min(np.array([f.frac_coords for f in interface.film])[:, 2])
+        max_sub_c = np.max(np.array([site.frac_coords for site in interface.substrate])[:, 2])
+        min_film_c = np.min(np.array([site.frac_coords for site in interface.film])[:, 2])
         gap = (min_film_c - max_sub_c) * interface.lattice.c
         assert_allclose(interface.gap, gap)
 

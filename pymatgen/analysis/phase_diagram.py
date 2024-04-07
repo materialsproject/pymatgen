@@ -483,7 +483,7 @@ class PhaseDiagram(MSONable):
                     final_facets.append(facet)
             facets = final_facets
 
-        simplexes = [Simplex(qhull_data[f, :-1]) for f in facets]
+        simplexes = [Simplex(qhull_data[facet, :-1]) for facet in facets]
         self.elements = elements
         return {
             "facets": facets,
