@@ -21,7 +21,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd, isclose
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from monty.fractions import lcm
@@ -801,8 +801,8 @@ class SlabGenerator:
 
         def reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
             """Helper function to reduce vectors."""
-            divisor = abs(reduce(gcd, vector))
-            return tuple(int(idx / divisor) for idx in vector)
+            divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
+            return cast(tuple[int, int, int], tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
@@ -1044,7 +1044,7 @@ class SlabGenerator:
 
     def get_slabs(
         self,
-        bonds: dict[tuple[Species, Species], float] | None = None,
+        bonds: dict[tuple[Species | Element, Species | Element], float] | None = None,
         ftol: float = 0.1,
         tol: float = 0.1,
         max_broken_bonds: int = 0,
@@ -1057,7 +1057,7 @@ class SlabGenerator:
         would be filtered out.
 
         Args:
-            bonds (dict): specified as a (specie1, specie2): max_bond_dist dict.
+            bonds (dict): A (species1, species2): max_bond_dist dict.
                 For example, PO4 groups may be defined as {("P", "O"): 3}.
             tol (float): Fractional tolerance for getting primitive cells
                 and matching structures.
@@ -1132,7 +1132,7 @@ class SlabGenerator:
             return sorted(shifts)
 
         def get_z_ranges(
-            bonds: dict[tuple[Species, Species], float],
+            bonds: dict[tuple[Species | Element, Species | Element], float],
             tol: float,
         ) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
@@ -1143,7 +1143,7 @@ class SlabGenerator:
             will be collected.
 
             Args:
-                bonds (dict): specified as a (specie1, specie2): max_bond_dist dict.
+                bonds (dict): specified as a (species1, species2): max_bond_dist dict.
                 tol (float): Fractional tolerance for determine overlapping positions.
             """
             # Sanitize species in dict keys
@@ -1196,7 +1196,7 @@ class SlabGenerator:
                 slabs.append(slab)
 
             # If the number of broken bonds is exceeded, repair the broken bonds
-            elif repair:
+            elif repair and bonds is not None:
                 slabs.append(self.repair_broken_bonds(slab=slab, bonds=bonds))
 
         # Filter out surfaces that might be the same
@@ -1222,27 +1222,21 @@ class SlabGenerator:
     def repair_broken_bonds(
         self,
         slab: Slab,
-        bonds: dict[tuple[Species, Species], float],
+        bonds: dict[tuple[Species | Element, Species | Element], float],
     ) -> Slab:
-        """This method will find undercoordinated atoms due to slab
+        """Find undercoordinated atoms due to slab
         cleaving specified by the bonds parameter and move them
         to the other surface to make sure the bond is kept intact.
-        In a future release of surface.py, the ghost_sites will be
-        used to tell us how the repair bonds should look like.
 
         Args:
-            slab (structure): A structure object representing a slab.
-            bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
+            slab (Slab): The Slab to repair.
+            bonds (dict): A (species1, species2): max_bond_dist dict.
+                For example, PO4 groups may be defined as {("P", "O"): 3}.
 
         Returns:
-            (Slab) A Slab object with a particular shifted oriented unit cell.
+            Slab: Repaired Slab.
         """
-        for pair in bonds:
-            bond_len = bonds[pair]
-
+        for pair, bond_len in bonds.items():
             # First lets determine which element should be the
             # reference (center element) to determine broken bonds.
             # e.g. P for a PO4 bond. Find integer coordination
@@ -1290,16 +1284,15 @@ class SlabGenerator:
         return slab
 
     def move_to_other_side(self, init_slab: Slab, index_of_sites: list[int]) -> Slab:
-        """This method will Move a set of sites to the
-        other side of the slab (opposite surface).
+        """Move a set of sites to the opposite surface of the slab.
 
         Args:
             init_slab (Slab): A structure object representing a slab.
-            index_of_sites (list of ints): The list of indices representing
-                the sites we want to move to the other side.
+            index_of_sites (list[int]): Indices representing
+                the sites we want to move.
 
         Returns:
-            Slab: A Slab object with a particular shifted oriented unit cell.
+            Slab: The Slab with selected sites moved.
         """
         slab = init_slab.copy()
 
@@ -1391,11 +1384,13 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 
 
 def get_d(slab: Slab) -> float:
-    """Determine the distance of space between each layer of atoms along c."""
+    """Determine the distance of space between each layer of atoms along c.
+    TODO (@DanielYang59): revise docstring.
+    """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-    for idx, site in enumerate(sorted_sites):
-        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx + 1].frac_coords[2]:.6f}":
-            d = abs(site.frac_coords[2] - sorted_sites[idx + 1].frac_coords[2])
+    for idx, site in enumerate(sorted_sites, start=1):
+        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx].frac_coords[2]:.6f}":
+            d = abs(site.frac_coords[2] - sorted_sites[idx].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
@@ -1613,7 +1608,7 @@ class ReconstructionGenerator:
 
 def get_symmetrically_equivalent_miller_indices(
     structure: Structure,
-    miller_index: tuple[int],
+    miller_index: tuple[int, ...],
     return_hkil: bool = True,
     system: CrystalSystem | None = None,
 ) -> list:
@@ -1631,7 +1626,7 @@ def get_symmetrically_equivalent_miller_indices(
     """
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
-        miller_index = (miller_index[0], miller_index[1], miller_index[-1])
+        _miller_index: tuple[int, int, int] = (miller_index[0], miller_index[1], miller_index[-1])
     max_idx = max(np.abs(miller_index))
     idx_range = list(range(-max_idx, max_idx + 1))
     idx_range.reverse()
@@ -1650,9 +1645,9 @@ def get_symmetrically_equivalent_miller_indices(
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    equivalent_millers: list[tuple[int, int, int]] = [miller_index]
+    equivalent_millers: list[tuple[int, int, int]] = [_miller_index]
     for miller in itertools.product(idx_range, idx_range, idx_range):
-        if miller == miller_index:
+        if miller == _miller_index:
             continue
         if any(idx != 0 for idx in miller):
             if _is_already_analyzed(miller, equivalent_millers, symm_ops):
@@ -1666,7 +1661,7 @@ def get_symmetrically_equivalent_miller_indices(
             ):
                 equivalent_millers += [miller]
 
-    if return_hkil and system in ("trigonal", "hexagonal"):
+    if return_hkil and system in {"trigonal", "hexagonal"}:
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
 
@@ -1697,7 +1692,7 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
     # Get distinct hkl planes from the rhombohedral setting if trigonal
     if sg.get_crystal_system() == "trigonal":
         transf = sg.get_conventional_to_primitive_transformation_matrix()
-        miller_list = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
+        miller_list: list[tuple[int, int, int]] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
     else:
@@ -1708,15 +1703,15 @@ def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: i
     unique_millers_conv: list = []
 
     for idx, miller in enumerate(miller_list):
-        denom = abs(reduce(gcd, miller))
-        miller = tuple(int(idx / denom) for idx in miller)
+        denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
+        miller = cast(tuple[int, int, int], tuple(int(idx / denom) for idx in miller))
         if not _is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
                 # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
-                denom = abs(reduce(gcd, conv_hkl_list[idx]))
+                denom = abs(reduce(gcd, conv_hkl_list[idx]))  # type: ignore[arg-type]
                 cmiller = tuple(int(idx / denom) for idx in conv_hkl_list[idx])
                 unique_millers_conv.append(cmiller)
             else:
@@ -1760,7 +1755,7 @@ def hkl_transformation(transf: np.ndarray, miller_index: tuple[int, int, int]) -
 
     # perform the transformation
     t_hkl = np.dot(reduced_transf, miller_index)
-    d = abs(reduce(gcd, t_hkl))
+    d = abs(reduce(gcd, t_hkl))  # type: ignore[arg-type]
     t_hkl = np.array([int(i / d) for i in t_hkl])
 
     # get mostly positive oriented Miller index
@@ -1802,8 +1797,8 @@ def generate_all_slabs(
         max_index (int): The maximum Miller index to go up to.
         min_slab_size (float): In Angstroms
         min_vacuum_size (float): In Angstroms
-        bonds ({(specie1, specie2): max_bond_dist}: bonds are
-            specified as a dict of tuples: float of specie1, specie2
+        bonds ({(species1, species2): max_bond_dist}: bonds are
+            specified as a dict of tuples: float of species1, species2
             and the max bonding distance. For example, PO4 groups may be
             defined as {("P", "O"): 3}.
         tol (float): General tolerance parameter for getting primitive
