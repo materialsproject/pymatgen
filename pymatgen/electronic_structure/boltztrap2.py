@@ -1045,9 +1045,9 @@ class BztPlotter:
         mu = self.bzt_transP.mu_r_eV
 
         if prop_z == "doping" and prop_x == "temp":
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_z}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_doping")
         else:
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_x}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_{prop_x}")
 
         if ax is None:
             plt.figure(figsize=(10, 8))
