@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -15,7 +16,10 @@ try:
     import openff.toolkit as tk
     from openff.units import Quantity, unit
 except ImportError:
-    raise ImportError(
+    tk = None
+    Quantity = None
+    unit = None
+    warnings.warn(
         "To use the pymatgen.io.openff module install openff-toolkit and openff-units"
         "with `conda install -c conda-forge openff-toolkit openff-units`."
     )
