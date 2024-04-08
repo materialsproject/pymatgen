@@ -162,7 +162,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Set up mamba
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@main
 
 
@@ -175,7 +175,7 @@ jobs:
 
       - name: Create environment
         run: |
-          micromamba create -n atomate2 python=${{ matrix.python-version }} --yes
+          micromamba create -n pymatgen python=${{ matrix.python-version }} --yes
 #          micromamba install -n atomate2 -c conda-forge --file .github/classical_md_requirements.txt --yes
 #          micromamba run -n atomate2 pip install .
 
@@ -238,20 +238,20 @@ jobs:
 
       - name: Install conda dependencies
         run: |
-          micromamba install -n atomate2 -c conda-forge openbabel packmol openff-toolkit --yes
+          micromamba install -n pymatgen -c conda-forge openbabel packmol openff-toolkit --yes
 
       - name: Install dependencies
         run: |
           # TODO remove temporary fix. added since uv install torch is flaky.
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          micromamba run -n atomate2 pip install torch
+          micromamba run -n pymatgen pip install torch
 
-          micromamba run -n atomate2 pip install numpy cython --system
+          micromamba run -n pymatgen pip install numpy cython
 
-          micromamba run -n atomate2 pip install -e '.[dev,optional]' --system
+          micromamba run -n pymatgen pip install -e '.[dev,optional]'
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
-          micromamba run -n atomate2 pip install --upgrade 'git+https://gitlab.com/ase/ase' --system
+          micromamba run -n pymatgen pip install --upgrade 'git+https://gitlab.com/ase/ase'
 
 #          uv pip install --upgrade git+https://github.com/openforcefield/openff-toolkit.git --system
 #          uv pip install --upgrade git+https://github.com/openforcefield/openff-units --system
