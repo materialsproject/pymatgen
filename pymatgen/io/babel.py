@@ -182,14 +182,14 @@ class BabelMolAdaptor:
         else:
             self.add_hydrogen()
 
-        ff = openbabel.OBForceField_FindType(forcefield)
+        ff = openbabel.OBForceField.FindType(forcefield)
         if ff == 0:
             warnings.warn(
                 f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
                 "default 'mmff94' for now."
             )
-            ff = openbabel.OBForceField_FindType("mmff94")
+            ff = openbabel.OBForceField.FindType("mmff94")
 
         try:
             rotor_search = getattr(ff, algo)
@@ -264,10 +264,10 @@ class BabelMolAdaptor:
         else:
             self.add_hydrogen()
 
-        ff = openbabel.OBForceField_FindType(forcefield)
+        ff = openbabel.OBForceField.FindType(forcefield)
         if ff == 0:
             print(f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'")
-            ff = openbabel.OBForceField_FindType("mmff94")
+            ff = openbabel.OBForceField.FindType("mmff94")
 
         if freeze_atoms:
             print(f"{len(freeze_atoms)} atoms will be freezed")
@@ -346,8 +346,8 @@ class BabelMolAdaptor:
         """
         return cls(mol.molecule)
 
-    @needs_openbabel
     @classmethod
+    @needs_openbabel
     def from_str(cls, string_data: str, file_format: str = "xyz") -> Self:
         """
         Uses OpenBabel to read a molecule from a string in all supported
