@@ -1347,60 +1347,62 @@ class SlabGenerator:
     def nonstoichiometric_symmetrized_slab(self, init_slab: Slab) -> list[Slab]:
         """Check whether two surfaces of the slab are equivalent.
         If the point group of the slab has an inversion symmetry (
-        ie. belong to one of the Laue groups), then it is assumed that the
-        surfaces should be equivalent. Otherwise, sites at the bottom of the
-        slab will be removed until the slab is symmetric. Note the removal of sites
-        can break the stoichiometry. For non-elemental structures, chemical
-        potential will be needed to calculate surface energy.
+        ie. belong to one of the Laue groups), then it's assumed that the
+        surfaces are equivalent. Otherwise, sites at the bottom of the
+        slab will be removed until the slab is symmetric. Note the removal
+        of sites may break the stoichiometry.
 
         Args:
-            init_slab (Slab): The input Slab.
+            init_slab (Slab): The initial Slab.
 
         Returns:
-            Slab: A symmetrized Slab.
+            list[Slabs]: The symmetrized Slabs.
         """
         if init_slab.is_symmetric():
             return [init_slab]
 
         non_stoich_slabs = []
-        # Build an equivalent surface slab for each of the different surfaces
-        for top in [True, False]:
-            asym = True
+        # Build a symmetrical surface slab for each of the different surfaces
+        for surface in ("top", "bottom"):
+            is_sym: bool = False
             slab = init_slab.copy()
             slab.energy = init_slab.energy
 
-            while asym:
-                # Keep removing sites from the bottom one by one until both
-                # surfaces are symmetric or the number of sites removed has
+            while not is_sym:
+                # Keep removing sites from the bottom until urfaces are
+                # symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
+                # TODO: (@DanielYang59) comment differs from implementation:
+                # no "exceeded 10 percent" check
+                z_coords: list[float] = [site[2] for site in slab.frac_coords]
 
-                c_dir = [site[2] for site in slab.frac_coords]
-
-                if top:
-                    slab.remove_sites([c_dir.index(max(c_dir))])
+                if surface == "top":
+                    slab.remove_sites([z_coords.index(max(z_coords))])
                 else:
-                    slab.remove_sites([c_dir.index(min(c_dir))])
+                    slab.remove_sites([z_coords.index(min(z_coords))])
+
                 if len(slab) <= len(self.parent):
+                    warnings.warn("Too many sites removed, please use a larger slab.")
                     break
 
-                # Check if the altered surface is symmetric
+                # Check if the new Slab is symmetric
+                # TODO: (@DanielYang59): should have some feedback (warning)
+                # if cannot symmetrize the Slab
                 if slab.is_symmetric():
-                    asym = False
+                    is_sym = True
                     non_stoich_slabs.append(slab)
-
-        if len(slab) <= len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab.")
 
         return non_stoich_slabs
 
 
+# Load the reconstructions_archive json file
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
     reconstructions_archive = json.load(data_file)
 
 
 def get_d(slab: Slab) -> float:
-    """Determine the distance of space between each layer of atoms along c.
+    """Determine the distance of space between each layer of atoms along z-axis.
     TODO (@DanielYang59): revise docstring.
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
@@ -1686,7 +1688,11 @@ def get_symmetrically_equivalent_miller_indices(
     return equivalent_millers
 
 
-def get_symmetrically_distinct_miller_indices(structure: Structure, max_index: int, return_hkil: bool = False) -> list:
+def get_symmetrically_distinct_miller_indices(
+    structure: Structure,
+    max_index: int,
+    return_hkil: bool = False,
+) -> list:
     """Returns all symmetrically distinct indices below a certain max-index for a given structure.
     Analysis is based on the symmetry of the reciprocal lattice of the structure.
 
@@ -1758,7 +1764,10 @@ def _is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list)
     return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
 
 
-def hkl_transformation(transf: np.ndarray, miller_index: tuple[int, int, int]) -> tuple[int, int, int]:
+def hkl_transformation(
+    transf: np.ndarray,
+    miller_index: tuple[int, int, int],
+) -> tuple[int, int, int]:
     """Returns the Miller index from setting A to B using a transformation matrix.
 
     Args:
