@@ -5,7 +5,8 @@ from pathlib import Path
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
-import openff.toolkit as tk
+
+# import openff.toolkit as tk
 import pytest
 
 from pymatgen.analysis.graphs import MoleculeGraph
@@ -21,7 +22,7 @@ from pymatgen.io.openff import (
     molgraph_to_openff_mol,
 )
 
-pytest.importorskip("openff")
+tk = pytest.importorskip("openff.toolkit")
 
 
 @pytest.fixture()
