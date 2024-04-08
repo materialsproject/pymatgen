@@ -21,7 +21,7 @@ from pymatgen.io.openff import (
     molgraph_to_openff_mol,
 )
 
-pybel = pytest.importorskip("openff")
+pytest.importorskip("openff")
 
 
 @pytest.fixture()
@@ -41,6 +41,8 @@ def mol_files():
 
 
 def test_molgraph_from_atom_bonds(mol_files):
+    pytest.importorskip("openff")
+
     pf6_openff = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")
 
     pf6_graph = molgraph_from_openff_mol(pf6_openff)
