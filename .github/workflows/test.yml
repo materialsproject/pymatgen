@@ -259,4 +259,4 @@ jobs:
 
       - name: pytest split ${{ matrix.split }}
         run: |
-          micromamba run -n atomate2 pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          micromamba run -n pymatgen pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
