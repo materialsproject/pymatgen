@@ -1131,10 +1131,7 @@ class SlabGenerator:
 
             return sorted(shifts)
 
-        def get_z_ranges(
-            bonds: dict[tuple[Species | Element, Species | Element], float],
-            tol: float,
-        ) -> list[tuple[float, float]]:
+        def get_z_ranges(bonds: dict[tuple[Species | Element, Species | Element], float]) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
 
             This method examines all sites in the oriented unit cell (OUC) and considers all
@@ -1175,7 +1172,7 @@ class SlabGenerator:
             return z_ranges
 
         # Get occupied z_ranges
-        z_ranges = [] if bonds is None else get_z_ranges(bonds, tol)
+        z_ranges = [] if bonds is None else get_z_ranges(bonds)
 
         slabs = []
         for shift in gen_possible_shifts(ftol=ftol):
@@ -1224,11 +1221,14 @@ class SlabGenerator:
         slab: Slab,
         bonds: dict[tuple[Species | Element, Species | Element], float],
     ) -> Slab:
-        """Find undercoordinated atoms (specified by the bonds parameter)
-        due to slab cleaving and move them to the other surface
-        to ensure the bond is kept intact.
+        """Repair broken bonds (specified by the bonds parameter) due to
+        slab cleaving, and repair them by moving undercoordinated atoms
+        to the other surface.
 
-        TODO (@DanielYang59): re-read this method
+        For example a P-O bond may have P and O on either sides of the surface,
+        this method would move one of them to the other side to fix the bond.
+
+        # TODO: (@DanielYang59): clarify which atom is moved
 
         Args:
             slab (Slab): The Slab to repair.
@@ -1245,43 +1245,45 @@ class SlabGenerator:
             for idx, ele in enumerate(species_pair):
                 cn_list = []
                 for site in self.oriented_unit_cell:
-                    # Find integer coordination numbers for pairs
-                    # of elements
-                    poly_coord = 0
+                    # Find integer coordination numbers for element pairs
+                    ref_cn = 0
                     if site.species_string == ele:
                         for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
                             if nn[0].species_string == species_pair[idx - 1]:
-                                poly_coord += 1
+                                ref_cn += 1
 
-                    cn_list.append(poly_coord)
+                    cn_list.append(ref_cn)
                 cn_dict[ele] = cn_list
 
             # Make the element with higher coordination the reference
             if max(cn_dict[species_pair[0]]) > max(cn_dict[species_pair[1]]):
-                element1, element2 = species_pair
+                ele_ref, ele_other = species_pair
             else:
-                element2, element1 = species_pair
+                ele_other, ele_ref = species_pair
 
             for idx, site in enumerate(slab):
                 # Determine the coordination of the reference
-                if site.species_string == element1:
-                    poly_coord = 0
-                    for neighbor in slab.get_neighbors(site, bond_dist):
-                        poly_coord += 1 if neighbor.species_string == element2 else 0
+                if site.species_string == ele_ref:
+                    ref_cn = sum(
+                        1 if neighbor.species_string == ele_other else 0
+                        for neighbor in slab.get_neighbors(site, bond_dist)
+                    )
 
                     # Suppose we find an undercoordinated reference atom
-                    if poly_coord not in cn_dict[element1]:
-                        # Get the reference atom of the broken bonds
-                        # (undercoordinated), move it to the other surface
+                    # TODO (@DanielYang59): maybe use the following to
+                    # check if the reference atom is "undercoordinated"
+                    # if ref_cn < min(cn_dict[ele_ref]):
+                    if ref_cn not in cn_dict[ele_ref]:
+                        # Move this reference atom to the other side
                         slab = self.move_to_other_side(slab, [idx])
 
-                        # Find its NNs with the corresponding
-                        # species it should be coordinated with
-                        neighbors = slab.get_neighbors(slab[idx], bond_dist, include_index=True)
-                        to_move = [nn[2] for nn in neighbors if nn[0].species_string == element2]
+                        # Find its NNs (with right species) it should bond to
+                        neighbors = slab.get_neighbors(slab[idx], r=bond_dist)
+                        to_move = [nn[2] for nn in neighbors if nn[0].species_string == ele_other]
                         to_move.append(idx)
-                        # Move those NNs along with the center
-                        # atom back to the other side of the slab again
+
+                        # Move those NNs along with the reference
+                        # atom back to the other side of the slab
                         slab = self.move_to_other_side(slab, to_move)
 
         return slab
@@ -1291,7 +1293,7 @@ class SlabGenerator:
         init_slab: Slab,
         index_of_sites: list[int],
     ) -> Slab:
-        """Move selected surface sites to the opposite surface of the Slab.
+        """Move surface sites to the opposite surface of the Slab.
         If a selected site resides on the top half of the Slab,
         it would be moved to the bottom half, and vice versa.
 
@@ -1309,15 +1311,13 @@ class SlabGenerator:
         if self.in_unit_planes:
             height /= self.parent.lattice.d_hkl(self.miller_index)
 
-        # Calculate the ratio of slab thickness to total cell height
-        # TODO (@DanielYang59): using the slab_thickness/cell_height
-        # might be more straightforward and precise forward
-        # than the layers ratio?
+        # Calculate the moving distance as the fractional height
+        # of the Slab inside the cell
         nlayers_slab: int = math.ceil(self.min_slab_size / height)
         nlayers_vac: int = math.ceil(self.min_vac_size / height)
         nlayers: int = nlayers_slab + nlayers_vac
 
-        slab_ratio: float = nlayers_slab / nlayers
+        frac_dist: float = nlayers_slab / nlayers
 
         # Separate selected sites into top and bottom
         top_site_index: list[int] = []
@@ -1330,9 +1330,8 @@ class SlabGenerator:
 
         # Move sites to the opposite surface
         slab = init_slab.copy()
-        # DEBUG(@DanielYang59): moving vector is suspicious
-        slab.translate_sites(top_site_index, vector=[0, 0, slab_ratio], frac_coords=True)
-        slab.translate_sites(bottom_site_index, vector=[0, 0, -slab_ratio], frac_coords=True)
+        slab.translate_sites(top_site_index, vector=[0, 0, -frac_dist], frac_coords=True)
+        slab.translate_sites(bottom_site_index, vector=[0, 0, frac_dist], frac_coords=True)
 
         return Slab(
             init_slab.lattice,
@@ -1346,19 +1345,19 @@ class SlabGenerator:
         )
 
     def nonstoichiometric_symmetrized_slab(self, init_slab: Slab) -> list[Slab]:
-        """Check whether the two surfaces of the slab are equivalent.
+        """Check whether two surfaces of the slab are equivalent.
         If the point group of the slab has an inversion symmetry (
         ie. belong to one of the Laue groups), then it is assumed that the
         surfaces should be equivalent. Otherwise, sites at the bottom of the
         slab will be removed until the slab is symmetric. Note the removal of sites
-        can destroy the stoichiometry of the slab. For non-elemental
-        structures, the chemical potential will be needed to calculate surface energy.
+        can break the stoichiometry. For non-elemental structures, chemical
+        potential will be needed to calculate surface energy.
 
         Args:
-            init_slab (Slab): A single slab structure
+            init_slab (Slab): The input Slab.
 
         Returns:
-            Slab: A symmetrized Slab object.
+            Slab: A symmetrized Slab.
         """
         if init_slab.is_symmetric():
             return [init_slab]
@@ -1390,7 +1389,7 @@ class SlabGenerator:
                     non_stoich_slabs.append(slab)
 
         if len(slab) <= len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab size.")
+            warnings.warn("Too many sites removed, please use a larger slab.")
 
         return non_stoich_slabs
 
@@ -1433,7 +1432,11 @@ class ReconstructionGenerator:
     """
 
     def __init__(
-        self, initial_structure: Structure, min_slab_size: float, min_vacuum_size: float, reconstruction_name: str
+        self,
+        initial_structure: Structure,
+        min_slab_size: float,
+        min_vacuum_size: float,
+        reconstruction_name: str,
     ) -> None:
         """Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
@@ -1616,7 +1619,7 @@ class ReconstructionGenerator:
 
     def get_unreconstructed_slabs(self) -> list[Slab]:
         """Generates the unreconstructed or pristine super slab."""
-        slabs = []
+        slabs: list[Slab] = []
         for slab in SlabGenerator(**self.slabgen_params).get_slabs():
             slab.make_supercell(self.trans_matrix)
             slabs.append(slab)
