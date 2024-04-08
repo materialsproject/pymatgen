@@ -240,8 +240,9 @@ jobs:
           micromamba install -n pymatgen -c conda-forge enumlib packmol bader --yes
 
       - name: Install openff-toolkit via conda
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pymatgen -c conda-forge openbabel openff-toolkit-base --yes
+          micromamba install -n pymatgen -c conda-forge openbabel openff-toolkit --yes
 
       - name: Install pymatgen and dependencies
         run: |
