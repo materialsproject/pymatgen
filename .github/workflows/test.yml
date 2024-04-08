@@ -238,7 +238,7 @@ jobs:
 
       - name: Install conda dependencies
         run: |
-          micromamba install -n pymatgen -c conda-forge openbabel openff-toolkit --yes
+          micromamba install -n pymatgen -c conda-forge openbabel openff-toolkit-base --yes
 
       - name: Install dependencies
         run: |
