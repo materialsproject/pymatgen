@@ -176,8 +176,6 @@ jobs:
       - name: Create environment
         run: |
           micromamba create -n pymatgen python=${{ matrix.python-version }} --yes
-#          micromamba install -n atomate2 -c conda-forge --file .github/classical_md_requirements.txt --yes
-#          micromamba run -n atomate2 pip install .
 
 #      - name: Install uv
 #        run: micromamba run -n atomate2 pip install uv
@@ -187,40 +185,40 @@ jobs:
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
 
-      - name: Install Bader
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          wget https://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
-          tar xvzf bader_lnx_64.tar.gz
-          sudo mv bader /usr/local/bin/
-        continue-on-error: true # This is not critical to succeed.
+#      - name: Install Bader
+#        if: matrix.os == 'ubuntu-latest'
+#        run: |
+#          wget https://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+#          tar xvzf bader_lnx_64.tar.gz
+#          sudo mv bader /usr/local/bin/
+#        continue-on-error: true # This is not critical to succeed.
 
-      - name: Install Enumlib
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          git clone --recursive https://github.com/msg-byu/enumlib
-          cd enumlib/symlib/src
-          export F90=gfortran
-          make
-          cd ../../src
-          make enum.x
-          sudo mv enum.x /usr/local/bin/
-          cd ..
-          sudo cp aux_src/makeStr.py /usr/local/bin/
-        continue-on-error: true # This is not critical to succeed.
-
-      - name: Install Packmol
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
-          tar xvzf packmol.tar.gz
-          export F90=gfortran
-          cd packmol-20.14.2
-          ./configure
-          make
-          sudo mv packmol /usr/local/bin/
-          cd ..
-        continue-on-error: true # This is not critical to succeed.
+#      - name: Install Enumlib
+#        if: matrix.os == 'ubuntu-latest'
+#        run: |
+#          git clone --recursive https://github.com/msg-byu/enumlib
+#          cd enumlib/symlib/src
+#          export F90=gfortran
+#          make
+#          cd ../../src
+#          make enum.x
+#          sudo mv enum.x /usr/local/bin/
+#          cd ..
+#          sudo cp aux_src/makeStr.py /usr/local/bin/
+#        continue-on-error: true # This is not critical to succeed.
+#
+#      - name: Install Packmol
+#        if: matrix.os == 'ubuntu-latest'
+#        run: |
+#          wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
+#          tar xvzf packmol.tar.gz
+#          export F90=gfortran
+#          cd packmol-20.14.2
+#          ./configure
+#          make
+#          sudo mv packmol /usr/local/bin/
+#          cd ..
+#        continue-on-error: true # This is not critical to succeed.
 
 #      - name: Install OpenBabel
 #        if: matrix.os == 'ubuntu-latest'
@@ -236,11 +234,16 @@ jobs:
 #          micromamba install -n atomate2 -c conda-forge --file .github/classical_md_requirements.txt --yes
 #          micromamba run -n atomate2 pip install .
 
-      - name: Install conda dependencies
+      - name: Install ubuntu-only conda dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          micromamba install -n pymatgen -c conda-forge enumlib packmol bader --yes
+
+      - name: Install openff-toolkit via conda
         run: |
           micromamba install -n pymatgen -c conda-forge openbabel openff-toolkit-base --yes
 
-      - name: Install dependencies
+      - name: Install pymatgen and dependencies
         run: |
           # TODO remove temporary fix. added since uv install torch is flaky.
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
@@ -252,10 +255,6 @@ jobs:
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           micromamba run -n pymatgen pip install --upgrade 'git+https://gitlab.com/ase/ase'
-
-#          uv pip install --upgrade git+https://github.com/openforcefield/openff-toolkit.git --system
-#          uv pip install --upgrade git+https://github.com/openforcefield/openff-units --system
-#          uv pip install --upgrade git+https://github.com/openforcefield/openff-utilities.git --system
 
       - name: pytest split ${{ matrix.split }}
         run: |
