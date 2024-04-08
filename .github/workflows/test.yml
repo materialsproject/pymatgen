@@ -248,7 +248,7 @@ jobs:
 
           micromamba run -n pymatgen pip install numpy cython
 
-          micromamba run -n pymatgen pip install -e '.[dev,optional]'
+          micromamba run -n pymatgen pip install .[dev,optional]
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           micromamba run -n pymatgen pip install --upgrade 'git+https://gitlab.com/ase/ase'
