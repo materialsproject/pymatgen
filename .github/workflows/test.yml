@@ -238,7 +238,7 @@ jobs:
 
       - name: Install conda dependencies
         run: |
-          micromamba install -n atomate2 -c conda-forge openbabel bader enumlib packmol openff-toolkit --yes
+          micromamba install -n atomate2 -c conda-forge openbabel packmol openff-toolkit --yes
 
       - name: Install dependencies
         run: |
