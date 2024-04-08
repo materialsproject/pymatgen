@@ -1225,10 +1225,10 @@ class SlabGenerator:
         slab cleaving, and repair them by moving undercoordinated atoms
         to the other surface.
 
-        For example a P-O bond may have P and O on either sides of the surface,
-        this method would move one of them to the other side to fix the bond.
-
-        # TODO: (@DanielYang59): clarify which atom is moved
+        For example a P-O4 bond may have P and O(4-x) on one side of the
+        surface, and Ox on the other side, this method would first move
+        P (the reference atom) to the other side, find its missing nearest
+        neighbours (Ox), and move P and Ox back together.
 
         Args:
             slab (Slab): The Slab to repair.
