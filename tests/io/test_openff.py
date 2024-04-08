@@ -21,6 +21,8 @@ from pymatgen.io.openff import (
     molgraph_to_openff_mol,
 )
 
+pybel = pytest.importorskip("openff.toolkit")
+
 
 @pytest.fixture()
 def mol_files():
@@ -198,3 +200,52 @@ def test_create_openff_mol(mol_files):
     assert openff_mol.n_atoms == 9
     assert openff_mol.n_bonds == 8
     assert np.allclose(openff_mol.partial_charges.magnitude, partial_charges)
+
+
+def test_add_conformer_no_geometry():
+    openff_mol = tk.Molecule.from_smiles("CCO")
+    openff_mol, atom_map = add_conformer(openff_mol, None)
+    assert openff_mol.n_conformers == 1
+    assert list(atom_map.values()) == list(range(openff_mol.n_atoms))
+
+
+def test_assign_partial_charges_single_atom(mol_files):
+    openff_mol = tk.Molecule.from_smiles("[Li+]")
+    geometry = Molecule.from_file(mol_files["Li_xyz"])
+    openff_mol, atom_map = add_conformer(openff_mol, geometry)
+    openff_mol = assign_partial_charges(openff_mol, atom_map, "am1bcc", None)
+    assert np.allclose(openff_mol.partial_charges.magnitude, [1.0])
+
+
+def test_create_openff_mol_no_geometry():
+    smile = "CCO"
+    openff_mol = create_openff_mol(smile)
+    assert isinstance(openff_mol, tk.Molecule)
+    assert openff_mol.n_atoms == 9
+    assert openff_mol.n_bonds == 8
+    assert openff_mol.n_conformers == 1
+
+
+def test_create_openff_mol_geometry_path(mol_files):
+    smile = "CCO"
+    geometry = mol_files["CCO_xyz"]
+    openff_mol = create_openff_mol(smile, geometry)
+    assert isinstance(openff_mol, tk.Molecule)
+    assert openff_mol.n_atoms == 9
+    assert openff_mol.n_bonds == 8
+    assert openff_mol.n_conformers == 1
+
+
+def test_create_openff_mol_partial_charges_no_geometry():
+    smile = "CCO"
+    partial_charges = [-0.4, 0.2, 0.2]
+    with pytest.raises(ValueError, match="geometries must be set if partial_charges is set"):
+        create_openff_mol(smile, partial_charges=partial_charges)
+
+
+def test_create_openff_mol_partial_charges_length_mismatch(mol_files):
+    smile = "CCO"
+    geometry = mol_files["CCO_xyz"]
+    partial_charges = [-0.4, 0.2]
+    with pytest.raises(ValueError, match="partial charges must have same length & order as geometry"):
+        create_openff_mol(smile, geometry, partial_charges=partial_charges)
