@@ -178,7 +178,7 @@ jobs:
           micromamba create -n pymatgen python=${{ matrix.python-version }} --yes
 
       - name: Install uv
-        run: micromamba run -n atomate2 pip install uv
+        run: micromamba run -n pymatgen pip install uv
 
       - name: Copy GULP to bin
         if: matrix.os == 'ubuntu-latest'
