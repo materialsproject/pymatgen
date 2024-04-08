@@ -773,9 +773,9 @@ class SlabGenerator:
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
             in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
-                in units of hkl planes or Angstrom (default).
+                in number of hkl planes or Angstrom (default).
                 Setting in units of planes is useful to ensure some slabs
-                have a certain number of layers. e.g. for Cs(100), 10 Ang
+                to have a certain number of layers, e.g. for Cs(100), 10 Ang
                 will result in a slab with only 2 layers, whereas
                 Fe(100) will have more layers. The slab thickness
                 will be in min_slab_size/math.ceil(self._proj_height/dhkl)
@@ -1057,7 +1057,7 @@ class SlabGenerator:
         would be filtered out.
 
         Args:
-            bonds (dict): A (species1, species2): max_bond_dist dict.
+            bonds (dict): A {(species1, species2): max_bond_dist} dict.
                 For example, PO4 groups may be defined as {("P", "O"): 3}.
             tol (float): Fractional tolerance for getting primitive cells
                 and matching structures.
@@ -1143,7 +1143,7 @@ class SlabGenerator:
             will be collected.
 
             Args:
-                bonds (dict): specified as a (species1, species2): max_bond_dist dict.
+                bonds (dict): A {(species1, species2): max_bond_dist} dict.
                 tol (float): Fractional tolerance for determine overlapping positions.
             """
             # Sanitize species in dict keys
@@ -1217,105 +1217,122 @@ class SlabGenerator:
             matcher_sym = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
             final_slabs = [group[0] for group in matcher_sym.group_structures(final_slabs)]
 
-        return sorted(final_slabs, key=lambda slab: slab.energy)
+        return sorted(final_slabs, key=lambda slab: slab.energy)  # type: ignore[return-value, arg-type]
 
     def repair_broken_bonds(
         self,
         slab: Slab,
         bonds: dict[tuple[Species | Element, Species | Element], float],
     ) -> Slab:
-        """Find undercoordinated atoms due to slab
-        cleaving specified by the bonds parameter and move them
-        to the other surface to make sure the bond is kept intact.
+        """Find undercoordinated atoms (specified by the bonds parameter)
+        due to slab cleaving and move them to the other surface
+        to ensure the bond is kept intact.
+
+        TODO (@DanielYang59): re-read this method
 
         Args:
             slab (Slab): The Slab to repair.
-            bonds (dict): A (species1, species2): max_bond_dist dict.
+            bonds (dict): A {(species1, species2): max_bond_dist} dict.
                 For example, PO4 groups may be defined as {("P", "O"): 3}.
 
         Returns:
             Slab: Repaired Slab.
         """
-        for pair, bond_len in bonds.items():
-            # First lets determine which element should be the
-            # reference (center element) to determine broken bonds.
-            # e.g. P for a PO4 bond. Find integer coordination
-            # numbers of the pair of elements w.r.t. to each other
+        for species_pair, bond_dist in bonds.items():
+            # Determine which element should be the reference (center)
+            # element for determining broken bonds, e.g. P for PO4 bond.
             cn_dict = {}
-            for idx, el in enumerate(pair):
+            for idx, ele in enumerate(species_pair):
                 cn_list = []
                 for site in self.oriented_unit_cell:
+                    # Find integer coordination numbers for pairs
+                    # of elements
                     poly_coord = 0
-                    if site.species_string == el:
-                        for nn in self.oriented_unit_cell.get_neighbors(site, bond_len):
-                            if nn[0].species_string == pair[idx - 1]:
+                    if site.species_string == ele:
+                        for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
+                            if nn[0].species_string == species_pair[idx - 1]:
                                 poly_coord += 1
-                    cn_list.append(poly_coord)
-                cn_dict[el] = cn_list
 
-            # We make the element with the higher coordination our reference
-            if max(cn_dict[pair[0]]) > max(cn_dict[pair[1]]):
-                element1, element2 = pair
+                    cn_list.append(poly_coord)
+                cn_dict[ele] = cn_list
+
+            # Make the element with higher coordination the reference
+            if max(cn_dict[species_pair[0]]) > max(cn_dict[species_pair[1]]):
+                element1, element2 = species_pair
             else:
-                element2, element1 = pair
+                element2, element1 = species_pair
 
             for idx, site in enumerate(slab):
-                # Determine the coordination of our reference
+                # Determine the coordination of the reference
                 if site.species_string == element1:
                     poly_coord = 0
-                    for neighbor in slab.get_neighbors(site, bond_len):
+                    for neighbor in slab.get_neighbors(site, bond_dist):
                         poly_coord += 1 if neighbor.species_string == element2 else 0
 
-                    # suppose we find an undercoordinated reference atom
+                    # Suppose we find an undercoordinated reference atom
                     if poly_coord not in cn_dict[element1]:
-                        # We get the reference atom of the broken bonds
+                        # Get the reference atom of the broken bonds
                         # (undercoordinated), move it to the other surface
                         slab = self.move_to_other_side(slab, [idx])
 
-                        # find its NNs with the corresponding
+                        # Find its NNs with the corresponding
                         # species it should be coordinated with
-                        neighbors = slab.get_neighbors(slab[idx], bond_len, include_index=True)
+                        neighbors = slab.get_neighbors(slab[idx], bond_dist, include_index=True)
                         to_move = [nn[2] for nn in neighbors if nn[0].species_string == element2]
                         to_move.append(idx)
-                        # and then move those NNs along with the central
+                        # Move those NNs along with the center
                         # atom back to the other side of the slab again
                         slab = self.move_to_other_side(slab, to_move)
 
         return slab
 
-    def move_to_other_side(self, init_slab: Slab, index_of_sites: list[int]) -> Slab:
-        """Move a set of sites to the opposite surface of the slab.
+    def move_to_other_side(
+        self,
+        init_slab: Slab,
+        index_of_sites: list[int],
+    ) -> Slab:
+        """Move selected surface sites to the opposite surface of the Slab.
+        If a selected site resides on the top half of the Slab,
+        it would be moved to the bottom half, and vice versa.
 
         Args:
-            init_slab (Slab): A structure object representing a slab.
+            init_slab (Slab): The Slab whose sites would be moved.
             index_of_sites (list[int]): Indices representing
-                the sites we want to move.
+                the sites to move.
 
         Returns:
             Slab: The Slab with selected sites moved.
         """
-        slab = init_slab.copy()
-
-        # Determine what fraction the slab is of the total cell size
-        # in the c direction. Round to nearest rational number.
-        h = self._proj_height
-        p = h / self.parent.lattice.d_hkl(self.miller_index)
+        # Calculate Slab height
+        height: float = self._proj_height
+        # Scale height if using number of hkl planes
         if self.in_unit_planes:
-            nlayers_slab = int(math.ceil(self.min_slab_size / p))
-            nlayers_vac = int(math.ceil(self.min_vac_size / p))
-        else:
-            nlayers_slab = int(math.ceil(self.min_slab_size / h))
-            nlayers_vac = int(math.ceil(self.min_vac_size / h))
-        nlayers = nlayers_slab + nlayers_vac
-        slab_ratio = nlayers_slab / nlayers
+            height /= self.parent.lattice.d_hkl(self.miller_index)
 
-        # Sort the index of sites based on which side they are on
-        top_site_index = [i for i in index_of_sites if slab[i].frac_coords[2] > slab.center_of_mass[2]]
-        bottom_site_index = [i for i in index_of_sites if slab[i].frac_coords[2] < slab.center_of_mass[2]]
+        # Calculate the ratio of slab thickness to total cell height
+        # TODO (@DanielYang59): using the slab_thickness/cell_height
+        # might be more straightforward and precise forward
+        # than the layers ratio?
+        nlayers_slab: int = math.ceil(self.min_slab_size / height)
+        nlayers_vac: int = math.ceil(self.min_vac_size / height)
+        nlayers: int = nlayers_slab + nlayers_vac
 
-        # Translate sites to the opposite surfaces
-        slab.translate_sites(top_site_index, [0, 0, slab_ratio])
-        slab.translate_sites(bottom_site_index, [0, 0, -slab_ratio])
+        slab_ratio: float = nlayers_slab / nlayers
+
+        # Separate selected sites into top and bottom
+        top_site_index: list[int] = []
+        bottom_site_index: list[int] = []
+        for idx in index_of_sites:
+            if init_slab[idx].frac_coords[2] >= init_slab.center_of_mass[2]:
+                top_site_index.append(idx)
+            else:
+                bottom_site_index.append(idx)
+
+        # Move sites to the opposite surface
+        slab = init_slab.copy()
+        # DEBUG(@DanielYang59): moving vector is suspicious
+        slab.translate_sites(top_site_index, vector=[0, 0, slab_ratio], frac_coords=True)
+        slab.translate_sites(bottom_site_index, vector=[0, 0, -slab_ratio], frac_coords=True)
 
         return Slab(
             init_slab.lattice,
