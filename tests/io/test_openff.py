@@ -21,7 +21,7 @@ from pymatgen.io.openff import (
     molgraph_to_openff_mol,
 )
 
-pybel = pytest.importorskip("openff.toolkit")
+pybel = pytest.importorskip("openff")
 
 
 @pytest.fixture()
