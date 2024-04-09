@@ -1267,8 +1267,7 @@ class TestVaspInput(PymatgenTest):
         incar = Incar.from_file(filepath)
         filepath = f"{VASP_IN_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath, check_for_potcar=False)
-        if "PMG_VASP_PSP_DIR" not in os.environ:
-            os.environ["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
+        os.environ.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         potcar = Potcar.from_file(filepath)
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"

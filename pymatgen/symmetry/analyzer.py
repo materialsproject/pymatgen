@@ -1506,9 +1506,9 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
             origin site, instead of the site itself. Defaults to False.
 
     Returns:
-        (origin_site, clustered_sites): origin_site is a site at the center
-        of mass (None if there are no origin atoms). clustered_sites is a
-        dict of {(avg_dist, species_and_occu): [list of sites]}
+        tuple[Site | None, dict]: origin_site is a site at the center
+            of mass (None if there are no origin atoms). clustered_sites is a
+            dict of {(avg_dist, species_and_occu): [list of sites]}
     """
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.

@@ -60,7 +60,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
         xz (float): xz component of the matrix.
 
     Returns:
-        (np.array): The matrix, as a 3x3 numpy array.
+        np.array: The matrix, as a 3x3 numpy array.
     """
     return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
@@ -94,7 +94,7 @@ def absorption_coefficient(dielectric):
             - element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
 
     Returns:
-        (np.array): absorption coefficient using eV as frequency units (cm^-1).
+        np.array: absorption coefficient using eV as frequency units (cm^-1).
     """
     energies_in_eV = np.array(dielectric[0])
     real_dielectric = parse_dielectric_data(dielectric[1])

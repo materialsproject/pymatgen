@@ -67,7 +67,7 @@ def get_dimensionality_larsen(bonded_structure):
             CrystalNN.get_bonded_structure() method.
 
     Returns:
-        (int): The dimensionality of the structure.
+        int: The dimensionality of the structure.
     """
     return max(c["dimensionality"] for c in get_structure_components(bonded_structure))
 
@@ -108,19 +108,19 @@ def get_structure_components(
             objects for zero-dimensional components.
 
     Returns:
-        (list of dict): Information on the components in a structure as a list
-        of dictionaries with the keys:
+        list[dict]: Information on the components in a structure as a list
+            of dictionaries with the keys:
 
-        - "structure_graph": A pymatgen StructureGraph object for the
-            component.
-        - "dimensionality": The dimensionality of the structure component as an
-            int.
-        - "orientation": If inc_orientation is `True`, the orientation of the
-            component as a tuple. E.g. (1, 1, 1)
-        - "site_ids": If inc_site_ids is `True`, the site indices of the
-            sites in the component as a tuple.
-        - "molecule_graph": If inc_molecule_graph is `True`, the site a
-            MoleculeGraph object for zero-dimensional components.
+            - "structure_graph": A pymatgen StructureGraph object for the
+                component.
+            - "dimensionality": The dimensionality of the structure component as an
+                int.
+            - "orientation": If inc_orientation is `True`, the orientation of the
+                component as a tuple. E.g. (1, 1, 1)
+            - "site_ids": If inc_site_ids is `True`, the site indices of the
+                sites in the component as a tuple.
+            - "molecule_graph": If inc_molecule_graph is `True`, the site a
+                MoleculeGraph object for zero-dimensional components.
     """
     comp_graphs = (bonded_structure.graph.subgraph(c) for c in nx.weakly_connected_components(bonded_structure.graph))
 
@@ -167,8 +167,7 @@ def get_structure_components(
 
 
 def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=False):
-    """
-    Calculates the dimensionality of the component containing the given site.
+    """Calculates the dimensionality of the component containing the given site.
 
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:
@@ -186,10 +185,10 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
             images) of the component.
 
     Returns:
-        (int or tuple): If inc_vertices is False, the dimensionality of the
-        component will be returned as an int. If inc_vertices is true, the
-        function will return a tuple of (dimensionality, vertices), where
-        vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
+        int | tuple: If inc_vertices is False, the dimensionality of the
+            component will be returned as an int. If inc_vertices is true, the
+            function will return a tuple of (dimensionality, vertices), where
+            vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
     """
 
     def neighbors(comp_index):
@@ -258,7 +257,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
             interest.
 
     Returns:
-        (MoleculeGraph): A MoleculeGraph object of the component.
+        MoleculeGraph: A MoleculeGraph object of the component.
     """
     seen_indices = []
     sites = []
@@ -327,8 +326,8 @@ def get_dimensionality_cheon(
              structures. Testing with a larger cell circumvents this problem
 
     Returns:
-        (str): dimension of the largest cluster as a string. If there are ions
-        or molecules it returns 'intercalated ion/molecule'
+        str: dimension of the largest cluster as a string. If there are ions
+            or molecules it returns 'intercalated ion/molecule'
     """
     if ldict is None:
         ldict = JmolNN().el_radius
@@ -396,9 +395,9 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
             from JMol are used as default
 
     Returns:
-        (np.ndarray): A numpy array of shape (number of atoms, number of atoms);
-        If any image of atom j is bonded to atom i with periodic boundary
-        conditions, the matrix element [atom i, atom j] is 1.
+        np.ndarray: A numpy array of shape (number of atoms, number of atoms);
+            If any image of atom j is bonded to atom i with periodic boundary
+            conditions, the matrix element [atom i, atom j] is 1.
     """
     if ldict is None:
         ldict = JmolNN().el_radius

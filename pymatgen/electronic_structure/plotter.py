@@ -3861,12 +3861,11 @@ def plot_fermi_surface(
             run mlab.show().
 
     Returns:
-        ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
+        tuple[mlab.figure, mlab]: The mlab plotter and an interactive
             figure to control the plot.
 
     Note: Experimental.
-          Please, double check the surface shown by using some
-          other software and report issues.
+        Please, double check the surface shown by using some other software and report issues.
     """
     bz = structure.lattice.reciprocal_lattice.get_wigner_seitz_cell()
     cell = structure.lattice.reciprocal_lattice.matrix

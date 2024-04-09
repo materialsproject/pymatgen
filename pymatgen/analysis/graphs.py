@@ -812,7 +812,7 @@ class StructureGraph(MSONable):
             n: index of site
 
         Returns:
-            (int): number of neighbors of site n.
+            int: number of neighbors of site n.
         """
         n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - n_self_loops
@@ -2496,7 +2496,7 @@ class MoleculeGraph(MSONable):
             n: index of site
 
         Returns:
-            (int): the number of neighbors of site n.
+            int: the number of neighbors of site n.
         """
         n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - n_self_loops
