@@ -764,7 +764,7 @@ class SlabGenerator:
 
         Args:
             initial_structure (Structure): Initial input structure. Note that to
-                ensure that the miller indices correspond to usual
+                ensure that the Miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
             miller_index ([h, k, l]): Miller index of the plane parallel to
@@ -1473,7 +1473,7 @@ class ReconstructionGenerator:
 
         Args:
             initial_structure (Structure): Initial input structure. Note
-                that to ensure that the miller indices correspond to usual
+                that to ensure that the Miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
             min_slab_size (float): Minimum Slab size in Angstrom.
@@ -1692,28 +1692,28 @@ def get_symmetrically_equivalent_miller_indices(
     return_hkil: bool = True,
     system: CrystalSystem | None = None,
 ) -> list:
-    """Get indices for all symmetrically equivalent sites for a given
-    structure. Analysis is based on the symmetry of the reciprocal
-    lattice of the structure.
+    """Get indices for all equivalent sites within a given structure.
+    Analysis is based on the symmetry of its reciprocal lattice.
 
     Args:
-        structure (Structure): Structure to analyze
+        structure (Structure): Structure to analyze.
         miller_index (tuple): Designates the family of Miller indices
             to find. Can be hkl or hkil for hexagonal systems.
-        return_hkil (bool): If true, return hkil form of Miller
-            index for hexagonal systems, otherwise return hkl.
-        system: If known, specify the crystal system of the structure
-            so that it does not need to be re-calculated.
+        return_hkil (bool): Whether to return hkil (True) form of Miller
+            index for hexagonal systems, or hkl (False).
+        system: The crystal system of the structure.
     """
-    # Change to hkl if hkil because in_coord_list only handles tuples of 3
+    # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
         _miller_index: tuple[int, int, int] = (miller_index[0], miller_index[1], miller_index[-1])
     max_idx = max(np.abs(miller_index))
     idx_range = list(range(-max_idx, max_idx + 1))
     idx_range.reverse()
 
-    sg = None
-    if not system:
+    # Skip crystal system analysis if already given
+    if system:
+        sg = None
+    else:
         sg = SpacegroupAnalyzer(structure)
         system = sg.get_crystal_system()
 
@@ -1723,6 +1723,7 @@ def get_symmetrically_equivalent_miller_indices(
             sg = SpacegroupAnalyzer(structure)
         prim_structure = sg.get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
+
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
@@ -1730,11 +1731,12 @@ def get_symmetrically_equivalent_miller_indices(
     for miller in itertools.product(idx_range, idx_range, idx_range):
         if miller == _miller_index:
             continue
+
         if any(idx != 0 for idx in miller):
             if _is_already_analyzed(miller, equivalent_millers, symm_ops):
                 equivalent_millers += [miller]
 
-            # include larger Miller indices in the family of planes
+            # Include larger Miller indices in the family of planes
             if (
                 all(max_idx > i for i in np.abs(miller))
                 and not in_coord_list(equivalent_millers, miller)
@@ -1742,8 +1744,10 @@ def get_symmetrically_equivalent_miller_indices(
             ):
                 equivalent_millers += [miller]
 
+    # Convert hkl to hkil if necessary
     if return_hkil and system in {"trigonal", "hexagonal"}:
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]
+
     return equivalent_millers
 
 
@@ -1752,34 +1756,34 @@ def get_symmetrically_distinct_miller_indices(
     max_index: int,
     return_hkil: bool = False,
 ) -> list:
-    """Returns all symmetrically distinct indices below a certain max-index for a given structure.
-    Analysis is based on the symmetry of the reciprocal lattice of the structure.
+    """Find all symmetrically distinct indices below a certain max-index
+    for a given structure. Analysis is based on the symmetry of the
+    reciprocal lattice of the structure.
 
     Args:
-        structure (Structure): input structure.
-        max_index (int): The maximum index. For example, a max_index of 1
-            means that (100), (110), and (111) are returned for the cubic
-            structure. All other indices are equivalent to one of these.
-        return_hkil (bool): If true, return hkil form of Miller
-            index for hexagonal systems, otherwise return hkl
+        structure (Structure): The input structure.
+        max_index (int): The maximum index. For example, 1 means that
+            (100), (110), and (111) are returned for the cubic structure.
+            All other indices are equivalent to one of these.
+        return_hkil (bool): Whether to return hkil (True) form of Miller
+            index for hexagonal systems, or hkl (False).
     """
-    rng = list(range(-max_index, max_index + 1))
-    rng.reverse()
-
-    # First we get a list of all hkls for conventional (including equivalent)
+    # Get a list of all hkls for conventional (including equivalent)
+    rng = list(range(-max_index, max_index + 1))[::-1]
     conv_hkl_list = [miller for miller in itertools.product(rng, rng, rng) if any(i != 0 for i in miller)]
 
-    # Sort by the maximum of the absolute values of individual Miller indices so that
-    # low-index planes are first. This is important for trigonal systems.
+    # Sort by the maximum absolute values of Miller indices so that
+    # low-index planes come first. This is important for trigonal systems.
     conv_hkl_list = sorted(conv_hkl_list, key=lambda x: max(np.abs(x)))
 
-    sg = SpacegroupAnalyzer(structure)
     # Get distinct hkl planes from the rhombohedral setting if trigonal
+    sg = SpacegroupAnalyzer(structure)
     if sg.get_crystal_system() == "trigonal":
         transf = sg.get_conventional_to_primitive_transformation_matrix()
         miller_list: list[tuple[int, int, int]] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
+
     else:
         miller_list = conv_hkl_list
         symm_ops = structure.lattice.get_recp_symmetry_operation()
@@ -1803,22 +1807,27 @@ def get_symmetrically_distinct_miller_indices(
                 unique_millers.append(miller)
                 unique_millers_conv.append(miller)
 
-    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
+    if return_hkil and sg.get_crystal_system() in {"trigonal", "hexagonal"}:
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in unique_millers_conv]
+
     return unique_millers_conv
 
 
-def _is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
-    """Helper function to check if a given Miller index is
-    part of the family of indices of any index in a list.
+def _is_already_analyzed(
+    miller_index: tuple[int, int, int],
+    miller_list: list[tuple[int, int, int]],
+    symm_ops: list,
+) -> bool:
+    """Helper function to check if the given Miller index belongs
+    to the same family of indices as any index in the provided list.
+
+    TODO (@DanielYang59): function name is not descriptive
 
     Args:
-        miller_index (tuple): The Miller index to analyze
-        miller_list (list): List of Miller indices. If the given
-            Miller index belongs in the same family as any of the
-            indices in this list, return True, else return False
-        symm_ops (list): Symmetry operations of a
-            lattice, used to define family of indices
+        miller_index (tuple): The Miller index to analyze.
+        miller_list (list): List of Miller indices.
+        symm_ops (list): Symmetry operations for a lattice,
+            used to define the indices family.
     """
     return any(in_coord_list(miller_list, op.operate(miller_index)) for op in symm_ops)
 
@@ -1827,30 +1836,31 @@ def hkl_transformation(
     transf: np.ndarray,
     miller_index: tuple[int, int, int],
 ) -> tuple[int, int, int]:
-    """Returns the Miller index from setting A to B using a transformation matrix.
+    """Transform the Miller index from setting A to B with a transformation matrix.
 
     Args:
-        transf (3x3 array): The transformation matrix that transforms a lattice of A to B
-        miller_index (tuple[int, int, int]): Miller index [h, k, l] to transform to setting B.
+        transf (3x3 array): The matrix that transforms a lattice from A to B.
+        miller_index (tuple[int, int, int]): The Miller index [h, k, l] to transform.
     """
-    # Get a matrix of whole numbers (ints)
 
-    def _lcm(a, b):
+    def math_lcm(a: int, b: int) -> int:
+        """Calculate the least common multiple."""
         return a * b // math.gcd(a, b)
 
-    reduced_transf = reduce(_lcm, [int(1 / i) for i in itertools.chain(*transf) if i != 0]) * transf
+    # Convert the elements of the transformation matrix to integers
+    reduced_transf = reduce(math_lcm, [int(1 / i) for i in itertools.chain(*transf) if i != 0]) * transf
     reduced_transf = reduced_transf.astype(int)
 
-    # perform the transformation
-    t_hkl = np.dot(reduced_transf, miller_index)
-    d = abs(reduce(gcd, t_hkl))  # type: ignore[arg-type]
-    t_hkl = np.array([int(i / d) for i in t_hkl])
+    # Perform the transformation
+    transf_hkl = np.dot(reduced_transf, miller_index)
+    divisor = abs(reduce(gcd, transf_hkl))  # type: ignore[arg-type]
+    transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
-    # get mostly positive oriented Miller index
-    if len([i for i in t_hkl if i < 0]) > 1:
-        t_hkl *= -1
+    # Get most positive Miller index
+    if len([i for i in transf_hkl if i < 0]) > 1:
+        transf_hkl *= -1
 
-    return tuple(t_hkl)  # type: ignore[return-value]
+    return tuple(transf_hkl)  # type: ignore[return-value]
 
 
 def generate_all_slabs(
@@ -1871,71 +1881,64 @@ def generate_all_slabs(
     include_reconstructions: bool = False,
     in_unit_planes: bool = False,
 ) -> list[Slab]:
-    """A function that finds all different slabs up to a certain miller index.
-    Slabs oriented under certain Miller indices that are equivalent to other
-    slabs in other Miller indices are filtered out using symmetry operations
-    to get rid of any repetitive slabs. For example, under symmetry operations,
-    CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.
+    """Find all unique Slabs up to a given Miller index.
+
+    Slabs oriented along certain Miller indices may be equivalent to
+    other Miller indices under symmetry operations. To avoid
+    duplication, such equivalent slabs would be filtered out.
+    For instance, CsCl has equivalent slabs in the (0,0,1),
+    (0,1,0), and (1,0,0) directions under symmetry operations.
 
     Args:
-        structure (Structure): Initial input structure. Note that to
-                ensure that the miller indices correspond to usual
-                crystallographic definitions, you should supply a conventional
-                unit cell structure.
+        structure (Structure): Initial input structure. To
+            ensure that the Miller indices correspond to usual
+            crystallographic definitions, you should supply a
+            conventional unit cell.
         max_index (int): The maximum Miller index to go up to.
-        min_slab_size (float): In Angstroms
-        min_vacuum_size (float): In Angstroms
-        bonds ({(species1, species2): max_bond_dist}: bonds are
-            specified as a dict of tuples: float of species1, species2
-            and the max bonding distance. For example, PO4 groups may be
-            defined as {("P", "O"): 3}.
-        tol (float): General tolerance parameter for getting primitive
-            cells and matching structures
-        ftol (float): Threshold parameter in fcluster in order to check
-            if two atoms are lying on the same plane. Default thresh set
-            to 0.1 Angstrom in the direction of the surface normal.
+        min_slab_size (float): The minimum slab size in Angstrom.
+        min_vacuum_size (float): The minimum vacuum layer thickness in Angstrom.
+        bonds (dict): A {(species1, species2): max_bond_dist} dict.
+                For example, PO4 groups may be defined as {("P", "O"): 3}.
+        tol (float): Tolerance for getting primitive cells and
+            matching structures.
+        ftol (float): Tolerance in Angstrom for fcluster to check
+            if two atoms are on the same plane. Default to 0.1 Angstrom
+            in the direction of the surface normal.
         max_broken_bonds (int): Maximum number of allowable broken bonds
-            for the slab. Use this to limit # of slabs (some structures
-            may have a lot of slabs). Defaults to zero, which means no
-            defined bonds must be broken.
+            for the slab. Use this to limit the number of slabs.
+            Defaults to zero, which means no bond can be broken.
         lll_reduce (bool): Whether to perform an LLL reduction on the
-            eventual structure.
+            final Slab.
         center_slab (bool): Whether to center the slab in the cell with
             equal vacuum spacing from the top and bottom.
-        primitive (bool): Whether to reduce any generated slabs to a
-            primitive cell (this does **not** mean the slab is generated
-            from a primitive cell, it simply means that after slab
-            generation, we attempt to find shorter lattice vectors,
-            which lead to less surface area and smaller cells).
-        max_normal_search (int): If set to a positive integer, the code will
-            conduct a search for a normal lattice vector that is as
-            perpendicular to the surface as possible by considering
-            multiples linear combinations of lattice vectors up to
-            max_normal_search. This has no bearing on surface energies,
-            but may be useful as a preliminary step to generating slabs
-            for absorption and other sizes. It is typical that this will
-            not be the smallest possible cell for simulation. Normality
-            is not guaranteed, but the oriented cell will have the c
-            vector as normal as possible (within the search range) to the
-            surface. A value of up to the max absolute Miller index is
-            usually sufficient.
-        symmetrize (bool): Whether or not to ensure the surfaces of the
+        primitive (bool): Whether to reduce generated slabs to
+            primitive cell. Note this does NOT generate a slab
+            from a primitive cell, it means that after slab
+            generation, we attempt to reduce the generated slab to
+            primitive cell.
+        max_normal_search (int): If set to a positive integer, the code
+            will search for a normal lattice vector that is as
+            perpendicular to the surface as possible, by considering
+            multiple linear combinations of lattice vectors up to
+            this value. This has no bearing on surface energies,
+            but may be useful as a preliminary step to generate slabs
+            for absorption or other sizes. It may not be the smallest possible
+            cell for simulation. Normality is not guaranteed, but the oriented
+            cell will have the c vector as normal as possible to the surface.
+            The max absolute Miller index is usually sufficient.
+        symmetrize (bool): Whether to ensure the surfaces of the
             slabs are equivalent.
         repair (bool): Whether to repair terminations with broken bonds
-            or just omit them
+            or just omit them.
         include_reconstructions (bool): Whether to include reconstructed
             slabs available in the reconstructions_archive.json file. Defaults to False.
-        in_unit_planes (bool): Whether to generate slabs in units of the primitive
-            cell's c lattice vector. This is useful for generating slabs with
-            a specific number of layers, as the number of layers will be
-            independent of the Miller index. Defaults to False.
         in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
-            in units of hkl planes (True) or Angstrom (False, the default). Setting in
-            units of planes is useful for ensuring some slabs have a certain n_layer of
-            atoms. e.g. for Cs (100), a 10 Ang slab will result in a slab with only 2
-            layer of atoms, whereas Fe (100) will have more layer of atoms. By using units
-            of hkl planes instead, we ensure both slabs have the same number of atoms. The
-            slab thickness will be in min_slab_size/math.ceil(self._proj_height/dhkl)
+            in number of hkl planes or Angstrom (default).
+            Setting in units of planes is useful to ensure some slabs
+            to have a certain number of layers, e.g. for Cs(100), 10 Ang
+            will result in a slab with only 2 layers, whereas
+            Fe(100) will have more layers. The slab thickness
+            will be in min_slab_size/math.ceil(self._proj_height/dhkl)
             multiples of oriented unit cells.
     """
     all_slabs = []
@@ -1966,15 +1969,15 @@ def generate_all_slabs(
             all_slabs.extend(slabs)
 
     if include_reconstructions:
-        sg = SpacegroupAnalyzer(structure)
-        symbol = sg.get_space_group_symbol()
-        # enumerate through all posisble reconstructions in the
-        # archive available for this particular structure (spacegroup)
+        symbol = SpacegroupAnalyzer(structure).get_space_group_symbol()
+        # Enumerate through all reconstructions in the
+        # archive available for this particular spacegroup
         for name, instructions in reconstructions_archive.items():
             if "base_reconstruction" in instructions:
                 instructions = reconstructions_archive[instructions["base_reconstruction"]]
+
             if instructions["spacegroup"]["symbol"] == symbol:
-                # check if this reconstruction has a max index
+                # Make sure this reconstruction has a max index
                 # equal or less than the given max index
                 if max(instructions["miller_index"]) > max_index:
                     continue
@@ -2000,11 +2003,11 @@ def get_slab_regions(slab: Slab, blength: float = 3.5) -> list[list]:
     """
     fcoords, indices, all_indices = [], [], []
     for site in slab:
-        # Find sites with c < 0 (noncontiguous)
+        # Find sites with z < 0 (noncontiguous)
         neighbors = slab.get_neighbors(site, blength, include_index=True, include_image=True)
         for nn in neighbors:
             if nn[0].frac_coords[2] < 0:
-                # sites are noncontiguous within cell
+                # Sites are noncontiguous within cell
                 fcoords.append(nn[0].frac_coords[2])
                 indices.append(nn[-2])
                 if nn[-2] not in all_indices:
@@ -2050,24 +2053,21 @@ def miller_index_from_sites(
     coords_are_cartesian: bool = True,
     round_dp: int = 4,
     verbose: bool = True,
-) -> tuple[int]:
-    """Get the Miller index of a plane from a list of site coordinates.
+) -> tuple[int, int, int]:
+    """Get the Miller index of a plane for a given set coordinates.
 
-    A minimum of 3 sets of coordinates are required. If more than 3 sets of
-    coordinates are given, the best plane that minimises the distance to all
+    A minimum of 3 sets of coordinates are required. If more than 3
+    coordinates are given, the plane that minimises the distance to all
     sites will be calculated.
 
     Args:
-        lattice (matrix or Lattice): A 3x3 lattice matrix or `Lattice` object (for
-            example obtained from Structure.lattice).
+        lattice (matrix or Lattice): A 3x3 lattice matrix or `Lattice` object.
         coords (ArrayLike): A list or numpy array of coordinates. Can be
-            Cartesian or fractional coordinates. If more than three sets of
-            coordinates are provided, the best plane that minimises the
-            distance to all sites will be calculated.
+            Cartesian or fractional coordinates.
         coords_are_cartesian (bool, optional): Whether the coordinates are
-            in Cartesian space. If using fractional coordinates set to False.
+            in Cartesian coordinates, or fractional (False).
         round_dp (int, optional): The number of decimal places to round the
-            miller index to.
+            Miller index to.
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
