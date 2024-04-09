@@ -402,19 +402,21 @@ class Slab(Structure):
         symmetric properties of a slab when creating adsorbed
         structures or symmetric reconstructions.
 
+        TODO (@DanielYang59): use "site" over "point" as arg name for consistency
+
         Args:
             point (ArrayLike): Fractional coordinate of the original site.
             cartesian (bool): Use Cartesian coordinates.
 
         Returns:
-            ArrayLike: Fractional coordinate. A point equivalent to the
-                original point, but on the other side of the slab
+            ArrayLike: Fractional coordinate. A site equivalent to the
+                original site, but on the other side of the slab
         """
         spga = SpacegroupAnalyzer(self)
         ops = spga.get_symmetry_operations(cartesian=cartesian)
 
-        # Each operation on a point will return an equivalent point.
-        # We want to find the point on the other side of the slab.
+        # Each operation on a site will return an equivalent site.
+        # We want to find the site on the other side of the slab.
         for op in ops:
             slab = self.copy()
             site_other = op.operate(point)
@@ -633,14 +635,16 @@ class Slab(Structure):
         specie: str | Element | Species | None = None,
         coords_are_cartesian: bool = False,
     ) -> None:
-        """Add a species at a specified point in a slab. Will also add an equivalent
-        point on the other side of the slab to maintain symmetry.
+        """Add a species at a specified site in a slab. Will also add an
+        equivalent site on the other side of the slab to maintain symmetry.
+
+        TODO (@DanielYang59): use "site" over "point" as arg name for consistency
 
         Args:
             species (str | Element | Species): The species to add.
             point (ArrayLike): The coordinate of the target site.
             specie: Deprecated argument name in #3691. Use 'species' instead.
-            coords_are_cartesian (bool): If the point is in Cartesian coordinates.
+            coords_are_cartesian (bool): If the site is in Cartesian coordinates.
         """
         # For now just use the species of the surface atom as the element to add
 
@@ -650,10 +654,10 @@ class Slab(Structure):
             species = specie
 
         # Get the index of the equivalent site on the other side
-        point_equi = self.get_symmetric_site(point, cartesian=coords_are_cartesian)
+        equi_site = self.get_symmetric_site(point, cartesian=coords_are_cartesian)
 
         self.append(species, point, coords_are_cartesian=coords_are_cartesian)
-        self.append(species, point_equi, coords_are_cartesian=coords_are_cartesian)
+        self.append(species, equi_site, coords_are_cartesian=coords_are_cartesian)
 
     def symmetrically_remove_atoms(self, indices: list[int]) -> None:
         """Remove sites from a list of indices. Will also remove the
@@ -663,24 +667,24 @@ class Slab(Structure):
             indices (list[int]): The indices of the sites to remove.
 
         TODO(@DanielYang59):
-        1. Reuse public method get_symmetric_site to get equi points?
-        2. If not 1, get_equi_point has multiple nested loops
+        1. Reuse public method get_symmetric_site to get equi sites?
+        2. If not 1, get_equi_sites has multiple nested loops
         """
 
-        def get_equi_points(slab: Slab, points: list[int]) -> list[int]:
+        def get_equi_sites(slab: Slab, sites: list[int]) -> list[int]:
             """
-            Get the indices of the equivalent points of given points.
+            Get the indices of the equivalent sites of given sites.
 
             Parameters:
                 slab (Slab): The slab structure.
-                points (list[int]): Original indices of points.
+                sites (list[int]): Original indices of sites.
 
             Returns:
-                list[int]: Indices of the equivalent points.
+                list[int]: Indices of the equivalent sites.
             """
-            equi_points = []
+            equi_sites = []
 
-            for pt in points:
+            for pt in sites:
                 # Get the index of the original site
                 cart_point = slab.lattice.get_cartesian_coords(pt)
                 dist = [site.distance_from_point(cart_point) for site in slab]
@@ -702,21 +706,21 @@ class Slab(Structure):
                     slab = self.copy()
                     slab.remove_sites([i1, i2])
                     if slab.is_symmetric():
-                        equi_points.append(i2)
+                        equi_sites.append(i2)
                         break
 
-            return equi_points
+            return equi_sites
 
-        # Generate the equivalent points of the original points
+        # Generate the equivalent sites of the original sites
         slab_copy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
-        points = [slab_copy[i].frac_coords for i in indices]
+        sites = [slab_copy[i].frac_coords for i in indices]
 
-        equi_points = get_equi_points(slab_copy, points)
+        equi_sites = get_equi_sites(slab_copy, sites)
 
-        # Check if found an equivalent point for all
-        if len(equi_points) == len(indices):
+        # Check if found any equivalent sites
+        if len(equi_sites) == len(indices):
             self.remove_sites(indices)
-            self.remove_sites(equi_points)
+            self.remove_sites(equi_sites)
 
         else:
             warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
@@ -817,8 +821,8 @@ class SlabGenerator:
                 )
 
         def calculate_surface_normal() -> np.ndarray:
-            """Calculate the unit surface normal vector
-            using the reciprocal lattice vector.
+            """Calculate the unit surface normal vector using the reciprocal
+            lattice vector.
             """
             recip_lattice = lattice.reciprocal_lattice_crystallographic
 
@@ -930,8 +934,10 @@ class SlabGenerator:
 
     def get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
         """Generate a slab based on a given shift value along the lattice c direction.
-        You should rarely use this method directly, which is intended for other generation
-        methods instead.
+
+        Note:
+            You should rarely use this (private) method directly, which is
+            intended for other generation methods.
 
         Args:
             shift (float): The shift value along the lattice c direction in Angstrom.
@@ -1134,10 +1140,10 @@ class SlabGenerator:
         def get_z_ranges(bonds: dict[tuple[Species | Element, Species | Element], float]) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
 
-            This method examines all sites in the oriented unit cell (OUC) and considers all
-            neighboring sites within the specified bond distance for each site. If a site
-            and its neighbor meet bonding and species requirements, their respective z-ranges
-            will be collected.
+            This method examines all sites in the oriented unit cell (OUC)
+            and considers all neighboring sites within the specified bond distance
+            for each site. If a site and its neighbor meet bonding and species
+            requirements, their respective z-ranges will be collected.
 
             Args:
                 bonds (dict): A {(species1, species2): max_bond_dist} dict.
@@ -1225,10 +1231,12 @@ class SlabGenerator:
         slab cleaving, and repair them by moving undercoordinated atoms
         to the other surface.
 
-        For example a P-O4 bond may have P and O(4-x) on one side of the
-        surface, and Ox on the other side, this method would first move
-        P (the reference atom) to the other side, find its missing nearest
-        neighbours (Ox), and move P and Ox back together.
+        How it works:
+            For example a P-O4 bond may have P and O(4-x) on one side
+            of the surface, and Ox on the other side, this method would
+            first move P (the reference atom) to the other side,
+            find its missing nearest neighbours (Ox), and move P
+            and Ox back together.
 
         Args:
             slab (Slab): The Slab to repair.
@@ -1236,7 +1244,7 @@ class SlabGenerator:
                 For example, PO4 groups may be defined as {("P", "O"): 3}.
 
         Returns:
-            Slab: Repaired Slab.
+            Slab: The repaired Slab.
         """
         for species_pair, bond_dist in bonds.items():
             # Determine which element should be the reference (center)
@@ -1294,8 +1302,15 @@ class SlabGenerator:
         index_of_sites: list[int],
     ) -> Slab:
         """Move surface sites to the opposite surface of the Slab.
+
         If a selected site resides on the top half of the Slab,
-        it would be moved to the bottom half, and vice versa.
+        it would be moved to the bottom side, and vice versa.
+        The distance moved is equal to the thickness of the Slab.
+
+        Note:
+            You should only use this method on sites close to the
+            surface, otherwise it would end up deep inside the
+            vacuum layer.
 
         Args:
             init_slab (Slab): The Slab whose sites would be moved.
@@ -1345,12 +1360,16 @@ class SlabGenerator:
         )
 
     def nonstoichiometric_symmetrized_slab(self, init_slab: Slab) -> list[Slab]:
-        """Check whether two surfaces of the slab are equivalent.
-        If the point group of the slab has an inversion symmetry (
-        ie. belong to one of the Laue groups), then it's assumed that the
-        surfaces are equivalent. Otherwise, sites at the bottom of the
-        slab will be removed until the slab is symmetric. Note the removal
-        of sites may break the stoichiometry.
+        """Symmetrize the two surfaces of a Slab, but may break the stoichiometry.
+
+        How it works:
+            1. Check whether two surfaces of the slab are equivalent.
+            If the point group of the slab has an inversion symmetry (
+            ie. belong to one of the Laue groups), then it's assumed that the
+            surfaces are equivalent.
+
+            2.If not yymmetrical, sites at the bottom of the slab will be removed
+            until the slab is symmetric, which may break the stoichiometry.
 
         Args:
             init_slab (Slab): The initial Slab.
@@ -1422,15 +1441,17 @@ class ReconstructionGenerator:
 
     Attributes:
         slabgen_params (dict): Parameters for the SlabGenerator.
-        trans_matrix (np.ndarray): A 3x3 transformation matrix to generate the reconstructed
-            slab. Only the a and b lattice vectors are actually changed while the c vector remains
-            the same. This matrix is what the Wood's notation is based on.
-        reconstruction_json (dict): The full json or dictionary containing the instructions for
-            building the reconstructed slab.
+        trans_matrix (np.ndarray): A 3x3 transformation matrix to generate
+            the reconstructed slab. Only the a and b lattice vectors are
+            actually changed while the c vector remains the same.
+            This matrix is what the Wood's notation is based on.
+        reconstruction_json (dict): The full json or dictionary containing
+            the instructions for building the reconstructed slab.
         termination (int): The index of the termination of the slab.
 
     Todo:
-        - Right now there is no way to specify what atom is being added. In the future, use basis sets?
+        - Right now there is no way to specify what atom is being added.
+            In the future, use basis sets?
     """
 
     def __init__(
@@ -1442,6 +1463,8 @@ class ReconstructionGenerator:
     ) -> None:
         """Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
+
+        TODO (@DanielYang59): use "site" over "point" for consistency
 
         Args:
             initial_structure (Structure): Initial input structure. Note
@@ -1992,7 +2015,7 @@ def miller_index_from_sites(
 
     A minimum of 3 sets of coordinates are required. If more than 3 sets of
     coordinates are given, the best plane that minimises the distance to all
-    points will be calculated.
+    sites will be calculated.
 
     Args:
         lattice (matrix or Lattice): A 3x3 lattice matrix or `Lattice` object (for
