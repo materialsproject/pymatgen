@@ -80,7 +80,7 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
                 delta_vol,
             )
         )
-    if len(all_data) > 0:
+    if all_data:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
         print(tabulate(all_data, headers=headers, tablefmt=fmt))
         print()

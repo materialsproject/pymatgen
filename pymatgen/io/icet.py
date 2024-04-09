@@ -120,7 +120,7 @@ class IcetSQS:
         self.sqs_kwargs.update(sqs_kwargs or {})
 
         unrecognized_kwargs = {key for key in self.sqs_kwargs if key not in self.sqs_kwarg_names[sqs_method]}
-        if len(unrecognized_kwargs) > 0:
+        if unrecognized_kwargs:
             warnings.warn(f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}")
 
         self.sqs_kwargs = {

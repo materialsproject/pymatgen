@@ -402,7 +402,7 @@ class WulffShape:
 
         for plane in self.facets:
             # check whether [pts] is empty
-            if len(plane.points) < 1:
+            if not plane.points:
                 # empty, plane is not on_wulff.
                 continue
             # assign the color for on_wulff facets according to its
@@ -507,7 +507,7 @@ class WulffShape:
 
         planes_data, color_scale, ticktext, tickvals = [], [], [], []
         for plane in self.facets:
-            if len(plane.points) < 1:
+            if not plane.points:
                 # empty, plane is not on_wulff.
                 continue
 

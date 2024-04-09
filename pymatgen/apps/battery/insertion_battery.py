@@ -193,7 +193,7 @@ class InsertionElectrode(AbstractElectrode):
                 data.append(pair.decomp_e_charge)
             if getattr(pair, "decomp_e_discharge", None) is not None:
                 data.append(pair.decomp_e_discharge)
-        return max(data) if len(data) > 0 else None
+        return max(data) if data else None
 
     def get_min_instability(self, min_voltage=None, max_voltage=None):
         """The minimum instability along a path for a specific voltage range.
@@ -212,7 +212,7 @@ class InsertionElectrode(AbstractElectrode):
                 data.append(pair.decomp_e_charge)
             if getattr(pair, "decomp_e_discharge", None) is not None:
                 data.append(pair.decomp_e_discharge)
-        return min(data) if len(data) > 0 else None
+        return min(data) if data else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
         """Maximum critical oxygen chemical potential along path.
@@ -232,7 +232,7 @@ class InsertionElectrode(AbstractElectrode):
                 data.extend([d["chempot"] for d in pair.muO2_discharge])
             if pair.muO2_charge is not None:
                 data.extend([d["chempot"] for d in pair.muO2_discharge])
-        return max(data) if len(data) > 0 else None
+        return max(data) if data else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
         """Minimum critical oxygen chemical potential along path.
@@ -253,7 +253,7 @@ class InsertionElectrode(AbstractElectrode):
                 data.extend([d["chempot"] for d in pair.muO2_discharge])
             if pair.muO2_charge is not None:
                 data.extend([d["chempot"] for d in pair.muO2_discharge])
-        return min(data) if len(data) > 0 else None
+        return min(data) if data else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
         """If this electrode contains multiple voltage steps, then it is possible

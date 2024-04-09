@@ -356,7 +356,7 @@ class Magmom(MSONable):
         # filter only non-zero magmoms
         magmoms = [magmom for magmom in magmoms if abs(magmom)]
         magmoms.sort(reverse=True)
-        if len(magmoms) > 0:
+        if magmoms:
             return magmoms[0].get_00t_magmom_with_xyz_saxis().saxis
         return np.array([0, 0, 1], dtype="d")
 

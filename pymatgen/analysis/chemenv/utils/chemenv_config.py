@@ -105,7 +105,7 @@ class ChemEnvConfig:
             "strategy_options": {},
         }
         strategy_class = strategies_class_lookup[strategies[int(test) - 1]]
-        if len(strategy_class.STRATEGY_OPTIONS) > 0:
+        if strategy_class.STRATEGY_OPTIONS:
             for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
                 while True:
                     print(f"  => Enter value for option {option!r} (<ENTER> for default = {option_dict['default']})\n")

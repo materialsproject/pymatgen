@@ -1181,7 +1181,7 @@ class Lobsterout(MSONable):
         ws = []
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 0 and splitrow[0] == "WARNING:":
+            if splitrow and splitrow[0] == "WARNING:":
                 ws += [" ".join(splitrow[1:])]
         return ws
 
@@ -1190,7 +1190,7 @@ class Lobsterout(MSONable):
         infos = []
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 0 and splitrow[0] == "INFO:":
+            if splitrow and splitrow[0] == "INFO:":
                 infos += [" ".join(splitrow[1:])]
         return infos
 
@@ -1615,7 +1615,7 @@ class Grosspop(MSONable):
                     small_dict["element"] = cleanline[1]
                     small_dict["Mulliken GP"][cleanline[2]] = float(cleanline[3])
                     small_dict["Loewdin GP"][cleanline[2]] = float(cleanline[4])
-                elif len(cleanline) > 0:
+                elif cleanline:
                     small_dict["Mulliken GP"][cleanline[0]] = float(cleanline[1])
                     small_dict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
                     if "total" in cleanline[0]:

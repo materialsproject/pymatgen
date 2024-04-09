@@ -241,8 +241,8 @@ infile_dir = Path(__file__).parent / "input_files"
 
 
 def check_file(ref: str, test: str) -> bool:
-    ref_lines = [line.strip() for line in ref.split("\n") if len(line.strip()) > 0 and line[0] != "#"]
-    test_lines = [line.strip() for line in test.split("\n") if len(line.strip()) > 0 and line[0] != "#"]
+    ref_lines = [line.strip() for line in ref.split("\n") if line.strip() and line[0] != "#"]
+    test_lines = [line.strip() for line in test.split("\n") if line.strip() and line[0] != "#"]
 
     return ref_lines == test_lines
 

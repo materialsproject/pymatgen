@@ -98,17 +98,17 @@ class AdfKey(MSONable):
         self.name = name
         self.options = options if options is not None else []
         self.subkeys = subkeys if subkeys is not None else []
-        if len(self.subkeys) > 0:
+        if self.subkeys:
             for k in subkeys:
                 if not isinstance(k, AdfKey):
                     raise ValueError("Not all subkeys are ``AdfKey`` objects!")
         self._sized_op = None
-        if len(self.options) > 0:
+        if self.options:
             self._sized_op = isinstance(self.options[0], (list, tuple))
 
     def _options_string(self):
         """Return the option string."""
-        if len(self.options) > 0:
+        if self.options:
             opt_str = ""
             for op in self.options:
                 if self._sized_op:
@@ -141,10 +141,10 @@ class AdfKey(MSONable):
             a different string format will be used.
         """
         adf_str = f"{self.key}"
-        if len(self.options) > 0:
+        if self.options:
             adf_str += f" {self._options_string()}"
         adf_str += "\n"
-        if len(self.subkeys) > 0:
+        if self.subkeys:
             if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
                     adf_str += (
@@ -183,7 +183,7 @@ class AdfKey(MSONable):
             key = subkey.key
         else:
             raise ValueError("The subkey should be an AdfKey or a string!")
-        if len(self.subkeys) > 0 and key in (k.key for k in self.subkeys):
+        if self.subkeys and key in (k.key for k in self.subkeys):
             return True
         return False
 
@@ -207,7 +207,7 @@ class AdfKey(MSONable):
         Args:
             subkey (str or AdfKey): The subkey to remove.
         """
-        if len(self.subkeys) > 0:
+        if self.subkeys:
             key = subkey if isinstance(subkey, str) else subkey.key
             for idx, subkey in enumerate(self.subkeys):
                 if subkey.key == key:
@@ -244,7 +244,7 @@ class AdfKey(MSONable):
         Raises:
             TypeError: If the option has a wrong type.
         """
-        if len(self.options) > 0:
+        if self.options:
             if self._sized_op:
                 if not isinstance(option, str):
                     raise TypeError("``option`` should be a name string!")
@@ -279,7 +279,7 @@ class AdfKey(MSONable):
             "name": self.name,
             "options": self.options,
         }
-        if len(self.subkeys) > 0:
+        if self.subkeys:
             subkeys = []
             for subkey in self.subkeys:
                 subkeys.append(subkey.as_dict())
@@ -747,7 +747,7 @@ class AdfOutput:
 
         if not self.is_failed:
             if self.run_type == "GeometryOptimization":
-                if len(self.structures) > 0:
+                if self.structures:
                     self.final_structure = self.structures[-1]
                 if self.final_energy is None:
                     raise AdfOutputError("The final energy can not be read!")

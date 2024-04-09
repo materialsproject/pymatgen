@@ -1340,7 +1340,7 @@ class Lattice(MSONable):
             _, indices, images, distances = find_points_in_spheres(
                 all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
             )
-            if len(indices) < 1:
+            if not indices:
                 return [] if zip_results else [()] * 4
             frac_coords = frac_points[indices] + images
             if zip_results:
@@ -1394,7 +1394,7 @@ class Lattice(MSONable):
             lattice=self,
             return_fcoords=True,
         )[0]
-        if len(neighbors) < 1:
+        if not neighbors:
             return [] if zip_results else [()] * 4  # type: ignore
         if zip_results:
             return neighbors
@@ -1769,7 +1769,7 @@ def get_points_in_spheres(
                 valid_coords.append(coords[valid_index_bool])
                 valid_images.append(np.tile(image, [np.sum(valid_index_bool), 1]) - image_offsets[valid_index_bool])
                 valid_indices.extend([k for k in ind if valid_index_bool[k]])
-        if len(valid_coords) < 1:
+        if not valid_coords:
             return [[]] * len(center_coords)
         valid_coords = np.concatenate(valid_coords, axis=0)
         valid_images = np.concatenate(valid_images, axis=0)

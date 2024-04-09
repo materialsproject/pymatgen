@@ -627,7 +627,7 @@ class Compatibility(MSONable, abc.ABC):
             f"({entry.uncorrected_energy / entry.composition.num_atoms:.3f} eV/atom)."
         )
 
-        if len(entry.energy_adjustments) > 0:
+        if entry.energy_adjustments:
             print("The following energy adjustments have been applied to this entry:")
             for adj in entry.energy_adjustments:
                 print(f"\t\t{adj.name}: {adj.value:.3f} eV ({adj.value / entry.composition.num_atoms:.3f} eV/atom)")

@@ -838,7 +838,7 @@ class Potential(MSONable):
                         ln = 0
                     if pot_tag >= 0 and ln > 0 and pot_data_over > 0:
                         try:
-                            if len(sep_line_pattern[0].findall(line)) > 0 or len(sep_line_pattern[1].findall(line)) > 0:
+                            if sep_line_pattern[0].findall(line) or sep_line_pattern[1].findall(line):
                                 pot_str.append(line)
                             elif int(line.split()[0]) == pot_data:
                                 pot_data += 1

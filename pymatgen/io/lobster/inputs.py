@@ -603,7 +603,7 @@ class Lobsterin(UserDict, MSONable):
                             Lobsterindict[key_word[0].lower()] = [" ".join(key_word[1:])]
                         else:
                             Lobsterindict[key_word[0].lower()].append(" ".join(key_word[1:]))
-                    elif len(key_word) > 0:
+                    elif key_word:
                         Lobsterindict[key_word[0].lower()] = True
 
         return cls(Lobsterindict)

@@ -160,7 +160,7 @@ class BVAnalyzer:
         forbidden_species = [get_el_sp(sp) for sp in forbidden_species] if forbidden_species else []
         self.icsd_bv_data = (
             {get_el_sp(specie): data for specie, data in ICSD_BV_DATA.items() if specie not in forbidden_species}
-            if len(forbidden_species) > 0
+            if forbidden_species
             else ICSD_BV_DATA
         )
 

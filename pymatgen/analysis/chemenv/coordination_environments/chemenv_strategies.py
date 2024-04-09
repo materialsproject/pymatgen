@@ -2227,7 +2227,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             for src in nb_set.sources
             if src["origin"] == "dist_ang_ac_voronoi" and src["ac"] == self.additional_condition
         ]
-        if len(dist_ang_sources) > 0:
+        if dist_ang_sources:
             for src in dist_ang_sources:
                 d1 = src["dp_dict"]["min"]
                 d2 = src["dp_dict"]["next"]
@@ -2767,7 +2767,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                 if site_ce_nb_set is None:
                     continue
                 mingeoms = site_ce_nb_set.minimum_geometries(symmetry_measure_type=self.symmetry_measure_type)
-                if len(mingeoms) > 0:
+                if mingeoms:
                     csms = [
                         ce_dict["other_symmetry_measures"][self.symmetry_measure_type]
                         for ce_symbol, ce_dict in mingeoms

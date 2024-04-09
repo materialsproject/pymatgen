@@ -1602,7 +1602,7 @@ class IStructure(SiteCollection, MSONable):
         offsets = []
         distances = []
         for idx, nns in enumerate(neighbors):
-            if len(nns) > 0:
+            if nns:
                 for nn in nns:
                     if exclude_self and idx == nn.index and nn.nn_distance <= numerical_tol:
                         continue
@@ -1874,7 +1874,7 @@ class IStructure(SiteCollection, MSONable):
         center_indices, points_indices, images, distances = self.get_neighbor_list(
             r=r, sites=sites, numerical_tol=numerical_tol
         )
-        if len(points_indices) < 1:
+        if not points_indices:
             return [[]] * len(sites)
         f_coords = self.frac_coords[points_indices] + images
         neighbor_dict: dict[int, list] = collections.defaultdict(list)
@@ -1971,7 +1971,7 @@ class IStructure(SiteCollection, MSONable):
         neighbors: list[list[PeriodicNeighbor]] = []
         for point_neighbor, site in zip(point_neighbors, sites):
             nns: list[PeriodicNeighbor] = []
-            if len(point_neighbor) < 1:
+            if not point_neighbor:
                 neighbors.append([])
                 continue
             for n in point_neighbor:
@@ -3192,7 +3192,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             Molecule
         """
-        if len(sites) < 1:
+        if not sites:
             raise ValueError(f"You need at least 1 site to make a {cls.__name__}")
         props = collections.defaultdict(list)
         for site in sites:
@@ -4077,7 +4077,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         for site in self:
             new_sp_occu = {sp: amt for sp, amt in site.species.items() if sp not in species}
-            if len(new_sp_occu) > 0:
+            if new_sp_occu:
                 new_sites.append(
                     PeriodicSite(
                         new_sp_occu,
@@ -4734,7 +4734,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         species = [get_el_sp(sp) for sp in species]
         for site in self:
             new_sp_occu = {sp: amt for sp, amt in site.species.items() if sp not in species}
-            if len(new_sp_occu) > 0:
+            if new_sp_occu:
                 new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties, label=site.label))
         self.sites = new_sites
         return self

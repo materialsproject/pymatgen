@@ -1603,7 +1603,7 @@ class Cp2kOutput:
                 if ml is None:
                     continue
                 d = ml.groupdict()
-                if len(d) > 0:
+                if d:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
                 else:
                     processed_line = [postprocess(v) for v in ml.groups()]

@@ -1209,7 +1209,7 @@ class LocalGeometryFinder:
             )
             result, permutations, algos, local2perfect_maps, perfect2local_maps = cgsm
             if only_minimum:
-                if len(result) > 0:
+                if result:
                     imin = np.argmin([rr["symmetry_measure"] for rr in result])
                     algo = algos[imin] if geometry.algorithms is not None else algos
                     result_dict[geometry.mp_symbol] = {
@@ -1878,7 +1878,7 @@ class LocalGeometryFinder:
                 permutations_symmetry_measures.append(sm_info)
             if plane_found:
                 break
-        if len(permutations_symmetry_measures) > 0:
+        if permutations_symmetry_measures:
             if testing:
                 return (
                     permutations_symmetry_measures,
@@ -1957,7 +1957,7 @@ class LocalGeometryFinder:
 
             permutations_symmetry_measures.append(sm_info)
 
-        if len(permutations_symmetry_measures) > 0:
+        if permutations_symmetry_measures:
             return (
                 permutations_symmetry_measures,
                 permutations,
@@ -2031,7 +2031,7 @@ class LocalGeometryFinder:
 
             permutations_symmetry_measures.append(sm_info)
 
-        if len(permutations_symmetry_measures) > 0:
+        if permutations_symmetry_measures:
             return (
                 permutations_symmetry_measures,
                 permutations,

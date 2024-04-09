@@ -176,7 +176,7 @@ class ValenceIonicRadiusEvaluator:
             except Exception:
                 valences = []
                 for site in self._structure:
-                    if len(site.specie.common_oxidation_states) > 0:
+                    if site.specie.common_oxidation_states:
                         valences.append(site.specie.common_oxidation_states[0])
                     # Handle noble gas species
                     # which have no entries in common_oxidation_states.
@@ -2967,11 +2967,11 @@ class LocalStructOrderParams:
             # for calculating BOOPS.
             for idx, typ in enumerate(self._types):
                 if typ == "q2":
-                    ops[idx] = self.get_q2(thetas, phis) if len(thetas) > 0 else None
+                    ops[idx] = self.get_q2(thetas, phis) if thetas else None
                 elif typ == "q4":
-                    ops[idx] = self.get_q4(thetas, phis) if len(thetas) > 0 else None
+                    ops[idx] = self.get_q4(thetas, phis) if thetas else None
                 elif typ == "q6":
-                    ops[idx] = self.get_q6(thetas, phis) if len(thetas) > 0 else None
+                    ops[idx] = self.get_q6(thetas, phis) if thetas else None
 
         # Then, deal with the Peters-style OPs that are tailor-made
         # to recognize common structural motifs
@@ -3349,8 +3349,8 @@ class LocalStructOrderParams:
             if n_neighbors > 0:
                 neighscent = neighscent / float(n_neighbors)
             h = np.linalg.norm(neighscent - centvec)
-            b = min(distjk_unique) if len(distjk_unique) > 0 else 0
-            dhalf = max(distjk_unique) / 2 if len(distjk_unique) > 0 else 0
+            b = min(distjk_unique) if distjk_unique else 0
+            dhalf = max(distjk_unique) / 2 if distjk_unique else 0
 
             for idx, typ in enumerate(self._types):
                 if typ in ("reg_tri", "sq"):

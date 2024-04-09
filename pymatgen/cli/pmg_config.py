@@ -136,7 +136,7 @@ def setup_potcars(potcar_dirs: list[str]):
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
             filenames = glob(os.path.join(parent, subdir, "POTCAR*"))
-            if len(filenames) > 0:
+            if filenames:
                 try:
                     base_dir = os.path.join(target_dir, basename)
                     os.makedirs(base_dir, exist_ok=True)

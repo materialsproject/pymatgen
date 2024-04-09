@@ -401,7 +401,7 @@ class CifParser:
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
-            if len(attached_hydrogens) > 0:
+            if attached_hydrogens:
                 self.warnings.append(
                     "Structure has implicit hydrogens defined, parsed structure unlikely to be "
                     "suitable for use in calculations unless hydrogens added."
@@ -480,7 +480,7 @@ class CifParser:
                     for idx in sorted(idxs_to_remove, reverse=True):
                         del data.data[original_key][idx]
 
-            if len(idxs_to_remove) > 0:
+            if idxs_to_remove:
                 self.warnings.append("Pauling file corrections applied.")
 
                 data.data["_atom_site_label"] += new_atom_site_label
@@ -533,7 +533,7 @@ class CifParser:
                 if data.data.get(interim_key):
                     changes_to_make[final_key] = interim_key
 
-            if len(changes_to_make) > 0:
+            if changes_to_make:
                 self.warnings.append("Keys changed to match new magCIF specification.")
 
             for final_key, interim_key in changes_to_make.items():
@@ -949,7 +949,7 @@ class CifParser:
             for op in self.symmetry_operations:
                 frac_coord = op.operate(coord)
                 indices = find_in_coord_list_pbc(coords, frac_coord, atol=self._site_tolerance)
-                if len(indices) > 0:
+                if indices:
                     return keys[indices[0]]
             return False
 
@@ -1154,7 +1154,7 @@ class CifParser:
         default primitive=False in parse_structures.
         So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
         """
-        if len(args) > 0:  # extract primitive if passed as arg
+        if args:  # extract primitive if passed as arg
             kwargs["primitive"] = args[0]
             args = args[1:]
         kwargs.setdefault("primitive", True)

@@ -385,7 +385,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
         species = str(sp)
         if species not in disordered_species:
             disordered_comp.append((species, formula_double_format(occu / factor)))
-        elif len(symbols) > 0:
+        elif symbols:
             symbol = symbols.pop(0)
             disordered_comp.append((species, symbol))
             variable_map[symbol] = occu / total_disordered_occu / factor

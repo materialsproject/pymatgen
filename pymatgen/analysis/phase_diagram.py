@@ -1428,7 +1428,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         elements = set(elements) - set(self.chempots)
 
         all_entries = [
-            GrandPotPDEntry(entry, self.chempots) for entry in entries if len(elements.intersection(entry.elements)) > 0
+            GrandPotPDEntry(entry, self.chempots) for entry in entries if elements.intersection(entry.elements)
         ]
 
         super().__init__(all_entries, elements, computed_data=None)

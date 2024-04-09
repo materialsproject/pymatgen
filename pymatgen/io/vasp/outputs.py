@@ -2214,7 +2214,7 @@ class Outcar:
                 if not ml:
                     continue
                 d = ml.groupdict()
-                if len(d) > 0:
+                if d:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
                 else:
                     processed_line = [postprocess(v) for v in ml.groups()]
@@ -4559,7 +4559,7 @@ class Wavecar:
                             np.fromfile(file, dtype=np.float64, count=recl8 - 2 * nplane)
 
                         extra_coeffs = []
-                        if len(extra_coeff_inds) > 0:
+                        if extra_coeff_inds:
                             # reconstruct extra coefficients missing from gamma-only executable WAVECAR
                             for G_ind in extra_coeff_inds:
                                 # no idea where this factor of sqrt(2) comes from, but empirically

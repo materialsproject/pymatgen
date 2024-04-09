@@ -797,7 +797,7 @@ class LammpsData(MSONable):
             velocities = pd.DataFrame(np.concatenate(v_collector), columns=SECTION_HEADERS["Velocities"])
             velocities.index += 1
 
-        topology = {key: pd.DataFrame([]) for key, values in topo_labels.items() if len(values) > 0}
+        topology = {key: pd.DataFrame([]) for key, values in topo_labels.items() if values}
         for key in topology:
             df = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
             df["type"] = list(map(ff.maps[key].get, topo_labels[key]))
@@ -997,7 +997,7 @@ class Topology(MSONable):
         dests, freq = np.unique(bond_list, return_counts=True)
         hubs = dests[np.where(freq > 1)].tolist()
         bond_arr = np.array(bond_list)
-        if len(hubs) > 0:
+        if hubs:
             hub_spokes = {}
             for hub in hubs:
                 ix = np.any(np.isin(bond_arr, hub), axis=1)
@@ -1019,7 +1019,7 @@ class Topology(MSONable):
                 dihedral_list.extend([[ki, ii, jj, li] for ki, li in itertools.product(ks, ls) if ki != li])
 
         topologies = {
-            k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
+            k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if v
         } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
 

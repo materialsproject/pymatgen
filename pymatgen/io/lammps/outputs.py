@@ -120,7 +120,7 @@ def parse_lammps_dumps(file_pattern):
             dump_cache = []
             for line in file:
                 if line.startswith("ITEM: TIMESTEP"):
-                    if len(dump_cache) > 0:
+                    if dump_cache:
                         yield LammpsDump.from_str("".join(dump_cache))
                     dump_cache = [line]
                 else:

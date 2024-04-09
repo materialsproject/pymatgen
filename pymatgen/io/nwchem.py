@@ -770,7 +770,7 @@ class NwOutput:
                 m = force_patt.search(line)
                 if m:
                     forces.extend(map(float, m.groups()[5:]))
-                elif len(forces) > 0:
+                elif forces:
                     all_forces.append(forces)
                     forces = []
                     parse_force = False
@@ -812,7 +812,7 @@ class NwOutput:
             elif parse_hess:
                 if line.strip() == "":
                     continue
-                if len(hessian) > 0 and line.find("----------") != -1:
+                if hessian and line.find("----------") != -1:
                     parse_hess = False
                     continue
                 tokens = line.strip().split()

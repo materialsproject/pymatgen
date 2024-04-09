@@ -91,7 +91,7 @@ def preprocessor(data: str, dir: str = ".") -> str:
 
     c1 = re.findall(r"@IF", data, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", data, re.IGNORECASE)
-    if len(c1) > 0 or len(c2) > 0:
+    if c1 or c2:
         raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
     return data
 

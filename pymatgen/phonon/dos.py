@@ -478,7 +478,7 @@ class CompletePhononDos(PhononDos):
             "densities": list(self.densities),
             "pdos": [],
         }
-        if len(self.pdos) > 0:
+        if self.pdos:
             for site in self.structure:
                 dct["pdos"].append(list(self.pdos[site]))
         return dct

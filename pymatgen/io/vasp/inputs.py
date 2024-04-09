@@ -2290,7 +2290,7 @@ class PotcarSingle:
                     tmp_str += parsed_val.strip()
                 elif isinstance(parsed_val, (float, int)):
                     psp_vals.append(parsed_val)
-            if len(tmp_str) > 0:
+            if tmp_str:
                 psp_keys.append(tmp_str.lower())
 
         keyword_vals = []

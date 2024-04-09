@@ -105,7 +105,7 @@ class SpacegroupAnalyzer:
         self._unique_species = unique_species
         self._numbers = zs
 
-        if len(magmoms) > 0:
+        if magmoms:
             self._cell: tuple[Any, ...] = (
                 tuple(map(tuple, structure.lattice.matrix.tolist())),
                 tuple(map(tuple, structure.frac_coords.tolist())),
@@ -1048,7 +1048,7 @@ class PointGroupAnalyzer:
         unique_axis = self.principal_axes[ind]
         self._check_rot_sym(unique_axis)
         logger.debug(f"Rotation symmetries = {self.rot_sym}")
-        if len(self.rot_sym) > 0:
+        if self.rot_sym:
             self._check_perpendicular_r2_axis(unique_axis)
 
         if len(self.rot_sym) >= 2:
@@ -1159,7 +1159,7 @@ class PointGroupAnalyzer:
         _origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
         for test_set in dist_el_sites.values():
             valid_set = list(filter(not_on_axis, test_set))
-            if len(valid_set) > 0:
+            if valid_set:
                 valid_sets.append(valid_set)
 
         return min(valid_sets, key=len)

@@ -226,7 +226,7 @@ class MoleculeStructureComparator(MSONable):
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
         unavailable_elements = set(mol.composition.as_dict()) - set(self.covalent_radius)
-        if len(unavailable_elements) > 0:
+        if unavailable_elements:
             raise ValueError(f"The covalent radius for element {unavailable_elements} is not available")
         bond_13 = self.get_13_bonds(self.priority_bonds)
         max_length = [

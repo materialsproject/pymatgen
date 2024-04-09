@@ -51,7 +51,7 @@ class AbstractRatioFunction:
             options_dict: Dictionary containing the parameters for the ratio function.
         """
         function_options = self.ALLOWED_FUNCTIONS[self.function]
-        if len(function_options) > 0:
+        if function_options:
             # Check if there are missing options
             if options_dict is None:
                 missing_options = True

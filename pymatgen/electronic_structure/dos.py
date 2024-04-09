@@ -1274,7 +1274,7 @@ class CompleteDos(Dos):
             "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
             "pdos": [],
         }
-        if len(self.pdos) > 0:
+        if self.pdos:
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():

@@ -53,9 +53,7 @@ class AimsGeometryIn(MSONable):
         Returns:
             The AimsGeometryIn file for the string contents
         """
-        content_lines = [
-            line.strip() for line in contents.split("\n") if len(line.strip()) > 0 and line.strip()[0] != "#"
-        ]
+        content_lines = [line.strip() for line in contents.split("\n") if line.strip() and line.strip()[0] != "#"]
 
         species, coords, is_frac, lattice_vectors = [], [], [], []
         charges_dct, moments_dct = {}, {}

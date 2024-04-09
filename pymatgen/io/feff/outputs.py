@@ -72,7 +72,7 @@ class LDos(MSONable):
 
             with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
-                    if len(pot_readend.findall(line)) > 0:
+                    if pot_readend.findall(line):
                         break
 
                     if begin == 1:
@@ -88,7 +88,7 @@ class LDos(MSONable):
                             pot_dict[ele_name] = min(dos_index, pot_dict[ele_name])
                         dos_index += 1
 
-                    if len(pot_readstart.findall(line)) > 0:
+                    if pot_readstart.findall(line):
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)
@@ -176,15 +176,16 @@ class LDos(MSONable):
             pot_readend = re.compile(".*ExternalPot.*switch.*")
             with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
-                    if len(pot_readend.findall(line)) > 0:
+                    if pot_readend.findall(line):
                         break
                     if begin == 1:
                         z_number = int(line.strip().split()[0])
                         ele_name = Element.from_Z(z_number).name
-                        if len(pot_dict) == 0:
-                            pot_dict[0] = ele_name
-                        elif len(pot_dict) > 0:
+                        if pot_dict:
                             pot_dict[max(pot_dict) + 1] = ele_name
+                        else:
+                            pot_dict[0] = ele_name
+
                         begin += 1
                         continue
                     if begin == 2:
@@ -192,11 +193,12 @@ class LDos(MSONable):
                         ele_name = Element.from_Z(z_number).name
                         dicts[0][ele_name] = dos_index
                         dos_index += 1
-                        if len(pot_dict) == 0:
-                            pot_dict[0] = ele_name
-                        elif len(pot_dict) > 0:
+                        if pot_dict:
                             pot_dict[max(pot_dict) + 1] = ele_name
-                    if len(pot_readstart.findall(line)) > 0:
+                        else:
+                            pot_dict[0] = ele_name
+
+                    if pot_readstart.findall(line):
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)

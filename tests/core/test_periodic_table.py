@@ -298,7 +298,7 @@ class TestElement(PymatgenTest):
                     assert "IUPAC ordering" in el.data
                     assert getattr(el, key) is not None
 
-            if len(el.oxidation_states) > 0:
+            if el.oxidation_states:
                 assert max(el.oxidation_states) == el.max_oxidation_state
                 assert min(el.oxidation_states) == el.min_oxidation_state
 

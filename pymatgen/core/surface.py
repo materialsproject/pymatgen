@@ -1764,7 +1764,7 @@ def generate_all_slabs(
             repair=repair,
         )
 
-        if len(slabs) > 0:
+        if slabs:
             logger.debug(f"{miller} has {len(slabs)} slabs... ")
             all_slabs.extend(slabs)
 

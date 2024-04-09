@@ -182,7 +182,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             # how many stable entries from run_type_1 do we have in run_type_2?
             hull_entries_2 = 0
             stable_df = mixing_state_data[mixing_state_data["is_stable_1"]]
-            if len(stable_df) > 0:
+            if stable_df:
                 hull_entries_2 = sum(stable_df["energy_2"].notna())
             print(
                 f"  Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
@@ -635,7 +635,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # make sure both sets of entries belong to the same chemical system
         # assuming there are any gga entries at all
-        if len(entries_type_1.chemsys) > 0:
+        if entries_type_1.chemsys:
             chemsys = entries_type_1.chemsys
             if not entries_type_2.chemsys <= entries_type_1.chemsys:
                 warnings.warn(
@@ -667,7 +667,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             ),
             key=lambda x: x.energy_per_atom,
         )
-        first_entry = entries_type_1[0] if len(entries_type_1) > 0 else None
+        first_entry = entries_type_1[0] if entries_type_1 else None
 
         entries_type_2 = sorted(
             (
@@ -677,7 +677,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             ),
             key=lambda x: x.energy_per_atom,
         )
-        second_entry = entries_type_2[0] if len(entries_type_2) > 0 else None
+        second_entry = entries_type_2[0] if entries_type_2 else None
 
         # generate info for the DataFrame
         stable_1 = False

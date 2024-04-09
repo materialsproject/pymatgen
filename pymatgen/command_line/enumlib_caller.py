@@ -328,7 +328,7 @@ class EnumlibAdaptor:
         # disordered structure, and retrieving correct site properties
         disordered_site_properties = {}
 
-        if len(self.ordered_sites) > 0:
+        if self.ordered_sites:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
@@ -366,7 +366,7 @@ class EnumlibAdaptor:
 
                 sites = []
 
-                if len(self.ordered_sites) > 0:
+                if self.ordered_sites:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
                     transformation = [[int(round(cell)) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")

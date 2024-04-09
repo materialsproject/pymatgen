@@ -857,7 +857,7 @@ class LobsterNeighbors(NearNeighbors):
             additional_conds = self._find_relevant_atoms_additional_condition(idx, icohps, additional_condition)
             keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, selected_ICOHPs = additional_conds
 
-            if len(neighbors_from_ICOHPs) > 0:
+            if neighbors_from_ICOHPs:
                 centralsite = self.structure[idx]
 
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(

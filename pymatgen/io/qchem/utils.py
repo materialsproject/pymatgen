@@ -108,10 +108,7 @@ def read_table_pattern(
         table_contents = []
         for ml in rp.finditer(table_body_text):
             d = ml.groupdict()
-            if len(d) > 0:
-                processed_line = {k: postprocess(v) for k, v in d.items()}
-            else:
-                processed_line = [postprocess(v) for v in ml.groups()]
+            processed_line = {k: postprocess(v) for k, v in d.items()} if d else [postprocess(v) for v in ml.groups()]
             table_contents.append(processed_line)
         tables.append(table_contents)
     retained_data = tables[-1] if last_one_only else tables
