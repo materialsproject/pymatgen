@@ -949,7 +949,7 @@ class CifParser:
             for op in self.symmetry_operations:
                 frac_coord = op.operate(coord)
                 indices = find_in_coord_list_pbc(coords, frac_coord, atol=self._site_tolerance)
-                if indices:
+                if len(indices) > 0:
                     return keys[indices[0]]
             return False
 
