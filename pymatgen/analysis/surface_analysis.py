@@ -1304,7 +1304,7 @@ def entry_dict_from_list(all_slab_entries):
         all_slab_entries (list): List of SlabEntry objects
 
     Returns:
-        (dict): Dictionary of SlabEntry with the Miller index as the main
+        dict: Dictionary of SlabEntry with the Miller index as the main
             key to a dictionary with a clean SlabEntry as the key to a
             list of adsorbed SlabEntry.
     """

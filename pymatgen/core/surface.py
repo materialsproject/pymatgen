@@ -1863,7 +1863,7 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
-        (tuple): The Miller index.
+        tuple: The Miller index.
     """
     if not isinstance(lattice, Lattice):
         lattice = Lattice(lattice)

@@ -3823,13 +3823,13 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             'Left','Right']
 
     Returns:
-        (newlines, newstable_entries, newunstable_entries):
-        - newlines is a list of list of coordinates for lines in the PD.
-        - newstable_entries is a {coordinate : entry} for each stable node
-        in the phase diagram. (Each coordinate can only have one
-        stable phase)
-        - newunstable_entries is a {entry: coordinates} for all unstable
-        nodes in the phase diagram.
+        tuple[list, dict, dict]:
+            - new_lines is a list of list of coordinates for lines in the PD.
+            - new_stable_entries is a {coordinate: entry} for each stable node
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
+            - new_unstable_entries is a {entry: coordinates} for all unstable
+            nodes in the phase diagram.
     """
     yup = -1000.0
     xleft = 1000.0
@@ -3859,104 +3859,104 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             # The coordinates were already in the user ordering
             return lines, stable_entries, unstable_entries
 
-        newlines = [[np.array(1 - x), y] for x, y in lines]
-        newstable_entries = {(1 - c[0], c[1]): entry for c, entry in stable_entries.items()}
-        newunstable_entries = {entry: (1 - c[0], c[1]) for entry, c in unstable_entries.items()}
-        return newlines, newstable_entries, newunstable_entries
+        new_lines = [[np.array(1 - x), y] for x, y in lines]
+        new_stable_entries = {(1 - c[0], c[1]): entry for c, entry in stable_entries.items()}
+        new_unstable_entries = {entry: (1 - c[0], c[1]) for entry, c in unstable_entries.items()}
+        return new_lines, new_stable_entries, new_unstable_entries
     if nameup == ordering[1]:
         if nameleft == ordering[2]:
             c120 = np.cos(2 * np.pi / 3.0)
             s120 = np.sin(2 * np.pi / 3.0)
-            newlines = []
+            new_lines = []
             for x, y in lines:
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
                     newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + cc[0]
                     newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + cc[1]
-                newlines.append([newx, newy])
-            newstable_entries = {
+                new_lines.append([newx, newy])
+            new_stable_entries = {
                 (
                     c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
                     s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1],
                 ): entry
                 for c, entry in stable_entries.items()
             }
-            newunstable_entries = {
+            new_unstable_entries = {
                 entry: (
                     c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
                     s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1],
                 )
                 for entry, c in unstable_entries.items()
             }
-            return newlines, newstable_entries, newunstable_entries
+            return new_lines, new_stable_entries, new_unstable_entries
         c120 = np.cos(2 * np.pi / 3.0)
         s120 = np.sin(2 * np.pi / 3.0)
-        newlines = []
+        new_lines = []
         for x, y in lines:
             newx = np.zeros_like(x)
             newy = np.zeros_like(y)
             for ii, xx in enumerate(x):
                 newx[ii] = -c120 * (xx - 1.0) - s120 * y[ii] + 1.0
                 newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
-            newlines.append([newx, newy])
-        newstable_entries = {
+            new_lines.append([newx, newy])
+        new_stable_entries = {
             (
                 -c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
                 -s120 * (c[0] - 1.0) + c120 * c[1],
             ): entry
             for c, entry in stable_entries.items()
         }
-        newunstable_entries = {
+        new_unstable_entries = {
             entry: (
                 -c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
                 -s120 * (c[0] - 1.0) + c120 * c[1],
             )
             for entry, c in unstable_entries.items()
         }
-        return newlines, newstable_entries, newunstable_entries
+        return new_lines, new_stable_entries, new_unstable_entries
     if nameup == ordering[2]:
         if nameleft == ordering[0]:
             c240 = np.cos(4 * np.pi / 3.0)
             s240 = np.sin(4 * np.pi / 3.0)
-            newlines = []
+            new_lines = []
             for x, y in lines:
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
                     newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + cc[0]
                     newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + cc[1]
-                newlines.append([newx, newy])
-            newstable_entries = {
+                new_lines.append([newx, newy])
+            new_stable_entries = {
                 (
                     c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],
                     s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1],
                 ): entry
                 for c, entry in stable_entries.items()
             }
-            newunstable_entries = {
+            new_unstable_entries = {
                 entry: (
                     c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],
                     s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1],
                 )
                 for entry, c in unstable_entries.items()
             }
-            return newlines, newstable_entries, newunstable_entries
+            return new_lines, new_stable_entries, new_unstable_entries
         c240 = np.cos(4 * np.pi / 3.0)
         s240 = np.sin(4 * np.pi / 3.0)
-        newlines = []
+        new_lines = []
         for x, y in lines:
             newx = np.zeros_like(x)
             newy = np.zeros_like(y)
             for ii, xx in enumerate(x):
                 newx[ii] = -c240 * xx - s240 * y[ii]
                 newy[ii] = -s240 * xx + c240 * y[ii]
-            newlines.append([newx, newy])
-        newstable_entries = {
+            new_lines.append([newx, newy])
+        new_stable_entries = {
             (-c240 * c[0] - s240 * c[1], -s240 * c[0] + c240 * c[1]): entry for c, entry in stable_entries.items()
         }
-        newunstable_entries = {
+        new_unstable_entries = {
             entry: (-c240 * c[0] - s240 * c[1], -s240 * c[0] + c240 * c[1]) for entry, c in unstable_entries.items()
         }
-        return newlines, newstable_entries, newunstable_entries
+        return new_lines, new_stable_entries, new_unstable_entries
     raise ValueError("Invalid ordering.")

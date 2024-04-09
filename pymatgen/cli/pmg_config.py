@@ -179,8 +179,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
         os.chdir(f"{cwd}/enumlib/symlib/src")
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
-        enumpath = f"{cwd}/enumlib/src"
-        os.chdir(enumpath)
+        enum_path = f"{cwd}/enumlib/src"
+        os.chdir(enum_path)
         subprocess.call(["make"])
         subprocess.call(["make", "enum.x"])
         shutil.copy("enum.x", os.path.join("..", ".."))

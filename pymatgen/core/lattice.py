@@ -1562,10 +1562,10 @@ class Lattice(MSONable):
                 the image that is nearest to the site is found.
 
         Returns:
-            (distance, jimage): distance and periodic lattice translations
-            of the other site for which the distance applies. This means that
-            the distance between frac_coords1 and (jimage + frac_coords2) is
-            equal to distance.
+            tuple[float, np.ndarray]: distance and periodic lattice translations (jimage)
+                of the other site for which the distance applies. This means that
+                the distance between frac_coords1 and (jimage + frac_coords2) is
+                equal to distance.
         """
         if jimage is None:
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
@@ -1653,7 +1653,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
-        (tuple): The Miller index.
+        tuple: The Miller index.
     """
     mi = np.asarray(miller_index)
     # deal with the case we have small irregular floats

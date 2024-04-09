@@ -500,15 +500,15 @@ class PeriodicSite(Site, MSONable):
         jimage is also returned.
 
         Args:
-            fcoords (3x1 array): fcoords to get distance from.
+            fcoords (3x1 array): fractional coordinates to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
-            (distance, jimage): distance and periodic lattice translations
-            of the other site for which the distance applies.
+            tuple[float, np.ndarray]: distance and periodic lattice translations (jimage)
+                of the other site for which the distance applies.
         """
         return self.lattice.get_distance_and_image(self.frac_coords, fcoords, jimage=jimage)
 
@@ -528,8 +528,8 @@ class PeriodicSite(Site, MSONable):
                 the image that is nearest to the site is found.
 
         Returns:
-            (distance, jimage): distance and periodic lattice translations
-            of the other site for which the distance applies.
+            tuple[float, np.ndarray]: distance and periodic lattice translations (jimage)
+                of the other site for which the distance applies.
         """
         return self.distance_and_image_from_frac_coords(other.frac_coords, jimage)
 
