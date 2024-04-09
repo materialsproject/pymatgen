@@ -282,17 +282,23 @@ class TestQCOutput(PymatgenTest):
                 assert out_data.get(key) == single_job_dict[filename].get(key)
             except ValueError:
                 try:
-                    assert_allclose(out_data.get(key), single_job_dict[filename].get(key), atol=1e-6)
+                    if isinstance(out_data.get(key), dict):
+                        assert out_data.get(key) == approx(single_job_dict[filename].get(key))
+                    else:
+                        assert_allclose(out_data.get(key), single_job_dict[filename].get(key), atol=1e-6)
                 except AssertionError:
                     raise RuntimeError(f"Issue with {filename=} Exiting...")
             except AssertionError:
                 raise RuntimeError(f"Issue with {filename=} Exiting...")
         for filename, outputs in multi_outs.items():
-            for ii, sub_output in enumerate(outputs):
+            for idx, sub_output in enumerate(outputs):
                 try:
-                    assert sub_output.data.get(key) == multi_job_dict[filename][ii].get(key)
+                    assert sub_output.data.get(key) == multi_job_dict[filename][idx].get(key)
                 except ValueError:
-                    assert_allclose(sub_output.data.get(key), multi_job_dict[filename][ii].get(key), atol=1e-6)
+                    if isinstance(sub_output.data.get(key), dict):
+                        assert sub_output.data.get(key) == approx(multi_job_dict[filename][idx].get(key))
+                    else:
+                        assert_allclose(sub_output.data.get(key), multi_job_dict[filename][idx].get(key), atol=1e-6)
 
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
