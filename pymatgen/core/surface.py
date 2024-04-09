@@ -1328,6 +1328,8 @@ class SlabGenerator:
 
         # Calculate the moving distance as the fractional height
         # of the Slab inside the cell
+        # DEBUG(@DanielYang59): the use actually sizes for slab/vac
+        # instead of the input arg (min_slab/vac_size)
         nlayers_slab: int = math.ceil(self.min_slab_size / height)
         nlayers_vac: int = math.ceil(self.min_vac_size / height)
         nlayers: int = nlayers_slab + nlayers_vac
@@ -1421,7 +1423,7 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 
 
 def get_d(slab: Slab) -> float:
-    """Determine the distance between the bottom two layers for a Slab.
+    """Determine the z-spacing between the bottom two layers for a Slab.
 
     TODO (@DanielYang59): this should be private/internal to ReconstructionGenerator
     """
@@ -1437,11 +1439,11 @@ def get_d(slab: Slab) -> float:
 
 
 class ReconstructionGenerator:
-    """This class takes in a pre-defined dictionary specifying the parameters
-    need to build a reconstructed slab such as the SlabGenerator parameters,
-    transformation matrix, sites to remove/add and slab/vacuum size. It will
-    then use the formatted instructions provided by the dictionary to build
-    the desired reconstructed slab from the initial structure.
+    """Build a reconstructed Slab from a given initial Structure.
+
+    This class needs a pre-defined dictionary specifying the parameters
+    needed such as the SlabGenerator parameters, transformation matrix,
+    sites to remove/add and slab/vacuum sizes.
 
     Attributes:
         slabgen_params (dict): Parameters for the SlabGenerator.
@@ -1455,7 +1457,7 @@ class ReconstructionGenerator:
 
     Todo:
         - Right now there is no way to specify what atom is being added.
-            In the future, use basis sets?
+            Use basis sets in the future?
     """
 
     def __init__(
@@ -1475,8 +1477,8 @@ class ReconstructionGenerator:
                 that to ensure that the miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
-            min_slab_size (float): In Angstroms
-            min_vacuum_size (float): In Angstroms
+            min_slab_size (float): Minimum Slab size in Angstroms.
+            min_vacuum_size (float): Minimum vacuum layer size un Angstroms.
             reconstruction_name (str): Name of the dict containing the instructions
                 for building a reconstructed slab. The dictionary can contain
                 any item the creator deems relevant, however any instructions
