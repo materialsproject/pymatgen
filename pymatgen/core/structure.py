@@ -1874,7 +1874,7 @@ class IStructure(SiteCollection, MSONable):
         center_indices, points_indices, images, distances = self.get_neighbor_list(
             r=r, sites=sites, numerical_tol=numerical_tol
         )
-        if not points_indices:
+        if len(points_indices) < 1:
             return [[]] * len(sites)
         f_coords = self.frac_coords[points_indices] + images
         neighbor_dict: dict[int, list] = collections.defaultdict(list)

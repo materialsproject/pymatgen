@@ -1340,7 +1340,7 @@ class Lattice(MSONable):
             _, indices, images, distances = find_points_in_spheres(
                 all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
             )
-            if not indices:
+            if len(indices) < 1:
                 return [] if zip_results else [()] * 4
             frac_coords = frac_points[indices] + images
             if zip_results:
