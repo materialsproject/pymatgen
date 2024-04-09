@@ -1536,23 +1536,23 @@ class ReconstructionGenerator:
                         additional sites can be added by "points_to_add".
 
         Notes:
-                1. For "points_to_remove" and "points_to_add", the third index
-                    for the c vector is specified in units of 1/d, where d represents
-                    the spacing between atoms along the hkl (the c vector), relative
-                    to the topmost site in the unreconstructed slab. For instance,
-                    a point of [0.5, 0.25, 1] corresponds to the 0.5 fractional
-                    coordinate of a, 0.25 fractional coordinate of b, and a
-                    distance of 1 atomic layer above the topmost site. Similarly,
-                    [0.5, 0.25, -0.5] corresponds to a point half an atomic layer
-                    below the topmost site, and [0.5, 0.25, 0] corresponds to a
-                    point at the same position along c as the topmost site.
-                    This approach is employed because while the primitive units
-                    of a and b remain constant, the user can vary the length
-                    of the c direction by adjusting the slab layer or the vacuum layer.
+            1. For "points_to_remove" and "points_to_add", the third index
+                for the c vector is specified in units of 1/d, where d represents
+                the spacing between atoms along the hkl (the c vector), relative
+                to the topmost site in the unreconstructed slab. For instance,
+                a point of [0.5, 0.25, 1] corresponds to the 0.5 fractional
+                coordinate of a, 0.25 fractional coordinate of b, and a
+                distance of 1 atomic layer above the topmost site. Similarly,
+                [0.5, 0.25, -0.5] corresponds to a point half an atomic layer
+                below the topmost site, and [0.5, 0.25, 0] corresponds to a
+                point at the same position along c as the topmost site.
+                This approach is employed because while the primitive units
+                of a and b remain constant, the user can vary the length
+                of the c direction by adjusting the slab layer or the vacuum layer.
 
-                2. The dictionary should only provide "points_to_remove" and
-                    "points_to_add" for the top surface. The ReconstructionGenerator
-                    will modify the bottom surface accordingly to return a symmetric Slab.
+            2. The dictionary should only provide "points_to_remove" and
+                "points_to_add" for the top surface. The ReconstructionGenerator
+                will modify the bottom surface accordingly to return a symmetric Slab.
         """
 
         def build_recon_json() -> dict:
@@ -1599,7 +1599,7 @@ class ReconstructionGenerator:
 
         def build_slabgen_params() -> dict:
             """Build SlabGenerator parameters."""
-            slabgen_params = copy.deepcopy(recon_json["SlabGenerator_parameters"])
+            slabgen_params: dict = copy.deepcopy(recon_json["SlabGenerator_parameters"])
             slabgen_params["initial_structure"] = initial_structure.copy()
             slabgen_params["miller_index"] = recon_json["miller_index"]
             slabgen_params["min_slab_size"] = min_slab_size
@@ -1619,45 +1619,53 @@ class ReconstructionGenerator:
         self.trans_matrix = recon_json["transformation_matrix"]
 
     def build_slabs(self) -> list[Slab]:
-        """Builds the reconstructed Slabs by:
+        """Build reconstructed Slabs by:
             (1) Obtaining the unreconstructed Slab using the specified
                 parameters for the SlabGenerator.
             (2) Applying the appropriate lattice transformation to the
                 a and b lattice vectors.
-            (3) Remove specified sites from both surfaces.
-            (4) Add specified sites to both surfaces.
+            (3) Remove and then add specified sites from both surfaces.
 
         Returns:
             list[Slab]: The reconstructed slabs.
         """
         slabs = self.get_unreconstructed_slabs()
+
         recon_slabs = []
 
         for slab in slabs:
-            d = get_d(slab)
+            z_spacing = get_d(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
-            # Remove any specified sites
+            # Remove specified sites
             if "points_to_remove" in self.reconstruction_json:
-                pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
-                for p in pts_to_rm:
-                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
-                    cart_point = slab.lattice.get_cartesian_coords(p)
-                    dist = [site.distance_from_point(cart_point) for site in slab]
-                    site1 = dist.index(min(dist))
-                    slab.symmetrically_remove_atoms([site1])
+                sites_to_rm: list = copy.deepcopy(self.reconstruction_json["points_to_remove"])
+                for site in sites_to_rm:
+                    site[2] = slab.lattice.get_fractional_coords(
+                        [top_site[0], top_site[1], top_site[2] + site[2] * z_spacing]
+                    )[2]
 
-            # Add any specified sites
+                    # Find and remove nearest site
+                    cart_point = slab.lattice.get_cartesian_coords(site)
+                    distances: list[float] = [site.distance_from_point(cart_point) for site in slab]
+                    nearest_site = distances.index(min(distances))
+                    slab.symmetrically_remove_atoms(indices=[nearest_site])
+
+            # Add specified sites
             if "points_to_add" in self.reconstruction_json:
-                pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
-                for p in pts_to_add:
-                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
-                    slab.symmetrically_add_atom(slab[0].specie, p)
+                sites_to_add: list = copy.deepcopy(self.reconstruction_json["points_to_add"])
+                for site in sites_to_add:
+                    site[2] = slab.lattice.get_fractional_coords(
+                        [top_site[0], top_site[1], top_site[2] + site[2] * z_spacing]
+                    )[2]
+                    # TODO: see ReconstructionGenerator docstring:
+                    # cannot specify species to add
+                    slab.symmetrically_add_atom(species=slab[0].specie, point=site)
 
             slab.reconstruction = self.name
             slab.recon_trans_matrix = self.trans_matrix
 
-            # Get the oriented_unit_cell with the same axb area.
+            # Get the oriented unit cell with the same a*b area
             ouc = slab.oriented_unit_cell.copy()
             ouc.make_supercell(self.trans_matrix)
             slab.oriented_unit_cell = ouc
@@ -1666,11 +1674,15 @@ class ReconstructionGenerator:
         return recon_slabs
 
     def get_unreconstructed_slabs(self) -> list[Slab]:
-        """Generates the unreconstructed or pristine super slab."""
+        """Generate the unreconstructed (super) Slabs.
+
+        TODO (@DanielYang59): this should be a private method.
+        """
         slabs: list[Slab] = []
         for slab in SlabGenerator(**self.slabgen_params).get_slabs():
             slab.make_supercell(self.trans_matrix)
             slabs.append(slab)
+
         return slabs
 
 
