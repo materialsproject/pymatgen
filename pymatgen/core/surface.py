@@ -21,7 +21,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd, isclose
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.fractions import lcm
@@ -36,6 +36,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -832,6 +833,7 @@ class SlabGenerator:
 
         def calculate_scaling_factor() -> np.ndarray:
             """Calculate scaling factor.
+
             # TODO (@DanielYang59): revise docstring to add more details.
             """
             slab_scale_factor = []
@@ -879,7 +881,7 @@ class SlabGenerator:
                     osdm = np.linalg.norm(vec)
                     cosine = abs(np.dot(vec, normal) / osdm)
                     candidates.append((uvw, cosine, osdm))
-                    # Stop searching if cosine equals 1/-1
+                    # Stop searching if cosine equals 1 or -1
                     if isclose(abs(cosine), 1, abs_tol=1e-8):
                         break
                 # We want the indices with the maximum absolute cosine,
@@ -1425,13 +1427,14 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 def get_d(slab: Slab) -> float:
     """Determine the z-spacing between the bottom two layers for a Slab.
 
-    TODO (@DanielYang59): this should be private/internal to ReconstructionGenerator
+    TODO (@DanielYang59): this should be private/internal to ReconstructionGenerator?
     """
     # Sort all sites by z-coordinates
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     for site, next_site in zip(sorted_sites, sorted_sites[1:]):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
+            # DEBUG (@DanielYang59): code will break if no distinguishable layers found
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
 
@@ -1452,8 +1455,7 @@ class ReconstructionGenerator:
             actually changed while the c vector remains the same.
             This matrix is what the Wood's notation is based on.
         reconstruction_json (dict): The full json or dictionary containing
-            the instructions for building the reconstructed slab.
-        termination (int): The index of the termination of the slab.
+            the instructions for building the slab.
 
     Todo:
         - Right now there is no way to specify what atom is being added.
@@ -1467,148 +1469,163 @@ class ReconstructionGenerator:
         min_vacuum_size: float,
         reconstruction_name: str,
     ) -> None:
-        """Generates reconstructed slabs from a set of instructions
-            specified by a dictionary or json file.
-
-        TODO (@DanielYang59): use "site" over "point" for consistency
+        """Generates reconstructed slabs from a set of instructions.
 
         Args:
             initial_structure (Structure): Initial input structure. Note
                 that to ensure that the miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
-            min_slab_size (float): Minimum Slab size in Angstroms.
-            min_vacuum_size (float): Minimum vacuum layer size un Angstroms.
-            reconstruction_name (str): Name of the dict containing the instructions
-                for building a reconstructed slab. The dictionary can contain
-                any item the creator deems relevant, however any instructions
-                archived in pymatgen for public use needs to contain the
-                following keys and items to ensure compatibility with the
-                ReconstructionGenerator:
+            min_slab_size (float): Minimum Slab size in Angstrom.
+            min_vacuum_size (float): Minimum vacuum layer size in Angstrom.
+            reconstruction_name (str): Name of the dict containing the build
+                instructions. The dictionary can contain any item, however
+                any instructions archived in pymatgen for public use need
+                to contain the following keys and items to ensure
+                compatibility with the ReconstructionGenerator:
 
-                    "name" (str): A descriptive name for the type of
-                        reconstruction. Typically the name will have the type
-                        of structure the reconstruction is for, the Miller
-                        index, and Wood's notation along with anything to
-                        describe the reconstruction: e.g.:
-                        "fcc_110_missing_row_1x2"
-                    "description" (str): A longer description of your
-                        reconstruction. This is to help future contributors who
-                        want to add other types of reconstructions to the
-                        archive on pymatgen to check if the reconstruction
-                        already exists. Please read the descriptions carefully
-                        before adding a new type of reconstruction to ensure it
-                        is not in the archive yet.
-                    "reference" (str): Optional reference to where the
-                        reconstruction was taken from or first observed.
-                    "spacegroup" (dict): e.g. {"symbol": "Fm-3m", "number": 225}
-                        Indicates what kind of structure is this reconstruction.
-                    "miller_index" ([h,k,l]): Miller index of your reconstruction
+                    "name" (str): A descriptive name for the reconstruction,
+                        typically including the type of structure,
+                        the Miller index, the Wood's notation and additional
+                        descriptors for the reconstruction.
+                        Example: "fcc_110_missing_row_1x2"
+                    "description" (str): A detailed description of the
+                        reconstruction, intended to assist future contributors
+                        in avoiding duplicate entries. Please read the description
+                        carefully before adding to prevent duplications.
+                    "reference" (str): Optional reference to the source of
+                        the reconstruction.
+                    "spacegroup" (dict): A dictionary indicating the space group
+                        of the reconstruction. e.g. {"symbol": "Fm-3m", "number": 225}.
+                    "miller_index" ([h, k, l]): Miller index of the reconstruction
                     "Woods_notation" (str): For a reconstruction, the a and b
-                        lattice may change to accommodate the symmetry of the
-                        reconstruction. This notation indicates the change in
+                        lattice may change to accommodate the symmetry.
+                        This notation indicates the change in
                         the vectors relative to the primitive (p) or
-                        conventional (c) slab cell. E.g. p(2x1):
+                        conventional (c) slab cell. E.g. p(2x1).
 
-                        Wood, E. A. (1964). Vocabulary of surface
+                        Reference: Wood, E. A. (1964). Vocabulary of surface
                         crystallography. Journal of Applied Physics, 35(4),
                         1306-1312.
-
                     "transformation_matrix" (numpy array): A 3x3 matrix to
                         transform the slab. Only the a and b lattice vectors
                         should change while the c vector remains the same.
                     "SlabGenerator_parameters" (dict): A dictionary containing
-                        the parameters for the SlabGenerator class excluding the
-                        miller_index, min_slab_size and min_vac_size as the
+                        the parameters for the SlabGenerator, excluding the
+                        miller_index, min_slab_size and min_vac_size. As the
                         Miller index is already specified and the min_slab_size
-                        and min_vac_size can be changed regardless of what type
-                        of reconstruction is used. Having a consistent set of
+                        and min_vac_size can be changed regardless of the
+                        reconstruction type. Having a consistent set of
                         SlabGenerator parameters allows for the instructions to
-                        be reused to consistently build a reconstructed slab.
-                    "points_to_remove" (list of coords): A list of sites to
-                        remove where the first two indices are fraction (in a
-                        and b) and the third index is in units of 1/d (in c).
-                    "points_to_add" (list of frac_coords): A list of sites to add
-                        where the first two indices are fraction (in a an b) and
-                        the third index is in units of 1/d (in c).
-
-                    "base_reconstruction" (dict): Option to base a reconstruction on
-                        an existing reconstruction model also exists to easily build
-                        the instructions without repeating previous work. E.g. the
+                        be reused.
+                    "points_to_remove" (list[site]): A list of sites to
+                        remove where the first two indices are fractional (in a
+                        and b) and the third index is in units of 1/d (in c),
+                        see the below "Notes" for details.
+                    "points_to_add" (list[site]): A list of sites to add
+                        where the first two indices are fractional (in a an b) and
+                        the third index is in units of 1/d (in c), see the below
+                        "Notes" for details.
+                    "base_reconstruction" (dict, Optional): A dictionary specifying
+                        an existing reconstruction model upon which the current
+                        reconstruction is built to avoid repetition. E.g. the
                         alpha reconstruction of halites is based on the octopolar
                         reconstruction but with the topmost atom removed. The dictionary
                         for the alpha reconstruction would therefore contain the item
                         "reconstruction_base": "halite_111_octopolar_2x2", and
-                        additional sites for "points_to_remove" and "points_to_add"
-                        can be added to modify this reconstruction.
+                        additional sites can be added by "points_to_add".
 
-                    For "points_to_remove" and "points_to_add", the third index for
-                        the c vector is in units of 1/d where d is the spacing
-                        between atoms along hkl (the c vector) and is relative to
-                        the topmost site in the unreconstructed slab. e.g. a point
-                        of [0.5, 0.25, 1] corresponds to the 0.5 frac_coord of a,
-                        0.25 frac_coord of b and a distance of 1 atomic layer above
-                        the topmost site. [0.5, 0.25, -0.5] where the third index
-                        corresponds to a point half a atomic layer below the topmost
-                        site. [0.5, 0.25, 0] corresponds to a point in the same
-                        position along c as the topmost site. This is done because
-                        while the primitive units of a and b will remain constant,
-                        the user can vary the length of the c direction by changing
-                        the slab layer or the vacuum layer.
+        Notes:
+                1. For "points_to_remove" and "points_to_add", the third index
+                    for the c vector is specified in units of 1/d, where d represents
+                    the spacing between atoms along the hkl (the c vector), relative
+                    to the topmost site in the unreconstructed slab. For instance,
+                    a point of [0.5, 0.25, 1] corresponds to the 0.5 fractional
+                    coordinate of a, 0.25 fractional coordinate of b, and a
+                    distance of 1 atomic layer above the topmost site. Similarly,
+                    [0.5, 0.25, -0.5] corresponds to a point half an atomic layer
+                    below the topmost site, and [0.5, 0.25, 0] corresponds to a
+                    point at the same position along c as the topmost site.
+                    This approach is employed because while the primitive units
+                    of a and b remain constant, the user can vary the length
+                    of the c direction by adjusting the slab layer or the vacuum layer.
 
-            NOTE: THE DICTIONARY SHOULD ONLY CONTAIN "points_to_remove" AND
-            "points_to_add" FOR THE TOP SURFACE. THE ReconstructionGenerator
-            WILL MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB WITH
-            EQUIVALENT SURFACES.
+                2. The dictionary should only provide "points_to_remove" and
+                    "points_to_add" for the top surface. The ReconstructionGenerator
+                    will modify the bottom surface accordingly to return a symmetric Slab.
         """
-        if reconstruction_name not in reconstructions_archive:
-            raise KeyError(
-                f"{reconstruction_name=} does not exist in the archive. Please select "
-                f"from one of the following reconstructions: {list(reconstructions_archive)} "
-                "or add the appropriate dictionary to the archive file "
-                "reconstructions_archive.json."
-            )
 
-        # Get the instructions to build the reconstruction
-        # from the reconstruction_archive
-        recon_json = copy.deepcopy(reconstructions_archive[reconstruction_name])
-        new_points_to_add, new_points_to_remove = [], []
-        if "base_reconstruction" in recon_json:
-            if "points_to_add" in recon_json:
-                new_points_to_add = recon_json["points_to_add"]
-            if "points_to_remove" in recon_json:
-                new_points_to_remove = recon_json["points_to_remove"]
+        def build_recon_json() -> dict:
+            """Build reconstruction instructions, optionally upon a base instruction set."""
+            # Check if reconstruction instruction exists
+            # TODO (@DanielYang59): can we avoid asking user to modify the source file?
+            if reconstruction_name not in reconstructions_archive:
+                raise KeyError(
+                    f"{reconstruction_name=} does not exist in the archive. "
+                    "Please select from one of the following: "
+                    f"{list(reconstructions_archive)} or add it to the "
+                    "archive file 'reconstructions_archive.json'."
+                )
+
+            # Get the reconstruction instructions from the archive file
+            recon_json: dict = copy.deepcopy(reconstructions_archive[reconstruction_name])
 
             # Build new instructions from a base reconstruction
-            recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
-            if "points_to_add" in recon_json:
-                del recon_json["points_to_add"]
-            if "points_to_remove" in recon_json:
-                del recon_json["points_to_remove"]
-            if new_points_to_add:
-                recon_json["points_to_add"] = new_points_to_add
-            if new_points_to_remove:
-                recon_json["points_to_remove"] = new_points_to_remove
+            if "base_reconstruction" in recon_json:
+                new_points_to_add: list = []
+                new_points_to_remove: list = []
 
-        slabgen_params = copy.deepcopy(recon_json["SlabGenerator_parameters"])
-        slabgen_params["initial_structure"] = initial_structure.copy()
-        slabgen_params["miller_index"] = recon_json["miller_index"]
-        slabgen_params["min_slab_size"] = min_slab_size
-        slabgen_params["min_vacuum_size"] = min_vacuum_size
+                if "points_to_add" in recon_json:
+                    new_points_to_add = recon_json["points_to_add"]
+                if "points_to_remove" in recon_json:
+                    new_points_to_remove = recon_json["points_to_remove"]
 
-        self.slabgen_params = slabgen_params
-        self.trans_matrix = recon_json["transformation_matrix"]
-        self.reconstruction_json = recon_json
+                # DEBUG (@DanielYang59): the following overwrites previously
+                # loaded "recon_json", use condition to avoid this
+                recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
+
+                # TODO (@DanielYang59): use "site" over "point" for consistency?
+                if "points_to_add" in recon_json:
+                    del recon_json["points_to_add"]
+                if new_points_to_add:
+                    recon_json["points_to_add"] = new_points_to_add
+
+                if "points_to_remove" in recon_json:
+                    del recon_json["points_to_remove"]
+                if new_points_to_remove:
+                    recon_json["points_to_remove"] = new_points_to_remove
+
+            return recon_json
+
+        def build_slabgen_params() -> dict:
+            """Build SlabGenerator parameters."""
+            slabgen_params = copy.deepcopy(recon_json["SlabGenerator_parameters"])
+            slabgen_params["initial_structure"] = initial_structure.copy()
+            slabgen_params["miller_index"] = recon_json["miller_index"]
+            slabgen_params["min_slab_size"] = min_slab_size
+            slabgen_params["min_vacuum_size"] = min_vacuum_size
+
+            return slabgen_params
+
+        # Build reconstruction instructions
+        recon_json = build_recon_json()
+
+        # Build SlabGenerator parameters
+        slabgen_params = build_slabgen_params()
+
         self.name = reconstruction_name
+        self.slabgen_params = slabgen_params
+        self.reconstruction_json = recon_json
+        self.trans_matrix = recon_json["transformation_matrix"]
 
     def build_slabs(self) -> list[Slab]:
-        """Builds the reconstructed slab by:
-            (1) Obtaining the unreconstructed slab using the specified
+        """Builds the reconstructed Slabs by:
+            (1) Obtaining the unreconstructed Slab using the specified
                 parameters for the SlabGenerator.
-            (2) Applying the appropriate lattice transformation in the
+            (2) Applying the appropriate lattice transformation to the
                 a and b lattice vectors.
-            (3) Remove any specified sites from both surfaces.
-            (4) Add any specified sites to both surfaces.
+            (3) Remove specified sites from both surfaces.
+            (4) Add specified sites to both surfaces.
 
         Returns:
             list[Slab]: The reconstructed slabs.
@@ -1663,15 +1680,16 @@ def get_symmetrically_equivalent_miller_indices(
     return_hkil: bool = True,
     system: CrystalSystem | None = None,
 ) -> list:
-    """Returns all symmetrically equivalent indices for a given structure. Analysis
-    is based on the symmetry of the reciprocal lattice of the structure.
+    """Get indices for all symmetrically equivalent sites for a given
+    structure. Analysis is based on the symmetry of the reciprocal
+    lattice of the structure.
 
     Args:
         structure (Structure): Structure to analyze
         miller_index (tuple): Designates the family of Miller indices
-            to find. Can be hkl or hkil for hexagonal systems
+            to find. Can be hkl or hkil for hexagonal systems.
         return_hkil (bool): If true, return hkil form of Miller
-            index for hexagonal systems, otherwise return hkl
+            index for hexagonal systems, otherwise return hkl.
         system: If known, specify the crystal system of the structure
             so that it does not need to be re-calculated.
     """
@@ -1954,19 +1972,23 @@ def generate_all_slabs(
     return all_slabs
 
 
-def get_slab_regions(slab: Structure, blength: float = 3.5) -> list[list]:
-    """Function to get the ranges of the slab regions. Useful for discerning where
-    the slab ends and vacuum begins if the slab is not fully within the cell.
+def get_slab_regions(slab: Slab, blength: float = 3.5) -> list[list]:
+    """Find the z-ranges for the slab regions.
+
+    Useful for discerning where the slab ends and vacuum begins
+    if the slab is not fully within the cell.
+
+    TODO (@DanielYang59): this should be a (class) method for Slab?
 
     Args:
-        slab (Structure): Structure object modelling the surface
-        blength (float, Ang): The bondlength between atoms. You generally
-            want this value to be larger than the actual bondlengths in
-            order to find atoms that are part of the slab.
+        slab (Slab): The Slab to analyse.
+        blength (float): The bond length between atoms in Anstrom.
+            You generally want this value to be larger than the actual
+            bond length in order to find atoms that are part of the slab.
     """
     fcoords, indices, all_indices = [], [], []
     for site in slab:
-        # find sites with c < 0 (noncontiguous)
+        # Find sites with c < 0 (noncontiguous)
         neighbors = slab.get_neighbors(site, blength, include_index=True, include_image=True)
         for nn in neighbors:
             if nn[0].frac_coords[2] < 0:
@@ -2071,6 +2093,8 @@ def center_slab(slab: Slab) -> Slab:
 
     3. This is a simpler case of scenario 2. Either the top or bottom
     slab sites are at c=0 or c=1. Treat as scenario 2.
+
+    TODO (@DanielYang59): this should be a method for Slab?
 
     Args:
         slab (Slab): Slab structure to center
