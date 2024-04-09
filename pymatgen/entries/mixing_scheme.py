@@ -182,7 +182,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             # how many stable entries from run_type_1 do we have in run_type_2?
             hull_entries_2 = 0
             stable_df = mixing_state_data[mixing_state_data["is_stable_1"]]
-            if stable_df:
+            if not stable_df.empty:
                 hull_entries_2 = sum(stable_df["energy_2"].notna())
             print(
                 f"  Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
