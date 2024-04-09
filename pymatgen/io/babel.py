@@ -70,7 +70,7 @@ class BabelMolAdaptor:
                 ob_atom = openbabel.OBAtom()
                 ob_atom.thisown = 0
                 ob_atom.SetAtomicNum(atom_no)
-                ob_atom.SetVector(*coords)
+                ob_atom.SetVector(*map(float, coords))
                 ob_mol.AddAtom(ob_atom)
                 del ob_atom
             ob_mol.ConnectTheDots()
