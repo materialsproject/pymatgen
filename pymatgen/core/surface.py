@@ -1421,15 +1421,19 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 
 
 def get_d(slab: Slab) -> float:
-    """Determine the distance of space between each layer of atoms along z-axis.
-    TODO (@DanielYang59): revise docstring.
+    """Determine the distance between the bottom two layers for a Slab.
+
+    TODO (@DanielYang59): this should be private/internal to ReconstructionGenerator
     """
+    # Sort all sites by z-coordinates
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-    for idx, site in enumerate(sorted_sites, start=1):
-        if f"{site.frac_coords[2]:.6f}" != f"{sorted_sites[idx].frac_coords[2]:.6f}":
-            d = abs(site.frac_coords[2] - sorted_sites[idx].frac_coords[2])
+
+    for site, next_site in zip(sorted_sites, sorted_sites[1:]):
+        if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
+            distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
-    return slab.lattice.get_cartesian_coords([0, 0, d])[2]
+
+    return slab.lattice.get_cartesian_coords([0, 0, distance])[2]
 
 
 class ReconstructionGenerator:
