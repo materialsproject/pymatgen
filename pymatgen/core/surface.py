@@ -1,4 +1,6 @@
-"""This module implements representations of Slabs, and methods for generating them.
+"""This module implements representation of Slab, SlabGenerator
+for generating Slabs, and ReconstructionGenerator to generate
+reconstructed Slabs.
 
 If you use this module, please consider citing the following work:
 
@@ -2054,7 +2056,7 @@ def miller_index_from_sites(
     round_dp: int = 4,
     verbose: bool = True,
 ) -> tuple[int, int, int]:
-    """Get the Miller index of a plane for a given set coordinates.
+    """Get the Miller index of a plane, determined by a given set of coordinates.
 
     A minimum of 3 sets of coordinates are required. If more than 3
     coordinates are given, the plane that minimises the distance to all
