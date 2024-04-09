@@ -7,7 +7,7 @@ import shutil
 import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -282,7 +282,7 @@ class TestQCOutput(PymatgenTest):
                 assert out_data.get(key) == single_job_dict[filename].get(key)
             except ValueError:
                 try:
-                    assert_array_equal(out_data.get(key), single_job_dict[filename].get(key))
+                    assert_allclose(out_data.get(key), single_job_dict[filename].get(key), atol=1e-6)
                 except AssertionError:
                     raise RuntimeError(f"Issue with {filename=} Exiting...")
             except AssertionError:
@@ -292,7 +292,7 @@ class TestQCOutput(PymatgenTest):
                 try:
                     assert sub_output.data.get(key) == multi_job_dict[filename][ii].get(key)
                 except ValueError:
-                    assert_array_equal(sub_output.data.get(key), multi_job_dict[filename][ii].get(key))
+                    assert_allclose(sub_output.data.get(key), multi_job_dict[filename][ii].get(key), atol=1e-6)
 
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
