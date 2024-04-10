@@ -84,4 +84,5 @@ jobs:
 
       - name: pytest split ${{ matrix.split }}
         run: |
-          micromamba run -n pmg pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          micromamba activate pmg
+          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
