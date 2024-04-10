@@ -53,10 +53,10 @@ jobs:
 
       - name: Create mamba environment
         run: |
-          micromamba create -n pymatgen python=${{ matrix.python-version }} --yes
+          micromamba create -n pmg python=${{ matrix.python-version }} --yes
 
       - name: Install uv
-        run: micromamba run -n pymatgen pip install uv
+        run: micromamba run -n pmg pip install uv
 
       - name: Copy GULP to bin
         if: matrix.os == 'ubuntu-latest'
@@ -66,27 +66,27 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pymatgen -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
+          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
 
       - name: Install pymatgen and dependencies
         run: |
           # TODO remove temporary fix. added since uv install torch is flaky.
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          micromamba run -n pymatgen uv pip install torch
+          micromamba run -n pmg uv pip install torch
 
-          micromamba run -n pymatgen uv pip install numpy cython
+          micromamba run -n pmg uv pip install numpy cython
 
-          micromamba run -n pymatgen uv pip install -e .[dev,optional]
+          micromamba run -n pmg uv pip install -e .[dev,optional]
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
-          micromamba run -n pymatgen uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
+          micromamba run -n pmg uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
 
       - name: Reinstall pymongo
         run: |
           # Reinstall pymongo to fix compatibility issue https://github.com/hyperopt/hyperopt/issues/547
-          micromamba run -n pymatgen uv pip uninstall bson
-          micromamba run -n pymatgen uv pip install pymongo
+          micromamba run -n pmg uv pip uninstall bson
+          micromamba run -n pmg uv pip install pymongo
 
       - name: pytest split ${{ matrix.split }}
         run: |
-          micromamba run -n pymatgen pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          micromamba run -n pmg pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
