@@ -160,7 +160,7 @@ class TestInput(PymatgenTest):
         assert cp2k_input["GLOBAL"]["PROJECT_NAME"].description == "default name"
         self.assert_msonable(cp2k_input)
 
-    def test_sectionlist(self):
+    def test_section_list(self):
         s1 = Section("TEST")
         sl = SectionList(sections=[s1, s1])
         for s in sl:

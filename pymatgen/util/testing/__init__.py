@@ -143,5 +143,5 @@ class PymatgenTest(TestCase):
         assert obj.as_dict() == type(obj).from_dict(obj.as_dict()).as_dict()
         json_str = obj.to_json()
         round_trip = json.loads(json_str, cls=MontyDecoder)
-        assert isinstance(round_trip, type(obj))
+        assert issubclass(type(round_trip), type(obj)), f"{type(round_trip)} != {type(obj)}"
         return json_str
