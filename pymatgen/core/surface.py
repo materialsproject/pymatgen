@@ -1466,11 +1466,11 @@ class SlabGenerator:
         # of the Slab inside the cell
         # DEBUG(@DanielYang59): the use actually sizes for slab/vac
         # instead of the input arg (min_slab/vac_size)
-        nlayers_slab: int = math.ceil(self.min_slab_size / height)
-        nlayers_vac: int = math.ceil(self.min_vac_size / height)
-        nlayers: int = nlayers_slab + nlayers_vac
+        n_layers_slab: int = math.ceil(self.min_slab_size / height)
+        n_layers_vac: int = math.ceil(self.min_vac_size / height)
+        n_layers: int = n_layers_slab + n_layers_vac
 
-        frac_dist: float = nlayers_slab / nlayers
+        frac_dist: float = n_layers_slab / n_layers
 
         # Separate selected sites into top and bottom
         top_site_index: list[int] = []
@@ -1661,9 +1661,9 @@ def generate_all_slabs(
         symbol = SpacegroupAnalyzer(structure).get_space_group_symbol()
         # Enumerate through all reconstructions in the
         # archive available for this particular spacegroup
-        for name, instructions in reconstructions_archive.items():
+        for name, instructions in RECONSTRUCTIONS_ARCHIVE.items():
             if "base_reconstruction" in instructions:
-                instructions = reconstructions_archive[instructions["base_reconstruction"]]
+                instructions = RECONSTRUCTIONS_ARCHIVE[instructions["base_reconstruction"]]
 
             if instructions["spacegroup"]["symbol"] == symbol:
                 # Make sure this reconstruction has a max index
@@ -1679,7 +1679,7 @@ def generate_all_slabs(
 # Load the reconstructions_archive json file
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
-    reconstructions_archive = json.load(data_file)
+    RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
 
 
 def get_d(slab: Slab) -> float:
@@ -1817,16 +1817,16 @@ class ReconstructionGenerator:
             """Build reconstruction instructions, optionally upon a base instruction set."""
             # Check if reconstruction instruction exists
             # TODO (@DanielYang59): can we avoid asking user to modify the source file?
-            if reconstruction_name not in reconstructions_archive:
+            if reconstruction_name not in RECONSTRUCTIONS_ARCHIVE:
                 raise KeyError(
                     f"{reconstruction_name=} does not exist in the archive. "
                     "Please select from one of the following: "
-                    f"{list(reconstructions_archive)} or add it to the "
+                    f"{list(RECONSTRUCTIONS_ARCHIVE)} or add it to the "
                     "archive file 'reconstructions_archive.json'."
                 )
 
             # Get the reconstruction instructions from the archive file
-            recon_json: dict = copy.deepcopy(reconstructions_archive[reconstruction_name])
+            recon_json: dict = copy.deepcopy(RECONSTRUCTIONS_ARCHIVE[reconstruction_name])
 
             # Build new instructions from a base reconstruction
             if "base_reconstruction" in recon_json:
@@ -1840,7 +1840,7 @@ class ReconstructionGenerator:
 
                 # DEBUG (@DanielYang59): the following overwrites previously
                 # loaded "recon_json", use condition to avoid this
-                recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
+                recon_json = copy.deepcopy(RECONSTRUCTIONS_ARCHIVE[recon_json["base_reconstruction"]])
 
                 # TODO (@DanielYang59): use "site" over "point" for consistency?
                 if "points_to_add" in recon_json:
