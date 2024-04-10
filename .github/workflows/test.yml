@@ -19,6 +19,9 @@ jobs:
   test:
     # prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
+    defaults:
+      run:
+        shell: bash -l {0} # enables conda/mamba env activation
     strategy:
       fail-fast: false
       matrix:
