@@ -21,7 +21,7 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
     defaults:
       run:
-        shell: bash -l {0} # enables conda/mamba env activation
+        shell: bash -l {0} # enables conda/mamba env activation by reading bash profile
     strategy:
       fail-fast: false
       matrix:
@@ -80,7 +80,7 @@ jobs:
 
           uv pip install numpy cython
 
-          uv pip install -e '.[dev,optional]'
+          uv pip install --editable '.[dev,optional]'
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
