@@ -1735,14 +1735,14 @@ def get_symmetrically_equivalent_miller_indices(
             continue
 
         if any(idx != 0 for idx in miller):
-            if _is_already_analyzed(miller, equivalent_millers, symm_ops):
+            if _is_in_miller_family(miller, equivalent_millers, symm_ops):
                 equivalent_millers += [miller]
 
             # Include larger Miller indices in the family of planes
             if (
                 all(max_idx > i for i in np.abs(miller))
                 and not in_coord_list(equivalent_millers, miller)
-                and _is_already_analyzed(max_idx * np.array(miller), equivalent_millers, symm_ops)
+                and _is_in_miller_family(max_idx * np.array(miller), equivalent_millers, symm_ops)
             ):
                 equivalent_millers += [miller]
 
@@ -1796,7 +1796,7 @@ def get_symmetrically_distinct_miller_indices(
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
         miller = cast(tuple[int, int, int], tuple(int(idx / denom) for idx in miller))
-        if not _is_already_analyzed(miller, unique_millers, symm_ops):
+        if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
@@ -1815,15 +1815,13 @@ def get_symmetrically_distinct_miller_indices(
     return unique_millers_conv
 
 
-def _is_already_analyzed(
+def _is_in_miller_family(
     miller_index: tuple[int, int, int],
     miller_list: list[tuple[int, int, int]],
     symm_ops: list,
 ) -> bool:
     """Helper function to check if the given Miller index belongs
-    to the same family of indices as any index in the provided list.
-
-    TODO (@DanielYang59): function name is not descriptive
+    to the same family of any index in the provided list.
 
     Args:
         miller_index (tuple): The Miller index to analyze.
