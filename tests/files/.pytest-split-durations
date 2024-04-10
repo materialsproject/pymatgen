@@ -1552,7 +1552,7 @@
     "tests/io/cp2k/test_inputs.py::TestInput::test_mongo": 0.005608417035546154,
     "tests/io/cp2k/test_inputs.py::TestInput::test_odd_file": 0.011910750006791204,
     "tests/io/cp2k/test_inputs.py::TestInput::test_preprocessor": 0.005230542039498687,
-    "tests/io/cp2k/test_inputs.py::TestInput::test_sectionlist": 0.005215583078097552,
+    "tests/io/cp2k/test_inputs.py::TestInput::test_section_list": 0.005215583078097552,
     "tests/io/cp2k/test_outputs.py::TestSet::test_band": 0.031144334003329277,
     "tests/io/cp2k/test_outputs.py::TestSet::test_chi": 0.029846749908756465,
     "tests/io/cp2k/test_outputs.py::TestSet::test_dos": 0.030147832992952317,

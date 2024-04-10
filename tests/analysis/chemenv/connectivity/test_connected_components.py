@@ -22,11 +22,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-try:
-    import bson  # type: ignore
-except ModuleNotFoundError:
-    bson = None  # type: ignore[assignment]
-
 __author__ = "waroquiers"
 
 
@@ -128,10 +123,9 @@ class TestConnectedComponent(PymatgenTest):
         cc_from_dict = ConnectedComponent.from_dict(cc.as_dict())
         cc_from_json = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
         loaded_cc_list = [cc_from_dict, cc_from_json]
-        if bson is not None:
-            bson_data = bson.BSON.encode(cc.as_dict())
-            cc_from_bson = ConnectedComponent.from_dict(bson_data.decode())
-            loaded_cc_list.append(cc_from_bson)
+        json_str = self.assert_msonable(cc)
+        cc_from_json = ConnectedComponent.from_dict(json.loads(json_str))
+        loaded_cc_list.append(cc_from_json)
         for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
