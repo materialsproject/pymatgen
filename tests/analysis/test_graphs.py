@@ -50,8 +50,6 @@ molecule_dir = f"{TEST_FILES_DIR}/molecules"
 
 class TestStructureGraph(PymatgenTest):
     def setUp(self):
-        self.maxDiff = None
-
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
