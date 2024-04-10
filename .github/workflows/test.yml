@@ -82,12 +82,6 @@ jobs:
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
 
-      - name: Reinstall pymongo
-        run: |
-          # Reinstall pymongo to fix compatibility issue https://github.com/hyperopt/hyperopt/issues/547
-          micromamba run -n pmg uv pip uninstall bson
-          micromamba run -n pmg uv pip install pymongo
-
       - name: pytest split ${{ matrix.split }}
         run: |
           micromamba run -n pmg pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
