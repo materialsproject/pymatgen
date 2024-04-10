@@ -289,15 +289,15 @@ class Slab(Structure):
         Returns:
             bool: Whether surfaces are symmetric.
         """
-        sg = SpacegroupAnalyzer(self, symprec=symprec)
-        symm_ops = sg.get_point_group_operations()
+        spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec)
+        symm_ops = spg_analyzer.get_point_group_operations()
 
         # Check for inversion symmetry. Or if sites from surface (a) can be translated
         # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
         # two surfaces of our slabs are always parallel to the (hkl) plane,
         # any operation where there's an (hkl) mirror plane has surface symmetry
         return (
-            sg.is_laue()
+            spg_analyzer.is_laue()
             or any(op.translation_vector[2] != 0 for op in symm_ops)
             or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
         )
@@ -346,8 +346,8 @@ class Slab(Structure):
         from pymatgen.analysis.local_env import VoronoiNN
 
         # Get a dictionary of coordination numbers for each distinct site in the structure
-        spga = SpacegroupAnalyzer(self.oriented_unit_cell)
-        u_cell = spga.get_symmetrized_structure()
+        spg_analyzer = SpacegroupAnalyzer(self.oriented_unit_cell)
+        u_cell = spg_analyzer.get_symmetrized_structure()
         cn_dict: dict = {}
         voronoi_nn = VoronoiNN()
         unique_indices = [equ[0] for equ in u_cell.equivalent_indices]
@@ -415,8 +415,8 @@ class Slab(Structure):
             ArrayLike: Fractional coordinate. A site equivalent to the
                 original site, but on the other side of the slab
         """
-        spga = SpacegroupAnalyzer(self)
-        ops = spga.get_symmetry_operations(cartesian=cartesian)
+        spg_analyzer = SpacegroupAnalyzer(self)
+        ops = spg_analyzer.get_symmetry_operations(cartesian=cartesian)
 
         # Each operation on a site will return an equivalent site.
         # We want to find the site on the other side of the slab.
@@ -506,8 +506,8 @@ class Slab(Structure):
         n_layers_slab = int(round((sorted_csites[-1].c - sorted_csites[0].c) * n_layers_total))
         slab_ratio = n_layers_slab / n_layers_total
 
-        spga = SpacegroupAnalyzer(self)
-        symm_structure = spga.get_symmetrized_structure()
+        spg_analyzer = SpacegroupAnalyzer(self)
+        symm_structure = spg_analyzer.get_symmetrized_structure()
 
         for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
             to_move = []
@@ -948,10 +948,10 @@ class SlabGenerator:
                 "bulk_wyckoff" not in initial_structure.site_properties
                 or "bulk_equivalent" not in initial_structure.site_properties
             ):
-                sg = SpacegroupAnalyzer(initial_structure)
-                initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
+                spg_analyzer = SpacegroupAnalyzer(initial_structure)
+                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset()["wyckoffs"])
                 initial_structure.add_site_property(
-                    "bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist()
+                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset()["equivalent_atoms"].tolist()
                 )
 
         def calculate_surface_normal() -> np.ndarray:
@@ -1936,12 +1936,7 @@ class ReconstructionGenerator:
 
         TODO (@DanielYang59): this should be a private method.
         """
-        slabs: list[Slab] = []
-        for slab in SlabGenerator(**self.slabgen_params).get_slabs():
-            slab.make_supercell(self.trans_matrix)
-            slabs.append(slab)
-
-        return slabs
+        return [slab.make_supercell(self.trans_matrix) for slab in SlabGenerator(**self.slabgen_params).get_slabs()]
 
 
 def get_symmetrically_equivalent_miller_indices(
@@ -1970,16 +1965,16 @@ def get_symmetrically_equivalent_miller_indices(
 
     # Skip crystal system analysis if already given
     if system:
-        sg = None
+        spg_analyzer = None
     else:
-        sg = SpacegroupAnalyzer(structure)
-        system = sg.get_crystal_system()
+        spg_analyzer = SpacegroupAnalyzer(structure)
+        system = spg_analyzer.get_crystal_system()
 
     # Get distinct hkl planes from the rhombohedral setting if trigonal
     if system == "trigonal":
-        if not sg:
-            sg = SpacegroupAnalyzer(structure)
-        prim_structure = sg.get_primitive_standard_structure()
+        if not spg_analyzer:
+            spg_analyzer = SpacegroupAnalyzer(structure)
+        prim_structure = spg_analyzer.get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
 
     else:
@@ -2035,9 +2030,9 @@ def get_symmetrically_distinct_miller_indices(
     conv_hkl_list = sorted(conv_hkl_list, key=lambda x: max(np.abs(x)))
 
     # Get distinct hkl planes from the rhombohedral setting if trigonal
-    sg = SpacegroupAnalyzer(structure)
-    if sg.get_crystal_system() == "trigonal":
-        transf = sg.get_conventional_to_primitive_transformation_matrix()
+    spg_analyzer = SpacegroupAnalyzer(structure)
+    if spg_analyzer.get_crystal_system() == "trigonal":
+        transf = spg_analyzer.get_conventional_to_primitive_transformation_matrix()
         miller_list: list[tuple[int, int, int]] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
@@ -2053,7 +2048,7 @@ def get_symmetrically_distinct_miller_indices(
         denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
         miller = cast(tuple[int, int, int], tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
-            if sg.get_crystal_system() == "trigonal":
+            if spg_analyzer.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
                 # corresponding hkls in the conventional setting
@@ -2065,7 +2060,7 @@ def get_symmetrically_distinct_miller_indices(
                 unique_millers.append(miller)
                 unique_millers_conv.append(miller)
 
-    if return_hkil and sg.get_crystal_system() in {"trigonal", "hexagonal"}:
+    if return_hkil and spg_analyzer.get_crystal_system() in {"trigonal", "hexagonal"}:
         return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in unique_millers_conv]
 
     return unique_millers_conv
