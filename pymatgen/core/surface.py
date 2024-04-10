@@ -1506,7 +1506,7 @@ class SlabGenerator:
             ie. belong to one of the Laue groups), then it's assumed that the
             surfaces are equivalent.
 
-            2.If not yymmetrical, sites at the bottom of the slab will be removed
+            2.If not symmetrical, sites at the bottom of the slab will be removed
             until the slab is symmetric, which may break the stoichiometry.
 
         Args:
@@ -1526,7 +1526,7 @@ class SlabGenerator:
             slab.energy = init_slab.energy
 
             while not is_sym:
-                # Keep removing sites from the bottom until urfaces are
+                # Keep removing sites from the bottom until surfaces are
                 # symmetric or the number of sites removed has
                 # exceeded 10 percent of the original slab
                 # TODO: (@DanielYang59) comment differs from implementation:
