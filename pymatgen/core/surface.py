@@ -1106,6 +1106,7 @@ class SlabGenerator:
         # Shift all atoms
         # DEBUG(@DanielYang59): shift value in Angstrom inconsistent with frac_coordis
         frac_coords = self.oriented_unit_cell.frac_coords
+        # DEBUG(@DanielYang59): suspicious shift direction (positive for downwards shift)
         frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)  # wrap frac_coords to the [0, 1) range
 
