@@ -18,8 +18,8 @@ from pymatgen.io.openff import (
     create_openff_mol,
     get_atom_map,
     infer_openff_mol,
+    mol_graph_to_openff_mol,
     molgraph_from_openff_mol,
-    molgraph_to_openff_mol,
 )
 
 tk = pytest.importorskip("openff.toolkit")
@@ -53,7 +53,7 @@ def test_molgraph_from_atom_bonds(mol_files):
 
     em = iso.categorical_edge_match("weight", 1)
 
-    pf6_openff2 = molgraph_to_openff_mol(pf6_graph)
+    pf6_openff2 = mol_graph_to_openff_mol(pf6_graph)
     pf6_graph2 = molgraph_from_openff_mol(pf6_openff2)
     assert nx.is_isomorphic(pf6_graph.graph, pf6_graph2.graph, edge_match=em)
 
@@ -110,7 +110,7 @@ def test_molgraph_to_openff_pf6(mol_files):
 
     pf6_openff_1 = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")
 
-    pf6_openff_2 = molgraph_to_openff_mol(pf6_molgraph)
+    pf6_openff_2 = mol_graph_to_openff_mol(pf6_molgraph)
     assert pf6_openff_1 == pf6_openff_2
 
 
@@ -118,7 +118,7 @@ def test_molgraph_to_openff_cco(mol_files):
     cco_pmg = Molecule.from_file(mol_files["CCO_xyz"])
     cco_molgraph = MoleculeGraph.with_local_env_strategy(cco_pmg, OpenBabelNN())
 
-    cco_openff_1 = molgraph_to_openff_mol(cco_molgraph)
+    cco_openff_1 = mol_graph_to_openff_mol(cco_molgraph)
 
     cco_openff_2 = tk.Molecule.from_smiles("CCO")
     cco_openff_2.assign_partial_charges("mmff94")
@@ -136,7 +136,7 @@ def test_openff_back_and_forth():
     assert cco_molgraph_1.molecule.charge == 0
     assert len(cco_molgraph_1.graph.edges) == 7
 
-    cco_openff_2 = molgraph_to_openff_mol(cco_molgraph_1)
+    cco_openff_2 = mol_graph_to_openff_mol(cco_molgraph_1)
 
     assert tk.Molecule.is_isomorphic_with(cco_openff, cco_openff_2, bond_order_matching=True)
     assert max(bond.bond_order for bond in cco_openff_2.bonds) == 2
