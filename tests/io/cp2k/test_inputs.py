@@ -64,24 +64,24 @@ H GTH-PBE-q1 GTH-PBE
 class TestBasisAndPotential(PymatgenTest):
     def test_basis_info(self):
         # Ensure basis metadata can be read from string
-        b = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1-SCAN")
-        assert b.valence == 2
-        assert b.molopt
-        assert b.electrons == 1
-        assert b.polarization == 1
-        assert b.cc
-        assert b.pc
-        assert b.xc == "SCAN"
+        basis_info = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1-SCAN")
+        assert basis_info.valence == 2
+        assert basis_info.molopt
+        assert basis_info.electrons == 1
+        assert basis_info.polarization == 1
+        assert basis_info.cc
+        assert basis_info.pc
+        assert basis_info.xc == "SCAN"
 
-        # Ensure one-way softmatching works
-        b2 = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1")
-        assert b2.softmatch(b)
-        assert not b.softmatch(b2)
+        # Ensure one-way soft-matching works
+        basis_info2 = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1")
+        assert basis_info2.softmatch(basis_info)
+        assert not basis_info.softmatch(basis_info2)
 
-        b3 = BasisInfo.from_str("cpFIT3")
-        assert b3.valence == 3
-        assert b3.polarization == 1
-        assert b3.contracted, True
+        basis_info3 = BasisInfo.from_str("cpFIT3")
+        assert basis_info3.valence == 3
+        assert basis_info3.polarization == 1
+        assert basis_info3.contracted, True
 
     def test_potential_info(self):
         # Ensure potential metadata can be read from string
@@ -90,10 +90,10 @@ class TestBasisAndPotential(PymatgenTest):
         assert pot_info.xc == "PBE"
         assert pot_info.nlcc
 
-        # Ensure one-way softmatching works
-        p2 = PotentialInfo.from_str("GTH-q1-NLCC")
-        assert p2.softmatch(pot_info)
-        assert not pot_info.softmatch(p2)
+        # Ensure one-way soft-matching works
+        pot_info2 = PotentialInfo.from_str("GTH-q1-NLCC")
+        assert pot_info2.softmatch(pot_info)
+        assert not pot_info.softmatch(pot_info2)
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly
@@ -134,8 +134,8 @@ class TestBasisAndPotential(PymatgenTest):
         assert_allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
-        pf = PotentialFile.from_str(pot_hydrogen)
-        assert pf.objects[0] == pot
+        pot_file = PotentialFile.from_str(pot_hydrogen)
+        assert pot_file.objects[0] == pot
 
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
@@ -161,15 +161,15 @@ class TestInput(PymatgenTest):
         self.assert_msonable(cp2k_input)
 
     def test_section_list(self):
-        s1 = Section("TEST")
-        sl = SectionList(sections=[s1, s1])
-        for s in sl:
+        sec1 = Section("TEST")
+        sec_list = SectionList(sections=[sec1, sec1])
+        for s in sec_list:
             assert isinstance(s, Section)
-        assert sl[0].name == "TEST"
-        assert sl[1].name == "TEST"
-        assert len(sl) == 2
-        sl += s1
-        assert len(sl) == 3
+        assert sec_list[0].name == "TEST"
+        assert sec_list[1].name == "TEST"
+        assert len(sec_list) == 2
+        sec_list += sec1
+        assert len(sec_list) == 3
 
     def test_basic_keywords(self):
         kwd = Keyword("TEST1", 1, 2)
@@ -183,12 +183,12 @@ class TestInput(PymatgenTest):
     def test_coords(self):
         for struct in [nonsense_struct, Si_structure, molecule]:
             coords = Coord(struct)
-            for c in coords.keywords.values():
-                assert isinstance(c, (Keyword, KeywordList))
+            for val in coords.keywords.values():
+                assert isinstance(val, (Keyword, KeywordList))
 
     def test_kind(self):
-        for s in [nonsense_struct, Si_structure, molecule]:
-            for spec in s.species:
+        for struct in [nonsense_struct, Si_structure, molecule]:
+            for spec in struct.species:
                 assert spec == Kind(spec).specie
 
     def test_ci_file(self):
@@ -205,20 +205,20 @@ class TestInput(PymatgenTest):
 
     def test_odd_file(self):
         scramble = ""
-        for s in self.ci.get_str():
+        for string in self.ci.get_str():
             if np.random.rand(1) > 0.5:
-                if s == "\t":
+                if string == "\t":
                     scramble += " "
-                elif s == " ":
+                elif string == " ":
                     scramble += "  "
-                elif s in ("&", "\n"):
-                    scramble += s
-                elif s.isalpha():
-                    scramble += s.lower()
+                elif string in ("&", "\n"):
+                    scramble += string
+                elif string.isalpha():
+                    scramble += string.lower()
                 else:
-                    scramble += s
+                    scramble += string
             else:
-                scramble += s
+                scramble += string
         # Can you initialize from jumbled input
         # should be case insensitive and ignore
         # excessive white space or tabs
