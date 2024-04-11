@@ -5294,7 +5294,7 @@ class Vaspout(Vasprun):
         Returns:
             Any, output value. Recursion is performed until a bytes-like object is input.
         """
-        if hasattr(val,"items"):
+        if hasattr(val, "items"):
             val = {k: cls._parse_hdf5_value(v) for k, v in val.items()}
         else:
             val = np.array(val).tolist()
@@ -5355,7 +5355,7 @@ class Vaspout(Vasprun):
     def _parse_structure(positions: dict) -> Structure:
         """
         Parse the structure from vaspout format.
-        
+
         Args:
             positions (dict), dict representation of POSCAR
         Returns:
@@ -5515,9 +5515,10 @@ class Vaspout(Vasprun):
                 for ik, k in enumerate(chg_dens_props["component_tags"]):
                     site_prop = [
                         {
-                            orb : chg_dens_props["moments"][istep][ik][iion][iorb]
+                            orb: chg_dens_props["moments"][istep][ik][iion][iorb]
                             for iorb, orb in enumerate(chg_dens_props["orbital_tags"])
-                        } for iion in range(len(self.poscar.structure))
+                        }
+                        for iion in range(len(self.poscar.structure))
                     ]
                     for iion in range(len(self.poscar.structure)):
                         site_prop[iion]["tot"] = sum(site_prop[iion].values())
