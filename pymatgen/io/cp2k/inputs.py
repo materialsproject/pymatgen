@@ -22,6 +22,7 @@ A quick overview of the module:
 
 from __future__ import annotations
 
+import abc
 import copy
 import hashlib
 import itertools
@@ -2758,7 +2759,8 @@ class DataFile(MSONable):
             return data  # type: ignore[return-value]
 
     @classmethod
-    def from_str(cls) -> None:
+    @abc.abstractmethod
+    def from_str(cls, string: str) -> None:
         """Initialize from a string."""
         raise NotImplementedError
 
