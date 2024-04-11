@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
@@ -10,6 +11,7 @@ from pymatgen.io.cp2k.inputs import (
     BasisInfo,
     Coord,
     Cp2kInput,
+    DataFile,
     GaussianTypeOrbitalBasisSet,
     GthPotential,
     Keyword,
@@ -22,7 +24,7 @@ from pymatgen.io.cp2k.inputs import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-Si_structure = Structure(
+si_struct = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
     species=["Si", "Si"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
@@ -34,9 +36,9 @@ nonsense_struct = Structure(
     coords=[[-1, -1, -1]],
 )
 
-molecule = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])
+ch_mol = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])
 
-basis = """
+BASIS_FILE_STR = """
  H  SZV-MOLOPT-GTH SZV-MOLOPT-GTH-q1
  1
  2 0 0 7 1
@@ -48,16 +50,22 @@ basis = """
       0.066918004004  0.037148121400
       0.021708243634 -0.001125195500
 """
-all_hydrogen = """
+ALL_HYDROGEN_STR = """
 H ALLELECTRON ALL
     1    0    0
      0.20000000    0
 """
-pot_hydrogen = """
+POT_HYDROGEN_STR = """
 H GTH-PBE-q1 GTH-PBE
     1
      0.20000000    2    -4.17890044     0.72446331
     0
+"""
+CP2K_INPUT_STR = """
+&GLOBAL
+    RUN_TYPE ENERGY
+    PROJECT_NAME CP2K ! default name
+&END
 """
 
 
@@ -97,10 +105,10 @@ class TestBasisAndPotential(PymatgenTest):
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly
-        mol_opt = GaussianTypeOrbitalBasisSet.from_str(basis)
+        mol_opt = GaussianTypeOrbitalBasisSet.from_str(BASIS_FILE_STR)
         assert mol_opt.nexp == [7]
         # Basis file can read from strings
-        bf = BasisFile.from_str(basis)
+        bf = BasisFile.from_str(BASIS_FILE_STR)
         for obj in [mol_opt, bf.objects[0]]:
             assert_allclose(
                 obj.exponents[0],
@@ -125,17 +133,22 @@ class TestBasisAndPotential(PymatgenTest):
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly
-        h_all_elec = GthPotential.from_str(all_hydrogen)
+        h_all_elec = GthPotential.from_str(ALL_HYDROGEN_STR)
         assert h_all_elec.potential == "All Electron"
-        pot = GthPotential.from_str(pot_hydrogen)
+        pot = GthPotential.from_str(POT_HYDROGEN_STR)
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
         assert pot.nexp_ppl == approx(2)
         assert_allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
-        pot_file = PotentialFile.from_str(pot_hydrogen)
+        pot_file = PotentialFile.from_str(POT_HYDROGEN_STR)
         assert pot_file.objects[0] == pot
+
+        pot_file_path = self.tmp_path / "potential-file"
+        pot_file_path.write_text(POT_HYDROGEN_STR)
+        pot_from_file = PotentialFile.from_file(pot_file_path)
+        assert pot_file != pot_from_file  # unequal because pot_from_file has filename != None
 
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
@@ -149,13 +162,7 @@ class TestInput(PymatgenTest):
         self.ci = Cp2kInput.from_file(f"{TEST_FILES_DIR}/cp2k/cp2k.inp")
 
     def test_basic_sections(self):
-        cp2k_input_str = """
-        &GLOBAL
-            RUN_TYPE ENERGY
-            PROJECT_NAME CP2K ! default name
-        &END
-        """
-        cp2k_input = Cp2kInput.from_str(cp2k_input_str)
+        cp2k_input = Cp2kInput.from_str(CP2K_INPUT_STR)
         assert cp2k_input["GLOBAL"]["RUN_TYPE"] == Keyword("RUN_TYPE", "energy")
         assert cp2k_input["GLOBAL"]["PROJECT_NAME"].description == "default name"
         self.assert_msonable(cp2k_input)
@@ -181,13 +188,13 @@ class TestInput(PymatgenTest):
         assert "[Ha]" in kwd.get_str()
 
     def test_coords(self):
-        for struct in [nonsense_struct, Si_structure, molecule]:
+        for struct in [nonsense_struct, si_struct, ch_mol]:
             coords = Coord(struct)
             for val in coords.keywords.values():
                 assert isinstance(val, (Keyword, KeywordList))
 
     def test_kind(self):
-        for struct in [nonsense_struct, Si_structure, molecule]:
+        for struct in [nonsense_struct, si_struct, ch_mol]:
             for spec in struct.species:
                 assert spec == Kind(spec).specie
 
@@ -236,13 +243,7 @@ class TestInput(PymatgenTest):
         assert self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"] == Keyword("MAX_SCF", 1)
 
     def test_mongo(self):
-        cp2k_input_str = """
-        &GLOBAL
-            RUN_TYPE ENERGY
-            PROJECT_NAME CP2K ! default name
-        &END
-        """
-        cp2k_input = Cp2kInput.from_str(cp2k_input_str)
+        cp2k_input = Cp2kInput.from_str(CP2K_INPUT_STR)
         cp2k_input.inc({"GLOBAL": {"TEST": 1}})
         assert cp2k_input["global"]["test"] == Keyword("TEST", 1)
 
@@ -252,3 +253,12 @@ class TestInput(PymatgenTest):
         cp2k_input.set({"GLOBAL": {"SUBSEC": {"TEST2": 2}, "SUBSEC2": {"Test2": 1}}})
         assert cp2k_input.check("global/SUBSEC")
         assert cp2k_input.check("global/subsec2")
+
+
+class TestDataFile(PymatgenTest):
+    def test_data_file(self):
+        # make temp file with BASIS_FILE_STR
+        data_file = self.tmp_path / "data-file"
+        data_file.write_text(BASIS_FILE_STR)
+        with pytest.raises(NotImplementedError):
+            DataFile.from_file(data_file)
