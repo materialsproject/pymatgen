@@ -61,7 +61,7 @@ class TestTransformedStructure(PymatgenTest):
         assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
-        with open(f"{TEST_FILES_DIR}/transformations.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/transformations.json") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(dct)

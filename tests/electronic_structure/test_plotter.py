@@ -37,7 +37,7 @@ rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
@@ -68,7 +68,7 @@ class TestDosPlotter(PymatgenTest):
         # reproduces the same energy and DOS axis limits
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/complete_dos_limits.json") as file:
             limits_results = json.load(file)
 
         for item in limits_results:
@@ -88,18 +88,18 @@ class TestDosPlotter(PymatgenTest):
 
 class TestBSPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/CaO_2605_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/N2_12103_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/C_48_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
@@ -181,7 +181,7 @@ class TestBSPlotter(PymatgenTest):
 
 class TestBSPlotterProjected(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
         self.bs_Cu2O = BandStructureSymmLine.from_dict(dct)
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
@@ -223,7 +223,7 @@ class TestBSDOSPlotter:
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/SrBa2Sn2O7.json") as file:
             band_struct_dict = json.load(file)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]

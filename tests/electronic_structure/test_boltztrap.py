@@ -36,7 +36,7 @@ class TestBoltztrapAnalyzer(TestCase):
         cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/dos_dw/", dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/fermi/")
 
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/json/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
             cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)

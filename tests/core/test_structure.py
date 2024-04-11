@@ -542,13 +542,13 @@ class TestIStructure(PymatgenTest):
         assert fcc_ag_prim.volume == approx(17.10448225)
 
     def test_primitive_with_constrained_lattice(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Fe310.json.gz")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/json/Fe310.json.gz")
         constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
         assert {key: getattr(prim_struct.lattice, key) for key in constraints} == pytest.approx(constraints)
 
     def test_primitive_with_similar_constraints(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Fe310.json.gz")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/json/Fe310.json.gz")
         constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         for perturb in (0, 1e-5, -1e-5):
             copy = constraints.copy()

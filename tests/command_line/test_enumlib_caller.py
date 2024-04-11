@@ -71,7 +71,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         structures = adaptor.structures
         assert len(structures) == 10
 
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/EnumerateTest.json")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/json/EnumerateTest.json")
         adaptor = EnumlibAdaptor(struct, 1, 1)
         adaptor.run()
         structures = adaptor.structures
