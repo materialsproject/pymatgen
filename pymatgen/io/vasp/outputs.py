@@ -51,6 +51,7 @@ except ImportError:
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
+
     from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
