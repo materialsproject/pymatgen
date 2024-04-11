@@ -16,11 +16,11 @@ def proc_dir(dirname, proc_file_function):
         dirname (str): Directory name.
         proc_file_function (callable): Callable to execute on directory.
     """
-    for f in os.listdir(dirname):
-        if os.path.isdir(os.path.join(dirname, f)):
-            proc_dir(os.path.join(dirname, f), proc_file_function)
+    for file in os.listdir(dirname):
+        if os.path.isdir(os.path.join(dirname, file)):
+            proc_dir(os.path.join(dirname, file), proc_file_function)
         else:
-            proc_file_function(dirname, f)
+            proc_file_function(dirname, file)
 
 
 def gen_potcar(dirname, filename):

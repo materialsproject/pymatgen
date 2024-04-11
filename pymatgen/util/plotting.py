@@ -396,12 +396,12 @@ def format_formula(formula: str) -> str:
     """
     formatted_formula = ""
     number_format = ""
-    for idx, char in enumerate(formula):
+    for idx, char in enumerate(formula, start=1):
         if char.isdigit():
             if not number_format:
                 number_format = "_{"
             number_format += char
-            if idx == len(formula) - 1:
+            if idx == len(formula):
                 number_format += "}"
                 formatted_formula += number_format
         else:
@@ -691,7 +691,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = """\n\n
+    doc_str = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -714,9 +714,9 @@ def add_fig_kwargs(func):
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.
-        wrapper.__doc__ += "\n" + s
+        wrapper.__doc__ += f"\n{doc_str}"
     else:
         # Use s
-        wrapper.__doc__ = s
+        wrapper.__doc__ = doc_str
 
     return wrapper

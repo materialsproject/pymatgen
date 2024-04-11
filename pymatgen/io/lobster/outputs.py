@@ -116,7 +116,7 @@ class Cohpcar:
         # contains all parameters that are needed to map the file.
         parameters = contents[1].split()
         # Subtract 1 to skip the average
-        num_bonds = int(parameters[0]) - 1 if not self.are_multi_center_cobis else int(parameters[0])
+        num_bonds = int(parameters[0]) if self.are_multi_center_cobis else int(parameters[0]) - 1
         self.efermi = float(parameters[-1])
         self.is_spin_polarized = int(parameters[1]) == 2
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
@@ -1344,8 +1344,8 @@ class Fatband:
                 p_eigenvals[Spin.up] = [
                     [
                         {
-                            str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
-                            for e in atom_names
+                            str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                            for elem in atom_names
                         }
                         for _ in range(self.number_kpts)
                     ]
@@ -1356,8 +1356,8 @@ class Fatband:
                     p_eigenvals[Spin.down] = [
                         [
                             {
-                                str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
-                                for e in atom_names
+                                str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                                for elem in atom_names
                             }
                             for _ in range(self.number_kpts)
                         ]
@@ -1567,7 +1567,7 @@ class Bandoverlaps(MSONable):
                                 elif band2.all() > limit_deviation:
                                     return False
                         else:
-                            ValueError("number_occ_bands_spin_down has to be specified")
+                            raise ValueError("number_occ_bands_spin_down has to be specified")
         return True
 
     @property

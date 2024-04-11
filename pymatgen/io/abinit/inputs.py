@@ -14,6 +14,7 @@ import os
 from collections import namedtuple
 from collections.abc import Mapping, MutableMapping, Sequence
 from enum import Enum, unique
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
@@ -24,6 +25,9 @@ from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 logger = logging.getLogger(__file__)
 
@@ -141,7 +145,7 @@ class ShiftMode(Enum):
     OneSymmetric = "O"
 
     @classmethod
-    def from_object(cls, obj):
+    def from_object(cls, obj) -> Self:
         """
         Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
         on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
@@ -546,10 +550,10 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
 
         elif lattice_type == "hexagonal":
             # Find the hexagonal axis and set the shift along it.
-            for i, angle in enumerate(structure.lattice.angles):
+            for i, angle in enumerate(structure.lattice.angles, start=1):
                 if abs(angle - 120) < 1.0:
-                    j = (i + 1) % 3
-                    k = (i + 2) % 3
+                    j = i % 3
+                    k = (i + 1) % 3
                     hex_ax = next(ax for ax in range(3) if ax not in [j, k])
                     break
             else:
@@ -787,10 +791,10 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self._vars
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """JSON interface used in pymatgen for easier serialization."""
-        pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
-        return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
+        pseudos = [Pseudo.from_file(p["filepath"]) for p in dct["pseudos"]]
+        return cls(dct["structure"], pseudos, comment=dct["comment"], abi_args=dct["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
         """
@@ -838,10 +842,9 @@ class BasicAbinitInput(AbstractInput, MSONable):
             exclude: List of variable names that should be ignored.
         """
         lines = []
-        app = lines.append
 
         if self.comment:
-            app("# " + self.comment.replace("\n", "\n#"))
+            lines.append("# " + self.comment.replace("\n", "\n#"))
 
         post = post if post is not None else ""
         exclude = set(exclude) if exclude is not None else set()
@@ -857,7 +860,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         for name, value in items:
             # Build variable, convert to string and append it
             vname = name + post
-            app(str(InputVariable(vname, value)))
+            lines.append(str(InputVariable(vname, value)))
 
         out = "\n".join(lines)
         if not with_pseudos:
@@ -1044,37 +1047,7 @@ class BasicMultiDataset:
 
     Error = BasicAbinitInputError
 
-    @classmethod
-    def from_inputs(cls, inputs):
-        """Build object from a list of BasicAbinitInput objects."""
-        for inp in inputs:
-            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
-                raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
-
-        # Build BasicMultiDataset from input structures and pseudos and add inputs.
-        multi = cls(
-            structure=[inp.structure for inp in inputs],
-            pseudos=inputs[0].pseudos,
-            ndtset=len(inputs),
-        )
-
-        # Add variables
-        for inp, new_inp in zip(inputs, multi):
-            new_inp.set_vars(**inp)
-
-        return multi
-
-    @classmethod
-    def replicate_input(cls, input, ndtset):
-        """Construct a multidataset with ndtset from the BasicAbinitInput input."""
-        multi = cls(input.structure, input.pseudos, ndtset=ndtset)
-
-        for inp in multi:
-            inp.set_vars(**input)
-
-        return multi
-
-    def __init__(self, structure: Structure, pseudos, pseudo_dir="", ndtset=1):
+    def __init__(self, structure: Structure | Sequence[Structure], pseudos, pseudo_dir="", ndtset=1):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
@@ -1113,6 +1086,36 @@ class BasicMultiDataset:
         else:
             assert len(structure) == ndtset
             self._inputs = [BasicAbinitInput(structure=s, pseudos=pseudos) for s in structure]
+
+    @classmethod
+    def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
+        """Build object from a list of BasicAbinitInput objects."""
+        for inp in inputs:
+            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
+                raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
+
+        # Build BasicMultiDataset from input structures and pseudos and add inputs.
+        multi = cls(
+            structure=[inp.structure for inp in inputs],
+            pseudos=inputs[0].pseudos,
+            ndtset=len(inputs),
+        )
+
+        # Add variables
+        for inp, new_inp in zip(inputs, multi):
+            new_inp.set_vars(**inp)
+
+        return multi
+
+    @classmethod
+    def replicate_input(cls, input, ndtset):
+        """Construct a multidataset with ndtset from the BasicAbinitInput input."""
+        multi = cls(input.structure, input.pseudos, ndtset=ndtset)
+
+        for inp in multi:
+            inp.set_vars(**input)
+
+        return multi
 
     @property
     def ndtset(self):

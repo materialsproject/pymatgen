@@ -14,6 +14,7 @@ import logging
 from collections import defaultdict
 
 import numpy as np
+from monty.dev import deprecated
 from scipy.constants import physical_constants
 from scipy.integrate import quadrature
 from scipy.misc import derivative
@@ -45,7 +46,7 @@ cite_gibbs = due.dcite(
     "temperature, and Grüneisen parameter using a quasiharmonic Debye model",
     path="pymatgen.analysis.quasiharmonic",
 )
-class QuasiharmonicDebyeApprox:
+class QuasiHarmonicDebyeApprox:
     """Quasi-harmonic approximation."""
 
     def __init__(
@@ -98,7 +99,7 @@ class QuasiharmonicDebyeApprox:
                 "The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and "
                 "cannot be used together."
             )
-        self.mass = sum(e.atomic_mass for e in self.structure.species)
+        self.mass = sum(spec.atomic_mass for spec in self.structure.species)
         self.natoms = self.structure.composition.num_atoms
         self.avg_mass = physical_constants["atomic mass constant"][0] * self.mass / self.natoms  # kg
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]
@@ -225,7 +226,7 @@ class QuasiharmonicDebyeApprox:
         parameter at 0K (Gruneisen constant).
 
         The anharmonic contribution is toggled by setting the anharmonic_contribution
-        to True or False in the QuasiharmonicDebyeApprox constructor.
+        to True or False in the QuasiHarmonicDebyeApprox constructor.
 
         Args:
             volume (float): in Ang^3
@@ -356,3 +357,11 @@ class QuasiharmonicDebyeApprox:
             dct["gruneisen_parameter"].append(self.gruneisen_parameter(t, v))
             dct["thermal_conductivity"].append(self.thermal_conductivity(t, v))
         return dct
+
+
+@deprecated(
+    replacement=QuasiHarmonicDebyeApprox,
+    message="Deprecated on 2024-03-27, to be removed on 2025-03-27.",
+)
+class QuasiharmonicDebyeApprox(QuasiHarmonicDebyeApprox):
+    pass

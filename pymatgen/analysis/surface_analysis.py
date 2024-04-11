@@ -38,6 +38,7 @@ import copy
 import itertools
 import random
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -53,6 +54,9 @@ from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -172,7 +176,8 @@ class SlabEntry(ComputedStructureEntry):
                 of the element ref_entry that is not in the list will be
                 treated as a variable.
 
-        Returns (Add (Sympy class)): Surface energy
+        Returns:
+            float: The surface energy of the slab.
         """
         # Set up
         ref_entries = ref_entries if ref_entries else []
@@ -272,7 +277,7 @@ class SlabEntry(ComputedStructureEntry):
         return n_surfs
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
@@ -325,7 +330,7 @@ class SlabEntry(ComputedStructureEntry):
     @classmethod
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
-    ):
+    ) -> Self:
         """Returns SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
@@ -1299,7 +1304,7 @@ def entry_dict_from_list(all_slab_entries):
         all_slab_entries (list): List of SlabEntry objects
 
     Returns:
-        (dict): Dictionary of SlabEntry with the Miller index as the main
+        dict: Dictionary of SlabEntry with the Miller index as the main
             key to a dictionary with a clean SlabEntry as the key to a
             list of adsorbed SlabEntry.
     """
@@ -1564,7 +1569,7 @@ class WorkFunctionAnalyzer:
         return all(all_flat)
 
     @classmethod
-    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
         """
         Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 
@@ -1650,13 +1655,13 @@ class NanoscaleStability:
         # Now calculate r
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
         delta_E = self.bulk_gform(analyzer1.ucell_entry) - self.bulk_gform(analyzer2.ucell_entry)
-        r = (-3 * delta_gamma) / (delta_E)
+        radius = (-3 * delta_gamma) / (delta_E)
 
-        return r / 10 if units == "nanometers" else r
+        return radius / 10 if units == "nanometers" else radius
 
     def wulff_gform_and_r(
         self,
-        wulffshape,
+        wulff_shape,
         bulk_entry,
         r,
         from_sphere_area=False,
@@ -1669,7 +1674,7 @@ class NanoscaleStability:
         Calculates the formation energy of the particle with arbitrary radius r.
 
         Args:
-            wulffshape (WulffShape): Initial, unscaled WulffShape
+            wulff_shape (WulffShape): Initial unscaled WulffShape
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
             r (float (Ang)): Arbitrary effective radius of the WulffShape
             from_sphere_area (bool): There are two ways to calculate the bulk
@@ -1685,8 +1690,8 @@ class NanoscaleStability:
             particle formation energy (float in keV), effective radius
         """
         # Set up
-        miller_se_dict = wulffshape.miller_energy_dict
-        new_wulff = self.scaled_wulff(wulffshape, r)
+        miller_se_dict = wulff_shape.miller_energy_dict
+        new_wulff = self.scaled_wulff(wulff_shape, r)
         new_wulff_area = new_wulff.miller_area_dict
 
         # calculate surface energy of the particle
@@ -1703,7 +1708,7 @@ class NanoscaleStability:
             # By approximating the particle as a perfect sphere
             w_vol = (4 / 3) * np.pi * r**3
             sphere_sa = 4 * np.pi * r**2
-            tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
+            tot_wulff_se = wulff_shape.weighted_surface_energy * sphere_sa
             Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
 
@@ -1730,7 +1735,7 @@ class NanoscaleStability:
         """
         return bulk_entry.energy / bulk_entry.structure.volume
 
-    def scaled_wulff(self, wulffshape, r):
+    def scaled_wulff(self, wulff_shape, r):
         """
         Scales the Wulff shape with an effective radius r. Note that the resulting
             Wulff does not necessarily have the same effective radius as the one
@@ -1739,22 +1744,22 @@ class NanoscaleStability:
             multiplied by the given effective radius.
 
         Args:
-            wulffshape (WulffShape): Initial, unscaled WulffShape
+            wulff_shape (WulffShape): Initial, unscaled WulffShape
             r (float): Arbitrary effective radius of the WulffShape
 
         Returns:
             WulffShape (scaled by r)
         """
         # get the scaling ratio for the energies
-        r_ratio = r / wulffshape.effective_radius
-        miller_list = list(wulffshape.miller_energy_dict)
+        r_ratio = r / wulff_shape.effective_radius
+        miller_list = list(wulff_shape.miller_energy_dict)
         # Normalize the magnitude of the facet normal vectors
         # of the Wulff shape by the minimum surface energy.
-        se_list = np.array(list(wulffshape.miller_energy_dict.values()))
+        se_list = np.array(list(wulff_shape.miller_energy_dict.values()))
         # Scale the magnitudes by r_ratio
         scaled_se = se_list * r_ratio
 
-        return WulffShape(wulffshape.lattice, miller_list, scaled_se, symprec=self.symprec)
+        return WulffShape(wulff_shape.lattice, miller_list, scaled_se, symprec=self.symprec)
 
     def plot_one_stability_map(
         self,
@@ -1795,14 +1800,14 @@ class NanoscaleStability:
         """
         plt = plt or pretty_plot(width=8, height=7)
 
-        wulffshape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
+        wulff_shape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
 
         gform_list, r_list = [], []
-        for r in np.linspace(1e-6, max_r, increments):
-            gform, r = self.wulff_gform_and_r(
-                wulffshape,
+        for radius in np.linspace(1e-6, max_r, increments):
+            gform, radius = self.wulff_gform_and_r(
+                wulff_shape,
                 analyzer.ucell_entry,
-                r,
+                radius,
                 from_sphere_area=from_sphere_area,
                 r_units=r_units,
                 e_units=e_units,
@@ -1810,7 +1815,7 @@ class NanoscaleStability:
                 scale_per_atom=scale_per_atom,
             )
             gform_list.append(gform)
-            r_list.append(r)
+            r_list.append(radius)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
         plt.xlabel(rf"Particle radius (${ru}$)")

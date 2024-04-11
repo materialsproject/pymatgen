@@ -45,8 +45,7 @@ TITLE sites: 4
             if idx < 9:
                 assert line == ref[idx]
             else:
-                s = " ".join(line.split()[2:])
-                assert s in last4
+                assert " ".join(line.split()[2:]) in last4
 
     def test_get_feff_tags(self):
         tags = self.mp_xanes.tags.as_dict()

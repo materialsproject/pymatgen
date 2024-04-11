@@ -29,6 +29,7 @@ Todo:
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,11 +44,17 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
+
 try:
     from BoltzTraP2 import bandlib as BL
     from BoltzTraP2 import fite, sphere, units
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
+
 
 __author__ = "Francesco Ricci"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -101,10 +108,7 @@ class VasprunBSLoader:
 
         self.is_spin_polarized = bs_obj.is_spin_polarized
 
-        if bs_obj.is_spin_polarized:
-            self.dosweight = 1.0
-        else:
-            self.dosweight = 2.0
+        self.dosweight = 1.0 if bs_obj.is_spin_polarized else 2.0
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat_all = None  # not implemented yet
@@ -131,7 +135,7 @@ class VasprunBSLoader:
             raise BoltztrapError("nelect must be given.")
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunBSLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
@@ -165,7 +169,7 @@ class VasprunBSLoader:
         self.proj = {}
         if self.proj_all:
             if len(self.proj_all) == 2:
-                h = int(len(accepted) / 2)
+                h = len(accepted) // 2
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj_all) == 1:
@@ -203,10 +207,7 @@ class BandstructureLoader:
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
-        if structure is None:
-            self.structure = bs_obj.structure
-        else:
-            self.structure = structure
+        self.structure = bs_obj.structure if structure is None else structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         self.proj_all = None
@@ -219,10 +220,7 @@ class BandstructureLoader:
 
         self.is_spin_polarized = bs_obj.is_spin_polarized
 
-        if bs_obj.is_spin_polarized:
-            self.dosweight = 1.0
-        else:
-            self.dosweight = 2.0
+        self.dosweight = 1.0 if bs_obj.is_spin_polarized else 2.0
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat_all = mommat  # not implemented yet
@@ -263,7 +261,7 @@ class BandstructureLoader:
         self.proj = {}
         if self.proj_all:
             if len(self.proj_all) == 2:
-                h = int(len(accepted) / 2)
+                h = len(accepted) // 2
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj) == 1:
@@ -347,10 +345,10 @@ class VasprunLoader:
                 self.cbm = self.fermi
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
-        return VasprunLoader(vrun_obj)
+        return cls(vrun_obj)
 
     def get_lattvec(self):
         """Lattice vectors."""
@@ -508,9 +506,9 @@ class BztInterpolator:
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for idx, k_pt in enumerate(kpath[:-1]):
+                for idx, k_pt in enumerate(kpath[:-1], start=1):
                     sta = kpoints_lbls_dict[k_pt]
-                    end = kpoints_lbls_dict[kpath[idx + 1]]
+                    end = kpoints_lbls_dict[kpath[idx]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:
@@ -1047,9 +1045,9 @@ class BztPlotter:
         mu = self.bzt_transP.mu_r_eV
 
         if prop_z == "doping" and prop_x == "temp":
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_z}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_doping")
         else:
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_x}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_{prop_x}")
 
         if ax is None:
             plt.figure(figsize=(10, 8))

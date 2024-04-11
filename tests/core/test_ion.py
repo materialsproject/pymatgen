@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-import unittest
+from unittest import TestCase
 
 import pytest
 
@@ -9,7 +9,7 @@ from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
 
-class TestIon(unittest.TestCase):
+class TestIon(TestCase):
     def setUp(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
@@ -108,9 +108,9 @@ class TestIon(unittest.TestCase):
         assert comp.formula == "Li8 Fe6 (aq)"
 
     def test_oxi_state_guesses(self):
-        i = Ion.from_formula("SO4-2")
-        assert i.oxi_state_guesses()[0].get("S") == 6
-        assert i.oxi_state_guesses()[0].get("O") == -2
+        ion = Ion.from_formula("SO4-2")
+        assert ion.oxi_state_guesses()[0].get("S") == 6
+        assert ion.oxi_state_guesses()[0].get("O") == -2
 
     def test_alphabetical_formula(self):
         correct_formulas = [

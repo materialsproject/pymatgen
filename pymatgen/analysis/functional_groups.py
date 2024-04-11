@@ -86,7 +86,7 @@ class FunctionalGroupExtractor:
             raise ValueError("Input to FunctionalGroupExtractor must be str, Molecule, or MoleculeGraph.")
 
         if self.molgraph is None:
-            self.molgraph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
+            self.molgraph = MoleculeGraph.from_local_env_strategy(self.molecule, OpenBabelNN())
 
         # Assign a specie and coordinates to each node in the graph,
         # corresponding to the Site in the Molecule object
@@ -106,16 +106,16 @@ class FunctionalGroupExtractor:
         Returns:
             set of ints representing node indices
         """
-        heteroatoms = set()
+        hetero_atoms = set()
 
         for node in self.molgraph.graph.nodes():
             if elements is not None:
                 if str(self.species[node]) in elements:
-                    heteroatoms.add(node)
+                    hetero_atoms.add(node)
             elif str(self.species[node]) not in ["C", "H"]:
-                heteroatoms.add(node)
+                hetero_atoms.add(node)
 
-        return heteroatoms
+        return hetero_atoms
 
     def get_special_carbon(self, elements=None):
         """

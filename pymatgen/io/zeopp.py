@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from monty.dev import requires
 from monty.io import zopen
@@ -43,6 +44,11 @@ try:
     zeo_found = True
 except ImportError:
     zeo_found = False
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -91,7 +97,7 @@ class ZeoCssr(Cssr):
         return "\n".join(output)
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a string representation to a ZeoCssr object.
 
@@ -112,24 +118,25 @@ class ZeoCssr(Cssr):
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
         lattice = Lattice.from_parameters(*lengths, *angles)
+
         sp = []
         coords = []
         charge = []
         for line in lines[4:]:
-            m = re.match(
+            match = re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 line.strip(),
             )
-            if m:
-                sp.append(m.group(1))
+            if match:
+                sp.append(match.group(1))
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
-                coords.append([float(m.group(i)) for i in [3, 4, 2]])
-                charge.append(m.group(5))
+                coords.append([float(match.group(i)) for i in [3, 4, 2]])
+                charge.append(match.group(5))
         return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a CSSR file to a ZeoCssr object.
 
@@ -158,7 +165,7 @@ class ZeoVoronoiXYZ(XYZ):
         super().__init__(mol)
 
     @classmethod
-    def from_str(cls, contents):
+    def from_str(cls, contents: str) -> Self:
         """
         Creates Zeo++ Voronoi XYZ object from a string.
         from_string method of XYZ class is being redefined.
@@ -185,7 +192,7 @@ class ZeoVoronoiXYZ(XYZ):
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates XYZ object from a file.
 

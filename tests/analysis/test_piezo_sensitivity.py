@@ -156,24 +156,24 @@ class TestPiezoSensitivity(PymatgenTest):
         rand_FCM = fcm.get_asum_FCM(rand_FCM)
         rand_FCM = np.reshape(rand_FCM, (10, 3, 10, 3)).swapaxes(1, 2)
 
-        for i in range(len(self.FCM_operations)):
-            for j in range(len(self.FCM_operations[i][4])):
+        for ii in range(len(self.FCM_operations)):
+            for jj in range(len(self.FCM_operations[ii][4])):
                 assert_allclose(
-                    self.FCM_operations[i][4][j].transform_tensor(
-                        rand_FCM[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
+                    self.FCM_operations[ii][4][jj].transform_tensor(
+                        rand_FCM[self.FCM_operations[ii][2]][self.FCM_operations[ii][3]]
                     ),
-                    rand_FCM[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
+                    rand_FCM[self.FCM_operations[ii][0]][self.FCM_operations[ii][1]],
                     atol=1e-4,
                 )
 
-        for i in range(len(rand_FCM)):
-            asum1 = np.zeros([3, 3])
-            asum2 = np.zeros([3, 3])
-            for j in range(len(rand_FCM[i])):
-                asum1 += rand_FCM[i][j]
-                asum2 += rand_FCM[j][i]
-            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
-            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
+        for ii in range(len(rand_FCM)):
+            sum1 = np.zeros([3, 3])
+            sum2 = np.zeros([3, 3])
+            for jj in range(len(rand_FCM[ii])):
+                sum1 += rand_FCM[ii][jj]
+                sum2 += rand_FCM[jj][ii]
+            assert_allclose(sum1, np.zeros([3, 3]), atol=1e-5)
+            assert_allclose(sum2, np.zeros([3, 3]), atol=1e-5)
 
     def test_get_stable_fcm(self):
         fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
@@ -181,10 +181,10 @@ class TestPiezoSensitivity(PymatgenTest):
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM1 = fcm.get_stable_FCM(rand_FCM)
 
-        eigs, _vecs = np.linalg.eig(rand_FCM1)
-        eigsort = np.argsort(np.abs(eigs))
-        for i in range(3, len(eigs)):
-            assert eigs[eigsort[i]] < 1e-6
+        eig_vals, _vecs = np.linalg.eig(rand_FCM1)
+        eig_sorted = np.argsort(np.abs(eig_vals))
+        for i in range(3, len(eig_vals)):
+            assert eig_vals[eig_sorted[i]] < 1e-6
 
         rand_FCM1 = np.reshape(rand_FCM1, (10, 3, 10, 3)).swapaxes(1, 2)
 
@@ -227,10 +227,10 @@ class TestPiezoSensitivity(PymatgenTest):
                 dyn_mass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
         dyn_mass = np.reshape(np.swapaxes(dyn_mass, 1, 2), (10 * 3, 10 * 3))
-        eigs, _vecs = np.linalg.eig(dyn_mass)
-        eigsort = np.argsort(np.abs(eigs))
-        for i in range(3, len(eigs)):
-            assert eigs[eigsort[i]] < 1e-6
+        eig_vals, _eig_vecs = np.linalg.eig(dyn_mass)
+        eig_sort = np.argsort(np.abs(eig_vals))
+        for i in range(3, len(eig_vals)):
+            assert eig_vals[eig_sort[i]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
         dyn_mass = np.reshape(dyn_mass, (10, 3, 10, 3)).swapaxes(1, 2)
@@ -263,19 +263,19 @@ class TestPiezoSensitivity(PymatgenTest):
             self.piezo_struct, self.point_ops, self.shared_ops, self.BEC, self.IST, self.FCM
         )
 
-        for i in range(len(self.BEC_operations)):
-            for j in range(len(self.BEC_operations[i][2])):
+        for ii in range(len(self.BEC_operations)):
+            for jj in range(len(self.BEC_operations[ii][2])):
                 assert_allclose(
-                    rand_BEC[self.BEC_operations[i][0]],
-                    self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]),
+                    rand_BEC[self.BEC_operations[ii][0]],
+                    self.BEC_operations[ii][2][jj].transform_tensor(rand_BEC[self.BEC_operations[ii][1]]),
                     atol=1e-3,
                 )
 
-        for i in range(len(self.IST_operations)):
-            for j in range(len(self.IST_operations[i])):
+        for ii in range(len(self.IST_operations)):
+            for jj in range(len(self.IST_operations[ii])):
                 assert_allclose(
-                    rand_IST[i],
-                    self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]),
+                    rand_IST[ii],
+                    self.IST_operations[ii][jj][1].transform_tensor(rand_IST[self.IST_operations[ii][jj][0]]),
                     atol=1e-3,
                 )
 
@@ -294,28 +294,28 @@ class TestPiezoSensitivity(PymatgenTest):
                 dyn_mass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
         dyn_mass = np.reshape(np.swapaxes(dyn_mass, 1, 2), (10 * 3, 10 * 3))
-        eigs, _eig_vecs = np.linalg.eig(dyn_mass)
-        eig_sorted = np.argsort(np.abs(eigs))
-        for i in range(3, len(eigs)):
-            assert eigs[eig_sorted[i]] < 1e-6
+        eig_vals, _eig_vecs = np.linalg.eig(dyn_mass)
+        eig_sort = np.argsort(np.abs(eig_vals))
+        for idx in range(3, len(eig_vals)):
+            assert eig_vals[eig_sort[idx]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
         dyn_mass = np.reshape(dyn_mass, (10, 3, 10, 3)).swapaxes(1, 2)
-        for i in range(len(self.FCM_operations)):
-            for j in range(len(self.FCM_operations[i][4])):
+        for ii in range(len(self.FCM_operations)):
+            for jj in range(len(self.FCM_operations[ii][4])):
                 assert_allclose(
-                    self.FCM_operations[i][4][j].transform_tensor(
-                        dyn_mass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
+                    self.FCM_operations[ii][4][jj].transform_tensor(
+                        dyn_mass[self.FCM_operations[ii][2]][self.FCM_operations[ii][3]]
                     ),
-                    dyn_mass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
+                    dyn_mass[self.FCM_operations[ii][0]][self.FCM_operations[ii][1]],
                     atol=1e-4,
                 )
 
-        for i in range(len(dyn_mass)):
+        for ii in range(len(dyn_mass)):
             asum1 = np.zeros([3, 3])
             asum2 = np.zeros([3, 3])
-            for j in range(len(dyn_mass[i])):
-                asum1 += dyn_mass[i][j]
-                asum2 += dyn_mass[j][i]
+            for jj in range(len(dyn_mass[ii])):
+                asum1 += dyn_mass[ii][jj]
+                asum2 += dyn_mass[jj][ii]
             assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
             assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)

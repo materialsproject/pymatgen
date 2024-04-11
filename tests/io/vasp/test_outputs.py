@@ -172,12 +172,12 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_energy == approx(-11.18986774)
 
         # VASP 5.4.1
-        o = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest3.xml.gz")
-        assert o.final_energy == approx(-15.89355325)
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest3.xml.gz")
+        assert vasp_run.final_energy == approx(-15.89355325)
 
         # VASP 6.2.1
-        o = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest4.xml.gz")
-        assert o.final_energy == approx(-15.89364691)
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest4.xml.gz")
+        assert vasp_run.final_energy == approx(-15.89364691)
 
     def test_nonlmn(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.nonlm.xml.gz"
@@ -241,7 +241,8 @@ class TestVasprun(PymatgenTest):
             assert vasp_run.structures[i] == step["structure"]
 
         assert all(
-            vasp_run.structures[i] == vasp_run.ionic_steps[i]["structure"] for i in range(len(vasp_run.ionic_steps))
+            vasp_run.structures[idx] == vasp_run.ionic_steps[idx]["structure"]
+            for idx in range(len(vasp_run.ionic_steps))
         )
 
         assert total_sc_steps == 308, "Incorrect number of energies read from vasprun.xml"
@@ -1024,11 +1025,10 @@ class TestOutcar(PymatgenTest):
         p_sp1 = [2.01124, 2.01124, -2.04426]
         p_sp2 = [2.01139, 2.01139, -2.04426]
 
-        for i in range(3):
-            assert outcar.p_ion[i] == approx(p_ion[i])
-            assert outcar.p_elec[i] == approx(p_elec[i])
-            assert outcar.p_sp1[i] == approx(p_sp1[i])
-            assert outcar.p_sp2[i] == approx(p_sp2[i])
+        assert outcar.p_ion == approx(p_ion)
+        assert outcar.p_elec == approx(p_elec)
+        assert outcar.p_sp1 == approx(p_sp1)
+        assert outcar.p_sp2 == approx(p_sp2)
 
         # outcar with |e| Angst units
         filepath = f"{VASP_OUT_DIR}/OUTCAR_vasp_6.3.gz"
@@ -1041,11 +1041,10 @@ class TestOutcar(PymatgenTest):
         p_sp1 = [4.50564, 0.0, 1.62154]
         p_sp2 = [4.50563e00, -1.00000e-05, 1.62154e00]
 
-        for i in range(3):
-            assert outcar.p_ion[i] == approx(p_ion[i])
-            assert outcar.p_elec[i] == approx(p_elec[i])
-            assert outcar.p_sp1[i] == approx(p_sp1[i])
-            assert outcar.p_sp2[i] == approx(p_sp2[i])
+        assert outcar.p_ion == approx(p_ion)
+        assert outcar.p_elec == approx(p_elec)
+        assert outcar.p_sp1 == approx(p_sp1)
+        assert outcar.p_sp2 == approx(p_sp2)
 
     def test_read_piezo_tensor(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.lepsilon.gz"
@@ -1307,28 +1306,28 @@ class TestOutcar(PymatgenTest):
 
     def test_energies(self):
         # VASP 5.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest1.gz")
-        assert o.final_energy == approx(-11.18981538)
-        assert o.final_energy_wo_entrp == approx(-11.13480014)
-        assert o.final_fr_energy == approx(-11.21732300)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest1.gz")
+        assert outcar.final_energy == approx(-11.18981538)
+        assert outcar.final_energy_wo_entrp == approx(-11.13480014)
+        assert outcar.final_fr_energy == approx(-11.21732300)
 
         # VASP 6.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest2.gz")
-        assert o.final_energy == approx(-11.18986774)
-        assert o.final_energy_wo_entrp == approx(-11.13485250)
-        assert o.final_fr_energy == approx(-11.21737536)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest2.gz")
+        assert outcar.final_energy == approx(-11.18986774)
+        assert outcar.final_energy_wo_entrp == approx(-11.13485250)
+        assert outcar.final_fr_energy == approx(-11.21737536)
 
         # VASP 5.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest3.gz")
-        assert o.final_energy == approx(-15.89355325)
-        assert o.final_energy_wo_entrp == approx(-15.83853800)
-        assert o.final_fr_energy == approx(-15.92106087)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest3.gz")
+        assert outcar.final_energy == approx(-15.89355325)
+        assert outcar.final_energy_wo_entrp == approx(-15.83853800)
+        assert outcar.final_fr_energy == approx(-15.92106087)
 
         # VASP 6.2.1
-        o = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest4.gz")
-        assert o.final_energy == approx(-15.89364691)
-        assert o.final_energy_wo_entrp == approx(-15.83863167)
-        assert o.final_fr_energy == approx(-15.92115453)
+        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.etest4.gz")
+        assert outcar.final_energy == approx(-15.89364691)
+        assert outcar.final_energy_wo_entrp == approx(-15.83863167)
+        assert outcar.final_fr_energy == approx(-15.92115453)
 
     def test_read_table_pattern(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
@@ -1998,16 +1997,15 @@ class TestWaveder(PymatgenTest):
                 first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
-            for i in range(10):
-                assert wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real == approx(
-                    wder_ref[i, 6], abs=1e-10
-                )
-                assert wder.cder[0, i, 0, 0, 0].real == approx(wder_ref[i, 6], abs=1e-10)
-                assert wder.cder[0, i, 0, 0, 0].imag == approx(wder_ref[i, 7], abs=1e-10)
-                assert wder.cder[0, i, 0, 0, 1].real == approx(wder_ref[i, 8], abs=1e-10)
-                assert wder.cder[0, i, 0, 0, 1].imag == approx(wder_ref[i, 9], abs=1e-10)
-                assert wder.cder[0, i, 0, 0, 2].real == approx(wder_ref[i, 10], abs=1e-10)
-                assert wder.cder[0, i, 0, 0, 2].imag == approx(wder_ref[i, 11], abs=1e-10)
+            assert [wder.get_orbital_derivative_between_states(0, idx, 0, 0, 0).real for idx in range(10)] == approx(
+                wder_ref[:10, 6], abs=1e-10
+            )
+            assert wder.cder[0, :10, 0, 0, 0].real == approx(wder_ref[:10, 6], abs=1e-10)
+            assert wder.cder[0, :10, 0, 0, 0].imag == approx(wder_ref[:10, 7], abs=1e-10)
+            assert wder.cder[0, :10, 0, 0, 1].real == approx(wder_ref[:10, 8], abs=1e-10)
+            assert wder.cder[0, :10, 0, 0, 1].imag == approx(wder_ref[:10, 9], abs=1e-10)
+            assert wder.cder[0, :10, 0, 0, 2].real == approx(wder_ref[:10, 10], abs=1e-10)
+            assert wder.cder[0, :10, 0, 0, 2].imag == approx(wder_ref[:10, 11], abs=1e-10)
 
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER.Si")
         _check(wder)

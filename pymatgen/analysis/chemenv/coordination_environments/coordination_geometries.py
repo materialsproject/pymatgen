@@ -13,10 +13,14 @@ import abc
 import itertools
 import json
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 from scipy.special import factorial
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -109,7 +113,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstruct ExplicitPermutationsAlgorithm from its JSON-serializable dict representation.
         """
@@ -241,7 +245,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 number of permutations.
             add_opposite: Whether to add the permutations from the second group before the first group as well.
 
-        Returns
+        Returns:
             list[int]: safe permutations.
         """
         s0 = list(range(len(self.point_groups[0])))
@@ -324,7 +328,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
@@ -497,7 +501,7 @@ class CoordinationGeometry:
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
-        def from_dict(cls, dct):
+        def from_dict(cls, dct: dict) -> Self:
             """Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation."""
             return cls(hints_type=dct["hints_type"], options=dct["options"])
 
@@ -592,7 +596,7 @@ class CoordinationGeometry:
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
@@ -602,7 +606,6 @@ class CoordinationGeometry:
         Returns:
             CoordinationGeometry
         """
-        dec = MontyDecoder()
         return cls(
             mp_symbol=dct["mp_symbol"],
             name=dct["name"],
@@ -620,7 +623,7 @@ class CoordinationGeometry:
             deactivate=dct["deactivate"],
             faces=dct["_faces"],
             edges=dct["_edges"],
-            algorithms=[dec.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+            algorithms=[MontyDecoder().process_decoded(algo_d) for algo_d in dct["_algorithms"]]
             if dct["_algorithms"] is not None
             else None,
             equivalent_indices=dct.get("equivalent_indices"),
@@ -794,7 +797,7 @@ class CoordinationGeometry:
         list of its vertices coordinates.
         """
         coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
-        return [[coords[ii] for ii in f] for f in self._faces]
+        return [[coords[ii] for ii in face] for face in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
         """
@@ -811,7 +814,7 @@ class CoordinationGeometry:
         #     coords = [sites[ii].coords for ii in permutation]
         if permutation is not None:
             coords = [coords[ii] for ii in permutation]
-        return [[coords[ii] for ii in e] for e in self._edges]
+        return [[coords[ii] for ii in edge] for edge in self._edges]
 
     def solid_angles(self, permutation=None):
         """
@@ -851,11 +854,11 @@ class CoordinationGeometry:
             elif len(face) == 4:
                 out += "5\n"
             else:
-                for ii, f in enumerate(face):
+                for ii, f in enumerate(face, start=1):
                     out += "4\n"
                     out += f"{len(_vertices) + iface}\n"
                     out += f"{f}\n"
-                    out += f"{face[np.mod(ii + 1, len(face))]}\n"
+                    out += f"{face[np.mod(ii, len(face))]}\n"
                     out += f"{len(_vertices) + iface}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:
@@ -1186,7 +1189,8 @@ class AllCoordinationGeometries(dict):
                 return True
             except LookupError:
                 return True
-        raise Exception("Should not be here !")
+        # TODO give a more helpful error message that suggests possible reasons and solutions
+        raise RuntimeError("Should not be here!")
 
     def pretty_print(self, type="implemented_geometries", maxcn=8, additional_info=None):
         """

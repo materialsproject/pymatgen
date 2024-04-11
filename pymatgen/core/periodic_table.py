@@ -16,14 +16,16 @@ from typing import TYPE_CHECKING, Any, Callable, Literal
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
+from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.util.typing import SpeciesLike
 
 # Loads element data from json file
-with open(Path(__file__).absolute().parent / "periodic_table.json") as ptable_json:
+with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _pt_data = json.load(ptable_json)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -74,9 +76,10 @@ class ElementBase(Enum):
             electronic_structure (str): Electronic structure. E.g., The electronic structure for Fe is represented
                 as [Ar].3d6.4s2.
             atomic_orbitals (dict): Atomic Orbitals. Energy of the atomic orbitals as a dict. E.g., The orbitals
-                energies in eV are represented as {'1s': -1.0, '2s': -0.1}. Data is obtained from
+                energies in Hartree are represented as {'1s': -1.0, '2s': -0.1}. Data is obtained from
                 https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations.
                 The LDA values for neutral atoms are used.
+            atomic_orbitals_eV (dict): Atomic Orbitals. Same as `atomic_orbitals` but energies are in eV.
             thermal_conductivity (float): Thermal conductivity.
             boiling_point (float): Boiling point.
             melting_point (float): Melting point.
@@ -234,12 +237,12 @@ class ElementBase(Enum):
                                     unit = "K^-1"
                                 else:
                                     unit = tokens[1]
-                                val = FloatWithUnit(tokens[0], unit)
+                                val = FloatWithUnit(float(tokens[0]), unit)
                             else:
                                 unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
                                 units = Unit(unit)
                                 if set(units).issubset(SUPPORTED_UNIT_NAMES):
-                                    val = FloatWithUnit(tokens[0], unit)
+                                    val = FloatWithUnit(float(tokens[0]), unit)
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
@@ -253,6 +256,18 @@ class ElementBase(Enum):
                             return float(m[0])
             return val
         raise AttributeError(f"Element has no attribute {item}!")
+
+    @property
+    def atomic_orbitals_eV(self) -> dict[str, float]:
+        """
+        Get the LDA energies in eV for neutral atoms, by orbital.
+
+        This property contains the same info as `self.atomic_orbitals`,
+        but uses eV for units, per matsci issue https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
+        In short, self.atomic_orbitals was meant to be in eV all along but is now kept
+        as Hartree for backwards compatibility.
+        """
+        return {orb_idx: energy * Ha_to_eV for orb_idx, energy in self.atomic_orbitals.items()}
 
     @property
     def data(self) -> dict[str, Any]:
@@ -603,10 +618,10 @@ class ElementBase(Enum):
             return 6
         if 89 <= z <= 103:
             return 7
-        for i, size in enumerate(_pt_row_sizes):
+        for i, size in enumerate(_pt_row_sizes, start=1):
             total += size
             if total >= z:
-                return i + 1
+                return i
         return 8
 
     @property
@@ -1038,7 +1053,7 @@ class Species(MSONable, Stringify):
         return None
 
     @classmethod
-    def from_str(cls, species_string: str) -> Species:
+    def from_str(cls, species_string: str) -> Self:
         """Returns a Species from a string representation.
 
         Args:
@@ -1092,6 +1107,7 @@ class Species(MSONable, Stringify):
             if isinstance(abs_charge, float):
                 abs_charge = f"{abs_charge:.2f}"
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
+
         if self._spin is not None:
             spin = self._spin
             output += f",{spin=}"
@@ -1184,16 +1200,20 @@ class Species(MSONable, Stringify):
         """
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):
             raise ValueError("Invalid coordination or spin config")
+
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
+
         n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
+
         if spin_config == "high":
             if n_electrons <= 5:
                 return n_electrons
             return 10 - n_electrons
+
         if spin_config == "low":
             if coordination == "oct":
                 if n_electrons <= 3:
@@ -1203,6 +1223,7 @@ class Species(MSONable, Stringify):
                 if n_electrons <= 8:
                     return n_electrons - 6
                 return 10 - n_electrons
+
             if coordination == "tet":
                 if n_electrons <= 2:
                     return n_electrons
@@ -1211,7 +1232,8 @@ class Species(MSONable, Stringify):
                 if n_electrons <= 7:
                     return n_electrons - 4
                 return 10 - n_electrons
-        raise RuntimeError(f"should not reach here, {spin_config=}, {coordination=}")
+            return None
+        return None
 
     def __deepcopy__(self, memo) -> Species:
         return Species(self.symbol, self.oxi_state, spin=self._spin)
@@ -1227,15 +1249,15 @@ class Species(MSONable, Stringify):
         }
 
     @classmethod
-    def from_dict(cls, d) -> Species:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Species.
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
+        return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
 
 @functools.total_ordering
@@ -1347,7 +1369,7 @@ class DummySpecies(Species):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @classmethod
-    def from_str(cls, species_string: str) -> DummySpecies:
+    def from_str(cls, species_string: str) -> Self:
         """Returns a Dummy from a string representation.
 
         Args:
@@ -1386,15 +1408,15 @@ class DummySpecies(Species):
         }
 
     @classmethod
-    def from_dict(cls, d) -> DummySpecies:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
+        return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
     def __repr__(self) -> str:
         return f"DummySpecies {self}"
@@ -1476,3 +1498,26 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         return DummySpecies.from_str(obj)  # type: ignore
     except Exception:
         raise ValueError(f"Can't parse Element or Species from {obj!r}")
+
+
+@unique
+class ElementType(Enum):
+    """Enum for element types."""
+
+    noble_gas = "noble_gas"  # He, Ne, Ar, Kr, Xe, Rn
+    transition_metal = "transition_metal"  # Sc-Zn, Y-Cd, La-Hg, Ac-Cn
+    post_transition_metal = "post_transition_metal"  # Al, Ga, In, Tl, Sn, Pb, Bi, Po
+    rare_earth_metal = "rare_earth_metal"  # Ce-Lu, Th-Lr
+    metal = "metal"
+    metalloid = "metalloid"  # B, Si, Ge, As, Sb, Te, Po
+    alkali = "alkali"  # Li, Na, K, Rb, Cs, Fr
+    alkaline = "alkaline"  # Be, Mg, Ca, Sr, Ba, Ra
+    halogen = "halogen"  # F, Cl, Br, I, At
+    chalcogen = "chalcogen"  # O, S, Se, Te, Po
+    lanthanoid = "lanthanoid"  # La-Lu
+    actinoid = "actinoid"  # Ac-Lr
+    quadrupolar = "quadrupolar"
+    s_block = "s-block"
+    p_block = "p-block"
+    d_block = "d-block"
+    f_block = "f-block"

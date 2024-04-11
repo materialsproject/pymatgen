@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     import matplotlib.pyplot as plt
+    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -107,8 +108,8 @@ class Pseudo(MSONable, abc.ABC):
         """
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
-    @staticmethod
-    def from_file(filename) -> Pseudo:
+    @classmethod
+    def from_file(cls, filename: str) -> Self:
         """
         Build an instance of a concrete Pseudo subclass from filename.
         Note: the parser knows the concrete class that should be instantiated
@@ -139,22 +140,21 @@ class Pseudo(MSONable, abc.ABC):
         """String representation."""
 
         lines: list[str] = []
-        app = lines.append
-        app(f"<{type(self).__name__}: {self.basename}>")
-        app("  summary: " + self.summary.strip())
-        app(f"  number of valence electrons: {self.Z_val}")
-        app(f"  maximum angular momentum: {l2str(self.l_max)}")
-        app(f"  angular momentum for local part: {l2str(self.l_local)}")
-        app(f"  XC correlation: {self.xc}")
-        app(f"  supports spin-orbit: {self.supports_soc}")
+        lines.append(f"<{type(self).__name__}: {self.basename}>")
+        lines.append("  summary: " + self.summary.strip())
+        lines.append(f"  number of valence electrons: {self.Z_val}")
+        lines.append(f"  maximum angular momentum: {l2str(self.l_max)}")
+        lines.append(f"  angular momentum for local part: {l2str(self.l_local)}")
+        lines.append(f"  XC correlation: {self.xc}")
+        lines.append(f"  supports spin-orbit: {self.supports_soc}")
 
         if self.isnc:
-            app(f"  radius for non-linear core correction: {self.nlcc_radius}")
+            lines.append(f"  radius for non-linear core correction: {self.nlcc_radius}")
 
         if self.has_hints:
             for accuracy in ("low", "normal", "high"):
                 hint = self.hint_for_accuracy(accuracy=accuracy)
-                app(f"  hint for {accuracy} accuracy: {hint}")
+                lines.append(f"  hint for {accuracy} accuracy: {hint}")
 
         return "\n".join(lines)
 
@@ -262,7 +262,7 @@ class Pseudo(MSONable, abc.ABC):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Build instance from dictionary (MSONable protocol)."""
         new = cls.from_file(dct["filepath"])
 
@@ -583,9 +583,9 @@ class Hint:
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Build instance from dictionary (MSONable protocol)."""
-        return cls(**{k: v for k, v in d.items() if not k.startswith("@")})
+        return cls(**{k: v for k, v in dct.items() if not k.startswith("@")})
 
 
 def _dict_from_lines(lines, key_nums, sep=None):
@@ -1092,8 +1092,8 @@ class PseudoParser:
         # Assume file with the abinit header.
         lines = _read_nlines(filename, 80)
 
-        for lineno, line in enumerate(lines):
-            if lineno == 2:
+        for lineno, line in enumerate(lines, start=1):
+            if lineno == 3:
                 try:
                     tokens = line.split()
                     pspcod, _pspxc = map(int, tokens[:2])
@@ -1109,7 +1109,7 @@ class PseudoParser:
 
                 if pspcod == 7:
                     # PAW -> need to know the format pspfmt
-                    tokens = lines[lineno + 1].split()
+                    tokens = lines[lineno].split()
                     pspfmt, _creatorID = tokens[:2]
 
                     ppdesc = ppdesc._replace(format=pspfmt)
@@ -1544,7 +1544,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return cls(items)
 
     @classmethod
-    def from_dir(cls, top, exts=None, exclude_dirs="_*"):
+    def from_dir(cls, top, exts=None, exclude_dirs="_*") -> Self | None:
         """
         Find all pseudos in the directory tree starting from top.
 
@@ -1560,16 +1560,16 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         pseudos = []
 
         if exts == "all_files":
-            for f in [os.path.join(top, fn) for fn in os.listdir(top)]:
-                if os.path.isfile(f):
+            for filepath in [os.path.join(top, fn) for fn in os.listdir(top)]:
+                if os.path.isfile(filepath):
                     try:
-                        p = Pseudo.from_file(f)
-                        if p:
-                            pseudos.append(p)
+                        pseudo = Pseudo.from_file(filepath)
+                        if pseudo:
+                            pseudos.append(pseudo)
                         else:
-                            logger.info(f"Skipping file {f}")
+                            logger.info(f"Skipping file {filepath}")
                     except Exception:
-                        logger.info(f"Skipping file {f}")
+                        logger.info(f"Skipping file {filepath}")
             if not pseudos:
                 logger.warning(f"No pseudopotentials parsed from folder {top}")
                 return None
@@ -1579,11 +1579,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exts is None:
                 exts = ("psp8",)
 
-            for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
+            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):
                 try:
-                    pseudos.append(Pseudo.from_file(p))
+                    pseudos.append(Pseudo.from_file(pseudo))
                 except Exception as exc:
-                    logger.critical(f"Error in {p}:\n{exc}")
+                    logger.critical(f"Error in {pseudo}:\n{exc}")
 
         return cls(pseudos).sort_by_z()
 
@@ -1679,13 +1679,12 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Build instance from dictionary (MSONable protocol)."""
         pseudos = []
-        dec = MontyDecoder()
-        for k, v in d.items():
+        for k, v in dct.items():
             if not k.startswith("@"):
-                pseudos.append(dec.process_decoded(v))
+                pseudos.append(MontyDecoder().process_decoded(v))
         return cls(pseudos)
 
     def is_complete(self, zmax=118) -> bool:

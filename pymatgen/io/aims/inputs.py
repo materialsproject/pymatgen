@@ -14,12 +14,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 
 from pymatgen.core import Lattice, Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from typing_extensions import Self
 
 __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"
@@ -33,7 +36,7 @@ class AimsGeometryIn(MSONable):
 
     Attributes:
         _content (str): The content of the input file
-        _structure (Structure or Molecule): The structure or molecule
+        _structure (Structure | Molecule): The structure or molecule
             representation of the file
     """
 
@@ -41,7 +44,7 @@ class AimsGeometryIn(MSONable):
     _structure: Structure | Molecule
 
     @classmethod
-    def from_str(cls, contents: str) -> AimsGeometryIn:
+    def from_str(cls, contents: str) -> Self:
         """Create an input from the content of an input file
 
         Args:
@@ -54,12 +57,8 @@ class AimsGeometryIn(MSONable):
             line.strip() for line in contents.split("\n") if len(line.strip()) > 0 and line.strip()[0] != "#"
         ]
 
-        species = []
-        coords = []
-        is_frac = []
-        lattice_vectors = []
-        charges_dct = {}
-        moments_dct = {}
+        species, coords, is_frac, lattice_vectors = [], [], [], []
+        charges_dct, moments_dct = {}, {}
 
         for line in content_lines:
             inp = line.split()
@@ -105,7 +104,7 @@ class AimsGeometryIn(MSONable):
         return cls(_content="\n".join(content_lines), _structure=structure)
 
     @classmethod
-    def from_file(cls, filepath: str | Path) -> AimsGeometryIn:
+    def from_file(cls, filepath: str | Path) -> Self:
         """Create an AimsGeometryIn from an input file.
 
         Args:
@@ -114,25 +113,21 @@ class AimsGeometryIn(MSONable):
         Returns:
             AimsGeometryIn: The input object represented in the file
         """
-        if str(filepath).endswith(".gz"):
-            with gzip.open(filepath, mode="rt") as infile:
-                content = infile.read()
-        else:
-            with open(filepath) as infile:
-                content = infile.read()
+        with zopen(filepath, mode="rt") as in_file:
+            content = in_file.read()
         return cls.from_str(content)
 
     @classmethod
-    def from_structure(cls, structure: Structure | Molecule) -> AimsGeometryIn:
+    def from_structure(cls, structure: Structure | Molecule) -> Self:
         """Construct an input file from an input structure.
 
         Args:
-            structure (Structure or Molecule): The structure for the file
+            structure (Structure | Molecule): The structure for the file
 
         Returns:
             AimsGeometryIn: The input object for the structure
         """
-        content_lines = []
+        content_lines: list[str] = []
 
         if isinstance(structure, Structure):
             for lv in structure.lattice.matrix:
@@ -190,7 +185,7 @@ class AimsGeometryIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsGeometryIn:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Initialize from dictionary.
 
         Args:
@@ -378,7 +373,7 @@ class AimsCube(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsCube:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Initialize from dictionary.
 
         Args:
@@ -406,8 +401,7 @@ class AimsControlIn(MSONable):
 
     def __post_init__(self) -> None:
         """Initialize the output list of _parameters"""
-        if "output" not in self._parameters:
-            self._parameters["output"] = []
+        self._parameters.setdefault("output", [])
 
     def __getitem__(self, key: str) -> Any:
         """Get an input parameter
@@ -464,8 +458,7 @@ class AimsControlIn(MSONable):
             parameters (dict[str, Any]): The new set of parameters to use
         """
         self._parameters = parameters
-        if "output" not in self._parameters:
-            self._parameters["output"] = []
+        self._parameters.setdefault("output", [])
 
     def get_aims_control_parameter_str(self, key: str, value: Any, fmt: str) -> str:
         """Get the string needed to add a parameter to the control.in file
@@ -478,6 +471,8 @@ class AimsControlIn(MSONable):
         Returns:
             str: The line to add to the control.in file
         """
+        if value is None:
+            return ""
         return f"{key:35s}{fmt % value}\n"
 
     def get_content(
@@ -486,7 +481,7 @@ class AimsControlIn(MSONable):
         """Get the content of the file
 
         Args:
-            structure (Structure or Molecule): The structure to write the input
+            structure (Structure | Molecule): The structure to write the input
                 file for
             verbose_header (bool): If True print the input option dictionary
             directory: str | Path | None = The directory for the calculation,
@@ -510,8 +505,7 @@ class AimsControlIn(MSONable):
         if verbose_header:
             content += "# \n# List of parameters used to initialize the calculator:"
             for param, val in parameters.items():
-                s = f"#     {param}:{val}\n"
-                content += s
+                content += f"#     {param}:{val}\n"
         content += lim + "\n"
 
         assert ("smearing" in parameters and "occupation_type" in parameters) is False
@@ -539,7 +533,7 @@ class AimsControlIn(MSONable):
             elif isinstance(value, bool):
                 content += self.get_aims_control_parameter_str(key, str(value).lower(), ".%s.")
             elif isinstance(value, (tuple, list)):
-                content += self.get_aims_control_parameter_str(key, " ".join([str(x) for x in value]), "%s")
+                content += self.get_aims_control_parameter_str(key, " ".join(map(str, value)), "%s")
             elif isinstance(value, str):
                 content += self.get_aims_control_parameter_str(key, value, "%s")
             else:
@@ -565,7 +559,7 @@ class AimsControlIn(MSONable):
         """Writes the control.in file
 
         Args:
-            structure (Structure or Molecule): The structure to write the input
+            structure (Structure | Molecule): The structure to write the input
                 file for
             directory (str or Path): The directory to write the control.in file.
                 If None use cwd
@@ -610,20 +604,20 @@ class AimsControlIn(MSONable):
         Raises:
             ValueError: If a file for the species is not found
         """
-        sb = ""
+        block = ""
         species = np.unique(structure.species)
         for sp in species:
             filename = f"{species_dir}/{sp.Z:02d}_{sp.symbol}_default"
             if Path(filename).exists():
                 with open(filename) as sf:
-                    sb += "".join(sf.readlines())
+                    block += "".join(sf.readlines())
             elif Path(f"{filename}.gz").exists():
                 with gzip.open(f"{filename}.gz", mode="rt") as sf:
-                    sb += "".join(sf.readlines())
+                    block += "".join(sf.readlines())
             else:
                 raise ValueError(f"Species file for {sp.symbol} not found.")
 
-        return sb
+        return block
 
     def as_dict(self) -> dict[str, Any]:
         """Get a dictionary representation of the geometry.in file."""
@@ -634,7 +628,7 @@ class AimsControlIn(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> AimsControlIn:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Initialize from dictionary.
 
         Args:

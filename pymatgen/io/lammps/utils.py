@@ -18,15 +18,16 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
 
+try:
+    from openbabel import pybel
+except ImportError:
+    pybel = None
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
 
-try:
-    from openbabel import pybel
-except ImportError:
-    pybel = None
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
@@ -493,4 +494,4 @@ if __name__ == "__main__":
         auto_box=False,
         output_file="cocktail.xyz",
     )
-    s = pmr.run()
+    mol = pmr.run()

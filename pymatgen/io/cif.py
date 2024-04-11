@@ -8,9 +8,8 @@ import re
 import textwrap
 import warnings
 from collections import defaultdict, deque
-from datetime import datetime
 from functools import partial
-from inspect import getfullargspec as getargspec
+from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
@@ -31,6 +30,8 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
@@ -168,7 +169,7 @@ class CifBlock:
         return deq
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads CifBlock from string.
 
@@ -178,34 +179,34 @@ class CifBlock:
         Returns:
             CifBlock
         """
-        q = cls._process_string(string)
-        header = q.popleft()[0][5:]
-        data = {}
+        deq = cls._process_string(string)
+        header = deq.popleft()[0][5:]
+        data: dict = {}
         loops = []
-        while q:
-            s = q.popleft()
+        while deq:
+            s = deq.popleft()
             # cif keys aren't in quotes, so show up in s[0]
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
                 try:
-                    data[s[0]] = "".join(q.popleft())
+                    data[s[0]] = "".join(deq.popleft())
                 except IndexError:
                     data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append("".join(q.popleft()))
+                    columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith(("loop_", "_")):
                         break
-                    items.append("".join(q.popleft()))
+                    items.append("".join(deq.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
@@ -235,7 +236,7 @@ class CifFile:
         return f"{self.comment}\n{out}\n"
 
     @classmethod
-    def from_str(cls, string) -> CifFile:
+    def from_str(cls, string: str) -> Self:
         """Reads CifFile from a string.
 
         Args:
@@ -262,7 +263,7 @@ class CifFile:
         return cls(dct, string)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> CifFile:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads CifFile from a filename.
 
@@ -365,7 +366,7 @@ class CifParser:
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
-    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
+    def from_str(cls, cif_string: str, **kwargs) -> Self:
         """
         Creates a CifParser from a string.
 
@@ -590,6 +591,8 @@ class CifParser:
                         # Up to this point, magmoms have been defined relative
                         # to crystal axis. Now convert to Cartesian and into
                         # a Magmom object.
+                        if lattice is None:
+                            raise ValueError("Lattice cannot be None.")
                         magmom = Magmom.from_moment_relative_to_crystal_axes(
                             op.operate_magmom(tmp_magmom), lattice=lattice
                         )
@@ -635,7 +638,7 @@ class CifParser:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
                     try:
-                        required_args = getargspec(getattr(Lattice, lattice_type)).args
+                        required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (length for length in length_strings if length in required_args)
                         angles = (a for a in angle_strings if a in required_args)
@@ -1188,12 +1191,6 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if (
-            os.getenv("CI")
-            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
-            and datetime.now() > datetime(2024, 10, 1)
-        ):  # pragma: no cover
-            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(

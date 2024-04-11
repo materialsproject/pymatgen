@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import math
 import pickle
-import unittest
 from copy import deepcopy
+from enum import Enum
 
 import numpy as np
 import pytest
 from pytest import approx
 
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
-from pymatgen.core.periodic_table import ElementBase
+from pymatgen.core.periodic_table import ElementBase, ElementType
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -242,66 +243,75 @@ class TestElement(PymatgenTest):
             for sym in key:
                 assert getattr(Element(sym), val), f"{sym=} is false"
 
-        keys = [
-            "mendeleev_no",
+        keys = (
             "atomic_mass",
-            "electronic_structure",
+            "atomic_orbitals",
+            "atomic_orbitals_eV",
             "atomic_radius",
-            "min_oxidation_state",
-            "max_oxidation_state",
+            "average_anionic_radius",
+            "average_cationic_radius",
+            "average_ionic_radius",
+            "boiling_point",
+            "brinell_hardness",
+            "bulk_modulus",
+            "coefficient_of_linear_thermal_expansion",
+            "common_oxidation_states",
+            "critical_temperature",
+            "density_of_solid",
             "electrical_resistivity",
-            "velocity_of_sound",
+            "electronic_structure",
+            "ground_level",
+            "ionic_radii",
+            "ionization_energies",
+            "iupac_ordering",
+            "liquid_range",
+            "long_name",
+            "max_oxidation_state",
+            "melting_point",
+            "mendeleev_no",
+            "metallic_radius",
+            "min_oxidation_state",
+            "mineral_hardness",
+            "molar_volume",
+            "oxidation_states",
+            "poissons_ratio",
             "reflectivity",
             "refractive_index",
-            "poissons_ratio",
-            "molar_volume",
-            "thermal_conductivity",
-            "melting_point",
-            "boiling_point",
-            "liquid_range",
-            "critical_temperature",
-            "superconduction_temperature",
-            "bulk_modulus",
-            "youngs_modulus",
-            "brinell_hardness",
             "rigidity_modulus",
-            "mineral_hardness",
+            "superconduction_temperature",
+            "thermal_conductivity",
+            "velocity_of_sound",
             "vickers_hardness",
-            "density_of_solid",
-            "atomic_orbitals",
-            "coefficient_of_linear_thermal_expansion",
-            "oxidation_states",
-            "common_oxidation_states",
-            "average_ionic_radius",
-            "average_cationic_radius",
-            "average_anionic_radius",
-            "ionic_radii",
-            "long_name",
-            "metallic_radius",
-            "iupac_ordering",
-            "ground_level",
-            "ionization_energies",
-        ]
+            "youngs_modulus",
+        )
 
         # Test all elements up to Uranium
         for idx in range(1, 104):
             el = Element.from_Z(idx)
             for key in keys:
-                k_str = key.capitalize().replace("_", " ")
-                if k_str in el.data and (not str(el.data[k_str]).startswith("no data")):
+                key_str = key.capitalize().replace("_", " ")
+                if key_str in el.data and (not str(el.data[key_str]).startswith("no data")):
                     assert getattr(el, key) is not None
                 elif key == "long_name":
                     assert el.long_name == el.data["Name"]
                 elif key == "iupac_ordering":
                     assert "IUPAC ordering" in el.data
                     assert getattr(el, key) is not None
-            el = Element.from_Z(idx)
+
             if len(el.oxidation_states) > 0:
                 assert max(el.oxidation_states) == el.max_oxidation_state
                 assert min(el.oxidation_states) == el.min_oxidation_state
 
-            if el.symbol not in ["He", "Ne", "Ar"]:
+            if el.symbol not in {"He", "Ne", "Ar"}:
                 assert el.X > 0, f"No electroneg for {el}"
+
+            # check atomic_orbitals_eV is Ha_to_eV * atomic_orbitals
+        for el in Element:
+            if el.atomic_orbitals is None:
+                continue
+            assert el.atomic_orbitals_eV == approx(
+                {orb: energy * Ha_to_eV for orb, energy in el.atomic_orbitals.items()}
+            )
 
         with pytest.raises(ValueError, match="Unexpected atomic number Z=1000"):
             Element.from_Z(1000)
@@ -443,8 +453,8 @@ class TestSpecies(PymatgenTest):
         with pytest.raises(ValueError, match="Invalid coordination or spin config"):
             Species("Fe", 2).get_crystal_field_spin("hex")
 
-        s = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
-        assert s == 2
+        spin = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
+        assert spin == 2
 
     def test_get_nmr_mom(self):
         assert Species("H").get_nmr_quadrupole_moment() == 2.860
@@ -525,7 +535,7 @@ def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     assert species._oxi_state == expected_oxi_state
 
 
-class TestDummySpecies(unittest.TestCase):
+class TestDummySpecies:
     def test_init(self):
         self.specie1 = DummySpecies("X")
         with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
@@ -561,21 +571,22 @@ class TestDummySpecies(unittest.TestCase):
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
-        o = pickle.dumps(el1)
-        assert el1 == pickle.loads(o)
+        pickled = pickle.dumps(el1)
+        assert el1 == pickle.loads(pickled)
 
     def test_sort(self):
-        r = sorted([Element.Fe, DummySpecies("X")])
-        assert r == [DummySpecies("X"), Element.Fe]
+        Fe, X = Element.Fe, DummySpecies("X")
+        assert sorted([Fe, X]) == [X, Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
 
         sp = Species("Fe", 2, spin=5)
         with pytest.raises(AttributeError) as exc:
             sp.spin = 6
 
+        # for some reason different message on Windows and Mac. on Linux: 'can't set attribute'
         assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
             exc.value
-        )  # 'can't set attribute' on Linux, for some reason different message on Windows and Mac
+        )
         assert sp.spin == 5
 
 
@@ -593,3 +604,9 @@ def test_get_el_sp():
 
     with pytest.raises(ValueError, match="Can't parse Element or Species from None"):
         get_el_sp(None)
+
+
+def test_element_type():
+    assert isinstance(ElementType.actinoid, Enum)
+    assert isinstance(ElementType.metalloid, Enum)
+    assert len(ElementType) == 17

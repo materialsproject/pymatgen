@@ -8,6 +8,8 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
@@ -21,6 +23,9 @@ from pymatgen.analysis.chemenv.coordination_environments.voronoi import Detailed
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -366,7 +371,7 @@ class StructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dct, structure: Structure, detailed_voronoi):
+        def from_dict(cls, dct, structure: Structure, detailed_voronoi) -> Self:
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and the DetailedVoronoiContainer.
@@ -497,7 +502,7 @@ class StructureEnvironments(MSONable):
                     }
                     site_voronoi_indices = [
                         inb
-                        for inb, voro_nb_dict in enumerate(site_voronoi)
+                        for inb, _voro_nb_dict in enumerate(site_voronoi)
                         if (
                             distance_conditions[idp][inb]
                             and angle_conditions[iap][inb]
@@ -1247,7 +1252,7 @@ class StructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> StructureEnvironments:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the StructureEnvironments object from a dict representation of the StructureEnvironments created
         using the as_dict method.
@@ -1419,7 +1424,7 @@ class LightStructureEnvironments(MSONable):
             }
 
         @classmethod
-        def from_dict(cls, dct, structure: Structure, all_nbs_sites):
+        def from_dict(cls, dct, structure: Structure, all_nbs_sites) -> Self:
             """
             Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
             the structure and all the possible neighbors sites.
@@ -1476,7 +1481,7 @@ class LightStructureEnvironments(MSONable):
         self.valences_origin = valences_origin
 
     @classmethod
-    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None):
+    def from_structure_environments(cls, strategy, structure_environments, valences=None, valences_origin=None) -> Self:
         """
         Construct a LightStructureEnvironments object from a strategy and a StructureEnvironments object.
 
@@ -1492,10 +1497,10 @@ class LightStructureEnvironments(MSONable):
         """
         structure = structure_environments.structure
         strategy.set_structure_environments(structure_environments=structure_environments)
-        coordination_environments = [None] * len(structure)
-        neighbors_sets = [None] * len(structure)
-        _all_nbs_sites = []
-        all_nbs_sites = []
+        coordination_environments: list = [None] * len(structure)
+        neighbors_sets: list = [None] * len(structure)
+        _all_nbs_sites: list = []
+        all_nbs_sites: list = []
         if valences is None:
             valences = structure_environments.valences
             if valences_origin is None:
@@ -1510,7 +1515,7 @@ class LightStructureEnvironments(MSONable):
             coordination_environments[idx] = []
             neighbors_sets[idx] = []
             site_ces = []
-            site_nbs_sets = []
+            site_nbs_sets: list = []
             for ce_and_neighbors in site_ces_and_nbs_list:
                 _all_nbs_sites_indices = []
                 # Coordination environment
@@ -1556,6 +1561,7 @@ class LightStructureEnvironments(MSONable):
                 site_nbs_sets.append(nb_set)
             coordination_environments[idx] = site_ces
             neighbors_sets[idx] = site_nbs_sets
+
         return cls(
             strategy=strategy,
             coordination_environments=coordination_environments,
@@ -2015,7 +2021,7 @@ class LightStructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> LightStructureEnvironments:
+    def from_dict(cls, dct) -> Self:
         """
         Reconstructs the LightStructureEnvironments object from a dict representation of the
         LightStructureEnvironments created using the as_dict method.
@@ -2026,11 +2032,10 @@ class LightStructureEnvironments(MSONable):
         Returns:
             LightStructureEnvironments object.
         """
-        dec = MontyDecoder()
-        structure = dec.process_decoded(dct["structure"])
+        structure = MontyDecoder().process_decoded(dct["structure"])
         all_nbs_sites = []
         for nb_site in dct["all_nbs_sites"]:
-            periodic_site = dec.process_decoded(nb_site["site"])
+            periodic_site = MontyDecoder().process_decoded(nb_site["site"])
             site = PeriodicNeighbor(
                 species=periodic_site.species,
                 coords=periodic_site.frac_coords,
@@ -2056,7 +2061,7 @@ class LightStructureEnvironments(MSONable):
             for site_nb_sets in dct["neighbors_sets"]
         ]
         return cls(
-            strategy=dec.process_decoded(dct["strategy"]),
+            strategy=MontyDecoder().process_decoded(dct["strategy"]),
             coordination_environments=dct["coordination_environments"],
             all_nbs_sites=all_nbs_sites,
             neighbors_sets=neighbors_sets,
@@ -2335,7 +2340,7 @@ class ChemicalEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> ChemicalEnvironments:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the ChemicalEnvironments object from a dict representation of the ChemicalEnvironments created
         using the as_dict method.

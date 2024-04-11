@@ -72,12 +72,12 @@ class CRESTOutput(MSONable):
             print(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
-        for i, entry in enumerate(split_cmd):
+        for i, entry in enumerate(split_cmd, start=1):
             value = None
             if entry and "-" in entry:
                 option = entry[1:]
-                if i + 1 < len(split_cmd) and "-" not in split_cmd[i + 1]:
-                    value = split_cmd[i + 1]
+                if i < len(split_cmd) and "-" not in split_cmd[i]:
+                    value = split_cmd[i]
                 self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
@@ -127,9 +127,9 @@ class CRESTOutput(MSONable):
                 final_rotamer_filename = "crest_rotamers.xyz"
             else:
                 n_rot_files = []
-                for f in os.listdir(self.path):
-                    if "crest_rotamers" in f:
-                        n_rot_file = int(os.path.splitext(f)[0].split("_")[2])
+                for filename in os.listdir(self.path):
+                    if "crest_rotamers" in filename:
+                        n_rot_file = int(os.path.splitext(filename)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
                 if len(n_rot_files) > 0:
                     final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz"

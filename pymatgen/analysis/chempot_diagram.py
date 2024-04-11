@@ -115,6 +115,7 @@ class ChemicalPotentialDiagram(MSONable):
         self.default_min_limit = default_min_limit
         self.elements = sorted({els for ent in self.entries for els in ent.elements})
         self.dim = len(self.elements)
+        self.formal_chempots = formal_chempots
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
         self._entry_dict = {ent.reduced_formula: ent for ent in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
@@ -186,6 +187,7 @@ class ChemicalPotentialDiagram(MSONable):
                 entries=entries,
                 limits=self.limits,
                 default_min_limit=self.default_min_limit,
+                formal_chempots=self.formal_chempots,
             )
             fig = cpd.get_plot(elements=elems, label_stable=label_stable)  # type: ignore
         else:
@@ -666,7 +668,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     polygon. Useful for calculating the location of an annotation on a chemical
     potential domain within a 3D chemical potential diagram.
 
-    **NOTE**: vertices must be ordered circumferentially!
+    NOTE vertices must be ordered circumferentially!
 
     Args:
         vertices: array of 2-d coordinates corresponding to a polygon, ordered

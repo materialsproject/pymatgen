@@ -25,7 +25,7 @@ import subprocess
 import tempfile
 import time
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.dev import requires
@@ -45,6 +45,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
@@ -1480,9 +1481,9 @@ class BoltztrapAnalyzer:
             d = self.get_zt(output="eigs", doping_levels=True)
 
         else:
-            raise ValueError(f"Target property: {target_prop} not recognized!")
+            raise ValueError(f"Unrecognized {target_prop=}")
 
-        absval = True  # take the absolute value of properties
+        abs_val = True  # take the absolute value of properties
 
         x_val = x_temp = x_doping = x_isotropic = None
         output = {}
@@ -1499,7 +1500,7 @@ class BoltztrapAnalyzer:
                         doping_lvl = self.doping[pn][didx]
                         if min_doping <= doping_lvl <= max_doping:
                             isotropic = is_isotropic(evs, isotropy_tolerance)
-                            if absval:
+                            if abs_val:
                                 evs = [abs(x) for x in evs]
                             val = float(sum(evs)) / len(evs) if use_average else max(evs)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
@@ -1935,7 +1936,7 @@ class BoltztrapAnalyzer:
         )
 
     @classmethod
-    def from_files(cls, path_dir, dos_spin=1):
+    def from_files(cls, path_dir: str, dos_spin: Literal[-1, 1] = 1) -> Self:
         """Get a BoltztrapAnalyzer object from a set of files.
 
         Args:
@@ -1956,7 +1957,7 @@ class BoltztrapAnalyzer:
 
             *cond_and_hall, carrier_conc = cls.parse_cond_and_hall(path_dir, doping_levels)
 
-            return cls(gap, *cond_and_hall, in_trans, dos, partial_dos, carrier_conc, vol, warning)
+            return cls(gap, *cond_and_hall, in_trans, dos, partial_dos, carrier_conc, vol, warning)  # type: ignore[call-arg]
 
         if run_type == "DOS":
             trim = in_trans["dos_type"] == "HISTO"
@@ -2004,8 +2005,8 @@ class BoltztrapAnalyzer:
         }
         return jsanitize(results)
 
-    @staticmethod
-    def from_dict(data):
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
         """
         Args:
             data: Dict representation.
@@ -2124,7 +2125,7 @@ class BoltztrapAnalyzer:
         vol = data.get("vol")
         warning = data.get("warning")
 
-        return BoltztrapAnalyzer(
+        return cls(
             gap=gap,
             mu_steps=mu_steps,
             cond=cond,

@@ -16,6 +16,8 @@ from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from typing_extensions import Self
+
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
@@ -295,15 +297,15 @@ class QCInput(InputFile):
             (str) String representation of multi job input file.
         """
         multi_job_string = ""
-        for i, job_i in enumerate(job_list):
-            if i < len(job_list) - 1:
+        for i, job_i in enumerate(job_list, start=1):
+            if i < len(job_list):
                 multi_job_string += str(job_i) + "\n@@@\n\n"
             else:
                 multi_job_string += str(job_i)
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> QCInput:
+    def from_str(cls, string: str) -> Self:  # type: ignore[override]
         """
         Read QcInput from string.
 
@@ -378,7 +380,7 @@ class QCInput(InputFile):
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> QCInput:
+    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
         """
         Create QcInput from file.
 
@@ -392,7 +394,7 @@ class QCInput(InputFile):
             return cls.from_str(file.read())
 
     @classmethod
-    def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
+    def from_multi_jobs_file(cls, filename: str) -> list[Self]:
         """
         Create list of QcInput from a file.
 
@@ -680,7 +682,7 @@ class QCInput(InputFile):
         """
         cdft_list = []
         cdft_list.append("$cdft")
-        for ii, state in enumerate(cdft):
+        for ii, state in enumerate(cdft, start=1):
             for constraint in state:
                 types = constraint["types"]
                 cdft_list.append(f"   {constraint['value']}")
@@ -701,7 +703,7 @@ class QCInput(InputFile):
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
                     else:
                         cdft_list.append(f"   {coef} {first} {last}")
-            if len(cdft) != 1 and ii + 1 < len(state):
+            if len(cdft) != 1 and ii < len(state):
                 cdft_list.append("--------------")
 
         # Ensure that you don't have a line indicating a state that doesn't exist

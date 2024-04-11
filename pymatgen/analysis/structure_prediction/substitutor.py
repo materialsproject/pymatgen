@@ -6,6 +6,7 @@ import functools
 import itertools
 import logging
 from operator import mul
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
@@ -16,6 +17,9 @@ from pymatgen.analysis.structure_prediction.substitution_probability import Subs
 from pymatgen.core import get_el_sp
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -252,14 +256,14 @@ class Substitutor(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Class
         """
-        t = d["threshold"]
-        kwargs = d["kwargs"]
+        t = dct["threshold"]
+        kwargs = dct["kwargs"]
         return cls(threshold=t, **kwargs)

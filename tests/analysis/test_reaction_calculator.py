@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import unittest
 from collections import defaultdict
 from math import isnan
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -13,7 +13,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestReaction(unittest.TestCase):
+class TestReaction:
     def test_init(self):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
@@ -287,7 +287,7 @@ class TestReaction(unittest.TestCase):
         assert str(rxn) == "LiMnCl3 + 3 LiCl + MnCl2 -> 2 Li2MnCl4"
 
 
-class TestBalancedReaction(unittest.TestCase):
+class TestBalancedReaction(TestCase):
     def setUp(self) -> None:
         rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
         prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
@@ -334,7 +334,7 @@ class TestBalancedReaction(unittest.TestCase):
         assert hash(self.rxn) == 4774511606373046513
 
 
-class TestComputedReaction(unittest.TestCase):
+class TestComputedReaction(TestCase):
     def setUp(self):
         dct = [
             {
@@ -372,7 +372,7 @@ class TestComputedReaction(unittest.TestCase):
 
         self.rxn = ComputedReaction(reactants, prods)
 
-    def test_calculated_reaction_energy(self):
+    def test_nd_reaction_energy(self):
         assert self.rxn.calculated_reaction_energy == approx(-5.60748821935)
 
     def test_calculated_reaction_energy_uncertainty(self):
@@ -432,7 +432,7 @@ class TestComputedReaction(unittest.TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = [ComputedEntry.from_dict(e) for e in d]
+        entries = [ComputedEntry.from_dict(entry) for entry in d]
         reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
@@ -447,7 +447,7 @@ class TestComputedReaction(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty
         # for any product/reactant is nan
-        d = [
+        dicts = [
             {
                 "correction": 0,
                 "data": {},
@@ -503,7 +503,7 @@ class TestComputedReaction(unittest.TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = [ComputedEntry.from_dict(e) for e in d]
+        entries = [ComputedEntry.from_dict(entry) for entry in dicts]
         reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 

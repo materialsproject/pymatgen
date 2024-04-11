@@ -4,12 +4,18 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.re import regrep
 
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 
 class PWInput:
@@ -184,27 +190,27 @@ class PWInput:
         }
 
     @classmethod
-    def from_dict(cls, pwinput_dict):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Load a PWInput object from a dictionary.
 
         Args:
-            pwinput_dict (dict): dictionary with PWInput data
+            dct (dict): dictionary with PWInput data
 
         Returns:
             PWInput object
         """
         return cls(
-            structure=Structure.from_dict(pwinput_dict["structure"]),
-            pseudo=pwinput_dict["pseudo"],
-            control=pwinput_dict["sections"]["control"],
-            system=pwinput_dict["sections"]["system"],
-            electrons=pwinput_dict["sections"]["electrons"],
-            ions=pwinput_dict["sections"]["ions"],
-            cell=pwinput_dict["sections"]["cell"],
-            kpoints_mode=pwinput_dict["kpoints_mode"],
-            kpoints_grid=pwinput_dict["kpoints_grid"],
-            kpoints_shift=pwinput_dict["kpoints_shift"],
+            structure=Structure.from_dict(dct["structure"]),
+            pseudo=dct["pseudo"],
+            control=dct["sections"]["control"],
+            system=dct["sections"]["system"],
+            electrons=dct["sections"]["electrons"],
+            ions=dct["sections"]["ions"],
+            cell=dct["sections"]["cell"],
+            kpoints_mode=dct["kpoints_mode"],
+            kpoints_grid=dct["kpoints_grid"],
+            kpoints_shift=dct["kpoints_shift"],
         )
 
     def write_file(self, filename):
@@ -218,12 +224,12 @@ class PWInput:
             file.write(str(self))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads an PWInput object from a file.
 
         Args:
-            filename (str): Filename for file
+            filename (str | Path): Filename for file
 
         Returns:
             PWInput object
@@ -232,7 +238,7 @@ class PWInput:
             return cls.from_str(file.read())
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads an PWInput object from a string.
 
@@ -259,7 +265,7 @@ class PWInput:
                 return None
             return mode
 
-        sections = {
+        sections: dict[str, dict] = {
             "control": {},
             "system": {},
             "electrons": {},
@@ -271,7 +277,7 @@ class PWInput:
         species = []
         coords = []
         structure = None
-        site_properties = {"pseudo": []}
+        site_properties: dict[str, list] = {"pseudo": []}
         mode = None
         for line in lines:
             mode = input_mode(line)

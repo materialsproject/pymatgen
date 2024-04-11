@@ -16,6 +16,8 @@ from pymatgen.core.units import Charge, Time
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from typing_extensions import Self
+
     from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -43,7 +45,13 @@ class ConversionElectrode(AbstractElectrode):
         return Composition(self.initial_comp_formula)
 
     @classmethod
-    def from_composition_and_pd(cls, comp, pd, working_ion_symbol="Li", allow_unstable=False):
+    def from_composition_and_pd(
+        cls,
+        comp,
+        pd: PhaseDiagram,
+        working_ion_symbol: str = "Li",
+        allow_unstable: bool = False,
+    ) -> Self | None:
         """Convenience constructor to make a ConversionElectrode from a
         composition and a phase diagram.
 
@@ -56,11 +64,11 @@ class ConversionElectrode(AbstractElectrode):
         """
         working_ion = Element(working_ion_symbol)
         entry = working_ion_entry = None
-        for e in pd.stable_entries:
-            if e.reduced_formula == comp.reduced_formula:
-                entry = e
-            elif e.is_element and e.reduced_formula == working_ion_symbol:
-                working_ion_entry = e
+        for ent in pd.stable_entries:
+            if ent.reduced_formula == comp.reduced_formula:
+                entry = ent
+            elif ent.is_element and ent.reduced_formula == working_ion_symbol:
+                working_ion_entry = ent
 
         if not allow_unstable and not entry:
             raise ValueError(f"Not stable compound found at composition {comp}.")
@@ -71,14 +79,16 @@ class ConversionElectrode(AbstractElectrode):
         profile.reverse()
         if len(profile) < 2:
             return None
-        working_ion = working_ion_entry.elements[0].symbol
-        normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion)}
+
+        assert working_ion_entry is not None
+        working_ion_symbol = working_ion_entry.elements[0].symbol
+        normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion_symbol)}
         framework = comp.as_dict()
-        if working_ion in framework:
-            framework.pop(working_ion)
+        if working_ion_symbol in framework:
+            framework.pop(working_ion_symbol)
         framework = Composition(framework)
 
-        v_pairs = [
+        v_pairs: list[ConversionVoltagePair] = [
             ConversionVoltagePair.from_steps(
                 profile[i],
                 profile[i + 1],
@@ -88,15 +98,17 @@ class ConversionElectrode(AbstractElectrode):
             for i in range(len(profile) - 1)
         ]
 
-        return ConversionElectrode(
-            voltage_pairs=v_pairs,
+        return cls(
+            voltage_pairs=v_pairs,  # type: ignore[arg-type]
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
             framework_formula=framework.reduced_formula,
         )
 
     @classmethod
-    def from_composition_and_entries(cls, comp, entries_in_chemsys, working_ion_symbol="Li", allow_unstable=False):
+    def from_composition_and_entries(
+        cls, comp, entries_in_chemsys, working_ion_symbol="Li", allow_unstable=False
+    ) -> Self | None:
         """Convenience constructor to make a ConversionElectrode from a
         composition and all entries in a chemical system.
 
@@ -111,7 +123,7 @@ class ConversionElectrode(AbstractElectrode):
                     for comparing with insertion electrodes
         """
         pd = PhaseDiagram(entries_in_chemsys)
-        return ConversionElectrode.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
+        return cls.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
 
     def get_sub_electrodes(self, adjacent_only=True):
         """If this electrode contains multiple voltage steps, then it is possible
@@ -278,7 +290,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     entries_discharge: Iterable[ComputedEntry]
 
     @classmethod
-    def from_steps(cls, step1, step2, normalization_els, framework_formula):
+    def from_steps(cls, step1, step2, normalization_els, framework_formula) -> Self:
         """Creates a ConversionVoltagePair from two steps in the element profile
         from a PD analysis.
 
@@ -350,7 +362,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 
-        return ConversionVoltagePair(
+        return cls(
             rxn=rxn,
             voltage=voltage,
             mAh=mAh,

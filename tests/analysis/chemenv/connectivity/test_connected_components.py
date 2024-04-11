@@ -22,11 +22,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-try:
-    import bson  # type: ignore
-except ModuleNotFoundError:
-    bson = None  # type: ignore[assignment]
-
 __author__ = "waroquiers"
 
 
@@ -122,24 +117,23 @@ class TestConnectedComponent(PymatgenTest):
 
         cc = ConnectedComponent(graph=graph)
         ref_sorted_edges = [[en1, en2], [en1, en3]]
-        sorted_edges = sorted(sorted(e) for e in cc.graph.edges())
+        sorted_edges = sorted(sorted(edge) for edge in cc.graph.edges())
         assert sorted_edges == ref_sorted_edges
 
         cc_from_dict = ConnectedComponent.from_dict(cc.as_dict())
         cc_from_json = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
         loaded_cc_list = [cc_from_dict, cc_from_json]
-        if bson is not None:
-            bson_data = bson.BSON.encode(cc.as_dict())
-            cc_from_bson = ConnectedComponent.from_dict(bson_data.decode())
-            loaded_cc_list.append(cc_from_bson)
+        json_str = self.assert_msonable(cc)
+        cc_from_json = ConnectedComponent.from_dict(json.loads(json_str))
+        loaded_cc_list.append(cc_from_json)
         for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
             assert set(cc.graph.nodes()) == set(loaded_cc.graph.nodes())
-            assert sorted_edges == sorted(sorted(e) for e in loaded_cc.graph.edges())
+            assert sorted_edges == sorted(sorted(edge) for edge in loaded_cc.graph.edges())
 
-            for e in sorted_edges:
-                assert cc.graph[e[0]][e[1]] == loaded_cc.graph[e[0]][e[1]]
+            for edge in sorted_edges:
+                assert cc.graph[edge[0]][edge[1]] == loaded_cc.graph[edge[0]][edge[1]]
 
             for node in loaded_cc.graph.nodes():
                 assert isinstance(node.central_site, PeriodicSite)

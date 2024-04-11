@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.xr import Xr
@@ -14,7 +14,7 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
 
-class TestXr(unittest.TestCase):
+class TestXr(TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.xr = Xr(struct)

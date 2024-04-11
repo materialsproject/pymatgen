@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -23,21 +23,21 @@ from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 class TestVoronoiAnalyzer(PymatgenTest):
     def setUp(self):
-        self.ss = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
-        self.s = self.ss[1]
+        self.structs = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
+        self.struct = self.structs[1]
         self.va = VoronoiAnalyzer(cutoff=4)
 
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
-        single_structure = self.va.analyze(self.s, n=5)
+        single_structure = self.va.analyze(self.struct, n=5)
         assert single_structure.view() in np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(), "Cannot find the right polyhedron."
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
-        ensemble = self.va.analyze_structures(self.ss, step_freq=2, most_frequent_polyhedra=10)
+        ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
         assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
-class TestRelaxationAnalyzer(unittest.TestCase):
+class TestRelaxationAnalyzer(TestCase):
     def setUp(self):
         s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
         s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
@@ -95,11 +95,11 @@ class TestMiscFunction(PymatgenTest):
         assert solid_angle(center, coords) == approx(1.83570965938, abs=1e-7), "Wrong result returned by solid_angle"
 
     def test_contains_peroxide(self):
-        for f in ["LiFePO4", "NaFePO4", "Li3V2(PO4)3", "Li2O"]:
-            assert not contains_peroxide(self.get_structure(f))
+        for formula in ("LiFePO4", "NaFePO4", "Li3V2(PO4)3", "Li2O"):
+            assert not contains_peroxide(self.get_structure(formula))
 
-        for f in ["Li2O2", "K2O2"]:
-            assert contains_peroxide(self.get_structure(f))
+        for formula in ("Li2O2", "K2O2"):
+            assert contains_peroxide(self.get_structure(formula))
 
     def test_oxide_type(self):
         el_li = Element("Li")

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -59,7 +60,7 @@ class IRDielectricTensor(MSONable):
         self.epsilon_infinity = np.array(epsilon_infinity)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> IRDielectricTensor:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns IRDielectricTensor from dict representation."""
         structure = Structure.from_dict(dct["structure"])
         oscillator_strength = dct["oscillator_strength"]

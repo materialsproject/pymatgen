@@ -958,9 +958,27 @@ class TestStructure(PymatgenTest):
         assert self.struct[0].species_string == "Si"
         assert self.struct[1].species_string == "F"
 
+    def test_replace(self):
+        assert self.struct.formula == "Si2"
+        struct = self.struct.replace(0, "O")
+        assert struct is self.struct
+        assert struct.formula == "Si1 O1"
+        assert_allclose(struct[0].frac_coords, [0, 0, 0])
+        struct.replace(0, "O", coords=[0.25, 0.25, 0.25])
+        assert struct.formula == "Si1 O1"
+        assert_allclose(struct[0].frac_coords, [0.25, 0.25, 0.25])
+        struct.replace(0, "O", properties={"magmom": 1})
+        assert struct.formula == "Si1 O1"
+        assert struct[0].magmom == 1
+        struct.replace(0, "O", properties={"magmom": 2}, coords=[0.9, 0.9, 0.9])
+        assert struct.formula == "Si1 O1"
+        assert struct[0].magmom == 2
+        assert_allclose(struct[0].frac_coords, [0.9, 0.9, 0.9])
+
     def test_replace_species(self):
-        struct = self.struct
-        struct.replace_species({"Si": "Na"})
+        assert self.struct.formula == "Si2"
+        struct = self.struct.replace_species({"Si": "Na"})
+        assert struct is self.struct
         assert struct.formula == "Na2"
 
         # test replacement with a dictionary
@@ -1022,18 +1040,25 @@ class TestStructure(PymatgenTest):
         assert struct.n_elems == 4
 
         struct.replace_species({"Ge": "Si"})
-        struct.substitute(1, "hydroxyl")
+        substituted = struct.substitute(1, "hydroxyl")
+        assert substituted is struct
         assert struct.formula == "Si1 H1 N1 O1"
         assert struct.symbol_set == ("H", "N", "O", "Si")
+        with pytest.raises(
+            ValueError, match="Can't find functional group 'OH' in list. Provide explicit coordinates instead"
+        ):
+            substituted = struct.substitute(2, "OH")
         # Distance between O and H
         assert struct.get_distance(2, 3) == approx(0.96)
         # Distance between Si and H
         assert struct.get_distance(0, 3) == approx(2.09840889)
 
-        struct.remove_species(["H"])
+        h_removed = struct.remove_species(["H"])
+        assert h_removed is struct
         assert struct.formula == "Si1 N1 O1"
 
-        struct.remove_sites([1, 2])
+        sites_removed = struct.remove_sites([1, 2])
+        assert sites_removed is struct
         assert struct.formula == "Si1"
 
     def test_add_remove_site_property(self):
@@ -2161,7 +2186,7 @@ class TestMolecule(PymatgenTest):
         assert returned is self.mol
         assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
-    def test_replace(self):
+    def test_replace_species(self):
         self.mol[0] = "Ge"
         assert self.mol.formula == "Ge1 H4"
 
@@ -2225,8 +2250,7 @@ class TestMolecule(PymatgenTest):
         returned = self.mol.substitute(1, sub)
         assert returned is self.mol
         assert self.mol.get_distance(0, 4) == approx(1.54)
-        f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
-        self.mol.substitute(2, f)
+        self.mol.substitute(2, Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]]))
         assert self.mol.get_distance(0, 7) == approx(1.35)
         oh = Molecule(
             ["X", "O", "H"],

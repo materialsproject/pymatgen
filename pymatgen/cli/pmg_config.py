@@ -31,8 +31,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     except OSError:
         reply = input("Destination directory exists. Continue (y/n)?")
         if reply != "y":
-            print("Exiting ...")
-            raise SystemExit(0)
+            raise SystemExit("Exiting ...")
     print("Generating pymatgen resource directory for CP2K...")
 
     basis_files = glob(f"{data_dir}/*BASIS*")
@@ -42,7 +41,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
 
     for potential_file in potential_files:
         print(f"Processing... {potential_file}")
-        with open(potential_file) as file:
+        with open(potential_file, encoding="utf-8") as file:
             try:
                 chunks = chunk(file.read())
             except IndexError:
@@ -52,9 +51,10 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
                 potential = GthPotential.from_str(chk)
                 potential.filename = os.path.basename(potential_file)
                 potential.version = None
-                settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
-                    potential, strict=True
-                )
+                if potential.element is not None:
+                    settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
+                        potential, strict=True
+                    )
             except ValueError:
                 # Chunk was readable, but the element is not pmg recognized
                 continue
@@ -64,7 +64,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
 
     for basis_file in basis_files:
         print(f"Processing... {basis_file}")
-        with open(basis_file) as file:
+        with open(basis_file, encoding="utf-8") as file:
             try:
                 chunks = chunk(file.read())
             except IndexError:
@@ -87,7 +87,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
 
     for el in settings:
         print(f"Writing {el} settings file")
-        with open(os.path.join(target_dir, el), mode="w") as file:
+        with open(os.path.join(target_dir, el), mode="w", encoding="utf-8") as file:
             yaml.dump(settings.get(el), file, default_flow_style=False)
 
     print(
@@ -111,8 +111,7 @@ def setup_potcars(potcar_dirs: list[str]):
     except OSError:
         reply = input("Destination directory exists. Continue (y/n)? ")
         if reply != "y":
-            print("Exiting ...")
-            raise SystemExit(0)
+            raise SystemExit("Exiting ...")
 
     print("Generating pymatgen resources directory...")
 
@@ -180,8 +179,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
         os.chdir(f"{cwd}/enumlib/symlib/src")
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
-        enumpath = f"{cwd}/enumlib/src"
-        os.chdir(enumpath)
+        enum_path = f"{cwd}/enumlib/src"
+        os.chdir(enum_path)
         subprocess.call(["make"])
         subprocess.call(["make", "enum.x"])
         shutil.copy("enum.x", os.path.join("..", ".."))

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 
@@ -24,12 +24,12 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-class TestFunctionalGroupExtractor(unittest.TestCase):
+class TestFunctionalGroupExtractor(TestCase):
     def setUp(self):
         self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
-        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
+        self.mg = MoleculeGraph.from_local_env_strategy(self.mol, self.strategy)
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def test_init(self):

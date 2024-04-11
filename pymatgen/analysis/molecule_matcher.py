@@ -17,6 +17,7 @@ import itertools
 import logging
 import math
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -32,6 +33,9 @@ try:
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     openbabel = None
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 __author__ = "Xiaohui Qu, Adam Fekete"
@@ -80,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, abc.ABC):
         """
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -176,7 +180,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
     def as_dict(self):
         """
         Returns:
-            Jsonable dict.
+            JSON-able dict.
         """
         return {
             "version": __version__,
@@ -185,10 +189,10 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             IsomorphismMolAtomMapper
@@ -220,15 +224,15 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict Representation.
+            dct (dict): Dict Representation.
 
         Returns:
             InchiMolAtomMapper
         """
-        return cls(angle_tolerance=d["angle_tolerance"])
+        return cls(angle_tolerance=dct["angle_tolerance"])
 
     @staticmethod
     def _inchi_labels(mol):
@@ -534,7 +538,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             return None, None  # Topologically different
 
         if iequal_atom1 != iequal_atom2:
-            raise Exception("Design Error! Equivalent atoms are inconsistent")
+            raise RuntimeError("Design Error! Equivalent atoms are inconsistent")
 
         vmol1 = self._virtual_molecule(ob_mol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(ob_mol2, ilabel2, iequal_atom2)
@@ -707,17 +711,17 @@ class MoleculeMatcher(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MoleculeMatcher
         """
         return cls(
-            tolerance=d["tolerance"],
-            mapper=AbstractMolAtomMapper.from_dict(d["mapper"]),
+            tolerance=dct["tolerance"],
+            mapper=AbstractMolAtomMapper.from_dict(dct["mapper"]),
         )
 
 

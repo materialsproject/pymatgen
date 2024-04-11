@@ -1048,7 +1048,7 @@ class BSPlotterProjected(BSPlotter):
         e_min, e_max = -4, 4
         if self._bs.is_metal():
             e_min, e_max = -10, 10
-        for idx, el in enumerate(self._bs.structure.elements, 1):
+        for idx, el in enumerate(self._bs.structure.elements, start=1):
             ax = plt.subplot(220 + idx)
             self._make_ticks(ax)
             for b in range(len(data["distances"])):
@@ -2502,11 +2502,11 @@ class BSDOSPlotter:
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         n_seg = len(k) - 1
-        r = [0.5 * (red[i] + red[i + 1]) for i in range(n_seg)]
-        g = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
-        b = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
-        a = np.ones(n_seg, float) * alpha
-        lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
+        red = [0.5 * (red[i] + red[i + 1]) for i in range(n_seg)]
+        green = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
+        blue = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
+        alpha = np.ones(n_seg, float) * alpha
+        lc = LineCollection(seg, colors=list(zip(red, green, blue, alpha)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
     @staticmethod
@@ -2972,8 +2972,10 @@ class BoltztrapPlotter:
             a matplotlib object
         """
         ax = pretty_plot(9, 7)
-        pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output=output, doping_levels=False)[temp]
-        ax.semilogy(self._bz.mu_steps, pf, linewidth=3.0)
+        pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output=output, doping_levels=False)[
+            temp
+        ]
+        ax.semilogy(self._bz.mu_steps, pow_factor, linewidth=3.0)
         self._plot_bg_limits(ax)
         self._plot_doping(ax, temp)
         if output == "eig":
@@ -3145,12 +3147,12 @@ class BoltztrapPlotter:
             a matplotlib object
         """
         if output == "average":
-            pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
+            pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
-            pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
+            pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
         ax = pretty_plot(22, 14)
-        tlist = sorted(pf["n"])
+        tlist = sorted(pow_factor["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for idx, doping_type in enumerate(["n", "p"]):
             plt.subplot(121 + idx)
@@ -3158,7 +3160,7 @@ class BoltztrapPlotter:
                 dop_idx = self._bz.doping[doping_type].index(dop)
                 pf_temp = []
                 for temp in tlist:
-                    pf_temp.append(pf[doping_type][temp][dop_idx])
+                    pf_temp.append(pow_factor[doping_type][temp][dop_idx])
                 if output == "average":
                     ax.plot(tlist, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3387,11 +3389,11 @@ class BoltztrapPlotter:
             a matplotlib object
         """
         if output == "average":
-            pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
+            pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
         elif output == "eigs":
-            pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
+            pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(pf["n"]) if temps == "all" else temps
+        tlist = sorted(pow_factor["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
@@ -3399,10 +3401,13 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         ax.semilogx(
-                            self._bz.doping[dt], list(zip(*pf[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
+                            self._bz.doping[dt],
+                            list(zip(*pow_factor[dt][temp]))[xyz],
+                            marker="s",
+                            label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dt], pf[dt][temp], marker="s", label=f"{temp} K")
+                    ax.semilogx(self._bz.doping[dt], pow_factor[dt][temp], marker="s", label=f"{temp} K")
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
                 ax.set_ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
@@ -3861,12 +3866,11 @@ def plot_fermi_surface(
             run mlab.show().
 
     Returns:
-        ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
+        tuple[mlab.figure, mlab]: The mlab plotter and an interactive
             figure to control the plot.
 
     Note: Experimental.
-          Please, double check the surface shown by using some
-          other software and report issues.
+        Please, double check the surface shown by using some other software and report issues.
     """
     bz = structure.lattice.reciprocal_lattice.get_wigner_seitz_cell()
     cell = structure.lattice.reciprocal_lattice.matrix

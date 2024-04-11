@@ -46,14 +46,14 @@ class Tensor(np.ndarray, MSONable):
 
     symbol = "T"
 
-    def __new__(cls, input_array, vscale=None, check_rank=None):
+    def __new__(cls, input_array, vscale=None, check_rank=None) -> Self:
         """Create a Tensor object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
         Args:
             input_array: (array-like with shape 3^N): array-like representing
-                a tensor quantity in standard (i. e. non-voigt) notation
+                a tensor quantity in standard (i. e. non-Voigt) notation
             vscale: (N x M array-like): a matrix corresponding
                 to the coefficients of the Voigt-notation tensor
             check_rank: (int): If not None, checks that input_array's rank == check_rank.
@@ -125,8 +125,8 @@ class Tensor(np.ndarray, MSONable):
         matrix = SquareTensor(matrix)
         if not matrix.is_rotation(tol):
             raise ValueError("Rotation matrix is not valid.")
-        sop = SymmOp.from_rotation_and_translation(matrix, [0.0, 0.0, 0.0])
-        return self.transform(sop)
+        symm_op = SymmOp.from_rotation_and_translation(matrix, [0.0, 0.0, 0.0])
+        return self.transform(symm_op)
 
     def einsum_sequence(self, other_arrays, einsum_string=None):
         """Calculates the result of an einstein summation expression."""
@@ -154,9 +154,9 @@ class Tensor(np.ndarray, MSONable):
         Args:
             n (3x1 array-like): direction to project onto
 
-        Returns (float):
-            scalar value corresponding to the projection of
-            the tensor into the vector
+        Returns:
+            float: scalar value corresponding to the projection of
+                the tensor into the vector
         """
         n = get_uvec(n)
         return self.einsum_sequence([n] * self.rank)
@@ -256,8 +256,8 @@ class Tensor(np.ndarray, MSONable):
                 If decimals is negative, it specifies the number of
                 positions to the left of the decimal point.
 
-        Returns (Tensor):
-            rounded tensor of same type
+        Returns:
+            Tensor: rounded tensor of same type
         """
         return type(self)(np.round(self, decimals=decimals))
 
@@ -639,12 +639,11 @@ class Tensor(np.ndarray, MSONable):
         """Serializes the tensor object.
 
         Args:
-            voigt (bool): flag for whether to store entries in
-                Voigt notation. Defaults to false, as information
-                may be lost in conversion.
+            voigt (bool): flag for whether to store entries in Voigt notation.
+                Defaults to false, as information may be lost in conversion.
 
-        Returns (dict):
-            serialized format tensor object
+        Returns:
+            dict: serialized format tensor object
         """
         input_array = self.voigt if voigt else self
         dct = {
@@ -657,15 +656,15 @@ class Tensor(np.ndarray, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d: dict) -> Tensor:
+    def from_dict(cls, dct: dict) -> Self:
         """Instantiate Tensors from dicts (using MSONable API).
 
         Returns:
             Tensor: hydrated tensor object
         """
-        if d.get("voigt"):
-            return cls.from_voigt(d["input_array"])
-        return cls(d["input_array"])
+        if dct.get("voigt"):
+            return cls.from_voigt(dct["input_array"])
+        return cls(dct["input_array"])
 
 
 class TensorCollection(collections.abc.Sequence, MSONable):
@@ -843,7 +842,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> TensorCollection:
+    def from_dict(cls, dct: dict) -> Self:
         """Creates TensorCollection from dict.
 
         Args:
@@ -863,7 +862,7 @@ class SquareTensor(Tensor):
     (stress, strain etc.).
     """
 
-    def __new__(cls, input_array, vscale=None):
+    def __new__(cls, input_array, vscale=None) -> Self:
         """Create a SquareTensor object. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy ndarrays. Error
         is thrown when the class is initialized with non-square matrix.

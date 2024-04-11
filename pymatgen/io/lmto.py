@@ -7,7 +7,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 from __future__ import annotations
 
 import re
-from typing import no_type_check
+from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.io import zopen
@@ -17,6 +17,11 @@ from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import round_to_sigfigs
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -136,7 +141,7 @@ class LMTOCtrl:
             file.write(self.get_str(**kwargs))
 
     @classmethod
-    def from_file(cls, filename="CTRL", **kwargs):
+    def from_file(cls, filename: str | Path = "CTRL", **kwargs) -> Self:
         """
         Creates a CTRL file object from an existing file.
 
@@ -148,11 +153,11 @@ class LMTOCtrl:
         """
         with zopen(filename, mode="rt") as file:
             contents = file.read()
-        return LMTOCtrl.from_str(contents, **kwargs)
+        return cls.from_str(contents, **kwargs)
 
     @classmethod
     @no_type_check
-    def from_str(cls, data: str, sigfigs: int = 8) -> LMTOCtrl:
+    def from_str(cls, data: str, sigfigs: int = 8) -> Self:
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres
@@ -181,13 +186,13 @@ class LMTOCtrl:
 
         for cat in ["STRUC", "CLASS", "SITE"]:
             fields = struct_lines[cat].split("=")
-            for f, field in enumerate(fields):
+            for idx, field in enumerate(fields, start=1):
                 token = field.split()[-1]
                 if token == "ALAT":
-                    alat = round(float(fields[f + 1].split()[0]), sigfigs)
-                    structure_tokens["ALAT"] = alat
+                    a_lat = round(float(fields[idx].split()[0]), sigfigs)
+                    structure_tokens["ALAT"] = a_lat
                 elif token == "ATOM":
-                    atom = fields[f + 1].split()[0]
+                    atom = fields[idx].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
                             structure_tokens["CLASS"].append(atom)
@@ -197,9 +202,9 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()])
                     except ValueError:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()[:-1]])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()[:-1]])
                     if token == "PLAT":
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
@@ -209,9 +214,9 @@ class LMTOCtrl:
                 else:
                     pass
         try:
-            spcgrp_index = struct_lines["SYMGRP"].index("SPCGRP")
-            spcgrp = struct_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
-            structure_tokens["SPCGRP"] = spcgrp.split("=")[1].split()[0]
+            spc_grp_index = struct_lines["SYMGRP"].index("SPCGRP")
+            spc_grp = struct_lines["SYMGRP"][spc_grp_index : spc_grp_index + 12]
+            structure_tokens["SPCGRP"] = spc_grp.split("=")[1].split()[0]
         except ValueError:
             pass
 
@@ -224,7 +229,7 @@ class LMTOCtrl:
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Creates a CTRL file object from a dictionary. The dictionary
         must contain the items "ALAT", PLAT" and "SITE".

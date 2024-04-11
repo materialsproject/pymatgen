@@ -5,6 +5,7 @@ import os
 import unittest
 import unittest.mock
 from numbers import Number
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +37,7 @@ from pymatgen.util.testing import PymatgenTest
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestPDEntry(unittest.TestCase):
+class TestPDEntry(TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
@@ -112,7 +113,7 @@ class TestPDEntry(unittest.TestCase):
         assert len(entries) == 490, "Wrong number of entries!"
 
 
-class TestTransformedPDEntry(unittest.TestCase):
+class TestTransformedPDEntry(TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
@@ -350,7 +351,7 @@ class TestPhaseDiagram(PymatgenTest):
     def test_get_phase_separation_energy(self):
         for entry in self.pd.unstable_entries:
             if entry.composition.fractional_composition not in [
-                e.composition.fractional_composition for e in self.pd.stable_entries
+                entry.composition.fractional_composition for entry in self.pd.stable_entries
             ]:
                 assert (
                     self.pd.get_phase_separation_energy(entry) >= 0
@@ -398,7 +399,7 @@ class TestPhaseDiagram(PymatgenTest):
 
         duplicate_entry = PDEntry("Li2O", -14.31361175)
         scaled_dup_entry = PDEntry("Li4O2", -14.31361175 * 2)
-        stable_entry = next(e for e in self.pd.stable_entries if e.name == "Li2O")
+        stable_entry = next(entry for entry in self.pd.stable_entries if entry.name == "Li2O")
 
         assert self.pd.get_phase_separation_energy(duplicate_entry) == self.pd.get_phase_separation_energy(
             stable_entry
@@ -489,8 +490,8 @@ class TestPhaseDiagram(PymatgenTest):
     def test_1d_pd(self):
         entry = PDEntry("H", 0)
         pd = PhaseDiagram([entry])
-        decomp, e = pd.get_decomp_and_e_above_hull(PDEntry("H", 1))
-        assert e == 1
+        decomp, e_above_hull = pd.get_decomp_and_e_above_hull(PDEntry("H", 1))
+        assert e_above_hull == 1
         assert decomp[entry] == approx(1.0)
 
     def test_get_critical_compositions_fractional(self):
@@ -639,7 +640,7 @@ class TestPhaseDiagram(PymatgenTest):
                 PhaseDiagram(entries=entries)
 
 
-class TestGrandPotentialPhaseDiagram(unittest.TestCase):
+class TestGrandPotentialPhaseDiagram(TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
@@ -675,7 +676,7 @@ class TestGrandPotentialPhaseDiagram(unittest.TestCase):
         )
 
 
-class TestCompoundPhaseDiagram(unittest.TestCase):
+class TestCompoundPhaseDiagram(TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
@@ -701,7 +702,7 @@ class TestCompoundPhaseDiagram(unittest.TestCase):
         assert str(self.pd) == "Xf-Xg phase diagram\n4 stable phases: \nLiFeO2, Li2O, Li5FeO4, Fe2O3"
 
 
-class TestPatchedPhaseDiagram(unittest.TestCase):
+class TestPatchedPhaseDiagram(TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
@@ -832,14 +833,14 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
         del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
 
 
-class TestReactionDiagram(unittest.TestCase):
+class TestReactionDiagram(TestCase):
     def setUp(self):
         self.entries = list(EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv").entries)
-        for e in self.entries:
-            if e.reduced_formula == "VPO5":
-                entry1 = e
-            elif e.reduced_formula == "H4(CO)3":
-                entry2 = e
+        for entry in self.entries:
+            if entry.reduced_formula == "VPO5":
+                entry1 = entry
+            elif entry.reduced_formula == "H4(CO)3":
+                entry2 = entry
         self.rd = ReactionDiagram(entry1=entry1, entry2=entry2, all_entries=self.entries[2:])
 
     def test_get_compound_pd(self):
@@ -852,7 +853,7 @@ class TestReactionDiagram(unittest.TestCase):
             assert Element.C in entry.composition
             assert Element.P in entry.composition
             assert Element.H in entry.composition
-        # formed_formula = [e.reduced_formula for e in self.rd.rxn_entries]
+        # formed_formula = [entry.reduced_formula for entry in self.rd.rxn_entries]
         # expected_formula = [
         #     "V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829",
         #     "V0.125P0.125H0.05C0.0375O0.6625",
@@ -872,15 +873,15 @@ class TestReactionDiagram(unittest.TestCase):
         #     assert formula in formed_formula, f"{formed_formula=} not in {expected_formula=}"
 
 
-class TestPDPlotter(unittest.TestCase):
+class TestPDPlotter(TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv"))
 
-        elemental_entries = [e for e in entries if e.elements == [Element("Li")]]
+        elemental_entries = [entry for entry in entries if entry.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)
         self.plotter_unary_plotly = PDPlotter(self.pd_unary, backend="plotly")
 
-        entries_LiO = [e for e in entries if "Fe" not in e.composition]
+        entries_LiO = [entry for entry in entries if "Fe" not in entry.composition]
         self.pd_binary = PhaseDiagram(entries_LiO)
         self.plotter_binary_mpl = PDPlotter(self.pd_binary, backend="matplotlib")
         self.plotter_binary_plotly = PDPlotter(self.pd_binary, backend="plotly")
@@ -951,7 +952,7 @@ class TestPDPlotter(unittest.TestCase):
             mock_show.assert_called_once()
 
 
-class TestUtilityFunction(unittest.TestCase):
+class TestUtilityFunction:
     def test_unique_lines(self):
         testdata = [
             [5, 53, 353],

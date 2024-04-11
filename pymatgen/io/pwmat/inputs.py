@@ -13,6 +13,8 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.util.typing import PathLike
 
 __author__ = "Hanyu Liu"
@@ -375,7 +377,7 @@ class AtomConfig(MSONable):
         return self.get_str()
 
     @classmethod
-    def from_str(cls, data: str, mag: bool = False) -> AtomConfig:
+    def from_str(cls, data: str, mag: bool = False) -> Self:
         """Reads a atom.config from a string.
 
         Args:
@@ -402,7 +404,7 @@ class AtomConfig(MSONable):
         return cls(structure)
 
     @classmethod
-    def from_file(cls, filename: PathLike, mag: bool = False) -> AtomConfig:
+    def from_file(cls, filename: PathLike, mag: bool = False) -> Self:
         """Returns a AtomConfig from a file
 
         Args:
@@ -416,7 +418,7 @@ class AtomConfig(MSONable):
             return cls.from_str(data=file.read(), mag=mag)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> AtomConfig:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a AtomConfig object from a dictionary.
 
         Args:
@@ -499,8 +501,8 @@ class GenKpt(MSONable):
         self.kpath.update({"path": path})
         self.density = density
 
-    @staticmethod
-    def from_structure(structure: Structure, dim: int, density: float = 0.01) -> GenKpt:
+    @classmethod
+    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
         """Obtain a AtomConfig object from Structure object.
 
         Args:
@@ -530,7 +532,7 @@ class GenKpt(MSONable):
             kpts = kpath_set.kpath["kpoints"]
             path = kpath_set.kpath["path"]
         rec_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix  # with 2*pi
-        return GenKpt(rec_lattice, kpts, path, density * 2 * np.pi)
+        return cls(rec_lattice, kpts, path, density * 2 * np.pi)
 
     def get_str(self):
         """Returns a string to be written as a gen.kpt file."""
@@ -601,8 +603,8 @@ class HighSymmetryPoint(MSONable):
         self.kpath.update({"path": path})
         self.density = density
 
-    @staticmethod
-    def from_structure(structure: Structure, dim: int, density: float = 0.01) -> HighSymmetryPoint:
+    @classmethod
+    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
         """Obtain HighSymmetry object from Structure object.
 
         Args:
@@ -613,9 +615,7 @@ class HighSymmetryPoint(MSONable):
         """
         reciprocal_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix
         gen_kpt = GenKpt.from_structure(structure=structure, dim=dim, density=density)
-        return HighSymmetryPoint(
-            reciprocal_lattice, gen_kpt.kpath["kpoints"], gen_kpt.kpath["path"], density * 2 * np.pi
-        )
+        return cls(reciprocal_lattice, gen_kpt.kpath["kpoints"], gen_kpt.kpath["path"], density * 2 * np.pi)
 
     def get_str(self) -> str:
         """Returns a string describing high symmetry points in HIGH_SYMMETRY_POINTS format."""

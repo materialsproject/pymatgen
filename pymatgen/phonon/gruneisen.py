@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "A. Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -311,7 +312,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GruneisenPhononBandStructure:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -392,10 +393,10 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GruneisenPhononBandStructureSymmLine:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            dct: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             GruneisenPhononBandStructureSymmLine

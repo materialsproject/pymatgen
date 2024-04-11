@@ -40,14 +40,15 @@ from pymatgen.transformations.standard_transformations import (
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import Any
-
 try:
     import hiphive
 except ImportError:
     hiphive = None
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Any
+
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
 
@@ -228,7 +229,7 @@ class MultipleSubstitutionTransformation:
                     dummy_sp: self.r_fraction,
                 }
             }
-            trans = SubstitutionTransformation(mapping)  # type: ignore
+            trans = SubstitutionTransformation(mapping)  # type: ignore[arg-type]
             dummy_structure = trans.apply_transformation(structure)
             if self.charge_balance_species is not None:
                 cbt = ChargeBalanceTransformation(self.charge_balance_species)
@@ -771,7 +772,7 @@ class MagOrderingTransformation(AbstractTransformation):
         merged with the original sites. Used after performing enumeration.
         """
         if not structure.is_ordered:
-            raise Exception("Something went wrong with enumeration.")
+            raise RuntimeError("Something went wrong with enumeration.")
 
         sites_to_remove = []
         logger.debug(f"Dummy species structure:\n{structure}")
@@ -786,7 +787,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     include_index=True,
                 )
                 if len(neighbors) != 1:
-                    raise Exception(f"This shouldn't happen, found neighbors: {neighbors}")
+                    raise RuntimeError(f"This shouldn't happen, found {neighbors=}")
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
                 new_specie = Species(

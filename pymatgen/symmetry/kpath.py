@@ -1507,18 +1507,18 @@ class KPathLatimerMunro(KPathBase):
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
             face_center_ind = facet_as_key_point_inds[-1]
-            for j, ind in enumerate(facet_as_key_point_inds_bndy):
+            for j, ind in enumerate(facet_as_key_point_inds_bndy, start=-1):
                 if (
-                    min(ind, facet_as_key_point_inds_bndy[j - 1]),
-                    max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                    min(ind, facet_as_key_point_inds_bndy[j]),
+                    max(ind, facet_as_key_point_inds_bndy[j]),
                 ) not in key_lines:
                     key_lines.append(
                         (
-                            min(ind, facet_as_key_point_inds_bndy[j - 1]),
-                            max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                            min(ind, facet_as_key_point_inds_bndy[j]),
+                            max(ind, facet_as_key_point_inds_bndy[j]),
                         )
                     )
-                k = j + 1 if j != len(facet_as_key_point_inds_bndy) - 1 else 0
+                k = j + 2 if j != len(facet_as_key_point_inds_bndy) - 2 else 0
                 if (
                     min(ind, facet_as_key_point_inds_bndy[k]),
                     max(ind, facet_as_key_point_inds_bndy[k]),
@@ -1683,10 +1683,10 @@ class KPathLatimerMunro(KPathBase):
         sites = [site for idx, site in enumerate(struct) if idx in nonzero_magmom_inds]
         init_site_coords = [site.frac_coords for site in sites]
         for op in grey_ops:
-            r = op.rotation_matrix
+            rot_mat = op.rotation_matrix
             t = op.translation_vector
-            xformed_magmoms = [self._apply_op_to_magmom(r, magmom) for magmom in init_magmoms]
-            xformed_site_coords = [np.dot(r, site.frac_coords) + t for site in sites]
+            xformed_magmoms = [self._apply_op_to_magmom(rot_mat, magmom) for magmom in init_magmoms]
+            xformed_site_coords = [np.dot(rot_mat, site.frac_coords) + t for site in sites]
             permutation = ["a" for i in range(len(sites))]
             not_found = list(range(len(sites)))
             for i in range(len(sites)):
@@ -2212,7 +2212,7 @@ class KPathLatimerMunro(KPathBase):
                 pop_orbits.append(grouped_inds[idx][worst_next_choice])
                 pop_labels.append(initial_max_cosine_label_inds[grouped_inds[idx][worst_next_choice]])
 
-        if len(unassigned_orbits) != 0:
+        if unassigned_orbits:
             max_cosine_orbits_copy = self._reduce_cosines_array(max_cosine_orbits_copy, pop_orbits, pop_labels)
             unassigned_orbits_labels = self._get_orbit_labels(max_cosine_orbits_copy, key_points_inds_orbits, atol)
             for idx, unassigned_orbit in enumerate(unassigned_orbits):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import unittest
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -22,7 +22,7 @@ coords = [
 mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
 
-class TestNwTask(unittest.TestCase):
+class TestNwTask(TestCase):
     def setUp(self):
         self.task = NwTask(
             0,
@@ -136,7 +136,7 @@ task esp """
         assert str(task) == answer
 
 
-class TestNwInput(unittest.TestCase):
+class TestNwInput(TestCase):
     def setUp(self):
         tasks = [
             NwTask.dft_task(mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"),
@@ -396,7 +396,7 @@ task dft energy
         assert nwi_symm.tasks[-1].basis_set["C"] == "6-311++G**"
 
 
-class TestNwOutput(unittest.TestCase):
+class TestNwOutput:
     def test_read(self):
         nwo = NwOutput(f"{TEST_DIR}/CH4.nwout")
         nwo_cosmo = NwOutput(f"{TEST_DIR}/N2O4.nwout")

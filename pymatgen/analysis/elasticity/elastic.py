@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -50,7 +51,7 @@ class NthOrderElasticTensor(Tensor):
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
     symbol = "C"
 
-    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4):
+    def __new__(cls, input_array, check_rank=None, tol: float = 1e-4) -> Self:
         """
         Args:
             input_array ():
@@ -92,7 +93,7 @@ class NthOrderElasticTensor(Tensor):
         return e_density
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, order=2, tol: float = 1e-10) -> Self:
         """
         Takes a list of strains and stresses, and returns a list of coefficients for a
         polynomial fit of the given order.
@@ -132,7 +133,7 @@ class ElasticTensor(NthOrderElasticTensor):
     in units of eV/A^3.
     """
 
-    def __new__(cls, input_array, tol: float = 1e-4):
+    def __new__(cls, input_array, tol: float = 1e-4) -> Self:
         """
         Create an ElasticTensor object. The constructor throws an error if the shape of
         the input_matrix argument is not 3x3x3x3, i. e. in true tensor notation. Issues a
@@ -275,7 +276,7 @@ class ElasticTensor(NthOrderElasticTensor):
         n_sites = len(structure)
         n_atoms = structure.composition.num_atoms
         site_density = 1e30 * n_sites / structure.volume
-        tot_mass = sum(e.atomic_mass for e in structure.species)
+        tot_mass = sum(spec.atomic_mass for spec in structure.species)
         avg_mass = 1.6605e-27 * tot_mass / n_atoms
         return (
             0.38483
@@ -329,7 +330,7 @@ class ElasticTensor(NthOrderElasticTensor):
             float: Clarke's thermal conductivity (in SI units)
         """
         n_sites = len(structure)
-        tot_mass = sum(e.atomic_mass for e in structure.species)
+        tot_mass = sum(spec.atomic_mass for spec in structure.species)
         n_atoms = structure.composition.num_atoms
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / n_atoms
@@ -459,7 +460,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return sp_dict
 
     @classmethod
-    def from_pseudoinverse(cls, strains, stresses):
+    def from_pseudoinverse(cls, strains, stresses) -> Self:
         """
         Class method to fit an elastic tensor from stress/strain
         data. Method uses Moore-Penrose pseudo-inverse to invert
@@ -483,7 +484,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return cls.from_voigt(voigt_fit)
 
     @classmethod
-    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10):
+    def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10) -> Self:
         """
         Constructs the elastic tensor least-squares fit of independent strains
 
@@ -522,7 +523,7 @@ class ComplianceTensor(Tensor):
     since the compliance tensor has a unique vscale.
     """
 
-    def __new__(cls, s_array):
+    def __new__(cls, s_array) -> Self:
         """
         Args:
             s_array ():
@@ -555,7 +556,7 @@ class ElasticTensorExpansion(TensorCollection):
         super().__init__(c_list)
 
     @classmethod
-    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3):
+    def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3) -> Self:
         """
         Generates an elastic tensor expansion via the fitting function
         defined below in diff_fit.
@@ -612,7 +613,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (Structure): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quad (dict): quadrature for integration, should be
+            quadct (dict): quadrature for integration, should be
                 dictionary with "points" and "weights" keys defaults
                 to quadpy.sphere.Lebedev(19) as read from file
         """
@@ -645,7 +646,7 @@ class ElasticTensorExpansion(TensorCollection):
             structure (float): Structure to be used in directional heat
                 capacity determination, only necessary if temperature
                 is specified
-            quad (dict): quadrature for integration, should be
+            quadct (dict): quadrature for integration, should be
                 dictionary with "points" and "weights" keys defaults
                 to quadpy.sphere.Lebedev(19) as read from file
         """
@@ -760,8 +761,8 @@ class ElasticTensorExpansion(TensorCollection):
         """
         compl_exp = self.get_compliance_expansion()
         strain = 0
-        for n, compl in enumerate(compl_exp):
-            strain += compl.einsum_sequence([stress] * (n + 1)) / factorial(n + 1)
+        for n, compl in enumerate(compl_exp, start=1):
+            strain += compl.einsum_sequence([stress] * (n)) / factorial(n)
         return strain
 
     def get_effective_ecs(self, strain, order=2):

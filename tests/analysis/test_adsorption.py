@@ -117,9 +117,9 @@ class TestAdsorbateSiteFinder(PymatgenTest):
 
     def test_adsorb_both_surfaces(self):
         # Test out for monatomic adsorption
-        o = Molecule("O", [[0, 0, 0]])
-        ad_slabs = self.asf_100.adsorb_both_surfaces(o)
-        ad_slabs_one = self.asf_100.generate_adsorption_structures(o)
+        oxi = Molecule("O", [[0, 0, 0]])
+        ad_slabs = self.asf_100.adsorb_both_surfaces(oxi)
+        ad_slabs_one = self.asf_100.generate_adsorption_structures(oxi)
         assert len(ad_slabs) == len(ad_slabs_one)
         for ad_slab in ad_slabs:
             sg = SpacegroupAnalyzer(ad_slab)

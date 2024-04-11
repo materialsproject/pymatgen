@@ -104,11 +104,11 @@ def get_magnetizations(dir: str, ion_list: list[int]):
     data = []
     max_row = 0
     for parent, _subdirs, files in os.walk(dir):
-        for f in files:
-            if re.match(r"OUTCAR*", f):
+        for file in files:
+            if re.match(r"OUTCAR*", file):
                 try:
                     row = []
-                    fullpath = os.path.join(parent, f)
+                    fullpath = os.path.join(parent, file)
                     outcar = Outcar(fullpath)
                     mags = outcar.magnetization
                     mags = [m["tot"] for m in mags]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
@@ -22,7 +22,7 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
+class TestCollinearMagneticStructureAnalyzer(TestCase):
     def setUp(self):
         self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif", primitive=True)
 
@@ -143,6 +143,10 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         magmoms = msa.structure.site_properties["magmom"]
         assert magmoms == [1, 0]
 
+        # test invalid overwrite_magmom_mode
+        with pytest.raises(ValueError, match="'invalid_mode' is not a valid OverwriteMagmomMode"):
+            CollinearMagneticStructureAnalyzer(self.NiO, overwrite_magmom_mode="invalid_mode")
+
     def test_net_positive(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical)
         magmoms = msa.structure.site_properties["magmom"]
@@ -243,7 +247,7 @@ Magmoms Sites
         assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]
 
 
-class TestMagneticStructureEnumerator(unittest.TestCase):
+class TestMagneticStructureEnumerator:
     @pytest.mark.skipif(not enumlib_present, reason="enumlib not present")
     def test_ordering_enumeration(self):
         # simple afm
@@ -282,7 +286,7 @@ class TestMagneticStructureEnumerator(unittest.TestCase):
         assert enumerator.input_origin == "afm_by_motif_2a"
 
 
-class TestMagneticDeformation(unittest.TestCase):
+class TestMagneticDeformation:
     def test_magnetic_deformation(self):
         test_structs = loadfn(f"{TEST_FILES_DIR}/magnetic_deformation.json")
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])

@@ -108,7 +108,7 @@ class TestMPResterOld(PymatgenTest):
             assert set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
 
         with pytest.raises(MPRestError, match="REST query returned with error status code 404"):
-            self.rester.get_data("Fe2O3", "badmethod")
+            self.rester.get_data("Fe2O3", "bad-method")
 
     def test_get_materials_id_from_task_id(self):
         assert self.rester.get_materials_id_from_task_id("mp-540081") == "mp-19017"
@@ -133,12 +133,12 @@ class TestMPResterOld(PymatgenTest):
         entries = self.rester.get_entries_in_chemsys(syms)
         entries2 = self.rester.get_entries_in_chemsys(syms2)
         elements = {Element(sym) for sym in syms}
-        for e in entries:
-            assert isinstance(e, ComputedEntry)
-            assert set(e.elements).issubset(elements)
+        for entry in entries:
+            assert isinstance(entry, ComputedEntry)
+            assert set(entry.elements).issubset(elements)
 
-        e1 = {i.entry_id for i in entries}
-        e2 = {i.entry_id for i in entries2}
+        e1 = {ent.entry_id for ent in entries}
+        e2 = {ent.entry_id for ent in entries2}
         assert e1 == e2
 
         stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
@@ -280,10 +280,10 @@ class TestMPResterOld(PymatgenTest):
         for pbx_entry in pbx_entries:
             assert isinstance(pbx_entry, PourbaixEntry)
 
-        # fe_two_plus = [e for e in pbx_entries if e.entry_id == "ion-0"][0]
+        # fe_two_plus = next(entry for entry in pbx_entries if entry.entry_id == "ion-0")
         # assert fe_two_plus.energy == approx(-1.12369, abs=1e-3)
 
-        # feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
+        # feo2 = next(entry for entry in pbx_entries if entry.entry_id == "mp-25332")
         # assert feo2.energy == approx(3.56356, abs=1e-3)
 
         # # Test S, which has Na in reference solids
@@ -460,11 +460,11 @@ class TestMPResterOld(PymatgenTest):
         )
         headers = self.rester.session.headers
         assert "user-agent" in headers, "Include user-agent header by default"
-        m = re.match(
+        match = re.match(
             r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
-        assert m is not None, f"Unexpected user-agent value {headers['user-agent']}"
+        assert match is not None, f"Unexpected user-agent value {headers['user-agent']}"
         self.rester = _MPResterLegacy(include_user_agent=False)
         assert "user-agent" not in self.rester.session.headers, "user-agent header unwanted"
 
@@ -627,15 +627,15 @@ class TestMPResterNewBasic:
         entries = self.rester.get_entries_in_chemsys(syms)
         entries2 = self.rester.get_entries(syms2)
         elements = {Element(sym) for sym in syms}
-        for e in entries:
-            assert isinstance(e, ComputedEntry)
-            assert set(e.elements).issubset(elements)
+        for entry in entries:
+            assert isinstance(entry, ComputedEntry)
+            assert set(entry.elements).issubset(elements)
 
         assert len(entries) > 1000
 
-        for e in entries2:
-            assert isinstance(e, ComputedEntry)
-            assert set(e.elements).issubset(elements)
+        for entry in entries2:
+            assert isinstance(entry, ComputedEntry)
+            assert set(entry.elements).issubset(elements)
         assert len(entries2) < 1000
 
         e1 = {i.entry_id for i in entries}

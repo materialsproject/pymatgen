@@ -28,6 +28,8 @@ from pymatgen.io.template import TemplateInputGen
 if TYPE_CHECKING:
     from os import PathLike
 
+    from typing_extensions import Self
+
     from pymatgen.io.core import InputSet
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
@@ -104,7 +106,7 @@ class LammpsInputFile(InputFile):
                 n_comments += 1
             else:
                 # Else, inline comment each count as one
-                n_comments += sum(1 for cmd, args in stage["commands"] if cmd.strip().startswith("#"))
+                n_comments += sum(1 for cmd, _args in stage["commands"] if cmd.strip().startswith("#"))
 
         return n_comments
 
@@ -331,7 +333,7 @@ class LammpsInputFile(InputFile):
         Args:
             stage_names (list): list of strings giving the names of the stages to be merged.
         """
-        if not all(stage in self.stages_names for stage in stage_names):
+        if any(stage not in self.stages_names for stage in stage_names):
             raise ValueError("At least one of the stages to be merged is not in the LammpsInputFile.")
 
         indices_stages_to_merge = [self.stages_names.index(stage) for stage in stage_names]
@@ -476,9 +478,9 @@ class LammpsInputFile(InputFile):
 
         # Making sure no stage_name of lmp_input_file clash with those from self.
         # If it is the case, we rename them.
-        for i_stage, stage in enumerate(lmp_input_file.stages):
+        for i_stage, stage in enumerate(lmp_input_file.stages, start=1):
             if stage["stage_name"] in self.stages_names:
-                stage["stage_name"] = f"Stage {self.nstages + i_stage + 1} (previously {stage['stage_name']})"
+                stage["stage_name"] = f"Stage {self.nstages + i_stage} (previously {stage['stage_name']})"
 
         # Append the two list of stages
         self.stages += new_list_to_add
@@ -536,7 +538,7 @@ class LammpsInputFile(InputFile):
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -555,25 +557,25 @@ class LammpsInputFile(InputFile):
         Returns:
             LammpsInputFile
         """
-        LIF = cls()
+        lammps_in_file = cls()
 
         # Strip string from starting and/or ending white spaces
-        s = contents.strip()
+        contents = contents.strip()
 
         # Remove "&" symbols at the end of lines
-        while "&" in s:
+        while "&" in contents:
             sequence = "&"
-            index = s.index("&")
+            index = contents.index("&")
             next_symbol = ""
             idx = 0
             while next_symbol != "\n":
                 sequence += next_symbol
                 idx += 1
-                next_symbol = s[index + idx]
-            s = s.replace(sequence + "\n", "")
+                next_symbol = contents[index + idx]
+            contents = contents.replace(sequence + "\n", "")
 
         # Remove unwanted lines from the string
-        lines = cls._clean_lines(s.splitlines(), ignore_comments=ignore_comments)
+        lines = cls._clean_lines(contents.splitlines(), ignore_comments=ignore_comments)
         # Split the string into blocks based on the empty lines of the input file
         blocks = cls._get_blocks(lines, keep_stages=keep_stages)
 
@@ -584,11 +586,11 @@ class LammpsInputFile(InputFile):
                 if ignore_comments:
                     keep_block = False
                 else:
-                    LIF._add_comment(comment=block[0][1:].strip(), inline=False)
-                    stage_name = f"Comment {LIF.ncomments}"
+                    lammps_in_file._add_comment(comment=block[0][1:].strip(), inline=False)
+                    stage_name = f"Comment {lammps_in_file.ncomments}"
                     if len(block) > 1:
                         for line in block[1:]:
-                            LIF._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
+                            lammps_in_file._add_comment(comment=line[1:].strip(), inline=True, stage_name=stage_name)
 
             # Header of a stage
             elif block[0][0] == "#" and keep_block:
@@ -600,23 +602,21 @@ class LammpsInputFile(InputFile):
                         n_comm_max = idx
 
                 comments = block[:n_comm_max]
-                header = ""
-                for line in comments:
-                    header += line[1:].strip() + " "
+                header = "".join(f"{line[1:].strip()} " for line in comments)
 
                 header = header.strip()
-                stage_name = f"Stage {LIF.nstages + 1}" if (ignore_comments or not keep_stages) else header
+                stage_name = f"Stage {lammps_in_file.nstages + 1}" if (ignore_comments or not keep_stages) else header
                 commands = block[n_comm_max:]
-                LIF.add_stage(commands=commands, stage_name=stage_name)
+                lammps_in_file.add_stage(commands=commands, stage_name=stage_name)
 
             # Stage with no header
             else:
-                stage_name = f"Stage {LIF.nstages + 1}"
-                LIF.add_stage(commands=block, stage_name=stage_name)
-        return LIF
+                stage_name = f"Stage {lammps_in_file.nstages + 1}"
+                lammps_in_file.add_stage(commands=block, stage_name=stage_name)
+        return lammps_in_file
 
     @classmethod
-    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
         """
         Creates an InputFile object from a file.
 
@@ -756,7 +756,7 @@ class LammpsInputFile(InputFile):
                 self.stages.append({"stage_name": stage_name, "commands": [("#", comment)]})
 
         # Inline comment
-        elif inline and stage_name:
+        elif stage_name:
             command = "#"
             if index_comment:
                 if "Comment" in comment and comment.strip()[9] == ":":
@@ -921,7 +921,7 @@ class LammpsRun(MSONable):
                 placeholders.
         """
         template_path = os.path.join(template_dir, "md.template")
-        with open(template_path) as file:
+        with open(template_path, encoding="utf-8") as file:
             script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
         settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
@@ -1068,9 +1068,9 @@ def write_lammps_inputs(
         os.makedirs(output_dir, exist_ok=True)
     with open(os.path.join(output_dir, script_filename), mode="w") as file:
         file.write(input_script)
-    read_data = re.search(r"read_data\s+(.*)\n", input_script)
-    if read_data:
-        data_filename = read_data.group(1).split()[0]
+
+    if read_data := re.search(r"read_data\s+(.*)\n", input_script):
+        data_filename = read_data[1].split()[0]
         if isinstance(data, LammpsData):
             data.write_file(os.path.join(output_dir, data_filename), **kwargs)
         elif isinstance(data, str) and os.path.isfile(data):

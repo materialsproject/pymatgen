@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pandas as pd
 import pytest
@@ -12,7 +12,7 @@ from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
-class TestXYZ(unittest.TestCase):
+class TestXYZ(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],

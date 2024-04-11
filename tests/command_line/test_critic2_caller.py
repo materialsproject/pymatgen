@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -19,7 +19,7 @@ __date__ = "July 2017"
 
 
 @pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
-class TestCritic2Caller(unittest.TestCase):
+class TestCritic2Caller:
     def test_from_path(self):
         # uses CHGCARs
         c2c = Critic2Caller.from_path(f"{TEST_FILES_DIR}/bader")
@@ -74,7 +74,7 @@ class TestCritic2Caller(unittest.TestCase):
         assert "ERROR : load int.CHGCAR id chg_int zpsp Mo 6 S 6" in c2c._input_script
 
 
-class TestCritic2Analysis(unittest.TestCase):
+class TestCritic2Analysis(TestCase):
     def setUp(self):
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"
@@ -88,7 +88,7 @@ class TestCritic2Analysis(unittest.TestCase):
         self.c2o = Critic2Analysis(structure, reference_stdout)
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
 
-    def test_properties_to_from_dict(self):
+    def test_to_from_dict(self):
         assert len(self.c2o.critical_points) == 6
         assert len(self.c2o.nodes) == 14
         assert len(self.c2o.edges) == 10

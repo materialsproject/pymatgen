@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 import logging
 from ast import literal_eval
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,9 @@ from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Orde
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 __author__ = "ncfrey"
 __version__ = "0.1"
 __maintainer__ = "Nathan C. Frey"
@@ -30,7 +34,18 @@ __date__ = "June 2019"
 
 
 class HeisenbergMapper:
-    """Class to compute exchange parameters from low energy magnetic orderings."""
+    """Class to compute exchange parameters from low energy magnetic orderings.
+
+    Attributes:
+        strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
+        sgraphs (list): StructureGraph objects.
+        unique_site_ids (dict): Maps each site to its unique numerical identifier.
+        wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
+        nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
+        dists (dict): NN, NNN, and NNNN interaction distances
+        ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
+        ex_params (dict): Exchange parameter values (meV/atom)
+    """
 
     def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
         """
@@ -53,16 +68,6 @@ class HeisenbergMapper:
                 Defaults to 0 (only NN, no NNN, etc.)
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
                 being equal.
-
-        Parameters:
-            strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
-            sgraphs (list): StructureGraph objects.
-            unique_site_ids (dict): Maps each site to its unique numerical identifier.
-            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
-            nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
-            dists (dict): NN, NNN, and NNNN interaction distances
-            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each graph.
-            ex_params (dict): Exchange parameter values (meV/atom)
         """
         # Save original copies of inputs
         self.ordered_structures_ = ordered_structures
@@ -111,7 +116,7 @@ class HeisenbergMapper:
         strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
-        return [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
+        return [StructureGraph.from_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
 
     @staticmethod
     def _get_unique_sites(structure):
@@ -182,9 +187,9 @@ class HeisenbergMapper:
         # Keep only up to NNNN and call dists equal if they are within tol
         all_dists = sorted(set(all_dists))
         rm_list = []
-        for idx, d in enumerate(all_dists[:-1]):
-            if abs(d - all_dists[idx + 1]) < tol:
-                rm_list.append(idx + 1)
+        for idx, d in enumerate(all_dists[:-1], start=1):
+            if abs(d - all_dists[idx]) < tol:
+                rm_list.append(idx)
 
         all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
 
@@ -537,7 +542,7 @@ class HeisenbergMapper:
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
 
-        igraph = StructureGraph.with_empty_graph(
+        igraph = StructureGraph.from_empty_graph(
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
         )
 
@@ -562,11 +567,10 @@ class HeisenbergMapper:
 
         # Save to a json file if desired
         if filename:
-            if filename.endswith(".json"):
-                dumpfn(igraph, filename)
-            else:
+            if not filename.endswith(".json"):
                 filename += ".json"
-                dumpfn(igraph, filename)
+
+            dumpfn(igraph, filename)
 
         return igraph
 
@@ -724,8 +728,9 @@ class HeisenbergScreener:
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
         remove_list = []
+        e_tol = 6  # 10^-6 eV/atom tol on energies
+
         for idx, energy in enumerate(energies):
-            e_tol = 6  # 10^-6 eV/atom tol on energies
             energy = round(energy, e_tol)
             if idx not in remove_list:
                 for i_check, e_check in enumerate(energies):
@@ -741,7 +746,7 @@ class HeisenbergScreener:
         #         remove_list.append(idx)
 
         # Remove duplicates
-        if len(remove_list) > 0:
+        if remove_list:
             ordered_structures = [struct for idx, struct in enumerate(ordered_structures) if idx not in remove_list]
             energies = [energy for idx, energy in enumerate(energies) if idx not in remove_list]
 
@@ -880,63 +885,63 @@ class HeisenbergModel(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Create a HeisenbergModel from a dict."""
         # Reconstitute the site ids
         usids = {}
         wids = {}
         nnis = {}
 
-        for k, v in d["nn_interactions"].items():
+        for k, v in dct["nn_interactions"].items():
             nn_dict = {}
             for k1, v1 in v.items():
                 key = literal_eval(k1)
                 nn_dict[key] = v1
             nnis[k] = nn_dict
 
-        for k, v in d["unique_site_ids"].items():
+        for k, v in dct["unique_site_ids"].items():
             key = literal_eval(k)
             if isinstance(key, int):
                 usids[(key,)] = v
             elif isinstance(key, tuple):
                 usids[key] = v
 
-        for k, v in d["wyckoff_ids"].items():
+        for k, v in dct["wyckoff_ids"].items():
             key = literal_eval(k)
             wids[key] = v
 
         # Reconstitute the structure and graph objects
         structures = []
         sgraphs = []
-        for v in d["structures"]:
+        for v in dct["structures"]:
             structures.append(Structure.from_dict(v))
-        for v in d["sgraphs"]:
+        for v in dct["sgraphs"]:
             sgraphs.append(StructureGraph.from_dict(v))
 
         # Interaction graph
-        igraph = StructureGraph.from_dict(d["igraph"])
+        igraph = StructureGraph.from_dict(dct["igraph"])
 
         # Reconstitute the exchange matrix DataFrame
         try:
-            ex_mat = eval(d["ex_mat"])
+            ex_mat = literal_eval(dct["ex_mat"])
             ex_mat = pd.DataFrame.from_dict(ex_mat)
         except SyntaxError:  # if ex_mat is empty
             ex_mat = pd.DataFrame(columns=["E", "E0"])
 
         return HeisenbergModel(
-            formula=d["formula"],
+            formula=dct["formula"],
             structures=structures,
-            energies=d["energies"],
-            cutoff=d["cutoff"],
-            tol=d["tol"],
+            energies=dct["energies"],
+            cutoff=dct["cutoff"],
+            tol=dct["tol"],
             sgraphs=sgraphs,
             unique_site_ids=usids,
             wyckoff_ids=wids,
             nn_interactions=nnis,
-            dists=d["dists"],
+            dists=dct["dists"],
             ex_mat=ex_mat,
-            ex_params=d["ex_params"],
-            javg=d["javg"],
+            ex_params=dct["ex_params"],
+            javg=dct["javg"],
             igraph=igraph,
         )
 

@@ -8,6 +8,7 @@ import logging
 import os
 import warnings
 from glob import glob
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -16,6 +17,9 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +178,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -282,7 +286,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -350,22 +354,22 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             ComputedEntry
         """
         try:
-            gaurun = GaussianOutput(path)
+            gau_run = GaussianOutput(path)
         except Exception as exc:
             logger.debug(f"error in {path}: {exc}")
             return None
         param = {}
         for p in self._parameters:
-            param[p] = getattr(gaurun, p)
+            param[p] = getattr(gau_run, p)
         data = {}
         for d in self._data:
-            data[d] = getattr(gaurun, d)
+            data[d] = getattr(gau_run, d)
         if self._inc_structure:
-            entry = ComputedStructureEntry(gaurun.final_structure, gaurun.final_energy, parameters=param, data=data)
+            entry = ComputedStructureEntry(gau_run.final_structure, gau_run.final_energy, parameters=param, data=data)
         else:
             entry = ComputedEntry(
-                gaurun.final_structure.composition,
-                gaurun.final_energy,
+                gau_run.final_structure.composition,
+                gau_run.final_energy,
                 parameters=param,
                 data=data,
             )
@@ -382,7 +386,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             List of valid dir/file paths for assimilation
         """
         parent, _subdirs, files = path
-        return [os.path.join(parent, f) for f in files if os.path.splitext(f)[1] in self._file_extensions]
+        return [os.path.join(parent, file) for file in files if os.path.splitext(file)[1] in self._file_extensions]
 
     def __str__(self):
         return " GaussianToComputedEntryDrone"
@@ -401,7 +405,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict Representation.

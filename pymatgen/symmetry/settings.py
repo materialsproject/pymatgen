@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from fractions import Fraction
+from typing import TYPE_CHECKING
 
 import numpy as np
 from sympy import Matrix
@@ -12,6 +13,9 @@ from sympy.parsing.sympy_parser import parse_expr
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -56,7 +60,7 @@ class JonesFaithfulTransformation:
         self._P, self._p = P, p
 
     @classmethod
-    def from_transformation_str(cls, transformation_string="a,b,c;0,0,0"):
+    def from_transformation_str(cls, transformation_string: str = "a,b,c;0,0,0") -> Self:
         """Construct SpaceGroupTransformation from its transformation string.
 
         Args:
@@ -69,7 +73,7 @@ class JonesFaithfulTransformation:
         return cls(P, p)
 
     @classmethod
-    def from_origin_shift(cls, origin_shift="0,0,0"):
+    def from_origin_shift(cls, origin_shift: str = "0,0,0") -> Self:
         """Construct SpaceGroupTransformation from its origin shift string.
 
         Args:
@@ -138,8 +142,8 @@ class JonesFaithfulTransformation:
     @property
     def inverse(self) -> JonesFaithfulTransformation:
         """JonesFaithfulTransformation."""
-        Q = np.linalg.inv(self.P)
-        return JonesFaithfulTransformation(Q, -np.matmul(Q, self.p))
+        P_inv = np.linalg.inv(self.P)
+        return JonesFaithfulTransformation(P_inv, -np.matmul(P_inv, self.p))
 
     @property
     def transformation_string(self) -> str:
@@ -157,9 +161,9 @@ class JonesFaithfulTransformation:
         """Takes a symmetry operation and transforms it."""
         W_rot = symmop.rotation_matrix
         w_translation = symmop.translation_vector
-        Q = np.linalg.inv(self.P)
-        W_ = np.matmul(np.matmul(Q, W_rot), self.P)
-        w_ = np.matmul(Q, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
+        P_inv = np.linalg.inv(self.P)
+        W_ = np.matmul(np.matmul(P_inv, W_rot), self.P)
+        w_ = np.matmul(P_inv, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
         w_ = np.mod(w_, 1.0)
         if isinstance(symmop, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
@@ -176,8 +180,8 @@ class JonesFaithfulTransformation:
         """Takes a list of coordinates and transforms them."""
         new_coords = []
         for x in coords:
-            Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (np.array(x) - self.p))
+            P_inv = np.linalg.inv(self.P)
+            x_ = np.matmul(P_inv, (np.array(x) - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 

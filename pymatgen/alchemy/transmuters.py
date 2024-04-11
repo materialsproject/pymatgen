@@ -20,6 +20,8 @@ from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -42,7 +44,7 @@ class StandardTransmuter:
         transformations=None,
         extend_collection: int = 0,
         ncores: int | None = None,
-    ):
+    ) -> None:
         """Initializes a transmuter from an initial list of
         pymatgen.alchemy.materials.TransformedStructure.
 
@@ -71,7 +73,16 @@ class StandardTransmuter:
     def __getattr__(self, name):
         return [getattr(x, name) for x in self.transformed_structures]
 
-    def undo_last_change(self):
+    def __len__(self):
+        return len(self.transformed_structures)
+
+    def __str__(self):
+        output = ["Current structures", "------------"]
+        for x in self.transformed_structures:
+            output.append(str(x.final_structure))
+        return "\n".join(output)
+
+    def undo_last_change(self) -> None:
         """Undo the last transformation in the TransformedStructure.
 
         Raises:
@@ -80,7 +91,7 @@ class StandardTransmuter:
         for x in self.transformed_structures:
             x.undo_last_change()
 
-    def redo_next_change(self):
+    def redo_next_change(self) -> None:
         """Redo the last undone transformation in the TransformedStructure.
 
         Raises:
@@ -88,9 +99,6 @@ class StandardTransmuter:
         """
         for x in self.transformed_structures:
             x.redo_next_change()
-
-    def __len__(self):
-        return len(self.transformed_structures)
 
     def append_transformation(self, transformation, extend_collection=False, clear_redo=True):
         """Appends a transformation to all TransformedStructures.
@@ -178,12 +186,6 @@ class StandardTransmuter:
         """
         self.set_parameter("tags", tags)
 
-    def __str__(self):
-        output = ["Current structures", "------------"]
-        for x in self.transformed_structures:
-            output.append(str(x.final_structure))
-        return "\n".join(output)
-
     def append_transformed_structures(self, trafo_structs_or_transmuter):
         """Method is overloaded to accept either a list of transformed structures
         or transmuter, it which case it appends the second transmuter"s
@@ -201,7 +203,7 @@ class StandardTransmuter:
             self.transformed_structures.extend(trafo_structs_or_transmuter)
 
     @classmethod
-    def from_structures(cls, structures, transformations=None, extend_collection=0):
+    def from_structures(cls, structures, transformations=None, extend_collection=0) -> Self:
         """Alternative constructor from structures rather than
         TransformedStructures.
 
@@ -256,7 +258,7 @@ class CifTransmuter(StandardTransmuter):
         super().__init__(transformed_structures, transformations, extend_collection)
 
     @classmethod
-    def from_filenames(cls, filenames, transformations=None, primitive=True, extend_collection=False):
+    def from_filenames(cls, filenames, transformations=None, primitive=True, extend_collection=False) -> Self:
         """Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
 
@@ -269,7 +271,7 @@ class CifTransmuter(StandardTransmuter):
         """
         cif_files = []
         for filename in filenames:
-            with open(filename) as file:
+            with open(filename, encoding="utf-8") as file:
                 cif_files.append(file.read())
         return cls(
             "\n".join(cif_files),
@@ -294,8 +296,8 @@ class PoscarTransmuter(StandardTransmuter):
         trafo_struct = TransformedStructure.from_poscar_str(poscar_string, [])
         super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
-    @staticmethod
-    def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, poscar_filenames, transformations=None, extend_collection=False) -> StandardTransmuter:
         """Convenient constructor to generates a POSCAR transmuter from a list of
         POSCAR filenames.
 
@@ -308,7 +310,7 @@ class PoscarTransmuter(StandardTransmuter):
         """
         trafo_structs = []
         for filename in poscar_filenames:
-            with open(filename) as file:
+            with open(filename, encoding="utf-8") as file:
                 trafo_structs.append(TransformedStructure.from_poscar_str(file.read(), []))
         return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 
@@ -10,7 +10,7 @@ from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestQuasiRRHO(unittest.TestCase):
+class TestQuasiRRHO(TestCase):
     """Test class for QuasiRRHO"""
 
     def setUp(self):
@@ -48,13 +48,13 @@ class TestQuasiRRHO(unittest.TestCase):
         """
         Test manual input creation. Values from GaussianOutput
         """
-        e = self.gout.final_energy
+        e_final = self.gout.final_energy
         mol = self.gout.final_structure
-        vib_freqs = [f["frequency"] for f in self.gout.frequencies[-1]]
+        vib_freqs = [freq["frequency"] for freq in self.gout.frequencies[-1]]
 
         correct_g = -884.776886
         correct_stot = 141.584080
-        qrrho = QuasiRRHO(mol=mol, energy=e, frequencies=vib_freqs, mult=1)
+        qrrho = QuasiRRHO(mol=mol, energy=e_final, frequencies=vib_freqs, mult=1)
         assert correct_stot == pytest.approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
@@ -54,12 +55,13 @@ class SymmOp(MSONable):
         self.affine_matrix = affine_transformation_matrix
         self.tol = tol
 
-    @staticmethod
+    @classmethod
     def from_rotation_and_translation(
+        cls,
         rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         translation_vec: ArrayLike = (0, 0, 0),
         tol: float = 0.1,
-    ) -> SymmOp:
+    ) -> Self:
         """Creates a symmetry operation from a rotation matrix and a translation
         vector.
 
@@ -80,7 +82,7 @@ class SymmOp(MSONable):
         affine_matrix = np.eye(4)
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec
-        return SymmOp(affine_matrix, tol)
+        return cls(affine_matrix, tol)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymmOp):
@@ -231,8 +233,8 @@ class SymmOp(MSONable):
     @property
     def inverse(self) -> SymmOp:
         """Returns inverse of transformation."""
-        invr = np.linalg.inv(self.affine_matrix)
-        return SymmOp(invr)
+        inverse = np.linalg.inv(self.affine_matrix)
+        return SymmOp(inverse)
 
     @staticmethod
     def from_axis_angle_and_translation(
@@ -256,22 +258,22 @@ class SymmOp(MSONable):
 
         vec = np.array(translation_vec)
 
-        a = angle if angle_in_radians else angle * pi / 180
-        cosa = cos(a)
-        sina = sin(a)
-        u = axis / np.linalg.norm(axis)  # type: ignore
-        r = np.zeros((3, 3))
-        r[0, 0] = cosa + u[0] ** 2 * (1 - cosa)  # type: ignore
-        r[0, 1] = u[0] * u[1] * (1 - cosa) - u[2] * sina  # type: ignore
-        r[0, 2] = u[0] * u[2] * (1 - cosa) + u[1] * sina  # type: ignore
-        r[1, 0] = u[0] * u[1] * (1 - cosa) + u[2] * sina  # type: ignore
-        r[1, 1] = cosa + u[1] ** 2 * (1 - cosa)  # type: ignore
-        r[1, 2] = u[1] * u[2] * (1 - cosa) - u[0] * sina  # type: ignore
-        r[2, 0] = u[0] * u[2] * (1 - cosa) - u[1] * sina  # type: ignore
-        r[2, 1] = u[1] * u[2] * (1 - cosa) + u[0] * sina  # type: ignore
-        r[2, 2] = cosa + u[2] ** 2 * (1 - cosa)  # type: ignore
+        ang = angle if angle_in_radians else angle * pi / 180
+        cos_a = cos(ang)
+        sin_a = sin(ang)
+        unit_vec = axis / np.linalg.norm(axis)  # type: ignore
+        rot_mat = np.zeros((3, 3))
+        rot_mat[0, 0] = cos_a + unit_vec[0] ** 2 * (1 - cos_a)  # type: ignore
+        rot_mat[0, 1] = unit_vec[0] * unit_vec[1] * (1 - cos_a) - unit_vec[2] * sin_a  # type: ignore
+        rot_mat[0, 2] = unit_vec[0] * unit_vec[2] * (1 - cos_a) + unit_vec[1] * sin_a  # type: ignore
+        rot_mat[1, 0] = unit_vec[0] * unit_vec[1] * (1 - cos_a) + unit_vec[2] * sin_a  # type: ignore
+        rot_mat[1, 1] = cos_a + unit_vec[1] ** 2 * (1 - cos_a)  # type: ignore
+        rot_mat[1, 2] = unit_vec[1] * unit_vec[2] * (1 - cos_a) - unit_vec[0] * sin_a  # type: ignore
+        rot_mat[2, 0] = unit_vec[0] * unit_vec[2] * (1 - cos_a) - unit_vec[1] * sin_a  # type: ignore
+        rot_mat[2, 1] = unit_vec[1] * unit_vec[2] * (1 - cos_a) + unit_vec[0] * sin_a  # type: ignore
+        rot_mat[2, 2] = cos_a + unit_vec[2] ** 2 * (1 - cos_a)  # type: ignore
 
-        return SymmOp.from_rotation_and_translation(r, vec)
+        return SymmOp.from_rotation_and_translation(rot_mat, vec)
 
     @typing.no_type_check
     @staticmethod
@@ -422,7 +424,7 @@ class SymmOp(MSONable):
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
     @classmethod
-    def from_xyz_str(cls, xyz_str: str) -> SymmOp:
+    def from_xyz_str(cls, xyz_str: str) -> Self:
         """
         Args:
             xyz_str: string of the form 'x, y, z', '-x, -y, z', '-2y+1/2, 3x+1/2, z-y+1/2', etc.
@@ -451,7 +453,7 @@ class SymmOp(MSONable):
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, dct) -> SymmOp:
+    def from_dict(cls, dct) -> Self:
         """
         Args:
             dct: dict.
@@ -482,9 +484,10 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
-        if time_reversal not in (-1, 1):
-            raise Exception(f"Time reversal operator not well defined: {time_reversal}, {type(time_reversal)}")
-        self.time_reversal = time_reversal
+        if time_reversal in {-1, 1}:
+            self.time_reversal = time_reversal
+        else:
+            raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymmOp):
@@ -540,7 +543,7 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symmop: SymmOp, time_reversal) -> MagSymmOp:
+    def from_symmop(cls, symmop: SymmOp, time_reversal) -> Self:
         """Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
         Args:
@@ -577,7 +580,7 @@ class MagSymmOp(SymmOp):
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
     @classmethod
-    def from_xyzt_str(cls, xyzt_str: str) -> MagSymmOp:
+    def from_xyzt_str(cls, xyzt_str: str) -> Self:
         """
         Args:
             xyzt_str (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
@@ -590,7 +593,7 @@ class MagSymmOp(SymmOp):
         try:
             time_reversal = int(xyzt_str.rsplit(",", 1)[1])
         except Exception:
-            raise Exception("Time reversal operator could not be parsed.")
+            raise RuntimeError("Time reversal operator could not be parsed.")
         return cls.from_symmop(symm_op, time_reversal)
 
     def as_xyzt_str(self) -> str:
@@ -611,7 +614,7 @@ class MagSymmOp(SymmOp):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> MagSymmOp:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict.

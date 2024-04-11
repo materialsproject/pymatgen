@@ -467,16 +467,16 @@ class NumericalEOS(PolynomialEOS):
         # loop over the data points.
         while (n_data_fit >= n_data_min) and (e_min in e_v_work):
             max_poly_order = n_data_fit - max_poly_order_factor
-            e = [ei[0] for ei in e_v_work]
-            v = [ei[1] for ei in e_v_work]
+            energies = [ei[0] for ei in e_v_work]
+            volumes = [ei[1] for ei in e_v_work]
             # loop over polynomial order
             for idx in range(min_poly_order, max_poly_order + 1):
-                coeffs = np.polyfit(v, e, idx)
-                pder = np.polyder(coeffs)
-                a = np.poly1d(pder)(v_before)
-                b = np.poly1d(pder)(v_after)
+                coeffs = np.polyfit(volumes, energies, idx)
+                polyder = np.polyder(coeffs)
+                a = np.poly1d(polyder)(v_before)
+                b = np.poly1d(polyder)(v_after)
                 if a * b < 0:
-                    rms = get_rms(e, np.poly1d(coeffs)(v))
+                    rms = get_rms(energies, np.poly1d(coeffs)(volumes))
                     rms_min = min(rms_min, rms * idx / n_data_fit)
                     all_coeffs[(idx, n_data_fit)] = [coeffs.tolist(), rms]
                     # store the fit coefficients small to large,
@@ -495,12 +495,12 @@ class NumericalEOS(PolynomialEOS):
         weighted_avg_coeffs = np.zeros((fit_poly_order,))
 
         # combine all the filtered polynomial candidates to get the final fit.
-        for k, v in all_coeffs.items():
+        for key, val in all_coeffs.items():
             # weighted rms = rms * polynomial order / rms_min / ndata_fit
-            weighted_rms = v[1] * k[0] / rms_min / k[1]
+            weighted_rms = val[1] * key[0] / rms_min / key[1]
             weight = np.exp(-(weighted_rms**2))
             norm += weight
-            coeffs = np.array(v[0])
+            coeffs = np.array(val[0])
             # pad the coefficient array with zeros
             coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
             weighted_avg_coeffs += weight * coeffs

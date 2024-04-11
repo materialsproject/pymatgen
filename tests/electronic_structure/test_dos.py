@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -16,7 +16,7 @@ from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, Lobste
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestDos(unittest.TestCase):
+class TestDos(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -51,7 +51,7 @@ class TestDos(unittest.TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class TestFermiDos(unittest.TestCase):
+class TestFermiDos(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -61,7 +61,7 @@ class TestFermiDos(unittest.TestCase):
         T = 300
         fermi0 = self.dos.efermi
         fermi_range = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
-        dopings = [self.dos.get_doping(fermi_level=f, temperature=T) for f in fermi_range]
+        dopings = [self.dos.get_doping(fermi_level=fermi_lvl, temperature=T) for fermi_lvl in fermi_range]
         ref_dopings = [3.48077e21, 1.9235e18, -2.6909e16, -4.8723e19]
         for i, c_ref in enumerate(ref_dopings):
             assert abs(dopings[i] / c_ref - 1.0) <= 0.01
@@ -98,7 +98,7 @@ class TestFermiDos(unittest.TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class TestCompleteDos(unittest.TestCase):
+class TestCompleteDos(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -318,14 +318,14 @@ class TestDOS(PymatgenTest):
         assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
 
-class TestSpinPolarization(unittest.TestCase):
+class TestSpinPolarization(TestCase):
     def test_spin_polarization(self):
         dos_path = f"{TEST_FILES_DIR}/dos_spin_polarization_mp-865805.json"
         dos = loadfn(dos_path)
         assert dos.spin_polarization == approx(0.6460514663341762)
 
 
-class TestLobsterCompleteDos(unittest.TestCase):
+class TestLobsterCompleteDos(TestCase):
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_spin.json") as file:
             data_spin = json.load(file)

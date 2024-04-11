@@ -34,12 +34,13 @@ import os
 import re
 import shutil
 import warnings
+from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, Union, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -58,7 +59,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
 
@@ -1013,10 +1014,10 @@ class DictSet(VaspInputSet):
                 wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if wavecar_files:
                     if fname == "WFULL":
-                        for f in wavecar_files:
-                            fname = Path(f).name
+                        for wavecar_file in wavecar_files:
+                            fname = Path(wavecar_file).name
                             fname = fname.split(".")[0]
-                            files_to_transfer[fname] = f
+                            files_to_transfer[fname] = wavecar_file
                     else:
                         files_to_transfer[fname] = str(wavecar_files[-1])
 
@@ -1024,7 +1025,7 @@ class DictSet(VaspInputSet):
         return self
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+    def from_prev_calc(cls, prev_calc_dir: str, **kwargs) -> Self:
         """
         Generate a set of VASP input files for static calculations from a
         directory of previous VASP run.
@@ -2076,7 +2077,7 @@ class MVLGWSet(DictSet):
         return updates
 
     @classmethod
-    def from_prev_calc(cls, prev_calc_dir, mode="DIAG", **kwargs):
+    def from_prev_calc(cls, prev_calc_dir: str, mode: str = "DIAG", **kwargs) -> Self:
         """
         Generate a set of VASP input files for GW or BSE calculations from a
         directory of previous Exact Diag VASP run.
@@ -2362,12 +2363,12 @@ class MITNEBSet(DictSet):
                 end_point_param.kpoints.write_file(str(output_dir / image / "KPOINTS"))
                 end_point_param.potcar.write_file(str(output_dir / image / "POTCAR"))
         if write_path_cif:
-            sites = set()
-            lat = self.structures[0].lattice
-            for site in chain(*(struct for struct in self.structures)):
-                sites.add(PeriodicSite(site.species, site.frac_coords, lat))
-            nebpath = Structure.from_sites(sorted(sites))
-            nebpath.to(filename=str(output_dir / "path.cif"))
+            sites = {
+                PeriodicSite(site.species, site.frac_coords, self.structures[0].lattice)
+                for site in chain(*(struct for struct in self.structures))
+            }
+            neb_path = Structure.from_sites(sorted(sites))
+            neb_path.to(filename=f"{output_dir}/path.cif")
 
 
 @dataclass
@@ -2778,8 +2779,8 @@ def get_structure_from_prev_run(vasprun, outcar=None) -> Structure:
             site_properties["magmom"] = vasprun.parameters["MAGMOM"]
     # LDAU
     if vasprun.parameters.get("LDAU", False):
-        for k in ("LDAUU", "LDAUJ", "LDAUL"):
-            vals = vasprun.incar[k]
+        for key in ("LDAUU", "LDAUJ", "LDAUL"):
+            vals = vasprun.incar[key]
             m = {}
             l_val = []
             s = 0
@@ -2789,7 +2790,7 @@ def get_structure_from_prev_run(vasprun, outcar=None) -> Structure:
                     s += 1
                 l_val.append(m[site.specie.symbol])
             if len(l_val) == len(structure):
-                site_properties.update({k.lower(): l_val})
+                site_properties.update({key.lower(): l_val})
             else:
                 raise ValueError(f"length of list {l_val} not the same as structure")
 
@@ -3070,9 +3071,7 @@ def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> int:
 
 def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
     """Combine k-points files together."""
-    labels = []
-    kpoints = []
-    weights = []
+    labels, kpoints, weights = [], [], []
 
     for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
@@ -3092,7 +3091,7 @@ def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=kpoints,
+        kpts=cast(Sequence[Sequence[float]], kpoints),
         labels=labels,
         kpts_weights=weights,
     )
