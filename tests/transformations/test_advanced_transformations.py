@@ -292,11 +292,11 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(lattice, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})

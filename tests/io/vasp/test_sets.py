@@ -1093,7 +1093,7 @@ class TestMagmomLdau(PymatgenTest):
     def test_ln_magmom(self):
         yaml_path = MODULE_DIR / "VASPIncarBase.yaml"
         magmom_setting = loadfn(yaml_path)["INCAR"]["MAGMOM"]
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/La4Fe4O12.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
         for ion in magmom_setting:
             struct = structure.copy()
@@ -1312,7 +1312,7 @@ class TestMPSOCSet(PymatgenTest):
 
 class TestMPNMRSet(PymatgenTest):
     def test_incar(self):
-        filepath = f"{TEST_FILES_DIR}/Li.cif"
+        filepath = f"{TEST_FILES_DIR}/cif/Li.cif"
         structure = Structure.from_file(filepath)
 
         vis = MPNMRSet(structure)
@@ -1830,7 +1830,7 @@ class TestFunc(PymatgenTest):
 @skip_if_no_psp_dir
 class TestMVLGBSet(PymatgenTest):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/Li.cif"
+        filepath = f"{TEST_FILES_DIR}/cif/Li.cif"
         self.struct = Structure.from_file(filepath)
 
         self.bulk = MVLGBSet(self.struct)

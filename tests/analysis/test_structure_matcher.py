@@ -31,7 +31,7 @@ class TestStructureMatcher(PymatgenTest):
         ]
 
     def test_ignore_species(self):
-        s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         s2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         matcher = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         assert matcher.fit(s1, s2)

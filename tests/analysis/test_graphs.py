@@ -199,7 +199,7 @@ class TestStructureGraph(PymatgenTest):
         assert square_copy.graph.number_of_edges() == 3
 
     def test_substitute(self):
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         molecule = FunctionalGroups["methyl"]
 
         structure_copy = copy.deepcopy(structure)
@@ -428,7 +428,7 @@ from    to  to_image
         assert struct_graph == self.square_sg
 
     def test_extract_molecules(self):
-        structure_file = f"{TEST_FILES_DIR}/H6PbCI3N_mp-977013_symmetrized.cif"
+        structure_file = f"{TEST_FILES_DIR}/cif/H6PbCI3N_mp-977013_symmetrized.cif"
 
         struct = Structure.from_file(structure_file)
 

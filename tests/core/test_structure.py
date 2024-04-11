@@ -86,7 +86,7 @@ class TestIStructure(PymatgenTest):
             [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
-        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
+        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/cif/V2O3.cif")
 
     @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -1804,7 +1804,7 @@ Sites (8)
             assert struct.lattice.is_orthogonal
 
     def test_to_primitive(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/orci_1010.cif")
         primitive = struct.to_primitive()
 
         assert struct != primitive
@@ -1814,7 +1814,7 @@ Sites (8)
         assert primitive.formula == "Mn1 B4"
 
     def test_to_conventional(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
         conventional = struct.to_conventional()
 
         assert struct != conventional

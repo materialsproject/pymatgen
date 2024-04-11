@@ -24,11 +24,11 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class TestCollinearMagneticStructureAnalyzer(TestCase):
     def setUp(self):
-        self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif", primitive=True)
+        self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe.cif", primitive=True)
 
-        self.LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif", primitive=True)
+        self.LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
 
-        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif", primitive=True)
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
         self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
 

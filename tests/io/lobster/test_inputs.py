@@ -1802,7 +1802,7 @@ class TestLobsterin(TestCase):
         potcar_names = [name["symbol"] for name in potcar.spec]
 
         assert lobsterin1.get_basis(
-            Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
+            Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif"),
             potcar_symbols=potcar_names,
         ) == ["Fe 3d 4p 4s ", "O 2p 2s "]
         potcar = Potcar.from_file(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs")
@@ -1816,7 +1816,7 @@ class TestLobsterin(TestCase):
         potcar = Potcar.from_file(f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz")
         potcar_names = [name["symbol"] for name in potcar.spec]
         result = Lobsterin.get_all_possible_basis_functions(
-            Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
+            Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif"),
             potcar_symbols=potcar_names,
         )
         assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
@@ -1825,7 +1825,7 @@ class TestLobsterin(TestCase):
         potcar2 = Potcar.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
         Potcar_names2 = [name["symbol"] for name in potcar2.spec]
         result2 = Lobsterin.get_all_possible_basis_functions(
-            Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif"),
+            Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe.cif"),
             potcar_symbols=Potcar_names2,
         )
         assert result2[0] == {"Fe": "3d 4s"}

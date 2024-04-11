@@ -77,7 +77,7 @@ class TestExcitingInput(PymatgenTest):
                 assert l1.strip() == l2.strip()
 
     def test_writebandstr(self):
-        filepath = f"{TEST_FILES_DIR}/CsI3Pb.cif"
+        filepath = f"{TEST_FILES_DIR}/cif/CsI3Pb.cif"
         structure = Structure.from_file(filepath)
         excin = ExcitingInput(structure)
         string = excin.write_string("primitive", bandstr=True)
