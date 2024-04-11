@@ -2393,17 +2393,10 @@ class PotcarSingle:
         Returns:
             dict of POTCAR spec
         """
-        if extra_spec is None:
-            extra_spec = []
+        extra_spec = extra_spec or []
         spec = {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
         for attr in extra_spec:
-            if hasattr(self, attr):
-                try:
-                    # Float attributes are accessed via __getattr__
-                    spec[attr] = self.__getattr__(attr)
-                except AttributeError:
-                    # other attributes are accessed via __getattribute__
-                    spec[attr] = self.__getattribute__(attr)
+            spec[attr] = getattr(self, attr, None)
         return spec
 
 
