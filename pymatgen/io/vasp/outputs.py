@@ -5334,8 +5334,8 @@ class Vaspout(Vasprun):
         if parse_dos:
             try:
                 self._parse_dos(
-                    electron_dos = data["results"]["electron_dos"],
-                    projectors = data["results"].get("projectors",{}).get("lchar",None)
+                    electron_dos=data["results"]["electron_dos"],
+                    projectors=data["results"].get("projectors", {}).get("lchar", None),
                 )
                 self.dos_has_errors = False
             except Exception:
@@ -5533,8 +5533,7 @@ class Vaspout(Vasprun):
     def _parse_results(self, results: dict) -> None:
         self.final_structure = self._parse_structure(results["positions"])
 
-    def _parse_dos(self, electron_dos: dict, projectors : list | None = None):  # type: ignore
-
+    def _parse_dos(self, electron_dos: dict, projectors: list | None = None):  # type: ignore
         self.efermi = electron_dos["efermi"]
 
         densities: dict = {}
@@ -5545,7 +5544,7 @@ class Vaspout(Vasprun):
             if electron_dos.get(dos_type):
                 densities[dos_type] = {}
                 for ispin in range(len(electron_dos[dos_type])):
-                    densities[dos_type][Spin((-1)**ispin)] = electron_dos[dos_type][ispin]
+                    densities[dos_type][Spin((-1) ** ispin)] = electron_dos[dos_type][ispin]
 
         self.tdos = Dos(self.efermi, electron_dos["energies"], densities["dos"])
         self.idos = Dos(self.efermi, electron_dos["energies"], densities["dosi"])
@@ -5561,7 +5560,7 @@ class Vaspout(Vasprun):
             "fz3": "f0",
             "fxz2": "f1",
             "fzx2": "f2",
-            "fx3": "f3"
+            "fx3": "f3",
         }
 
         if pdos := electron_dos.get("dospar"):
@@ -5569,12 +5568,12 @@ class Vaspout(Vasprun):
             projectors = [char.strip() for char in projectors]
             orbtyp = Orbital if any("x" in char for char in projectors) else OrbitalType
             for site_pdos in pdos:
-                site_res_pdos = defaultdict(dict)
+                site_res_pdos: dict = defaultdict(dict)
                 for ispin in range(len(site_pdos)):
                     for ilm in range(len(site_pdos[ispin])):
                         orb_str = projectors[ilm]
-                        orb_idx = orbtyp.__members__[vasp_to_pmg_orb.get(orb_str,orb_str)]
-                        site_res_pdos[orb_idx][Spin((-1)**ispin)] = np.array(site_pdos[ispin][ilm])
+                        orb_idx = orbtyp.__members__[vasp_to_pmg_orb.get(orb_str, orb_str)]
+                        site_res_pdos[orb_idx][Spin((-1) ** ispin)] = np.array(site_pdos[ispin][ilm])
                 self.pdos += [site_res_pdos]
 
     @staticmethod
