@@ -5281,31 +5281,44 @@ class Vaspout(Vasprun):
 
         self._parse(parse_dos, parse_eigen, parse_projected_eigen)
 
-    @staticmethod
-    def _parse_hdf5_value(val: Any) -> Any:
-        val = np.array(val).tolist()
-        if isinstance(val, bytes):
-            val = val.decode()
-        elif isinstance(val, list):
-            val = [Vaspout._parse_hdf5_value(x) for x in val]
-        elif isinstance(val, dict):
-            val = {k: Vaspout._parse_hdf5_value(v) for k, v in val.items()}
+    @classmethod
+    def _parse_hdf5_value(cls, val: Any) -> Any:
+        """
+        Parse HDF5 values recursively, turning it into a dict-like entry.
+
+        This could be a staticmethod, but a recursive staticmethod seems to only
+        work in python >= 3.10. Using a classmethod to work with 3.9.
+
+        Args:
+            val (Any), input value
+        Returns:
+            Any, output value. Recursion is performed until a bytes-like object is input.
+        """
+        if hasattr(val,"items"):
+            val = {k: cls._parse_hdf5_value(v) for k, v in val.items()}
+        else:
+            val = np.array(val).tolist()
+            if isinstance(val, bytes):
+                val = val.decode()
+            elif isinstance(val, list):
+                val = [cls._parse_hdf5_value(x) for x in val]
         return val
 
     def _parse(self, parse_dos: bool, parse_eigen: bool, parse_projected_eigen: bool) -> None:  # type: ignore
-        with zopen(self.filename, "rb") as vout_file:
-            _data = h5py.File(vout_file, "r")
+        """
+        Parse data contained in vaspout.h5.
 
-            data: dict[str, Any] = {}
-            for calc_key in _data:
-                data[calc_key] = {}
-                for obj in _data[calc_key]:
-                    if hasattr(_data[calc_key][obj], "items"):
-                        data[calc_key][obj] = {
-                            key: self._parse_hdf5_value(value) for key, value in _data[calc_key][obj].items()
-                        }
-                    else:
-                        data[calc_key][obj] = self._parse_hdf5_value(_data[calc_key][obj])
+        Args:
+            parse_dos (bool)
+                Whether to parse the DOS
+            parse_eigen (bool)
+                Whether to parse the bandstructure / electronic eigenvalues
+            parse_projected_eigen (bool)
+                Whether to parse the projected bandstructure.
+                TODO: this information is not currently included in vaspout.h5, add later?
+        """
+        with zopen(self.filename, "rb") as vout_file:
+            data = self._parse_hdf5_value(h5py.File(vout_file, "r"))
 
         self._parse_params(data["input"])
         self._get_ionic_steps(data["intermediate"]["ion_dynamics"])
@@ -5340,6 +5353,14 @@ class Vaspout(Vasprun):
 
     @staticmethod
     def _parse_structure(positions: dict) -> Structure:
+        """
+        Parse the structure from vaspout format.
+        
+        Args:
+            positions (dict), dict representation of POSCAR
+        Returns:
+            pymatgen Structure
+        """
         species = []
         for ispecie, specie in enumerate(positions["ion_types"]):
             species += [specie for _ in range(positions["number_ion_types"][ispecie])]
@@ -5457,6 +5478,10 @@ class Vaspout(Vasprun):
             "energy without entropy": "e_wo_entrp",
             "energy(sigma->0)": "e_0_energy",
         }
+
+        # label s, p, d,... contributions to charge and magnetic moment in same way as Outcar
+        _to_outcar_tag = {"total charge": "charge", "magnetization (x)": "magnetization"}
+
         self.nionic_steps = len(ion_dynamics["energies"])
         self.ionic_steps = []
 
@@ -5486,6 +5511,18 @@ class Vaspout(Vasprun):
                 # in vaspout.h5
                 "electronic_steps": [],
             }
+            if chg_dens_props := ion_dynamics.get("magnetism"):
+                for ik, k in enumerate(chg_dens_props["component_tags"]):
+                    site_prop = [
+                        {
+                            orb : chg_dens_props["moments"][istep][ik][iion][iorb]
+                            for iorb, orb in enumerate(chg_dens_props["orbital_tags"])
+                        } for iion in range(len(self.poscar.structure))
+                    ]
+                    for iion in range(len(self.poscar.structure)):
+                        site_prop[iion]["tot"] = sum(site_prop[iion].values())
+                    step["structure"].add_site_property(_to_outcar_tag.get(k), site_prop)
+
             self.ionic_steps += [step]
 
     def _parse_results(self, results: dict) -> None:
@@ -5540,7 +5577,7 @@ class Vaspout(Vasprun):
         Utility function to replace the full POTCAR with its spec, and write a vaspout.h5.
 
         This is needed for applications where one might upload VASP output
-        to a public database. Since the vaspout.h5 includes the full POTCAR, it's necessary
+        to a public database. Since vaspout.h5 includes the full POTCAR, it's necessary
         to replace it here with just the spec.
 
         Args:
@@ -5552,11 +5589,6 @@ class Vaspout(Vasprun):
                 ("/input/potcar/content" field of vaspout.h5) is removed.
         """
         import json
-
-        def recursive_as_dict(obj):
-            if hasattr(obj, "items"):
-                return {k: recursive_as_dict(v) for k, v in obj.items()}
-            return self._parse_hdf5_value(obj)
 
         def recursive_to_dataset(h5_obj, level, obj):
             if hasattr(obj, "items"):
@@ -5586,7 +5618,7 @@ class Vaspout(Vasprun):
             compressor = "lzma"
 
         with zopen(self.filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
-            hdf5_data = recursive_as_dict(h5_file)
+            hdf5_data = self._parse_hdf5_value(h5_file)
 
         if fake_potcar_str:
             hdf5_data["input"]["potcar"]["content"] = fake_potcar_str
