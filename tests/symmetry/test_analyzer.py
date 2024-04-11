@@ -337,7 +337,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             ("hex_1170.cif", [90, 90, 120], [3.699919902005897, 3.699919902005897, 6.9779585500000003]),
             ("rhomb_3478_conv.cif", [28.0491861, 28.049186140, 28.049186140], [5.93526274, 5.9352627428, 5.9352627428]),
         ]:
-            structure = Structure.from_file(f"{TEST_FILES_DIR}/{file_name}")
+            structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/{file_name}")
             spga = SpacegroupAnalyzer(structure, symprec=1e-2)
             prim = spga.get_primitive_standard_structure()
             assert prim.lattice.angles == approx(expected_angles)

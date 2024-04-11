@@ -238,7 +238,7 @@ def test_get_molecule():
 
 
 @skip_if_no_ase
-@pytest.mark.parametrize("filename", ["vasp/outputs/OUTCAR.gz", "V2O3.cif"])
+@pytest.mark.parametrize("filename", ["vasp/outputs/OUTCAR.gz", "cif/V2O3.cif"])
 def test_back_forth(filename):
     # Atoms --> Structure --> Atoms --> Structure
     atoms = ase.io.read(f"{TEST_FILES_DIR}/{filename}")
