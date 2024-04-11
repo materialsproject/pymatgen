@@ -5317,22 +5317,26 @@ class Vaspout(Vasprun):
                 Whether to parse the projected bandstructure.
                 TODO: this information is not currently included in vaspout.h5, add later?
         """
-        with zopen(self.filename, "rb") as vout_file:
-            data = self._parse_hdf5_value(h5py.File(vout_file, "r"))
+        with zopen(self.filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
+            data = self._parse_hdf5_value(h5_file)
 
         self._parse_params(data["input"])
         self._get_ionic_steps(data["intermediate"]["ion_dynamics"])
 
+        # -----
         # TODO: determine if these following fields are stored in vaspout.h5
         self.kpoints_opt_props = None
         self.md_data = []
-        # end TODO
+        # -----
 
         self._parse_results(data["results"])
 
         if parse_dos:
             try:
-                self._parse_dos(data["results"]["electron_dos"])
+                self._parse_dos(
+                    electron_dos = data["results"]["electron_dos"],
+                    projectors = data["results"].get("projectors",{}).get("lchar",None)
+                )
                 self.dos_has_errors = False
             except Exception:
                 self.dos_has_errors = True
@@ -5529,23 +5533,49 @@ class Vaspout(Vasprun):
     def _parse_results(self, results: dict) -> None:
         self.final_structure = self._parse_structure(results["positions"])
 
-    def _parse_dos(self, electron_dos: dict):  # type: ignore
+    def _parse_dos(self, electron_dos: dict, projectors : list | None = None):  # type: ignore
+
         self.efermi = electron_dos["efermi"]
 
         densities: dict = {}
         for dos_type in (
             "dos",
             "dosi",
-            "dospar",
         ):
             if electron_dos.get(dos_type):
                 densities[dos_type] = {}
                 for ispin in range(len(electron_dos[dos_type])):
-                    densities[dos_type][Spin.up if ispin == 0 else Spin.down] = electron_dos[dos_type][ispin]
+                    densities[dos_type][Spin((-1)**ispin)] = electron_dos[dos_type][ispin]
 
         self.tdos = Dos(self.efermi, electron_dos["energies"], densities["dos"])
         self.idos = Dos(self.efermi, electron_dos["energies"], densities["dosi"])
-        self.pdos = densities["dospar"]  # TODO: check this
+
+        self.pdos = []
+
+        # for whatever reason, the naming of orbitals is different in vaspout.h5
+        vasp_to_pmg_orb = {
+            "x2-y2": "dx2",
+            "fy3x2": "f_3",
+            "fxyz": "f_2",
+            "fyz2": "f_1",
+            "fz3": "f0",
+            "fxz2": "f1",
+            "fzx2": "f2",
+            "fx3": "f3"
+        }
+
+        if pdos := electron_dos.get("dospar"):
+            projectors = projectors or []
+            projectors = [char.strip() for char in projectors]
+            orbtyp = Orbital if any("x" in char for char in projectors) else OrbitalType
+            for site_pdos in pdos:
+                site_res_pdos = defaultdict(dict)
+                for ispin in range(len(site_pdos)):
+                    for ilm in range(len(site_pdos[ispin])):
+                        orb_str = projectors[ilm]
+                        orb_idx = orbtyp.__members__[vasp_to_pmg_orb.get(orb_str,orb_str)]
+                        site_res_pdos[orb_idx][Spin((-1)**ispin)] = np.array(site_pdos[ispin][ilm])
+                self.pdos += [site_res_pdos]
 
     @staticmethod
     def _parse_eigen(eigenvalues_complete: dict):
