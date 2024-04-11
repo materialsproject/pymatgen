@@ -5,9 +5,8 @@ from pathlib import Path
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
-
-# import openff.toolkit as tk
 import pytest
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -191,7 +190,7 @@ def test_assign_partial_charges(mol_files):
     openff_mol, atom_map = add_conformer(openff_mol, geometry)
     partial_charges = np.load(mol_files["CCO_charges"])
     openff_mol = assign_partial_charges(openff_mol, atom_map, "am1bcc", partial_charges)
-    assert np.allclose(openff_mol.partial_charges.magnitude, partial_charges)
+    assert_allclose(openff_mol.partial_charges.magnitude, partial_charges)
 
 
 def test_create_openff_mol(mol_files):
@@ -202,7 +201,7 @@ def test_create_openff_mol(mol_files):
     assert isinstance(openff_mol, tk.Molecule)
     assert openff_mol.n_atoms == 9
     assert openff_mol.n_bonds == 8
-    assert np.allclose(openff_mol.partial_charges.magnitude, partial_charges)
+    assert_allclose(openff_mol.partial_charges.magnitude, partial_charges)
 
 
 def test_add_conformer_no_geometry():
@@ -217,7 +216,7 @@ def test_assign_partial_charges_single_atom(mol_files):
     geometry = Molecule.from_file(mol_files["Li_xyz"])
     openff_mol, atom_map = add_conformer(openff_mol, geometry)
     openff_mol = assign_partial_charges(openff_mol, atom_map, "am1bcc", None)
-    assert np.allclose(openff_mol.partial_charges.magnitude, [1.0])
+    assert_allclose(openff_mol.partial_charges.magnitude, [1.0])
 
 
 def test_create_openff_mol_no_geometry():

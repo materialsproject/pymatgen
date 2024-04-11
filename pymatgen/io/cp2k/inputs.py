@@ -22,6 +22,7 @@ A quick overview of the module:
 
 from __future__ import annotations
 
+import abc
 import copy
 import hashlib
 import itertools
@@ -2749,17 +2750,17 @@ class DataFile(MSONable):
     objects: Sequence | None = None
 
     @classmethod
-    def from_file(cls, filename) -> None:
-        """Load from a file."""
-        raise NotImplementedError
-        # with open(filename, encoding="utf-8") as file:
-        #     data = cls.from_str(file.read())
-        #     for obj in data.objects:
-        #         obj.filename = filename
-        #     return data
+    def from_file(cls, filename) -> Self:
+        """Load from a file, reserved for child classes."""
+        with open(filename, encoding="utf-8") as file:
+            data = cls.from_str(file.read())  # type: ignore[call-arg]
+            for obj in data.objects:  # type: ignore[attr-defined]
+                obj.filename = filename
+            return data  # type: ignore[return-value]
 
     @classmethod
-    def from_str(cls) -> None:
+    @abc.abstractmethod
+    def from_str(cls, string: str) -> None:
         """Initialize from a string."""
         raise NotImplementedError
 
