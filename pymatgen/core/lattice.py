@@ -947,8 +947,8 @@ class Lattice(MSONable):
                 Defaults to False.
 
         Returns:
-            (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
-            found. aligned_lattice is a rotated version of other_lattice that
+            tuple[Lattice, np.ndarray, np.ndarray]: (aligned_lattice, rotation_matrix, scale_matrix)
+            if a mapping is found. aligned_lattice is a rotated version of other_lattice that
             has the same lattice parameters, but which is aligned in the
             coordinate system of this lattice so that translational points
             match up in 3D. rotation_matrix is the rotation that has to be

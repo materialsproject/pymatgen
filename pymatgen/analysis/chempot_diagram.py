@@ -103,9 +103,7 @@ class ChemicalPotentialDiagram(MSONable):
             renormalized_entries = []
             for entry in entries:
                 comp_dict = entry.composition.as_dict()
-                renormalization_energy = sum(
-                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict]
-                )
+                renormalization_energy = sum(comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict)
                 renormalized_entries.append(_renormalize_entry(entry, renormalization_energy / sum(comp_dict.values())))
 
             entries = renormalized_entries

@@ -75,9 +75,12 @@ class TestWulffShape(PymatgenTest):
 
         # Basic test to check figure contains a single Axes3D object
         for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
-            plt = wulff.get_plot()
-            assert len(plt.gcf().get_axes()) == 1
-            assert isinstance(plt.gcf().get_axes()[0], Axes3D)
+            ax_3d = wulff.get_plot()
+            assert isinstance(ax_3d, Axes3D)
+            assert len(ax_3d.collections) in (24, 74, 110)
+            assert ax_3d.get_title() == ""
+            assert ax_3d.get_xlabel() == "x"
+            assert ax_3d.get_ylabel() == "y"
 
     def test_get_plotly(self):
         # Basic test, not really a unittest.

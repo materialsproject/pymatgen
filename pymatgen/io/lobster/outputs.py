@@ -674,11 +674,11 @@ class Doscar:
         tdensities = {}
         itdensities = {}
         with zopen(doscar, mode="rt") as file:
-            natoms = int(file.readline().split()[0])
+            n_atoms = int(file.readline().split()[0])
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
-            for _atom in range(natoms + 1):
+            for _atom in range(n_atoms + 1):
                 line = file.readline()
                 ndos = int(line.split()[2])
                 orbitals += [line.split(";")[-1].split()]
@@ -702,7 +702,7 @@ class Doscar:
             itdensities[Spin.up] = doshere[:, 2]
             pdoss = []
             spin = Spin.up
-            for atom in range(natoms):
+            for atom in range(n_atoms):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
@@ -718,7 +718,7 @@ class Doscar:
             itdensities[Spin.up] = doshere[:, 3]
             itdensities[Spin.down] = doshere[:, 4]
             pdoss = []
-            for atom in range(natoms):
+            for atom in range(n_atoms):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape

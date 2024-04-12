@@ -1168,7 +1168,7 @@ def _is_in_targets(site, targets):
         targets ([Element]) List of elements
 
     Returns:
-         (boolean) Whether this site contains a certain list of elements
+        boolean: Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
     return all(elem in targets for elem in elems)

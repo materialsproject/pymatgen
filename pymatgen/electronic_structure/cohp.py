@@ -157,7 +157,7 @@ class Cohp(MSONable):
                 raise ValueError("ICOHP is empty.")
         return inter
 
-    def has_antiband_states_below_efermi(self, spin=None, limit=0.01):
+    def has_antibnd_states_below_efermi(self, spin=None, limit=0.01):
         """Returns dict indicating if there are antibonding states below the Fermi level depending on the spin
         spin: Spin
         limit: -COHP smaller -limit will be considered.
