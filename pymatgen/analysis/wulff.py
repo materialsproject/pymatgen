@@ -378,7 +378,7 @@ class WulffShape:
                 Joules per square meter (True)
 
         Returns:
-            plt.Axes3D: 3D plot of the Wulff shape.
+            mpl_toolkits.mplot3d.Axes3D: 3D plot of the Wulff shape.
         """
         from mpl_toolkits.mplot3d import art3d
 
