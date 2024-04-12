@@ -253,8 +253,8 @@ def periodic_table_heatmap(
             from pymatviz import ptable_heatmap_plotly
 
             if elemental_data:
-                kwargs.setdefault("elem_values", elemental_data)
-                print('elemental_data is deprecated, use elem_values={"Fe": 4.2, "O": 5.0} instead')
+                kwargs.setdefault("values", elemental_data)
+                print('elemental_data is deprecated, use values={"Fe": 4.2, "O": 5.0} instead')
             if cbar_label:
                 kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
                 print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
@@ -268,8 +268,8 @@ def periodic_table_heatmap(
                 kwargs.setdefault("cscale_range", cmap_range)
                 print("cmap_range is deprecated, use cscale_range instead")
             if value_format:
-                kwargs.setdefault("precision", value_format)
-                print("value_format is deprecated, use precision instead")
+                kwargs.setdefault("fmt", value_format)
+                print("value_format is deprecated, use fmt instead")
             if blank_color != "grey":
                 print("blank_color is deprecated")
             if edge_color != "white":
