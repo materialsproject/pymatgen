@@ -1281,7 +1281,7 @@ class SlabGenerator:
 
             Args:
                 bonds (dict): A {(species1, species2): max_bond_dist} dict.
-                tol (float): Tolerance for determine overlapping positions in Angstrom.
+                tol (float): Fractional tolerance for determine overlapping positions.
             """
             # Sanitize species in dict keys
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
@@ -1310,7 +1310,7 @@ class SlabGenerator:
             return z_ranges
 
         # Get occupied z_ranges
-        z_ranges = [] if bonds is None else get_z_ranges(bonds, ftol)
+        z_ranges = [] if bonds is None else get_z_ranges(bonds, tol=tol)
 
         slabs = []
         for shift in gen_possible_shifts(ftol=ftol):
