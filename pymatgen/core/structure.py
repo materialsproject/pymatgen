@@ -1030,7 +1030,7 @@ class IStructure(SiteCollection, MSONable):
             ValueError: If sites is empty or sites do not have the same lattice.
 
         Returns:
-            (Structure) Note that missing properties are set as None.
+            IStructure: Note that missing properties are set as None.
         """
         if not sites:
             raise ValueError(f"You need at least 1 site to construct a {cls.__name__}")

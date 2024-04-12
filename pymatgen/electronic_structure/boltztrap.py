@@ -1794,7 +1794,7 @@ class BoltztrapAnalyzer:
             path_dir: (str) dir containing the boltztrap.struct file
 
         Returns:
-            (float) volume
+            float: volume of the structure in Angstrom^3
         """
         with open(f"{path_dir}/boltztrap.struct") as file:
             tokens = file.readlines()

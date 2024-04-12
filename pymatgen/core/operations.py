@@ -194,7 +194,9 @@ class SymmOp(MSONable):
             tol (float): Absolute tolerance for checking distance.
 
         Returns:
-            (are_related, is_reversed)
+            tuple[bool, bool]: First bool indicates if the vectors are related,
+                the second if the vectors are related but the starting and end point
+                are exchanged.
         """
         from_c = self.operate(from_a)
         to_c = self.operate(to_a)

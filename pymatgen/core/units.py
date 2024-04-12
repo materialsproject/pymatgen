@@ -225,8 +225,8 @@ class Unit(collections.abc.Mapping):
         """Converts all units to base SI units, including derived units.
 
         Returns:
-            (base_units_dict, scaling factor). base_units_dict will not
-            contain any constants, which are gathered in the scaling factor.
+            tuple[dict, float]: (base_units_dict, scaling factor). base_units_dict will not
+                contain any constants, which are gathered in the scaling factor.
         """
         b = collections.defaultdict(int)
         factor = 1

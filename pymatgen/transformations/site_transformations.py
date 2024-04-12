@@ -72,12 +72,12 @@ class InsertSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None."""
+        """Returns None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False."""
+        """Returns False."""
         return False
 
 
@@ -118,12 +118,12 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None."""
+        """Returns None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False."""
+        """Returns False."""
         return False
 
 
@@ -156,12 +156,12 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None."""
+        """Returns None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False."""
+        """Returns False."""
         return False
 
 
@@ -219,7 +219,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False."""
+        """Returns False."""
         return False
 
     def as_dict(self):
@@ -487,12 +487,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self) -> None:
-        """Return: None."""
+        """Returns None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: True."""
+        """Returns True."""
         return True
 
 
@@ -523,12 +523,12 @@ class AddSitePropertyTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None."""
+        """Returns None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False."""
+        """Returns False."""
         return False
 
 

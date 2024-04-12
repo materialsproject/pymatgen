@@ -1199,7 +1199,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
             the elements.
 
     Returns:
-        (reduced_formula, factor).
+        tuple[str, float]: reduced formula and factor.
     """
     syms = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
 

@@ -554,7 +554,7 @@ def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, to
         tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is done.
 
     Returns:
-        (bool)
+        bool: True if arr is in array_list.
     """
     if len(array_list) == 0:
         return False
