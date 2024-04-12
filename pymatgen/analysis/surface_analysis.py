@@ -121,7 +121,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         self.miller_index = miller_index
         self.label = label
-        self.adsorbates = adsorbates if adsorbates else []
+        self.adsorbates = adsorbates or []
         self.clean_entry = clean_entry
         self.ads_entries_dict = {str(next(iter(ads.composition.as_dict()))): ads for ads in self.adsorbates}
         self.mark = marker
@@ -180,7 +180,7 @@ class SlabEntry(ComputedStructureEntry):
             float: The surface energy of the slab.
         """
         # Set up
-        ref_entries = ref_entries if ref_entries else []
+        ref_entries = ref_entries or []
 
         # Check if appropriate ref_entries are present if the slab is non-stoichiometric
         # TODO: There should be a way to identify which specific species are
@@ -884,8 +884,8 @@ class SurfaceEnergyPlotter:
 
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 if JPERM2 else gamma_range
 
-        mark = entry.mark if entry.mark else mark
-        c = entry.color if entry.color else self.color_dict[entry]
+        mark = entry.mark or mark
+        c = entry.color or self.color_dict[entry]
         return plt.plot(chempot_range, se_range, mark, color=c, label=label)
 
     def chempot_vs_gamma(
@@ -941,7 +941,7 @@ class SurfaceEnergyPlotter:
             delu_dict = {}
         chempot_range = sorted(chempot_range)
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = plt or pretty_plot(width=8, height=7)
         axes = plt.gca()
 
         for hkl in self.all_slab_entries:
@@ -1175,7 +1175,7 @@ class SurfaceEnergyPlotter:
         """
         # Set up
         delu_dict = delu_dict or {}
-        ax = ax if ax else pretty_plot(12, 8)
+        ax = ax or pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol(f"delu_{elements[0]}")
         delu2 = Symbol(f"delu_{elements[1]}")
@@ -1255,7 +1255,7 @@ class SurfaceEnergyPlotter:
                 # Label the phases
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
-                label = entry.label if entry.label else entry.reduced_formula
+                label = entry.label or entry.reduced_formula
                 ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
@@ -1314,7 +1314,7 @@ def entry_dict_from_list(all_slab_entries):
         hkl = tuple(entry.miller_index)
         if hkl not in entry_dict:
             entry_dict[hkl] = {}
-        clean = entry.clean_entry if entry.clean_entry else entry
+        clean = entry.clean_entry or entry
         if clean not in entry_dict[hkl]:
             entry_dict[hkl][clean] = []
         if entry.adsorbates:
@@ -1425,7 +1425,7 @@ class WorkFunctionAnalyzer:
 
         Returns plt of the locpot vs c axis
         """
-        plt = plt if plt else pretty_plot(width=6, height=4)
+        plt = plt or pretty_plot(width=6, height=4)
 
         # plot the raw locpot signal along c
         plt.plot(self.along_c, self.locpot_along_c, "b--")
