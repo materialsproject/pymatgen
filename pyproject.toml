@@ -48,7 +48,6 @@ lint.select = [
   "SIM",    # flake8-simplify
   "SLOT",   # flake8-slots
   "TCH",    # flake8-type-checking
-  "TID",    # tidy imports
   "TID",    # flake8-tidy-imports
   "UP",     # pyupgrade
   "W",      # pycodestyle warning
