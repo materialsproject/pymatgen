@@ -377,7 +377,7 @@ class VolumetricData(MSONable):
 
         # number of atoms followed by the position of the origin of the volumetric data
         line = file.readline().split()
-        natoms = int(line[0])
+        n_atoms = int(line[0])
 
         # The number of voxels along each axis (x, y, z) followed by the axis vector.
         line = file.readline().split()
@@ -396,7 +396,7 @@ class VolumetricData(MSONable):
         # the first is the atom number, second is charge,
         # the last three are the x,y,z coordinates of the atom center.
         sites = []
-        for _ in range(natoms):
+        for _ in range(n_atoms):
             line = file.readline().split()
             sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 

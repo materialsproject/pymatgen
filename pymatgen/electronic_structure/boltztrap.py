@@ -2156,7 +2156,7 @@ def read_cube_file(filename):
         Energy data.
     """
     with open(filename) as file:
-        natoms = 0
+        n_atoms = 0
         for idx, line in enumerate(file):
             line = line.rstrip("\n")
             if idx == 0 and "CUBE" not in line:
@@ -2164,7 +2164,7 @@ def read_cube_file(filename):
 
             if idx == 2:
                 tokens = line.split()
-                natoms = int(tokens[0])
+                n_atoms = int(tokens[0])
             if idx == 3:
                 tokens = line.split()
                 n1 = int(tokens[0])
@@ -2178,12 +2178,12 @@ def read_cube_file(filename):
                 break
 
     if "fort.30" in filename:
-        energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
+        energy_data = np.genfromtxt(filename, skip_header=n_atoms + 6, skip_footer=1)
         n_lines_data = len(energy_data)
-        last_line = np.genfromtxt(filename, skip_header=n_lines_data + natoms + 6)
+        last_line = np.genfromtxt(filename, skip_header=n_lines_data + n_atoms + 6)
         energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
-        energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
+        energy_data = np.loadtxt(filename, skiprows=n_atoms + 6).reshape(n1, n2, n3)
 
     energy_data /= Energy(1, "eV").to("Ry")
 
