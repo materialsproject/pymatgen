@@ -960,7 +960,7 @@ class BSPlotterProjected(BSPlotter):
             vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
 
         Returns:
-            a pyplot object with different subfigures for each projection
+            list[plt.Axes]: A list with different subfigures for each projection
             The blue and red colors are for spin up and spin down.
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital.
@@ -1052,10 +1052,10 @@ class BSPlotterProjected(BSPlotter):
             ax = plt.subplot(220 + idx)
             self._make_ticks(ax)
             for b in range(len(data["distances"])):
-                for i in range(self._nb_bands):
+                for band_idx in range(self._nb_bands):
                     ax.plot(
                         data["distances"][b],
-                        data["energy"][str(Spin.up)][b][i],
+                        data["energy"][str(Spin.up)][b][band_idx],
                         "-",
                         color=[192 / 255, 192 / 255, 192 / 255],
                         linewidth=band_linewidth,
@@ -1063,19 +1063,19 @@ class BSPlotterProjected(BSPlotter):
                     if self._bs.is_spin_polarized:
                         ax.plot(
                             data["distances"][b],
-                            data["energy"][str(Spin.down)][b][i],
+                            data["energy"][str(Spin.down)][b][band_idx],
                             "--",
                             color=[128 / 255, 128 / 255, 128 / 255],
                             linewidth=band_linewidth,
                         )
-                        for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                        for j in range(len(data["energy"][str(Spin.up)][b][band_idx])):
                             markerscale = sum(
-                                proj[b][str(Spin.down)][i][j][str(el)][o]
-                                for o in proj[b][str(Spin.down)][i][j][str(el)]
+                                proj[b][str(Spin.down)][band_idx][j][str(el)][o]
+                                for o in proj[b][str(Spin.down)][band_idx][j][str(el)]
                             )
                             ax.plot(
                                 data["distances"][b][j],
-                                data["energy"][str(Spin.down)][b][i][j],
+                                data["energy"][str(Spin.down)][b][band_idx][j],
                                 "bo",
                                 markersize=markerscale * 15.0,
                                 color=[
@@ -1084,13 +1084,14 @@ class BSPlotterProjected(BSPlotter):
                                     0.4 * markerscale,
                                 ],
                             )
-                    for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                    for j in range(len(data["energy"][str(Spin.up)][b][band_idx])):
                         markerscale = sum(
-                            proj[b][str(Spin.up)][i][j][str(el)][o] for o in proj[b][str(Spin.up)][i][j][str(el)]
+                            proj[b][str(Spin.up)][band_idx][j][str(el)][o]
+                            for o in proj[b][str(Spin.up)][band_idx][j][str(el)]
                         )
                         ax.plot(
                             data["distances"][b][j],
-                            data["energy"][str(Spin.up)][b][i][j],
+                            data["energy"][str(Spin.up)][b][band_idx][j],
                             "o",
                             markersize=markerscale * 15.0,
                             color=[markerscale, 0.3 * markerscale, 0.4 * markerscale],
@@ -1150,20 +1151,25 @@ class BSPlotterProjected(BSPlotter):
         if self._bs.is_spin_polarized:
             spins = [Spin.up, Spin.down]
         self._make_ticks(ax)
-        for s in spins:
+        for spin in spins:
             for b in range(len(data["distances"])):
-                for i in range(self._nb_bands):
-                    for j in range(len(data["energy"][str(s)][b][i]) - 1):
+                for band_idx in range(self._nb_bands):
+                    for j in range(len(data["energy"][str(spin)][b][band_idx]) - 1):
                         sum_e = 0.0
                         for el in elt_ordered:
                             sum_e = sum_e + sum(
-                                proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]
+                                proj[b][str(spin)][band_idx][j][str(el)][o]
+                                for o in proj[b][str(spin)][band_idx][j][str(el)]
                             )
                         if sum_e == 0.0:
                             color = [0.0] * len(elt_ordered)
                         else:
                             color = [
-                                sum(proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]) / sum_e
+                                sum(
+                                    proj[b][str(spin)][band_idx][j][str(el)][o]
+                                    for o in proj[b][str(spin)][band_idx][j][str(el)]
+                                )
+                                / sum_e
                                 for el in elt_ordered
                             ]
                         if len(color) == 2:
@@ -1171,11 +1177,11 @@ class BSPlotterProjected(BSPlotter):
                             color[2] = color[1]
                             color[1] = 0.0
                         sign = "-"
-                        if s == Spin.down:
+                        if spin == Spin.down:
                             sign = "--"
                         ax.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
-                            [data["energy"][str(s)][b][i][j], data["energy"][str(s)][b][i][j + 1]],
+                            [data["energy"][str(spin)][b][band_idx][j], data["energy"][str(spin)][b][band_idx][j + 1]],
                             sign,
                             color=color,
                             linewidth=band_linewidth,
@@ -1250,26 +1256,26 @@ class BSPlotterProjected(BSPlotter):
             else:
                 proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
-            for i in range(self._nb_bands):
+            for band_idx in range(self._nb_bands):
                 for j in range(b["start_index"], b["end_index"] + 1):
                     edict = {}
                     for elt in dictpa:
                         for anum in dictpa[elt]:
                             edict[f"{elt}{anum}"] = {}
                             for morb in dictio[elt]:
-                                edict[f"{elt}{anum}"][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
-                    proj_br[-1][str(Spin.up)][i].append(edict)
+                                edict[f"{elt}{anum}"][morb] = proj[Spin.up][band_idx][j][setos[morb]][anum - 1]
+                    proj_br[-1][str(Spin.up)][band_idx].append(edict)
 
             if self._bs.is_spin_polarized:
-                for i in range(self._nb_bands):
+                for band_idx in range(self._nb_bands):
                     for j in range(b["start_index"], b["end_index"] + 1):
                         edict = {}
                         for elt in dictpa:
                             for anum in dictpa[elt]:
                                 edict[f"{elt}{anum}"] = {}
                                 for morb in dictio[elt]:
-                                    edict[f"{elt}{anum}"][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
-                        proj_br[-1][str(Spin.down)][i].append(edict)
+                                    edict[f"{elt}{anum}"][morb] = proj[Spin.up][band_idx][j][setos[morb]][anum - 1]
+                        proj_br[-1][str(Spin.down)][band_idx].append(edict)
 
         # Adjusting  projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
@@ -1293,9 +1299,9 @@ class BSPlotterProjected(BSPlotter):
                     proj_br_d.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
                 if (sum_atoms is not None) and (sum_morbs is None):
-                    for i in range(self._nb_bands):
+                    for band_idx in range(self._nb_bands):
                         for j in range(br["end_index"] - br["start_index"] + 1):
-                            atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.up)][i][j])
+                            atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.up)][band_idx][j])
                             edict = {}
                             for elt in dictpa:
                                 if elt in sum_atoms:
@@ -1310,11 +1316,11 @@ class BSPlotterProjected(BSPlotter):
                                 else:
                                     for anum in dictpa_d[elt]:
                                         edict[elt + anum] = copy.deepcopy(atoms_morbs[elt + anum])
-                            proj_br_d[-1][str(Spin.up)][i].append(edict)
+                            proj_br_d[-1][str(Spin.up)][band_idx].append(edict)
                     if self._bs.is_spin_polarized:
-                        for i in range(self._nb_bands):
+                        for band_idx in range(self._nb_bands):
                             for j in range(br["end_index"] - br["start_index"] + 1):
-                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][i][j])
+                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][band_idx][j])
                                 edict = {}
                                 for elt in dictpa:
                                     if elt in sum_atoms:
@@ -1329,12 +1335,12 @@ class BSPlotterProjected(BSPlotter):
                                     else:
                                         for anum in dictpa_d[elt]:
                                             edict[elt + anum] = copy.deepcopy(atoms_morbs[elt + anum])
-                                proj_br_d[-1][str(Spin.down)][i].append(edict)
+                                proj_br_d[-1][str(Spin.down)][band_idx].append(edict)
 
                 elif (sum_atoms is None) and (sum_morbs is not None):
-                    for i in range(self._nb_bands):
+                    for band_idx in range(self._nb_bands):
                         for j in range(br["end_index"] - br["start_index"] + 1):
-                            atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.up)][i][j])
+                            atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.up)][band_idx][j])
                             edict = {}
                             for elt in dictpa:
                                 if elt in sum_morbs:
@@ -1349,11 +1355,11 @@ class BSPlotterProjected(BSPlotter):
                                 else:
                                     for anum in dictpa_d[elt]:
                                         edict[elt + anum] = copy.deepcopy(atoms_morbs[elt + anum])
-                            proj_br_d[-1][str(Spin.up)][i].append(edict)
+                            proj_br_d[-1][str(Spin.up)][band_idx].append(edict)
                     if self._bs.is_spin_polarized:
-                        for i in range(self._nb_bands):
+                        for band_idx in range(self._nb_bands):
                             for j in range(br["end_index"] - br["start_index"] + 1):
-                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][i][j])
+                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][band_idx][j])
                                 edict = {}
                                 for elt in dictpa:
                                     if elt in sum_morbs:
@@ -1368,12 +1374,12 @@ class BSPlotterProjected(BSPlotter):
                                     else:
                                         for anum in dictpa_d[elt]:
                                             edict[elt + anum] = copy.deepcopy(atoms_morbs[elt + anum])
-                                proj_br_d[-1][str(Spin.down)][i].append(edict)
+                                proj_br_d[-1][str(Spin.down)][band_idx].append(edict)
 
                 else:
-                    for i in range(self._nb_bands):
+                    for band_idx in range(self._nb_bands):
                         for j in range(br["end_index"] - br["start_index"] + 1):
-                            atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.up)][i][j])
+                            atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.up)][band_idx][j])
                             edict = {}
                             for elt in dictpa:
                                 if (elt in sum_atoms) and (elt in sum_morbs):
@@ -1424,12 +1430,12 @@ class BSPlotterProjected(BSPlotter):
                                         edict[elt + anum] = {}
                                         for morb in dictio_d[elt]:
                                             edict[elt + anum][morb] = atoms_morbs[elt + anum][morb]
-                            proj_br_d[-1][str(Spin.up)][i].append(edict)
+                            proj_br_d[-1][str(Spin.up)][band_idx].append(edict)
 
                     if self._bs.is_spin_polarized:
-                        for i in range(self._nb_bands):
+                        for band_idx in range(self._nb_bands):
                             for j in range(br["end_index"] - br["start_index"] + 1):
-                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][i][j])
+                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][band_idx][j])
                                 edict = {}
                                 for elt in dictpa:
                                     if (elt in sum_atoms) and (elt in sum_morbs):
@@ -1480,7 +1486,7 @@ class BSPlotterProjected(BSPlotter):
                                             edict[elt + anum] = {}
                                             for morb in dictio_d[elt]:
                                                 edict[elt + anum][morb] = atoms_morbs[elt + anum][morb]
-                                proj_br_d[-1][str(Spin.down)][i].append(edict)
+                                proj_br_d[-1][str(Spin.down)][band_idx].append(edict)
 
         return proj_br_d, dictio_d, dictpa_d, indices
 
@@ -1611,10 +1617,13 @@ class BSPlotterProjected(BSPlotter):
                     br = -1
                     for b in branches:
                         br += 1
-                        for i in range(self._nb_bands):
+                        for band_idx in range(self._nb_bands):
                             ax.plot(
                                 [x - shift[br] for x in data["distances"][b]],
-                                [data["energy"][str(Spin.up)][b][i][j] for j in range(len(data["distances"][b]))],
+                                [
+                                    data["energy"][str(Spin.up)][b][band_idx][j]
+                                    for j in range(len(data["distances"][b]))
+                                ],
                                 "b-",
                                 linewidth=band_linewidth,
                             )
@@ -1622,24 +1631,27 @@ class BSPlotterProjected(BSPlotter):
                             if self._bs.is_spin_polarized:
                                 ax.plot(
                                     [x - shift[br] for x in data["distances"][b]],
-                                    [data["energy"][str(Spin.down)][b][i][j] for j in range(len(data["distances"][b]))],
+                                    [
+                                        data["energy"][str(Spin.down)][b][band_idx][j]
+                                        for j in range(len(data["distances"][b]))
+                                    ],
                                     "r--",
                                     linewidth=band_linewidth,
                                 )
-                                for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                                for j in range(len(data["energy"][str(Spin.up)][b][band_idx])):
                                     ax.plot(
                                         data["distances"][b][j] - shift[br],
-                                        data["energy"][str(Spin.down)][b][i][j],
+                                        data["energy"][str(Spin.down)][b][band_idx][j],
                                         "co",
-                                        markersize=proj_br_d[br][str(Spin.down)][i][j][elt + numa][o] * 15.0,
+                                        markersize=proj_br_d[br][str(Spin.down)][band_idx][j][elt + numa][o] * 15.0,
                                     )
 
-                            for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                            for j in range(len(data["energy"][str(Spin.up)][b][band_idx])):
                                 ax.plot(
                                     data["distances"][b][j] - shift[br],
-                                    data["energy"][str(Spin.up)][b][i][j],
+                                    data["energy"][str(Spin.up)][b][band_idx][j],
                                     "go",
-                                    markersize=proj_br_d[br][str(Spin.up)][i][j][elt + numa][o] * 15.0,
+                                    markersize=proj_br_d[br][str(Spin.up)][band_idx][j][elt + numa][o] * 15.0,
                                 )
 
                     if ylim is None:
@@ -1829,9 +1841,9 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):
-                        if next(iter(_sites[i]._species)) == Element(elt):
-                            indices.append(i + 1)
+                    for site_idx in range(len(_sites)):
+                        if next(iter(_sites[site_idx]._species)) == Element(elt):
+                            indices.append(site_idx + 1)
                     for number in dictpa[elt]:
                         if isinstance(number, str):
                             if number.lower() == "all":
@@ -1876,9 +1888,9 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for i in range(len(_sites)):
-                            if next(iter(_sites[i]._species)) == Element(elt):
-                                indices.append(i + 1)
+                        for site_idx in range(len(_sites)):
+                            if next(iter(_sites[site_idx]._species)) == Element(elt):
+                                indices.append(site_idx + 1)
                         for number in sum_atoms[elt]:
                             if isinstance(number, str):
                                 if number.lower() == "all":
@@ -1998,9 +2010,9 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):
-                        if next(iter(_sites[i]._species)) == Element(elt):
-                            indices.append(i + 1)
+                    for site_idx in range(len(_sites)):
+                        if next(iter(_sites[site_idx]._species)) == Element(elt):
+                            indices.append(site_idx + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
                     if flag_1 == len(indices) and flag_2 == len(indices):
@@ -2047,9 +2059,9 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):
-                        if next(iter(_sites[i]._species)) == Element(elt):
-                            indices.append(i + 1)
+                    for site_idx in range(len(_sites)):
+                        if next(iter(_sites[site_idx]._species)) == Element(elt):
+                            indices.append(site_idx + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
                     if flag_1 == len(indices) and flag_2 == len(indices):
@@ -2682,16 +2694,13 @@ class BSDOSPlotter:
 
         inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
 
-        x = []
-        y = []
-        color = []
-        for i in range(1000):
-            x.append(i / 1800.0 + 0.55)
+        x, y, color = [], [], []
+        for idx in range(1000):
+            x.append(idx / 1800.0 + 0.55)
             y.append(0)
-            color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
+            color.append([math.sqrt(c) for c in [1 - (idx / 1000) ** 2, 0, (idx / 1000) ** 2]])
 
         # plot the bar
-
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(

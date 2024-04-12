@@ -79,7 +79,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (NDPattern)
+            DiffractionPattern: ND pattern
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)

@@ -707,13 +707,13 @@ class CorrectionsList(Compatibility):
             entry: A ComputedEntry.
 
         Returns:
-            (dict) of the form
-            {"Compatibility": "string",
-            "Uncorrected_energy": float,
-            "Corrected_energy": float,
-            "correction_uncertainty:" float,
-            "Corrections": [{"Name of Correction": {
-            "Value": float, "Explanation": "string", "Uncertainty": float}]}
+            dict[str, str | float | list[dict[str, Union[str, float]]]: of the form
+                {"Compatibility": "string",
+                "Uncorrected_energy": float,
+                "Corrected_energy": float,
+                "correction_uncertainty:" float,
+                "Corrections": [{"Name of Correction": {
+                "Value": float, "Explanation": "string", "Uncertainty": float}]}
         """
         corr_entry = self.process_entry(entry)
         uncorrected_energy = (corr_entry or entry).uncorrected_energy

@@ -326,7 +326,7 @@ class Magmom(MSONable):
             saxis: can provide a specific global spin axis
 
         Returns:
-            (list of Magmoms, global spin axis) tuple
+            tuple[list[Magmom], np.ndarray]: (list of Magmoms, global spin axis)
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)

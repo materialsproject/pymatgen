@@ -121,7 +121,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         self.miller_index = miller_index
         self.label = label
-        self.adsorbates = adsorbates if adsorbates else []
+        self.adsorbates = adsorbates or []
         self.clean_entry = clean_entry
         self.ads_entries_dict = {str(next(iter(ads.composition.as_dict()))): ads for ads in self.adsorbates}
         self.mark = marker
@@ -180,7 +180,7 @@ class SlabEntry(ComputedStructureEntry):
             float: The surface energy of the slab.
         """
         # Set up
-        ref_entries = ref_entries if ref_entries else []
+        ref_entries = ref_entries or []
 
         # Check if appropriate ref_entries are present if the slab is non-stoichiometric
         # TODO: There should be a way to identify which specific species are
@@ -861,6 +861,7 @@ class SurfaceEnergyPlotter:
         """
         delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
+        ax = ax or plt.gca()
 
         # use dashed lines for slabs that are not stoichiometric
         # w.r.t. bulk. Label with formula if non-stoichiometric
@@ -884,9 +885,10 @@ class SurfaceEnergyPlotter:
 
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 if JPERM2 else gamma_range
 
-        mark = entry.mark if entry.mark else mark
-        c = entry.color if entry.color else self.color_dict[entry]
-        return plt.plot(chempot_range, se_range, mark, color=c, label=label)
+        mark = entry.mark or mark
+        color = entry.color or self.color_dict[entry]
+        ax.plot(chempot_range, se_range, mark, color=color, label=label)
+        return ax
 
     def chempot_vs_gamma(
         self,
@@ -941,7 +943,7 @@ class SurfaceEnergyPlotter:
             delu_dict = {}
         chempot_range = sorted(chempot_range)
 
-        plt = plt if plt else pretty_plot(width=8, height=7)
+        plt = plt or pretty_plot(width=8, height=7)
         axes = plt.gca()
 
         for hkl in self.all_slab_entries:
@@ -1175,7 +1177,7 @@ class SurfaceEnergyPlotter:
         """
         # Set up
         delu_dict = delu_dict or {}
-        ax = ax if ax else pretty_plot(12, 8)
+        ax = ax or pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol(f"delu_{elements[0]}")
         delu2 = Symbol(f"delu_{elements[1]}")
@@ -1255,7 +1257,7 @@ class SurfaceEnergyPlotter:
                 # Label the phases
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
-                label = entry.label if entry.label else entry.reduced_formula
+                label = entry.label or entry.reduced_formula
                 ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
@@ -1314,7 +1316,7 @@ def entry_dict_from_list(all_slab_entries):
         hkl = tuple(entry.miller_index)
         if hkl not in entry_dict:
             entry_dict[hkl] = {}
-        clean = entry.clean_entry if entry.clean_entry else entry
+        clean = entry.clean_entry or entry
         if clean not in entry_dict[hkl]:
             entry_dict[hkl][clean] = []
         if entry.adsorbates:
@@ -1425,7 +1427,7 @@ class WorkFunctionAnalyzer:
 
         Returns plt of the locpot vs c axis
         """
-        plt = plt if plt else pretty_plot(width=6, height=4)
+        plt = plt or pretty_plot(width=6, height=4)
 
         # plot the raw locpot signal along c
         plt.plot(self.along_c, self.locpot_along_c, "b--")
@@ -1769,7 +1771,7 @@ class NanoscaleStability:
         label="",
         increments=50,
         delu_default=0,
-        plt=None,
+        ax=None,
         from_sphere_area=False,
         e_units="keV",
         r_units="nanometers",
@@ -1797,8 +1799,11 @@ class NanoscaleStability:
             r_units (str): Can be nanometers or Angstrom
             e_units (str): Can be keV or eV
             normalize (str): Whether or not to normalize energy by volume
+
+        Returns:
+            plt.Axes: matplotlib Axes object
         """
-        plt = plt or pretty_plot(width=8, height=7)
+        ax = ax or pretty_plot(width=8, height=7)
 
         wulff_shape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
 
@@ -1818,13 +1823,13 @@ class NanoscaleStability:
             r_list.append(radius)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
-        plt.xlabel(rf"Particle radius (${ru}$)")
+        ax.xlabel(rf"Particle radius (${ru}$)")
         eu = f"${e_units}/{ru}^3$"
-        plt.ylabel(rf"$G_{{form}}$ ({eu})")
+        ax.ylabel(rf"$G_{{form}}$ ({eu})")
 
-        plt.plot(r_list, gform_list, label=label)
+        ax.plot(r_list, gform_list, label=label)
 
-        return plt
+        return ax
 
     def plot_all_stability_map(
         self,
@@ -1832,7 +1837,7 @@ class NanoscaleStability:
         increments=50,
         delu_dict=None,
         delu_default=0,
-        plt=None,
+        ax=None,
         labels=None,
         from_sphere_area=False,
         e_units="keV",
@@ -1857,17 +1862,20 @@ class NanoscaleStability:
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
-        """
-        plt = plt or pretty_plot(width=8, height=7)
 
-        for i, analyzer in enumerate(self.se_analyzers):
-            label = labels[i] if labels else ""
-            plt = self.plot_one_stability_map(
+        Returns:
+            plt.Axes: matplotlib Axes object
+        """
+        ax = ax or pretty_plot(width=8, height=7)
+
+        for idx, analyzer in enumerate(self.se_analyzers):
+            label = labels[idx] if labels else ""
+            ax = self.plot_one_stability_map(
                 analyzer,
                 max_r,
                 delu_dict,
                 label=label,
-                plt=plt,
+                ax=ax,
                 increments=increments,
                 delu_default=delu_default,
                 from_sphere_area=from_sphere_area,
@@ -1877,7 +1885,7 @@ class NanoscaleStability:
                 scale_per_atom=scale_per_atom,
             )
 
-        return plt
+        return ax
 
 
 def sub_chempots(gamma_dict, chempots):

@@ -994,6 +994,9 @@ class BztPlotter:
             xlim: chemical potential range in eV, useful when prop_x='mu'
             ax: figure.axes where to plot. If None, a new figure is produced.
 
+        Returns:
+            plt.Axes: matplotlib Axes object
+
         Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
             more example are provided in the notebook
@@ -1140,7 +1143,7 @@ class BztPlotter:
         plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)
         plt.tight_layout()
         plt.grid()
-        return plt
+        return ax
 
     def plot_bands(self):
         """Plot a band structure on symmetry line using BSPlotter()."""

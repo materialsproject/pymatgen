@@ -140,7 +140,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (XRDPattern)
+            DiffractionPattern: XRD pattern
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
