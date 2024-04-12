@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 from pathlib import Path
 from shutil import which
 from subprocess import TimeoutExpired
@@ -14,7 +13,7 @@ from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/packmol"
-ERR_MSG_173 = re.escape("Packmol failed with error code 173 and stderr: b'STOP 173\\n'")
+ERR_MSG_173 = "Packmol failed with error code 173 and stderr"
 
 if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
