@@ -1573,7 +1573,7 @@ class BSVasprun(Vasprun):
         parse_potcar_file: bool | str = False,
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             filename: Filename to parse
@@ -1814,7 +1814,7 @@ class Outcar:
     Authors: Rickard Armiento, Shyue Ping Ong
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """
         Args:
             filename (str): OUTCAR filename to parse.
@@ -3638,7 +3638,7 @@ class Locpot(VolumetricData):
 class Chgcar(VolumetricData):
     """Simple object for reading a CHGCAR file."""
 
-    def __init__(self, poscar, data, data_aug=None):
+    def __init__(self, poscar, data, data_aug=None) -> None:
         """
         Args:
             poscar (Poscar | Structure): Object containing structure.
@@ -3689,7 +3689,7 @@ class Elfcar(VolumetricData):
     This also contains information on the kinetic energy density.
     """
 
-    def __init__(self, poscar, data):
+    def __init__(self, poscar, data) -> None:
         """
         Args:
             poscar (Poscar or Structure): Object containing structure.
@@ -3751,7 +3751,7 @@ class Procar:
         nions (int): Number of ions.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """
         Args:
             filename: Name of file containing PROCAR.
@@ -3894,7 +3894,7 @@ class Oszicar:
             depending on the type of VASP run.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """
         Args:
             filename (str): Filename of file to parse.
@@ -4025,7 +4025,7 @@ class Xdatcar:
     Authors: Ram Balachandran
     """
 
-    def __init__(self, filename, ionicstep_start=1, ionicstep_end=None, comment=None):
+    def __init__(self, filename, ionicstep_start=1, ionicstep_end=None, comment=None) -> None:
         """
         Init a Xdatcar.
 
@@ -4227,7 +4227,7 @@ class Xdatcar:
         with zopen(filename, mode="wt") as file:
             file.write(self.get_str(**kwargs))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_str()
 
 
@@ -4245,7 +4245,7 @@ class Dynmat:
     Authors: Patrick Huck
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """
         Args:
             filename: Name of file containing DYNMAT.
@@ -4398,7 +4398,7 @@ class Wavecar:
     Author: Mark Turiansky
     """
 
-    def __init__(self, filename="WAVECAR", verbose=False, precision="normal", vasp_type=None):
+    def __init__(self, filename="WAVECAR", verbose=False, precision="normal", vasp_type=None) -> None:
         """
         Information is extracted from the given WAVECAR.
 
@@ -4881,7 +4881,7 @@ class Eigenval:
             to be converted into proper objects. The kpoint index is 0-based (unlike the 1-based indexing in VASP).
     """
 
-    def __init__(self, filename, occu_tol=1e-8, separate_spins=False):
+    def __init__(self, filename, occu_tol=1e-8, separate_spins=False) -> None:
         """
         Reads input from filename to construct Eigenval object.
 

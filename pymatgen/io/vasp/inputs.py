@@ -87,7 +87,7 @@ class Poscar(MSONable):
         predictor_corrector_preamble: str | None = None,
         lattice_velocities: ArrayLike | None = None,
         sort_structure: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             structure (Structure): Structure object.
@@ -211,7 +211,7 @@ class Poscar(MSONable):
         syms = [site.specie.symbol for site in self.structure]
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         if name in ("selective_dynamics", "velocities") and value is not None and len(value) > 0:
             value = np.array(value)
             dim = value.shape
@@ -577,10 +577,10 @@ class Poscar(MSONable):
 
         return "\n".join(lines) + "\n"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.get_str()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation of Poscar file."""
         return self.get_str()
 
@@ -677,7 +677,7 @@ class Incar(dict, MSONable):
     a dictionary with some helper functions.
     """
 
-    def __init__(self, params: dict[str, Any] | None = None):
+    def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
         Creates an Incar object.
 
@@ -698,7 +698,7 @@ class Incar(dict, MSONable):
 
             self.update(params)
 
-    def __setitem__(self, key: str, val: Any):
+    def __setitem__(self, key: str, val: Any) -> None:
         """
         Add parameter-val pair to Incar. Warns if parameter is not in list of
         valid INCAR tags. Also cleans the parameter and val by stripping
@@ -771,7 +771,7 @@ class Incar(dict, MSONable):
             return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
         return str_delimited(lines, None, " = ") + "\n"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
 
     def write_file(self, filename: PathLike):
@@ -993,7 +993,7 @@ class KpointsSupportedModes(Enum):
     Cartesian = 4
     Reciprocal = 5
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
 
     @classmethod
@@ -1030,7 +1030,7 @@ class Kpoints(MSONable):
         tet_number: int = 0,
         tet_weight: float = 0,
         tet_connections=None,
-    ):
+    ) -> None:
         """
         Highly flexible constructor for Kpoints object. The flexibility comes
         at the cost of usability and in general, it is recommended that you use
@@ -1484,7 +1484,7 @@ class Kpoints(MSONable):
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         lines = [self.comment, str(self.num_kpts), self.style.name]
         style = self.style.name.lower()[0]
         if style == "l":

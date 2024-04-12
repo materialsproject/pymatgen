@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 class VaspDoc:
     """A VASP documentation helper."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init for VaspDoc."""
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
 
