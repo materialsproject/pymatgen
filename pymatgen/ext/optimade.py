@@ -5,15 +5,18 @@ from __future__ import annotations
 import logging
 import sys
 from collections import namedtuple
+from typing import TYPE_CHECKING
 from urllib.parse import urljoin, urlparse
 
 import requests
 from tqdm import tqdm
-from typing_extensions import Self
 
 from pymatgen.core import DummySpecies, Structure
 from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 # TODO: importing optimade-python-tool's data structures will make more sense
 Provider = namedtuple("Provider", ["name", "base_url", "description", "homepage", "prefix"])
