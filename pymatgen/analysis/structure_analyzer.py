@@ -518,7 +518,7 @@ def sulfide_type(structure):
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide or None if structure is a sulfate.
+        str: sulfide/polysulfide or None if structure is a sulfate.
     """
     structure = structure.copy().remove_oxidation_states()
     sulphur = Element("S")
