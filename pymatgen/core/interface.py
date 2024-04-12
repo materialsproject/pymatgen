@@ -2185,7 +2185,8 @@ class GrainBoundaryGenerator:
             mat (3 by 3 array): input matrix
             mag (int): reduce times for the determinant
             r_matrix (3 by 3 array): rotation matrix
-        Return:
+
+        Returns:
             the reduced integer array
         """
         max_j = abs(int(round(np.linalg.det(mat) / mag)))
@@ -2218,7 +2219,8 @@ class GrainBoundaryGenerator:
 
         Args:
             vec (1 by 3 array float vector): input float vector
-        Return:
+
+        Returns:
             the surface miller index of the input vector.
         """
         miller = [None] * 3
@@ -2257,7 +2259,8 @@ def fix_pbc(structure, matrix=None):
         matrix (lattice matrix, 3 by 3 array/matrix): new structure's lattice matrix,
             If None, use input structure's matrix.
 
-    Return:
+
+    Returns:
         new structure with fixed frac_coords and lattice matrix
     """
     spec = []
@@ -2285,7 +2288,8 @@ def symm_group_cubic(mat):
     Args:
         mat (n by 3 array/matrix): lattice matrix
 
-    Return:
+
+    Returns:
         cubic symmetric equivalents of the list of vectors.
     """
     sym_group = np.zeros([24, 3, 3])

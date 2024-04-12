@@ -2686,7 +2686,7 @@ class LobsterSet(DictSet):
     def kpoints_updates(self) -> dict | Kpoints:
         """Get updates to the kpoints configuration for this calculation type."""
         # test, if this is okay
-        return {"reciprocal_density": self.reciprocal_density if self.reciprocal_density else 310}
+        return {"reciprocal_density": self.reciprocal_density or 310}
 
     @property
     def incar_updates(self) -> dict:

@@ -434,7 +434,7 @@ class AirssProvider(ResProvider):
         Retrieves the run start date and the path it was started in from the REM entries.
 
         Returns:
-            (date, path)
+            tuple[date, str]: (date, path)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Run started:"):
@@ -463,7 +463,7 @@ class AirssProvider(ResProvider):
         Retrieves the functional, relativity scheme, and dispersion correction from the REM entries.
 
         Returns:
-            (functional, relativity, dispersion)
+            tuple[str, str, str]: (functional, relativity, dispersion)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Functional"):
@@ -478,7 +478,7 @@ class AirssProvider(ResProvider):
         from the REM entries.
 
         Returns:
-            (cut-off, grid scale, Gmax, fsbc)
+            tuple[float, float, float, str]: (cut-off, grid scale, Gmax, fsbc)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Cut-off"):
@@ -492,7 +492,7 @@ class AirssProvider(ResProvider):
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
         Returns:
-            (MP grid), (offsets), No. kpts, max spacing)
+            tuple[tuple[int, int, int], Vector3D, int, float]: (MP grid), (offsets), No. kpts, max spacing)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("MP grid"):
@@ -508,7 +508,7 @@ class AirssProvider(ResProvider):
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
         Returns:
-            (version string, date)
+            tuple[str, date] (version string, date)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("AIRSS Version"):
@@ -535,13 +535,13 @@ class AirssProvider(ResProvider):
         Returns:
             dict[specie, potential]
         """
-        pspots: dict[str, str] = {}
+        pseudo_pots: dict[str, str] = {}
         for rem in self._res.REMS:
             srem = rem.split()
             if len(srem) == 2 and Element.is_valid_symbol(srem[0]):
                 k, v = srem
-                pspots[k] = v
-        return pspots
+                pseudo_pots[k] = v
+        return pseudo_pots
 
     @property
     def seed(self) -> str:

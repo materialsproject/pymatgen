@@ -812,7 +812,7 @@ class CifParser:
 
         # else check to see if it specifies a magnetic space group
         elif bns_name or bns_num:
-            label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
+            label = bns_name or list(map(int, (bns_num.split("."))))
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
                 jonas_faithful = data.data.get("_space_group_magn.transform_BNS_Pp_abc")

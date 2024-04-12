@@ -386,7 +386,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Build object from dict."""
-        return cls(**{k: dct[k] for k in dct if k in cls._fields})
+        return cls(**{key: dct[key] for key in dct if key in cls._fields})
 
 
 # An handy Multiton

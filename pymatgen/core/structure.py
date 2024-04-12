@@ -321,19 +321,18 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def site_properties(self) -> dict[str, Sequence]:
-        """Returns the site properties as a dict of sequences. E.g. {"magmom": (5, -5), "charge": (-4, 4)}."""
-        props: dict[str, Sequence] = {}
+        """The site properties as a dict of sequences.
+        E.g. {"magmom": (5, -5), "charge": (-4, 4)}.
+        """
         prop_keys: set[str] = set()
         for site in self:
             prop_keys.update(site.properties)
 
-        for key in prop_keys:
-            props[key] = [site.properties.get(key) for site in self]
-        return props
+        return {key: [site.properties.get(key) for site in self] for key in prop_keys}
 
     @property
     def labels(self) -> list[str]:
-        """Return site labels as a list."""
+        """Site labels as a list."""
         return [site.label for site in self]
 
     def __contains__(self, site: object) -> bool:
@@ -581,8 +580,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         Returns:
             SiteCollection: self with oxidation states.
         """
-        missing = {el.symbol for el in self.composition} - {*oxidation_states}
-        if missing:
+        if missing := {el.symbol for el in self.composition} - {*oxidation_states}:
             raise ValueError(f"Oxidation states not specified for all elements, {missing=}")
         for site in self:
             new_sp = {}
@@ -795,7 +793,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         # UIP=universal interatomic potential
         run_uip = isinstance(calculator, str) and calculator.lower() in ("m3gnet", "chgnet")
 
-        calc_params = dict(stress_weight=stress_weight) if not is_molecule else {}
+        calc_params = {} if is_molecule else dict(stress_weight=stress_weight)
         calculator = self._prep_calculator(calculator, **calc_params)
 
         # check str is valid optimizer key
@@ -1032,9 +1030,9 @@ class IStructure(SiteCollection, MSONable):
             ValueError: If sites is empty or sites do not have the same lattice.
 
         Returns:
-            (Structure) Note that missing properties are set as None.
+            IStructure: Note that missing properties are set as None.
         """
-        if len(sites) < 1:
+        if not sites:
             raise ValueError(f"You need at least 1 site to construct a {cls.__name__}")
         prop_keys: list[str] = []
         props = {}
@@ -1137,7 +1135,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
-            np.array(coords, dtype=np.float64) if not coords_are_cartesian else lattice.get_fractional_coords(coords)
+            lattice.get_fractional_coords(coords) if coords_are_cartesian else np.array(coords, dtype=np.float64)
         )
 
         props = {} if site_properties is None else site_properties
@@ -1239,7 +1237,7 @@ class IStructure(SiteCollection, MSONable):
             if len(var) != len(species):
                 raise ValueError(f"Length mismatch: len({name})={len(var)} != {len(species)=}")
 
-        frac_coords = coords if not coords_are_cartesian else lattice.get_fractional_coords(coords)
+        frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
@@ -2135,7 +2133,12 @@ class IStructure(SiteCollection, MSONable):
             )
         return self.copy()
 
-    def copy(self, site_properties=None, sanitize=False, properties=None) -> Self:
+    def copy(
+        self,
+        site_properties: dict[str, Any] | None = None,
+        sanitize: bool = False,
+        properties: dict[str, Any] | None = None,
+    ) -> Structure:
         """Convenience method to get a copy of the structure, with options to add
         site properties.
 
@@ -2243,7 +2246,7 @@ class IStructure(SiteCollection, MSONable):
         if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
-        images = np.arange(nimages + 1) / nimages if not isinstance(nimages, collections.abc.Iterable) else nimages
+        images = nimages if isinstance(nimages, collections.abc.Iterable) else np.arange(nimages + 1) / nimages
 
         # Check that both structures have the same species
         for idx, site in enumerate(self):
@@ -2644,7 +2647,7 @@ class IStructure(SiteCollection, MSONable):
             JSON-serializable dict representation.
         """
         if fmt == "abivars":
-            """Returns a dictionary with the ABINIT variables."""
+            # Returns a dictionary with the ABINIT variables
             from pymatgen.io.abinit.abiobjects import structure_to_abivars
 
             return structure_to_abivars(self, **kwargs)
@@ -3508,7 +3511,7 @@ class IMolecule(SiteCollection, MSONable):
                         z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                         if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
                             raise ValueError("Molecule crosses boundary of box")
-                    if len(all_coords) == 0:
+                    if not all_coords:
                         break
                     distances = lattice.get_all_distances(
                         lattice.get_fractional_coords(new_coords),
@@ -3593,7 +3596,7 @@ class IMolecule(SiteCollection, MSONable):
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             writer = XYZ(self)
-        elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ["gjf", "g03", "g09", "com", "inp"]):
+        elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ("gjf", "g03", "g09", "com", "inp")):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             json_str = json.dumps(self.as_dict())
@@ -3601,7 +3604,7 @@ class IMolecule(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf8") as file:
                     file.write(json_str)
             return json_str
-        elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
+        elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = StringIO()
             yaml.dump(self.as_dict(), str_io)
@@ -3691,8 +3694,7 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="yaml")
         from pymatgen.io.babel import BabelMolAdaptor
 
-        match = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
-        if match:
+        if match := re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower()):
             new = BabelMolAdaptor.from_file(filename, match.group(1)).pymatgen_mol
             new.__class__ = cls
             return new
@@ -3736,7 +3738,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
-            charge (int): overall charge of the structure. Defaults to behavior
+            charge (float): overall charge of the structure. Defaults to behavior
                 in SiteCollection where total charge is the sum of the oxidation
                 states.
             validate_proximity (bool): Whether to check if there are sites
@@ -4008,15 +4010,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         # Pass value of functional group--either from user-defined or from
         # functional.json
-        if not isinstance(func_group, Molecule):
+        if isinstance(func_group, Molecule):
+            fgroup = func_group
+
+        else:
             # Check to see whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise ValueError(
                     f"Can't find functional group {func_group!r} in list. Provide explicit coordinates instead"
                 )
             fgroup = FunctionalGroups[func_group]
-        else:
-            fgroup = func_group
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
@@ -4151,7 +4154,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Self:
+    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Structure:
         """Apply a strain to the lattice.
 
         Args:
@@ -4309,7 +4312,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Self:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
         """Create a supercell.
 
         Args:
@@ -4335,8 +4338,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: self if in_place is True else self.copy() after making supercell
         """
         # TODO (janosh) maybe default in_place to False after a depreciation period
-        struct = self if in_place else self.copy()
-        supercell = struct * scaling_matrix
+        struct: Structure = self if in_place else self.copy()
+        supercell: Structure = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
                 site.to_unit_cell(in_place=True)
@@ -4506,22 +4509,23 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 return Structure.from_spacegroup(
                     "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
                 )
-            if prototype in ("cscl"):
+            if prototype == "cscl":
                 return Structure.from_spacegroup(
                     "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5]]
                 )
-            if prototype in ("fluorite", "caf2"):
+            if prototype in {"fluorite", "caf2"}:
                 return Structure.from_spacegroup(
                     "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 1 / 4]]
                 )
-            if prototype in ("antifluorite"):
+            if prototype == "antifluorite":
                 return Structure.from_spacegroup(
                     "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[1 / 4, 1 / 4, 1 / 4], [0, 0, 0]]
                 )
-            if prototype in ("zincblende"):
+            if prototype == "zincblende":
                 return Structure.from_spacegroup(
                     "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
                 )
+
         except KeyError as exc:
             raise ValueError(f"Required parameter {exc} not specified as a kwargs!") from exc
         raise ValueError(f"Unsupported {prototype=}!")
@@ -5006,5 +5010,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), encoding="utf-8") as file:
     FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}

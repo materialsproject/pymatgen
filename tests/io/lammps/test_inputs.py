@@ -564,8 +564,6 @@ write_data run.data"""
 
 
 class TestLammpsRun(PymatgenTest):
-    maxDiff = None
-
     def test_md(self):
         struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
         ld = LammpsData.from_structure(struct, atom_style="atomic")

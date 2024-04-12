@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import os
+import re
 from glob import glob
 from shutil import which
 from unittest import TestCase
@@ -49,8 +50,6 @@ molecule_dir = f"{TEST_FILES_DIR}/molecules"
 
 class TestStructureGraph(PymatgenTest):
     def setUp(self):
-        self.maxDiff = None
-
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
@@ -596,13 +595,12 @@ class TestMoleculeGraph(TestCase):
 
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
-        # Check inappropriate strategy
-        non_mol_strategy = VoronoiNN()
+        # Check error message on using inappropriate strategy for molecules
+        strategy = VoronoiNN()
         with pytest.raises(
-            ValueError,
-            match=f"strategy='{non_mol_strategy}' is not designed for use with molecules! Choose another strategy",
+            ValueError, match=re.escape(f"{strategy=} is not designed for use with molecules! Choose another strategy")
         ):
-            MoleculeGraph.from_local_env_strategy(self.pc, non_mol_strategy)
+            MoleculeGraph.from_local_env_strategy(self.pc, strategy)
 
     def test_properties(self):
         assert self.cyclohexene.name == "bonds"

@@ -1168,7 +1168,7 @@ def _is_in_targets(site, targets):
         targets ([Element]) List of elements
 
     Returns:
-         (boolean) Whether this site contains a certain list of elements
+        boolean: Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
     return all(elem in targets for elem in elems)
@@ -1965,7 +1965,7 @@ def vol_tetra(vt1, vt2, vt3, vt4):
         vt4 (array-like): coordinates of vertex 4.
 
     Returns:
-        (float): volume of the tetrahedron.
+        float: volume of the tetrahedron.
     """
     return np.abs(np.dot((vt1 - vt4), np.cross((vt2 - vt4), (vt3 - vt4)))) / 6
 
@@ -1982,7 +1982,7 @@ def get_okeeffe_params(el_symbol):
         el_symbol (str): element symbol.
 
     Returns:
-        (dict): atom-size ('r') and electronegativity-related ('c') parameter.
+        dict: atom-size ('r') and electronegativity-related ('c') parameter.
     """
     el = Element(el_symbol)
     if el not in list(BV_PARAMS):

@@ -45,7 +45,7 @@ class TestPhononDos(PymatgenTest):
 
     def test_dict_methods(self):
         json_str = json.dumps(self.dos.as_dict())
-        assert json_str is not None
+        assert json_str.startswith('{"@module": "pymatgen.phonon.dos", "@class": "PhononDos", "frequencies":')
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
