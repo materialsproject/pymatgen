@@ -1771,7 +1771,7 @@ class NanoscaleStability:
         label="",
         increments=50,
         delu_default=0,
-        plt=None,
+        ax=None,
         from_sphere_area=False,
         e_units="keV",
         r_units="nanometers",
@@ -1799,8 +1799,11 @@ class NanoscaleStability:
             r_units (str): Can be nanometers or Angstrom
             e_units (str): Can be keV or eV
             normalize (str): Whether or not to normalize energy by volume
+
+        Returns:
+            plt.Axes: matplotlib Axes object
         """
-        plt = plt or pretty_plot(width=8, height=7)
+        ax = ax or pretty_plot(width=8, height=7)
 
         wulff_shape = analyzer.wulff_from_chempot(delu_dict=delu_dict, delu_default=delu_default, symprec=self.symprec)
 
@@ -1820,13 +1823,13 @@ class NanoscaleStability:
             r_list.append(radius)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
-        plt.xlabel(rf"Particle radius (${ru}$)")
+        ax.xlabel(rf"Particle radius (${ru}$)")
         eu = f"${e_units}/{ru}^3$"
-        plt.ylabel(rf"$G_{{form}}$ ({eu})")
+        ax.ylabel(rf"$G_{{form}}$ ({eu})")
 
-        plt.plot(r_list, gform_list, label=label)
+        ax.plot(r_list, gform_list, label=label)
 
-        return plt
+        return ax
 
     def plot_all_stability_map(
         self,
@@ -1834,7 +1837,7 @@ class NanoscaleStability:
         increments=50,
         delu_dict=None,
         delu_default=0,
-        plt=None,
+        ax=None,
         labels=None,
         from_sphere_area=False,
         e_units="keV",
@@ -1859,17 +1862,20 @@ class NanoscaleStability:
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
-        """
-        plt = plt or pretty_plot(width=8, height=7)
 
-        for i, analyzer in enumerate(self.se_analyzers):
-            label = labels[i] if labels else ""
-            plt = self.plot_one_stability_map(
+        Returns:
+            plt.Axes: matplotlib Axes object
+        """
+        ax = ax or pretty_plot(width=8, height=7)
+
+        for idx, analyzer in enumerate(self.se_analyzers):
+            label = labels[idx] if labels else ""
+            ax = self.plot_one_stability_map(
                 analyzer,
                 max_r,
                 delu_dict,
                 label=label,
-                plt=plt,
+                ax=ax,
                 increments=increments,
                 delu_default=delu_default,
                 from_sphere_area=from_sphere_area,
@@ -1879,7 +1885,7 @@ class NanoscaleStability:
                 scale_per_atom=scale_per_atom,
             )
 
-        return plt
+        return ax
 
 
 def sub_chempots(gamma_dict, chempots):
