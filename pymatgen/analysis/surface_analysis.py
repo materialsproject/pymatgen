@@ -861,6 +861,7 @@ class SurfaceEnergyPlotter:
         """
         delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
+        ax = ax or plt.gca()
 
         # use dashed lines for slabs that are not stoichiometric
         # w.r.t. bulk. Label with formula if non-stoichiometric
@@ -885,8 +886,9 @@ class SurfaceEnergyPlotter:
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 if JPERM2 else gamma_range
 
         mark = entry.mark or mark
-        c = entry.color or self.color_dict[entry]
-        return plt.plot(chempot_range, se_range, mark, color=c, label=label)
+        color = entry.color or self.color_dict[entry]
+        ax.plot(chempot_range, se_range, mark, color=color, label=label)
+        return ax
 
     def chempot_vs_gamma(
         self,

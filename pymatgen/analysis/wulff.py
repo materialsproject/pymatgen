@@ -378,7 +378,7 @@ class WulffShape:
                 Joules per square meter (True)
 
         Returns:
-            (matplotlib.pyplot)
+            plt.Axes3D: 3D plot of the Wulff shape.
         """
         from mpl_toolkits.mplot3d import art3d
 
@@ -472,7 +472,7 @@ class WulffShape:
             ax_3d.grid("off")
         if axis_off:
             ax_3d.axis("off")
-        return plt
+        return ax_3d
 
     def get_plotly(
         self,
