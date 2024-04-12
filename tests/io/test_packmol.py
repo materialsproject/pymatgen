@@ -13,7 +13,11 @@ from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/packmol"
-ERR_MSG_173 = "Packmol failed with error code 173 and stderr"
+# error message is different in CI for unknown reasons (as of 2024-04-12)
+# macOS: "Packmol failed with error code 173 and stderr: b'STOP 173\\n'"
+# CI: "Packmol failed with return code 0 and stdout: Packmol was unable to
+# put the molecules in the desired regions even without"
+ERR_MSG_173 = "Packmol failed with "
 
 if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
