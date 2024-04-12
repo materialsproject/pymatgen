@@ -259,7 +259,7 @@ class Slab(Structure):
             dct: dict.
 
         Returns:
-            Creates slab from dict.
+            Slab: Created from dict.
         """
         lattice = Lattice.from_dict(dct["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
@@ -329,8 +329,8 @@ class Slab(Structure):
         site as well. This will only work for single-element systems for now.
 
         Args:
-            tag (bool): Option to adds site attribute "is_surfsite" (bool)
-                to all sites of slab. Defaults to False
+            tag (bool): Add attribute "is_surf_site" (bool)
+                to all sites of the Slab. Defaults to False.
 
         Returns:
             A dictionary grouping sites on top and bottom of the slab together.
@@ -638,8 +638,8 @@ class Slab(Structure):
         specie: str | Element | Species | None = None,
         coords_are_cartesian: bool = False,
     ) -> None:
-        """Add a species at a specified site in a slab. Will also add an
-        equivalent site on the other side of the slab to maintain symmetry.
+        """Add a species at a selected site in a Slab. Will also add an
+        equivalent site on the other side to maintain symmetry.
 
         TODO (@DanielYang59): use "site" over "point" as arg name for consistency
 
@@ -649,8 +649,6 @@ class Slab(Structure):
             specie: Deprecated argument name in #3691. Use 'species' instead.
             coords_are_cartesian (bool): If the site is in Cartesian coordinates.
         """
-        # For now just use the species of the surface atom as the element to add
-
         # Check if deprecated argument is used
         if specie is not None:
             warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
@@ -1075,7 +1073,8 @@ class SlabGenerator:
             intended for other generation methods.
 
         Args:
-            shift (float): The shift value along the lattice c direction in Angstrom.
+            shift (float): The shift value along the lattice c direction
+                in fractional coordinates.
             tol (float): Tolerance to determine primitive cell.
             energy (float): The energy to assign to the slab.
 
@@ -1104,10 +1103,8 @@ class SlabGenerator:
         species = self.oriented_unit_cell.species_and_occu
 
         # Shift all atoms
-        # DEBUG(@DanielYang59): shift value in Angstrom inconsistent with frac_coordis
         frac_coords = self.oriented_unit_cell.frac_coords
-        # DEBUG(@DanielYang59): suspicious shift direction (positive for downwards shift)
-        frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
+        frac_coords = np.array(frac_coords) + np.array([0, 0, shift])[None, :]
         frac_coords -= np.floor(frac_coords)  # wrap frac_coords to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
