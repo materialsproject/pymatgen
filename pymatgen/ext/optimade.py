@@ -52,7 +52,9 @@ class OptimadeRester:
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
     aliases = {
         "aflow": "http://aflow.org/API/optimade/",
-        "alexandria": "https://alexandria.odbx.science",
+        "alexandria": "https://alexandria.icams.rub.de/pbe",
+        "alexandria.pbe": "https://alexandria.icams.rub.de/pbe",
+        "alexandria.pbesol": "https://alexandria.icams.rub.de/pbesol",
         "cod": "https://www.crystallography.net/cod/optimade",
         "cmr": "https://cmr-optimade.fysik.dtu.dk",
         "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
@@ -71,6 +73,7 @@ class OptimadeRester:
         "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
         "odbx": "https://optimade.odbx.science",
         "odbx.odbx_misc": "https://optimade-misc.odbx.science",
+        "odbx.gnome": "https://optimade-gnome.odbx.science",
         "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
         "oqmd": "http://oqmd.org/optimade/",
         "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",

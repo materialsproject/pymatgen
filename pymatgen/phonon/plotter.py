@@ -205,15 +205,14 @@ class PhononDosPlotter:
             ax.set_xlim(xlim)
         if ylim:
             ax.set_ylim(ylim)
+        elif invert_axes:
+            _ylim = ax.get_ylim()
+            relevant_x = [p[1] for p in all_pts if _ylim[0] < p[0] < _ylim[1]] or ax.get_xlim()
+            ax.set_xlim((min(relevant_x), max(relevant_x)))
         else:
-            if invert_axes:
-                _ylim = ax.get_ylim()
-                relevant_x = [p[1] for p in all_pts if _ylim[0] < p[0] < _ylim[1]] or ax.get_xlim()
-                ax.set_xlim((min(relevant_x), max(relevant_x)))
-            else:
-                _xlim = ax.get_xlim()
-                relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
-                ax.set_ylim((min(relevant_y), max(relevant_y)))
+            _xlim = ax.get_xlim()
+            relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
+            ax.set_ylim((min(relevant_y), max(relevant_y)))
 
         if invert_axes:
             ax.axhline(0, linewidth=2, color="black", linestyle="--")
