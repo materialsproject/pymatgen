@@ -447,7 +447,6 @@ class OptimadeRester:
         TODO: careful reading of OPTIMADE specification required
         TODO: add better exception handling, intentionally permissive currently
         """
-
         # Add trailing slash to all URLs if missing; prevents urljoin from scrubbing
         # sections of the path
         if urlparse(provider_url).path is not None and not provider_url.endswith("/"):
