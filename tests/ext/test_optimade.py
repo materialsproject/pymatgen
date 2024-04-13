@@ -3,21 +3,29 @@ from __future__ import annotations
 import pytest
 import requests
 
-from pymatgen.core import SETTINGS
 from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
 
 try:
     # 403 is returned when server detects bot-like behavior
-    website_down = requests.get("https://optimade.materialsproject.org").status_code not in (200, 403)
+    website_down = requests.get(OptimadeRester.aliases["mp"]).status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
     website_down = True
 
 try:
-    # 403 is returned when server detects bot-like behavior
     optimade_providers_down = requests.get("https://providers.optimade.org").status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
     optimade_providers_down = True
+
+try:
+    mc3d_down = requests.get(OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info").status_code not in (200, 403, 301)
+except requests.exceptions.ConnectionError:
+    mc3d_down = True
+
+try:
+    mc2d_down = requests.get(OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info").status_code not in (200, 403, 301)
+except requests.exceptions.ConnectionError:
+    mc2d_down = True
 
 
 class TestOptimade(PymatgenTest):
@@ -62,12 +70,16 @@ class TestOptimade(PymatgenTest):
             struct_nl_set = next(iter(extra_fields_set["mp"].values()))
             assert field_set <= {*struct_nl_set.data["_optimade"]}
 
-    def test_get_structures_mcloud_2dstructures(self):
-        with OptimadeRester("mcloud.2dstructures") as optimade:
+    @pytest.mark.skipif(mc3d_down or mc2d_down, reason="At least one MC OPTIMADE API is down.")
+    def test_get_structures_mcloud(self):
+        with OptimadeRester(["mcloud.mc2d", "mcloud.mc3d"]) as optimade:
             structs = optimade.get_structures(elements=["B", "N"], nelements=2)
 
-        test_struct = next(iter(structs["mcloud.2dstructures"].values()))
+        test_struct = next(iter(structs["mcloud.mc2d"].values()))
 
+        assert [str(el) for el in test_struct.types_of_species] == ["B", "N"]
+
+        test_struct = next(iter(structs["mcloud.mc3d"].values()))
         assert [str(el) for el in test_struct.types_of_species] == ["B", "N"]
 
     @pytest.mark.skipif(optimade_providers_down, reason="OPTIMADE providers list is down.")
