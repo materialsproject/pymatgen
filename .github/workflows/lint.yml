@@ -38,4 +38,4 @@ jobs:
 
       - name: pyright
         run: |
-          pyright 
+          pyright
