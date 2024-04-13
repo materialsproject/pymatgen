@@ -89,23 +89,23 @@ def _parse_v_parameters(val_type, val, filename, param_name):
     elif val_type == "int":
         try:
             val = [int(i) for i in val.split()]
-        except ValueError:
+        except ValueError as exc:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
             val = _parse_from_incar(filename, param_name)
             if val is None:
-                raise err
+                raise err from exc
     elif val_type == "string":
         val = val.split()
     else:
         try:
             val = [float(i) for i in val.split()]
-        except ValueError:
+        except ValueError as exc:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
             val = _parse_from_incar(filename, param_name)
             if val is None:
-                raise err
+                raise err from exc
     return val
 
 
@@ -120,7 +120,7 @@ def _parse_from_incar(filename: str, key: str) -> str | None:
     dirname = os.path.dirname(filename)
     for filename in os.listdir(dirname):
         if re.search(r"INCAR", filename):
-            warnings.warn("INCAR found. Using " + key + " from INCAR.")
+            warnings.warn(f"INCAR found. Using {key} from INCAR.")
             incar = Incar.from_file(os.path.join(dirname, filename))
             if key in incar:
                 return incar[key]
@@ -566,11 +566,11 @@ class Vasprun(MSONable):
         """
         if self.dielectric_data["density"]:
             real_avg = [
-                sum(self.dielectric_data["density"][1][i][0:3]) / 3
+                sum(self.dielectric_data["density"][1][i][:3]) / 3
                 for i in range(len(self.dielectric_data["density"][0]))
             ]
             imag_avg = [
-                sum(self.dielectric_data["density"][2][i][0:3]) / 3
+                sum(self.dielectric_data["density"][2][i][:3]) / 3
                 for i in range(len(self.dielectric_data["density"][0]))
             ]
 
@@ -886,7 +886,7 @@ class Vasprun(MSONable):
         if not kpoints_filename:
             kpts_path = os.path.join(os.path.dirname(self.filename), "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS")
             kpoints_filename = zpath(kpts_path)
-        if kpoints_filename and not os.path.isfile(kpoints_filename) and line_mode is True:
+        if kpoints_filename and not os.path.isfile(kpoints_filename) and line_mode:
             name = "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS"
             raise VaspParseError(f"{name} not found but needed to obtain band structure along symmetry lines.")
 
@@ -1870,8 +1870,8 @@ class Outcar:
                     except ValueError:
                         run_stats[tok[0].strip()] = None
                     continue
-                m = efermi_patt.search(clean)
-                if m:
+
+                if m := efermi_patt.search(clean):
                     try:
                         # try-catch because VASP sometimes prints
                         # 'E-fermi: ********     XC(G=0):  -6.1327
@@ -1881,25 +1881,18 @@ class Outcar:
                     except ValueError:
                         efermi = None
                         continue
-                m = nelect_patt.search(clean)
-                if m:
+                if m := nelect_patt.search(clean):
                     nelect = float(m.group(1))
-                m = mag_patt.search(clean)
-                if m:
+
+                if m := mag_patt.search(clean):
                     total_mag = float(m.group(1))
 
-                if e_fr_energy is None:
-                    m = e_fr_energy_pattern.search(clean)
-                    if m:
-                        e_fr_energy = float(m.group(1))
-                if e_wo_entrp is None:
-                    m = e_wo_entrp_pattern.search(clean)
-                    if m:
-                        e_wo_entrp = float(m.group(1))
-                if e0 is None:
-                    m = e0_pattern.search(clean)
-                    if m:
-                        e0 = float(m.group(1))
+                if e_fr_energy is None and (m := e_fr_energy_pattern.search(clean)):
+                    e_fr_energy = float(m.group(1))
+                if e_wo_entrp is None and (m := e_wo_entrp_pattern.search(clean)):
+                    e_wo_entrp = float(m.group(1))
+                if e0 is None and (m := e0_pattern.search(clean)):
+                    e0 = float(m.group(1))
             if all([nelect, total_mag is not None, efermi is not None, run_stats]):
                 break
 
@@ -2270,8 +2263,7 @@ class Outcar:
         Returns:
             list[float]: numbers if found, empty ist if not
         """
-        m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
-        if m:
+        if m := re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line):
             return [float(t) for t in m]
         return []
 
@@ -3203,7 +3195,7 @@ class Outcar:
 
             zval_dict = {}
             for x, y in zip(self.atom_symbols, self.zvals):
-                zval_dict.update({x: y})
+                zval_dict[x] = y
             self.zval_dict = zval_dict
 
             # Clean-up
@@ -3856,7 +3848,7 @@ class Procar:
         """
         dico: dict[Spin, list] = {}
         for spin in self.data:
-            dico[spin] = [[defaultdict(float) for i in range(self.nkpoints)] for j in range(self.nbands)]
+            dico[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
 
         for iat in range(self.nions):
             name = structure.species[iat].symbol
@@ -4152,7 +4144,7 @@ class Xdatcar:
         preamble_done = False
         if ionicstep_start < 1:
             raise ValueError("Start ionic step cannot be less than 1")
-        if ionicstep_end is not None and ionicstep_start < 1:
+        if ionicstep_end is not None and ionicstep_end < 1:
             raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
@@ -4428,9 +4420,9 @@ class Wavecar:
                 values are ['std', 'gam', 'ncl'] (only first letter is required)
         """
         self.filename = filename
-        valid_types = ["std", "gam", "ncl"]
+        valid_types = {"std", "gam", "ncl"}
         initials = {x[0] for x in valid_types}
-        if not (vasp_type is None or vasp_type.lower()[0] in initials):
+        if vasp_type is not None and vasp_type.lower()[0] not in initials:
             raise ValueError(
                 f"invalid {vasp_type=}, must be one of {valid_types} (we only check the first letter {initials})"
             )
@@ -4503,7 +4495,7 @@ class Wavecar:
             self.Gpoints = [None for _ in range(self.nk)]
             self.kpoints = []
             if spin == 2:
-                self.coeffs = [[[None for i in range(self.nb)] for j in range(self.nk)] for _ in range(spin)]
+                self.coeffs = [[[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)]
                 self.band_energy = [[] for _ in range(spin)]
             else:
                 self.coeffs = [[None for i in range(self.nb)] for j in range(self.nk)]
@@ -4574,6 +4566,8 @@ class Wavecar:
                             # but I don't have a WAVECAR to test it with
                             data = np.fromfile(file, dtype=np.complex128, count=nplane)
                             np.fromfile(file, dtype=np.float64, count=recl8 - 2 * nplane)
+                        else:
+                            raise RuntimeError("Invalid rtag value.")
 
                         extra_coeffs = []
                         if len(extra_coeff_inds) > 0:
@@ -4750,9 +4744,7 @@ class Wavecar:
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 
-        if shift:
-            return np.fft.ifftshift(mesh)
-        return mesh
+        return np.fft.ifftshift(mesh) if shift else mesh
 
     def get_parchg(
         self,
@@ -4834,7 +4826,7 @@ class Wavecar:
                 den = np.abs(np.conj(wfr) * wfr)
                 den += np.abs(np.conj(wfr_t) * wfr_t)
 
-            if phase and not (self.vasp_type.lower()[0] == "n" and spinor is None):
+            if phase and (self.vasp_type.lower()[0] != "n" or spinor is not None):
                 den = np.sign(np.real(wfr)) * den
             data["total"] = den
 
@@ -4871,7 +4863,7 @@ class Wavecar:
                 for ib in range(self.nb):
                     data[ib, 0, :, :, :] = np.fft.ifftn(self.fft_mesh(ik, ib, spinor=0)) * N
                     data[ib, 1, :, :, :] = np.fft.ifftn(self.fft_mesh(ik, ib, spinor=1)) * N
-                Unk(ik + 1, data).write_file(str(out_dir / (fname + "NC")))
+                Unk(ik + 1, data).write_file(str(out_dir / f"{fname}NC"))
             else:
                 data = np.empty((self.nb, *self.ng), dtype=np.complex128)
                 for ispin in range(self.spin):
