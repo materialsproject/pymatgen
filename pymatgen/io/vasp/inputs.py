@@ -328,6 +328,7 @@ class Poscar(MSONable):
             lattice *= scale
 
         vasp5_symbols = False
+        atomic_symbols = []
         try:
             n_atoms = [int(i) for i in lines[5].split()]
             ipos = 6
@@ -362,7 +363,7 @@ class Poscar(MSONable):
             iline_natoms_start = 5 + n_lines_symbols
             for iline_natoms in range(iline_natoms_start, iline_natoms_start + n_lines_symbols):
                 n_atoms.extend([int(i) for i in lines[iline_natoms].split()])
-            atomic_symbols = []
+
             for i, nat in enumerate(n_atoms):
                 atomic_symbols.extend([symbols[i]] * nat)
             ipos = 5 + 2 * n_lines_symbols
@@ -383,11 +384,12 @@ class Poscar(MSONable):
         # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
-            with contextlib.suppress(IndexError):
-                atomic_symbols = []
+            try:
                 for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
+            except IndexError:
+                pass
 
         if not vasp5_symbols:
             ind = 6 if has_selective_dynamics else 3
@@ -1389,8 +1391,11 @@ class Kpoints(MSONable):
 
             kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
-                with contextlib.suppress(ValueError):
+                try:
                     _kpts_shift = tuple(float(i) for i in lines[4].split())
+                except ValueError:
+                    _kpts_shift = (0, 0, 0)
+
                 if len(_kpts_shift) == 3:
                     kpts_shift = _kpts_shift
 
@@ -1400,8 +1405,7 @@ class Kpoints(MSONable):
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             _kpts_shift = tuple(float(i) for i in lines[6].split())
-            if len(_kpts_shift) == 3:
-                kpts_shift = _kpts_shift
+            kpts_shift = _kpts_shift if len(_kpts_shift) == 3 else (0, 0, 0)
 
             return cls(
                 comment=comment,

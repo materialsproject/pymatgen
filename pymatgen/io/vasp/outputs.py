@@ -3776,7 +3776,15 @@ class Procar:
             current_band = 0
             done = False
             spin = Spin.down
+
             weights = None
+            n_kpoints = None
+            n_bands = None
+            n_ions = None
+            weights = []
+            headers = None
+            data = None
+            phase_factors = None
 
             for line in file_handle:
                 line = line.strip()
