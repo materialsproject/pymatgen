@@ -279,14 +279,17 @@ class PWInput:
         structure = None
         site_properties: dict[str, list] = {"pseudo": []}
         mode = None
+        kpoints_mode = None
+        kpoints_grid = (1, 1, 1)
+        kpoints_shift = (0, 0, 0)
+
         for line in lines:
             mode = input_mode(line)
             if mode is None:
                 pass
             elif mode[0] == "sections":
                 section = mode[1]
-                m = re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line)
-                if m:
+                if m := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
                     key = m.group(1).strip()
                     key_ = m.group(2).strip()
                     val = m.group(3).strip()
@@ -303,18 +306,15 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                m = re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line)
-                if m:
+                if m := re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line):
                     pseudo[m.group(1).strip()] = m.group(3).strip()
+
             elif mode[0] == "kpoints":
-                m = re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line)
-                if m:
+                if m := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
                     kpoints_grid = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
                     kpoints_shift = (int(m.group(4)), int(m.group(5)), int(m.group(6)))
                 else:
                     kpoints_mode = mode[1]
-                    kpoints_grid = (1, 1, 1)
-                    kpoints_shift = (0, 0, 0)
 
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
@@ -325,6 +325,7 @@ class PWInput:
                         float(m_l.group(2)),
                         float(m_l.group(3)),
                     ]
+
                 elif m_p:
                     site_properties["pseudo"].append(pseudo[m_p.group(1)])
                     species.append(m_p.group(1))
@@ -334,10 +335,12 @@ class PWInput:
                         coords_are_cartesian = True
                     elif mode[1] == "crystal":
                         coords_are_cartesian = False
+
         structure = Structure(
             Lattice(lattice),
             species,
             coords,
+            # DEBUG (@DanielYang59): need input on coords_are_cartesian
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
         )
