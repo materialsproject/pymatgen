@@ -12,11 +12,12 @@ from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-# ruff: noqa: PT011
-
-
 TEST_DIR = f"{TEST_FILES_DIR}/packmol"
-
+# error message is different in CI for unknown reasons (as of 2024-04-12)
+# macOS: "Packmol failed with error code 173 and stderr: b'STOP 173\\n'"
+# CI: "Packmol failed with return code 0 and stdout: Packmol was unable to
+# put the molecules in the desired regions even without"
+ERR_MSG_173 = "Packmol failed with "
 
 if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
@@ -110,7 +111,7 @@ class TestPackmolSet(PymatgenTest):
             input_string = file.read()
             assert "maxit 0" in input_string
             assert "nloop 0" in input_string
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=ERR_MSG_173):
             input_set.run(self.tmp_path)
 
     def test_timeout(self):
@@ -141,7 +142,7 @@ class TestPackmolSet(PymatgenTest):
         with open(f"{self.tmp_path}/packmol.inp") as file:
             input_string = file.read()
             assert "inside box 0 0 0 2 2 2" in input_string
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=ERR_MSG_173):
             pw.run(self.tmp_path)
 
     def test_chdir_behavior(self):
@@ -159,7 +160,8 @@ class TestPackmolSet(PymatgenTest):
             box=[0, 0, 0, 2, 2, 2],
         )
         pw.write_input(self.tmp_path)
-        with pytest.raises(ValueError):
+
+        with pytest.raises(ValueError, match=ERR_MSG_173):
             pw.run(self.tmp_path)
         assert str(Path.cwd()) == start_dir
 
