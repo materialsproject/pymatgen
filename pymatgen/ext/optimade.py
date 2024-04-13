@@ -133,6 +133,11 @@ class OptimadeRester:
         # and values as the corresponding URL
         self.resources = {}
 
+        # preprocess aliases to ensure they have a trailing slash where appropriate
+        for alias, url in self.aliases.items():
+            if urlparse(url).path is not None and not url.endswith("/"):
+                self.aliases[alias] += "/"
+
         if not aliases_or_resource_urls:
             aliases_or_resource_urls = list(self.aliases)
             _logger.warning(
@@ -443,6 +448,11 @@ class OptimadeRester:
         TODO: add better exception handling, intentionally permissive currently
         """
 
+        # Add trailing slash to all URLs if missing; prevents urljoin from scrubbing
+        # sections of the path
+        if urlparse(provider_url).path is not None and not provider_url.endswith("/"):
+            provider_url += "/"
+
         def is_url(url) -> bool:
             """Basic URL validation thanks to https://stackoverflow.com/a/52455972."""
             try:
@@ -492,6 +502,9 @@ class OptimadeRester:
             A dictionary of keys (in format of "provider.database") to
             Provider objects.
         """
+        # Add trailing slash to all URLs if missing; prevents urljoin from scrubbing
+        if urlparse(provider_url).path is not None and not provider_url.endswith("/"):
+            provider_url += "/"
         try:
             url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
@@ -551,6 +564,11 @@ class OptimadeRester:
             structure_providers.update(self._parse_provider(provider, provider_link))
 
         self.aliases = {alias: provider.base_url for alias, provider in structure_providers.items()}
+
+        # Add missing trailing slashes to any aliases with a path that need them
+        for alias, url in self.aliases.items():
+            if urlparse(url).path is not None and not url.endswith("/"):
+                self.aliases[alias] += "/"
 
     # TODO: revisit context manager logic here and in MPRester
     def __enter__(self) -> Self:
