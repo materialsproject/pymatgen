@@ -1114,11 +1114,10 @@ class DictSet(VaspInputSet):
 
         if custom_encut is not None:
             encut = custom_encut
+        elif self.incar.get("ENCUT", 0) > 0:
+            encut = self.incar["ENCUT"]  # get the ENCUT val
         else:
-            if self.incar.get("ENCUT", 0) > 0:
-                encut = self.incar["ENCUT"]  # get the ENCUT val
-            else:
-                encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
+            encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
 
         # PREC=Normal is VASP default
         PREC = self.incar.get("PREC", "Normal") if custom_prec is None else custom_prec
