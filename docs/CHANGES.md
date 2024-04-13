@@ -6,6 +6,22 @@ nav_order: 4
 
 # Changelog
 
+## v2024.4.13
+
+Hot fix release for [v2024.4.12](#v2024412) to be yanked on PyPI due to https://github.com/materialsproject/pymatgen/issues/3751.
+
+### 🐛 Bug Fixes
+
+* Revert mistaken `Cohp.has_antibnd_states_below_efermi` rename by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3750
+* Fix `typing_extension` `ImportError` in downstream packages by @janosh in https://github.com/materialsproject/pymatgen/pull/3752
+* Update some of the OPTIMADE aliases by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3754
+
+### 🧹 House-Keeping
+
+* Remove duplicate ruff rule in `pyproject.toml` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3755
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.4.12...v2024.4.13
+
 ## v2024.4.12
 
 ### 🎉 New Features
