@@ -478,7 +478,7 @@ class PWInput:
                 return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
 
             if key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val)[0]
+                return int(re.match(r"^-?[0-9]+", val))[0]
 
         except ValueError:
             pass
