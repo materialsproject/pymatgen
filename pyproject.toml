@@ -72,7 +72,6 @@ lint.ignore = [
   "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
   "PLC1901", # can be simplified to ... as empty is falsey
   "PLR",     # pylint refactor
-  "PLW1514", # open() without explicit encoding argument
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
   "PTH",     # prefer pathlib to os.path
