@@ -1481,9 +1481,9 @@ class BoltztrapAnalyzer:
             d = self.get_zt(output="eigs", doping_levels=True)
 
         else:
-            raise ValueError(f"Target property: {target_prop} not recognized!")
+            raise ValueError(f"Unrecognized {target_prop=}")
 
-        absval = True  # take the absolute value of properties
+        abs_val = True  # take the absolute value of properties
 
         x_val = x_temp = x_doping = x_isotropic = None
         output = {}
@@ -1500,7 +1500,7 @@ class BoltztrapAnalyzer:
                         doping_lvl = self.doping[pn][didx]
                         if min_doping <= doping_lvl <= max_doping:
                             isotropic = is_isotropic(evs, isotropy_tolerance)
-                            if absval:
+                            if abs_val:
                                 evs = [abs(x) for x in evs]
                             val = float(sum(evs)) / len(evs) if use_average else max(evs)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
@@ -1794,7 +1794,7 @@ class BoltztrapAnalyzer:
             path_dir: (str) dir containing the boltztrap.struct file
 
         Returns:
-            (float) volume
+            float: volume of the structure in Angstrom^3
         """
         with open(f"{path_dir}/boltztrap.struct") as file:
             tokens = file.readlines()
@@ -2156,7 +2156,7 @@ def read_cube_file(filename):
         Energy data.
     """
     with open(filename) as file:
-        natoms = 0
+        n_atoms = 0
         for idx, line in enumerate(file):
             line = line.rstrip("\n")
             if idx == 0 and "CUBE" not in line:
@@ -2164,7 +2164,7 @@ def read_cube_file(filename):
 
             if idx == 2:
                 tokens = line.split()
-                natoms = int(tokens[0])
+                n_atoms = int(tokens[0])
             if idx == 3:
                 tokens = line.split()
                 n1 = int(tokens[0])
@@ -2178,12 +2178,12 @@ def read_cube_file(filename):
                 break
 
     if "fort.30" in filename:
-        energy_data = np.genfromtxt(filename, skip_header=natoms + 6, skip_footer=1)
+        energy_data = np.genfromtxt(filename, skip_header=n_atoms + 6, skip_footer=1)
         n_lines_data = len(energy_data)
-        last_line = np.genfromtxt(filename, skip_header=n_lines_data + natoms + 6)
+        last_line = np.genfromtxt(filename, skip_header=n_lines_data + n_atoms + 6)
         energy_data = np.append(energy_data.flatten(), last_line).reshape(n1, n2, n3)
     elif "boltztrap_BZ.cube" in filename:
-        energy_data = np.loadtxt(filename, skiprows=natoms + 6).reshape(n1, n2, n3)
+        energy_data = np.loadtxt(filename, skiprows=n_atoms + 6).reshape(n1, n2, n3)
 
     energy_data /= Energy(1, "eV").to("Ry")
 

@@ -142,8 +142,8 @@ class JonesFaithfulTransformation:
     @property
     def inverse(self) -> JonesFaithfulTransformation:
         """JonesFaithfulTransformation."""
-        Q = np.linalg.inv(self.P)
-        return JonesFaithfulTransformation(Q, -np.matmul(Q, self.p))
+        P_inv = np.linalg.inv(self.P)
+        return JonesFaithfulTransformation(P_inv, -np.matmul(P_inv, self.p))
 
     @property
     def transformation_string(self) -> str:
@@ -161,9 +161,9 @@ class JonesFaithfulTransformation:
         """Takes a symmetry operation and transforms it."""
         W_rot = symmop.rotation_matrix
         w_translation = symmop.translation_vector
-        Q = np.linalg.inv(self.P)
-        W_ = np.matmul(np.matmul(Q, W_rot), self.P)
-        w_ = np.matmul(Q, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
+        P_inv = np.linalg.inv(self.P)
+        W_ = np.matmul(np.matmul(P_inv, W_rot), self.P)
+        w_ = np.matmul(P_inv, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
         w_ = np.mod(w_, 1.0)
         if isinstance(symmop, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
@@ -180,8 +180,8 @@ class JonesFaithfulTransformation:
         """Takes a list of coordinates and transforms them."""
         new_coords = []
         for x in coords:
-            Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (np.array(x) - self.p))
+            P_inv = np.linalg.inv(self.P)
+            x_ = np.matmul(P_inv, (np.array(x) - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 

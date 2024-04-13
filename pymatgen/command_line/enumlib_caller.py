@@ -243,8 +243,8 @@ class EnumlibAdaptor:
             n_disordered
             * lcm(
                 *(
-                    f.limit_denominator(n_disordered * self.max_cell_size).denominator
-                    for f in map(fractions.Fraction, index_amounts)
+                    fraction.limit_denominator(n_disordered * self.max_cell_size).denominator
+                    for fraction in map(fractions.Fraction, index_amounts)
                 )
             )
         )

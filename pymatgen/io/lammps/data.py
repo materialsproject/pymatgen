@@ -475,7 +475,7 @@ class LammpsData(MSONable):
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
         """
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             file.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
@@ -721,7 +721,7 @@ class LammpsData(MSONable):
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
                 raise RuntimeError(f"{err_msg}{name} section appears before Atoms section")
-            body.update({name: section})
+            body[name] = section
 
         err_msg += "Nos. of {} do not match between header and {} section"
         assert len(body["Masses"]) == header["types"]["atom"], err_msg.format("atom types", "Masses")
@@ -772,7 +772,7 @@ class LammpsData(MSONable):
         v_collector: list | None = [] if topologies[0].velocities else None
         topo_collector: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
         topo_labels: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
-        for i, topo in enumerate(topologies):
+        for idx, topo in enumerate(topologies):
             if topo.topologies:
                 shift = len(labels)
                 for k, v in topo.topologies.items():
@@ -780,11 +780,10 @@ class LammpsData(MSONable):
                     topo_labels[k].extend([tuple(topo.type_by_sites[j] for j in t) for t in v])
             if isinstance(v_collector, list):
                 v_collector.append(topo.velocities)
-            mol_ids.extend([i + 1] * len(topo.sites))
+            mol_ids.extend([idx + 1] * len(topo.sites))
             labels.extend(topo.type_by_sites)
             coords.append(topo.sites.cart_coords)
-            q = [0.0] * len(topo.sites) if not topo.charges else topo.charges
-            charges.extend(q)
+            charges.extend(topo.charges or [0.0] * len(topo.sites))
 
         atoms = pd.DataFrame(np.concatenate(coords), columns=["x", "y", "z"])
         atoms["molecule-ID"] = mol_ids
@@ -1092,12 +1091,12 @@ class ForceField(MSONable):
             )
 
         index, masses, self.mass_info, atoms_map = [], [], [], {}
-        for idx, m in enumerate(mass_info):
-            index.append(idx + 1)
+        for idx, m in enumerate(mass_info, start=1):
+            index.append(idx)
             mass = map_mass(m[1])
             masses.append(mass)
             self.mass_info.append((m[0], mass))
-            atoms_map[m[0]] = idx + 1
+            atoms_map[m[0]] = idx
         self.masses = pd.DataFrame({"mass": masses}, index=index)
         self.maps = {"Atoms": atoms_map}
 
@@ -1117,7 +1116,7 @@ class ForceField(MSONable):
                 ff_dfs.update(coeffs)
                 self.maps.update(mapper)
 
-        self.force_field = None if len(ff_dfs) == 0 else ff_dfs
+        self.force_field = ff_dfs or None
 
     def _process_nonbond(self) -> dict:
         pair_df = pd.DataFrame(self.nonbond_coeffs)
@@ -1162,9 +1161,9 @@ class ForceField(MSONable):
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
         assert atoms.issubset(self.maps["Atoms"]), f"Undefined atom type found in {kw}"
         mapper = {}
-        for i, dt in enumerate(distinct_types):
+        for i, dt in enumerate(distinct_types, start=1):
             for t in dt:
-                mapper[t] = i + 1
+                mapper[t] = i
 
         def process_data(data) -> pd.DataFrame:
             df = pd.DataFrame(data)
@@ -1191,7 +1190,7 @@ class ForceField(MSONable):
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             yaml = YAML()
             yaml.dump(dct, file)
 
@@ -1409,28 +1408,33 @@ class CombinedData(LammpsData):
         return df
 
     @classmethod
-    def from_files(cls, coordinate_file: str, list_of_numbers: list, *filenames) -> Self:
+    def from_files(cls, coordinate_file: str, list_of_numbers: list[int], *filenames: str) -> Self:
         """
         Constructor that parse a series of data file.
 
         Args:
             coordinate_file (str): The filename of xyz coordinates.
-            list_of_numbers (list): A list of numbers specifying counts for each
+            list_of_numbers (list[int]): A list of numbers specifying counts for each
                 clusters parsed from files.
             filenames (str): A series of LAMMPS data filenames in string format.
         """
         names = []
         mols = []
         styles = []
-        coordinates = cls.parse_xyz(filename=coordinate_file)
-        for idx in range(1, len(filenames) + 1):
-            exec(f"cluster{idx} = LammpsData.from_file(filenames[{idx - 1}])")
+        clusters = []
+
+        for idx, filename in enumerate(filenames, start=1):
+            cluster = LammpsData.from_file(filename)
+            clusters.append(cluster)
             names.append(f"cluster{idx}")
-            mols.append(eval(f"cluster{idx}"))
-            styles.append(eval(f"cluster{idx}").atom_style)
-        style = set(styles)
-        assert len(style) == 1, "Files have different atom styles."
-        return cls.from_lammpsdata(mols, names, list_of_numbers, coordinates, style.pop())
+            mols.append(cluster)
+            styles.append(cluster.atom_style)
+
+        if len(set(styles)) != 1:
+            raise ValueError("Files have different atom styles.")
+
+        coordinates = cls.parse_xyz(filename=coordinate_file)
+        return cls.from_lammpsdata(mols, names, list_of_numbers, coordinates, styles.pop())
 
     @classmethod
     def from_lammpsdata(
@@ -1449,14 +1453,15 @@ class CombinedData(LammpsData):
                 columns of ["x", "y", "z"] for coordinates of atoms.
             atom_style (str): Output atom_style. Default to "full".
         """
-        styles = []
-        for mol in mols:
-            styles.append(mol.atom_style)
-        style = set(styles)
-        assert len(style) == 1, "Data have different atom_style."
-        style_return = style.pop()
-        if atom_style:
-            assert atom_style == style_return, "Data have different atom_style as specified."
+        styles = [mol.atom_style for mol in mols]
+
+        if len(set(styles)) != 1:
+            raise ValueError("Data have different atom_style.")
+        style_return = styles.pop()
+
+        if atom_style and atom_style != style_return:
+            raise ValueError("Data have different atom_style as specified.")
+
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:

@@ -108,7 +108,7 @@ def pretty_plot_two_axis(
             linewidth, etc.
 
     Returns:
-        matplotlib.pyplot
+        plt.Axes: matplotlib axes object with properly sized fonts.
     """
     colors = palettable.colorbrewer.diverging.RdYlBu_4.mpl_colors
     c1 = colors[0]
@@ -120,8 +120,8 @@ def pretty_plot_two_axis(
         height = int(width * golden_ratio)
 
     width = 12
-    labelsize = int(width * 3)
-    ticksize = int(width * 2.5)
+    label_size = int(width * 3)
+    tick_size = int(width * 2.5)
     styles = ["-", "--", "-.", "."]
 
     fig, ax1 = plt.subplots()
@@ -131,34 +131,34 @@ def pretty_plot_two_axis(
     if isinstance(y1, dict):
         for idx, (key, val) in enumerate(y1.items()):
             ax1.plot(x, val, c=c1, marker="s", ls=styles[idx % len(styles)], label=key, **plot_kwargs)
-        ax1.legend(fontsize=labelsize)
+        ax1.legend(fontsize=label_size)
     else:
         ax1.plot(x, y1, c=c1, marker="s", ls="-", **plot_kwargs)
 
     if xlabel:
-        ax1.set_xlabel(xlabel, fontsize=labelsize)
+        ax1.set_xlabel(xlabel, fontsize=label_size)
 
     if y1label:
         # Make the y-axis label, ticks and tick labels match the line color.
-        ax1.set_ylabel(y1label, color=c1, fontsize=labelsize)
+        ax1.set_ylabel(y1label, color=c1, fontsize=label_size)
 
-    ax1.tick_params("x", labelsize=ticksize)
-    ax1.tick_params("y", colors=c1, labelsize=ticksize)
+    ax1.tick_params("x", labelsize=tick_size)
+    ax1.tick_params("y", colors=c1, labelsize=tick_size)
 
     ax2 = ax1.twinx()
     if isinstance(y2, dict):
         for idx, (key, val) in enumerate(y2.items()):
             ax2.plot(x, val, c=c2, marker="o", ls=styles[idx % len(styles)], label=key)
-        ax2.legend(fontsize=labelsize)
+        ax2.legend(fontsize=label_size)
     else:
         ax2.plot(x, y2, c=c2, marker="o", ls="-")
 
     if y2label:
         # Make the y-axis label, ticks and tick labels match the line color.
-        ax2.set_ylabel(y2label, color=c2, fontsize=labelsize)
+        ax2.set_ylabel(y2label, color=c2, fontsize=label_size)
 
-    ax2.tick_params("y", colors=c2, labelsize=ticksize)
-    return plt
+    ax2.tick_params("y", colors=c2, labelsize=tick_size)
+    return ax1
 
 
 def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
@@ -244,14 +244,17 @@ def periodic_table_heatmap(
         pymatviz (bool): Whether to use pymatviz to generate the heatmap. Defaults to True.
             See https://github.com/janosh/pymatviz.
         kwargs: Passed to pymatviz.ptable_heatmap_plotly
+
+    Returns:
+        plt.Axes: matplotlib Axes object
     """
     if pymatviz:
         try:
             from pymatviz import ptable_heatmap_plotly
 
             if elemental_data:
-                kwargs.setdefault("elem_values", elemental_data)
-                print('elemental_data is deprecated, use elem_values={"Fe": 4.2, "O": 5.0} instead')
+                kwargs.setdefault("values", elemental_data)
+                print('elemental_data is deprecated, use values={"Fe": 4.2, "O": 5.0} instead')
             if cbar_label:
                 kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
                 print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
@@ -265,8 +268,8 @@ def periodic_table_heatmap(
                 kwargs.setdefault("cscale_range", cmap_range)
                 print("cmap_range is deprecated, use cscale_range instead")
             if value_format:
-                kwargs.setdefault("precision", value_format)
-                print("value_format is deprecated, use precision instead")
+                kwargs.setdefault("fmt", value_format)
+                print("value_format is deprecated, use fmt instead")
             if blank_color != "grey":
                 print("blank_color is deprecated")
             if edge_color != "white":
@@ -340,7 +343,7 @@ def periodic_table_heatmap(
     # Grey out missing elements in input data
     cbar.cmap.set_under(blank_color)
 
-    # Set the colorbar label and tick marks
+    # Set the color bar label and tick marks
     cbar.set_label(cbar_label, rotation=270, labelpad=25, size=cbar_label_size)
     cbar.ax.tick_params(labelsize=cbar_label_size)
 
@@ -353,15 +356,15 @@ def periodic_table_heatmap(
     scalar_cmap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
     # Label each block with corresponding element and value
-    for i, row in enumerate(value_table):
-        for j, el in enumerate(row):
+    for ii, row in enumerate(value_table):
+        for jj, el in enumerate(row):
             if not np.isnan(el):
-                symbol = Element.from_row_and_group(i + 1, j + 1).symbol
+                symbol = Element.from_row_and_group(ii + 1, jj + 1).symbol
                 rgba = scalar_cmap.to_rgba(el)
                 fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
                 plt.text(
-                    j + 0.5,
-                    i + 0.25,
+                    jj + 0.5,
+                    ii + 0.25,
                     symbol,
                     horizontalalignment="center",
                     verticalalignment="center",
@@ -370,8 +373,8 @@ def periodic_table_heatmap(
                 )
                 if el != blank_value and value_format is not None:
                     plt.text(
-                        j + 0.5,
-                        i + 0.5,
+                        jj + 0.5,
+                        ii + 0.5,
                         value_format % el,
                         horizontalalignment="center",
                         verticalalignment="center",
@@ -384,7 +387,7 @@ def periodic_table_heatmap(
     if show_plot:
         plt.show()
 
-    return plt
+    return ax
 
 
 def format_formula(formula: str) -> str:
@@ -396,12 +399,12 @@ def format_formula(formula: str) -> str:
     """
     formatted_formula = ""
     number_format = ""
-    for idx, char in enumerate(formula):
+    for idx, char in enumerate(formula, start=1):
         if char.isdigit():
             if not number_format:
                 number_format = "_{"
             number_format += char
-            if idx == len(formula) - 1:
+            if idx == len(formula):
                 number_format += "}"
                 formatted_formula += number_format
         else:
@@ -416,14 +419,14 @@ def format_formula(formula: str) -> str:
 
 def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     """A static method that generates a binary van Arkel-Ketelaar triangle to
-        quantify the ionic, metallic and covalent character of a compound
-        by plotting the electronegativity difference (y) vs average (x).
-        See:
-            A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,
-                Interscience, New York (1956)
-        and
-            J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
-                to the Theory of the Chemical Bond, Elsevier, New York (1958).
+    quantify the ionic, metallic and covalent character of a compound
+    by plotting the electronegativity difference (y) vs average (x).
+    See:
+        A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,
+            Interscience, New York (1956)
+    and
+        J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
+            to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
         list_of_materials (list): A list of computed entries of binary
@@ -431,6 +434,9 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
         annotate (bool): Whether or not to label the points on the
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
+
+    Returns:
+        plt.Axes: matplotlib Axes object
     """
     # F-Fr has the largest X difference. We set this
     # as our top corner of the triangle (most ionic)
@@ -521,7 +527,7 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
         alpha=0.8,
     )
 
-    # Label the triangle with datapoints
+    # Label the triangle with data points
     for entry in list_of_materials:
         if type(entry).__name__ not in ["ComputedEntry", "ComputedStructureEntry"]:
             X_pair = [Element(el).X for el in entry]
@@ -539,7 +545,7 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
             )
 
     plt.tight_layout()
-    return plt
+    return ax
 
 
 def get_ax_fig(ax: Axes = None, **kwargs) -> tuple[Axes, Figure]:
@@ -691,7 +697,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = """\n\n
+    doc_str = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -714,9 +720,9 @@ def add_fig_kwargs(func):
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.
-        wrapper.__doc__ += "\n" + s
+        wrapper.__doc__ += f"\n{doc_str}"
     else:
         # Use s
-        wrapper.__doc__ = s
+        wrapper.__doc__ = doc_str
 
     return wrapper

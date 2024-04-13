@@ -90,7 +90,7 @@ class BondDissociationEnergies(MSONable):
             self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
-        self.mol_graph = MoleculeGraph.with_local_env_strategy(
+        self.mol_graph = MoleculeGraph.from_local_env_strategy(
             Molecule.from_dict(molecule_entry["final_molecule"]), OpenBabelNN()
         )
         # Loop through bonds, aka graph edges, and fragment and process:
@@ -104,8 +104,8 @@ class BondDissociationEnergies(MSONable):
                 " are less reliable! This is a bad idea!"
             )
             self.bond_pairs = []
-            for ii, bond in enumerate(self.ring_bonds):
-                for jj in range(ii + 1, len(self.ring_bonds)):
+            for ii, bond in enumerate(self.ring_bonds, start=1):
+                for jj in range(ii, len(self.ring_bonds)):
                     bond_pair = [bond, self.ring_bonds[jj]]
                     self.bond_pairs += [bond_pair]
             for bond_pair in self.bond_pairs:
@@ -246,9 +246,9 @@ class BondDissociationEnergies(MSONable):
     def search_fragment_entries(self, frag) -> list:
         """
         Search all fragment entries for those isomorphic to the given fragment.
-        We distinguish between entries where both initial and final molgraphs are isomorphic to the
-        given fragment (entries) vs those where only the initial molgraph is isomorphic to the given
-        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries).
+        We distinguish between entries where both initial and final MoleculeGraphs are isomorphic to the
+        given fragment (entries) vs those where only the initial MoleculeGraph is isomorphic to the given
+        fragment (initial_entries) vs those where only the final MoleculeGraph is isomorphic (final_entries).
 
         Args:
             frag: Fragment
@@ -287,10 +287,10 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(err_msg.replace("[[placeholder]]", "a different"))
 
             # Build initial and final molgraphs:
-            entry["initial_molgraph"] = MoleculeGraph.with_local_env_strategy(
+            entry["initial_molgraph"] = MoleculeGraph.from_local_env_strategy(
                 Molecule.from_dict(entry["initial_molecule"]), OpenBabelNN()
             )
-            entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(
+            entry["final_molgraph"] = MoleculeGraph.from_local_env_strategy(
                 Molecule.from_dict(entry["final_molecule"]), OpenBabelNN()
             )
             # Classify any potential structural change that occurred during optimization:

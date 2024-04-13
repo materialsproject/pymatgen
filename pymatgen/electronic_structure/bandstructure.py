@@ -190,7 +190,7 @@ class BandStructure:
             lattice: The reciprocal lattice as a pymatgen Lattice object.
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
-            efermi (float): fermi energy
+            efermi (float): Fermi energy
             labels_dict: (dict) of {} this links a kpoint (in frac coords or
                 Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether coordinates are cartesian.
@@ -214,7 +214,7 @@ class BandStructure:
             labels_dict = {}
 
         if len(self.projections) != 0 and self.structure is None:
-            raise Exception("if projections are provided a structure object needs also to be given")
+            raise RuntimeError("if projections are provided a structure object is also required")
 
         for k in kpoints:
             # let see if this kpoint has been assigned a label
@@ -237,8 +237,8 @@ class BandStructure:
         """Method returning a dictionary of projections on elements.
 
         Returns:
-            a dictionary in the {Spin.up:[][{Element:values}],
-            Spin.down:[][{Element:values}]} format
+            a dictionary in the {Spin.up:[][{Element: [values]}],
+            Spin.down:[][{Element: [values]}]} format
             if there is no projections in the band structure
             returns an empty dict
         """
@@ -269,8 +269,7 @@ class BandStructure:
             A dictionary of projections on elements in the
             {Spin.up:[][{Element:{orb:values}}],
             Spin.down:[][{Element:{orb:values}}]} format
-            if there is no projections in the band structure returns an empty
-            dict.
+            if there is no projections in the band structure returns an empty dict.
         """
         result = {}
         structure = self.structure
@@ -300,11 +299,9 @@ class BandStructure:
         Returns:
             bool: True if a metal.
         """
-        for values in self.bands.values():
+        for vals in self.bands.values():
             for idx in range(self.nb_bands):
-                if np.any(values[idx, :] - self.efermi < -efermi_tol) and np.any(
-                    values[idx, :] - self.efermi > efermi_tol
-                ):
+                if np.any(vals[idx, :] - self.efermi < -efermi_tol) and np.any(vals[idx, :] - self.efermi > efermi_tol):
                     return True
         return False
 

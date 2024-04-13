@@ -80,10 +80,10 @@ class Fragmenter(MSONable):
         self.opt_steps = opt_steps
 
         if edges is None:
-            self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN())
+            self.mol_graph = MoleculeGraph.from_local_env_strategy(molecule, OpenBabelNN())
         else:
             _edges: dict[tuple[int, int], dict | None] = {(edge[0], edge[1]): None for edge in edges}
-            self.mol_graph = MoleculeGraph.with_edges(molecule, _edges)
+            self.mol_graph = MoleculeGraph.from_edges(molecule, _edges)
 
         if ("Li" in molecule.composition or "Mg" in molecule.composition) and use_metal_edge_extender:
             self.mol_graph = metal_edge_extender(self.mol_graph)
@@ -307,4 +307,4 @@ def open_ring(mol_graph: MoleculeGraph, bond: list, opt_steps: int) -> MoleculeG
     ob_mol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
     ob_mol.localopt(steps=opt_steps, forcefield="uff")
 
-    return MoleculeGraph.with_local_env_strategy(ob_mol.pymatgen_mol, OpenBabelNN())
+    return MoleculeGraph.from_local_env_strategy(ob_mol.pymatgen_mol, OpenBabelNN())

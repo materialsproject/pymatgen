@@ -255,9 +255,9 @@ class SupercellTransformation(AbstractTransformation):
         if allow_rotation and sum(min_expand != 0) > 1:
             min1, min2, min3 = map(int, min_expand)  # type: ignore  # map(int) just for mypy's sake
             scaling_matrix = [
-                [min1 if min1 else 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
-                [-1 if min2 and min1 else 0, min2 if min2 else 1, 1 if min2 and min3 else 0],
-                [-1 if min3 and min1 else 0, -1 if min3 and min2 else 0, min3 if min3 else 1],
+                [min1 or 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
+                [-1 if min2 and min1 else 0, min2 or 1, 1 if min2 and min3 else 0],
+                [-1 if min3 and min1 else 0, -1 if min3 and min2 else 0, min3 or 1],
             ]
             struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
             min_expand_scaled = np.int8(
@@ -513,7 +513,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -523,7 +523,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         Args:
             structure: Oxidation state decorated disordered structure to order
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
-
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
@@ -538,11 +537,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             transmuted structure class.
         """
         try:
-            num_to_return = int(return_ranked_list)
+            n_to_return = int(return_ranked_list)
         except ValueError:
-            num_to_return = 1
+            n_to_return = 1
 
-        num_to_return = max(1, num_to_return)
+        n_to_return = max(1, n_to_return)
 
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
@@ -603,12 +602,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 manipulations.append([0, empty, list(group), None])
 
         matrix = EwaldSummation(struct).total_energy_matrix
-        ewald_m = EwaldMinimizer(matrix, manipulations, num_to_return, self.algo)
+        ewald_m = EwaldMinimizer(matrix, manipulations, n_to_return, self.algo)
 
         self._all_structures = []
 
         lowest_energy = ewald_m.output_lists[0][0]
-        num_atoms = sum(structure.composition.values())
+        n_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
             struct_copy = struct.copy()
@@ -628,13 +627,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             self._all_structures.append(
                 {
                     "energy": output[0],
-                    "energy_above_minimum": (output[0] - lowest_energy) / num_atoms,
+                    "energy_above_minimum": (output[0] - lowest_energy) / n_atoms,
                     "structure": struct_copy.get_sorted_structure(),
                 }
             )
 
         if return_ranked_list:
-            return self._all_structures[:num_to_return]
+            return self._all_structures[:n_to_return]  # type: ignore[return-value]
         return self._all_structures[0]["structure"]
 
     def __repr__(self):

@@ -65,8 +65,7 @@ class DOS(Spectrum):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (gap, cbm, vbm):
-                Tuple of floats in eV corresponding to the gap, cbm and vbm.
+            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
         """
         if spin is None:
             tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
@@ -93,7 +92,7 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None):
+    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None) -> tuple[float, float]:
         """Expects a DOS object and finds the cbm and vbm.
 
         Args:
@@ -104,7 +103,7 @@ class DOS(Spectrum):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (cbm, vbm): float in eV corresponding to the gap
+            tuple[float, float]: Energies in eV corresponding to the cbm and vbm.
         """
         # determine tolerance
         if spin is None:
@@ -258,7 +257,9 @@ class Dos(MSONable):
             energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return energies
 
-    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
+    def get_interpolated_gap(
+        self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None
+    ) -> tuple[float, float, float]:
         """Expects a DOS object and finds the gap.
 
         Args:
@@ -270,7 +271,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (gap, cbm, vbm): Tuple of floats in eV corresponding to the gap, cbm and vbm.
+            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
         """
         tdos = self.get_densities(spin)
         if not abs_tol:
@@ -292,7 +293,7 @@ class Dos(MSONable):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
+    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """Expects a DOS object and finds the cbm and vbm.
 
         Args:
@@ -303,7 +304,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (cbm, vbm): float in eV corresponding to the gap
+            tuple[float, float]: Energies in eV corresponding to the cbm and vbm.
         """
         # determine tolerance
         tdos = self.get_densities(spin)
@@ -558,10 +559,10 @@ class FermiDos(Dos, MSONable):
         fermi = self.efermi  # initialize target fermi
         relative_error = [float("inf")]
         for _ in range(precision):
-            f_range = np.arange(-nstep, nstep + 1) * step + fermi
-            calc_doping = np.array([self.get_doping(f, temperature) for f in f_range])
+            fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
+            calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
             relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
-            fermi = f_range[np.argmin(relative_error)]
+            fermi = fermi_range[np.argmin(relative_error)]
             step /= 10.0
 
         if min(relative_error) > rtol:

@@ -605,11 +605,11 @@ class StructureVis:
                 for site in face:
                     center += site
                 center /= np.float64(len(face))
-                for ii, f in enumerate(face):
+                for ii, f in enumerate(face, start=1):
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()
                     points.InsertNextPoint(f[0], f[1], f[2])
-                    ii2 = np.mod(ii + 1, len(face))
+                    ii2 = np.mod(ii, len(face))
                     points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
                     points.InsertNextPoint(center[0], center[1], center[2])
                     for jj in range(3):

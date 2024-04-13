@@ -313,7 +313,7 @@ class TestSlab(PymatgenTest):
         d = json.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
-        # test initialising with a list scale_factor
+        # test initializing with a list scale_factor
         slab = Slab(
             self.zno55.lattice,
             self.zno55.species,
@@ -321,7 +321,7 @@ class TestSlab(PymatgenTest):
             self.zno55.miller_index,
             self.zno55.oriented_unit_cell,
             0,
-            self.zno55.scale_factor.tolist(),
+            self.zno55.scale_factor,
         )
         dict_str = json.dumps(slab.as_dict())
         d = json.loads(dict_str)
@@ -538,7 +538,7 @@ class TestSlabGenerator(PymatgenTest):
             assert slab.is_symmetric()
             assert not slab.is_polar()
 
-    def test_nonstoichiometric_symmetrized_slab(self):
+    def test_non_stoichiometric_symmetrized_slab(self):
         # For the (111) halite slab, sometimes a non-stoichiometric
         # system is preferred over the stoichiometric Tasker 2.
         slab_gen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
@@ -691,8 +691,8 @@ class MillerIndexFinderTests(PymatgenTest):
     def setUp(self):
         self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])
-        mglatt = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)
-        self.Mg = Structure(mglatt, ["Mg", "Mg"], [[1 / 3, 2 / 3, 1 / 4], [2 / 3, 1 / 3, 3 / 4]])
+        mg_lattice = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)
+        self.Mg = Structure(mg_lattice, ["Mg", "Mg"], [[1 / 3, 2 / 3, 1 / 4], [2 / 3, 1 / 3, 3 / 4]])
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False)
         self.LiCoO2 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_LiCoO2.cif", primitive=False)
@@ -703,7 +703,7 @@ class MillerIndexFinderTests(PymatgenTest):
             [[0, 0, 0], [0.1, 0.2, 0.3]],
         )
         self.graphite = self.get_structure("Graphite")
-        self.trigBi = Structure(
+        self.trig_bi = Structure(
             Lattice.from_parameters(3, 3, 10, 90, 90, 120),
             ["Bi", "Bi", "Bi", "Bi", "Bi", "Bi"],
             [
@@ -740,14 +740,14 @@ class MillerIndexFinderTests(PymatgenTest):
         assert len(indices) == 12
 
         # Now try a trigonal system.
-        indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2, return_hkil=True)
+        indices = get_symmetrically_distinct_miller_indices(self.trig_bi, 2, return_hkil=True)
         assert len(indices) == 17
         assert all(len(hkl) == 4 for hkl in indices)
 
         # Test to see if the output with max_index i is a subset of the output with max_index i+1
         for idx in range(1, 4):
-            assert set(get_symmetrically_distinct_miller_indices(self.trigBi, idx)) <= set(
-                get_symmetrically_distinct_miller_indices(self.trigBi, idx + 1)
+            assert set(get_symmetrically_distinct_miller_indices(self.trig_bi, idx)) <= set(
+                get_symmetrically_distinct_miller_indices(self.trig_bi, idx + 1)
             )
 
     def test_get_symmetrically_equivalent_miller_indices(self):

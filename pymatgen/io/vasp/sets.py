@@ -1014,10 +1014,10 @@ class DictSet(VaspInputSet):
                 wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if wavecar_files:
                     if fname == "WFULL":
-                        for f in wavecar_files:
-                            fname = Path(f).name
+                        for wavecar_file in wavecar_files:
+                            fname = Path(wavecar_file).name
                             fname = fname.split(".")[0]
-                            files_to_transfer[fname] = f
+                            files_to_transfer[fname] = wavecar_file
                     else:
                         files_to_transfer[fname] = str(wavecar_files[-1])
 
@@ -2363,12 +2363,12 @@ class MITNEBSet(DictSet):
                 end_point_param.kpoints.write_file(str(output_dir / image / "KPOINTS"))
                 end_point_param.potcar.write_file(str(output_dir / image / "POTCAR"))
         if write_path_cif:
-            sites = set()
-            lat = self.structures[0].lattice
-            for site in chain(*(struct for struct in self.structures)):
-                sites.add(PeriodicSite(site.species, site.frac_coords, lat))
-            nebpath = Structure.from_sites(sorted(sites))
-            nebpath.to(filename=str(output_dir / "path.cif"))
+            sites = {
+                PeriodicSite(site.species, site.frac_coords, self.structures[0].lattice)
+                for site in chain(*(struct for struct in self.structures))
+            }
+            neb_path = Structure.from_sites(sorted(sites))
+            neb_path.to(filename=f"{output_dir}/path.cif")
 
 
 @dataclass
@@ -2686,7 +2686,7 @@ class LobsterSet(DictSet):
     def kpoints_updates(self) -> dict | Kpoints:
         """Get updates to the kpoints configuration for this calculation type."""
         # test, if this is okay
-        return {"reciprocal_density": self.reciprocal_density if self.reciprocal_density else 310}
+        return {"reciprocal_density": self.reciprocal_density or 310}
 
     @property
     def incar_updates(self) -> dict:
@@ -2779,8 +2779,8 @@ def get_structure_from_prev_run(vasprun, outcar=None) -> Structure:
             site_properties["magmom"] = vasprun.parameters["MAGMOM"]
     # LDAU
     if vasprun.parameters.get("LDAU", False):
-        for k in ("LDAUU", "LDAUJ", "LDAUL"):
-            vals = vasprun.incar[k]
+        for key in ("LDAUU", "LDAUJ", "LDAUL"):
+            vals = vasprun.incar[key]
             m = {}
             l_val = []
             s = 0
@@ -2790,7 +2790,7 @@ def get_structure_from_prev_run(vasprun, outcar=None) -> Structure:
                     s += 1
                 l_val.append(m[site.specie.symbol])
             if len(l_val) == len(structure):
-                site_properties.update({k.lower(): l_val})
+                site_properties.update({key.lower(): l_val})
             else:
                 raise ValueError(f"length of list {l_val} not the same as structure")
 

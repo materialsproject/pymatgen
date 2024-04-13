@@ -62,7 +62,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5.0) -> None:
+    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5) -> None:
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -73,7 +73,7 @@ class SpacegroupAnalyzer:
                 positions (e.g., structures relaxed with electronic structure
                 codes), a looser tolerance of 0.1 (the value used in Materials
                 Project) is often needed.
-            angle_tolerance (float): Angle tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding. Defaults to 5 degrees.
         """
         self._symprec = symprec
         self._angle_tol = angle_tolerance
@@ -259,7 +259,7 @@ class SpacegroupAnalyzer:
         # fractions)
         translations = []
         for t in dct["translations"]:
-            translations.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
+            translations.append([float(Fraction(c).limit_denominator(1000)) for c in t])
         translations = np.array(translations)
 
         # fractional translations of 1 are more simply 0
@@ -1506,9 +1506,9 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
             origin site, instead of the site itself. Defaults to False.
 
     Returns:
-        (origin_site, clustered_sites): origin_site is a site at the center
-        of mass (None if there are no origin atoms). clustered_sites is a
-        dict of {(avg_dist, species_and_occu): [list of sites]}
+        tuple[Site | None, dict]: origin_site is a site at the center
+            of mass (None if there are no origin atoms). clustered_sites is a
+            dict of {(avg_dist, species_and_occu): [list of sites]}
     """
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.

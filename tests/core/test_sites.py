@@ -250,8 +250,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
             nearest to the site is found.
 
     Returns:
-        (distance, jimage):
-            distance and periodic lattice translations of the other site
+        tuple[float, np.array]: distance and periodic lattice translations of the other site
             for which the distance applies.
 
     Note:

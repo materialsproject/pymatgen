@@ -143,6 +143,10 @@ class TestCollinearMagneticStructureAnalyzer(TestCase):
         magmoms = msa.structure.site_properties["magmom"]
         assert magmoms == [1, 0]
 
+        # test invalid overwrite_magmom_mode
+        with pytest.raises(ValueError, match="'invalid_mode' is not a valid OverwriteMagmomMode"):
+            CollinearMagneticStructureAnalyzer(self.NiO, overwrite_magmom_mode="invalid_mode")
+
     def test_net_positive(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical)
         magmoms = msa.structure.site_properties["magmom"]

@@ -351,21 +351,21 @@ class GulpIO:
         """
         gulp_lib_set = "GULP_LIB" in os.environ
 
-        def readable(f):
-            return os.path.isfile(f) and os.access(f, os.R_OK)
+        def readable(file):
+            return os.path.isfile(file) and os.access(file, os.R_OK)
 
         gin = ""
         dirpath, _fname = os.path.split(file_name)
         if dirpath and readable(file_name):  # Full path specified
-            gin = "library " + file_name
+            gin = f"library {file_name}"
         else:
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
-                gin = "library " + fpath
+                gin = f"library {fpath}"
             elif gulp_lib_set:  # Check the GULP_LIB path
                 fpath = os.path.join(os.environ["GULP_LIB"], file_name)
                 if readable(fpath):
-                    gin = "library " + file_name
+                    gin = f"library {file_name}"
         if gin:
             return gin + "\n"
         raise GulpError("GULP library not found")

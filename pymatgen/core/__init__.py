@@ -1,4 +1,3 @@
-# ruff: noqa: PLC0414
 """This package contains core modules and classes for representing structures and operations on them."""
 
 from __future__ import annotations
@@ -10,25 +9,13 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from pymatgen.core.composition import Composition as Composition
-from pymatgen.core.lattice import Lattice as Lattice
-from pymatgen.core.operations import SymmOp as SymmOp
-from pymatgen.core.periodic_table import DummySpecie as DummySpecie
-from pymatgen.core.periodic_table import DummySpecies as DummySpecies
-from pymatgen.core.periodic_table import Element as Element
-from pymatgen.core.periodic_table import Species as Species
-from pymatgen.core.periodic_table import get_el_sp as get_el_sp
-from pymatgen.core.sites import PeriodicSite as PeriodicSite
-from pymatgen.core.sites import Site as Site
-from pymatgen.core.structure import IMolecule as IMolecule
-from pymatgen.core.structure import IStructure as IStructure
-from pymatgen.core.structure import Molecule as Molecule
-from pymatgen.core.structure import PeriodicNeighbor as PeriodicNeighbor
-from pymatgen.core.structure import SiteCollection as SiteCollection
-from pymatgen.core.structure import Structure as Structure
-from pymatgen.core.units import ArrayWithUnit as ArrayWithUnit
-from pymatgen.core.units import FloatWithUnit as FloatWithUnit
-from pymatgen.core.units import Unit as Unit
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import DummySpecie, DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.sites import PeriodicSite, Site
+from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, SiteCollection, Structure
+from pymatgen.core.units import ArrayWithUnit, FloatWithUnit, Unit
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"

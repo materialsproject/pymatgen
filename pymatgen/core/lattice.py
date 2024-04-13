@@ -947,8 +947,8 @@ class Lattice(MSONable):
                 Defaults to False.
 
         Returns:
-            (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
-            found. aligned_lattice is a rotated version of other_lattice that
+            tuple[Lattice, np.ndarray, np.ndarray]: (aligned_lattice, rotation_matrix, scale_matrix)
+            if a mapping is found. aligned_lattice is a rotated version of other_lattice that
             has the same lattice parameters, but which is aligned in the
             coordinate system of this lattice so that translational points
             match up in 3D. rotation_matrix is the rotation that has to be
@@ -1332,14 +1332,13 @@ class Lattice(MSONable):
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
         else:
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
-            lattice_matrix = np.ascontiguousarray(self.matrix, dtype=float)
+            latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
             cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
             pbc = np.ascontiguousarray(self.pbc, dtype=int)
-            r = float(r)
             center_coords = np.ascontiguousarray([center], dtype=float)
 
             _, indices, images, distances = find_points_in_spheres(
-                all_coords=cart_coords, center_coords=center_coords, r=r, pbc=pbc, lattice=lattice_matrix, tol=1e-8
+                all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
             )
             if len(indices) < 1:
                 return [] if zip_results else [()] * 4
@@ -1563,10 +1562,10 @@ class Lattice(MSONable):
                 the image that is nearest to the site is found.
 
         Returns:
-            (distance, jimage): distance and periodic lattice translations
-            of the other site for which the distance applies. This means that
-            the distance between frac_coords1 and (jimage + frac_coords2) is
-            equal to distance.
+            tuple[float, np.ndarray]: distance and periodic lattice translations (jimage)
+                of the other site for which the distance applies. This means that
+                the distance between frac_coords1 and (jimage + frac_coords2) is
+                equal to distance.
         """
         if jimage is None:
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
@@ -1654,7 +1653,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
-        (tuple): The Miller index.
+        tuple: The Miller index.
     """
     mi = np.asarray(miller_index)
     # deal with the case we have small irregular floats

@@ -502,7 +502,7 @@ class StructureEnvironments(MSONable):
                     }
                     site_voronoi_indices = [
                         inb
-                        for inb, voro_nb_dict in enumerate(site_voronoi)
+                        for inb, _voro_nb_dict in enumerate(site_voronoi)
                         if (
                             distance_conditions[idp][inb]
                             and angle_conditions[iap][inb]

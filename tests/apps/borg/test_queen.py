@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pytest import approx
+
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -18,7 +20,7 @@ class TestBorgQueen:
         queen = BorgQueen(drone, TEST_DIR, 1)
         data = queen.get_data()
         assert len(data) == 1
-        assert data[0].energy == 0.5559329
+        assert data[0].energy == approx(0.5559329, 1e-6)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

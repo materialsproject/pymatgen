@@ -169,8 +169,8 @@ class Cohp(MSONable):
             return None
         if spin is None:
             dict_to_return = {}
-            for sp, cohpvalues in populations.items():
-                if (max(cohpvalues[0:n_energies_below_efermi])) > limit:
+            for sp, cohp_vals in populations.items():
+                if (max(cohp_vals[0:n_energies_below_efermi])) > limit:
                     dict_to_return[sp] = True
                 else:
                     dict_to_return[sp] = False
@@ -179,8 +179,7 @@ class Cohp(MSONable):
             if isinstance(spin, int):
                 spin = Spin(spin)
             elif isinstance(spin, str):
-                s = {"up": 1, "down": -1}[spin.lower()]
-                spin = Spin(s)
+                spin = Spin({"up": 1, "down": -1}[spin.lower()])
             if (max(populations[spin][0:n_energies_below_efermi])) > limit:
                 dict_to_return[spin] = True
             else:
@@ -442,7 +441,7 @@ class CompleteCohp(Cohp):
         first_cohpobject = self.get_orbital_resolved_cohp(label_list[0], orbital_list[0])
         summed_cohp = first_cohpobject.cohp.copy()
         summed_icohp = first_cohpobject.icohp.copy()
-        for ilabel, label in enumerate(label_list[1:], 1):
+        for ilabel, label in enumerate(label_list[1:], start=1):
             cohp_here = self.get_orbital_resolved_cohp(label, orbital_list[ilabel])
             summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp.copy()[Spin.up]], axis=0)
             if Spin.down in summed_cohp:

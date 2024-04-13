@@ -426,10 +426,10 @@ class PhononBSPlotter:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
         if len(colors) == 4:
-            r = (1 - colors[0]) * (1 - colors[3])
-            g = (1 - colors[1]) * (1 - colors[3])
-            b = (1 - colors[2]) * (1 - colors[3])
-            return [r, g, b]
+            red = (1 - colors[0]) * (1 - colors[3])
+            green = (1 - colors[1]) * (1 - colors[3])
+            blue = (1 - colors[2]) * (1 - colors[3])
+            return [red, green, blue]
         raise ValueError(f"Expected 2, 3 or 4 colors, got {len(colors)}")
 
     def get_proj_plot(
@@ -455,7 +455,7 @@ class PhononBSPlotter:
                 the colors will be automatically generated.
         """
         assert self._bs.structure is not None, "Structure is required for get_proj_plot"
-        elements = [e.symbol for e in self._bs.structure.elements]
+        elements = [elem.symbol for elem in self._bs.structure.elements]
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices: list[list[int]] = [[] for _ in range(len(elements))]
@@ -515,7 +515,7 @@ class PhononBSPlotter:
         if rgb_labels is not None:
             labels = rgb_labels  # type: ignore[assignment]
         elif site_comb == "element":
-            labels = [e.symbol for e in self._bs.structure.elements]
+            labels = [elem.symbol for elem in self._bs.structure.elements]
         else:
             labels = [f"{idx}" for idx in range(len(site_comb))]
         if len(indices) == 2:

@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Callable, cast
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
+from monty.dev import deprecated
 from monty.json import MSONable
 from networkx.drawing.nx_agraph import write_dot
 from networkx.readwrite import json_graph
@@ -115,8 +116,8 @@ class StructureGraph(MSONable):
 
     def __init__(self, structure: Structure, graph_data: dict | None = None) -> None:
         """
-        If constructing this class manually, use the with_empty_graph method or
-        with_local_env_strategy method (using an algorithm provided by the local_env
+        If constructing this class manually, use the from_empty_graph method or
+        from_local_env_strategy method (using an algorithm provided by the local_env
         module, such as O'Keeffe).
         This class that contains connection information: relationships between sites
         represented by a Graph structure, and an associated structure object.
@@ -153,7 +154,7 @@ class StructureGraph(MSONable):
                 data["from_jimage"] = tuple(from_img)
 
     @classmethod
-    def with_empty_graph(
+    def from_empty_graph(
         cls,
         structure: Structure,
         name: str = "bonds",
@@ -197,7 +198,15 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @classmethod
-    def with_edges(cls, structure: Structure, edges: dict) -> Self:
+    @deprecated(
+        from_empty_graph,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    def with_empty_graph(cls, *args, **kwargs):
+        return cls.from_empty_graph(*args, **kwargs)
+
+    @classmethod
+    def from_edges(cls, structure: Structure, edges: dict) -> Self:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -213,7 +222,7 @@ class StructureGraph(MSONable):
         Returns:
             sg, a StructureGraph
         """
-        struct_graph = cls.with_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        struct_graph = cls.from_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         for edge, props in edges.items():
             try:
@@ -251,7 +260,15 @@ class StructureGraph(MSONable):
         return struct_graph
 
     @classmethod
-    def with_local_env_strategy(
+    @deprecated(
+        from_edges,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    def with_edges(cls, *args, **kwargs):
+        return cls.from_edges(*args, **kwargs)
+
+    @classmethod
+    def from_local_env_strategy(
         cls, structure: Structure, strategy: NearNeighbors, weights: bool = False, edge_properties: bool = False
     ) -> Self:
         """
@@ -267,7 +284,7 @@ class StructureGraph(MSONable):
         if not strategy.structures_allowed:
             raise ValueError("Chosen strategy is not designed for use with structures! Please choose another strategy.")
 
-        struct_graph = cls.with_empty_graph(structure, name="bonds")
+        struct_graph = cls.from_empty_graph(structure, name="bonds")
 
         for idx, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
@@ -286,6 +303,14 @@ class StructureGraph(MSONable):
                 )
 
         return struct_graph
+
+    @classmethod
+    @deprecated(
+        from_local_env_strategy,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    def with_local_env_strategy(cls, *args, **kwargs):
+        return cls.from_local_env_strategy(*args, **kwargs)
 
     @property
     def name(self) -> str:
@@ -787,7 +812,7 @@ class StructureGraph(MSONable):
             n: index of site
 
         Returns:
-            (int): number of neighbors of site n.
+            int: number of neighbors of site n.
         """
         n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - n_self_loops
@@ -1536,8 +1561,8 @@ class MoleculeGraph(MSONable):
 
     def __init__(self, molecule, graph_data=None):
         """
-        If constructing this class manually, use the `with_empty_graph`
-        method or `with_local_env_strategy` method (using an algorithm
+        If constructing this class manually, use the `from_empty_graph`
+        method or `from_local_env_strategy` method (using an algorithm
         provided by the `local_env` module, such as O'Keeffe).
 
         This class that contains connection information:
@@ -1581,7 +1606,7 @@ class MoleculeGraph(MSONable):
         self.set_node_attributes()
 
     @classmethod
-    def with_empty_graph(cls, molecule, name="bonds", edge_weight_name=None, edge_weight_units=None) -> Self:
+    def from_empty_graph(cls, molecule, name="bonds", edge_weight_name=None, edge_weight_units=None) -> Self:
         """
         Constructor for MoleculeGraph, returns a MoleculeGraph
         object with an empty graph (no edges, only nodes defined
@@ -1621,7 +1646,15 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @classmethod
-    def with_edges(cls, molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> Self:
+    @deprecated(
+        from_empty_graph,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    def with_empty_graph(cls, *args, **kwargs):
+        return cls.from_empty_graph(*args, **kwargs)
+
+    @classmethod
+    def from_edges(cls, molecule: Molecule, edges: dict[tuple[int, int], None | dict]) -> Self:
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -1636,7 +1669,7 @@ class MoleculeGraph(MSONable):
         Returns:
             A MoleculeGraph
         """
-        mg = cls.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        mg = cls.from_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         for edge, props in edges.items():
             try:
@@ -1665,7 +1698,15 @@ class MoleculeGraph(MSONable):
         return mg
 
     @classmethod
-    def with_local_env_strategy(cls, molecule, strategy) -> Self:
+    @deprecated(
+        from_edges,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    def with_edges(cls, *args, **kwargs):
+        return cls.from_edges(*args, **kwargs)
+
+    @classmethod
+    def from_local_env_strategy(cls, molecule, strategy) -> Self:
         """
         Constructor for MoleculeGraph, using a strategy
         from pymatgen.analysis.local_env.
@@ -1681,7 +1722,7 @@ class MoleculeGraph(MSONable):
             raise ValueError(f"{strategy=} is not designed for use with molecules! Choose another strategy.")
         extend_structure = strategy.extend_structure_molecules
 
-        mg = cls.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
+        mg = cls.from_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
         # NearNeighbor classes only (generally) work with structures
         # molecules have to be boxed first
@@ -1696,19 +1737,21 @@ class MoleculeGraph(MSONable):
         else:
             structure = None
 
-        for n in range(len(molecule)):
-            neighbors = strategy.get_nn_info(molecule, n) if structure is None else strategy.get_nn_info(structure, n)
+        for idx in range(len(molecule)):
+            neighbors = (
+                strategy.get_nn_info(molecule, idx) if structure is None else strategy.get_nn_info(structure, idx)
+            )
             for neighbor in neighbors:
                 # all bonds in molecules should not cross
                 # (artificial) periodic boundaries
                 if not np.array_equal(neighbor["image"], [0, 0, 0]):
                     continue
 
-                if n > neighbor["site_index"]:
+                if idx > neighbor["site_index"]:
                     from_index = neighbor["site_index"]
-                    to_index = n
+                    to_index = idx
                 else:
-                    from_index = n
+                    from_index = idx
                     to_index = neighbor["site_index"]
 
                 mg.add_edge(
@@ -1728,6 +1771,14 @@ class MoleculeGraph(MSONable):
 
         mg.set_node_attributes()
         return mg
+
+    @classmethod
+    @deprecated(
+        from_local_env_strategy,
+        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
+    )
+    def with_local_env_strategy(cls, *args, **kwargs):
+        return cls.from_local_env_strategy(*args, **kwargs)
 
     @property
     def name(self):
@@ -2105,8 +2156,8 @@ class MoleculeGraph(MSONable):
             unique_frags = []
             for frag in fragments:
                 found = False
-                for f in unique_frags:
-                    if _isomorphic(frag, f):
+                for fragment in unique_frags:
+                    if _isomorphic(frag, fragment):
                         found = True
                         break
                 if not found:
@@ -2132,7 +2183,7 @@ class MoleculeGraph(MSONable):
                     edges[(from_index, to_index)] = edge_props
 
                 unique_mol_graph_list.append(
-                    self.with_edges(
+                    self.from_edges(
                         Molecule(species=species, coords=coords, charge=self.molecule.charge),
                         edges,
                     )
@@ -2240,7 +2291,7 @@ class MoleculeGraph(MSONable):
                     )
 
             else:
-                graph = self.with_local_env_strategy(func_grp, strategy(**(strategy_params or {})))
+                graph = self.from_local_env_strategy(func_grp, strategy(**(strategy_params or {})))
 
                 for u, v in list(graph.graph.edges()):
                     edge_props = graph.graph.get_edge_data(u, v)[0]
@@ -2387,8 +2438,8 @@ class MoleculeGraph(MSONable):
 
         for cycle in cycles_nodes:
             edges = []
-            for idx, itm in enumerate(cycle):
-                edges.append((cycle[idx - 1], itm))
+            for idx, itm in enumerate(cycle, start=-1):
+                edges.append((cycle[idx], itm))
             cycles_edges.append(edges)
 
         return cycles_edges
@@ -2445,7 +2496,7 @@ class MoleculeGraph(MSONable):
             n: index of site
 
         Returns:
-            (int): the number of neighbors of site n.
+            int: the number of neighbors of site n.
         """
         n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
         return self.graph.degree(n) - n_self_loops

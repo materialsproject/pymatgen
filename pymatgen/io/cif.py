@@ -8,9 +8,8 @@ import re
 import textwrap
 import warnings
 from collections import defaultdict, deque
-from datetime import datetime
 from functools import partial
-from inspect import getfullargspec as getargspec
+from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
@@ -180,34 +179,34 @@ class CifBlock:
         Returns:
             CifBlock
         """
-        q = cls._process_string(string)
-        header = q.popleft()[0][5:]
+        deq = cls._process_string(string)
+        header = deq.popleft()[0][5:]
         data: dict = {}
         loops = []
-        while q:
-            s = q.popleft()
+        while deq:
+            s = deq.popleft()
             # cif keys aren't in quotes, so show up in s[0]
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
                 try:
-                    data[s[0]] = "".join(q.popleft())
+                    data[s[0]] = "".join(deq.popleft())
                 except IndexError:
                     data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append("".join(q.popleft()))
+                    columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith(("loop_", "_")):
                         break
-                    items.append("".join(q.popleft()))
+                    items.append("".join(deq.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
@@ -639,7 +638,7 @@ class CifParser:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
                     try:
-                        required_args = getargspec(getattr(Lattice, lattice_type)).args
+                        required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (length for length in length_strings if length in required_args)
                         angles = (a for a in angle_strings if a in required_args)
@@ -813,7 +812,7 @@ class CifParser:
 
         # else check to see if it specifies a magnetic space group
         elif bns_name or bns_num:
-            label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
+            label = bns_name or list(map(int, (bns_num.split("."))))
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
                 jonas_faithful = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
@@ -1192,12 +1191,6 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if (
-            os.getenv("CI")
-            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
-            and datetime.now() > datetime(2024, 10, 1)
-        ):  # pragma: no cover
-            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(

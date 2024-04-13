@@ -99,7 +99,7 @@ class QuasiHarmonicDebyeApprox:
                 "The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and "
                 "cannot be used together."
             )
-        self.mass = sum(e.atomic_mass for e in self.structure.species)
+        self.mass = sum(spec.atomic_mass for spec in self.structure.species)
         self.natoms = self.structure.composition.num_atoms
         self.avg_mass = physical_constants["atomic mass constant"][0] * self.mass / self.natoms  # kg
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]
@@ -226,7 +226,7 @@ class QuasiHarmonicDebyeApprox:
         parameter at 0K (Gruneisen constant).
 
         The anharmonic contribution is toggled by setting the anharmonic_contribution
-        to True or False in the QuasiharmonicDebyeApprox constructor.
+        to True or False in the QuasiHarmonicDebyeApprox constructor.
 
         Args:
             volume (float): in Ang^3
@@ -361,8 +361,7 @@ class QuasiHarmonicDebyeApprox:
 
 @deprecated(
     replacement=QuasiHarmonicDebyeApprox,
-    message="Use PascalCased QuasiHarmonicDebyeApprox instead. "
-    "Deprecated on 2024-03-27, to be removed on 2025-03-27.",
+    message="Deprecated on 2024-03-27, to be removed on 2025-03-27.",
 )
 class QuasiharmonicDebyeApprox(QuasiHarmonicDebyeApprox):
     pass

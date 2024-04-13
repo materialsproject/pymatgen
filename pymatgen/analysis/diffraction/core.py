@@ -68,8 +68,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (DiffractionPattern)
+            DiffractionPattern
         """
+        raise NotImplementedError
 
     def get_plot(
         self,

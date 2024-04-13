@@ -47,8 +47,8 @@ class Cssr:
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
-        for idx, site in enumerate(self.structure):
-            output.append(f"{idx + 1} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
+        for idx, site in enumerate(self.structure, start=1):
+            output.append(f"{idx} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
         return "\n".join(output)
 
     def write_file(self, filename):

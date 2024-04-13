@@ -355,12 +355,12 @@ class Header(MSONable):
 
         output.append(f"TITLE sites: {len(self.struct)}")
 
-        for idx, site in enumerate(self.struct):
+        for idx, site in enumerate(self.struct, start=1):
             if isinstance(self.struct, Structure):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.frac_coords]
             elif isinstance(self.struct, Molecule):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.coords]
-            output.append(f"* {idx + 1} {site.species_string} {' '.join(coords)}")
+            output.append(f"* {idx} {site.species_string} {' '.join(coords)}")
         return "\n".join(output)
 
     def write_file(self, filename="HEADER"):
@@ -493,11 +493,11 @@ class Atoms(MSONable):
                 0,
             ]
         ]
-        for idx, site in enumerate(self._cluster[1:]):
+        for idx, site in enumerate(self._cluster[1:], start=1):
             site_symbol = site.specie.symbol
             ipot = self.pot_dict[site_symbol]
-            dist = self._cluster.get_distance(0, idx + 1)
-            lines += [[f"{site.x}", f"{site.y}", f"{site.z}", ipot, site_symbol, f"{dist}", idx + 1]]
+            dist = self._cluster.get_distance(0, idx)
+            lines += [[f"{site.x}", f"{site.y}", f"{site.z}", ipot, site_symbol, f"{dist}", idx]]
 
         # sort by distance from absorbing atom
         return sorted(lines, key=lambda line: float(line[5]))
@@ -1002,8 +1002,8 @@ def get_atom_map(structure, absorbing_atom=None):
         unique_pot_atoms.remove(absorbing_atom)
 
     atom_map = {}
-    for i, atom in enumerate(unique_pot_atoms):
-        atom_map[atom] = i + 1
+    for i, atom in enumerate(unique_pot_atoms, start=1):
+        atom_map[atom] = i
     return atom_map
 
 

@@ -146,8 +146,8 @@ class DetailedVoronoiContainer(MSONable):
             logging.debug("Please consider increasing voronoi_distance_cutoff")
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
-        for jj, isite in enumerate(indices):
-            logging.debug(f"  - Voronoi analysis for site #{isite} ({jj + 1}/{len(indices)})")
+        for jj, isite in enumerate(indices, start=1):
+            logging.debug(f"  - Voronoi analysis for site #{isite} ({jj}/{len(indices)})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])

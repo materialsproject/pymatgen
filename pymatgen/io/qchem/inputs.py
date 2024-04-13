@@ -63,7 +63,7 @@ class QCInput(InputFile):
                 Molecule objects, or as the string "read". "read" can be used in multi_job QChem input
                 files where the molecule is read in from the previous calculation.
             rem (dict):
-                A dictionary of all the input parameters for the rem section of QChem input file.
+                A dictionary of all the input parameters for the REM section of QChem input file.
                 Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
             opt (dict of lists):
                 A dictionary of opt sections, where each opt section is a key and the corresponding
@@ -294,11 +294,11 @@ class QCInput(InputFile):
             job_list (): List of jobs.
 
         Returns:
-            (str) String representation of multi job input file.
+            str: String representation of a multi-job input file.
         """
         multi_job_string = ""
-        for i, job_i in enumerate(job_list):
-            if i < len(job_list) - 1:
+        for i, job_i in enumerate(job_list, start=1):
+            if i < len(job_list):
                 multi_job_string += str(job_i) + "\n@@@\n\n"
             else:
                 multi_job_string += str(job_i)
@@ -417,7 +417,7 @@ class QCInput(InputFile):
             molecule (Molecule, list of Molecules, or "read").
 
         Returns:
-            (str) Molecule template.
+            str: Molecule template.
         """
         # TODO: add ghost atoms
         mol_list = []
@@ -458,7 +458,7 @@ class QCInput(InputFile):
             rem ():
 
         Returns:
-            (str)
+            str: REM template.
         """
         rem_list = []
         rem_list.append("$rem")
@@ -476,7 +476,7 @@ class QCInput(InputFile):
             opt ():
 
         Returns:
-            (str)
+            str: Optimization template.
         """
         opt_list = []
         opt_list.append("$opt")
@@ -495,13 +495,13 @@ class QCInput(InputFile):
     @staticmethod
     def pcm_template(pcm: dict) -> str:
         """
-        Pcm run template.
+        PCM run template.
 
         Args:
             pcm ():
 
         Returns:
-            (str)
+            str: PCM template.
         """
         pcm_list = []
         pcm_list.append("$pcm")
@@ -519,7 +519,7 @@ class QCInput(InputFile):
             solvent ():
 
         Returns:
-            (str)
+            str: Solvent section.
         """
         solvent_list = []
         solvent_list.append("$solvent")
@@ -535,7 +535,7 @@ class QCInput(InputFile):
             smx ():
 
         Returns:
-            (str)
+            str: Solvation model with short-range corrections.
         """
         smx_list = []
         smx_list.append("$smx")
@@ -610,7 +610,7 @@ class QCInput(InputFile):
             plots ():
 
         Returns:
-            (str)
+            str: Plots section.
         """
         plots_list = []
         plots_list.append("$plots")
@@ -626,7 +626,7 @@ class QCInput(InputFile):
             nbo ():
 
         Returns:
-            (str)
+            str: NBO section.
         """
         nbo_list = []
         nbo_list.append("$nbo")
@@ -662,7 +662,7 @@ class QCInput(InputFile):
             geom_opt ():
 
         Returns:
-            (str) geom_opt parameters.
+            str: Geometry optimization section.
         """
         geom_opt_list = []
         geom_opt_list.append("$geom_opt")
@@ -678,11 +678,11 @@ class QCInput(InputFile):
             cdft: list of lists of dicts.
 
         Returns:
-            (str)
+            str: CDFT section.
         """
         cdft_list = []
         cdft_list.append("$cdft")
-        for ii, state in enumerate(cdft):
+        for ii, state in enumerate(cdft, start=1):
             for constraint in state:
                 types = constraint["types"]
                 cdft_list.append(f"   {constraint['value']}")
@@ -703,7 +703,7 @@ class QCInput(InputFile):
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
                     else:
                         cdft_list.append(f"   {coef} {first} {last}")
-            if len(cdft) != 1 and ii + 1 < len(state):
+            if len(cdft) != 1 and ii < len(state):
                 cdft_list.append("--------------")
 
         # Ensure that you don't have a line indicating a state that doesn't exist
@@ -720,7 +720,7 @@ class QCInput(InputFile):
             almo: list of lists of int 2-tuples.
 
         Returns:
-            (str)
+            str: ALMO coupling section.
         """
         almo_list = []
         almo_list.append("$almo_coupling")
@@ -762,7 +762,10 @@ class QCInput(InputFile):
             }
 
         Returns:
-            (str)
+            str: the $pcm_nonels section. Note that all parameters will be concatenated onto
+                a single line formatted as a FORTRAN namelist. This is necessary
+                because the non-electrostatic part of the CMIRS solvation model in Q-Chem
+                calls a secondary code.
         """
         pcm_nonels_list = []
         pcm_nonels_list.append("$pcm_nonels")
@@ -796,7 +799,7 @@ class QCInput(InputFile):
         if "molecule" not in sections:
             raise ValueError("Output file does not contain a molecule section")
         if "rem" not in sections:
-            raise ValueError("Output file does not contain a rem section")
+            raise ValueError("Output file does not contain a REM section")
         return sections
 
     @staticmethod
@@ -868,7 +871,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) rem
+            dict[str, str]: REM section
         """
         header = r"^\s*\$rem"
         row = r"\s*([a-zA-Z\_\d]+)\s*=?\s*(\S+)"
@@ -885,7 +888,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) Opt section
+            dict[str, list]: Opt section
         """
         patterns = {
             "CONSTRAINT": r"^\s*CONSTRAINT",
@@ -946,7 +949,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) PCM parameters
+            dict[str, str]: PCM parameters
         """
         header = r"^\s*\$pcm"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
@@ -967,7 +970,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (str, dict) vdW mode ('atomic' or 'sequential') and dict of van der Waals radii.
+            tuple[str, dict]: (vdW mode ('atomic' or 'sequential'), dict of van der Waals radii)
         """
         header = r"^\s*\$van_der_waals"
         row = r"[^\d]*(\d+).?(\d+.\d+)?.*"
@@ -990,7 +993,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) Solvent parameters
+            dict[str, str]: Solvent parameters
         """
         header = r"^\s*\$solvent"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
@@ -1011,7 +1014,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) SMX parameters.
+            dict[str, str] SMX parameters.
         """
         header = r"^\s*\$smx"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
@@ -1072,7 +1075,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) plots parameters.
+            dict[str, str]: plots parameters.
         """
         header = r"^\s*\$plots"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
@@ -1092,7 +1095,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) nbo parameters.
+            dict[str, str]: nbo parameters.
         """
         header = r"^\s*\$nbo"
         row = r"\s*([a-zA-Z\_\d]+)\s*=?\s*(\S+)"
@@ -1112,7 +1115,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) geom_opt parameters.
+            dict[str, str]: geom_opt parameters.
         """
         header = r"^\s*\$geom_opt"
         row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
@@ -1190,7 +1193,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (list of lists of int 2-tuples) almo_coupling parameters
+            list[list[tuple[int, int]]]: ALMO coupling parameters
         """
         pattern = {
             "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-"
@@ -1244,7 +1247,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-            (dict) PCM parameters
+            dict[str, str]: PCM parameters
         """
         header = r"^\s*\$pcm_nonels"
         row = r"\s*([a-zA-Z\_]+)\s+(.+)"

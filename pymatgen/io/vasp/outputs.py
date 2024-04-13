@@ -118,10 +118,10 @@ def _parse_vasp_array(elem) -> list[list[float]]:
 def _parse_from_incar(filename: str, key: str) -> str | None:
     """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
-    for f in os.listdir(dirname):
-        if re.search(r"INCAR", f):
+    for filename in os.listdir(dirname):
+        if re.search(r"INCAR", filename):
             warnings.warn("INCAR found. Using " + key + " from INCAR.")
-            incar = Incar.from_file(os.path.join(dirname, f))
+            incar = Incar.from_file(os.path.join(dirname, filename))
             if key in incar:
                 return incar[key]
             return None
@@ -974,10 +974,9 @@ class Vasprun(MSONable):
                     eigenvals[Spin.up] = up_eigen
             else:
                 if "" in kpoint_file.labels:
-                    raise Exception(
-                        "A band structure along symmetry lines "
-                        "requires a label for each kpoint. "
-                        "Check your KPOINTS file"
+                    raise ValueError(
+                        "A band structure along symmetry lines requires a label "
+                        "for each kpoint. Check your KPOINTS file"
                     )
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
                 labels_dict.pop(None, None)
@@ -1384,9 +1383,9 @@ class Vasprun(MSONable):
         lattice = _parse_vasp_array(elem.find("crystal").find("varray"))
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
-        sdyn = elem.find("varray/[@name='selective']")
-        if sdyn:
-            struct.add_site_property("selective_dynamics", _parse_vasp_array(sdyn))
+        selective_dyn = elem.find("varray/[@name='selective']")
+        if selective_dyn:
+            struct.add_site_property("selective_dynamics", _parse_vasp_array(selective_dyn))
         return struct
 
     @staticmethod
@@ -2750,8 +2749,7 @@ class Outcar:
                 self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]
 
         except Exception:
-            self.er_ev_tot = self.er_bp_tot = None
-            raise Exception("IGPAR OUTCAR could not be parsed.")
+            raise RuntimeError("IGPAR OUTCAR could not be parsed.")
 
     def read_internal_strain_tensor(self):
         """
@@ -2780,7 +2778,7 @@ class Outcar:
             elif match.group(1).lower() == "z":
                 index = 2
             else:
-                raise Exception(f"Couldn't parse row index from symbol for internal strain tensor: {match.group(1)}")
+                raise IndexError(f"Couldn't parse row index from symbol for internal strain tensor: {match.group(1)}")
             results.internal_strain_tensor[results.internal_strain_ion][index] = np.array(
                 [float(match.group(i)) for i in range(2, 8)]
             )
@@ -2952,7 +2950,7 @@ class Outcar:
             self.piezo_tensor = self.piezo_tensor.tolist()
 
         except Exception:
-            raise Exception("LEPSILON OUTCAR could not be parsed.")
+            raise RuntimeError("LEPSILON OUTCAR could not be parsed.")
 
     def read_lepsilon_ionic(self):
         """
@@ -3069,7 +3067,7 @@ class Outcar:
             self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
 
         except Exception:
-            raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
+            raise RuntimeError("ionic part of LEPSILON OUTCAR could not be parsed.")
 
     def read_lcalcpol(self):
         """
@@ -3161,9 +3159,9 @@ class Outcar:
             # fix polarization units in new versions of vasp
             regex = r"^.*Ionic dipole moment: .*"
             search = [[regex, None, lambda x, y: x.append(y.group(0))]]
-            r = micro_pyawk(self.filename, search, [])
+            results = micro_pyawk(self.filename, search, [])
 
-            if "|e|" in r[0]:
+            if "|e|" in results[0]:
                 self.p_elec *= -1
                 self.p_ion *= -1
                 if self.spin and not self.noncollinear:
@@ -3172,7 +3170,7 @@ class Outcar:
 
         except Exception as exc:
             print(exc.args)
-            raise Exception("LCALCPOL OUTCAR could not be parsed.") from exc
+            raise RuntimeError("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self):
         """Create pseudopotential ZVAL dictionary."""
@@ -3203,7 +3201,7 @@ class Outcar:
             del self.atom_symbols
             del self.zvals
         except Exception:
-            raise Exception("ZVAL dict could not be parsed.")
+            raise RuntimeError("ZVAL dict could not be parsed.")
 
     def read_core_state_eigen(self):
         """
@@ -3557,10 +3555,10 @@ class VolumetricData(BaseVolumetricData):
             Returns:
                 str: String representation of float in Fortran format.
             """
-            s = f"{flt:.10E}"
+            flt_str = f"{flt:.10E}"
             if flt >= 0:
-                return f"0.{s[0]}{s[2:12]}E{int(s[13:]) + 1:+03}"
-            return f"-.{s[1]}{s[3:13]}E{int(s[14:]) + 1:+03}"
+                return f"0.{flt_str[0]}{flt_str[2:12]}E{int(flt_str[13:]) + 1:+03}"
+            return f"-.{flt_str[1]}{flt_str[3:13]}E{int(flt_str[14:]) + 1:+03}"
 
         with zopen(file_name, mode="wt") as file:
             poscar = Poscar(self.structure)
@@ -4042,9 +4040,9 @@ class Xdatcar:
         structures = []
         preamble_done = False
         if ionicstep_start < 1:
-            raise Exception("Start ionic step cannot be less than 1")
+            raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_start < 1:
-            raise Exception("End ionic step cannot be less than 1")
+            raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
         with zopen(filename, mode="rt") as file:
@@ -4136,9 +4134,9 @@ class Xdatcar:
         structures = self.structures
         preamble_done = False
         if ionicstep_start < 1:
-            raise Exception("Start ionic step cannot be less than 1")
+            raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_start < 1:
-            raise Exception("End ionic step cannot be less than 1")
+            raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
         with zopen(filename, mode="rt") as file:
@@ -4187,9 +4185,9 @@ class Xdatcar:
             significant_figures (int): Number of significant figures.
         """
         if ionicstep_start < 1:
-            raise Exception("Start ionic step cannot be less than 1")
+            raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_end < 1:
-            raise Exception("End ionic step cannot be less than 1")
+            raise ValueError("End ionic step cannot be less than 1")
         lattice = self.structures[0].lattice
         if np.linalg.det(lattice.matrix) < 0:
             lattice = Lattice(-lattice.matrix)
@@ -4198,8 +4196,8 @@ class Xdatcar:
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
-        for cnt, structure in enumerate(self.structures):
-            ionicstep_cnt = cnt + 1
+        for cnt, structure in enumerate(self.structures, start=1):
+            ionicstep_cnt = cnt
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")

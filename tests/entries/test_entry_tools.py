@@ -34,8 +34,8 @@ class TestFunc(PymatgenTest):
         # Make sure no entries are left behind
         assert sum(len(g) for g in groups) == len(entries)
         # test sorting by energy
-        for g in groups:
-            assert g == sorted(g, key=lambda e: e.energy_per_atom)
+        for group in groups:
+            assert group == sorted(group, key=lambda e: e.energy_per_atom)
 
 
 class TestEntrySet(PymatgenTest):
@@ -48,8 +48,8 @@ class TestEntrySet(PymatgenTest):
 
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
-        for e in entries:
-            assert {Element.Li, Element.O}.issuperset(e.composition)
+        for ent in entries:
+            assert {Element.Li, Element.O}.issuperset(ent.composition)
         with pytest.raises(ValueError) as exc:  # noqa: PT011
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
         assert "['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}" in str(exc.value)
@@ -63,3 +63,14 @@ class TestEntrySet(PymatgenTest):
         dumpfn(self.entry_set, f"{self.tmp_path}/temp_entry_set.json")
         entry_set = loadfn(f"{self.tmp_path}/temp_entry_set.json")
         assert len(entry_set) == len(self.entry_set)
+
+    def test_ground_states(self):
+        ground_states = self.entry_set.ground_states
+        assert len(ground_states) < len(self.entry_set)
+
+        # Check if ground states have the lowest energy per atom for each composition
+        for gs in ground_states:
+            same_comp_entries = [
+                ent for ent in self.entry_set if ent.composition.reduced_formula == gs.composition.reduced_formula
+            ]
+            assert gs.energy_per_atom <= min(entry.energy_per_atom for entry in same_comp_entries)

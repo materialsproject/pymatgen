@@ -146,7 +146,7 @@ class QuasiRRHO:
         mult = output.spin_multiplicity
         elec_e = output.final_energy
         mol = output.final_structure
-        vib_freqs = [f["frequency"] for f in output.frequencies[-1]]
+        vib_freqs = [freq["frequency"] for freq in output.frequencies[-1]]
         return cls(mol=mol, frequencies=vib_freqs, energy=elec_e, mult=mult, **kwargs)
 
     @classmethod

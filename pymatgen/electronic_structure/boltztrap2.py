@@ -108,10 +108,7 @@ class VasprunBSLoader:
 
         self.is_spin_polarized = bs_obj.is_spin_polarized
 
-        if bs_obj.is_spin_polarized:
-            self.dosweight = 1.0
-        else:
-            self.dosweight = 2.0
+        self.dosweight = 1.0 if bs_obj.is_spin_polarized else 2.0
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat_all = None  # not implemented yet
@@ -172,7 +169,7 @@ class VasprunBSLoader:
         self.proj = {}
         if self.proj_all:
             if len(self.proj_all) == 2:
-                h = int(len(accepted) / 2)
+                h = len(accepted) // 2
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj_all) == 1:
@@ -210,10 +207,7 @@ class BandstructureLoader:
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
-        if structure is None:
-            self.structure = bs_obj.structure
-        else:
-            self.structure = structure
+        self.structure = bs_obj.structure if structure is None else structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         self.proj_all = None
@@ -226,10 +220,7 @@ class BandstructureLoader:
 
         self.is_spin_polarized = bs_obj.is_spin_polarized
 
-        if bs_obj.is_spin_polarized:
-            self.dosweight = 1.0
-        else:
-            self.dosweight = 2.0
+        self.dosweight = 1.0 if bs_obj.is_spin_polarized else 2.0
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat_all = mommat  # not implemented yet
@@ -270,7 +261,7 @@ class BandstructureLoader:
         self.proj = {}
         if self.proj_all:
             if len(self.proj_all) == 2:
-                h = int(len(accepted) / 2)
+                h = len(accepted) // 2
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj) == 1:
@@ -515,9 +506,9 @@ class BztInterpolator:
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for idx, k_pt in enumerate(kpath[:-1]):
+                for idx, k_pt in enumerate(kpath[:-1], start=1):
                     sta = kpoints_lbls_dict[k_pt]
-                    end = kpoints_lbls_dict[kpath[idx + 1]]
+                    end = kpoints_lbls_dict[kpath[idx]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:
@@ -1003,6 +994,9 @@ class BztPlotter:
             xlim: chemical potential range in eV, useful when prop_x='mu'
             ax: figure.axes where to plot. If None, a new figure is produced.
 
+        Returns:
+            plt.Axes: matplotlib Axes object
+
         Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
             more example are provided in the notebook
@@ -1054,9 +1048,9 @@ class BztPlotter:
         mu = self.bzt_transP.mu_r_eV
 
         if prop_z == "doping" and prop_x == "temp":
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_z}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_doping")
         else:
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_x}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_{prop_x}")
 
         if ax is None:
             plt.figure(figsize=(10, 8))
@@ -1149,7 +1143,7 @@ class BztPlotter:
         plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)
         plt.tight_layout()
         plt.grid()
-        return plt
+        return ax
 
     def plot_bands(self):
         """Plot a band structure on symmetry line using BSPlotter()."""

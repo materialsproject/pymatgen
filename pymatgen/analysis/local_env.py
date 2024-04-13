@@ -18,7 +18,7 @@ from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import TYPE_CHECKING, Any, Literal, get_args
 
 import numpy as np
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
@@ -625,7 +625,7 @@ class NearNeighbors:
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        struct_graph = StructureGraph.with_local_env_strategy(
+        struct_graph = StructureGraph.from_local_env_strategy(
             structure, self, weights=weights, edge_properties=edge_properties
         )
 
@@ -1168,7 +1168,7 @@ def _is_in_targets(site, targets):
         targets ([Element]) List of elements
 
     Returns:
-         (boolean) Whether this site contains a certain list of elements
+        boolean: Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
     return all(elem in targets for elem in elems)
@@ -1524,7 +1524,7 @@ class OpenBabelNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1671,7 +1671,7 @@ class CovalentBondNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        return MoleculeGraph.with_local_env_strategy(structure, self)
+        return MoleculeGraph.from_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1965,7 +1965,7 @@ def vol_tetra(vt1, vt2, vt3, vt4):
         vt4 (array-like): coordinates of vertex 4.
 
     Returns:
-        (float): volume of the tetrahedron.
+        float: volume of the tetrahedron.
     """
     return np.abs(np.dot((vt1 - vt4), np.cross((vt2 - vt4), (vt3 - vt4)))) / 6
 
@@ -1982,7 +1982,7 @@ def get_okeeffe_params(el_symbol):
         el_symbol (str): element symbol.
 
     Returns:
-        (dict): atom-size ('r') and electronegativity-related ('c') parameter.
+        dict: atom-size ('r') and electronegativity-related ('c') parameter.
     """
     el = Element(el_symbol)
     if el not in list(BV_PARAMS):
@@ -3337,8 +3337,8 @@ class LocalStructOrderParams:
         if self._geomops2:
             # Compute all (unique) angles and sort the resulting list.
             aij = []
-            for ir, r in enumerate(rij_norm):
-                for j in range(ir + 1, len(rij_norm)):
+            for ir, r in enumerate(rij_norm, start=1):
+                for j in range(ir, len(rij_norm)):
                     aij.append(acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0))))
             aijs = sorted(aij)
 
@@ -3370,7 +3370,7 @@ class LocalStructOrderParams:
         return ops
 
 
-class BrunnerNN_reciprocal(NearNeighbors):
+class BrunnerNNReciprocal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3441,7 +3441,15 @@ class BrunnerNN_reciprocal(NearNeighbors):
         return siw
 
 
-class BrunnerNN_relative(NearNeighbors):
+@deprecated(
+    BrunnerNNReciprocal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_reciprocal(BrunnerNNReciprocal):
+    pass
+
+
+class BrunnerNNRelative(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3513,7 +3521,15 @@ class BrunnerNN_relative(NearNeighbors):
         return siw
 
 
-class BrunnerNN_real(NearNeighbors):
+@deprecated(
+    BrunnerNNRelative,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_relative(BrunnerNNRelative):
+    pass
+
+
+class BrunnerNNReal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
@@ -3583,6 +3599,14 @@ class BrunnerNN_real(NearNeighbors):
                     }
                 )
         return siw
+
+
+@deprecated(
+    BrunnerNNReal,
+    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
+)
+class BrunnerNN_real(BrunnerNNReal):
+    pass
 
 
 class EconNN(NearNeighbors):
@@ -4064,19 +4088,21 @@ class CrystalNN(NearNeighbors):
         Returns:
             float: integral of portion of unit semicircle
         """
-        r = 1
+        radius = 1
 
         x1 = dist_bins[idx]
         x2 = dist_bins[idx + 1]
 
         if dist_bins[idx] == 1:
-            area1 = 0.25 * math.pi * r**2
+            area1 = 0.25 * math.pi * radius**2
         else:
-            area1 = 0.5 * ((x1 * math.sqrt(r**2 - x1**2)) + (r**2 * math.atan(x1 / math.sqrt(r**2 - x1**2))))
+            area1 = 0.5 * (
+                (x1 * math.sqrt(radius**2 - x1**2)) + (radius**2 * math.atan(x1 / math.sqrt(radius**2 - x1**2)))
+            )
 
-        area2 = 0.5 * ((x2 * math.sqrt(r**2 - x2**2)) + (r**2 * math.atan(x2 / math.sqrt(r**2 - x2**2))))
+        area2 = 0.5 * ((x2 * math.sqrt(radius**2 - x2**2)) + (radius**2 * math.atan(x2 / math.sqrt(radius**2 - x2**2))))
 
-        return (area1 - area2) / (0.25 * math.pi * r**2)
+        return (area1 - area2) / (0.25 * math.pi * radius**2)
 
     @staticmethod
     def transform_to_length(nn_data, length):

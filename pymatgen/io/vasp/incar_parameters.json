@@ -156,7 +156,7 @@
     "type": "float"
  },
  "ENCUT": {
-    "type": "int"
+    "type": "float"
  },
  "ENCUTFOCK": {
     "type": "float"

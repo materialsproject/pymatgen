@@ -162,8 +162,7 @@ def parse_shannon_radii():
             radii[el][charge] = {}
         if sheet[f"C{i}"].value:
             cn = sheet[f"C{i}"].value
-            if cn not in radii[el][charge]:
-                radii[el][charge][cn] = {}
+            radii[el][charge].setdefault(cn, {})
 
         spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
 
