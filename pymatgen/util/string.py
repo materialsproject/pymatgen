@@ -398,7 +398,10 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     elif fmt == "HTML":
         sub_start = "<sub>"
         sub_end = "</sub>"
-    elif fmt != "plain":
+    elif fmt == "plain":
+        sub_start = ""
+        sub_end = ""
+    else:
         raise ValueError("Unsupported output format, choose from: LaTeX, HTML, plain")
 
     disordered_formula = []

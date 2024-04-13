@@ -18,7 +18,7 @@ try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
-    pybtex = bibtex = None
+    pybtex = bibtex = errors = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
