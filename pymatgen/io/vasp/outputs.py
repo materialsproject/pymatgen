@@ -555,7 +555,7 @@ class Vasprun(MSONable):
         return self.dielectric_data["density"]
 
     @property
-    def optical_absorption_coeff(self) -> list[float]:
+    def optical_absorption_coeff(self) -> list[float] | None:
         """
         Calculate the optical absorption coefficient
         from the dielectric constants. Note that this method is only
@@ -582,10 +582,10 @@ class Vasprun(MSONable):
                 hc = 1.23984 * 1e-4  # plank constant times speed of light, in the unit of eV*cm
                 return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
-            absorption_coeff = list(
+            return list(
                 itertools.starmap(optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg))
             )
-        return absorption_coeff
+        return None
 
     @property
     def converged_electronic(self) -> bool:
@@ -1325,6 +1325,9 @@ class Vasprun(MSONable):
 
     @staticmethod
     def _parse_atominfo(elem):
+        atomic_symbols = []
+        potcar_symbols = []
+
         for a in elem.findall("array"):
             if a.attrib["name"] == "atoms":
                 atomic_symbols = [rc.find("c").text.strip() for rc in a.find("set")]
@@ -1353,6 +1356,7 @@ class Vasprun(MSONable):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
         k.style = Kpoints.supported_modes.from_str(e.attrib.get("param", "Reciprocal"))
+
         for v in e.findall("v"):
             name = v.attrib.get("name")
             tokens = v.text.split()
@@ -1362,6 +1366,9 @@ class Vasprun(MSONable):
                 k.kpts_shift = [float(i) for i in tokens]
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(k, name, [float(i) for i in tokens])
+
+        actual_kpoints = []
+        weights = []
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
@@ -1369,6 +1376,7 @@ class Vasprun(MSONable):
             elif name == "weights":
                 weights = [i[0] for i in _parse_vasp_array(va)]
         elem.clear()
+
         if k.style == Kpoints.supported_modes.Reciprocal:
             k = Kpoints(
                 comment="Kpoints from vasprun.xml",
@@ -1406,9 +1414,11 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # optical transitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_vasp_array(va))[0:]
-                probability_transition = np.array(_parse_vasp_array(va))[0:, 1]
-        return oscillator_strength, probability_transition
+                oscillator_strength = np.array(_parse_vasp_array(va))[:]
+                probability_transition = np.array(_parse_vasp_array(va))[:, 1]
+
+                return oscillator_strength, probability_transition
+        return None
 
     def _parse_chemical_shielding_calculation(self, elem):
         calculation = []
@@ -3217,11 +3227,15 @@ class Outcar:
         """
         with zopen(self.filename, mode="rt") as foutcar:
             line = foutcar.readline()
+            cl = []
+
             while line != "":
                 line = foutcar.readline()
+
                 if "NIONS =" in line:
                     natom = int(line.split("NIONS =")[1])
-                    cl = [defaultdict(list) for i in range(natom)]
+                    cl = [defaultdict(list) for _ in range(natom)]
+
                 if "the core state eigen" in line:
                     iat = -1
                     while line != "":
@@ -3600,12 +3614,13 @@ class VolumetricData(BaseVolumetricData):
                     file.write("".join(data))
 
             write_spin("total")
-            if self.is_spin_polarized and self.is_soc:
-                write_spin("diff_x")
-                write_spin("diff_y")
-                write_spin("diff_z")
-            elif self.is_spin_polarized:
-                write_spin("diff")
+            if self.is_spin_polarized:
+                if self.is_soc:
+                    write_spin("diff_x")
+                    write_spin("diff_y")
+                    write_spin("diff_z")
+                else:
+                    write_spin("diff")
 
 
 class Locpot(VolumetricData):
@@ -3653,6 +3668,8 @@ class Chgcar(VolumetricData):
             struct = poscar
             self.poscar = Poscar(poscar)
             self.name = None
+        else:
+            raise TypeError("Unsupported POSCAR type.")
 
         super().__init__(struct, data, data_aug=data_aug)
         self._distance_matrix = {}
@@ -3673,9 +3690,7 @@ class Chgcar(VolumetricData):
     @property
     def net_magnetization(self):
         """Net magnetization from Chgcar"""
-        if self.is_spin_polarized:
-            return np.sum(self.data["diff"])
-        return None
+        return np.sum(self.data["diff"]) if self.is_spin_polarized else None
 
 
 class Elfcar(VolumetricData):
@@ -3701,6 +3716,8 @@ class Elfcar(VolumetricData):
         elif isinstance(poscar, Structure):
             tmp_struct = poscar
             self.poscar = Poscar(poscar)
+        else:
+            raise TypeError("Unsupported POSCAR type.")
 
         super().__init__(tmp_struct, data)
         # TODO: modify VolumetricData so that the correct keys can be used.
@@ -4040,11 +4057,12 @@ class Xdatcar:
         preamble_done = False
         if ionicstep_start < 1:
             raise ValueError("Start ionic step cannot be less than 1")
-        if ionicstep_end is not None and ionicstep_start < 1:
+        if ionicstep_end is not None and ionicstep_end < 1:
             raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
         with zopen(filename, mode="rt") as file:
+            title = None
             for line in file:
                 line = line.strip()
                 if preamble is None:
