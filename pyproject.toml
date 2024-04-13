@@ -149,4 +149,5 @@ typeCheckingMode = "off"
 reportPossiblyUnboundVariable = true
 reportUnboundVariable = true
 reportMissingImports = false
+reportMissingModuleSource = false
 exclude = ["**/tests"]
