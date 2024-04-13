@@ -62,12 +62,12 @@ logger = logging.getLogger(__name__)
 
 class Slab(Structure):
     """Class to hold information for a Slab, with additional
-    attributes pertaining to slabs, but the init method does not
-    actually create a slab. Also has additional methods that returns other information
-    about a Slab such as the surface area, normal, and atom adsorption.
+    attributes pertaining to slabs, but does not actually create a slab.
+    Also has additional methods for a Slab such as the surface area,
+    normal, and adsorbate atoms.
 
-    Note that all Slabs have the surface normal oriented perpendicular to the a
-    and b lattice vectors. This means the lattice vectors a and b are in the
+    Note that all Slabs have the surface normal oriented perpendicular to the
+    a and b lattice vectors. This means the lattice vectors a and b are in the
     surface plane and the c vector is out of the surface plane (though not
     necessarily perpendicular to the surface).
     """
