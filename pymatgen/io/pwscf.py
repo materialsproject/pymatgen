@@ -139,7 +139,7 @@ class PWInput:
 
         out.append("ATOMIC_SPECIES")
         for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
-            e = re.match(r"[A-Z][a-z]?", k).group(0)
+            e = re.match(r"[A-Z][a-z]?", k)[0]
             p = v if self.pseudo is not None else v["pseudo"]
             out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
@@ -220,7 +220,7 @@ class PWInput:
         Args:
             filename (str): The string filename to output to.
         """
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             file.write(str(self))
 
     @classmethod
@@ -290,9 +290,9 @@ class PWInput:
             elif mode[0] == "sections":
                 section = mode[1]
                 if m := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
-                    key = m.group(1).strip()
-                    key_ = m.group(2).strip()
-                    val = m.group(3).strip()
+                    key = m[1].strip()
+                    key_ = m[2].strip()
+                    val = m[3].strip()
                     if key_ != "":
                         if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
@@ -307,12 +307,12 @@ class PWInput:
 
             elif mode[0] == "pseudo":
                 if m := re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line):
-                    pseudo[m.group(1).strip()] = m.group(3).strip()
+                    pseudo[m[1].strip()] = m[3].strip()
 
             elif mode[0] == "kpoints":
                 if m := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
-                    kpoints_grid = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
-                    kpoints_shift = (int(m.group(4)), int(m.group(5)), int(m.group(6)))
+                    kpoints_grid = (int(m[1]), int(m[2]), int(m[3]))
+                    kpoints_shift = (int(m[4]), int(m[5]), int(m[6]))
                 else:
                     kpoints_mode = mode[1]
 
@@ -321,15 +321,15 @@ class PWInput:
                 m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
                     lattice += [
-                        float(m_l.group(1)),
-                        float(m_l.group(2)),
-                        float(m_l.group(3)),
+                        float(m_l[1]),
+                        float(m_l[2]),
+                        float(m_l[3]),
                     ]
 
                 elif m_p:
-                    site_properties["pseudo"].append(pseudo[m_p.group(1)])
-                    species.append(m_p.group(1))
-                    coords += [[float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]]
+                    site_properties["pseudo"].append(pseudo[m_p[1]])
+                    species.append(m_p[1])
+                    coords += [[float(m_p[2]), float(m_p[3]), float(m_p[4])]]
 
                     if mode[1] == "angstrom":
                         coords_are_cartesian = True
@@ -475,10 +475,10 @@ class PWInput:
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower()).group(0).replace("d", "e"))
+                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
 
             if key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val).group(0))
+                return int(re.match(r"^-?[0-9]+", val)[0]
 
         except ValueError:
             pass
