@@ -4,10 +4,10 @@ import gzip
 import json
 import os
 import sys
-import xml.etree.ElementTree as ElementTree
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
+from xml.etree import ElementTree
 
 import numpy as np
 import pytest

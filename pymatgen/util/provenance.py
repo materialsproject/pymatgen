@@ -93,11 +93,10 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         """Parses a History Node object from either a dict or a tuple.
 
         Args:
-            h_node: A dict with name/url/description fields or a 3-element
-                tuple.
+            h_node: A dict with name/url/description fields or a 3-element tuple.
 
         Returns:
-            History node.
+            HistoryNode
         """
         if isinstance(h_node, dict):
             return cls.from_dict(h_node)

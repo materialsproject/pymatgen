@@ -355,7 +355,7 @@ class Vasprun(MSONable):
                     # The start event tells us when we have entered blocks
                     if tag == "calculation":
                         parsed_header = True
-                    elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
+                    elif tag in ("eigenvalues_kpoints_opt", "projected_kpoints_opt"):
                         in_kpoints_opt = True
                 else:  # event == "end":
                     # The end event happens when we have read a block, so have
@@ -411,7 +411,7 @@ class Vasprun(MSONable):
                         self.eigenvalues = self._parse_eigen(elem)
                     elif parse_projected_eigen and tag == "projected" and not in_kpoints_opt:
                         self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
-                    elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
+                    elif tag in ("eigenvalues_kpoints_opt", "projected_kpoints_opt"):
                         in_kpoints_opt = False
                         if self.kpoints_opt_props is None:
                             self.kpoints_opt_props = KpointOptProps()
@@ -1615,54 +1615,53 @@ class BSVasprun(Vasprun):
                         or (tag == "dos" and elem.attrib.get("comment") == "kpoints_opt")
                     ):
                         in_kpoints_opt = True
-                else:  # if event == "end":
-                    if not parsed_header:
-                        if tag == "generator":
-                            self.generator = self._parse_params(elem)
-                        elif tag == "incar":
-                            self.incar = self._parse_params(elem)
-                        elif tag == "kpoints":
-                            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
-                        elif tag == "parameters":
-                            self.parameters = self._parse_params(elem)
-                        elif tag == "atominfo":
-                            self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
-                            self.potcar_spec = [
-                                {"titel": p, "hash": None, "summary_stats": {}} for p in self.potcar_symbols
-                            ]
-                            parsed_header = True
-                    elif tag == "i" and elem.attrib.get("name") == "efermi":
-                        if in_kpoints_opt:
-                            if self.kpoints_opt_props is None:
-                                self.kpoints_opt_props = KpointOptProps()
-                            self.kpoints_opt_props.efermi = float(elem.text)
-                            in_kpoints_opt = False
-                        else:
-                            self.efermi = float(elem.text)
-                    elif tag == "eigenvalues" and not in_kpoints_opt:
-                        self.eigenvalues = self._parse_eigen(elem)
-                    elif parse_projected_eigen and tag == "projected" and not in_kpoints_opt:
-                        self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
-                    elif tag == "eigenvalues_kpoints_opt" or tag == "projected_kpoints_opt":
+                elif not parsed_header:
+                    if tag == "generator":
+                        self.generator = self._parse_params(elem)
+                    elif tag == "incar":
+                        self.incar = self._parse_params(elem)
+                    elif tag == "kpoints":
+                        self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
+                    elif tag == "parameters":
+                        self.parameters = self._parse_params(elem)
+                    elif tag == "atominfo":
+                        self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
+                        self.potcar_spec = [
+                            {"titel": p, "hash": None, "summary_stats": {}} for p in self.potcar_symbols
+                        ]
+                        parsed_header = True
+                elif tag == "i" and elem.attrib.get("name") == "efermi":
+                    if in_kpoints_opt:
                         if self.kpoints_opt_props is None:
                             self.kpoints_opt_props = KpointOptProps()
+                        self.kpoints_opt_props.efermi = float(elem.text)
                         in_kpoints_opt = False
-                        # projected_kpoints_opt includes occupation information whereas
-                        # eigenvalues_kpoints_opt doesn't.
-                        self.kpoints_opt_props.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))
-                        if tag == "eigenvalues_kpoints_opt":
-                            (
-                                self.kpoints_opt_props.kpoints,
-                                self.kpoints_opt_props.actual_kpoints,
-                                self.kpoints_opt_props.actual_kpoints_weights,
-                            ) = self._parse_kpoints(elem.find("kpoints"))
-                        elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
-                            (
-                                self.kpoints_opt_props.projected_eigenvalues,
-                                self.kpoints_opt_props.projected_magnetisation,
-                            ) = self._parse_projected_eigen(elem)
-                    elif tag == "structure" and elem.attrib.get("name") == "finalpos":
-                        self.final_structure = self._parse_structure(elem)
+                    else:
+                        self.efermi = float(elem.text)
+                elif tag == "eigenvalues" and not in_kpoints_opt:
+                    self.eigenvalues = self._parse_eigen(elem)
+                elif parse_projected_eigen and tag == "projected" and not in_kpoints_opt:
+                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
+                elif tag in ("eigenvalues_kpoints_opt", "projected_kpoints_opt"):
+                    if self.kpoints_opt_props is None:
+                        self.kpoints_opt_props = KpointOptProps()
+                    in_kpoints_opt = False
+                    # projected_kpoints_opt includes occupation information whereas
+                    # eigenvalues_kpoints_opt doesn't.
+                    self.kpoints_opt_props.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))
+                    if tag == "eigenvalues_kpoints_opt":
+                        (
+                            self.kpoints_opt_props.kpoints,
+                            self.kpoints_opt_props.actual_kpoints,
+                            self.kpoints_opt_props.actual_kpoints_weights,
+                        ) = self._parse_kpoints(elem.find("kpoints"))
+                    elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
+                        (
+                            self.kpoints_opt_props.projected_eigenvalues,
+                            self.kpoints_opt_props.projected_magnetisation,
+                        ) = self._parse_projected_eigen(elem)
+                elif tag == "structure" and elem.attrib.get("name") == "finalpos":
+                    self.final_structure = self._parse_structure(elem)
         self.vasp_version = self.generator["version"]
         if parse_potcar_file:
             self.update_potcar_spec(parse_potcar_file)

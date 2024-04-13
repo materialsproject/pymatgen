@@ -772,57 +772,52 @@ class CompleteCohp(Cohp):
                     # LMTO COHPs have 5 significant figures
                     avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5) for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies, avg_data["COHP"], icohp=avg_data["ICOHP"])
+        elif not are_multi_center_cobis:
+            avg_cohp = Cohp(
+                efermi,
+                energies,
+                cohp_data["average"]["COHP"],
+                icohp=cohp_data["average"]["ICOHP"],
+                are_coops=are_coops,
+                are_cobis=are_cobis,
+                are_multi_center_cobis=are_multi_center_cobis,
+            )
+            del cohp_data["average"]
         else:
-            if not are_multi_center_cobis:
-                avg_cohp = Cohp(
-                    efermi,
-                    energies,
-                    cohp_data["average"]["COHP"],
-                    icohp=cohp_data["average"]["ICOHP"],
-                    are_coops=are_coops,
-                    are_cobis=are_cobis,
-                    are_multi_center_cobis=are_multi_center_cobis,
-                )
-                del cohp_data["average"]
-            else:
-                # only include two-center cobis in average
-                # do this for both spin channels
-                cohp = {}
-                cohp[Spin.up] = np.array(
-                    [np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
+            # only include two-center cobis in average
+            # do this for both spin channels
+            cohp = {}
+            cohp[Spin.up] = np.array(
+                [np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
+            ).mean(axis=0)
+            try:
+                cohp[Spin.down] = np.array(
+                    [np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
+                ).mean(axis=0)
+            except KeyError:
+                pass
+            try:
+                icohp = {}
+                icohp[Spin.up] = np.array(
+                    [np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                 ).mean(axis=0)
                 try:
-                    cohp[Spin.down] = np.array(
-                        [np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
+                    icohp[Spin.down] = np.array(
+                        [np.array(c["ICOHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
                     ).mean(axis=0)
                 except KeyError:
                     pass
-                try:
-                    icohp = {}
-                    icohp[Spin.up] = np.array(
-                        [np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) <= 2]
-                    ).mean(axis=0)
-                    try:
-                        icohp[Spin.down] = np.array(
-                            [
-                                np.array(c["ICOHP"][Spin.down])
-                                for c in cohp_file.cohp_data.values()
-                                if len(c["sites"]) <= 2
-                            ]
-                        ).mean(axis=0)
-                    except KeyError:
-                        pass
-                except KeyError:
-                    icohp = None
-                avg_cohp = Cohp(
-                    efermi,
-                    energies,
-                    cohp,
-                    icohp=icohp,
-                    are_coops=are_coops,
-                    are_cobis=are_cobis,
-                    are_multi_center_cobis=are_multi_center_cobis,
-                )
+            except KeyError:
+                icohp = None
+            avg_cohp = Cohp(
+                efermi,
+                energies,
+                cohp,
+                icohp=icohp,
+                are_coops=are_coops,
+                are_cobis=are_cobis,
+                are_multi_center_cobis=are_multi_center_cobis,
+            )
 
         cohp_dict = {
             key: Cohp(

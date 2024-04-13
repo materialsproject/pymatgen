@@ -45,9 +45,8 @@ def prepare_band_input(structure: Structure, density: float = 20):
                 current_segment["length"] += 1
                 lines_and_labels.append(current_segment)
                 current_segment = None
-        else:
-            if current_segment is not None:
-                current_segment["length"] += 1
+        elif current_segment is not None:
+            current_segment["length"] += 1
 
     bands = []
     for segment in lines_and_labels:
