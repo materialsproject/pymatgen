@@ -416,6 +416,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
+
         if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
             import matgl
             from matgl.ext.ase import M3GNetCalculator, Relaxer
@@ -426,6 +427,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
             elif self.sort_criteria == "m3gnet":
                 potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
                 m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
+            else:
+                m3gnet_model = None
+
+        else:
+            m3gnet_model = None
 
         def _get_stats(struct):
             if callable(self.sort_criteria):
@@ -452,12 +458,14 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     relax_results = m3gnet_model.relax(struct)
                     energy = float(relax_results["trajectory"].energies[-1])
                     struct = relax_results["final_structure"]
-                else:
-                    from pymatgen.io.ase import AseAtomsAdaptor
 
+                elif self.sort_criteria == "m3gnet":
                     atoms = AseAtomsAdaptor().get_atoms(struct)
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
+
+                else:
+                    raise RuntimeError("Unsupported sort criteria.")
 
                 return {
                     "num_sites": len(struct),
@@ -2075,6 +2083,9 @@ class SQSTransformation(AbstractTransformation):
                 cluster_cutoffs=clusters,
                 sqs_kwargs=self.icet_sqs_kwargs,
             ).run()
+
+        else:
+            raise RuntimeError(f"Unsupported SQS method {self.sqs_method}.")
 
         return self._get_unique_best_sqs_structs(
             sqs,
