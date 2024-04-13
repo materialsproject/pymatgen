@@ -293,12 +293,15 @@ class SpaceGroup(SymmetryGroup):
             set[str]: All possible settings for the given international symbol.
         """
         symbols = []
+        int_number = None
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             symbols.append(SpaceGroup.abbrev_sg_mapping[int_symbol])
             int_number = SpaceGroup.sg_encoding[int_symbol]["int_number"]
+
         elif int_symbol in SpaceGroup.full_sg_mapping:
             symbols.append(SpaceGroup.full_sg_mapping[int_symbol])
             int_number = SpaceGroup.sg_encoding[int_symbol]["int_number"]
+
         else:
             for spg in SpaceGroup.SYMM_OPS:
                 if int_symbol in [
