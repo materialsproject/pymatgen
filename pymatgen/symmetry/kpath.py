@@ -1848,7 +1848,7 @@ class KPathLatimerMunro(KPathBase):
 
         used_axes = []
 
-        def find_face_center(name: str):
+        def find_face_center(name: str, IRBZ_points):
             for rotn in rpgdict["rotations"][name]:
                 ax = rotn["axis"]
                 op = rotn["op"]
@@ -1880,22 +1880,22 @@ class KPathLatimerMunro(KPathBase):
                         raise RuntimeError("Failed to find rotation boundaries.")
 
                     return self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
-                return None
-            return None
+                return IRBZ_points
+            return IRBZ_points
 
         # six-fold rotoinversion always comes with horizontal mirror so don't
         # need to check
-        IRBZ_points = find_face_center("six-fold")
+        IRBZ_points = find_face_center("six-fold", IRBZ_points)
 
-        IRBZ_points = find_face_center("rotoinv-four-fold")
+        IRBZ_points = find_face_center("rotoinv-four-fold", IRBZ_points)
 
-        IRBZ_points = find_face_center("four-fold")
+        IRBZ_points = find_face_center("four-fold", IRBZ_points)
 
-        IRBZ_points = find_face_center("rotoinv-three-fold")
+        IRBZ_points = find_face_center("rotoinv-three-fold", IRBZ_points)
 
-        IRBZ_points = find_face_center("three-fold")
+        IRBZ_points = find_face_center("three-fold", IRBZ_points)
 
-        IRBZ_points = find_face_center("two-fold")
+        IRBZ_points = find_face_center("two-fold", IRBZ_points)
 
         return [point[0] for point in IRBZ_points]
 
