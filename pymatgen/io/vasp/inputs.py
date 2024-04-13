@@ -329,9 +329,11 @@ class Poscar(MSONable):
 
         vasp5_symbols = False
         atomic_symbols = []
+
         try:
             n_atoms = [int(i) for i in lines[5].split()]
             ipos = 6
+
         except ValueError:
             vasp5_symbols = True
             symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
@@ -385,6 +387,7 @@ class Poscar(MSONable):
         # specified is the default used.
         if default_names:
             try:
+                atomic_symbols = []
                 for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
@@ -400,6 +403,7 @@ class Poscar(MSONable):
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
+
             except (ValueError, IndexError):
                 # Defaulting to false names.
                 atomic_symbols = []
