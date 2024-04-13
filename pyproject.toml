@@ -150,4 +150,5 @@ reportPossiblyUnboundVariable = true
 reportUnboundVariable = true
 reportMissingImports = false
 reportMissingModuleSource = false
+reportInvalidTypeForm = false
 exclude = ["**/tests"]
