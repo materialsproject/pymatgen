@@ -6,7 +6,6 @@ All major VASP input files.
 from __future__ import annotations
 
 import codecs
-import contextlib
 import hashlib
 import itertools
 import json
@@ -355,9 +354,11 @@ class Poscar(MSONable):
             #   ...
             n_lines_symbols = 1
             for n_lines_symbols in range(1, 11):
-                with contextlib.suppress(ValueError):
+                try:
                     int(lines[5 + n_lines_symbols].split()[0])
                     break
+                except ValueError:
+                    pass
 
             for i_line_symbols in range(6, 5 + n_lines_symbols):
                 symbols.extend(lines[i_line_symbols].split())
@@ -874,7 +875,7 @@ class Incar(dict, MSONable):
                 return float(num_str)
             return int(num_str)
 
-        with contextlib.suppress(ValueError):
+        try:
             if key in list_keys:
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
@@ -901,12 +902,19 @@ class Incar(dict, MSONable):
             if key in lower_str_keys:
                 return val.strip().lower()
 
-        # Not in standard keys. We will try a hierarchy of conversions.
-        with contextlib.suppress(ValueError):
-            return int(val)
+        except ValueError:
+            pass
 
-        with contextlib.suppress(ValueError):
+        # Not in standard keys. We will try a hierarchy of conversions.
+        try:
+            return int(val)
+        except ValueError:
+            pass
+
+        try:
             return float(val)
+        except ValueError:
+            pass
 
         if "true" in val.lower():
             return True
