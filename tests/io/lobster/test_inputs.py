@@ -693,7 +693,7 @@ class TestDoscar(TestCase):
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        with open(f"{TEST_FILES_DIR}/structure_KF.json") as file:
+        with open(f"{TEST_FILES_DIR}/structure_KF.json", encoding="utf-8") as file:
             data = json.load(file)
 
         self.structure = Structure.from_dict(data)

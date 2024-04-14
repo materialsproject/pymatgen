@@ -311,7 +311,7 @@ class Pseudo(MSONable, abc.ABC):
         """The path of the djrepo file. None if file does not exist."""
 
         root, _ext = os.path.splitext(self.filepath)
-        return "f{root}.djrepo"
+        return f"{root}.djrepo"
         # if os.path.isfile(path): return path
         # return None
 

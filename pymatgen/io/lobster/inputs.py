@@ -379,7 +379,7 @@ class Lobsterin(UserDict, MSONable):
         for idx, name in enumerate(potcar_names):
             if name not in basis:
                 raise ValueError(
-                    f"You have to provide the basis for {name} manually. We don't have any information on this POTCAR."
+                    f"Missing basis information for POTCAR symbol: {name}. Please provide the basis manually."
                 )
             basis_functions.append(basis[name].split())
             list_forin.append(f"{atom_types_potcar[idx]} {basis[name]}")

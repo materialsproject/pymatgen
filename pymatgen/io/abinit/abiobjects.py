@@ -720,14 +720,9 @@ class KSampling(AbivarAble, MSONable):
             ngkpt = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1, 3))
 
-            if use_symmetries and use_time_reversal:
-                kptopt = 1
-            elif not use_symmetries and use_time_reversal:
-                kptopt = 2
-            elif not use_symmetries and not use_time_reversal:
-                kptopt = 3
-            else:  # use_symmetries and not use_time_reversal
-                kptopt = 4
+            kptopt = 1 if use_symmetries else 2
+            if not use_time_reversal:
+                kptopt += 2
 
             abivars.update(
                 {

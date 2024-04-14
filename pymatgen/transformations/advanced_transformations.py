@@ -416,6 +416,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
+        m3gnet_model = None
 
         if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
             import matgl
@@ -427,11 +428,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
             elif self.sort_criteria == "m3gnet":
                 potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
                 m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
-            else:
-                m3gnet_model = None
-
-        else:
-            m3gnet_model = None
 
         def _get_stats(struct):
             if callable(self.sort_criteria):

@@ -361,7 +361,7 @@ class Header(MSONable):
             elif isinstance(self.struct, Molecule):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.coords]
             else:
-                raise TypeError("Unsupported type.")
+                raise TypeError("Unsupported type. Expect Structure or Molecule.")
             output.append(f"* {idx} {site.species_string} {' '.join(coords)}")
         return "\n".join(output)
 

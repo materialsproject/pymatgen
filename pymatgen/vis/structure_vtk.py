@@ -229,8 +229,7 @@ class StructureVis:
 
         matrix = struct.lattice.matrix if has_lattice else None
 
-        if self.show_unit_cell and matrix is not None:
-            matrix = struct.lattice.matrix
+        if self.show_unit_cell and has_lattice:
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -339,10 +338,7 @@ class StructureVis:
         vis_radius = 0.2 + 0.002 * radius
 
         for specie, occu in site.species.items():
-            if specie.symbol in self.el_color_mapping:
-                color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
-            else:
-                color = (1, 1, 1)
+            color = [i / 255 for i in self.el_color_mapping.get(specie.symbol, (255, 255, 255))]
 
             mapper = self.add_partial_sphere(site.coords, vis_radius, color, start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
