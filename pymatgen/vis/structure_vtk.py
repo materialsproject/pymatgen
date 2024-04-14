@@ -988,7 +988,7 @@ class MultiStructuresVis(StructureVis):
         tags = {}
         for tag in self.tags:
             istruct = tag.get("istruct", "all")
-            if istruct != "all" and istruct != self.istruct:
+            if istruct not in ("all", self.istruct):
                 continue
             site_index = tag["site_index"]
             color = tag.get("color", [0.5, 0.5, 0.5])
