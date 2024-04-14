@@ -1660,5 +1660,5 @@ def get_chunks(sequence: Sequence[Any], size=1):
     Returns:
         list[Sequence[Any]]: input sequence in chunks of length size.
     """
-    chunks = math.ceil(len(sequence) / float(size))
+    chunks = int(math.ceil(len(sequence) / float(size)))
     return [sequence[i * size : (i + 1) * size] for i in range(chunks)]

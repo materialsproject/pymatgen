@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-
+ 
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,14 +36,14 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li> 
       </ul>
-    </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-
+            
   <h1>Source code for pymatgen.command_line.enumlib_caller</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
@@ -320,7 +320,7 @@
         <span class="c1"># enumeration. See Cu7Te5.cif test file.</span>
         <span class="n">base</span> <span class="o">*=</span> <span class="mi">10</span>
 
-        <span class="c1"># base = ndisordered #10 ** math.ceil(math.log10(ndisordered))</span>
+        <span class="c1"># base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))</span>
         <span class="c1"># To get a reasonable number of structures, we fix concentrations to the</span>
         <span class="c1"># range expected in the original structure.</span>
         <span class="n">total_amounts</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">index_amounts</span><span class="p">)</span>
@@ -485,7 +485,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li> 
       </ul>
     </div>
 

@@ -386,7 +386,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 raise ValueError(f"Too many disordered sites! ({n_disordered} > {self.max_disordered_sites})")
             max_cell_sizes: Iterable[int] = range(
                 self.min_cell_size,
-                math.floor(self.max_disordered_sites / n_disordered) + 1,
+                int(math.floor(self.max_disordered_sites / n_disordered)) + 1,
             )
         else:
             max_cell_sizes = [self.max_cell_size]
