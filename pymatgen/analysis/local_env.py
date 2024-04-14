@@ -4164,10 +4164,10 @@ def _get_radius(site):
             return el.ionic_radii[oxi]
 
         # e.g., oxi = 2.667, average together 2+ and 3+ radii
-        if int(math.floor(oxi)) in el.ionic_radii and int(math.ceil(oxi)) in el.ionic_radii:
-            oxi_low = el.ionic_radii[int(math.floor(oxi))]
-            oxi_high = el.ionic_radii[int(math.ceil(oxi))]
-            x = oxi - int(math.floor(oxi))
+        if math.floor(oxi) in el.ionic_radii and math.ceil(oxi) in el.ionic_radii:
+            oxi_low = el.ionic_radii[math.floor(oxi)]
+            oxi_high = el.ionic_radii[math.ceil(oxi)]
+            x = oxi - math.floor(oxi)
             return (1 - x) * oxi_low + x * oxi_high
 
         if oxi > 0 and el.average_cationic_radius > 0:
