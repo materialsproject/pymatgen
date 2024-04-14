@@ -1158,7 +1158,7 @@ class Kpoints(MSONable):
             "Fully automatic kpoint scheme",
             0,
             style=Kpoints.supported_modes.Automatic,
-            kpts=((subdivisions, subdivisions, subdivisions),),
+            kpts=((subdivisions,),),
         )
 
     @classmethod
