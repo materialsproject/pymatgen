@@ -282,6 +282,7 @@ class PWInput:
         kpoints_mode = None
         kpoints_grid = (1, 1, 1)
         kpoints_shift = (0, 0, 0)
+        coords_are_cartesian = False  # DEBUG (@DanielYang59): need confirm
 
         for line in lines:
             mode = input_mode(line)
@@ -333,14 +334,11 @@ class PWInput:
 
                     if mode[1] == "angstrom":
                         coords_are_cartesian = True
-                    elif mode[1] == "crystal":
-                        coords_are_cartesian = False
 
         structure = Structure(
             Lattice(lattice),
             species,
             coords,
-            # DEBUG (@DanielYang59): need input on coords_are_cartesian
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
         )
