@@ -141,14 +141,8 @@ class Lobsterin(UserDict, MSONable):
         leading and trailing white spaces. Similar to INCAR class.
         """
         # due to the missing case sensitivity of lobster, the following code is necessary
-        found = False
-        new_key = None
-        for key_here in self:
-            if key.strip().lower() == key_here.lower():
-                new_key = key_here
-                found = True
-        if not found:
-            new_key = key
+        new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
+
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
             raise ValueError("Key is currently not available")
 
@@ -156,16 +150,12 @@ class Lobsterin(UserDict, MSONable):
 
     def __getitem__(self, item):
         """Implements getitem from dict to avoid problems with cases."""
-        found = False
-        new_key = None
-        for key_here in self:
-            if item.strip().lower() == key_here.lower():
-                new_key = key_here
-                found = True
-        if not found:
-            new_key = item
+        new_item = next((key_here for key_here in self if item.strip().lower() == key_here.lower()), item)
 
-        return super().__getitem__(new_key)
+        if new_item.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
+            raise ValueError("Key is currently not available")
+
+        return super().__getitem__(new_item)
 
     def __delitem__(self, key):
         del self.data[key.lower()]
@@ -190,34 +180,29 @@ class Lobsterin(UserDict, MSONable):
             k1lower = k1.lower()
             if k1lower not in key_list_others:
                 different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": None}
-            else:
-                for key_here in other:
-                    if k1.lower() == key_here.lower():
-                        new_key = key_here
-
-                if isinstance(v1, str):
-                    if v1.strip().lower() != other[new_key].strip().lower():
-                        different_param[k1.upper()] = {
-                            "lobsterin1": v1,
-                            "lobsterin2": other[new_key],
-                        }
-                    else:
-                        similar_param[k1.upper()] = v1
-                elif isinstance(v1, list):
-                    new_set1 = {element.strip().lower() for element in v1}
-                    new_set2 = {element.strip().lower() for element in other[new_key]}
-                    if new_set1 != new_set2:
-                        different_param[k1.upper()] = {
-                            "lobsterin1": v1,
-                            "lobsterin2": other[new_key],
-                        }
-                elif v1 != other[new_key]:
+            elif isinstance(v1, str):
+                if v1.strip().lower() != other[k1lower].strip().lower():
                     different_param[k1.upper()] = {
                         "lobsterin1": v1,
-                        "lobsterin2": other[new_key],
+                        "lobsterin2": other[k1lower],
                     }
                 else:
                     similar_param[k1.upper()] = v1
+            elif isinstance(v1, list):
+                new_set1 = {element.strip().lower() for element in v1}
+                new_set2 = {element.strip().lower() for element in other[k1lower]}
+                if new_set1 != new_set2:
+                    different_param[k1.upper()] = {
+                        "lobsterin1": v1,
+                        "lobsterin2": other[k1lower],
+                    }
+            elif v1 != other[k1lower]:
+                different_param[k1.upper()] = {
+                    "lobsterin1": v1,
+                    "lobsterin2": other[k1lower],
+                }
+            else:
+                similar_param[k1.upper()] = v1
 
         for k2, v2 in other.items():
             if k2.upper() not in similar_param and k2.upper() not in different_param:
