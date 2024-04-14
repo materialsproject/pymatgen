@@ -151,16 +151,17 @@ class CoordinationEnvironmentMorphing:
 
         coords = copy.deepcopy(self.abstract_geometry.points_wcs_ctwcc())
         bare_points = self.abstract_geometry.bare_points_with_centre
+        origin = None
 
         for morphing in self.morphing_description:
-            if morphing["site_type"] == "neighbor":
-                i_site = morphing["ineighbor"] + 1
-                if morphing["expansion_origin"] == "central_site":
-                    origin = bare_points[0]
-                vector = bare_points[i_site] - origin
-                coords[i_site] += vector * (morphing_factor - 1.0)
-            else:
+            if morphing["site_type"] != "neighbor":
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
+
+            i_site = morphing["ineighbor"] + 1
+            if morphing["expansion_origin"] == "central_site":
+                origin = bare_points[0]
+            vector = bare_points[i_site] - origin
+            coords[i_site] += vector * (morphing_factor - 1.0)
 
         return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 
@@ -269,7 +270,7 @@ if __name__ == "__main__":
         "+-------------------------------------------------------------+\n"
     )
 
-    with open("ce_pairs.json") as file:
+    with open("ce_pairs.json", encoding="utf-8") as file:
         ce_pairs = json.load(file)
     self_weight_max_csms: dict[str, list[float]] = {}
     self_weight_max_csms_per_cn: dict[str, list[float]] = {}
