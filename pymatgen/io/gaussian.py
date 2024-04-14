@@ -667,6 +667,7 @@ class GaussianOutput:
         std_structures = []
         geom_orientation = None
         opt_structures = []
+        route_lower = {}
 
         with zopen(filename, mode="rt") as file:
             for line in file:
@@ -767,6 +768,8 @@ class GaussianOutput:
                             mat_mo[spin] = np.zeros((self.num_basis_func, self.num_basis_func))
                             nMO = 0
                             end_mo = False
+                            atom_idx = None
+                            coeffs = []
                             while nMO < self.num_basis_func and not end_mo:
                                 file.readline()
                                 file.readline()
@@ -941,13 +944,12 @@ class GaussianOutput:
                         eigen_txt.append(line)
                         read_eigen = True
                     elif mulliken_patt.search(line):
-                        mulliken_txt = []
                         read_mulliken = True
                     elif not parse_forces and forces_on_patt.search(line):
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
-                        [file.readline() for i in range(3)]
+                        _ = [file.readline() for _i in range(3)]
                     elif mo_coeff_patt.search(line):
                         if "Alpha" in line:
                             self.is_spin = True
@@ -969,6 +971,7 @@ class GaussianOutput:
                         parse_bond_order = True
 
                     if read_mulliken:
+                        mulliken_txt = []
                         if not end_mulliken_patt.search(line):
                             mulliken_txt.append(line)
                         else:
@@ -1012,6 +1015,7 @@ class GaussianOutput:
         self.hessian = np.zeros((ndf, ndf))
         j_indices = range(5)
         ndf_idx = 0
+        vals = None
         while ndf_idx < ndf:
             for i in range(ndf_idx, ndf):
                 line = file.readline()
