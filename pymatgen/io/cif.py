@@ -1466,13 +1466,12 @@ class CifWriter:
         _, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
 
-        spg_analyzer = SpacegroupAnalyzer(struct, symprec)
-
         if symprec is None:
             block["_symmetry_equiv_pos_site_id"] = ["1"]
             block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
 
         else:
+            spg_analyzer = SpacegroupAnalyzer(struct, symprec)
             symm_ops: list[SymmOp] = []
             for op in spg_analyzer.get_symmetry_operations():
                 v = op.translation_vector
@@ -1548,7 +1547,7 @@ class CifWriter:
                     sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
                     len(sites),
                 )
-                for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites
+                for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(
                 unique_sites,
