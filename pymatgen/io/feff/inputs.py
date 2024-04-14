@@ -273,7 +273,7 @@ class Header(MSONable):
                 # source
                 end = 0
                 for line in f:
-                    if (line[0] == "*" or line[0] == "T") and end == 0:
+                    if line[0] in {"*", "T"} and end == 0:
                         feff_header_str.append(line.replace("\r", ""))
                     else:
                         end = 1
@@ -360,6 +360,8 @@ class Header(MSONable):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.frac_coords]
             elif isinstance(self.struct, Molecule):
                 coords = [f"{j:0.6f}".rjust(12) for j in site.coords]
+            else:
+                raise TypeError("Unsupported type.")
             output.append(f"* {idx} {site.species_string} {' '.join(coords)}")
         return "\n".join(output)
 
@@ -370,7 +372,7 @@ class Header(MSONable):
         Args:
             filename: Filename and path for file to be written to disk
         """
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
 
@@ -546,7 +548,7 @@ class Tags(dict):
             value: value associated with key in dictionary
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
-            warnings.warn(key.strip() + " not in VALID_FEFF_TAGS list")
+            warnings.warn(f"{key.strip()} not in VALID_FEFF_TAGS list")
         super().__setitem__(
             key.strip(),
             Tags.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
@@ -659,10 +661,9 @@ class Tags(dict):
         ieels = -1
         ieels_max = -1
         for idx, line in enumerate(lines):
-            m = re.match(r"([A-Z]+\d*\d*)\s*(.*)", line)
-            if m:
-                key = m.group(1).strip()
-                val = m.group(2).strip()
+            if m := re.match(r"([A-Z]+\d*\d*)\s*(.*)", line):
+                key = m[1].strip()
+                val = m[2].strip()
                 val = Tags.proc_val(key, val)
                 if key not in ("ATOMS", "POTENTIALS", "END", "TITLE"):
                     if key in ["ELNES", "EXELFS"]:
@@ -716,25 +717,22 @@ class Tags(dict):
 
         try:
             if key.lower() == "cif":
-                m = re.search(r"\w+.cif", val)
-                return m.group(0)
+                return re.search(r"\w+.cif", val)[0]
 
             if key in list_type_keys:
                 output = []
                 tokens = re.split(r"\s+", val)
 
                 for tok in tokens:
-                    m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
-                    if m:
-                        output.extend([smart_int_or_float(m.group(2))] * int(m.group(1)))
+                    if m := re.match(r"(\d+)\*([\d\.\-\+]+)", tok):
+                        output.extend([smart_int_or_float(m[2])] * int(m[1]))
                     else:
                         output.append(smart_int_or_float(tok))
                 return output
             if key in boolean_type_keys:
-                m = re.search(r"^\W+([TtFf])", val)
-                if m:
-                    return m.group(1) in ["T", "t"]
-                raise ValueError(key + " should be a boolean type!")
+                if m := re.search(r"^\W+([TtFf])", val):
+                    return m[1] in {"T", "t"}
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_type_keys:
                 return float(val)
@@ -794,12 +792,12 @@ class Potential(MSONable):
             struct (Structure): Structure object.
             absorbing_atom (str/int): Absorbing atom symbol or site index.
         """
-        if struct.is_ordered:
-            self.struct = struct
-            atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
-            self.pot_dict = get_atom_map(struct, atom_sym)
-        else:
+        if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
+
+        self.struct = struct
+        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
+        self.pot_dict = get_atom_map(struct, atom_sym)
 
         self.absorbing_atom, _ = get_absorbing_atom_symbol_index(absorbing_atom, struct)
 
