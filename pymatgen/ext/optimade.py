@@ -464,6 +464,8 @@ class OptimadeRester:
             _logger.warning(f"An invalid url was supplied: {provider_url}")
             return None
 
+        url = None
+
         try:
             url = urljoin(provider_url, "v1/info")
             provider_info_json = self._get_json(url)
@@ -504,6 +506,9 @@ class OptimadeRester:
         # Add trailing slash to all URLs if missing; prevents urljoin from scrubbing
         if urlparse(provider_url).path is not None and not provider_url.endswith("/"):
             provider_url += "/"
+
+        url = None
+
         try:
             url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
