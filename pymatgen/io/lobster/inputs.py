@@ -158,7 +158,9 @@ class Lobsterin(UserDict, MSONable):
         return super().__getitem__(new_item)
 
     def __delitem__(self, key):
-        del self.data[key.lower()]
+        new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
+
+        del self.data[new_key]
 
     def diff(self, other):
         """
