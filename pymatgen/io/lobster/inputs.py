@@ -251,16 +251,12 @@ class Lobsterin(UserDict, MSONable):
         # has to search first if entry is already in Lobsterindict (due to case insensitivity)
         if overwritedict is not None:
             for key, entry in overwritedict.items():
-                found = False
+                self[key] = entry
                 for key2 in self:
                     if key.lower() == key2.lower():
                         self[key2] = entry
-                        found = True
-                if not found:
-                    self[key] = entry
 
         filename = path
-        new_key = None
 
         with open(filename, mode="w", encoding="utf-8") as file:
             for key in Lobsterin.AVAILABLE_KEYWORDS:
@@ -271,9 +267,7 @@ class Lobsterin(UserDict, MSONable):
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
-                                new_key = key_here
-                        if self.get(new_key):
-                            file.write(key + "\n")
+                                file.write(key + "\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
