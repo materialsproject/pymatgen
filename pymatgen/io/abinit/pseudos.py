@@ -852,7 +852,7 @@ class NcAbinitHeader(AbinitHeader):
                 proj_info = [
                     line,
                 ]
-            elif idx % 2 == 1:
+            else:
                 proj_info.append(line)
                 d = _dict_from_lines(proj_info, [5, 4])
                 projectors[int(d["l"])] = d
