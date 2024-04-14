@@ -1752,7 +1752,7 @@ class TestLobsterin(TestCase):
     def test_diff(self):
         # test diff
         assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"] == {}
-        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"] == approx(-15.0)
+        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["cohpstartenergy"] == approx(-15.0)
 
         # test diff in both directions
         for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
@@ -1765,8 +1765,8 @@ class TestLobsterin(TestCase):
             assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]
 
         assert (
-            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
-            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
+            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["skipcohp"]["lobsterin1"]
+            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["skipcohp"]["lobsterin2"]
         )
 
     def test_dict_functionality(self):
@@ -1792,8 +1792,6 @@ class TestLobsterin(TestCase):
         lobsterin1.write_lobsterin(outfile_path)
         lobsterin2 = Lobsterin.from_file(outfile_path)
         assert lobsterin1.diff(lobsterin2)["Different"] == {}
-
-        # TODO: will integer vs float break cohpsteps?
 
     def test_get_basis(self):
         # get basis functions

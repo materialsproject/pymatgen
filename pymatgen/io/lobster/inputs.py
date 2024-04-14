@@ -174,42 +174,39 @@ class Lobsterin(UserDict, MSONable):
         similar_param = {}
         different_param = {}
         key_list_others = [element.lower() for element in other]
-        new_key = None
 
         for k1, v1 in self.items():
             k1lower = k1.lower()
             if k1lower not in key_list_others:
-                different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": None}
+                different_param[k1.lower()] = {"lobsterin1": v1, "lobsterin2": None}
             elif isinstance(v1, str):
                 if v1.strip().lower() != other[k1lower].strip().lower():
-                    different_param[k1.upper()] = {
+                    different_param[k1.lower()] = {
                         "lobsterin1": v1,
                         "lobsterin2": other[k1lower],
                     }
                 else:
-                    similar_param[k1.upper()] = v1
+                    similar_param[k1.lower()] = v1
             elif isinstance(v1, list):
                 new_set1 = {element.strip().lower() for element in v1}
                 new_set2 = {element.strip().lower() for element in other[k1lower]}
                 if new_set1 != new_set2:
-                    different_param[k1.upper()] = {
+                    different_param[k1.lower()] = {
                         "lobsterin1": v1,
                         "lobsterin2": other[k1lower],
                     }
             elif v1 != other[k1lower]:
-                different_param[k1.upper()] = {
+                different_param[k1.lower()] = {
                     "lobsterin1": v1,
                     "lobsterin2": other[k1lower],
                 }
             else:
-                similar_param[k1.upper()] = v1
+                similar_param[k1.lower()] = v1
 
         for k2, v2 in other.items():
-            if k2.upper() not in similar_param and k2.upper() not in different_param:
-                for key_here in self:
-                    new_key = key_here if k2.lower() == key_here.lower() else k2
-                if new_key not in self:
-                    different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
+            if k2.lower() not in similar_param and k2.lower() not in different_param:
+                if k2.lower() not in [key.lower() for key in self]:
+                    different_param[k2.lower()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def _get_nbands(self, structure: Structure):
