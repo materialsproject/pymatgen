@@ -1207,7 +1207,7 @@ class Kpoints(MSONable):
         ngrid = kppa / len(structure)
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
+        num_div = [math.floor(max(mult / length, 1)) for length in lengths]
 
         is_hexagonal = lattice.is_hexagonal()
         is_face_centered = structure.get_space_group_info()[0][0] == "F"

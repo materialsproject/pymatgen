@@ -867,7 +867,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
     vis.show_help = False
     vis.redraw()
     vis.zoom(zoom)
-    sig_fig = int(math.floor(math.log10(len(structures))) + 1)
+    sig_fig = math.floor(math.log10(len(structures))) + 1
     filename = f"image{{0:0{sig_fig}d}}.png"
     for idx, site in enumerate(structures):
         vis.set_structure(site)
