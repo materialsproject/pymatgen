@@ -1174,7 +1174,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=(kpts), kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=(kpts,), kpts_shift=shift)
 
     @classmethod
     def monkhorst_automatic(cls, kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
@@ -1190,7 +1190,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=(kpts), kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=(kpts,), kpts_shift=shift)
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
