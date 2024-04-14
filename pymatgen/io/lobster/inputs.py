@@ -179,28 +179,29 @@ class Lobsterin(UserDict, MSONable):
 
         for k1, v1 in self.items():
             k1lower = k1.lower()
+            k1_in_other = next((key_here for key_here in other if key_here.lower() == k1lower), k1lower)
             if k1lower not in key_list_others:
                 different_param[k1.lower()] = {"lobsterin1": v1, "lobsterin2": None}
             elif isinstance(v1, str):
                 if v1.strip().lower() != other[k1lower].strip().lower():
                     different_param[k1.lower()] = {
                         "lobsterin1": v1,
-                        "lobsterin2": other[k1lower],
+                        "lobsterin2": other[k1_in_other],
                     }
                 else:
                     similar_param[k1.lower()] = v1
             elif isinstance(v1, list):
                 new_set1 = {element.strip().lower() for element in v1}
-                new_set2 = {element.strip().lower() for element in other[k1lower]}
+                new_set2 = {element.strip().lower() for element in other[k1_in_other]}
                 if new_set1 != new_set2:
                     different_param[k1.lower()] = {
                         "lobsterin1": v1,
-                        "lobsterin2": other[k1lower],
+                        "lobsterin2": other[k1_in_other],
                     }
             elif v1 != other[k1lower]:
                 different_param[k1.lower()] = {
                     "lobsterin1": v1,
-                    "lobsterin2": other[k1lower],
+                    "lobsterin2": other[k1_in_other],
                 }
             else:
                 similar_param[k1.lower()] = v1
