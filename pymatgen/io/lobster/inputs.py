@@ -141,11 +141,7 @@ class Lobsterin(UserDict, MSONable):
         leading and trailing white spaces. Similar to INCAR class.
         """
         # due to the missing case sensitivity of lobster, the following code is necessary
-
-        new_key = key
-        for key_here in self:
-            if key.strip().lower() == key_here.lower():
-                new_key = key_here
+        new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
 
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
             raise ValueError("Key is currently not available")
@@ -154,10 +150,7 @@ class Lobsterin(UserDict, MSONable):
 
     def __getitem__(self, item):
         """Implements getitem from dict to avoid problems with cases."""
-        new_item = item
-        for key_here in self:
-            if item.strip().lower() == key_here.lower():
-                new_item = key_here
+        new_item = next((key_here for key_here in self if item.strip().lower() == key_here.lower()), item)
 
         if new_item.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
             raise ValueError("Key is currently not available")
