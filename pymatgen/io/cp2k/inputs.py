@@ -2054,7 +2054,7 @@ class Kpoints(Section):
             else:
                 sga = SpacegroupAnalyzer(structure)
                 _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))
-                kpts = list(itertools.chain.from_iterable(_kpts))
+                kpts = tuple(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
                 units = "B_VECTOR"
         elif kpoints.style == KpointsSupportedModes.Line_mode:

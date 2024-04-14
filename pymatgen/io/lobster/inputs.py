@@ -30,8 +30,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition
@@ -445,7 +443,7 @@ class Lobsterin(UserDict, MSONable):
         reciprocal_density: int = 100,
         isym: int = -1,
         from_grid: bool = False,
-        input_grid: Sequence[int] = (5, 5, 5),
+        input_grid: tuple[float, float, float] = (5, 5, 5),
         line_mode: bool = True,
         kpoints_line_density: int = 20,
         symprec: float = 0.01,
@@ -460,7 +458,7 @@ class Lobsterin(UserDict, MSONable):
             isym (int): either -1 or 0. Current Lobster versions only allow -1.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
                 Otherwise, they will be generated from the reciprocal_density
-            input_grid (list): grid to generate the KPOINTS file
+            input_grid (tuple): grid to generate the KPOINTS file
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
             symprec (float): precision to determine symmetry
@@ -558,7 +556,7 @@ class Lobsterin(UserDict, MSONable):
             comment=comment,
             style=Kpoints.supported_modes.Reciprocal,
             num_kpts=len(kpts),
-            kpts=kpts,
+            kpts=tuple(kpts),
             kpts_weights=weights,
             labels=all_labels,
         )

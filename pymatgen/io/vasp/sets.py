@@ -34,13 +34,12 @@ import os
 import re
 import shutil
 import warnings
-from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -59,6 +58,8 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from typing_extensions import Self
 
     from pymatgen.core.trajectory import Vector3D
@@ -869,7 +870,7 @@ class DictSet(VaspInputSet):
                     comment="Uniform grid",
                     style=Kpoints.supported_modes.Reciprocal,
                     num_kpts=len(mesh),
-                    kpts=[i[0] for i in mesh],
+                    kpts=tuple([i[0] for i in mesh]),
                     kpts_weights=[i[1] for i in mesh],
                 )
             else:
@@ -903,7 +904,7 @@ class DictSet(VaspInputSet):
                 comment="Uniform grid",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(mesh),
-                kpts=[i[0] for i in mesh],
+                kpts=tuple([i[0] for i in mesh]),
                 kpts_weights=[0 for i in mesh],
             )
 
@@ -914,7 +915,7 @@ class DictSet(VaspInputSet):
                 comment="Specified k-points only",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(points),
-                kpts=points,
+                kpts=tuple(points),
                 labels=["user-defined"] * len(points),
                 kpts_weights=[0] * len(points),
             )
@@ -3085,12 +3086,13 @@ def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
 
     labels = np.concatenate(labels).tolist()
     weights = np.concatenate(weights).tolist()
-    kpoints = np.concatenate(kpoints)
+    kpoints = np.concatenate(kpoints).tolist()
+
     return Kpoints(
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=cast(Sequence[Sequence[float]], kpoints),
+        kpts=tuple(kpoints),
         labels=labels,
         kpts_weights=weights,
     )
