@@ -131,7 +131,7 @@ class Lobsterin(UserDict, MSONable):
         # check for duplicates
         keys = [key.lower() for key in settingsdict]
         if len(keys) != len(set(keys)):
-            raise ValueError("There are duplicates for the keywords!")
+            raise KeyError("There are duplicates for the keywords!")
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
