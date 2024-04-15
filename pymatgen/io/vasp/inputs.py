@@ -44,8 +44,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import PathLike, Vector3D
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"

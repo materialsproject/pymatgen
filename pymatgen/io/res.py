@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import Vector3D
 
 
 @dataclass(frozen=True)

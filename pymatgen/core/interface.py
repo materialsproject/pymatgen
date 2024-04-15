@@ -29,8 +29,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
-    from pymatgen.util.typing import CompositionLike
+    from pymatgen.util.typing import CompositionLike, Vector3D
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.

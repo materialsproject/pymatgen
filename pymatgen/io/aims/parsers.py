@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
     from io import TextIOWrapper
 
-    from emmet.core.math import Matrix3D, Vector3D
+    from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Thomas A. R. Purcell and Andrey Sobolev"
 __version__ = "1.0"

@@ -6,10 +6,9 @@ from __future__ import annotations
 
 import itertools
 import warnings
-from collections.abc import Iterator, Sequence
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -20,16 +19,16 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from typing_extensions import Self
+
+    from pymatgen.util.typing import Matrix3D, SitePropsType, Vector3D
 
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
-
-Vector3D = tuple[float, float, float]
-Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
