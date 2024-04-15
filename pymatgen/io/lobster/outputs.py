@@ -386,7 +386,7 @@ class Icohplist(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[1:-1]
             if len(data) == 0:
-                raise OSError("ICOHPLIST file contains no data.")
+                raise RuntimeError("ICOHPLIST file contains no data.")
 
             # Which Lobster version?
             if len(data[0].split()) == 8:
@@ -423,7 +423,7 @@ class Icohplist(MSONable):
                 # TODO: adapt this for orbital-wise stuff
                 n_bonds = len(data_without_orbitals) // 2
                 if n_bonds == 0:
-                    raise OSError("ICOHPLIST file contains no data.")
+                    raise RuntimeError("ICOHPLIST file contains no data.")
             else:
                 n_bonds = len(data_without_orbitals)
 
@@ -550,7 +550,7 @@ class NciCobiList:
         with zopen(filename, mode="rt") as file:  # type:ignore
             data = file.read().split("\n")[1:-1]
         if len(data) == 0:
-            raise OSError("NcICOBILIST file contains no data.")
+            raise RuntimeError("NcICOBILIST file contains no data.")
 
         # If the calculation is spin-polarized, the line in the middle
         # of the file will be another header line.
@@ -580,7 +580,7 @@ class NciCobiList:
             # TODO: adapt this for orbitalwise case
             n_bonds = len(data_without_orbitals) // 2
             if n_bonds == 0:
-                raise OSError("NcICOBILIST file contains no data.")
+                raise RuntimeError("NcICOBILIST file contains no data.")
         else:
             n_bonds = len(data_without_orbitals)
 
@@ -821,7 +821,7 @@ class Charge(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[3:-3]
             if len(data) == 0:
-                raise OSError("CHARGES file contains no data.")
+                raise RuntimeError("CHARGES file contains no data.")
 
             self.num_atoms = len(data)
             for atom in range(self.num_atoms):
@@ -944,7 +944,7 @@ class Lobsterout(MSONable):
             with zopen(filename, mode="rt") as file:  # read in file
                 data = file.read().split("\n")
             if len(data) == 0:
-                raise OSError("lobsterout does not contain any data")
+                raise RuntimeError("lobsterout does not contain any data")
 
             # check if Lobster starts from a projection
             self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
@@ -1842,7 +1842,7 @@ class MadelungEnergies(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[5]
             if len(data) == 0:
-                raise OSError("MadelungEnergies file contains no data.")
+                raise RuntimeError("MadelungEnergies file contains no data.")
             line = data.split()
             self._filename = filename
             self.ewald_splitting = float(line[0])
@@ -1922,7 +1922,7 @@ class SitePotential(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")
             if len(data) == 0:
-                raise OSError("SitePotentials file contains no data.")
+                raise RuntimeError("SitePotentials file contains no data.")
 
             self._filename = filename
             self.ewald_splitting = float(data[0].split()[9])
@@ -2086,7 +2086,7 @@ class LobsterMatrices:
         with zopen(self._filename, mode="rt") as file:
             file_data = file.readlines()
         if len(file_data) == 0:
-            raise OSError("Please check provided input file, it seems to be empty")
+            raise RuntimeError("Please check provided input file, it seems to be empty")
 
         pattern_coeff_hamil_trans = r"(\d+)\s+kpoint\s+(\d+)"  # regex pattern to extract spin and k-point number
         pattern_overlap = r"kpoint\s+(\d+)"  # regex pattern to extract k-point number

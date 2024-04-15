@@ -131,7 +131,7 @@ class Lobsterin(UserDict, MSONable):
         # check for duplicates
         keys = [key.lower() for key in settingsdict]
         if len(keys) != len(set(keys)):
-            raise OSError("There are duplicates for the keywords! The program will stop here.")
+            raise ValueError("There are duplicates for the keywords!")
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
@@ -144,7 +144,7 @@ class Lobsterin(UserDict, MSONable):
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
 
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
-            raise ValueError("Key is currently not available")
+            raise KeyError("Key is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
@@ -153,7 +153,7 @@ class Lobsterin(UserDict, MSONable):
         new_item = next((key_here for key_here in self if item.strip().lower() == key_here.lower()), item)
 
         if new_item.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
-            raise ValueError("Key is currently not available")
+            raise KeyError("Key is currently not available")
 
         return super().__getitem__(new_item)
 
@@ -215,7 +215,7 @@ class Lobsterin(UserDict, MSONable):
     def _get_nbands(self, structure: Structure):
         """Get number of bands."""
         if self.get("basisfunctions") is None:
-            raise OSError("No basis functions are provided. The program cannot calculate nbands.")
+            raise ValueError("No basis functions are provided. The program cannot calculate nbands.")
 
         basis_functions: list[str] = []
         for string_basis in self["basisfunctions"]:
@@ -350,7 +350,7 @@ class Lobsterin(UserDict, MSONable):
         atom_types_potcar = [name.split("_")[0] for name in potcar_names]
 
         if set(structure.symbol_set) != set(atom_types_potcar):
-            raise OSError("Your POSCAR does not correspond to your POTCAR!")
+            raise ValueError("Your POSCAR does not correspond to your POTCAR!")
         basis = loadfn(address_basis_file)["BASIS"]
 
         basis_functions = []
@@ -559,7 +559,7 @@ class Lobsterin(UserDict, MSONable):
         with zopen(lobsterin, mode="rt") as file:
             data = file.read().split("\n")
         if len(data) == 0:
-            raise OSError("lobsterin file contains no data.")
+            raise RuntimeError("lobsterin file contains no data.")
         lobsterin_dict: dict[str, Any] = {}
 
         for datum in data:
@@ -604,7 +604,7 @@ class Lobsterin(UserDict, MSONable):
         potcar = Potcar.from_file(POTCAR_input)
         for pot in potcar:
             if pot.potential_type != "PAW":
-                raise OSError("Lobster only works with PAW! Use different POTCARs")
+                raise ValueError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in lobster-4.1.0
         with zopen(POTCAR_input, mode="r") as file:
@@ -621,7 +621,7 @@ class Lobsterin(UserDict, MSONable):
             )
 
         if potcar.functional != "PBE":
-            raise OSError("We only have BASIS options for PBE so far")
+            raise RuntimeError("We only have BASIS options for PBE so far")
 
         return [name["symbol"] for name in potcar.spec]
 
