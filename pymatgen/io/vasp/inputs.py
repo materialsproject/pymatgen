@@ -35,6 +35,7 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
+from pymatgen.util.typing import Kpoint, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -43,7 +44,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike, Vector3D
+    from pymatgen.util.typing import PathLike
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
@@ -1027,7 +1028,7 @@ class KpointsSupportedModes(Enum):
 
 
 class Kpoints(MSONable):
-    """KPOINT reader/writer."""
+    """KPOINTS reader/writer."""
 
     supported_modes = KpointsSupportedModes
 
@@ -1036,7 +1037,7 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
-        kpts: tuple[float, float, float] | tuple[tuple[float, float, float], ...] = ((1, 1, 1),),
+        kpts: Kpoint | Sequence[Kpoint] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
@@ -1061,11 +1062,11 @@ class Kpoints(MSONable):
                 (or negative), VASP automatically generates the KPOINTS.
             style: Style for generating KPOINTS. Use one of the
                 Kpoints.supported_modes enum types.
-            kpts (2D array): 2D array of kpoints. Even when only a single
+            kpts (2D array): Array of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
                 the kpts should still be specified as a 2D array. e.g.,
-                [[20]] or [[2,2,2]].
-            kpts_shift (3x1 array): Shift for Kpoints.
+                [(20,),] or [(2, 2, 2),].
+            kpts_shift (3x1 array): Shift for kpoints.
             kpts_weights: Optional weights for kpoints. Weights should be
                 integers. For explicit kpoints.
             coord_type: In line-mode, this variable specifies whether the
@@ -1101,20 +1102,22 @@ class Kpoints(MSONable):
         self.tet_connections = tet_connections
 
     @property
-    def kpts(self) -> tuple[float, float, float] | tuple[tuple[float, float, float], ...]:
+    def kpts(self) -> Kpoint | Sequence[Kpoint]:
         """
-        A tuple of kpoints, where each kpoint is a tuple of 3.
+        A sequence of kpoints, where each kpoint is a tuple of 3.
         """
-        if isinstance(self._kpts[0], (int, float)):
+        # TODO: (@DanielYang59): need to consider the special case of automatic
+
+        if all(isinstance(kpt, (int, float)) for kpt in self._kpts):
             return tuple(self._kpts)
 
-        if isinstance(self._kpts[0], Sequence):
-            return tuple(map(tuple, self._kpts))
+        if all(isinstance(kpt, Sequence) for kpt in self._kpts):
+            return map(tuple, self._kpts)
 
-        return None
+        raise ValueError("Invalid kpoint type.")
 
     @kpts.setter
-    def kpts(self, kpts: tuple[float, float, float] | tuple[tuple[float, float, float], ...]) -> None:
+    def kpts(self, kpts: Kpoint | Sequence[Kpoint]) -> None:
         """
         Args:
             kpts: Kpoints
@@ -1171,11 +1174,13 @@ class Kpoints(MSONable):
             "Fully automatic kpoint scheme",
             0,
             style=Kpoints.supported_modes.Automatic,
-            kpts=((subdivisions,),),
+            kpts=[
+                (subdivisions,),
+            ],
         )
 
     @classmethod
-    def gamma_automatic(cls, kpts: tuple[int, int, int] = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
+    def gamma_automatic(cls, kpts: Kpoint = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Constructor for an automatic Gamma centered Kpoint grid.
 
@@ -1187,10 +1192,10 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=(kpts,), kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
-    def monkhorst_automatic(cls, kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
+    def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1203,7 +1208,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=(kpts,), kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
@@ -1243,7 +1248,15 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return cls(comment, 0, style, (tuple(num_div),), (0, 0, 0))
+        return cls(
+            comment,
+            0,
+            style,
+            [
+                tuple(num_div),
+            ],
+            (0, 0, 0),
+        )
 
     @classmethod
     def automatic_gamma_density(cls, structure: Structure, kppa: float) -> Self:
@@ -1264,9 +1277,9 @@ class Kpoints(MSONable):
         n_grid = kppa / len(structure)
 
         multip = (n_grid * a * b * c) ** (1 / 3)
-        n_div = [int(round(multip / length)) for length in lattice.abc]
+        n_div = [round(multip / length) for length in lattice.abc]
 
-        # ensure that all num_div[i] > 0
+        # Ensure that all num_div[i] > 0
         n_div = [idx if idx > 0 else 1 for idx in n_div]
 
         # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
@@ -1277,7 +1290,15 @@ class Kpoints(MSONable):
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
         n_kpts = 0
-        return cls(comment, n_kpts, style, (tuple(n_div),), (0, 0, 0))
+        return cls(
+            comment,
+            n_kpts,
+            style,
+            [
+                cast(Kpoint, tuple(n_div)),
+            ],
+            (0, 0, 0),
+        )
 
     @classmethod
     def automatic_density_by_vol(cls, structure: Structure, kppvol: int, force_gamma: bool = False) -> Self:
@@ -1328,7 +1349,7 @@ class Kpoints(MSONable):
         comment = f"k-point density of {length_densities}/[a, b, c]"
         lattice = structure.lattice
         abc = lattice.abc
-        num_div = [np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities)]
+        num_div: Kpoint = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
         is_hexagonal = lattice.is_hexagonal()
         is_face_centered = structure.get_space_group_info()[0][0] == "F"
         has_odd = any(idx % 2 == 1 for idx in num_div)
@@ -1337,10 +1358,18 @@ class Kpoints(MSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        return cls(comment, 0, style, (tuple(num_div),), (0, 0, 0))
+        return cls(
+            comment,
+            0,
+            style,
+            [
+                num_div,
+            ],
+            (0, 0, 0),
+        )
 
     @classmethod
-    def automatic_linemode(cls, divisions, ibz) -> Self:
+    def automatic_linemode(cls, divisions: int, ibz: Any) -> Self:
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
         gamma centered Monkhorst-Pack grids and the number of subdivisions
@@ -1372,7 +1401,7 @@ class Kpoints(MSONable):
             "Line_mode KPOINTS file",
             style=Kpoints.supported_modes.Line_mode,
             coord_type="Reciprocal",
-            kpts=tuple(kpoints),
+            kpts=kpoints,
             labels=labels,
             num_kpts=int(divisions),
         )
@@ -1424,32 +1453,35 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            kpts = tuple(int(i) for i in lines[3].split())
-            assert len(kpts) == 3
+            kpts: Kpoint = cast(Kpoint, tuple(int(i) for i in lines[3].split()))
+            if len(kpts) != 3:
+                raise ValueError("Invalid kpoint length.")
 
-            kpts_shift: tuple[float, float, float] = (0, 0, 0)
+            kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    _kpts_shift = tuple(float(i) for i in lines[4].split())
+                    _kpts_shift: list[float] = [float(i) for i in lines[4].split()]
                 except ValueError:
-                    _kpts_shift = (0, 0, 0)
+                    _kpts_shift = [0, 0, 0]
 
-                if len(_kpts_shift) == 3:
-                    kpts_shift = _kpts_shift
+                if len(_kpts_shift) != 3:
+                    raise ValueError("Invalid kpoint shift length.")
+
+                kpts_shift = cast(Vector3D, tuple(_kpts_shift))
 
             return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-            _kpts_shift = tuple(float(i) for i in lines[6].split())
-            kpts_shift = _kpts_shift if len(_kpts_shift) == 3 else (0, 0, 0)
+            _kpts_shift = [float(i) for i in lines[6].split()]
+            kpts_shift = tuple(_kpts_shift) if len(_kpts_shift) == 3 else (0, 0, 0)
 
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
                 style=_style,
-                kpts=[[float(j) for j in lines[i].split()] for i in range(3, 6)],
+                kpts=[cast(Kpoint, (tuple(int(j) for j in lines[i].split()) for i in range(3, 6)))],
                 kpts_shift=kpts_shift,
             )
 
@@ -1457,19 +1489,19 @@ class Kpoints(MSONable):
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             _style = cls.supported_modes.Line_mode
-            _kpts: list[tuple[float, float, float]] = []
+            _kpts: list[Kpoint] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
                 if match := patt.match(line):
-                    _kpts.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
-                    labels.append(match.group(4).strip())
+                    _kpts.append((int(match[1]), int(match[2]), int(match[3])))
+                    labels.append(match[4].strip())
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
                 style=_style,
-                kpts=tuple(_kpts),
+                kpts=_kpts,
                 coord_type=coord_type,
                 labels=labels,
             )
@@ -1485,7 +1517,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            _kpts.append(tuple(float(j) for j in tokens[:3]))
+            _kpts.append(cast(Kpoint, tuple(int(j) for j in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1508,7 +1540,7 @@ class Kpoints(MSONable):
             comment=comment,
             num_kpts=num_kpts,
             style=cls.supported_modes[str(_style)],
-            kpts=tuple(_kpts),
+            kpts=_kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
             tet_weight=tet_weight,
