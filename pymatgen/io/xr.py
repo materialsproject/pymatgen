@@ -124,12 +124,11 @@ class Xr:
         sp = []
         coords = []
         for j in range(n_sites):
-            m = re.match(
+            if match := re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
                 lines[4 + j].strip(),
-            )
-            if m:
-                tmp_sp = m.group(1)
+            ):
+                tmp_sp = match.group(1)
                 if use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_s":
                     continue
                 if not use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_c":
@@ -138,7 +137,7 @@ class Xr:
                     sp.append(tmp_sp[0 : len(tmp_sp) - 2])
                 else:
                     sp.append(tmp_sp)
-                coords.append([float(m.group(i)) for i in range(2, 5)])
+                coords.append([float(match.group(i)) for i in range(2, 5)])
         return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
     @classmethod

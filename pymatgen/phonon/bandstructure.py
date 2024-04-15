@@ -45,6 +45,7 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int
     connection_order = []
     for overlaps in metric:
         max_val = 0
+        max_idx = 0
         for idx in reversed(range(len(metric))):
             val = overlaps[idx]
             if idx in connection_order:
