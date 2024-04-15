@@ -817,9 +817,9 @@ class Incar(dict, MSONable):
         params = {}
         for line in lines:
             for sline in line.split(";"):
-                if m := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key = m.group(1).strip()
-                    val = m.group(2).strip()
+                if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
+                    key = match.group(1).strip()
+                    val = match.group(2).strip()
                     val = Incar.proc_val(key, val)
                     params[key] = val
         return cls(params)
@@ -888,8 +888,8 @@ class Incar(dict, MSONable):
                         output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                if m := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
-                    return m.group(1).lower() == "t"
+                if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
+                    return match.group(1).lower() == "t"
 
                 raise ValueError(f"{key} should be a boolean type!")
 
@@ -1436,9 +1436,9 @@ class Kpoints(MSONable):
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
-                if m := patt.match(line):
-                    _kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
-                    labels.append(m.group(4).strip())
+                if match := patt.match(line):
+                    _kpts.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+                    labels.append(match.group(4).strip())
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
@@ -1582,22 +1582,22 @@ class Kpoints(MSONable):
         )
 
 
-def _parse_bool(s):
-    if m := re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s):
-        return m[1] in ["T", "t"]
-    raise ValueError(f"{s} should be a boolean type!")
+def _parse_bool(string):
+    if match := re.match(r"^\.?([TFtf])[A-Za-z]*\.?", string):
+        return match[1] in {"T", "t"}
+    raise ValueError(f"{string} should be a boolean type!")
 
 
-def _parse_float(s):
-    return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", s).group(0))
+def _parse_float(string):
+    return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", string).group(0))
 
 
-def _parse_int(s):
-    return int(re.match(r"^-?[0-9]+", s).group(0))
+def _parse_int(string):
+    return int(re.match(r"^-?[0-9]+", string).group(0))
 
 
-def _parse_list(s):
-    return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
+def _parse_list(string):
+    return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
 Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])

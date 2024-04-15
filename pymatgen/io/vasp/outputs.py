@@ -2261,8 +2261,8 @@ class Outcar:
         Returns:
             list[float]: numbers if found, empty ist if not
         """
-        if m := re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line):
-            return [float(t) for t in m]
+        if match := re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line):
+            return [float(t) for t in match]
         return []
 
     def read_freq_dielectric(self):

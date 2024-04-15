@@ -646,13 +646,13 @@ class Tags(dict):
     @classmethod
     def from_file(cls, filename: str = "feff.inp") -> Self:
         """
-        Creates a Feff_tag dictionary from a PARAMETER or feff.inp file.
+        Creates a Tags dictionary from a PARAMETER or feff.inp file.
 
         Args:
             filename: Filename for either PARAMETER or feff.inp file
 
         Returns:
-            Feff_tag object
+            Tags
         """
         with zopen(filename, mode="rt") as file:
             lines = list(clean_lines(file.readlines()))
@@ -661,9 +661,9 @@ class Tags(dict):
         ieels = -1
         ieels_max = -1
         for idx, line in enumerate(lines):
-            if m := re.match(r"([A-Z]+\d*\d*)\s*(.*)", line):
-                key = m[1].strip()
-                val = m[2].strip()
+            if match := re.match(r"([A-Z]+\d*\d*)\s*(.*)", line):
+                key = match[1].strip()
+                val = match[2].strip()
                 val = Tags.proc_val(key, val)
                 if key not in ("ATOMS", "POTENTIALS", "END", "TITLE"):
                     if key in ["ELNES", "EXELFS"]:
@@ -710,10 +710,10 @@ class Tags(dict):
         boolean_type_keys = ()
         float_type_keys = ("S02", "EXAFS", "RPATH")
 
-        def smart_int_or_float(numstr):
-            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
-                return float(numstr)
-            return int(numstr)
+        def smart_int_or_float(num_str):
+            if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
+                return float(num_str)
+            return int(num_str)
 
         try:
             if key.lower() == "cif":
@@ -724,14 +724,14 @@ class Tags(dict):
                 tokens = re.split(r"\s+", val)
 
                 for tok in tokens:
-                    if m := re.match(r"(\d+)\*([\d\.\-\+]+)", tok):
-                        output.extend([smart_int_or_float(m[2])] * int(m[1]))
+                    if match := re.match(r"(\d+)\*([\d\.\-\+]+)", tok):
+                        output.extend([smart_int_or_float(match[2])] * int(match[1]))
                     else:
                         output.append(smart_int_or_float(tok))
                 return output
             if key in boolean_type_keys:
-                if m := re.search(r"^\W+([TtFf])", val):
-                    return m[1] in {"T", "t"}
+                if match := re.search(r"^\W+([TtFf])", val):
+                    return match[1] in {"T", "t"}
                 raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_type_keys:

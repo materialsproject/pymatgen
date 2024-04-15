@@ -290,10 +290,10 @@ class PWInput:
                 pass
             elif mode[0] == "sections":
                 section = mode[1]
-                if m := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
-                    key = m[1].strip()
-                    key_ = m[2].strip()
-                    val = m[3].strip()
+                if match := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
+                    key = match[1].strip()
+                    key_ = match[2].strip()
+                    val = match[3].strip()
                     if key_ != "":
                         if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
@@ -307,13 +307,13 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                if m := re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line):
-                    pseudo[m[1].strip()] = m[3].strip()
+                if match := re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line):
+                    pseudo[match[1].strip()] = match[3].strip()
 
             elif mode[0] == "kpoints":
-                if m := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
-                    kpoints_grid = (int(m[1]), int(m[2]), int(m[3]))
-                    kpoints_shift = (int(m[4]), int(m[5]), int(m[6]))
+                if match := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
+                    kpoints_grid = (int(match[1]), int(match[2]), int(match[3]))
+                    kpoints_shift = (int(match[4]), int(match[5]), int(match[6]))
                 else:
                     kpoints_mode = mode[1]
 

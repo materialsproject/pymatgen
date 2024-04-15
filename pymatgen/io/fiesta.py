@@ -773,12 +773,11 @@ class FiestaOutput:
 
         for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(line)
-                if m:
+                if match := end_patt.search(line):
                     GW_results.update(end_normally=True)
 
-                if m := total_time_patt.search(line):
-                    GW_results.update(total_time=m[1])
+                if match := total_time_patt.search(line):
+                    GW_results.update(total_time=match[1])
 
             if parse_gw_results:
                 if line.find("Dumping eigen energies") != -1:
@@ -786,20 +785,20 @@ class FiestaOutput:
                     parse_gw_results = False
                     continue
 
-                if m := GW_BANDS_results_patt.search(line):
+                if match := GW_BANDS_results_patt.search(line):
                     dct = {}
                     dct.update(
-                        band=m[1].strip(),
-                        eKS=m[2],
-                        eXX=m[3],
-                        eQP_old=m[4],
-                        z=m[5],
-                        sigma_c_Linear=m[6],
-                        eQP_Linear=m[7],
-                        sigma_c_SCF=m[8],
-                        eQP_SCF=m[9],
+                        band=match[1].strip(),
+                        eKS=match[2],
+                        eXX=match[3],
+                        eQP_old=match[4],
+                        z=match[5],
+                        sigma_c_Linear=match[6],
+                        eQP_Linear=match[7],
+                        sigma_c_SCF=match[8],
+                        eQP_SCF=match[9],
                     )
-                    GW_results[m[1].strip()] = dct
+                    GW_results[match[1].strip()] = dct
 
                 if n := GW_GAPS_results_patt.search(line):
                     dct = {}
@@ -853,11 +852,11 @@ class BSEOutput:
 
         for line in output.split("\n"):
             if parse_total_time:
-                if m := end_patt.search(line):
+                if match := end_patt.search(line):
                     BSE_results.update(end_normally=True)
 
-                if m := total_time_patt.search(line):
-                    BSE_results.update(total_time=m[1])
+                if match := total_time_patt.search(line):
+                    BSE_results.update(total_time=match[1])
 
             if parse_BSE_results:
                 if line.find("FULL BSE main valence -> conduction transitions weight:") != -1:
@@ -865,10 +864,10 @@ class BSEOutput:
                     parse_BSE_results = False
                     continue
 
-                if m := BSE_exitons_patt.search(line):
+                if match := BSE_exitons_patt.search(line):
                     dct = {}
-                    dct.update(bse_eig=m[2], osc_strength=m[3])
-                    BSE_results[str(m[1].strip())] = dct
+                    dct.update(bse_eig=match[2], osc_strength=match[3])
+                    BSE_results[str(match[1].strip())] = dct
 
             if line.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
                 parse_BSE_results = True
