@@ -282,7 +282,7 @@ class PWInput:
         kpoints_mode = None
         kpoints_grid = (1, 1, 1)
         kpoints_shift = (0, 0, 0)
-        coords_are_cartesian = False  # DEBUG (@DanielYang59): need confirm
+        coords_are_cartesian = False
 
         for line in lines:
             mode = input_mode(line)
