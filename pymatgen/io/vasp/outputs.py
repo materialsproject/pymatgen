@@ -1871,28 +1871,28 @@ class Outcar:
                         run_stats[tok[0].strip()] = None
                     continue
 
-                if m := efermi_patt.search(clean):
+                if match := efermi_patt.search(clean):
                     try:
                         # try-catch because VASP sometimes prints
                         # 'E-fermi: ********     XC(G=0):  -6.1327
                         # alpha+bet : -1.8238'
-                        efermi = float(m.group(1))
+                        efermi = float(match.group(1))
                         continue
                     except ValueError:
                         efermi = None
                         continue
-                if m := nelect_patt.search(clean):
-                    nelect = float(m.group(1))
+                if match := nelect_patt.search(clean):
+                    nelect = float(match.group(1))
 
-                if m := mag_patt.search(clean):
-                    total_mag = float(m.group(1))
+                if match := mag_patt.search(clean):
+                    total_mag = float(match.group(1))
 
-                if e_fr_energy is None and (m := e_fr_energy_pattern.search(clean)):
-                    e_fr_energy = float(m.group(1))
-                if e_wo_entrp is None and (m := e_wo_entrp_pattern.search(clean)):
-                    e_wo_entrp = float(m.group(1))
-                if e0 is None and (m := e0_pattern.search(clean)):
-                    e0 = float(m.group(1))
+                if e_fr_energy is None and (match := e_fr_energy_pattern.search(clean)):
+                    e_fr_energy = float(match.group(1))
+                if e_wo_entrp is None and (match := e_wo_entrp_pattern.search(clean)):
+                    e_wo_entrp = float(match.group(1))
+                if e0 is None and (match := e0_pattern.search(clean)):
+                    e0 = float(match.group(1))
             if all([nelect, total_mag is not None, efermi is not None, run_stats]):
                 break
 
@@ -1908,24 +1908,22 @@ class Outcar:
                 if clean.startswith("# of ion"):
                     header = re.split(r"\s{2,}", clean.strip())
                     header.pop(0)
-                else:
-                    m = re.match(r"\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                    if m:
-                        tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
-                        tokens.pop(0)
-                        if read_charge:
-                            charge.append(dict(zip(header, tokens)))
-                        elif read_mag_x:
-                            mag_x.append(dict(zip(header, tokens)))
-                        elif read_mag_y:
-                            mag_y.append(dict(zip(header, tokens)))
-                        elif read_mag_z:
-                            mag_z.append(dict(zip(header, tokens)))
-                    elif clean.startswith("tot"):
-                        read_charge = False
-                        read_mag_x = False
-                        read_mag_y = False
-                        read_mag_z = False
+                elif match := re.match(r"\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean):
+                    tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
+                    tokens.pop(0)
+                    if read_charge:
+                        charge.append(dict(zip(header, tokens)))
+                    elif read_mag_x:
+                        mag_x.append(dict(zip(header, tokens)))
+                    elif read_mag_y:
+                        mag_y.append(dict(zip(header, tokens)))
+                    elif read_mag_z:
+                        mag_z.append(dict(zip(header, tokens)))
+                elif clean.startswith("tot"):
+                    read_charge = False
+                    read_mag_x = False
+                    read_mag_y = False
+                    read_mag_z = False
             if clean == "total charge":
                 charge = []
                 read_charge = True

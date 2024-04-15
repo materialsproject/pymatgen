@@ -265,9 +265,9 @@ def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: Pb
     """
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
-    m = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
+    mask_arr = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
     atol = np.zeros(3, dtype=np.float64) + atol
-    return coord_cython.is_coord_subset_pbc(c1, c2, atol, m, pbc)
+    return coord_cython.is_coord_subset_pbc(c1, c2, atol, mask_arr, pbc)
 
 
 def lattice_points_in_supercell(supercell_matrix):

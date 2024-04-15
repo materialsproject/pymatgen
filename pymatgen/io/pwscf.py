@@ -491,9 +491,8 @@ class PWInput:
         if "false" in val.lower():
             return False
 
-        m = re.match(r"^[\"|'](.+)[\"|']$", val)
-        if m:
-            return m.group(1)
+        if match := re.match(r"^[\"|'](.+)[\"|']$", val):
+            return match[1]
         return None
 
 

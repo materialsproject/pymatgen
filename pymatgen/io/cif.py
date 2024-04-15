@@ -905,10 +905,8 @@ class CifParser:
             parsed_sym = sym[:2].title()
         elif Element.is_valid_symbol(sym[0].upper()):
             parsed_sym = sym[0].upper()
-        else:
-            m = re.match(r"w?[A-Z][a-z]*", sym)
-            if m:
-                parsed_sym = m.group()
+        elif match := re.match(r"w?[A-Z][a-z]*", sym):
+            parsed_sym = match.group()
 
         if parsed_sym is not None and (m_sp or not re.match(rf"{parsed_sym}\d*", sym)):
             msg = f"{sym} parsed as {parsed_sym}"

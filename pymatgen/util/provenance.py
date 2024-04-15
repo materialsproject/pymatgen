@@ -146,10 +146,10 @@ class Author(namedtuple("Author", ["name", "email"])):
         if isinstance(author, str):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
-            m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
-            if not m or m.start() != 0 or m.end() != len(author):
+            match = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
+            if not match or match.start() != 0 or match.end() != len(author):
                 raise ValueError(f"Invalid author format! {author}")
-            return cls(m.groups()[0], m.groups()[1])
+            return cls(match.groups()[0], match.groups()[1])
         if isinstance(author, dict):
             return cls.from_dict(author)
         if len(author) != 2:

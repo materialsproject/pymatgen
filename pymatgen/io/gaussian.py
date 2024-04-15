@@ -61,23 +61,21 @@ def read_route_line(route):
                 route = route.replace(tok, "")
 
         for tok in route.split():
-            if m := scrf_patt.match(tok):
-                route_params[m.group(1)] = m.group(2)
+            if match := scrf_patt.match(tok):
+                route_params[match.group(1)] = match.group(2)
             elif tok.upper() in ["#", "#N", "#P", "#T"]:
                 # does not store # in route to avoid error in input
                 dieze_tag = "#N" if tok == "#" else tok
                 continue
+            elif match := re.match(multi_params_patt, tok.strip("#")):
+                pars = {}
+                for par in match.group(2).split(","):
+                    p = par.split("=")
+                    pars[p[0]] = None if len(p) == 1 else p[1]
+                route_params[match.group(1)] = pars
             else:
-                m = re.match(multi_params_patt, tok.strip("#"))
-                if m:
-                    pars = {}
-                    for par in m.group(2).split(","):
-                        p = par.split("=")
-                        pars[p[0]] = None if len(p) == 1 else p[1]
-                    route_params[m.group(1)] = pars
-                else:
-                    d = tok.strip("#").split("=")
-                    route_params[d[0]] = None if len(d) == 1 else d[1]
+                d = tok.strip("#").split("=")
+                route_params[d[0]] = None if len(d) == 1 else d[1]
 
     return functional, basis_set, route_params, dieze_tag
 
