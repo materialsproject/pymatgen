@@ -2589,6 +2589,6 @@ class TestLobsterMatrices(PymatgenTest):
 
         with pytest.raises(
             RuntimeError,
-            match=r"Please check provided input file, it seems to be empty",
+            match="Please check provided input file, it seems to be empty",
         ):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")
