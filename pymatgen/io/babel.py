@@ -17,7 +17,7 @@ from pymatgen.core.structure import IMolecule, Molecule
 try:
     from openbabel import openbabel, pybel
 except Exception:
-    openbabel = None
+    openbabel = pybel = None
 
 if TYPE_CHECKING:
     from typing_extensions import Self

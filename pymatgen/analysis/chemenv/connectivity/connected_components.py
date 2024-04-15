@@ -241,17 +241,16 @@ class ConnectedComponent(MSONable):
                 if links_data is None:
                     edge_data = None
 
+                elif (env_node1, env_node2, key) in links_data:
+                    edge_data = links_data[(env_node1, env_node2, key)]
+                elif (env_node2, env_node1, key) in links_data:
+                    edge_data = links_data[(env_node2, env_node1, key)]
+                elif (env_node1, env_node2) in links_data:
+                    edge_data = links_data[(env_node1, env_node2)]
+                elif (env_node2, env_node1) in links_data:
+                    edge_data = links_data[(env_node2, env_node1)]
                 else:
-                    if (env_node1, env_node2, key) in links_data:
-                        edge_data = links_data[(env_node1, env_node2, key)]
-                    elif (env_node2, env_node1, key) in links_data:
-                        edge_data = links_data[(env_node2, env_node1, key)]
-                    elif (env_node1, env_node2) in links_data:
-                        edge_data = links_data[(env_node1, env_node2)]
-                    elif (env_node2, env_node1) in links_data:
-                        edge_data = links_data[(env_node2, env_node1)]
-                    else:
-                        edge_data = None
+                    edge_data = None
 
                 if edge_data:
                     self._connected_subgraph.add_edge(env_node1, env_node2, key, **edge_data)

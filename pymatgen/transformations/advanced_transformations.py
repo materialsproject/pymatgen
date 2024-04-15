@@ -386,7 +386,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 raise ValueError(f"Too many disordered sites! ({n_disordered} > {self.max_disordered_sites})")
             max_cell_sizes: Iterable[int] = range(
                 self.min_cell_size,
-                int(math.floor(self.max_disordered_sites / n_disordered)) + 1,
+                math.floor(self.max_disordered_sites / n_disordered) + 1,
             )
         else:
             max_cell_sizes = [self.max_cell_size]
@@ -416,6 +416,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
+        m3gnet_model = None
+
         if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
             import matgl
             from matgl.ext.ase import M3GNetCalculator, Relaxer
@@ -452,12 +454,14 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     relax_results = m3gnet_model.relax(struct)
                     energy = float(relax_results["trajectory"].energies[-1])
                     struct = relax_results["final_structure"]
-                else:
-                    from pymatgen.io.ase import AseAtomsAdaptor
 
+                elif self.sort_criteria == "m3gnet":
                     atoms = AseAtomsAdaptor().get_atoms(struct)
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
+
+                else:
+                    raise ValueError("Unsupported sort criteria.")
 
                 return {
                     "num_sites": len(struct),
@@ -2076,6 +2080,9 @@ class SQSTransformation(AbstractTransformation):
                 cluster_cutoffs=clusters,
                 sqs_kwargs=self.icet_sqs_kwargs,
             ).run()
+
+        else:
+            raise RuntimeError(f"Unsupported SQS method {self.sqs_method}.")
 
         return self._get_unique_best_sqs_structs(
             sqs,

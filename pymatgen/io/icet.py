@@ -16,7 +16,9 @@ try:
     from icet.tools.structure_generation import _get_sqs_cluster_vector, _validate_concentrations, generate_sqs
     from mchammer.calculators import compare_cluster_vectors
 except ImportError:
-    ClusterSpace = None
+    ClusterSpace = _validate_concentrations = _get_sqs_cluster_vector = compare_cluster_vectors = generate_sqs = (
+        enumerate_structures
+    ) = None
 
 
 if TYPE_CHECKING:

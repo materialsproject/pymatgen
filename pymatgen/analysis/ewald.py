@@ -344,8 +344,7 @@ class EwaldSummation(MSONable):
 
         for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            m = (gr[None, :] + pi / 4) - gr[:, None]
-            np.sin(m, m)
+            m = np.sin((gr[None, :] + pi / 4) - gr[:, None])
             m *= exp_val / g2
 
             e_recip += m

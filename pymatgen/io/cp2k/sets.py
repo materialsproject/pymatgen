@@ -399,7 +399,7 @@ class DftSet(Cp2kInput):
         for el in structure.symbol_set:
             possible_basis_sets = []
             possible_potentials = []
-            basis, aux_basis, potential = None, None, None
+            basis, aux_basis, potential, DATA = None, None, None, None
             desired_basis, desired_aux_basis, desired_potential = None, None, None
             have_element_file = os.path.isfile(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 

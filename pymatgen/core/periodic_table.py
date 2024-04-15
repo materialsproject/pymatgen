@@ -246,14 +246,15 @@ class ElementBase(Enum):
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
-                    if item in ("refractive_index", "melting_point") and isinstance(val, str):
-                        # Final attempt to parse a float.
-                        m = re.findall(r"[\.\d]+", val)
-                        if m:
-                            warnings.warn(
-                                f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value."
-                            )
-                            return float(m[0])
+                    if (
+                        item in ("refractive_index", "melting_point")
+                        and isinstance(val, str)
+                        and (match := re.findall(r"[\.\d]+", val))
+                    ):
+                        warnings.warn(
+                            f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value."
+                        )
+                        return float(match[0])
             return val
         raise AttributeError(f"Element has no attribute {item}!")
 
@@ -385,9 +386,8 @@ class ElementBase(Enum):
         e_str = self.electronic_structure
 
         def parse_orbital(orb_str):
-            m = re.match(r"(\d+)([spdfg]+)(\d+)", orb_str)
-            if m:
-                return int(m.group(1)), m.group(2), int(m.group(3))
+            if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
+                return int(match.group(1)), match.group(2), int(match.group(3))
             return orb_str
 
         data = [parse_orbital(s) for s in e_str.split(".")]
@@ -1382,17 +1382,16 @@ class DummySpecies(Species):
         Raises:
             ValueError if species_string cannot be interpreted.
         """
-        m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
-        if m:
-            sym = m.group(1)
-            if m.group(2) == m.group(3) == "":
+        if match := re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string):
+            sym = match.group(1)
+            if match.group(2) == match.group(3) == "":
                 oxi = 0.0
             else:
-                oxi = 1.0 if m.group(2) == "" else float(m.group(2))
-                oxi = -oxi if m.group(3) == "-" else oxi
+                oxi = 1.0 if match.group(2) == "" else float(match.group(2))
+                oxi = -oxi if match.group(3) == "-" else oxi
             properties = {}
-            if m.group(4):  # has Spin property
-                tokens = m.group(4).split("=")
+            if match.group(4):  # has Spin property
+                tokens = match.group(4).split("=")
                 properties = {tokens[0]: float(tokens[1])}
             return cls(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")

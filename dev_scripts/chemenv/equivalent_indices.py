@@ -99,9 +99,9 @@ if __name__ == "__main__":
         # 0. any point
         for i0 in range(8):
             # 1. point opposite to point 0. in the square face
-            if i0 in [0, 2]:
+            if i0 in {0, 2}:
                 i1 = i0 + 1
-            elif i0 in [1, 3]:
+            elif i0 in {1, 3}:
                 i1 = i0 - 1
             elif i0 == 4:
                 i1 = 7
@@ -111,10 +111,14 @@ if __name__ == "__main__":
                 i1 = 5
             elif i0 == 7:
                 i1 = 4
+            else:
+                raise RuntimeError("Cannot determine point.")
+
             # 2. one of the two last points in the square face
             sfleft = list(sf1) if i0 in sf1 else list(sf2)
             sfleft.remove(i0)
             sfleft.remove(i1)
+            i2 = 0
             for i2 in sfleft:
                 sfleft2 = list(sfleft)
                 sfleft2.remove(i2)

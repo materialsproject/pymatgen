@@ -6,11 +6,14 @@ calculate relevant properties of the stress tensor.
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
-from typing_extensions import Self
 
 from pymatgen.core.tensors import SquareTensor
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"

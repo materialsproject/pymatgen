@@ -270,6 +270,8 @@ class HighSymmKpath(KPathBase):
                     unlabeled[label_a] = coord_a
 
             for label_a, coord_a in unlabeled.items():
+                key = None
+
                 for op in rpg:
                     coord_a_t = np.dot(op, coord_a)
                     key = [

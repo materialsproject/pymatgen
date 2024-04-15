@@ -298,11 +298,11 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
     parts = []
     for idx in range(3):
         string = ""
-        m = matrix[idx]
+        mat = matrix[idx]
         offset = translation_vec[idx]
         for j, dim in enumerate(components):
-            if m[j] != 0:
-                f = Fraction(m[j]).limit_denominator()
+            if mat[j] != 0:
+                f = Fraction(mat[j]).limit_denominator()
                 if string != "" and f >= 0:
                     string += "+"
                 if abs(f.numerator) != 1:
@@ -398,7 +398,10 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     elif fmt == "HTML":
         sub_start = "<sub>"
         sub_end = "</sub>"
-    elif fmt != "plain":
+    elif fmt == "plain":
+        sub_start = ""
+        sub_end = ""
+    else:
         raise ValueError("Unsupported output format, choose from: LaTeX, HTML, plain")
 
     disordered_formula = []
