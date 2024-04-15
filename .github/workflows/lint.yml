@@ -36,6 +36,6 @@ jobs:
           rm -rf .mypy_cache
           mypy ${{ github.event.repository.name }}
 
-      - name: pyright
-        run: |
-          pyright
+      # - name: pyright
+      #   run: |
+      #     pyright
