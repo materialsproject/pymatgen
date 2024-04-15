@@ -32,7 +32,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Literal
 
     from typing_extensions import Self
 
@@ -119,10 +119,10 @@ class Lobsterin(UserDict, MSONable):
         "LSODOS",
     )
     # These keywords + ending can be used in a lobsterin file
-    LISTKEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
+    LIST_KEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
 
     # All keywords known so far
-    AVAILABLE_KEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LISTKEYWORDS
+    AVAILABLE_KEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LIST_KEYWORDS
 
     def __init__(self, settingsdict: dict) -> None:
         """
@@ -222,39 +222,12 @@ class Lobsterin(UserDict, MSONable):
                 different_param[k2.lower()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
-    def _get_nbands(self, structure: Structure) -> int:
-        """Get number of bands."""
-        if self.get("basisfunctions") is None:
-            raise ValueError("No basis functions are provided. The program cannot calculate nbands.")
-
-        basis_functions: list[str] = []
-        for string_basis in self["basisfunctions"]:
-            # string_basis.lstrip()
-            string_basis_raw = string_basis.strip().split(" ")
-            while "" in string_basis_raw:
-                string_basis_raw.remove("")
-            for _idx in range(int(structure.composition.element_composition[string_basis_raw[0]])):
-                basis_functions.extend(string_basis_raw[1:])
-
-        no_basis_functions = 0
-        for basis in basis_functions:
-            if "s" in basis:
-                no_basis_functions = no_basis_functions + 1
-            elif "p" in basis:
-                no_basis_functions = no_basis_functions + 3
-            elif "d" in basis:
-                no_basis_functions = no_basis_functions + 5
-            elif "f" in basis:
-                no_basis_functions = no_basis_functions + 7
-
-        return int(no_basis_functions)
-
     def write_lobsterin(self, path: PathLike = "lobsterin", overwritedict: dict | None = None) -> None:
         """
         Write a lobsterin file.
 
         Args:
-            path (str): filename of the lobsterin file that will be written
+            path (str): filename of the output lobsterin file
             overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
         # will overwrite previous entries
@@ -280,7 +253,7 @@ class Lobsterin(UserDict, MSONable):
                                 file.write(key + "\n")
                     elif key.lower() in [element.lower() for element in self.STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in self.LISTKEYWORDS]:
+                    elif key.lower() in [element.lower() for element in self.LIST_KEYWORDS]:
                         for entry in self.get(key):
                             file.write(f"{key} {entry}\n")
 
@@ -302,12 +275,81 @@ class Lobsterin(UserDict, MSONable):
         """
         return cls({k: v for k, v in dct.items() if k not in ["@module", "@class"]})
 
+    @classmethod
+    def from_file(cls, lobsterin: str) -> Self:
+        """
+        Args:
+            lobsterin (str): path to lobsterin.
+
+        Returns:
+            Lobsterin object
+        """
+        with zopen(lobsterin, mode="rt") as file:
+            data = file.read().split("\n")
+        if len(data) == 0:
+            raise RuntimeError("lobsterin file contains no data.")
+        lobsterin_dict: dict[str, Any] = {}
+
+        for datum in data:
+            # Remove all comments
+            if not datum.startswith(("!", "#", "//")):
+                pattern = r"\b[^!#//]+"  # exclude comments after commands
+                if matched_pattern := re.findall(pattern, datum):
+                    raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
+                    key_word = raw_datum.strip().split(" ")  # extract keyword
+                    if len(key_word) > 1:
+                        # check which type of keyword this is, handle accordingly
+                        if key_word[0].lower() not in [datum2.lower() for datum2 in cls.LIST_KEYWORDS]:
+                            if key_word[0].lower() not in [datum2.lower() for datum2 in cls.FLOAT_KEYWORDS]:
+                                if key_word[0].lower() not in lobsterin_dict:
+                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
+                                else:
+                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
+                            elif key_word[0].lower() not in lobsterin_dict:
+                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
+                            else:
+                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
+                        elif key_word[0].lower() not in lobsterin_dict:
+                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
+                        else:
+                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
+                    elif len(key_word) > 0:
+                        lobsterin_dict[key_word[0].lower()] = True
+
+        return cls(lobsterin_dict)
+
+    def _get_nbands(self, structure: Structure) -> int:
+        """Get number of bands."""
+        if self.get("basisfunctions") is None:
+            raise ValueError("No basis functions are provided. The program cannot calculate nbands")
+
+        basis_functions: list[str] = []
+        for string_basis in self["basisfunctions"]:
+            string_basis_raw = string_basis.strip().split(" ")
+            while "" in string_basis_raw:
+                string_basis_raw.remove("")
+            for _idx in range(int(structure.composition.element_composition[string_basis_raw[0]])):
+                basis_functions.extend(string_basis_raw[1:])
+
+        num_basis_functions = 0
+        for basis in basis_functions:
+            if "s" in basis:
+                num_basis_functions += 1
+            elif "p" in basis:
+                num_basis_functions += 3
+            elif "d" in basis:
+                num_basis_functions += 5
+            elif "f" in basis:
+                num_basis_functions += 7
+
+        return int(num_basis_functions)
+
     def write_INCAR(
         self,
         incar_input: str = "INCAR",
         incar_output: str = "INCAR.lobster",
         poscar_input: str = "POSCAR",
-        isym: int = -1,
+        isym: Literal[-1, 0] = -1,
         further_settings: dict | None = None,
     ) -> None:
         """Write INCAR file. Will only make the run static,
@@ -318,7 +360,7 @@ class Lobsterin(UserDict, MSONable):
             incar_input (str): path to input INCAR
             incar_output (str): path to output INCAR
             poscar_input (str): path to input POSCAR
-            isym (int): isym equal to -1 or 0 are possible. Current LOBSTER version only allow -1.
+            isym (int): ISYM equals -1 or 0 are possible. Current LOBSTER version only allow -1.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
@@ -330,9 +372,11 @@ class Lobsterin(UserDict, MSONable):
             incar["ISYM"] = 0
         else:
             raise ValueError(f"Got {isym=}, must be -1 or 0")
+
         incar["NSW"] = 0
         incar["LWAVE"] = True
-        # get nbands from _get_nbands (use basis set that is inserted)
+
+        # Get nbands from _get_nbands (use basis set that is inserted)
         incar["NBANDS"] = self._get_nbands(Structure.from_file(poscar_input))
         if further_settings is not None:
             for key, item in further_settings.items():
@@ -534,6 +578,7 @@ class Lobsterin(UserDict, MSONable):
 
         else:
             raise ValueError(f"Got {isym=}, must be -1 or 0")
+
         # line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
@@ -561,49 +606,6 @@ class Lobsterin(UserDict, MSONable):
         )
 
         kpoint_object.write_file(filename=KPOINTS_output)
-
-    @classmethod
-    def from_file(cls, lobsterin: str) -> Self:
-        """
-        Args:
-            lobsterin (str): path to lobsterin.
-
-        Returns:
-            Lobsterin object
-        """
-        with zopen(lobsterin, mode="rt") as file:
-            data = file.read().split("\n")
-        if len(data) == 0:
-            raise RuntimeError("lobsterin file contains no data.")
-        lobsterin_dict: dict[str, Any] = {}
-
-        for datum in data:
-            # Remove all comments
-            if not datum.startswith(("!", "#", "//")):
-                pattern = r"\b[^!#//]+"  # exclude comments after commands
-                if matched_pattern := re.findall(pattern, datum):
-                    raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
-                    key_word = raw_datum.strip().split(" ")  # extract keyword
-                    if len(key_word) > 1:
-                        # check which type of keyword this is, handle accordingly
-                        if key_word[0].lower() not in [datum2.lower() for datum2 in cls.LISTKEYWORDS]:
-                            if key_word[0].lower() not in [datum2.lower() for datum2 in cls.FLOAT_KEYWORDS]:
-                                if key_word[0].lower() not in lobsterin_dict:
-                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
-                                else:
-                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                            elif key_word[0].lower() not in lobsterin_dict:
-                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
-                            else:
-                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                        elif key_word[0].lower() not in lobsterin_dict:
-                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
-                        else:
-                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
-                    elif len(key_word) > 0:
-                        lobsterin_dict[key_word[0].lower()] = True
-
-        return cls(lobsterin_dict)
 
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list[str]:
@@ -677,10 +679,11 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin Object with standard settings
         """
+
         warnings.warn(
             "Always check and test the provided basis functions. The spilling of your Lobster calculation might help"
         )
-        # warn that fatband calc cannot be done with tetrahedron method at the moment
+
         if option not in [
             "standard",
             "standard_from_projection",
@@ -803,10 +806,13 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
 
         incar = Incar.from_file(INCAR_input)
+
         if incar["ISMEAR"] == 0:
             lobsterin_dict["gaussianSmearingWidth"] = incar["SIGMA"]
+
         if incar["ISMEAR"] != 0 and option == "standard_with_fatband":
             raise ValueError("ISMEAR has to be 0 for a fatband calculation with Lobster")
+
         if dict_for_basis is not None:
             # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
             # will just insert this basis and not check with poscar
@@ -818,7 +824,9 @@ class Lobsterin(UserDict, MSONable):
             basis = cls.get_basis(structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names)
         else:
             raise ValueError("basis cannot be generated")
+
         lobsterin_dict["basisfunctions"] = basis
+
         if option == "standard_with_fatband":
             lobsterin_dict["createFatband"] = basis
 
