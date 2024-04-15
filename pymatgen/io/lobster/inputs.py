@@ -207,7 +207,11 @@ class Lobsterin(UserDict, MSONable):
                 similar_param[k1.lower()] = v1
 
         for k2, v2 in other.items():
-            if k2.lower() not in similar_param and k2.lower() not in different_param and k2.lower() not in [key.lower() for key in self]:
+            if (
+                k2.lower() not in similar_param
+                and k2.lower() not in different_param
+                and k2.lower() not in [key.lower() for key in self]
+            ):
                 different_param[k2.lower()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
