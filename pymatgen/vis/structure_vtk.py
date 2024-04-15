@@ -227,11 +227,9 @@ class StructureVis:
         labels = ["a", "b", "c"]
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
-        if has_lattice:
-            matrix = struct.lattice.matrix
+        matrix = struct.lattice.matrix if has_lattice else None
 
         if self.show_unit_cell and has_lattice:
-            # matrix = s.lattice.matrix
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -340,10 +338,8 @@ class StructureVis:
         vis_radius = 0.2 + 0.002 * radius
 
         for specie, occu in site.species.items():
-            if not specie:
-                color = (1, 1, 1)
-            elif specie.symbol in self.el_color_mapping:
-                color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
+            color = [i / 255 for i in self.el_color_mapping.get(specie.symbol, (255, 255, 255))]
+
             mapper = self.add_partial_sphere(site.coords, vis_radius, color, start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
@@ -487,14 +483,16 @@ class StructureVis:
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             max_occu = 0.0
-            for specie, occu in center.species.items():
+            max_species = next(iter(center.species), None)
+            for species, occu in center.species.items():
                 if occu > max_occu:
-                    max_specie = specie
+                    max_species = species
                     max_occu = occu
-            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
+            color = [i / 255 for i in self.el_color_mapping[max_species.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
+
         if draw_edges:
             ac.GetProperty().SetEdgeColor(edges_color)
             ac.GetProperty().SetLineWidth(edges_linewidth)
@@ -551,11 +549,12 @@ class StructureVis:
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             max_occu = 0.0
-            for specie, occu in center.species.items():
+            max_species = next(iter(center.species), None)
+            for species, occu in center.species.items():
                 if occu > max_occu:
-                    max_specie = specie
+                    max_species = species
                     max_occu = occu
-            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
+            color = [i / 255 for i in self.el_color_mapping[max_species.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -868,7 +867,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
     vis.show_help = False
     vis.redraw()
     vis.zoom(zoom)
-    sig_fig = int(math.floor(math.log10(len(structures))) + 1)
+    sig_fig = math.floor(math.log10(len(structures))) + 1
     filename = f"image{{0:0{sig_fig}d}}.png"
     for idx, site in enumerate(structures):
         vis.set_structure(site)
@@ -957,17 +956,21 @@ class MultiStructuresVis(StructureVis):
             struct_vis_radii = []
             for site in struct:
                 radius = 0
-                for specie, occu in site.species.items():
+                vis_radius = 0.2
+                for species, occu in site.species.items():
                     radius += occu * (
-                        specie.ionic_radius
-                        if isinstance(specie, Species) and specie.ionic_radius
-                        else specie.average_ionic_radius
+                        species.ionic_radius
+                        if isinstance(species, Species) and species.ionic_radius
+                        else species.average_ionic_radius
                     )
                     vis_radius = 0.2 + 0.002 * radius
+
                 struct_radii.append(radius)
                 struct_vis_radii.append(vis_radius)
+
             self.all_radii.append(struct_radii)
             self.all_vis_radii.append(struct_vis_radii)
+
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
     def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=False):

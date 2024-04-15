@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-from monty.dev import requires
 
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -15,9 +14,9 @@ try:
     chemview_loaded = True
 except ImportError:
     chemview_loaded = False
+    MolecularViewer = get_atom_color = None
 
 
-@requires(chemview_loaded, "To use quick_view, you need to have chemview installed.")
 def quick_view(
     structure,
     bonds=True,
@@ -43,6 +42,10 @@ def quick_view(
     Returns:
         A chemview.MolecularViewer object
     """
+    # Ensure MolecularViewer is loaded
+    if not chemview_loaded:
+        raise RuntimeError("MolecularViewer not loaded.")
+
     struct = structure.copy()
     if conventional:
         struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -306,7 +306,7 @@ class ThermalDisplacementMatrices(MSONable):
         self,
         other: ThermalDisplacementMatrices,
         filename: str | PathLike = "visualization.vesta",
-        which_structure: int = 0,
+        which_structure: Literal[0, 1] = 0,
     ) -> None:
         """Will create a VESTA file for visualization of the directionality criterion.
 
@@ -328,8 +328,10 @@ class ThermalDisplacementMatrices(MSONable):
             structure = self.structure
         elif which_structure == 1:
             structure = other.structure
+        else:
+            raise ValueError("Illegal which_structure value.")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             #
             file.write("#VESTA_FORMAT_VERSION 3.5.4\n \n \n")
             file.write("CRYSTAL\n\n")
