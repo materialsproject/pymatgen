@@ -461,7 +461,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     energy = float(m3gnet_model.results["energy"])
 
                 else:
-                    raise RuntimeError("Unsupported sort criteria.")
+                    raise ValueError("Unsupported sort criteria.")
 
                 return {
                     "num_sites": len(struct),
