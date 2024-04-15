@@ -178,12 +178,12 @@ class Lobsterin(UserDict, MSONable):
         key_list_others = [element.lower() for element in other]
 
         for k1, v1 in self.items():
-            k1lower = k1.lower()
-            k1_in_other = next((key_here for key_here in other if key_here.lower() == k1lower), k1lower)
-            if k1lower not in key_list_others:
+            k1_lower = k1.lower()
+            k1_in_other = next((key_here for key_here in other if key_here.lower() == k1_lower), k1_lower)
+            if k1_lower not in key_list_others:
                 different_param[k1.lower()] = {"lobsterin1": v1, "lobsterin2": None}
             elif isinstance(v1, str):
-                if v1.strip().lower() != other[k1lower].strip().lower():
+                if v1.strip().lower() != other[k1_lower].strip().lower():
                     different_param[k1.lower()] = {
                         "lobsterin1": v1,
                         "lobsterin2": other[k1_in_other],
@@ -198,7 +198,7 @@ class Lobsterin(UserDict, MSONable):
                         "lobsterin1": v1,
                         "lobsterin2": other[k1_in_other],
                     }
-            elif v1 != other[k1lower]:
+            elif v1 != other[k1_lower]:
                 different_param[k1.lower()] = {
                     "lobsterin1": v1,
                     "lobsterin2": other[k1_in_other],
