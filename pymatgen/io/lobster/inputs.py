@@ -61,7 +61,7 @@ class Lobsterin(UserDict, MSONable):
     There are also several standard lobsterin files that can be easily generated.
     """
 
-    # reminder: lobster is not case sensitive
+    # Reminder: lobster is not case sensitive
 
     # keyword + one float can be used in file
     FLOAT_KEYWORDS = (
@@ -143,7 +143,7 @@ class Lobsterin(UserDict, MSONable):
         # due to the missing case sensitivity of lobster, the following code is necessary
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
 
-        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
+        if new_key.lower() not in [element.lower() for element in self.AVAILABLE_KEYWORDS]:
             raise KeyError("Key is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
@@ -152,7 +152,7 @@ class Lobsterin(UserDict, MSONable):
         """Implements getitem from dict to avoid problems with cases."""
         new_item = next((key_here for key_here in self if item.strip().lower() == key_here.lower()), item)
 
-        if new_item.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
+        if new_item.lower() not in [element.lower() for element in self.AVAILABLE_KEYWORDS]:
             raise KeyError("Key is currently not available")
 
         return super().__getitem__(new_item)
@@ -262,18 +262,18 @@ class Lobsterin(UserDict, MSONable):
         filename = path
 
         with open(filename, mode="w", encoding="utf-8") as file:
-            for key in Lobsterin.AVAILABLE_KEYWORDS:
+            for key in self.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
-                    if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
+                    if key.lower() in [element.lower() for element in self.FLOAT_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
+                    elif key.lower() in [element.lower() for element in self.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
                                 file.write(key + "\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
+                    elif key.lower() in [element.lower() for element in self.STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
+                    elif key.lower() in [element.lower() for element in self.LISTKEYWORDS]:
                         for entry in self.get(key):
                             file.write(f"{key} {entry}\n")
 
@@ -574,8 +574,8 @@ class Lobsterin(UserDict, MSONable):
                     key_word = raw_datum.strip().split(" ")  # extract keyword
                     if len(key_word) > 1:
                         # check which type of keyword this is, handle accordingly
-                        if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                            if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
+                        if key_word[0].lower() not in [datum2.lower() for datum2 in cls.LISTKEYWORDS]:
+                            if key_word[0].lower() not in [datum2.lower() for datum2 in cls.FLOAT_KEYWORDS]:
                                 if key_word[0].lower() not in lobsterin_dict:
                                     lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
                                 else:
@@ -799,9 +799,9 @@ class Lobsterin(UserDict, MSONable):
             basis = [f"{key} {value}" for key, value in dict_for_basis.items()]
         elif POTCAR_input is not None:
             # get basis from POTCAR
-            potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)
+            potcar_names = cls._get_potcar_symbols(POTCAR_input=POTCAR_input)
 
-            basis = Lobsterin.get_basis(structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names)
+            basis = cls.get_basis(structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names)
         else:
             raise ValueError("basis cannot be generated")
         lobsterin_dict["basisfunctions"] = basis
