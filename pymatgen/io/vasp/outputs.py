@@ -388,18 +388,15 @@ class Vasprun(MSONable):
                             ionic_steps.extend(self._parse_chemical_shielding_calculation(elem))
                     elif parse_dos and tag == "dos":
                         if elem.get("comment") == "kpoints_opt":
-                            if self.kpoints_opt_props is None:
-                                self.kpoints_opt_props = KpointOptProps()
+                            kpoints_opt_props = self.kpoints_opt_props = self.kpoints_opt_props or KpointOptProps()
                             try:
-                                (
-                                    self.kpoints_opt_props.tdos,
-                                    self.kpoints_opt_props.idos,
-                                    self.kpoints_opt_props.pdos,
-                                ) = self._parse_dos(elem)
-                                self.kpoints_opt_props.efermi = self.kpoints_opt_props.tdos.efermi
-                                self.kpoints_opt_props.dos_has_errors = False
+                                kpoints_opt_props.tdos, kpoints_opt_props.idos, kpoints_opt_props.pdos = (
+                                    self._parse_dos(elem)
+                                )
+                                kpoints_opt_props.efermi = kpoints_opt_props.tdos.efermi
+                                kpoints_opt_props.dos_has_errors = False
                             except Exception:
-                                self.kpoints_opt_props.dos_has_errors = True
+                                kpoints_opt_props.dos_has_errors = True
                         else:
                             try:
                                 self.tdos, self.idos, self.pdos = self._parse_dos(elem)

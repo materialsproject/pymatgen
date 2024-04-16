@@ -164,15 +164,15 @@ def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: PbcLike = (True, True, True)):
+def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (True, True, True)):
     """Returns the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
 
     Args:
-        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+        frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6,
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
-        fcoords2: Second set of fractional coordinates.
+        frac_coords2: Second set of fractional coordinates.
         pbc: a tuple defining the periodic boundary conditions along the three
             axis of the lattice.
 
@@ -182,40 +182,42 @@ def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: PbcLike = (True, Tru
         pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
-    fdist = np.subtract(fcoords1, fcoords2)
+    fdist = np.subtract(frac_coords1, frac_coords2)
     return fdist - np.round(fdist) * pbc
 
 
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2: bool = False):
+def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_d2: bool = False):
     """Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
 
     Args:
         lattice: lattice to use
-        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+        frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
             or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
-        fcoords2: Second set of fractional coordinates.
+        frac_coords2: Second set of fractional coordinates.
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
         return_d2 (bool): whether to also return the squared distances
 
     Returns:
-        array of displacement vectors from fcoords1 to fcoords2
-        first index is fcoords1 index, second is fcoords2 index
+        array of displacement vectors from frac_coords1 to frac_coords2
+        first index is frac_coords1 index, second is frac_coords2 index
     """
-    return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
+    return coord_cython.pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)) -> np.ndarray:
+def find_in_coord_list_pbc(
+    frac_coord_list, frac_coord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)
+) -> np.ndarray:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
 
     Args:
-        fcoord_list: List of fractional coords
-        fcoord: A specific fractional coord to test.
+        frac_coord_list: List of fractional coords
+        frac_coord: A specific fractional coord to test.
         atol: Absolute tolerance. Defaults to 1e-8.
         pbc: a tuple defining the periodic boundary conditions along the three
             axis of the lattice.
@@ -223,10 +225,10 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike
     Returns:
         Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
     """
-    if len(fcoord_list) == 0:
+    if len(frac_coord_list) == 0:
         return []
-    frac_coords = np.tile(fcoord, (len(fcoord_list), 1))
-    frac_dist = fcoord_list - frac_coords
+    frac_coords = np.tile(frac_coord, (len(frac_coord_list), 1))
+    frac_dist = frac_coord_list - frac_coords
     frac_dist[:, pbc] -= np.round(frac_dist)[:, pbc]
     return np.where(np.all(np.abs(frac_dist) < atol, axis=1))[0]
 

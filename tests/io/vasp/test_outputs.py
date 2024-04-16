@@ -381,10 +381,8 @@ class TestVasprun(PymatgenTest):
 
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
-        vasprun_diel = Vasprun(
-            f"{VASP_OUT_DIR}/vasprun.dielectric_6.0.8.xml.gz",
-            parse_potcar_file=False,
-        )
+        vasp_xml_path = f"{VASP_OUT_DIR}/vasprun.dielectric_6.0.8.xml.gz"
+        vasprun_diel = Vasprun(vasp_xml_path, parse_potcar_file=False)
         assert approx(vasprun_diel.dielectric[0][10]) == 0.4338
         assert approx(vasprun_diel.dielectric[1][51][0]) == 5.267
         assert approx(vasprun_diel.dielectric_data["density"][0][10]) == 0.4338
@@ -395,26 +393,28 @@ class TestVasprun(PymatgenTest):
 
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
-        _gap, _cbm, _vbm, direct = vasp_run.eigenvalue_band_properties
+        gap, cbm, vbm, direct = vasp_run.eigenvalue_band_properties
+        assert gap == approx(0.6119)
+        assert cbm == approx(6.2231)
+        assert vbm == approx(5.6112)
         assert not direct
 
     def test_optical_vasprun(self):
-        vasprun_optical = Vasprun(
-            f"{VASP_OUT_DIR}/vasprun.optical_transitions.xml.gz",
-            parse_potcar_file=False,
-        )
-        assert approx(vasprun_optical.optical_transition[0][0]) == 3.084
-        assert approx(vasprun_optical.optical_transition[3][0]) == 3.087
-        assert approx(vasprun_optical.optical_transition[0][1]) == 0.001
-        assert approx(vasprun_optical.optical_transition[1][1]) == 0.001
-        assert approx(vasprun_optical.optical_transition[7][1]) == 0.001
-        assert approx(vasprun_optical.optical_transition[19][1]) == 0.001
-        assert approx(vasprun_optical.optical_transition[54][0]) == 3.3799999999
-        assert approx(vasprun_optical.optical_transition[55][0]) == 3.381
-        assert approx(vasprun_optical.optical_transition[56][0]) == 3.381
-        assert approx(vasprun_optical.optical_transition[54][1]) == 10554.9860
-        assert approx(vasprun_optical.optical_transition[55][1]) == 0.0
-        assert approx(vasprun_optical.optical_transition[56][1]) == 0.001
+        vasp_xml_path = f"{VASP_OUT_DIR}/vasprun.optical_transitions.xml.gz"
+        vasprun_optical = Vasprun(vasp_xml_path, parse_potcar_file=False)
+        optical_trans = vasprun_optical.optical_transition
+        assert approx(optical_trans[0][0]) == 3.084
+        assert approx(optical_trans[3][0]) == 3.087
+        assert approx(optical_trans[0][1]) == 0.001
+        assert approx(optical_trans[1][1]) == 0.001
+        assert approx(optical_trans[7][1]) == 0.001
+        assert approx(optical_trans[19][1]) == 0.001
+        assert approx(optical_trans[54][0]) == 3.3799999999
+        assert approx(optical_trans[55][0]) == 3.381
+        assert approx(optical_trans[56][0]) == 3.381
+        assert approx(optical_trans[54][1]) == 10554.9860
+        assert approx(optical_trans[55][1]) == 0.0
+        assert approx(optical_trans[56][1]) == 0.001
 
     def test_force_constants(self):
         vasprun_fc = Vasprun(f"{VASP_OUT_DIR}/vasprun.dfpt.phonon.xml.gz", parse_potcar_file=False)
@@ -465,16 +465,16 @@ class TestVasprun(PymatgenTest):
         )
 
     def test_xe(self):
-        vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.xe.xml.gz", parse_potcar_file=False)
-        assert vr.atomic_symbols == ["Xe"]
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xe.xml.gz", parse_potcar_file=False)
+        assert vasp_run.atomic_symbols == ["Xe"]
 
     def test_invalid_element(self):
         with pytest.raises(ValueError, match="'Z' is not a valid Element"):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.wrong_sp.xml.gz")
 
     def test_selective_dynamics(self):
-        vsd = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
-        assert list(vsd.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
+        assert list(vasp_run.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
 
     def test_as_dict(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
@@ -487,9 +487,9 @@ class TestVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
-        bs = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
-        cbm = bs.get_cbm()
-        vbm = bs.get_vbm()
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
+        cbm = band_struct.get_cbm()
+        vbm = band_struct.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
         assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
         assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
@@ -499,9 +499,9 @@ class TestVasprun(PymatgenTest):
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
 
-        projected = bs.get_projection_on_elements()
+        projected = band_struct.get_projection_on_elements()
         assert projected[Spin.up][0][0]["Si"] == approx(0.4238)
-        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        projected = band_struct.get_projections_on_elements_and_orbitals({"Si": ["s"]})
         assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
         # Test compressed files case 1: compressed KPOINTS in current dir
@@ -518,8 +518,8 @@ class TestVasprun(PymatgenTest):
         with open(f"{VASP_IN_DIR}/KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
             copyfileobj(f_in, f_out)
         bs_kpts_gzip = vasp_run.get_band_structure()
-        assert bs.efermi == bs_kpts_gzip.efermi
-        assert bs.as_dict() == bs_kpts_gzip.as_dict()
+        assert band_struct.efermi == bs_kpts_gzip.efermi
+        assert band_struct.as_dict() == bs_kpts_gzip.as_dict()
 
         # Test compressed files case 2: compressed vasprun in another dir
         os.mkdir("deeper")
@@ -531,14 +531,14 @@ class TestVasprun(PymatgenTest):
             parse_potcar_file=False,
         )
         bs_vasprun_gzip = vasp_run.get_band_structure(line_mode=True)
-        assert bs.efermi == bs_vasprun_gzip.efermi
-        assert bs.as_dict() == bs_vasprun_gzip.as_dict()
+        assert band_struct.efermi == bs_vasprun_gzip.efermi
+        assert band_struct.as_dict() == bs_vasprun_gzip.as_dict()
 
         # test hybrid band structures
         vasp_run.actual_kpoints_weights[-1] = 0.0
-        bs = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
-        cbm = bs.get_cbm()
-        vbm = bs.get_vbm()
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
+        cbm = band_struct.get_cbm()
+        vbm = band_struct.get_vbm()
         assert cbm["kpoint_index"] == [0]
         assert cbm["energy"] == approx(6.3676)
         assert cbm["kpoint"].label is None
@@ -552,19 +552,19 @@ class TestVasprun(PymatgenTest):
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
-        bs = vasp_run.get_band_structure(
+        band_struct = vasp_run.get_band_structure(
             kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_force_hybrid_like_calc",
             force_hybrid_mode=True,
             line_mode=True,
         )
 
-        dict_to_test = bs.get_band_gap()
+        dict_to_test = band_struct.get_band_gap()
 
         assert dict_to_test["direct"]
         assert dict_to_test["energy"] == approx(6.007899999999999)
         assert dict_to_test["transition"] == "\\Gamma-\\Gamma"
-        assert bs.get_branch(0)[0]["start_index"] == 0
-        assert bs.get_branch(0)[0]["end_index"] == 0
+        assert band_struct.get_branch(0)[0]["start_index"] == 0
+        assert band_struct.get_branch(0)[0]["end_index"] == 0
 
     def test_projected_magnetisation(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.lvel.Si2H.xml.gz"

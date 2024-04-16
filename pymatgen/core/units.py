@@ -387,18 +387,18 @@ class FloatWithUnit(float):
         return self._unit
 
     @classmethod
-    def from_str(cls, s: str) -> Self:
+    def from_str(cls, string: str) -> Self:
         """Parse string to FloatWithUnit.
         Example: Memory.from_str("1. Mb").
         """
         # Extract num and unit string.
-        s = s.strip()
-        for _idx, char in enumerate(s):
+        string = string.strip()
+        for _idx, char in enumerate(string):
             if char.isalpha() or char.isspace():
                 break
         else:
-            raise ValueError(f"Unit is missing in string {s}")
-        num, unit = float(s[:_idx]), s[_idx:]
+            raise ValueError(f"Unit is missing in string {string}")
+        num, unit = float(string[:_idx]), string[_idx:]
 
         # Find unit type (set it to None if it cannot be detected)
         for unit_type, dct in BASE_UNITS.items():
