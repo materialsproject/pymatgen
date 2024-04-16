@@ -105,7 +105,7 @@ class CifBlock:
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    out += line + "\n" + val
+                    out += f"{line}\n{val}"
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.max_len:
                     line += f"  {val}"

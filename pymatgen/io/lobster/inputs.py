@@ -270,7 +270,7 @@ class Lobsterin(UserDict, MSONable):
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
-                                file.write(key + "\n")
+                                file.write(f"{key}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:

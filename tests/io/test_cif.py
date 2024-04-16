@@ -408,7 +408,7 @@ class TestCifIO(PymatgenTest):
             if len(name) == 2:
                 test_cases[name.upper()] = name
                 test_cases[f"{name.upper()}1"] = name
-                test_cases[name.upper() + "A"] = name
+                test_cases[f"{name.upper()}A"] = name
             test_cases[f"{name}1"] = name
             test_cases[f"{name}2"] = name
             test_cases[f"{name}3"] = name

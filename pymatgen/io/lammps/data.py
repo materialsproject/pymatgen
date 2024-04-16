@@ -1177,7 +1177,7 @@ class ForceField(MSONable):
         all_data = {kw: process_data(main_data)}
         if class2_data:
             all_data.update({k: process_data(v) for k, v in class2_data.items()})
-        return all_data, {kw[:-7] + "s": mapper}
+        return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
         """

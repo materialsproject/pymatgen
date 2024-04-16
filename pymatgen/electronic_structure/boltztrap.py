@@ -376,16 +376,16 @@ class BoltztrapRunner(MSONable):
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
-        for oi, o in enumerate(Orbital):
+        for orb_idx, orb in enumerate(Orbital):
             for site_nb in range(len(self._bs.structure)):
-                if oi < len(self._bs.projections[Spin.up][0][0]):
-                    with open(f"{output_file_proj}_{site_nb}_{o}", mode="w") as file:
-                        file.write(self._bs.structure.formula + "\n")
-                        file.write(str(len(self._bs.kpoints)) + "\n")
-                        for i, kpt in enumerate(self._bs.kpoints):
+                if orb_idx < len(self._bs.projections[Spin.up][0][0]):
+                    with open(f"{output_file_proj}_{site_nb}_{orb}", mode="w") as file:
+                        file.write(f"{self._bs.structure.formula}\n")
+                        file.write(f"{len(self._bs.kpoints)}\n")
+                        for kpt_idx, kpt in enumerate(self._bs.kpoints):
                             tmp_proj = []
                             for j in range(math.floor(self._bs.nb_bands * (1 - self.cb_cut))):
-                                tmp_proj.append(self._bs.projections[Spin(self.spin)][j][i][oi][site_nb])
+                                tmp_proj.append(self._bs.projections[Spin(self.spin)][j][kpt_idx][orb_idx][site_nb])
                             # TODO deal with the sorting going on at
                             # the energy level!!!
                             # tmp_proj.sort()
@@ -417,12 +417,12 @@ class BoltztrapRunner(MSONable):
                 "'formatted',0\n30,'boltztrap_BZ.cube',           'unknown',    "
                 "'formatted',0\n"
             )
-            i = 1000
-            for oi, o in enumerate(Orbital):
+            kpt_idx = 1000
+            for orb_idx, orb in enumerate(Orbital):
                 for site_nb in range(len(self._bs.structure)):
-                    if oi < len(self._bs.projections[Spin.up][0][0]):
-                        file.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
-                        i += 1
+                    if orb_idx < len(self._bs.projections[Spin.up][0][0]):
+                        file.write(f"{kpt_idx},'boltztrap.proj_{site_nb}_{orb.name}old', 'formatted',0\n")
+                        kpt_idx += 1
 
     def write_intrans(self, output_file) -> None:
         """Writes the intrans to an output file.
@@ -627,7 +627,7 @@ class BoltztrapRunner(MSONable):
 
                     warning = ""
 
-                    with open(os.path.join(path_dir, dir_bz_name + ".outputtrans")) as file:
+                    with open(os.path.join(path_dir, f"{dir_bz_name}.outputtrans")) as file:
                         for line in file:
                             if "Option unknown" in line:
                                 raise BoltztrapError("DOS mode needs a custom version of BoltzTraP code is needed")

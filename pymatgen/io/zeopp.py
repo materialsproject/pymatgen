@@ -343,7 +343,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         # generate_simplified_highaccuracy_voronoi_network(atom_net)
         # get_nearest_largest_diameter_highaccuracy_vornode(atom_net)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atom_net)
-        voro_out_filename = name + "_voro.xyz"
+        voro_out_filename = f"{name}_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)

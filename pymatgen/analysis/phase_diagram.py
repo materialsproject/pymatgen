@@ -2631,7 +2631,7 @@ class PDPlotter:
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
                     clean_formula = htmlify(el_ref.original_entry.reduced_formula)
 
-                layout["ternary"][axis + "axis"]["title"] = {
+                layout["ternary"][f"{axis}axis"]["title"] = {
                     "text": clean_formula,
                     "font": {"size": 24},
                 }

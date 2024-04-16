@@ -1013,7 +1013,7 @@ class DictSet(VaspInputSet):
 
         if getattr(self, "copy_wavecar", False):
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                wavecar_files = sorted(glob(str(Path(prev_calc_dir) / (f"{fname}*"))))
                 if wavecar_files:
                     if fname == "WFULL":
                         for wavecar_file in wavecar_files:

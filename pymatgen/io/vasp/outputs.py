@@ -3028,13 +3028,7 @@ class Outcar:
             def piezo_section_start(results, _match):
                 results.piezo_ionic_index = 0
 
-            search.append(
-                [
-                    r"PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
-                    None,
-                    piezo_section_start,
-                ]
-            )
+            search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ", None, piezo_section_start])
 
             def piezo_data(results, match):
                 results.piezo_ionic_tensor[results.piezo_ionic_index, :] = np.array(
@@ -3578,7 +3572,7 @@ class VolumetricData(BaseVolumetricData):
             # use original name if it's been set (e.g. from Chgcar)
             comment = getattr(self, "name", poscar.comment)
 
-            lines = comment + "\n"
+            lines = f"{comment}\n"
             lines += "   1.00000000000000\n"
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
