@@ -87,7 +87,7 @@ def preprocessor(data: str, dir: str = ".") -> str:
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
         data = re.sub(rf"{match}", "", data)
-        data = re.sub(r"\${?" + var + "}?", value, data)
+        data = re.sub(rf"\${{{var}}}?", str(value), data)
 
     c1 = re.findall(r"@IF", data, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", data, re.IGNORECASE)
