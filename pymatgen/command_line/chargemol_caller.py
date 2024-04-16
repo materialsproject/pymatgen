@@ -46,6 +46,7 @@ import os
 import subprocess
 import warnings
 from glob import glob
+from pathlib import Path
 from shutil import which
 from typing import TYPE_CHECKING
 
@@ -57,8 +58,6 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from pymatgen.core import Structure
 
 __author__ = "Martin Siron, Andrew S. Rosen"
@@ -96,7 +95,7 @@ class ChargemolAnalysis:
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
                 the existing Chargemol output files will be read from path. Default: True.
         """
-        path = path or os.getcwd()
+        path = (Path(path).absolute() if path else None) or os.getcwd()
         if run_chargemol and not CHARGEMOL_EXE:
             raise OSError(
                 "ChargemolAnalysis requires the Chargemol executable to be in PATH."
@@ -170,34 +169,34 @@ class ChargemolAnalysis:
         """Internal function to run Chargemol.
 
         Args:
+            path (str): Path to the directory to run Chargemol in.
+                Default: None (current working directory).
             atomic_densities_path (str): Path to the atomic densities directory
             required by Chargemol. If None, Pymatgen assumes that this is
             defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Default: None.
             job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-        with ScratchDir("."):
-            try:
-                os.symlink(self._chgcar_path, "./CHGCAR")
-                os.symlink(self._potcar_path, "./POTCAR")
-                os.symlink(self._aeccar0_path, "./AECCAR0")
-                os.symlink(self._aeccar2_path, "./AECCAR2")
-            except OSError as exc:
-                print(f"Error creating symbolic link: {exc}")
+        with ScratchDir(".") as temp_dir:
+            # with tempfile.TemporaryDirectory() as temp_dir:
 
-            # write job_script file:
-            self._write_jobscript_for_chargemol(**job_control_kwargs)
+            os.symlink(self._chgcar_path, "CHGCAR")
+            os.symlink(self._potcar_path, "POTCAR")
+            os.symlink(self._aeccar0_path, "AECCAR0")
+            os.symlink(self._aeccar2_path, "AECCAR2")
 
-            # Run Chargemol
-            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                _stdout, stderr = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError(
-                    f"{CHARGEMOL_EXE} exit code: {rs.returncode}, error message: {stderr!s}. "
-                    "Please check your Chargemol installation."
-                )
+            lines = self._write_jobscript_for_chargemol(
+                chgcar_path=os.path.join(temp_dir, "CHGCAR"),
+                **job_control_kwargs,
+            )
+            with open(os.path.join(temp_dir, "job_control.txt"), mode="w") as file:
+                file.write(lines)
 
-            self._from_data_dir()
+            rs = subprocess.run(CHARGEMOL_EXE, capture_output=True, check=False)
+            _stdout = rs.stdout.decode("utf-8")
+            rs.stderr.decode("utf-8")
+
+            self._from_data_dir(chargemol_output_path=temp_dir)
 
     def _from_data_dir(self, chargemol_output_path=None):
         """Internal command to parse Chargemol files from a directory.
@@ -337,6 +336,7 @@ class ChargemolAnalysis:
 
     def _write_jobscript_for_chargemol(
         self,
+        chgcar_path=None,
         net_charge=0.0,
         periodicity=(True, True, True),
         method="ddec6",
@@ -345,6 +345,8 @@ class ChargemolAnalysis:
         """Writes job_script.txt for Chargemol execution.
 
         Args:
+            chgcar_path (str): Path to the CHGCAR file. If None, CHGCAR is assumed to be
+                in the directory where the job_script.txt is written.
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
             periodicity (tuple[bool]): Periodicity of the system.
@@ -362,6 +364,9 @@ class ChargemolAnalysis:
         # Net Charge
         if net_charge:
             lines += f"<net charge>\n{net_charge}\n</net charge>\n"
+
+        if chgcar_path:
+            lines += f"<input filename>\n{chgcar_path}\n</input filename>\n"
 
         # Periodicity
         if periodicity:
@@ -402,8 +407,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", mode="w") as file:
-            file.write(lines)
+        return lines
 
     @staticmethod
     def _get_dipole_info(filepath):
