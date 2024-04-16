@@ -3533,8 +3533,8 @@ class IMolecule(SiteCollection, MSONable):
                         axis=np.random.rand(3),
                         angle=random.uniform(-180, 180),
                     )
-                    m = op.rotation_matrix
-                    new_coords = np.dot(m, centered_coords.T).T + box_center
+                    rot_mat = op.rotation_matrix
+                    new_coords = np.dot(rot_mat, centered_coords.T).T + box_center
                     if no_cross:
                         x_max, x_min = max(new_coords[:, 0]), min(new_coords[:, 0])
                         y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])

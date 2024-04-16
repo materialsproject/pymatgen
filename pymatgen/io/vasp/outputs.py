@@ -2428,10 +2428,10 @@ class Outcar:
             text = file.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + r"(?P<table_body>.+)" + unsym_footer_pattern
         table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
-        rp = re.compile(row_pattern)
-        m = table_pattern.search(text)
-        if m:
-            table_text = m.group("table_body")
+        row_pat = re.compile(row_pattern)
+
+        if match := table_pattern.search(text):
+            table_text = match.group("table_body")
             micro_header_pattern = r"ion\s+\d+"
             micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + row_pattern + r")+)\s+"
             micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
@@ -2440,7 +2440,7 @@ class Outcar:
                 table_body_text = mt.group("table_body")
                 tensor_matrix = []
                 for line in table_body_text.rstrip().split("\n"):
-                    ml = rp.search(line)
+                    ml = row_pat.search(line)
                     processed_line = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
@@ -3935,10 +3935,9 @@ class Oszicar:
         header: list = []
         with zopen(filename, mode="rt") as fid:
             for line in fid:
-                m = electronic_pattern.match(line.strip())
-                if m:
-                    tokens = m.group(1).split()
-                    data = {header[i]: smart_convert(header[i], tokens[i]) for i in range(len(tokens))}
+                if match := electronic_pattern.match(line.strip()):
+                    tokens = match.group(1).split()
+                    data = {header[idx]: smart_convert(header[idx], tokens[idx]) for idx in range(len(tokens))}
                     if tokens[0] == "1":
                         electronic_steps.append([data])
                     else:

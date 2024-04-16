@@ -599,22 +599,22 @@ class DictSet(VaspInputSet):
         hubbard_u = settings.get("LDAU", False)
         incar = Incar()
 
-        for k, v in settings.items():
-            if k == "MAGMOM":
+        for key, setting in settings.items():
+            if key == "MAGMOM":
                 mag = []
                 for site in structure:
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif getattr(site.specie, "spin", None) is not None:
                         mag.append(site.specie.spin)
-                    elif str(site.specie) in v:
-                        if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
+                    elif str(site.specie) in setting:
+                        if site.specie.symbol == "Co" and setting[str(site.specie)] <= 1.0:
                             warnings.warn(
                                 "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
                                 "If this default behavior is not desired, please set the spin on the magmom on the "
                                 "site directly to ensure correct initialization."
                             )
-                        mag.append(v.get(str(site.specie)))
+                        mag.append(setting.get(str(site.specie)))
                     else:
                         if site.specie.symbol == "Co":
                             warnings.warn(
@@ -622,33 +622,33 @@ class DictSet(VaspInputSet):
                                 "If this default behavior is not desired, please set the spin on the magmom on the "
                                 "site directly to ensure correct initialization."
                             )
-                        mag.append(v.get(site.specie.symbol, 0.6))
-                incar[k] = mag
-            elif k in ("LDAUU", "LDAUJ", "LDAUL"):
+                        mag.append(setting.get(site.specie.symbol, 0.6))
+                incar[key] = mag
+            elif key in ("LDAUU", "LDAUJ", "LDAUL"):
                 if hubbard_u:
-                    if hasattr(structure[0], k.lower()):
-                        m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
-                        incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    if hasattr(structure[0], key.lower()):
+                        m = {site.specie.symbol: getattr(site, key.lower()) for site in structure}
+                        incar[key] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electro_neg in v and isinstance(v[most_electro_neg], dict):
-                        incar[k] = [v[most_electro_neg].get(sym, 0) for sym in poscar.site_symbols]
+                    elif most_electro_neg in setting and isinstance(setting[most_electro_neg], dict):
+                        incar[key] = [setting[most_electro_neg].get(sym, 0) for sym in poscar.site_symbols]
                         # else, use fallback LDAU value if it exists
                     else:
-                        incar[k] = [
-                            v.get(sym, 0) if isinstance(v.get(sym, 0), (float, int)) else 0
+                        incar[key] = [
+                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), (float, int)) else 0
                             for sym in poscar.site_symbols
                         ]
-            elif k.startswith("EDIFF") and k != "EDIFFG":
-                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * len(structure)
+            elif key.startswith("EDIFF") and key != "EDIFFG":
+                if "EDIFF" not in settings and key == "EDIFF_PER_ATOM":
+                    incar["EDIFF"] = float(setting) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
-            elif k == "KSPACING" and v == "auto":
+            elif key == "KSPACING" and setting == "auto":
                 # default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
-                incar[k] = auto_kspacing(bandgap, self.bandgap_tol)
+                incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
             else:
-                incar[k] = v
+                incar[key] = setting
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if not has_u:
             for key in list(incar):

@@ -683,41 +683,40 @@ class AdfOutput:
 
         with open(logfile) as file:
             for line in file:
-                m = error_patt.search(line)
-                if m:
+                if match := error_patt.search(line):
                     self.is_failed = True
-                    self.error = m.group(1)
+                    self.error = match.group(1)
                     break
 
                 if self.run_type is None:
-                    m = run_type_patt.search(line)
-                    if m:
-                        if m.group(1) == "FREQUENCIES":
+                    match = run_type_patt.search(line)
+                    if match:
+                        if match.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"
                             self.run_type = "NumericalFreq"
-                        elif m.group(1) == "GEOMETRY OPTIMIZATION":
+                        elif match.group(1) == "GEOMETRY OPTIMIZATION":
                             self.run_type = "GeometryOptimization"
-                        elif m.group(1) == "CREATE":
+                        elif match.group(1) == "CREATE":
                             self.run_type = None
-                        elif m.group(1) == "SINGLE POINT":
+                        elif match.group(1) == "SINGLE POINT":
                             self.run_type = "SinglePoint"
                         else:
                             raise AdfOutputError("Undefined Runtype!")
 
                 elif self.run_type == "SinglePoint":
-                    m = coord_patt.search(line)
-                    if m:
-                        sites.append([m.groups()[0], list(map(float, m.groups()[2:]))])
+                    match = coord_patt.search(line)
+                    if match:
+                        sites.append([match.groups()[0], list(map(float, match.groups()[2:]))])
                     else:
-                        m = final_energy_patt.search(line)
-                        if m:
-                            self.final_energy = float(m.group(1))
+                        match = final_energy_patt.search(line)
+                        if match:
+                            self.final_energy = float(match.group(1))
                             self.final_structure = self._sites_to_mol(sites)
 
                 elif self.run_type == "GeometryOptimization":
-                    m = cycle_patt.search(line)
-                    if m:
-                        cycle = int(m.group(1))
+                    match = cycle_patt.search(line)
+                    if match:
+                        cycle = int(match.group(1))
                         if cycle <= 0:
                             raise AdfOutputError(f"Wrong {cycle=}")
                         if cycle > last_cycle:
@@ -726,21 +725,21 @@ class AdfOutput:
                         else:
                             parse_final = True
                     elif parse_cycle:
-                        m = coord_patt.search(line)
-                        if m:
-                            sites.append([m.groups()[1], list(map(float, m.groups()[2:]))])
+                        match = coord_patt.search(line)
+                        if match:
+                            sites.append([match.groups()[1], list(map(float, match.groups()[2:]))])
                         else:
-                            m = energy_patt.search(line)
-                            if m:
-                                self.energies.append(float(m.group(1)))
+                            match = energy_patt.search(line)
+                            if match:
+                                self.energies.append(float(match.group(1)))
                                 mol = self._sites_to_mol(sites)
                                 self.structures.append(mol)
                                 parse_cycle = False
                                 sites = []
                     elif parse_final:
-                        m = final_energy_patt.search(line)
-                        if m:
-                            self.final_energy = float(m.group(1))
+                        match = final_energy_patt.search(line)
+                        if match:
+                            self.final_energy = float(match.group(1))
 
                 elif self.run_type == "NumericalFreq":
                     break
@@ -788,13 +787,12 @@ class AdfOutput:
             for line in file:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:
-                        m = coord_on_patt.search(line)
-                        if m:
+                        if match := coord_on_patt.search(line):
                             parse_coord = True
                     else:
-                        m = coord_patt.search(line)
-                        if m:
-                            sites.append([m.group(2), list(map(float, m.groups()[2:5]))])
+                        match = coord_patt.search(line)
+                        if match:
+                            sites.append([match.group(2), list(map(float, match.groups()[2:5]))])
                             n_strike += 1
                         elif n_strike > 0:
                             find_structure = False
@@ -824,14 +822,14 @@ class AdfOutput:
                             self.normal_modes.append([])
 
                 elif parse_mode:
-                    m = mode_patt.search(line)
-                    if m:
-                        v = list(chunks(map(float, m.group(3).split()), 3))
+                    match = mode_patt.search(line)
+                    if match:
+                        v = list(chunks(map(float, match.group(3).split()), 3))
                         if len(v) != n_next:
                             raise AdfOutputError("Odd Error!")
                         for i, k in enumerate(range(-n_next, 0)):
                             self.normal_modes[k].extend(v[i])
-                        if int(m.group(1)) == n_atoms:
+                        if int(match.group(1)) == n_atoms:
                             parse_freq = True
                             parse_mode = False
         if isinstance(self.final_structure, list):
