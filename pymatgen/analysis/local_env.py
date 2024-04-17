@@ -3794,6 +3794,9 @@ class CrystalNN(NearNeighbors):
     algorithm can also modify probability using smooth distance cutoffs as well as Pauling
     electronegativity differences. The output can either be the most probable coordination
     environment or a weighted list of coordination environments.
+    Please note that the default weights have been benchmarked for inorganic crystal structures.
+    For MOFs, ChemEnv has previously been successfully used with the following initialisation:
+    CrystalNN(x_diff_weight = 1.5, search_cutoff = 4.5)
     """
 
     NNData = namedtuple("NNData", ["all_nninfo", "cn_weights", "cn_nninfo"])
