@@ -3796,6 +3796,7 @@ class CrystalNN(NearNeighbors):
     environment or a weighted list of coordination environments.
     Please note that the default weights have been benchmarked for inorganic crystal structures.
     For MOFs or molecular crystals, weights and cutoffs likely will need to be adapted.
+    A starting point could be:
     CrystalNN(x_diff_weight = 1.5, search_cutoff = 4.5)
     """
 
