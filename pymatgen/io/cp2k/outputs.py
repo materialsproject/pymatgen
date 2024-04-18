@@ -171,7 +171,7 @@ class Cp2kOutput:
     @property
     def project_name(self) -> str:
         """What project name was used for this calculation."""
-        return self.data.get("global").get("project_name")
+        return self.data.get("global", {}).get("project_name")
 
     @property
     def spin_polarized(self) -> bool:
@@ -1259,12 +1259,12 @@ class Cp2kOutput:
             self.data["cdos"] = CompleteDos(self.final_structure, total_dos=tdos, pdoss=_ldoss)
 
     @property
-    def complete_dos(self) -> CompleteDos:
+    def complete_dos(self) -> CompleteDos | None:
         """Returns complete dos object if it has been parsed."""
         return self.data.get("cdos")
 
     @property
-    def band_structure(self) -> BandStructure:
+    def band_structure(self) -> BandStructure | None:
         """Returns band structure object if it has been parsed."""
         return self.data.get("band_structure")
 
