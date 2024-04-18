@@ -13,6 +13,8 @@ from pymatgen.apps.borg.hive import (
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
+
 
 class TestVaspToComputedEntryDrone(TestCase):
     def setUp(self):
@@ -27,7 +29,7 @@ class TestVaspToComputedEntryDrone(TestCase):
     def test_assimilate(self):
         """Test assimilate data from "vasprun.xml.xe.gz" file."""
 
-        entry = self.drone.assimilate(f"{TEST_FILES_DIR}/app_borg/test_dir")
+        entry = self.drone.assimilate(f"{TEST_DIR}/test_dir")
 
         for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
             assert param in entry.parameters
@@ -35,7 +37,7 @@ class TestVaspToComputedEntryDrone(TestCase):
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
 
-        entry = self.structure_drone.assimilate(f"{TEST_FILES_DIR}/app_borg/test_dir")
+        entry = self.structure_drone.assimilate(f"{TEST_DIR}/test_dir")
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         assert isinstance(entry, ComputedStructureEntry)
