@@ -1633,21 +1633,25 @@ class Kpoints(MSONable):
         )
 
 
-def _parse_bool(string):
+def _parse_bool(string: str) -> bool:
     if match := re.match(r"^\.?([TFtf])[A-Za-z]*\.?", string):
         return match[1] in {"T", "t"}
     raise ValueError(f"{string} should be a boolean type!")
 
 
-def _parse_float(string):
-    return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", string).group(0))
+def _parse_float(string: str) -> float:
+    if match := re.search(r"^-?\d*\.?\d*[eE]?-?\d*", string):
+        return float(match[0])
+    raise ValueError(f"{string} should be a float type!")
 
 
-def _parse_int(string):
-    return int(re.match(r"^-?[0-9]+", string).group(0))
+def _parse_int(string: str) -> int:
+    if match := re.match(r"^-?[0-9]+", string):
+        return int(match[0])
+    raise ValueError(f"{string} should be an int type!")
 
 
-def _parse_list(string):
+def _parse_list(string: str) -> list[float]:
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
@@ -1659,47 +1663,47 @@ OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut",
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
 # written to some newer POTCARs by VASP
 VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
+POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
 class PotcarSingle:
     """
     Object for a **single** POTCAR. The builder assumes the POTCAR contains
-    the complete untouched data in "data" as a string and a dict of keywords.
+    the complete untouched string "data" and a dict of keywords.
 
     Attributes:
         data (str): POTCAR data as a string.
         keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
             accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
 
-    md5 hashes of the entire POTCAR file and the actual data are validated
+    MD5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors
-    are raised if a POTCAR hash fails validation.
+    are raised if validation fails.
     """
 
-    # NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
-    #     the original (univie) releases include no SHA256 hashes nor COPYR fields
+    # Note: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
+    #     the original (UNIVIE) releases include no SHA256 hashes nor COPYR fields
     #     in the PSCTR/header field.
     # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir = dict(
-        PBE="POT_GGA_PAW_PBE",
-        PBE_52="POT_GGA_PAW_PBE_52",
-        PBE_52_W_HASH="POTPAW_PBE_52",
-        PBE_54="POT_GGA_PAW_PBE_54",
-        PBE_54_W_HASH="POTPAW_PBE_54",
-        PBE_64="POT_PAW_PBE_64",
-        LDA="POT_LDA_PAW",
-        LDA_52="POT_LDA_PAW_52",
-        LDA_52_W_HASH="POTPAW_LDA_52",
-        LDA_54="POT_LDA_PAW_54",
-        LDA_54_W_HASH="POTPAW_LDA_54",
-        LDA_64="POT_LDA_PAW_64",
-        PW91="POT_GGA_PAW_PW91",
-        LDA_US="POT_LDA_US",
-        PW91_US="POT_GGA_US_PW91",
-        Perdew_Zunger81="POT_LDA_PAW",
-    )
+    functional_dir = {
+        "PBE": "POT_GGA_PAW_PBE",
+        "PBE_52": "POT_GGA_PAW_PBE_52",
+        "PBE_52_W_HASH": "POTPAW_PBE_52",
+        "PBE_54": "POT_GGA_PAW_PBE_54",
+        "PBE_54_W_HASH": "POTPAW_PBE_54",
+        "PBE_64": "POT_PAW_PBE_64",
+        "LDA": "POT_LDA_PAW",
+        "LDA_52": "POT_LDA_PAW_52",
+        "LDA_52_W_HASH": "POTPAW_LDA_52",
+        "LDA_54": "POT_LDA_PAW_54",
+        "LDA_54_W_HASH": "POTPAW_LDA_54",
+        "LDA_64": "POT_LDA_PAW_64",
+        "PW91": "POT_GGA_PAW_PW91",
+        "LDA_US": "POT_LDA_US",
+        "PW91_US": "POT_GGA_US_PW91",
+        "Perdew_Zunger81": "POT_LDA_PAW",
+    }
 
     functional_tags = {
         "pe": {"name": "PBE", "class": "GGA"},
@@ -1715,95 +1719,92 @@ class PotcarSingle:
         "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
-    parse_functions = dict(
-        LULTRA=_parse_bool,
-        LUNSCR=_parse_bool,
-        LCOR=_parse_bool,
-        LPAW=_parse_bool,
-        EATOM=_parse_float,
-        RPACOR=_parse_float,
-        POMASS=_parse_float,
-        ZVAL=_parse_float,
-        RCORE=_parse_float,
-        RWIGS=_parse_float,
-        ENMAX=_parse_float,
-        ENMIN=_parse_float,
-        EMMIN=_parse_float,
-        EAUG=_parse_float,
-        DEXC=_parse_float,
-        RMAX=_parse_float,
-        RAUG=_parse_float,
-        RDEP=_parse_float,
-        RDEPT=_parse_float,
-        QCUT=_parse_float,
-        QGAM=_parse_float,
-        RCLOC=_parse_float,
-        IUNSCR=_parse_int,
-        ICORE=_parse_int,
-        NDATA=_parse_int,
-        VRHFIN=str.strip,
-        LEXCH=str.strip,
-        TITEL=str.strip,
-        STEP=_parse_list,
-        RRKJ=_parse_list,
-        GGA=_parse_list,
-        SHA256=str.strip,
-        COPYR=str.strip,
-    )
+    parse_functions = {
+        "LULTRA": _parse_bool,
+        "LUNSCR": _parse_bool,
+        "LCOR": _parse_bool,
+        "LPAW": _parse_bool,
+        "EATOM": _parse_float,
+        "RPACOR": _parse_float,
+        "POMASS": _parse_float,
+        "ZVAL": _parse_float,
+        "RCORE": _parse_float,
+        "RWIGS": _parse_float,
+        "ENMAX": _parse_float,
+        "ENMIN": _parse_float,
+        "EMMIN": _parse_float,
+        "EAUG": _parse_float,
+        "DEXC": _parse_float,
+        "RMAX": _parse_float,
+        "RAUG": _parse_float,
+        "RDEP": _parse_float,
+        "RDEPT": _parse_float,
+        "QCUT": _parse_float,
+        "QGAM": _parse_float,
+        "RCLOC": _parse_float,
+        "IUNSCR": _parse_int,
+        "ICORE": _parse_int,
+        "NDATA": _parse_int,
+        "VRHFIN": str.strip,
+        "LEXCH": str.strip,
+        "TITEL": str.strip,
+        "STEP": _parse_list,
+        "RRKJ": _parse_list,
+        "GGA": _parse_list,
+        "SHA256": str.strip,
+        "COPYR": str.strip,
+    }
 
-    # used for POTCAR validation
+    # Used for POTCAR validation
     _potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
 
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
         Args:
-            data (str): Complete and single POTCAR file as a string.
-            symbol (str): POTCAR symbol corresponding to the filename suffix e.g. "Tm_3" for POTCAR.TM_3".
-                If not given, pymatgen will attempt to extract the symbol from the file itself. This is
-                not always reliable!
+            data (str): Complete, single and raw POTCAR file as a string.
+            symbol (str): POTCAR symbol corresponding to the filename suffix
+                e.g. "Tm_3" for POTCAR.TM_3".
+                If not given, pymatgen will attempt to extract the symbol
+                from the file itself, but is not always reliable!
         """
-        self.data = data  # raw POTCAR as a string
+        self.data = data
 
-        # VASP parses header in vasprun.xml and this differs from the titel
+        # VASP parses header in vasprun.xml and this differs from the TITEL
         self.header = data.split("\n")[0].strip()
 
         match = re.search(r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)", data)
-        search_lines = match.group(1) if match else ""
+        search_lines = match[1] if match else ""
 
         keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
             try:
-                keywords[key] = self.parse_functions[key](val)  # type: ignore
+                keywords[key] = self.parse_functions[key](val)
             except KeyError:
                 warnings.warn(f"Ignoring unknown variable type {key}")
 
         PSCTR: dict[str, Any] = {}
 
         array_search = re.compile(r"(-*[0-9.]+)")
-        orbitals = []
-        descriptions = []
-        atomic_config_match = re.search(r"(?s)Atomic configuration(.*?)Description", search_lines)
-        if atomic_config_match:
-            lines = atomic_config_match.group(1).splitlines()
+        orbitals: list[Orbital] = []
+        descriptions: list[OrbitalDescription] = []
+        if atomic_config_match := re.search(r"(?s)Atomic configuration(.*?)Description", search_lines):
+            lines = atomic_config_match[1].splitlines()
             match = re.search(r"([0-9]+)", lines[1])
-            num_entries = int(match.group(1)) if match else 0
+            num_entries = int(match[1]) if match else 0
             PSCTR["nentries"] = num_entries
             for line in lines[3:]:
-                orbit = array_search.findall(line)
-                if orbit:
+                if orbit := array_search.findall(line):
                     orbitals.append(
                         Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]), float(orbit[3]), float(orbit[4]))
                     )
             PSCTR["Orbitals"] = tuple(orbitals)
 
-        description_string = re.search(
+        if description_string := re.search(
             r"(?s)Description\s*\n(.*?)Error from kinetic energy argument \(eV\)",
             search_lines,
-        )
-        if description_string:
-            for line in description_string.group(1).splitlines():
-                description = array_search.findall(line)
-                if description:
+        ):
+            for line in description_string[1].splitlines():
+                if description := array_search.findall(line):
                     descriptions.append(
                         OrbitalDescription(
                             int(description[0]),
@@ -1824,13 +1825,13 @@ class PotcarSingle:
         )
         rrkj_array = []
         if rrkj_kinetic_energy_string:
-            for line in rrkj_kinetic_energy_string.group(1).splitlines():
+            for line in rrkj_kinetic_energy_string[1].splitlines():
                 if "=" not in line:
                     rrkj_array += _parse_list(line.strip("\n"))
             if rrkj_array:
                 PSCTR["RRKJ"] = tuple(rrkj_array)
 
-        self.keywords = dict(sorted({**PSCTR, **keywords}.items()))
+        self.keywords = dict(sorted((PSCTR | keywords).items()))
 
         if symbol:
             self._symbol = symbol
@@ -1842,7 +1843,6 @@ class PotcarSingle:
 
         # Compute the POTCAR meta to check them against the database of known metadata,
         # and possibly SHA256 hashes contained in the file itself.
-
         if not self.is_valid:
             warnings.warn(
                 f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
@@ -1884,7 +1884,7 @@ class PotcarSingle:
         return self.data == other.data and self.keywords == other.keywords
 
     def copy(self) -> PotcarSingle:
-        """Returns a copy of the PotcarSingle.
+        """Return a copy of the PotcarSingle.
 
         Returns:
             PotcarSingle
